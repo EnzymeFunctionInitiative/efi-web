@@ -34,9 +34,4 @@ define("__RUNNING__","RUNNING");
 define("__FINISH__","FINISH");
 define("__FAILED__","FAILED");
 
-//
-// LEGACY
-define("__CLUSTER_USER__","");
-define("__CLUSTER_SCHEDULER__","");
-
 ?>
