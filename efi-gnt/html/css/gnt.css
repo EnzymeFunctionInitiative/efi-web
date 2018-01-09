@@ -353,8 +353,8 @@ input.email {
 
 .ui-accordion .ui-accordion-header {
     font-weight: bold;
-/*    text-transform: uppercase;*/
-/*    font-size: 110%; */
+    text-transform: uppercase;
+    font-size: 110%; 
 }
 
 .ui-state-active,

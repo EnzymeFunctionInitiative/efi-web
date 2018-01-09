@@ -7,6 +7,8 @@ $(document).ready(function() {
 
 <?php if (!isset($IsLoggedIn) || !$IsLoggedIn) { ?>
     addLoginActions("<?php echo $SiteUrlPrefix; ?>/user_login.php", "index.php");
+<?php } else { ?>
+    addLogoutActions("<?php echo $SiteUrlPrefix; ?>/user_login.php", "index.php");
 <?php } ?>
 
 <?php if (isset($_GET["show-login"]) && $_GET["show-login"] == 1) { ?>

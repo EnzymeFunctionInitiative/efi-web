@@ -82,6 +82,9 @@ if ($action == "login") {
     } else {
         $result['message'] = "Invalid parameters.";
     }
+} elseif ($action == "logout") {
+    $result['valid'] = true;
+    $result['cookieInfo'] = user_auth::get_logout_cookie();
 } else {
     $result['message'] = "Invalid operation.";
 }
