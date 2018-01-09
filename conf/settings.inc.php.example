@@ -1,0 +1,18 @@
+<?php
+////////////////////////////////////
+//                                              
+//      EFI GNN
+//      settings.inc.php                        
+//                                              
+//      Settings for the scripts
+//                                              
+////////////////////////////////////
+
+require_once("settings_base.inc.php");
+
+//
+// PATHS
+define("__WEB_PATH__","");
+define("__BEB_ROOT__",__BASE_WEB_ROOT__."/".__WEB_PATH__);
+
+?>

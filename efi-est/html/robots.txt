@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /includes/
+Disallow: /results/
+Disallow: /css/
+Disallow: /images/
+Disallow: /admin/
+

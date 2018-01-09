@@ -1,0 +1,90 @@
+
+.system-nav-container {
+    background-color: #333;
+}
+
+.system-nav {
+    width: 1050px;
+    margin: 0px auto;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.system-nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #333;
+    overflow: auto;
+}
+
+.system-nav li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.system-nav li a:hover:not(.active) {
+    background-color: #111;
+}
+
+.system-nav li {
+    float: left;
+    border-right:1px solid #bbb;
+}
+
+.system-nav li:last-child {
+    border-right: none;
+}
+
+.system-nav a.about {
+}
+
+.system-nav a.gnt {
+    background-color: #005591;
+}
+
+.system-nav a.est {
+    background-color: #7a0026;
+}
+
+.system-nav a.shortbred {
+    background-color: #317873;
+}
+
+//#login-form {
+//    position: absolute;
+//    background-color: #fff;
+//    border: 1px solid black;
+//    padding: 10px;
+//}
+
+.login-form td {
+    padding: 0 5px 5px 0;
+}
+
+.login-form input[type=password] {
+    padding: 5px;
+}
+
+.login-form input[type=text] {
+    width: 300px;
+}
+
+.hidden {
+    display: none;
+}
+
+#login-error {
+    color: red;
+    font-weight: bold;
+}
+
+#login-create-error {
+    color: red;
+    font-weight: bold;
+}
+
