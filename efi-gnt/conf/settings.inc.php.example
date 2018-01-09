@@ -6,10 +6,9 @@
 //                                              
 //      Settings for the scripts
 //                                              
-//      David Slater                            
-//      May 2014                                
-//                                              
 ////////////////////////////////////
+
+require_once("../../conf/settings_base.inc.php");
 
 //
 // PATHS
@@ -18,8 +17,8 @@ define("__DIAGRAM_OUTPUT_DIR__","");
 define("__LEGACY_OUTPUT_DIR__","");
 define("__UPLOAD_DIR__","");
 define("__LOG_FILE__","");
+define("__WEB_PATH__","");
 define("__WEB_ROOT__","");
-define("__EST_URL__","");
 
 //
 // FILE INFO
@@ -40,15 +39,6 @@ define("__MYSQL_AUTH_DATABASE__","");
 //
 // UI PARAMETERS
 define("__TITLE__","EFI GNT");
-define("__TIMEZONE__","America/Chicago");
-define("__ADMIN_EMAIL__","");
-define("__UNIPROT_VERSION__","2015_02");
-define("__ENA_VERSION__","122");
-define("__GNT_VERSION__","1.0");
-define("__EST_VERSION__","2.0");
-define("__EMAIL_FOOTER__","");
-define("__BETA_RELEASE__","");
-define("__ENABLE_RECENT_JOBS__",false);
 
 //
 // JOB SCHEDULING PARAMETERS
@@ -72,12 +62,6 @@ define("__MAX_NUM_BLAST_SEQ__","500");
 define("__DEFAULT_NEIGHBORHOOD_SIZE__","10");
 
 //
-// STATUS
-define("__NEW__","NEW");
-define("__RUNNING__","RUNNING");
-define("__FINISH__","FINISH");
-define("__FAILED__","FAILED");
-
 // LEGACY
 define("__CLUSTER_USER__","");
 define("__CLUSTER_SCHEDULER__","local"); //local,torque,slurm

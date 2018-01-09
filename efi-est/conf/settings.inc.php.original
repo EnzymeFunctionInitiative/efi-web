@@ -16,18 +16,11 @@
 define("__ENABLE_WEBSITE__",True);
 define("__ENABLE_EMAILS__",True);
 define("__TITLE__","EFI-EST");
-define("__EST_VERSION__","2.0");
-define("__TIMEZONE__","America/Chicago");
-define("__ADMIN_EMAIL__","");
+define("__WEB_PATH__","");
 define("__WEB_ROOT__","");
 define("__GNT_WEB_ROOT__","");
 define("__ENABLE_LOG__",true);
 define("__LOG_FILE__","");
-define("__INTERPRO_VERSION__","53.0");
-define("__UNIPROT_VERSION__","2015_08");
-define("__INTERPRO_WEBSITE__","http://www.ebi.ac.uk/interpro/");
-define("__BETA_RELEASE__","");
-define("__ENABLE_RECENT_JOBS__",false);
 
 ////////MySQL Settings///////////
 define("__MYSQL_HOST__","");
@@ -37,8 +30,6 @@ define("__MYSQL_AUTH_DATABASE__","");
 define("__MYSQL_PASSWORD__","");
 
 ////////Cluster Settings////////////
-define("__CLUSTER_USER__","");
-define("__CLUSTER_SCHEDULER__","");
 define("__GENERATE_QUEUE__","");
 define("__ANALYSE_QUEUE__","");
 define("__CLUSTER_PROCS__","48");
@@ -55,12 +46,6 @@ define("__MAX_USER_QUEUABLE_JOBS__",1000);
 ////////Blast Settings/////////////
 define("__EVALUE__","5");
 
-///////Status/////////////
-define("__NEW__","NEW");
-define("__RUNNING__","RUNNING");
-define("__FINISH__","FINISH");
-define("__FAILED__","FAILED");
-
 define("__MINIMUM__",0);
 define("__MAXIMUM__",50000);
 
@@ -69,7 +54,6 @@ define("__MAX_SEQ__",100000);
 define("__MAX_BLAST_SEQ__",10000);
 define("__DEFAULT_BLAST_SEQ__",5000);
 define("__RETENTION_DAYS__",14);
-define("__EMAIL_FOOTER__","");
 
 define("__ENABLE_A__",true);
 define("__ENABLE_B__",true);
@@ -90,9 +74,9 @@ define("__COOCCURRENCE__",20);
 define("__COLORSSN_MAP_DIR_NAME__","clusterdata");
 define("__COLORSSN_MAP_FILE_NAME__","nodedata.txt");
 define("__ACC_COUNT_FILENAME__","acc_counts.txt");
-
-define("__USER_LIST_KEY__","");
 define("__CDHIT_STATS_FILE","");
 define("__CONVERGENCE_RATIO_FILENAME__","");
+
+define("__USER_LIST_KEY__","");
 
 ?>
