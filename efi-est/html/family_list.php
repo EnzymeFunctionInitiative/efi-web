@@ -8,6 +8,11 @@ $clanKey = "clan";
 $clanMapKey = "pfam-clan";
 
 $Filters = array("pfam" => $defaultFilter, "interpro" => "IPR%", $clanKey => "CL%", "ssf" => "SSF%", "g3d" => "G3D%");
+$LinkTemplate = array("pfam" => "http://pfam.xfam.org/family/%FAMILY%",
+                      "interpro" => "http://www.ebi.ac.uk/interpro/entry/%FAMILY%",
+                      $clanKey => "http://pfam.xfam.org/clan/%FAMILY%",
+                      "ssf" => "",
+                      "g3d" => "");
 $Titles = array("pfam" => $defaultTitle, "interpro" => "InterPro Families", $clanKey => "Pfam Clans",
                 "ssf" => "SSF Families", "g3d" => "Gene3D Families", $clanMapKey => "Clan-Pfam Mapping");
 
@@ -126,10 +131,15 @@ if ($isPfamClanMap) { ?>
                 <tbody>
 <?php
     } 
-
+    
+    $hasLink = array_key_exists($filter, $LinkTemplate);
+    $template = $hasLink ? $LinkTemplate[$filter] : "";
     foreach ($dbResult as $row) {
+        $fam = $row["family"];
+        $linkStart = $hasLink ? "<a href=\"" . str_replace("%FAMILY%", $fam, $template) . "\">" : "";
+        $linkEnd = $linkStart ? "</a>" : "";
         echo "                    <tr>\n";
-        echo "                        <td>" . $row["family"] . "</td>\n";
+        echo "                        <td>$linkStart$fam$linkEnd</td>\n";
         echo "                        <td>" . $row["short_name"] . "</td>\n";
         echo "                        <td class=\"right-align\">" . number_format($row["num_members"]) . "</td>\n";
         echo "                        <td class=\"right-align\">" . number_format($row["num_uniref90_members"]) . "</td>\n";

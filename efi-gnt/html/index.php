@@ -225,9 +225,16 @@ HTML;
 
         <div id="create-diagrams" class="tab">
             <div style="margin-bottom: 10px;">Clicking on the headers below provides access to various ways of generating genomic network diagrams.</div>
-            <div id="create-accordion">
-                <h3>Single Sequence BLAST</h3>
-                <div>
+            <div class="tabs">
+                <ul class="tab-headers">
+                    <li class="active"><a href="#diagram-blast">Single Sequence BLAST</a></li>
+                    <li><a href="#diagram-seqid">Sequence ID Lookup</a></li>
+                    <li><a href="#diagram-fasta">FASTA Sequence Lookup</a></li>
+                </ul>
+                <div class="tab-content">
+<!--            <div id="create-accordion">-->
+<!--                <h3 class="high">Single Sequence BLAST</h3>-->
+                <div id="diagram-blast" class="tab active">
                     <p>
                     The provided sequence is used as the query for a BLAST search of the UniProt database.
                     The retrieved sequences are used to generate genomic neighborhood diagrams. 
@@ -332,8 +339,8 @@ HTML;
                     </form>
                 </div>
 
-                <h3>Sequence ID Lookup</h3>
-                <div>
+<!--                <h3 class="high">Sequence ID Lookup</h3>-->
+                <div id="diagram-seqid" class="tab">
                     <p>
                     The genomic neighborhoods are retreived for the UniProt, NCBI, EMBL-EBI ENA, and PDB identifiers
                     that are provided in the input box below.  Not all identifiers may exist in the EFI-GNT database so
@@ -410,8 +417,8 @@ HTML;
                     </form>
                 </div>
 
-                <h3>FASTA Sequence Lookup</h3>
-                <div>
+<!--                <h3 class="high">FASTA Sequence Lookup</h3>-->
+                <div id="diagram-fasta" class="tab">
                     <p>
                     The genomic neighborhoods are retreived for the UniProt, NCBI, EMBL-EBI ENA, and PDB identifiers
                     that are identified in the FASTA <b>headers</b>.  Not all identifiers may exist in the EFI-GNT database so
@@ -487,6 +494,7 @@ HTML;
                         </center>
                     </form>
                 </div>
+                </div><!-- class="tab-content" -->
             </div>
         </div>
 

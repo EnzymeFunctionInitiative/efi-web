@@ -65,13 +65,17 @@ if ($gen_type == "BLAST") {
 elseif ($gen_type == "FAMILIES") {
     $generate = new generate($db,$_GET['id']);
     $included_family = $generate->get_families_comma();
+    $seqid = $generate->get_sequence_identity();
+    $overlap = $generate->get_length_overlap();
+    $unirefVersion = $generate->get_uniref_version();
+
     if ($included_family != "")
         $table->add_row("PFam/Interpro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
     $table->add_row("Domain", $generate->get_domain());
-    $seqid = $generate->get_sequence_identity();
-    $overlap = $generate->get_length_overlap();
+    if ($unirefVersion)
+        $table->add_row("UniRef Version", $unirefVersion);
     if ($seqid)
         $table->add_row("Sequence Identity", $seqid);
     if ($overlap)
@@ -87,6 +91,9 @@ elseif ($gen_type == "ACCESSION") {
         $table->add_row("PFam/Interpro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
+    $unirefVersion = $generate->get_uniref_version();
+    if ($unirefVersion)
+        $table->add_row("UniRef Version", $unirefVersion);
 }
 elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
     $generate = new fasta($db,$_GET['id']);
@@ -98,6 +105,9 @@ elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
         $table->add_row("PFam/Interpro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
+    $unirefVersion = $generate->get_uniref_version();
+    if ($unirefVersion)
+        $table->add_row("UniRef Version", $unirefVersion);
 
     $num_file_seq = $generate->get_total_num_file_sequences();
     $num_matched = $generate->get_num_matched_file_sequences();
@@ -147,14 +157,39 @@ $table_string = $table->as_string();
 if (isset($_GET["as-table"])) {
     $table_filename = functions::safe_filename($analysis->get_name()) . "_settings.txt";
 
-    header('Pragma: public');
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="' . $table_filename . '"');
-    header('Content-Length: ' . strlen($table_string));
-    ob_clean();
-    echo $table_string;
+    send_table($table_filename, $table_string);
+
+//    header('Pragma: public');
+//    header('Expires: 0');
+//    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+//    header('Content-Type: application/octet-stream');
+//    header('Content-Disposition: attachment; filename="' . $table_filename . '"');
+//    header('Content-Length: ' . strlen($table_string));
+//    ob_clean();
+//    echo $table_string;
+}
+elseif (isset($_GET["stats-as-table"])) {
+
+    $stats = $analysis->get_network_stats();
+    $stats_table = new table_builder("tab");
+    $stats_table->add_row("Network", "# Nodes", "# Edges", "File Size (MB)");
+
+    for ($i = 0; $i < count($stats); $i++) {
+        $percent_id = "Full";
+        if ($i > 0) {
+            $percent_id = substr($stats[$i]['File'], strrpos($stats[$i]['File'],'-') + 1);
+            $sep_char = $legacy ? "." : "_";
+            $percent_id = substr($percent_id, 0, strrpos($percent_id, $sep_char));
+            $percent_id = str_replace(".","",$percent_id);
+        }
+        $stats_table->add_row($percent_id, number_format($stats[$i]['Nodes'],0), number_format($stats[$i]['Edges'],0),
+            functions::bytes_to_megabytes($stats[$i]['Size'],0) . " MB");
+    }
+
+    $table_string = $stats_table->as_string();
+    $table_filename = functions::safe_filename($analysis->get_name()) . "_stats.txt";
+
+    send_table($table_filename, $table_string);
 }
 else {
 
@@ -169,7 +204,7 @@ else {
     $rep_network_html = "";
     $full_network_html = "";
 
-    for ($i=0;$i<count($stats);$i++) {
+    for ($i = 0; $i < count($stats); $i++) {
         if ($i == 0) {
             $path = functions::get_web_root() . "/results/" . $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
             $full_network_html = "<tr>";
@@ -261,6 +296,12 @@ else {
     <?php echo $rep_network_html; ?>
     </table>
 
+    <div style="margin-top: 10px;">
+        <a href="<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] .
+                            "&key=" . $_GET['key'] .
+                            "&analysis_id=" . $_GET['analysis_id'] .
+                            "&stats-as-table=1" ?>"><button class='mini'>Download Network Statistics as Table</button></a>
+    </div>
     <hr>
 
 <center><p><a href='http://enzymefunction.org/resources/tutorials/efi-and-cytoscape3'>New to Cytoscape?</a></p></center>
@@ -296,6 +337,20 @@ Biochimica et Biophysica Acta (BBA) - Proteins and Proteomics, Volume 1854, Issu
     require_once 'inc/footer.inc.php';
 
 } // as-table block
+
+
+
+
+function send_table($table_filename, $table_string) {
+    header('Pragma: public');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="' . $table_filename . '"');
+    header('Content-Length: ' . strlen($table_string));
+    ob_clean();
+    echo $table_string;
+}
 
 ?>
 

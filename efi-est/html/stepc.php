@@ -64,19 +64,20 @@ if ($gen_type == "BLAST") {
 elseif ($gen_type == "FAMILIES") {
     $generate = new generate($db,$_GET['id']);
     $included_family = $generate->get_families_comma();
+    $seqid = $generate->get_sequence_identity();
+    $overlap = $generate->get_length_overlap();
+    $uniref = $generate->get_uniref_version();
+
     $table->add_row("PFam/Interpro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
     $table->add_row("Domain", $generate->get_domain());
-    $seqid = $generate->get_sequence_identity();
-    $overlap = $generate->get_length_overlap();
-    $uniref = $generate->get_uniref_version();
+    if ($uniref)
+        $table->add_row("UniRef Version", $uniref);
     if ($seqid)
         $table->add_row("Sequence Identity", $seqid);
     if ($overlap)
         $table->add_row("Sequence Overlap", $overlap);
-    if ($uniref)
-        $table->add_row("UniRef Version", $uniref);
 }
 elseif ($gen_type == "ACCESSION") {
     $generate = new accession($db,$_GET['id']);
@@ -89,6 +90,9 @@ elseif ($gen_type == "ACCESSION") {
         $table->add_row("PFam/Interpro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
+    $uniref = $generate->get_uniref_version();
+    if ($uniref)
+        $table->add_row("UniRef Version", $uniref);
 
     $term = "IDs";
     $table->add_row("Number of $term in Uploaded File", number_format($generate->get_total_num_file_sequences()));
@@ -105,6 +109,9 @@ elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
         $table->add_row("PFam/Interpro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
+    $uniref = $generate->get_uniref_version();
+    if ($uniref)
+        $table->add_row("UniRef Version", $uniref);
 
     $num_file_seq = $generate->get_total_num_file_sequences();
     $num_matched = $generate->get_num_matched_file_sequences();

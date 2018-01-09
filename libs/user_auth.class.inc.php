@@ -16,6 +16,10 @@ class user_auth {
         return $_COOKIE[user_auth::USER_TOKEN_NAME];
     }
 
+    public static function get_logout_cookie() {
+        return self::get_cookie_shared_date("*", "-1101987");
+    }
+
     private static function get_user_table() {
         $userTable = __MYSQL_AUTH_DATABASE__;
         if ($userTable)
@@ -160,8 +164,16 @@ class user_auth {
     } 
 
     public static function get_cookie_shared($user_token) {
-        $dom = parse_url(settings::get_web_root(), PHP_URL_HOST);
+        //$dom = parse_url(settings::get_web_root(), PHP_URL_HOST);
         $maxAge = 30 * 86400; // 30 days
+        //$tokenField = user_auth::USER_TOKEN_NAME;
+        //$token = $user_token;
+        //return "$tokenField=$token;max-age=$maxAge;Path=/";
+        return self::get_cookie_shared_date($user_token, $maxAge);
+    }
+
+    public static function get_cookie_shared_date($user_token, $maxAge) {
+        $dom = parse_url(settings::get_web_root(), PHP_URL_HOST);
         $tokenField = user_auth::USER_TOKEN_NAME;
         $token = $user_token;
         return "$tokenField=$token;max-age=$maxAge;Path=/";

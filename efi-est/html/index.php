@@ -598,7 +598,7 @@ HTML;
 
             <form name="colorSsnForm" id="colorSsnform" method="post" action="">
                 <div class="primary-input">
-<?php echo ui::make_upload_box("SNN to color and analyze (uncompressed or zipped XGMML file)", "colorssn-file", "progress-bar-colorssn", "progressNumberColorSsn"); ?>
+<?php echo ui::make_upload_box("SNN to color and analyze (uncompressed or zipped XGMML file)", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
                 </div>
 
                 <div>
@@ -741,7 +741,7 @@ HTML;
         });
     }).tooltip();
 </script>
-<script src="js/custom-file-input.js" type="text/javascript"></script>
+<script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
 <script src="js/family-counts.js" type="text/javascript"></script>
 
 <?php require_once('inc/footer.inc.php'); ?>
