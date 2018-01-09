@@ -1,0 +1,42 @@
+<?php
+////////////////////////////////////
+//                                              
+//      EFI GNN
+//      settings.inc.php                        
+//                                              
+//      Settings for the scripts
+//                                              
+////////////////////////////////////
+
+//
+// PATHS
+define("__BASE_WEB_ROOT__","");
+define("__EST_URL__","");
+define("__INTERPRO_WEBSITE__","http://www.ebi.ac.uk/interpro/");
+
+//
+// UI PARAMETERS
+define("__TIMEZONE__","America/Chicago");
+define("__ADMIN_EMAIL__","");
+define("__UNIPROT_VERSION__","");
+define("__ENA_VERSION__","");
+define("__GNT_VERSION__","");
+define("__EST_VERSION__","");
+define("__INTERPRO_VERSION__","");
+define("__EMAIL_FOOTER__","");
+//define("__BETA_RELEASE__","BETA --");
+define("__ENABLE_RECENT_JOBS__",true);
+
+//
+// STATUS
+define("__NEW__","NEW");
+define("__RUNNING__","RUNNING");
+define("__FINISH__","FINISH");
+define("__FAILED__","FAILED");
+
+//
+// LEGACY
+define("__CLUSTER_USER__","");
+define("__CLUSTER_SCHEDULER__","");
+
+?>
