@@ -77,5 +77,14 @@ class global_settings {
         else
             return false;
     }
+    
+    public static function get_email_footer() {
+        return __EMAIL_FOOTER__;
+    }
+
+    public static function get_admin_email() {
+        return __ADMIN_EMAIL__;
+    }
+
 }
 ?>

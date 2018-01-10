@@ -96,7 +96,7 @@ echo json_encode($result);
 
 function sendResetEmail($email, $userToken) {
     $subject = "EFI Tools Reset Password";
-    $from = "EFI-Tools <" . functions::get_admin_email() . ">";
+    $from = "EFI-Tools <" . global_settings::get_admin_email() . ">";
 
     $body = "A password reset request was received for this email address.  If you did not request a password ";
     $body .= "reset then please ignore this email." . PHP_EOL . PHP_EOL;
@@ -104,7 +104,7 @@ function sendResetEmail($email, $userToken) {
     $body .= "a web browser address bar." . PHP_EOL . PHP_EOL;
     $body .= "THE_URL";
 
-    $theUrl = functions::get_web_root() . "/user_account.php?action=reset&reset-token=$userToken";
+    $theUrl = global_settings::get_web_root() . "/user_account.php?action=reset&reset-token=$userToken";
 
     $plainBody = str_replace("THE_URL", $theUrl, $body);
     $htmlBody = nl2br($body, false);
@@ -126,7 +126,7 @@ function sendResetEmail($email, $userToken) {
 
 function sendConfirmationEmail($email, $userToken) {
     $subject = "EFI Tools Account Email Verification";
-    $from = "EFI-Tools <" . functions::get_admin_email() . ">";
+    $from = "EFI-Tools <" . global_settings::get_admin_email() . ">";
 
     $body = "An account for the EFI Tools website was requested using this email address. If you did not request an account ";
     $body .= "then please ignore this email." . PHP_EOL . PHP_EOL;
@@ -134,7 +134,7 @@ function sendConfirmationEmail($email, $userToken) {
     $body .= "a web browser address bar." . PHP_EOL . PHP_EOL;
     $body .= "THE_URL";
 
-    $theUrl = functions::get_web_root() . "/user_account.php?action=confirm&token=$userToken";
+    $theUrl = global_settings::get_web_root() . "/user_account.php?action=confirm&token=$userToken";
 
     $plainBody = str_replace("THE_URL", $theUrl, $body);
     $htmlBody = nl2br($body, false);
