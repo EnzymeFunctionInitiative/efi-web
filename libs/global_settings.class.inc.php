@@ -70,5 +70,12 @@ class global_settings {
     public static function get_retention_days() {
         return __RETENTION_DAYS__;
     }
+
+    public static function get_shortbred_enabled() {
+        if (defined("__ENABLE_SHORTBRED__"))
+            return __ENABLE_SHORTBRED__ == true;
+        else
+            return false;
+    }
 }
 ?>
