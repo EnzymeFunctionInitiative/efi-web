@@ -109,6 +109,8 @@ class diagram_jobs {
 
         $prefix = settings::get_diagram_upload_prefix();
         $uploadsDir = settings::get_uploads_dir();
+        if ($uploadsDir === false)
+            return false;
         
         $fileName = $prefix . $info["id"] . ".$ext";
         $filePath = "$uploadsDir/$fileName";

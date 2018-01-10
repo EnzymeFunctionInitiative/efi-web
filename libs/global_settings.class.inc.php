@@ -1,6 +1,6 @@
 <?php
 
-class settings {
+class global_settings {
 
     public static function get_default_neighbor_size() {
         return __DEFAULT_NEIGHBOR_SIZE__;

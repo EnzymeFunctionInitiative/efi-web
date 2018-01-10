@@ -14,11 +14,8 @@ if (isset($Is404Page) && $Is404Page)
 if (isset($IsExpiredPage) && $IsExpiredPage)
     $title = "Expired Job";
 
-$IsLoggedIn = false;
-if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie())
-    $IsLoggedIn = user_jobs::get_email_from_token($db, user_jobs::get_user_token());
-
-include("../../html/inc/global_login_button.inc.php");
+include_once("../../includes/login_check.inc.php");
+include_once("../../html/inc/global_login_button.inc.php");
 
 ?>
 
@@ -50,7 +47,7 @@ include("../../html/inc/global_nav.inc.php");
     <div id="container">
         <div class="header">
             <div class="header_logo">
-                <a href="<?php echo $TopLevelUrl; ?>"><img src="images/efi-gnn_logo.png" width="250" height="75" alt="Enzyme Function Initiative Logo"></a>
+                <a href="<?php echo $SiteUrlPrefix; ?>/efi-gnt/"><img src="images/efi-gnn_logo.png" width="250" height="75" alt="Enzyme Function Initiative Logo"></a>
                 <a href="http://enzymefunction.org"><img src="<?php echo $SiteUrlPrefix; ?>/images/efi_logo.png" class="efi_logo_small" width="80" height="24" alt="Enzyme Function Initiative Logo"></a>
             </div>
         </div>

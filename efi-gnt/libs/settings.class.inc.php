@@ -1,6 +1,8 @@
 <?php
 
-class settings {
+require_once("../../libs/global_settings.class.inc.php");
+
+class settings extends global_settings {
 
     public static function get_default_neighbor_size() {
         return __DEFAULT_NEIGHBOR_SIZE__;

@@ -1,6 +1,6 @@
 <?php
 
-require_once "settings.class.inc.php";
+require_once "global_settings.class.inc.php";
 require_once "../includes/PasswordHash.php";
 
 class user_auth {
@@ -164,23 +164,19 @@ class user_auth {
     } 
 
     public static function get_cookie_shared($user_token) {
-        //$dom = parse_url(settings::get_web_root(), PHP_URL_HOST);
         $maxAge = 30 * 86400; // 30 days
-        //$tokenField = user_auth::USER_TOKEN_NAME;
-        //$token = $user_token;
-        //return "$tokenField=$token;max-age=$maxAge;Path=/";
         return self::get_cookie_shared_date($user_token, $maxAge);
     }
 
     public static function get_cookie_shared_date($user_token, $maxAge) {
-        $dom = parse_url(settings::get_web_root(), PHP_URL_HOST);
+        $dom = parse_url(global_settings::get_web_root(), PHP_URL_HOST);
         $tokenField = user_auth::USER_TOKEN_NAME;
         $token = $user_token;
         return "$tokenField=$token;max-age=$maxAge;Path=/";
     }
 
     public static function get_start_date_window() {
-        $numDays = settings::get_retention_days();
+        $numDays = global_settings::get_retention_days();
         $dt = new DateTime();
         $pastDt = $dt->sub(new DateInterval("P${numDays}D"));
         $mysqlDate = $pastDt->format("Y-m-d");

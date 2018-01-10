@@ -1,5 +1,4 @@
 <?php
-include_once("../libs/settings.class.inc.php");
 
 if (!isset($TopLevelUrl))
     $TopLevelUrl = "http://efi.igb.illinois.edu/efi-gnt/";
