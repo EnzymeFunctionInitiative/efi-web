@@ -48,7 +48,7 @@ include("../../html/inc/global_nav.inc.php");
     <div id="container">
         <div class="header">
             <div class="header_logo">
-                <a href="<?php echo $TopLevelUrl; ?>"><img src="images/efiest_logo.png" width="250" height="75" alt="Enzyme Function Initiative Logo"></a>
+                <a href="<?php echo $SiteUrlPrefix; ?>/efi-est/"><img src="images/efiest_logo.png" width="250" height="75" alt="Enzyme Function Initiative Logo"></a>
                 <a href="http://enzymefunction.org"><img src="<?php echo $SiteUrlPrefix; ?>/images/efi_logo.png" class="efi_logo_small" width="80" height="24" alt="Enzyme Function Initiative Logo"></a>
             </div>
         </div>
