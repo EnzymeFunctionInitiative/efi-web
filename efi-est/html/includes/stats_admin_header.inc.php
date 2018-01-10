@@ -2,14 +2,7 @@
 <html lang='en'>
 <head>
 <title>EFI-EST Statistics</title>
-<link rel="stylesheet" type="text/css"
-	<?php if (file_exists("../includes/bootstrap-3.3.5-dist/css/bootstrap.min.css")) {
-		echo "href='../includes/bootstrap-3.3.5-dist/css/bootstrap.min.css'>";
-	}
-	elseif (file_exists("includes/bootstrap-3.3.5-dist/css/bootstrap.min.css")) {
-		echo "href='includes/bootstrap-3.3.5-dist/css/bootstrap.min.css'>";
-	}
-?>
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/bs/css/bootstrap.min.css">
 <style>
 /*.families-col {
     max-width: 200px;

@@ -1,42 +1,28 @@
 <?php 
 
-if (file_exists("../../libs")) {
-	set_include_path(get_include_path() . ':../../libs');
+if (file_exists(__DIR__."/../../libs")) {
+    set_include_path(get_include_path() . ':'.__DIR__.'/../../libs');
 }
-if (file_exists("../libs")) {
-	set_include_path(get_include_path() . ':../libs');
+if (file_exists(__DIR__."/PHPExcel/Classes")) {
+    set_include_path(get_include_path() . ':'.__DIR__.'/PHPExcel/Classes');
 }
-if (file_exists("../includes/PHPExcel/Classes")) {
-	set_include_path(get_include_path() . ':../includes/PHPExcel/Classes');
-
+if (file_exists(__DIR__."/jpgraph-3.5.0b1/src")) {
+    set_include_path(get_include_path() . ':'.__DIR__.'/jpgraph-3.5.0b1/src');
 }
-if (file_exists("includes/PHPExcel/Classes")) {
-	set_include_path(get_include_path() . ':includes/PHPExcel/Classes');
+if (file_exists(__DIR__."/../../includes/pear")) {
+    set_include_path(get_include_path() . ':'.__DIR__.'/../../includes/pear');
 }
-if (file_exists("includes/jpgraph-3.5.0b1/src")) {
-	set_include_path(get_include_path() . ':includes/jpgraph-3.5.0b1/src');
-}
-if (file_exists("../includes/jpgraph-3.5.0b1/src")) {
-        set_include_path(get_include_path() . ':../includes/jpgraph-3.5.0b1/src');
-}
-
-if (file_exists("../../includes/pear")) {
-	set_include_path(get_include_path() . ':../../includes/pear');
-}
-if (file_exists("../../conf/settings.inc.php")) {
-	require_once '../../conf/settings.inc.php';
-}
-if (file_exists("../conf/settings.inc.php")) {
-	require_once '../conf/settings.inc.php';
+if (file_exists(__DIR__."/../../conf/settings.inc.php")) {
+    require_once __DIR__.'/../../conf/settings.inc.php';
 }
 
 function my_autoloader($class_name) {
-        if(file_exists("../../libs/" . $class_name . ".class.inc.php")) {
-                require_once $class_name . '.class.inc.php';
-        }
-	elseif (file_exists("../libs/" . $class_name . ".class.inc.php")) {
-                require_once $class_name . '.class.inc.php';
-        }
+    if(file_exists(__DIR__."/../../libs/" . $class_name . ".class.inc.php")) {
+        require_once $class_name . '.class.inc.php';
+    }
+    elseif (file_exists("../libs/" . $class_name . ".class.inc.php")) {
+        require_once $class_name . '.class.inc.php';
+    }
 
 }
 
