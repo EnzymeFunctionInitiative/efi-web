@@ -1,12 +1,14 @@
-
 <?php
-$IncludeShortBred = false;
+require_once(__DIR__."/../../libs/global_settings.class.inc.php");
+
 if (!isset($LoginText))
     $LoginText = "";
 
 $UrlPrefix = "";
 if (isset($SiteUrlPrefix))
     $UrlPrefix = $SiteUrlPrefix;
+
+$IncludeShortBred = global_settings::get_shortbred_enabled();
 
 ?>
 
