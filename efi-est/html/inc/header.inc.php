@@ -15,10 +15,6 @@ if (isset($IsExpiredPage) && $IsExpiredPage)
     $title = "Expired Job";
 
 include("../../html/inc/global_login_button.inc.php");
-//$loginText = '<a href="#" class="about" id="login-menu">SIGN IN</a>';
-//if (isset($IsLoggedIn) && $IsLoggedIn)
-//    $loginText = '<a href="#" class="about" style="cursor:default">' . $IsLoggedIn . '</a>';
-
 
 ?>
 

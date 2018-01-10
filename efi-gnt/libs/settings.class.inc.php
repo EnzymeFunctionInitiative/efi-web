@@ -65,20 +65,6 @@ class settings extends global_settings {
         return dirname($_SERVER['PHP_SELF']);
     }
 
-    public static function get_web_root() {
-        return __WEB_ROOT__;
-    }
-
-    public static function get_email_footer() {
-        return __EMAIL_FOOTER__;
-
-    }
-
-    public static function get_admin_email() {
-        return __ADMIN_EMAIL__;
-
-    }
-
     public static function get_timeout() {
         return __MAX_TIMEOUT__;
 

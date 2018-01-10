@@ -1,17 +1,9 @@
 <!DOCTYPE html>
 <html lang='en'>
-<header>
+<head>
 <title>EFI-EST Statistics</title>
-<link rel="stylesheet" type="text/css"
-        <?php if (file_exists("../includes/bootstrap-3.3.5-dist/css/bootstrap.min.css")) {
-                echo "href='../includes/bootstrap-3.3.5-dist/css/bootstrap.min.css'>";
-        }
-        elseif (file_exists("includes/bootstrap-3.3.5-dist/css/bootstrap.min.css")) {
-                echo "href='includes/bootstrap-3.3.5-dist/css/bootstrap.min.css'>";
-        }
-        ?>
-
-</header>
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/bs/bootstrap.min.css">
+</head>
 
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top">
