@@ -188,6 +188,8 @@ abstract class option_base extends stepa {
         $exec .= $this->get_run_script() . " ";
         if ($sched)
             $exec .= " -scheduler " . $sched;
+        if (functions::get_use_legacy_graphs())
+            $exec .= " -oldgraphs";
         foreach ($parms as $key => $value) {
             $exec .= " " . $key . " " . $value;
         }
