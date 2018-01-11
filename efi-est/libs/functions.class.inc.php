@@ -486,6 +486,14 @@ class functions {
     public static function get_max_user_queuable_jobs() {
         return __MAX_USER_QUEUABLE_JOBS__;
     }
+
+    public static function get_use_legacy_graphs() {
+        if (defined("__USE_LEGACY_GRAPHS__")) {
+            return __USE_LEGACY_GRAPHS__;
+        } else {
+            return false;
+        }
+    }
 }
 
 ?>

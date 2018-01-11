@@ -26,7 +26,6 @@ abstract class option_base extends stepa {
         $results_path = functions::get_results_dir();
         $full_path = $results_path . "/" . $this->get_max_blast_failed_file();
         return file_exists($full_path);
-
     }
 
     public function set_num_blast() {
@@ -39,8 +38,6 @@ abstract class option_base extends stepa {
             fclose($handle);
             $this->set_sequence_max($number_sequences);
         }
-
-
     }
 
     public function create($data) { //$email, $evalue, $families, $tmp_file, $uploaded_filename, $fraction, $program) {
@@ -188,6 +185,8 @@ abstract class option_base extends stepa {
         $exec .= $this->get_run_script() . " ";
         if ($sched)
             $exec .= " -scheduler " . $sched;
+        if (functions::get_use_legacy_graphs())
+            $exec .= " -oldgraphs";
         foreach ($parms as $key => $value) {
             $exec .= " " . $key . " " . $value;
         }

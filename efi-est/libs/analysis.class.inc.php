@@ -162,10 +162,16 @@ class analysis {
     }
 
     public function check_pbs_running() {
-
-        $output;
-        $exec = "qstat " . $this->get_pbs_number() . " 2> /dev/null | grep " . $this->get_pbs_number();
-        exec($exec,$output);
+        $sched = strtolower(settings::get_cluster_scheduler());
+        $jobNum = $this->get_pbs_number();
+        $output = "";
+        $exit_status = "";
+        $exec = "";
+        if ($sched == "slurm")
+            $exec = "squeue --job $jobNum 2> /dev/null | grep $jobNum";
+        else
+            $exec = "qstat $jobNum 2> /dev/null | grep $jobNum";
+        exec($exec,$output,$exit_status);
         if (count($output) == 1) {
             return true;
         }
