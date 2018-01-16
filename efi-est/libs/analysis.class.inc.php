@@ -162,7 +162,7 @@ class analysis {
     }
 
     public function check_pbs_running() {
-        $sched = strtolower(settings::get_cluster_scheduler());
+        $sched = strtolower(functions::get_cluster_scheduler());
         $jobNum = $this->get_pbs_number();
         $output = "";
         $exit_status = "";

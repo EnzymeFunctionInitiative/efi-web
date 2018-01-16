@@ -84,7 +84,7 @@ elseif ($gen_type == "ACCESSION") {
     $uploaded_file = $generate->get_uploaded_filename();
     if ($uploaded_file)
         $table->add_row("Uploaded Accession ID File", $uploaded_file);
-    $table->add_row("No matches file", "<a href=\"" . $generate->get_no_matches_download_path() . "\"><button class=\"mini\">Download</button></a>", true);
+    $table->add_row_html_only("No matches file", "<a href=\"" . $generate->get_no_matches_download_path() . "\"><button class=\"mini\">Download</button></a>");
     $included_family = $generate->get_families_comma();
     if ($included_family != "")
         $table->add_row("PFam/Interpro Families", $included_family);
