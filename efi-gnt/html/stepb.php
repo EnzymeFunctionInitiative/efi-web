@@ -29,11 +29,11 @@ require_once('inc/header.inc.php');
 <?php if (!$isDiagram) { ?>
 <h2>Completing Generation of GNN </h2>
 <p>&nbsp;</p>
-<p>An email will be sent when your GNN generation is complete.</p>
+<p>An e-mail will be sent when your GNN generation is complete.</p>
 <?php } else { ?>
 <h2>Diagram is Being Processed</h2>
 <p>&nbsp;</p>
-<p>An email will be sent when your diagram is ready to view.</p>
+<p>An e-mail will be sent when your diagram is ready to view.</p>
 <?php } ?>
 <p>&nbsp;</p>
 <p>&nbsp;</p>

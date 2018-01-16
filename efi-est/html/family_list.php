@@ -87,10 +87,15 @@ if ($isPfamClanMap) { ?>
 
 <?php
 
+    $hasLink = true;
+    $templateClan = $hasLink ? $LinkTemplate[$clanKey] : "";
+    $templatePfam = $hasLink ? $LinkTemplate["pfam"] : "";
     $lastClan = "";
     foreach ($dbResult as $row) {
         $theClan = $row["clan_id"];
         $theClanName = $row["clan_short_name"];
+        $theFamily = $row["pfam_id"];
+        $thePfamName = $row["short_name"];
         $rowStyle = "";
         if ($theClan != $lastClan) {
             $lastClan = $theClan;
@@ -99,11 +104,14 @@ if ($isPfamClanMap) { ?>
             $theClan = "";
             $theClanName = "";
         }
+        $linkStartClan = $hasLink ? "<a href=\"" . str_replace("%FAMILY%", $theClan, $templateClan) . "\">" : "";
+        $linkStartPfam = $hasLink ? "<a href=\"" . str_replace("%FAMILY%", $theFamily, $templatePfam) . "\">" : "";
+        $linkEnd = $hasLink ? "</a>" : "";
         echo "                    <tr>\n";
-        echo "                        <td $rowStyle>" . $theClan . "</td>\n";
-        echo "                        <td $rowStyle>" . $theClanName . "</td>\n";
-        echo "                        <td $rowStyle>" . $row["pfam_id"] . "</td>\n";
-        echo "                        <td $rowStyle>" . $row["short_name"] . "</td>\n";
+        echo "                        <td $rowStyle>$linkStartClan$theClan$linkEnd</td>\n";
+        echo "                        <td $rowStyle>$theClanName</td>\n";
+        echo "                        <td $rowStyle>$linkStartPfam$theFamily$linkEnd</td>\n";
+        echo "                        <td $rowStyle>$thePfamName</td>\n";
         echo "                    </tr>\n";
     }
 

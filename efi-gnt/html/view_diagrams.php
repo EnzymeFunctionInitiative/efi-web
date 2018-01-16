@@ -58,7 +58,7 @@ else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GE
         error404();
     }
     elseif (!$arrows->is_loaded()) {
-        prettyError404("Oops, something went wrong. Please send us an email and mention the following diagnostic code: $gnnId");
+        prettyError404("Oops, something went wrong. Please send us an e-mail and mention the following diagnostic code: $gnnId");
     }
 
     $gnnName = $arrows->get_name();
@@ -82,7 +82,7 @@ else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GE
     }
     elseif (!$arrows->is_loaded()) {
         error_log($arrows->get_message());
-        prettyError404("Oops, something went wrong. Please send us an email and mention the following diagnostic code: $gnnId");
+        prettyError404("Oops, something went wrong. Please send us an e-mail and mention the following diagnostic code: $gnnId");
     }
 
     $gnnName = $arrows->get_name();

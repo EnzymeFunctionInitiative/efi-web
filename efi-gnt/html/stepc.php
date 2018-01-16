@@ -185,9 +185,9 @@ require_once('inc/header.inc.php');
                 </tr>
                 <tr style="text-align:center;">
                     <td class="button-col">
-                        <a href="<?php echo "$baseUrl/$diagramFile"; ?>" target="_blank"><button class="light small">Download</button></a>
+                        <a href="<?php echo "$baseUrl/$diagramFile"; ?>"><button class="light small">Download</button></a>
 <?php if ($diagramZipFileSize) { ?>
-                        <a href="<?php echo "$baseUrl/$diagramZipFile"; ?>" target="_blank"><button class="light small">Download ZIP</button></a>
+                        <a href="<?php echo "$baseUrl/$diagramZipFile"; ?>"><button class="light small">Download ZIP</button></a>
 <?php } ?>
                     </td>
                     <td>

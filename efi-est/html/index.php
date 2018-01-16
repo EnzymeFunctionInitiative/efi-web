@@ -4,7 +4,7 @@ require_once "../libs/user_jobs.class.inc.php";
 require_once("../../includes/login_check.inc.php");
 require_once "../libs/ui.class.inc.php";
 
-$userEmail = "Enter your email address";
+$userEmail = "Enter your e-mail address";
 
 $showJobsTab = false;
 $jobs = array();
@@ -223,10 +223,10 @@ HTML;
                 </div>
     
                 <div>
-                    Email address:
+                    E-mail address:
                     <input name="email" id="option-a-email" type="text" value="<?php echo $userEmail; ?>" class="email"
                         onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;' value="asdf"><br>
-                    When the sequence has been uploaded and processed, you will receive an email containing a link
+                    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
                     to analyze the data.
                 </div>
     
@@ -313,10 +313,10 @@ HTML;
                 </div>
     
                 <div>
-                    Email address:
+                    E-mail address:
                     <input name="email" id="option-b-email" type="text" value="<?php echo $userEmail; ?>" class="email"
                         onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
-                    When the sequence has been uploaded and processed, you will receive an email containing a link
+                    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
                     to analyze the data.
                 </div>
     
@@ -393,10 +393,10 @@ HTML;
                 </div>
 
                 <div>
-                    Email address:
+                    E-mail address:
                     <input name="email" id="option-c-email" type="text" value="<?php echo $userEmail; ?>" class="email"
                         onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
-                    When the sequence has been uploaded and processed, you will receive an email containing a link
+                    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
                     to analyze the data.
                 </div>
     
@@ -488,10 +488,10 @@ HTML;
                 </div>
 
                 <div>
-                    Email address:
+                    E-mail address:
                     <input name="email" id="option-d-email" type="text" value="<?php echo $userEmail; ?>" class="email"
                         onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
-                    When the sequence has been uploaded and processed, you will receive an email containing a link
+                    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
                     to analyze the data.
                 </div>
     
@@ -571,10 +571,10 @@ HTML;
                 </div>
     
                 <div>
-                    Email address:
+                    E-mail address:
                     <input name="email" id="option-e-email" type="text" value="<?php echo $userEmail; ?>" class="email"
                         onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
-                    When the sequence has been uploaded and processed, you will receive an email containing a link
+                    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
                     to analyze the data.
                 </div>
     
@@ -602,10 +602,10 @@ HTML;
                 </div>
 
                 <div>
-                    Email address:
+                    E-mail address:
                     <input name="email" id="colorssn-email" type="text" value="<?php echo $userEmail; ?>" class="email"
                         onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
-                    When the sequence has been uploaded and processed, you will receive an email containing a link
+                    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
                     to analyze the data.
                 </div>
     

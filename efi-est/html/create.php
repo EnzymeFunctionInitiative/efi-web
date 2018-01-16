@@ -37,7 +37,7 @@ $input->email = $_POST['email'];
 if (!isset($_POST['submit'])) {
     $result["MESSAGE"] = "Form is invalid.";
 } elseif (!$input->email) {
-    $result["MESSAGE"] = "Please enter an email address.";
+    $result["MESSAGE"] = "Please enter an e-mail address.";
 } else {
     $result['RESULT'] = true;
 

@@ -16,7 +16,7 @@ if (isset($_POST["option"])) {
 
     if (!isset($_POST["email"]) || !functions::verify_email($_POST["email"])) {
         $valid = 0;
-        $message .= "<br><b>Please verify your email address</b>";
+        $message .= "<br><b>Please verify your e-mail address</b>";
     }
 
     if ($valid) {
