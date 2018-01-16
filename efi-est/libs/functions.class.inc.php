@@ -196,6 +196,9 @@ class functions {
     public static function get_admin_email() {
         return __ADMIN_EMAIL__;
     }
+    public static function get_error_admin_email() {
+        return __ERROR_ADMIN_EMAIL__;
+    }
 
     public static function website_enabled() {
         return __ENABLE_WEBSITE__; 

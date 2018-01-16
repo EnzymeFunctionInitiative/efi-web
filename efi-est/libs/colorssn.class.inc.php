@@ -43,6 +43,10 @@ class colorssn extends option_base {
     }
 
     protected function get_create_type() {
+        return self::create_type();
+    }
+
+    public static function create_type() {
         return "COLORSSN";
     }
 
