@@ -454,11 +454,6 @@ table.attributes td {
 
 /* FORM INPUT */
 
-input[type="text"] {
-/*    font-size: 125%;*/
-    padding: 6px;
-}
-
 input.email {
     width: 50%;
     font-style: italic;

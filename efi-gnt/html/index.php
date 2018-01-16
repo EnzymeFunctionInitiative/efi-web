@@ -3,7 +3,7 @@ require_once "../libs/user_jobs.class.inc.php";
 require_once "../libs/ui.class.inc.php";
 require_once "../includes/main.inc.php";
 
-$userEmail = "Enter your email address";
+$userEmail = "Enter your e-mail address";
 
 $IsLoggedIn = false;
 $showPreviousJobs = false;
@@ -14,7 +14,9 @@ if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $userJobs->load_jobs($db, user_jobs::get_user_token());
     $gnnJobs = $userJobs->get_jobs();
     $diagramJobs = $userJobs->get_diagram_jobs();
-    $userEmail = $userJobs->get_email();
+    $jobEmail = $userJobs->get_email();
+    if ($jobEmail)
+        $userEmail = $jobEmail;
     $showPreviousJobs = count($gnnJobs) > 0 || count($diagramJobs) > 0;
     if ($userEmail)
         $IsLoggedIn = $userEmail;
@@ -178,8 +180,9 @@ HTML;
                     The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 1-100.
                 </p>
                 <p>
+                    E-mail address: 
                     <input name='ssn_email' id='ssn_email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
-                    When the file has been uploaded and processed, you will receive an email containing a link
+                    When the file has been uploaded and processed, you will receive an e-mail containing a link
                     to download the data.
                 </p>
     
@@ -204,8 +207,9 @@ HTML;
                 </p>
     
                 <p>
+                    E-mail address: 
                     <input name='email' id='diagram_email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
-                    When the file has been uploaded and processed, you will receive an email containing a link
+                    When the file has been uploaded and processed, you will receive an e-mail containing a link
                     to view the diagrams.
                 </p>
     
@@ -316,11 +320,11 @@ HTML;
                                 </tr>
                             </table>
                             <div>
-                                Email address:
+                                E-mail address:
                                 <input name='email' id='option-a-email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
                             </div>
                             <div>
-                                When the file has been uploaded and processed, you will receive an email containing a link
+                                When the file has been uploaded and processed, you will receive an e-mail containing a link
                                 to view the diagrams.
                             </div>
                         </div>
@@ -392,11 +396,11 @@ HTML;
                             </table>
 
                             <div>
-                                Email address:
+                                E-mail address:
                                 <input name='email' id='option-d-email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
                             </div>
                             <div>
-                                When the file has been uploaded and processed, you will receive an email containing a link
+                                When the file has been uploaded and processed, you will receive an e-mail containing a link
                                 to view the diagrams.
                             </div>
                         </div>
@@ -470,11 +474,11 @@ HTML;
                             </table>
 
                             <div>
-                                Email address:
+                                E-mail address:
                                 <input name='email' id='option-c-email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
                             </div>
                             <div>
-                                When the file has been uploaded and processed, you will receive an email containing a link
+                                When the file has been uploaded and processed, you will receive an e-mail containing a link
                                 to view the diagrams.
                             </div>
                         </div>

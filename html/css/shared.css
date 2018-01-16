@@ -136,3 +136,8 @@ a.question {
     font-size: 60%;
 }
 
+input[type="text"] {
+    font-size: 125%;
+    padding: 6px;
+}
+

@@ -56,7 +56,7 @@ the GNN and the signal-to-noise ratio will decrease.
 </p>
 
 <p>
-As with EFI-EST, the user also inputs an e-mail address to which an email 
+As with EFI-EST, the user also inputs an e-mail address to which an e-mail 
 containing a link to the results will be sent.
 </p>
 

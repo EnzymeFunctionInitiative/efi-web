@@ -35,7 +35,7 @@ if (isset($_POST['submit'])) {
 
     if (!functions::verify_email($_POST['email'])) {
         $valid = 0;
-        $message .= "<br><b>Please verify your email address</b>";
+        $message .= "<br><b>Please verify your e-mail address</b>";
     }
 
     if ((!is_int($cooccurrence)) || ($cooccurrence > 100) || ($cooccurrence < 0)) {
