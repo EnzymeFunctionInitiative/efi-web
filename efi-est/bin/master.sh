@@ -5,37 +5,43 @@ echo "$DATE: Start EFI-EST Master script"
 
 #export EFI_DEBUG=1
 
-php $DIR/check_generatedata.php
+echo "Checking FAMILIES"
+php $DIR/check_generate.php FAMILIES
 
 sleep 1
 php $DIR/generatedata.php
 
 sleep 1
-php $DIR/check_blasthits.php
+echo "Checking BLAST"
+php $DIR/check_generate.php BLAST
 
 sleep 1
 php $DIR/blasthits.php
 
 sleep 1 
-php $DIR/check_fasta.php
+echo "Checking FASTA"
+php $DIR/check_generate.php FASTA
 
 sleep 1
 php $DIR/fasta.php
 
 sleep 1
-php $DIR/check_accessions.php
+echo "Checking ACCESSION"
+php $DIR/check_generate.php ACCESSION
 
 sleep 1
 php $DIR/accessions.php
 
 sleep 1
+echo "Checking analyze jobs"
 php $DIR/check_analyzedata.php
 
 sleep 1
 php $DIR/analyzedata.php
 
 sleep 1
-php $DIR/check_colorssn.php
+echo "Checking COLORSSN"
+php $DIR/check_generate.php COLORSSN
 
 sleep 1
 php $DIR/colorssn.php

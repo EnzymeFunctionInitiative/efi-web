@@ -45,6 +45,10 @@ class blast extends option_base {
     // OVERLOADS
 
     protected function get_create_type() {
+        return self::create_type();
+    }
+
+    public static function create_type() {
         return "BLAST";
     }
 

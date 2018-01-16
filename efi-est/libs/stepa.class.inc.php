@@ -503,6 +503,39 @@ class stepa {
 
     }
 
+    // Email admin only
+    public function email_error_admin() {
+
+        $to = functions::get_error_admin_email();
+        if (!$to) {
+            return;
+        }
+
+        $subject = $this->beta . "EFI-EST - Pipeline error";
+        $from = "EFI-EST <" .functions::get_admin_email() . ">";
+
+        $plain_email = "";
+
+        //plain text email
+        $plain_email .= "There was an error in the pipeline and the job failed before completing." . $this->eol;
+        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
+        $plain_email .= functions::get_email_footer() . $this->eol;
+
+        $html_email = nl2br($plain_email, false);
+
+        $message = new Mail_mime(array("eol"=>$this->eol));
+        $message->setTXTBody($plain_email);
+        $message->setHTMLBody($html_email);
+        $body = $message->get();
+        $extraheaders = array("From"=>$from,
+            "Subject"=>$subject
+        );
+        $headers = $message->headers($extraheaders);
+
+        $mail = Mail::factory("mail");
+        $mail->send($to,$headers,$body);
+    }
+
 
     public function email_number_seq() {
         $subject = $this->beta . "EFI-EST - Too many sequences for initial computation";

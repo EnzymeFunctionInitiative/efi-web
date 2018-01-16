@@ -81,7 +81,11 @@ class fasta extends family_shared {
     //////////////////////////////
     
     protected function get_create_type() {
-        if ($this->option == "E")
+        return self::create_type($this->option);
+    }
+
+    public static function create_type($optionType = "") {
+        if ($optionType == "E")
             return "FASTA_ID";
         else
             return "FASTA";
