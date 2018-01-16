@@ -30,6 +30,14 @@ class table_builder {
         $this->buffer .= "\n";
     }
 
+    public function add_row_html_only($col1, $col2) {
+        if ($this->is_html) {
+            $this->buffer .= "<tr><td>$col1</td><td>$col2</td>";
+            $this->buffer .= "</tr>";
+        }
+        $this->buffer .= "\n";
+    }
+
     public function as_string() {
         return $this->buffer;
     }
