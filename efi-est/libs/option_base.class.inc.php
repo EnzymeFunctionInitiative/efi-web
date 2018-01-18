@@ -8,6 +8,7 @@ abstract class option_base extends stepa {
 
     protected $sequence_max;
     protected $max_blast_failed = "accession.txt.failed";
+    protected $bad_import_format = "blast.failed";
 
 
     public function __construct($db, $id = 0) {
@@ -18,13 +19,24 @@ abstract class option_base extends stepa {
     }
 
     public function get_sequence_max() { return $this->sequence_max; }
+
     public function get_max_blast_failed_file() {
         return $this->get_output_dir() . "/" . $this->max_blast_failed;
     }
-
     public function check_max_blast_failed_file() {
         $results_path = functions::get_results_dir();
         $full_path = $results_path . "/" . $this->get_max_blast_failed_file();
+        return file_exists($full_path);
+    }
+
+    // This indicates if the blast failed due to an input sequence format error (e.g. there are no
+    // blast results).
+    public function get_bad_input_format_file() {
+        return $this->get_output_dir() . "/" . $this->bad_import_format;
+    }
+    public function check_bad_input_format_file() {
+        $results_path = functions::get_results_dir();
+        $full_path = $results_path . "/" . $this->get_bad_input_format_file();
         return file_exists($full_path);
     }
 

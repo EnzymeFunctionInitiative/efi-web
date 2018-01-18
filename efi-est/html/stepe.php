@@ -239,7 +239,7 @@ else {
     require_once 'inc/header.inc.php'; 
 
 
-    $stepa_link = functions::get_web_root() . "/stepa.php#colorssn";
+    $stepa_link = functions::get_web_root() . "/index.php#colorssn";
     $gnt_link = functions::get_gnt_web_root();
 
 ?>	

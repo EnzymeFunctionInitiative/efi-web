@@ -22,6 +22,7 @@ else {
         $nonblastjob_blast_failed_file_exists = getNonBlastFailedFileExists($runType, $jobObj);
         $blastjob_fail_file_exists = getBlastFailedFileExists($runType, $jobObj);
         $finish_file_exists = $jobObj->check_finish_file();
+        $nonblastjob_bad_input_format_file_exists = getNonBlastBadInputFileFormatFileExists($runType, $jobObj);
         $job_running = $jobObj->check_pbs_running();
 
         if (!$job_running && $finish_file_exists) {
@@ -45,8 +46,16 @@ else {
             $jobObj->set_status(__FAILED__);
             $jobObj->set_num_blast();
             $jobObj->set_time_completed();
-            $jobObj->email_number_seq();
-            $msg = "Generate ID: " . $job['generate_id'] . " - Job Failed - Max Number of Sequences";
+            $jobObj->email_bad_sequence();
+            $msg = "Generate ID: " . $job['generate_id'] . " - Job Failed - Invalid Input Sequence";
+            functions::log_message($msg);
+        }
+        elseif (!$is_color_job && !$job_running && $nonblastjob_bad_input_format_file_exists) {
+            $jobObj->set_status(__FAILED__);
+            $jobObj->set_num_blast();
+            $jobObj->set_time_completed();
+            $jobObj->email_format_error();
+            $msg = "Generate ID: " . $job['generate_id'] . " - Job Failed - Bad Input File Format";
             functions::log_message($msg);
         }
         elseif (!$job_running) {
@@ -81,6 +90,13 @@ function getJobObject($runType, $jobId, $db) {
 function getNonBlastFailedFileExists($runType, $jobObj) {
     if ($runType != blast::create_type())
         return $jobObj->check_max_blast_failed_file();
+    else
+        return false;
+}
+
+function getNonBlastBadInputFileFormatFileExists($runType, $jobObj) {
+    if ($runType != blast::create_type())
+        return $jobObj->check_bad_input_format_file();
     else
         return false;
 }
