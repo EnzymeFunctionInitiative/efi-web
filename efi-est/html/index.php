@@ -63,6 +63,11 @@ A listing of new features and other information pertaining to EST is available o
 <a href="notes.php">release notes</a> page.
 </p>
 
+<p>
+Information on Pfam families and clans and InterPro family sizes is now available on
+the <a href="family_list.php">Family Information page</a>.
+</p>
+
 <div class="tabs">
     <ul class="tab-headers">
 <?php if ($showJobsTab) { ?>
@@ -121,10 +126,10 @@ for ($i = 0; $i < count($jobs); $i++) {
             $analysisId = $jobs[$i]["analysis_id"];
             $linkStart = "<a href=\"stepe.php?id=$id&key=$key&analysis_id=$analysisId\">";
             $linkEnd = "</a>";
-            $nameStyle = "style=\"padding-left: 50px;\"";
-            //$name = '<i class="fa fa-long-arrow-right" aria-hidden="true"></i> ' . $name;
-            $name = '[Analysis] ' . $name;
         }
+        $nameStyle = "style=\"padding-left: 50px;\"";
+        //$name = '<i class="fa fa-long-arrow-right" aria-hidden="true"></i> ' . $name;
+        $name = '[Analysis] ' . $name;
     } else {
         if ($isCompleted) {
             $linkStart = "<a href=\"stepc.php?id=$id&key=$key\">";

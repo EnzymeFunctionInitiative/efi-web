@@ -18,6 +18,38 @@ if ($generate->get_key() != $_GET['key']) {
     exit;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// This code handles submission of the form.  It exits at the end of the code block if the
+// analysis job was successfully created.
+if (isset($_POST['analyze_data'])) {
+    foreach ($_POST as $var) {
+        $var = trim(rtrim($var));
+    }
+    $min = $_POST['minimum'];
+    if ($_POST['minimum'] == "") {
+        $min = __MINIMUM__;
+    }
+    $max = $_POST['maximum'];
+    if ($_POST['maximum'] == "") {
+        $max = __MAXIMUM__;
+    }
+    $analysis = new analysis($db);
+    $result = $analysis->create($_POST['id'],
+        $_POST['evalue'],
+        $_POST['network_name'],
+        $min,
+        $max);
+
+    if ($result['RESULT']) {
+        header('Location: stepd.php');
+        exit(0);
+    }
+}
+
+// If an analysis was not submitted, then display the Step C page.
+
+
+
 $updateMessage = functions::get_update_message();
 
 $table_format = "html";
@@ -194,30 +226,6 @@ else {
 
     $url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$generate->get_id(),
         'key'=>$generate->get_key()));
-
-    if (isset($_POST['analyze_data'])) {
-        foreach ($_POST as $var) {
-            $var = trim(rtrim($var));
-        }
-        $min = $_POST['minimum'];
-        if ($_POST['minimum'] == "") {
-            $min = __MINIMUM__;
-        }
-        $max = $_POST['maximum'];
-        if ($_POST['maximum'] == "") {
-            $max = __MAXIMUM__;
-        }
-        $analysis = new analysis($db);
-        $result = $analysis->create($_POST['id'],
-            $_POST['evalue'],
-            $_POST['network_name'],
-            $min,
-            $max);
-
-        if ($result['RESULT']) {
-            header('Location: stepd.php');
-        }
-    }
 
     function make_plot_download($gen, $hdr, $type, $preview_img, $download_img) {
         $html = "<span class='plot_header'>$hdr</span> \n";

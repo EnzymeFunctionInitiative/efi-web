@@ -6,179 +6,17 @@ require_once "../../libs/user_auth.class.inc.php";
 
 class user_jobs extends user_auth {
 
-//    const USER_TOKEN_NAME = "efi_token";
-//    const EXPIRATION_SECONDS = 2592000; // 30 days
-
     private $user_token;
     private $user_email = "";
     private $jobs;
     private $analysis_jobs;
-
-//    public static function has_token_cookie() {
-//        return isset($_COOKIE[user_jobs::USER_TOKEN_NAME]);
-//    }
-//
-//    public static function get_user_token() {
-//        return $_COOKIE[user_jobs::USER_TOKEN_NAME];
-//    }
 
     public function __construct() {
         $this->jobs = array();
         $this->analysis_jobs = array();
     }
 
-//    private static function get_user_table() {
-//        $userTable = __MYSQL_AUTH_DATABASE__;
-//        if ($userTable)
-//            $userTable .= ".";
-//        $userTable .= "user_token";
-//        return $userTable;
-//    }
-//
-//    public static function validate_user($db, $email, $password) {
-//        $output = array('valid' => false, 'cookie' => "");
-//
-//        $userTable = self::get_user_table();
-//        $sql = "SELECT * FROM $userTable WHERE user_email = '$email' AND user_action = 'ACTIVE'";
-//        $result = $db->query($sql);
-//        if (!$result) // User doesn't exist
-//            return $output;
-//        $result = $result[0];
-//
-//        $output['valid'] = self::pass_verify($password, $result['user_password']);
-//        if ($output['valid']) {
-//            $output['cookie'] = self::get_cookie_shared($result['user_id']);
-//        }
-//
-//        return $output;
-//    }
-//
-//    public static function check_reset_token($db, $token) {
-//        $userTable = self::get_user_table();
-//        $sql = "SELECT * FROM $userTable WHERE user_id = '$token'";
-//        $result = $db->query($sql);
-//        if ($result) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    public static function check_reset_email($db, $email) {
-//        $userTable = self::get_user_table();
-//        $sql = "SELECT * FROM $userTable WHERE user_email = '$email'";
-//        $result = $db->query($sql);
-//        if ($result) {
-//            return $result[0]["user_id"];
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    public static function create_user($db, $email, $password, $listservSignup) {
-//        $userTable = self::get_user_table();
-//        $sql = "SELECT user_id FROM $userTable WHERE user_email = '$email'";
-//        $result = $db->query($sql);
-//        if ($result) // User already exists
-//            return false;
-//
-//        $token = functions::generate_key();
-//        $hash = self::pass_crypt($password);
-//        $sql = "INSERT INTO $userTable (user_id, user_email, user_password, user_action) VALUES ('$token', '$email', '$hash', 'PENDING')";
-//        $result = $db->non_select_query($sql);
-//        if ($result)
-//            return $token;
-//        else
-//            return false;
-//    }
-//
-//    public static function change_password($db, $email, $oldPassword, $password) {
-//        $userTable = self::get_user_table();
-//        $sql = "SELECT user_password FROM $userTable WHERE user_email = '$email'";
-//        $result = $db->query($sql);
-//        if (!$result) // User doesn't exist
-//            return false;
-//
-//        $hash = $result[0]['user_password'];
-//        if (!self::pass_verify($oldPassword, $hash)) // Old password doesn't match
-//            return false;
-//
-//        $hash = self::pass_crypt($password);
-//        $sql = "UPDATE $userTable SET user_action = 'ACTIVE', user_password = '$hash' WHERE user_email = '$email'";
-//        $result = $db->non_select_query($sql);
-//        if ($result) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    public static function reset_password($db, $userToken, $password) {
-//        $userTable = self::get_user_table();
-//        $sql = "SELECT * FROM $userTable WHERE user_id = '$userToken'";
-//        $result = $db->query($sql);
-//        if (!$result) // User doesn't exist
-//            return false;
-//
-//        $hash = self::pass_crypt($password);
-//        $sql = "UPDATE $userTable SET user_action = 'ACTIVE', user_password = '$hash' WHERE user_id = '$userToken'";
-//        $result = $db->non_select_query($sql);
-//        if ($result) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    private static function pass_crypt($password) {
-//        $hasher = self::get_hasher();
-//        $hash = $hasher->HashPassword($password);
-//        unset($hasher);
-//        return $hash;
-//    }
-//
-//    private static function pass_verify($password, $hash) {
-//        if (!$hash)
-//            return false;
-//        $hasher = self::get_hasher();
-//        $ok = $hasher->CheckPassword($password, $hash);
-//        unset($hasher);
-//        return $ok;
-//    }
-//
-//    private static function get_hasher() {
-//        $hash_cost_log2 = 8;
-//        $hash_portable = false;
-//        $hasher = new PasswordHash($hash_cost_log2, $hash_portable);
-//        return $hasher;
-//    }
-//
-//    public static function validate_new_account($db, $token) {
-//        $userTable = self::get_user_table();
-//        $sql = "SELECT * FROM $userTable WHERE user_id = '$token' AND user_action = 'PENDING'";
-//        $result = $db->query($sql);
-//        if ($result) { // User alread added but hasn't been validated.
-//            $sql = "UPDATE $userTable SET user_action = 'ACTIVE' WHERE user_id = '$token'";
-//            $result = $db->non_select_query($sql);
-//            if ($result) {
-//                return true;
-//            } else {
-//                return false;
-//            }
-//        } else {
-//            return false;
-//        }
-//    } 
-
     public function load_jobs($db, $token) {
-//        $userTable = self::get_user_table();
-//        
-//        $sql = "SELECT user_email FROM $userTable WHERE user_id='" . $this->user_token . "'";
-//        $row = $db->query($sql);
-//        if (!$row)
-//            return;
-//
-//        $this->user_email = $row[0]["user_email"];
         $this->user_token = $token;
         $this->user_email = self::get_email_from_token($db, $token);
         if (!$this->user_email)
@@ -201,19 +39,6 @@ class user_jobs extends user_auth {
             $jobName = $this->build_job_name($row["generate_params"], $row["generate_type"]);
             $comp = $compResult[1];
             $isCompleted = $compResult[0];
-//            $comp = $row["generate_time_completed"];
-//            $status = $row["generate_status"];
-//            $isCompleted = false;
-//            if ($status == "FAILED") {
-//                $comp = "FAILED";
-//            } elseif (!$comp || substr($comp, 0, 4) == "0000") {
-//                $comp = $row["generate_status"]; // "RUNNING";
-//                if ($comp == "NEW")
-//                    $comp = "PENDING";
-//            } else {
-//                $comp = date_format(date_create($comp), "n/j h:i A");
-//                $isCompleted = true;
-//            }
 
             $id = $row["generate_id"];
             $key = $row["generate_key"];
@@ -223,7 +48,7 @@ class user_jobs extends user_auth {
                     "date_completed" => $comp));
 
             if ($isCompleted) {
-                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue FROM analysis " .
+                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length FROM analysis " .
                     "WHERE analysis_generate_id = $id";
                 $arows = $db->query($sql); // Analysis Rows
 
@@ -231,7 +56,10 @@ class user_jobs extends user_auth {
                     $acompResult = $this->get_completed_date_label($arow["analysis_time_completed"], $arow["analysis_status"]);
                     $acomp = $acompResult[1];
                     $aIsCompleted = $acompResult[0];
-                    $aJobName = "AS=" . $arow["analysis_evalue"] . " " . $arow["analysis_name"];
+                    $aMin = $arow["analysis_min_length"] == __MINIMUM__ ? "" : "Min=".$arow["analysis_min_length"];
+                    $aMax = $arow["analysis_max_length"] == __MAXIMUM__ ? "" : "Max=".$arow["analysis_max_length"];
+
+                    $aJobName = "AS=" . $arow["analysis_evalue"] . " $aMin $aMax Title=<i>" . $arow["analysis_name"] . "</i>";
 
                     array_push($this->jobs, array("id" => $id, "key" => $key, "analysis_id" => $arow["analysis_id"],
                             "job_name" => $aJobName,
@@ -318,6 +146,15 @@ class user_jobs extends user_auth {
         return $unirefStr;
     }
 
+    private function get_domain($data) {
+        $domainStr = "";
+        if (array_key_exists("generate_domain", $data)) {
+            if ($data["generate_domain"])
+                $domainStr = "Domain=on";
+        }
+        return $domainStr;
+    }
+
     private function build_job_name($json, $type) {
         $data = functions::decode_object($json);
         
@@ -326,6 +163,7 @@ class user_jobs extends user_auth {
         $evalue = $this->get_evalue($data);
         $fraction = $this->get_fraction($data);
         $uniref = $this->get_uniref_version($data);
+        $domain = $this->get_domain($data);
 
         $info = array();
         if ($fileName) array_push($info, $fileName);
@@ -333,6 +171,7 @@ class user_jobs extends user_auth {
         if ($evalue) array_push($info, $evalue);
         if ($fraction) array_push($info, $fraction);
         if ($uniref) array_push($info, $uniref);
+        if ($domain) array_push($info, $domain);
         
         $jobName = $this->get_job_label($type);
         
