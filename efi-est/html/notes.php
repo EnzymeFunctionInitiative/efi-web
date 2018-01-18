@@ -7,6 +7,24 @@ require_once "inc/header.inc.php";
 
 <h2>Release Notes</h2>
 
+<h3>January 17, 2018</h3>
+
+<p>
+The EFI-EST and EFI-GNT tools were updated with the following changes:
+
+<ul>
+    <li>Users now can create a login that allows them to see their job history. This
+        account is not required to use the EFI tools but it streamlines the process
+        for accessing prior job runs.</li>
+    <li>The EST and GNT tools are in the process of being integrated so that navigation
+        and information flow is streamlined between the sites. The first step in this
+        process is to create a global header that allows the user to switch between
+        EST and GNT in addition to logging in and out.</li>
+    <li>Information on the Pfam families and clans as well as InterPro families is
+        now provided on the <a href="family_list.php">family information page</a>.
+        The information that is provided includes family ID, name, size, and UniRef90 size.</li>
+</ul>
+
 <h3>December 15, 2017</h3>
 
 <p>
