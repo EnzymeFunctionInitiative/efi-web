@@ -583,6 +583,82 @@ class stepa {
     }
 
 
+    public function email_format_error() {
+        $subject = $this->beta . "EFI-EST - Job failed; check input format";
+        $to = $this->get_email();
+        $full_url = functions::get_web_root();
+        $from = "EFI-EST <" .functions::get_admin_email() . ">";
+        $max_seq = functions::get_max_seq();
+
+        $plain_email = "";
+
+        if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
+
+        //plain text
+        $plain_email .= "The job failed to finish.  If you uploaded a FASTA file, please check the ";
+        $plain_email .= "input file format.  Submitted FASTA files must only include alphabetical ";
+        $plain_email .= "amino acid codes and cannot include the translation stop (*) or indeterminate ";
+        $plain_email .= "length gap (-) codes." . $this->eol . $this->eol;
+        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
+        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
+        $plain_email .= functions::get_email_footer() . $this->eol . $this->eol;
+
+        $html_email = nl2br($plain_email, false);
+        $plain_email = str_replace("THE_URL", $full_url, $plain_email);
+        $html_email = str_replace("THE_URL", "<a href=\"" . htmlentities($full_url) . "\">" . $full_url . "</a>", $html_email);
+
+        $message = new Mail_mime(array("eol"=>$this->eol));
+        $message->setTXTBody($plain_email);
+        $message->setHTMLBody($html_email);
+        $body = $message->get();
+        $extraheaders = array("From"=>$from,
+            "Subject"=>$subject
+        );
+        $headers = $message->headers($extraheaders);
+
+        $mail = Mail::factory("mail");
+        $mail->send($to,$headers,$body);
+    }
+
+
+    public function email_bad_sequence() {
+        $subject = $this->beta . "EFI-EST - Job failed; check input format";
+        $to = $this->get_email();
+        $full_url = functions::get_web_root();
+        $from = "EFI-EST <" .functions::get_admin_email() . ">";
+        $max_seq = functions::get_max_seq();
+
+        $plain_email = "";
+
+        if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
+
+        //plain text
+        $plain_email .= "The job failed to finish. The input sequence was invalid or too short. ";
+        $plain_email .= "Input sequences must only include alphabetical ";
+        $plain_email .= "amino acid codes and cannot include the translation stop (*) or indeterminate ";
+        $plain_email .= "length gap (-) codes or FASTA headers." . $this->eol . $this->eol;
+        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
+        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
+        $plain_email .= functions::get_email_footer() . $this->eol . $this->eol;
+
+        $html_email = nl2br($plain_email, false);
+        $plain_email = str_replace("THE_URL", $full_url, $plain_email);
+        $html_email = str_replace("THE_URL", "<a href=\"" . htmlentities($full_url) . "\">" . $full_url . "</a>", $html_email);
+
+        $message = new Mail_mime(array("eol"=>$this->eol));
+        $message->setTXTBody($plain_email);
+        $message->setHTMLBody($html_email);
+        $body = $message->get();
+        $extraheaders = array("From"=>$from,
+            "Subject"=>$subject
+        );
+        $headers = $message->headers($extraheaders);
+
+        $mail = Mail::factory("mail");
+        $mail->send($to,$headers,$body);
+    }
+
+
     ///////////////Protected Functions///////////
 
 
