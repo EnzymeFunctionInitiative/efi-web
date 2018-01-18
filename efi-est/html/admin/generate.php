@@ -27,7 +27,7 @@ foreach ($jobs as $job) {
     }
 	$url = $url . "?" . http_build_query($get_array);
 	$generate_html .= "<tr>";
-	if (time() < $job['Time Completed'] + __RETENTION_DAYS__) {
+	if (time() < $job['Time Completed'] + __RETENTION_DAYS__ || $job['Status'] != __FINISH__) {
 		$generate_html .= "<td>&nbsp</td>";
 	}
 	else {

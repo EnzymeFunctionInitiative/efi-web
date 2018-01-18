@@ -71,6 +71,8 @@ function getJobObject($runType, $jobId, $db) {
             return new fasta($db, $jobId);
         case generate::create_type():
             return new generate($db, $jobId);
+        case colorssn::create_type():
+            return new colorssn($db, $jobId);
         default:
             return NULL;
     }
@@ -100,6 +102,8 @@ function getJobs($runType, $db) {
             return functions::get_fastas($db,__RUNNING__);
         case generate::create_type():
             return functions::get_families($db,__RUNNING__);
+        case colorssn::create_type():
+            return functions::get_colorssns($db,__RUNNING__);
         default:
             return array();
     }
