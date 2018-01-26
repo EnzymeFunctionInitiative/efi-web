@@ -1,7 +1,7 @@
 <?php
 $TUTORIAL = true;
+require_once "../includes/main.inc.php";
 require_once 'inc/header.inc.php';
-require_once '../includes/main.inc.php';
 $webRoot = settings::get_web_root(); 
 ?>
 

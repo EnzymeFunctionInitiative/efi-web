@@ -1,7 +1,6 @@
 <?php
 $TUTORIAL = true;
-require_once 'inc/main.inc.php';
-require_once '../libs/settings.class.inc.php';
+require_once "../includes/main.inc.php";
 require_once 'inc/header.inc.php';
 ?>
 
