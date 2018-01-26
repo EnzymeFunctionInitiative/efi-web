@@ -1,5 +1,6 @@
 <?php
 $TUTORIAL = true;
+require_once "../includes/main.inc.php";
 require_once 'inc/header.inc.php';
 ?>
 
