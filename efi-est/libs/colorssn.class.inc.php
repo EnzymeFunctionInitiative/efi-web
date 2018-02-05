@@ -94,7 +94,8 @@ class colorssn extends option_base {
     protected function get_run_script_args($out) {
         $parms = array();
 
-        $parms["-queue"] = functions::get_generate_queue();
+        //$parms["-queue"] = functions::get_generate_queue();
+        $parms["-queue"] = functions::get_memory_queue();
         $parms["-ssn-in"] = $this->file_helper->get_results_input_file();
         $parms["-ssn-out"] = "\"" . $this->get_colored_xgmml_filename_no_ext() . ".xgmml\"";
         //$parms["-nb-size"] = $this->neighborhood_size;
