@@ -1,5 +1,7 @@
 <?php
 require_once "../includes/main.inc.php";
+require_once("../../includes/login_check.inc.php");
+
 require_once "inc/header.inc.php";
 
 $defaultFilterKey = "pfam";

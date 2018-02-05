@@ -10,7 +10,7 @@ class generate_helper {
         $parms["-tmp"] = $out->relative_output_dir;
         $parms["-maxsequence"] = functions::get_max_seq();
         $parms["-queue"] = functions::get_generate_queue();
-        $parms["-memqueue"] = functions::get_generate_queue();
+        $parms["-memqueue"] = functions::get_memory_queue();
         return $parms;
     }
     

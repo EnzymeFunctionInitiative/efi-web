@@ -45,7 +45,7 @@ class user_jobs extends user_auth {
 
             array_push($this->jobs, array("id" => $id, "key" => $key,
                     "job_name" => $jobName, "is_completed" => $isCompleted, "is_analysis" => false,
-                    "date_completed" => $comp));
+                    "date_completed" => $comp, "is_colorssn" => $row["generate_type"] == "COLORSSN"));
 
             if ($isCompleted) {
                 $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length FROM analysis " .

@@ -269,6 +269,9 @@ class functions {
     public static function get_generate_queue() {
         return __GENERATE_QUEUE__;
     }
+    public static function get_memory_queue() {
+        return __MEMORY_QUEUE__;
+    }
     public static function get_analyse_queue() {
         return __ANALYSE_QUEUE__;
     }

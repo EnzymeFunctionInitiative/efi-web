@@ -32,6 +32,7 @@ define("__MYSQL_PASSWORD__","");
 ////////Cluster Settings////////////
 define("__GENERATE_QUEUE__","");
 define("__ANALYSE_QUEUE__","");
+define("__MEMORY_QUEUE__","");
 define("__CLUSTER_PROCS__","48");
 define("__BLASTHITS_PROCS__",12);
 define("__FRACTION_DEFAULT__",1);
