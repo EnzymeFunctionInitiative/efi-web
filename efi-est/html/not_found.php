@@ -1,6 +1,6 @@
 <?php
 
-if (!$message) {
+if (!isset($message)) {
     $message = "That page does not exist.";
 }
 

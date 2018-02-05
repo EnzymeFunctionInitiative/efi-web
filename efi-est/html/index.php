@@ -132,7 +132,7 @@ for ($i = 0; $i < count($jobs); $i++) {
         $name = '[Analysis] ' . $name;
     } else {
         if ($isCompleted) {
-            $theScript = $jobs[$i]["is_colorssn"] ? "view_coloredssn.php" : "stepe.php";
+            $theScript = $jobs[$i]["is_colorssn"] ? "view_coloredssn.php" : "stepc.php";
             $linkStart = "<a href=\"$theScript?id=$id&key=$key\">";
             $linkEnd = "</a>";
         }
