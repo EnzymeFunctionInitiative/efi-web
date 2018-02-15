@@ -6,6 +6,9 @@ $message = "";
 $valid = 0;
 $cookieInfo = "";
 
+error_log(print_r($_POST, true));
+error_log(print_r($_FILES, true));
+
 if (isset($_POST['submit'])) {
 
     $valid = 1;
@@ -63,12 +66,16 @@ if ($valid && settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie(
     $returnData["cookieInfo"] = $cookieInfo;
 }
 
-echo json_encode(array(
+$output = array(
     'valid' => $valid,
     'id' => $id,
     'key' => $key,
     'message' => $message,
     'cookieInfo' => $cookieInfo
-));
+);
+
+error_log(print_r($output, true));
+
+echo json_encode($output);
 
 ?>

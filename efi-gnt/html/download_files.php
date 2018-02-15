@@ -30,6 +30,11 @@ elseif (isset($_GET["direct-id"]) && is_numeric($_GET["direct-id"])) {
     $arrows = getArrowDb($db, $theId);
     $dbFile = $arrows->get_diagram_data_file();
 }
+elseif (isset($_GET["upload-id"]) && is_numeric($_GET["upload-id"])) {
+    $theId = $_GET["upload-id"];
+    $arrows = getArrowDb($db, $theId);
+    $dbFile = $arrows->get_diagram_data_file();
+}
 else {
     $isError = true;
 }
@@ -76,6 +81,16 @@ if (isset($_GET["type"])) {
         sendHeaders($downloadFilename, strlen($content));
         print $content;
         exit(0);
+    } elseif ($type == "bigscape") {
+        $clusterFile = $arrows->get_bigscape_cluster_file();
+        if ($clusterFile !== FALSE) {
+            $gnnName = $arrows->get_name();
+            $downloadFilename = "${theId}_${gnnName}_BiG-SCAPE_clusters.txt";
+            $contentSize = filesize($clusterFile);
+            sendHeaders($downloadFilename, $contentSize);
+            readfile($clusterFile);
+            exit(0);
+        }
     } else {
         $isError = true;
     }

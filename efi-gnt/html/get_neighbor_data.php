@@ -1,6 +1,7 @@
 <?php
 include_once '../includes/main.inc.php';
 include_once '../libs/gnn.class.inc.php';
+require_once '../libs/bigscape_job.class.inc.php';
 
 
 $output = array();
@@ -9,7 +10,8 @@ $dbFile = "";
 
 $message = "";
 if ((isset($_GET["gnn-id"])) && (is_numeric($_GET["gnn-id"]))) {
-    $gnn = new gnn($db,$_GET["gnn-id"]);
+    $gnnId = $_GET["gnn-id"];
+    $gnn = new gnn($db, $gnnId);
     if ($gnn->get_key() != $_GET["key"]) {
         $message = "No GNN selected.";
         exit;
@@ -17,22 +19,32 @@ if ((isset($_GET["gnn-id"])) && (is_numeric($_GET["gnn-id"]))) {
     elseif (time() < $gnn->get_time_completed() + settings::get_retention_days()) {
         $message = "GNN results are expired.";
     }
+
+    $bss = new bigscape_job($db, $gnnId, DiagramJob::GNN);
+    $hasBigscape = $bss->get_status() == bigscape_job::STATUS_FINISH && isset($_GET['bigscape']) && $_GET['bigscape']=="1";
     
-    $dbFile = $gnn->get_diagram_data_file();
+    $dbFile = $gnn->get_diagram_data_file($hasBigscape);
     if (!file_exists($dbFile))
         $dbFile = $gnn->get_diagram_data_file_legacy();
 }
 else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GET['upload-id'])) {
-    $arrows = new diagram_data_file($_GET['upload-id']);
-    $dbFile = $arrows->get_diagram_data_file();
+    $gnnId = $_GET['upload-id'];
+    $arrows = new diagram_data_file($gnnId);
+    $bss = new bigscape_job($db, $gnnId, DiagramJob::Uploaded);
+    $hasBigscape = $bss->get_status() == bigscape_job::STATUS_FINISH && isset($_GET['bigscape']) && $_GET['bigscape']=="1";
+    $dbFile = $arrows->get_diagram_data_file($hasBigscape);
 }
 else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GET['direct-id'])) {
-    $arrows = new diagram_data_file($_GET['direct-id']);
-    $dbFile = $arrows->get_diagram_data_file();
+    $gnnId = $_GET['direct-id'];
+    $arrows = new diagram_data_file($gnnId);
+    $bss = new bigscape_job($db, $gnnId, DiagramJob::Uploaded);
+    $hasBigscape = $bss->get_status() == bigscape_job::STATUS_FINISH && isset($_GET['bigscape']) && $_GET['bigscape']=="1";
+    $dbFile = $arrows->get_diagram_data_file($hasBigscape);
 }
 else {
     $message = "No GNN selected.";
 }
+
 
 $window = NULL;
 if (isset($_GET["window"]) && is_numeric($_GET["window"])) {
@@ -323,7 +335,7 @@ function getQueryAttributes($row, $orderData) {
     $attr['accession'] = $row['accession'];
     $attr['id'] = $row['id'];
     $attr['num'] = $row['num'];
-    $attr['family'] = $row['family'];
+    $attr['family'] = explode("-", $row['family']);
     $attr['start'] = $row['start'];
     $attr['stop'] = $row['stop'];
     $attr['rel_start_coord'] = $row['rel_start'];
@@ -336,11 +348,26 @@ function getQueryAttributes($row, $orderData) {
     $attr['organism'] = rtrim($row['organism']);
     $attr['taxon_id'] = $row['taxon_id'];
     $attr['anno_status'] = $row['anno_status'];
-    $attr['family_desc'] = $row['family_desc'];
     $attr['desc'] = $row['desc'];
+
+    $familyCount = count($attr['family']);
+
+    $attr['family_desc'] = explode("-", $row['family_desc']);
+    if (count($attr['family_desc']) < $familyCount) {
+        if (count($attr['family_desc']) > 0)
+            $attr['family_desc'] = array_fill(0, $familyCount, $attr['family_desc'][0]);
+        else
+            $attr['family_desc'] = array_fill(0, $familyCount, "none");
+    }
     
     if (array_key_exists("color", $row))
-        $attr['color'] = $row['color'];
+        $attr['color'] = explode(",", $row['color']);
+    if (count($attr['color']) < $familyCount) {
+        if (count($attr['color']) > 0)
+            $attr['color'] = array_fill(0, $familyCount, $attr['color'][0]);
+        else
+            $attr['color'] = array_fill(0, $familyCount, "grey");
+    }
 
     if (array_key_exists("sort_order", $row))
         $attr['sort_order'] = $row['sort_order'];
@@ -369,7 +396,7 @@ function getNeighborAttributes($row) {
     $nb['accession'] = $row['accession'];
     $nb['id'] = $row['id'];
     $nb['num'] = $row['num'];
-    $nb['family'] = $row['family'];
+    $nb['family'] = explode("-", $row['family']);
     $nb['start'] = $row['start'];
     $nb['stop'] = $row['stop'];
     $nb['rel_start_coord'] = $row['rel_start'];
@@ -378,11 +405,26 @@ function getNeighborAttributes($row) {
     $nb['type'] = $row['type'];
     $nb['seq_len'] = $row['seq_len'];
     $nb['anno_status'] = $row['anno_status'];
-    $nb['family_desc'] = $row['family_desc'];
     $nb['desc'] = $row['desc'];
+
+    $familyCount = count($nb['family']);
+
+    $nb['family_desc'] = explode("-", $row['family_desc']);
+    if (count($nb['family_desc']) < $familyCount) {
+        if (count($nb['family_desc']) > 0)
+            $nb['family_desc'] = array_fill(0, $familyCount, $nb['family_desc'][0]);
+        else
+            $nb['family_desc'] = array_fill(0, $familyCount, "none");
+    }
     
     if (array_key_exists("color", $row))
-        $nb['color'] = $row['color'];
+        $nb['color'] = explode(",", $row['color']);
+    if (count($nb['color']) < $familyCount) {
+        if (count($nb['color']) > 0)
+            $nb['color'] = array_fill(0, count($nb['family']), $nb['color'][0]);
+        else
+            $nb['color'] = array_fill(0, count($nb['family']), "grey");
+    }
     
     return $nb;
 }

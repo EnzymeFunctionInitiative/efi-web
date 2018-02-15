@@ -58,7 +58,6 @@ ArrowDiagram.prototype.refreshCanvas = function(usePaging, callback) {
 }
 
 ArrowDiagram.prototype.searchArrows = function(usePaging, callback) {
-    console.log(usePaging);
     this.retrieveArrowData(this.idList, usePaging, ARROW_RESET_REFRESH, callback);
 }
 
@@ -208,14 +207,22 @@ ArrowDiagram.prototype.drawDiagram = function(canvas, index, data, drawingWidth)
     var group = this.S.paper.group();
 
     var attrData = makeStruct(data.attributes);
+    this.assignColor(attrData, true);
+
     // Always face to the right which is why isComplement isn't provided, rather false is given in this call.
     var arrow = this.drawArrow(group, geneXpos, ypos, geneWidth, orientSameDir ? false : isComplement,
-                               drawingWidth, this.selectedGeneColor, attrData);
-    if (!(attrData.family in this.arrowMap))
-        this.arrowMap[attrData.family] = [];
-    this.arrowMap[attrData.family].push(arrow);
-    this.pfamList[attrData.family] = attrData.family_desc;
-    this.pfamColorMap[attrData.family] = this.selectedGeneColor;
+                               drawingWidth, attrData);
+
+    for (var i = 0; i < attrData.family.length; i++) {
+        var theFam = attrData.family[i];
+        if (!(theFam in this.arrowMap))
+            this.arrowMap[theFam] = [];
+        this.arrowMap[theFam].push(arrow);
+        this.pfamList[theFam] = attrData.family_desc[i];
+        this.pfamColorMap[theFam] = attrData.color[i];
+    }
+//    this.pfamList[attrData.family.join("-")] = attrData.family_desc;
+    this.pfamColorMap[attrData.family[0]] = this.selectedGeneColor;
 
     var isBound = attrData.is_bound;
     minXpct = (geneXpos < minXpct) ? geneXpos : minXpct;
@@ -244,27 +251,18 @@ ArrowDiagram.prototype.drawDiagram = function(canvas, index, data, drawingWidth)
         maxXpct = (neighborXpos+neighborWidth > maxXpct) ? neighborXpos+neighborWidth : maxXpct;
 
         var attrData = makeStruct(N);
+        this.assignColor(attrData, false);
 
-        var color = "grey";
-        var pfam = N.family;
-        if (attrData.color.length > 0) {
-            color = this.pfamColorMap[pfam] = attrData.color;
-        } else if (pfam.length > 0) {
-            if (pfam in this.pfamColorMap) {
-                color = this.pfamColorMap[pfam];
-            } else {
-                //var colorIndex = Math.floor(Math.random() * this.colors.length);
-                var colorIndex = this.pfamColorCount++ % this.colors.length;
-                color = this.pfamColorMap[pfam] = this.colors[colorIndex];
-            }
+        arrow = this.drawArrow(group, neighborXpos, ypos, neighborWidth, nIsComplement, drawingWidth, attrData);
+
+        for (var famIdx in attrData.family) {
+            var fam = attrData.family[famIdx];
+            if (!(fam in this.arrowMap))
+                this.arrowMap[fam] = [];
+            this.arrowMap[fam].push(arrow);
+            this.pfamList[fam] = attrData.family_desc[famIdx];
         }
-
-        arrow = this.drawArrow(group, neighborXpos, ypos, neighborWidth, nIsComplement, drawingWidth, color, attrData);
-
-        if (!(attrData.family in this.arrowMap))
-            this.arrowMap[attrData.family] = [];
-        this.arrowMap[attrData.family].push(arrow);
-        this.pfamList[attrData.family] = attrData.family_desc;
+//        this.pfamList[attrData.family.join("-")] = attrData.family_desc;
         
         if (i == 0)
             max_start = N.start;
@@ -301,6 +299,9 @@ function makeStruct(data) {
         "family_desc": data.family_desc,
         "desc": data.desc,
     };
+
+    if (!struct.family)
+        struct.family = [""];
     
     if (data.hasOwnProperty("cluster_num"))
         struct.cluster_num = data.cluster_num;
@@ -313,10 +314,10 @@ function makeStruct(data) {
     if (data.hasOwnProperty("strain"))
         struct.strain = data.strain;
 
-    if (data.hasOwnProperty("color") && data.color != null)
+    if (data.hasOwnProperty("color") && data.color)
         struct.color = data.color;
     else
-        struct.color = "";
+        struct.color = [];
 
     return struct;
 }
@@ -399,7 +400,7 @@ ArrowDiagram.prototype.drawTitle = function(svgContainer, ypos, data) {
 // ypos is in pixels from top
 // width is in percent (0-1)
 // drawingWidth is in pixels and is the area of the canvas in which we can draw (need to add padding to it to get proper coordinate)
-ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isComplement, drawingWidth, color, attrData) {
+ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isComplement, drawingWidth, attrData) {
     // Upper left and right of rect. portion of arrow
     coords = [];
     llx = lrx = urx = ulx = px = 0;
@@ -456,21 +457,24 @@ ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isC
         coords = [px, py, llx, lly, lrx, lry, urx, ury, ulx, uly];
     }
 
-    attrData.fill = color;
-    attrData.fillColor = color;
+    // Careful- assigning an array into an SVG object will flatten the array into a string.
+    var famParts = attrData.family;
+
+    attrData = Object.assign({}, attrData); // Copy
     attrData.cx = ulx + (urx - ulx) / 2;
     attrData.cy = lly; //py;
     attrData.class = "an-arrow";
+    attrData.family = attrData.family.join("-"); // Shown on popup
+    attrData.family_desc = attrData.family_desc.join("-"); // Shown on popup
+    attrData.base_family = famParts.length ? famParts[famParts.length-1] : "";
     var arrow = svgContainer.polygon(coords).attr(attrData);
-
-    arrow.click(function(event) {
-        window.open("http://uniprot.org/uniprot/" + this.attr("accession"));
-    });
 
     var that = this;
     var pos = $("#" + this.canvasId).offset();
-
-    arrow.mouseover(function(e) {
+    var clickEvt = function(event) {
+        window.open("http://uniprot.org/uniprot/" + this.attr("accession"));
+    };
+    var overEvt = function(e) {
         var boxX, boxY;
         var yOffset = that.arrowHeight / 2;
         var bbox = arrow.getBBox();
@@ -478,22 +482,108 @@ ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isC
         boxX = matrix.x(bbox.cx, bbox.cy + yOffset) + pos.left;
         boxY = matrix.y(bbox.cx, bbox.cy + yOffset) + pos.top;
         that.doPopup(boxX, boxY, true, this);
-    });
-    arrow.mouseout(function(e) {
+    };
+    var outEvt = function(e) {
         that.doPopup(e.pageX, e.pageY, false, null);
-    });
+    };
 
-    // There are filters applied
-    if (Object.keys(this.pfamFilter).length > 0) {
-        if (attrData.family in this.pfamFilter) {
-            arrow.addClass("an-arrow-selected");
-        } else {
-            arrow.addClass("an-arrow-mute");
+    var subArrows = [];
+
+    if (famParts.length > 1) {
+        var arrowWidth = urx - llx;
+        var wPct = arrowWidth / famParts.length;
+
+        for (var i = 0; i < famParts.length-1; i++) {
+            var colorIndex = i;
+            var subData = Object.assign({}, attrData); // Copy
+            subData.sub_family = famParts[i];
+            subData.fill = attrData.colors[colorIndex];
+            subData.fillColor = subData.fill;
+            
+            var subX1 = llx + wPct * i;
+            var subX2 = llx + wPct * (i+1);
+            if (isComplement) {
+                subX1 = urx - wPct * i;
+                subX2 = urx - wPct * (i+1);
+            }
+            var off1 = off2 = 0;
+            if (i > 0) {
+                off1 = -2;
+                off2 = 4;
+            }
+            var subCoords = [subX1+off1, lly, subX2-2, lly, subX2+4, ury, subX1+off2, ury];
+            var subArrow = svgContainer.polygon(subCoords).attr(subData);
+            subArrow.click(clickEvt);
+            subArrow.mouseover(overEvt);
+            subArrow.mouseout(outEvt);
+            subArrows.push(subArrow);
         }
     }
 
-    return arrow;
+    arrow.click(clickEvt);
+    arrow.mouseover(overEvt);
+    arrow.mouseout(outEvt);
+
+    // There are filters applied
+    if (Object.keys(this.pfamFilter).length > 0) {
+        var inFilter = false;
+        for (var fam in famParts) {
+            inFilter = (famParts[fam] in this.pfamFilter);
+            if (inFilter)
+                break;
+        }
+
+        if (inFilter) {
+            arrow.addClass("an-arrow-selected");
+            for (var idx in subArrows)
+                subArrows[idx].addClass("an-arrow-selected");
+        } else {
+            arrow.addClass("an-arrow-mute");
+            for (var idx in subArrows)
+                subArrows[idx].addClass("an-arrow-mute");
+        }
+    }
+
+    return {arrow: arrow, subArrows: subArrows};
 }
+
+ArrowDiagram.prototype.assignColor = function(attrData, isQuery = false) {
+    var colors = [];
+    for (var i = 0; i < attrData.family.length; i++) {
+        var pfam = attrData.family[i];
+        var color;
+        if (i < attrData.color.length)
+            color = attrData.color[i];
+
+        if (color) {
+            this.pfamColorMap[pfam] = color;
+        } else if (pfam.length > 0) {
+            if (pfam in this.pfamColorMap) {
+                color = this.pfamColorMap[pfam];
+            } else {
+                var colorIndex = this.pfamColorCount++ % this.colors.length;
+                color = this.colors[colorIndex]; // global color list
+                this.pfamColorMap[pfam] = color;
+            }
+        }
+
+        colors.push(color);
+    }
+    if (colors.length == 0)
+        colors.push("grey");
+
+    // Assign the color for the base polygon
+    if (isQuery) {
+        attrData.fill = this.selectedGeneColor;
+        attrData.fillColor = attrData.fill;
+    } else {
+        attrData.fill = colors[colors.length-1];
+        attrData.fillColor = colors[colors.length-1];
+    }
+
+    attrData.colors = colors;
+}
+
 
 ArrowDiagram.prototype.addPfamFilter = function(pfam) {
     this.pfamFilter[pfam] = 1;
@@ -503,7 +593,12 @@ ArrowDiagram.prototype.addPfamFilter = function(pfam) {
     for (pf in this.pfamFilter) {
         for (idx in this.arrowMap[pf]) {
             var arrow = this.arrowMap[pf][idx];
-            arrow.addClass("an-arrow-selected");
+            arrow.arrow.removeClass("an-arrow-mute");
+            arrow.arrow.addClass("an-arrow-selected");
+            for (subIdx in arrow.subArrows) {
+                arrow.subArrows[subIdx].removeClass("an-arrow-mute");
+                arrow.subArrows[subIdx].addClass("an-arrow-selected");
+            }
         }
     }
 }
@@ -513,9 +608,24 @@ ArrowDiagram.prototype.removePfamFilter = function(pfam) {
 
     for (idx in this.arrowMap[pfam]) {
         var arrow = this.arrowMap[pfam][idx];
-        //var fillColor = arrow.attr("fillColor");
-        //arrow.attr({fill: fillColor, stroke: "none", strokeWidth: 0, class: "an-arrow-mute"});
-        arrow.removeClass("an-arrow-selected");
+        
+        var baseFamily = arrow.arrow.attr("base_family");
+        var baseRemove = baseFamily == pfam || !(baseFamily in this.pfamFilter);
+        var subRemove = true;
+
+        // Make sure that other pfams on the fusion aren't already in the filter list (only want
+        // to remove the highlight if they aren't selected by the user).
+        for (subIdx in arrow.subArrows) {
+            var subPfam = arrow.subArrows[subIdx].attr("sub_family");
+            subRemove = !(subPfam != pfam && subPfam in this.pfamFilter);
+        }
+
+        if (baseRemove && subRemove) {
+            arrow.arrow.removeClass("an-arrow-selected");
+            for (subIdx in arrow.subArrows) {
+                arrow.subArrows[subIdx].removeClass("an-arrow-selected");
+            }
+        }
     }
     
     if (Object.keys(this.pfamFilter).length == 0) {
@@ -534,13 +644,20 @@ ArrowDiagram.prototype.clearPfamFilters = function() {
 ArrowDiagram.prototype.doPopup = function(xPos, yPos, doShow, data) {
     
     if (doShow) {
-        family = data.attr("family");
         this.popupElement.css({top: yPos, left: xPos});
-        if (!family || family.length == 0) family = "none";
+
+        var family = data.attr("family");
+        if (!family || family.length == 0)
+            family = "none";
+        var familyDesc = data.attr("family_desc");
+        if (!familyDesc || familyDesc.length == 0)
+            familyDesc = "none";
+
+        //    family = family.join("-");
         $("#" + this.popupIds.IdId + " span").text(data.attr("accession"));
         $("#" + this.popupIds.DescId + " span").text(data.attr("desc"));
-        $("#" + this.popupIds.FamilyId + " span").text(data.attr("family"));
-        $("#" + this.popupIds.FamilyDescId + " span").text(data.attr("family_desc"));
+        $("#" + this.popupIds.FamilyId + " span").text(family);
+        $("#" + this.popupIds.FamilyDescId + " span").text(familyDesc);
         $("#" + this.popupIds.SpTrId + " span").text(data.attr("anno_status"));
         $("#" + this.popupIds.SeqLenId + " span").text(data.attr("seq_len"));
         //this.popupElement.show();

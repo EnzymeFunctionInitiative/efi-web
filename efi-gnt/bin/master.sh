@@ -16,6 +16,12 @@ php $DIR/check_diagrams.php
 sleep 1
 php $DIR/diagrams.php
 
+sleep 1
+php $DIR/check_bigscape.php
+
+sleep 1
+php $DIR/bigscape.php
+
 DATE=$(date +"%Y-%m-%d %H:%M:%S")
 echo "$DATE: Finish EFI-GNT Master script"
 

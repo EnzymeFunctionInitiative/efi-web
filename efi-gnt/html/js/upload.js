@@ -103,7 +103,6 @@ function enableForm(formId) {
 }
 
 function addParam(fd, param, id) {
-    console.log(param + "   " + id);
     fd.append(param, document.getElementById(id).value);
 }
 
