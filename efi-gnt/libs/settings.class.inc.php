@@ -16,6 +16,10 @@ class settings extends global_settings {
         return __PROCESS_DIAGRAM_SCRIPT__;
     }
 
+    public static function get_process_bigscape_script() {
+        return __PROCESS_BIGSCAPE_SCRIPT__;
+    }
+
     public static function get_uploads_dir() {
         $dir = __UPLOAD_DIR__;
         if (is_dir($dir)) {

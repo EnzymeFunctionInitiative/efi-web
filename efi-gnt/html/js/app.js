@@ -16,7 +16,10 @@ function ArrowApp(arrows, popupIds) {
     this.firstRun = true;
     this.showFamsById = false;
     this.idKeyQueryString = "";
+    this.baseIdKeyQueryString = ""; // used for toggling bigscape ordering
     this.showAll = false;
+    this.useBigscape = false;
+    this.bigscapeRunning = false;
 
     var that = this;
     this.filterLegendObj.empty();
@@ -51,10 +54,7 @@ function ArrowApp(arrows, popupIds) {
     $("#refresh-window").click(function(e) {
         var nbSize = $("#window-size").val();
         that.setNeighborhoodWindow(nbSize);
-        that.startProgressBar();
-        that.refreshCanvas(!that.showAll, function(isEod) {
-            that.stopProgressBar();
-        });
+        that.refreshAll();
     });
     
     this.showAllObj.click(function() {
@@ -87,6 +87,14 @@ function ArrowApp(arrows, popupIds) {
     this.enableSaveButton();
 }
 
+ArrowApp.prototype.refreshAll = function() {
+    var that = this;
+    that.startProgressBar();
+    that.refreshCanvas(!that.showAll, function(isEod) {
+        that.stopProgressBar();
+    });
+}
+
 ArrowApp.prototype.refreshCanvas = function(pageResults, callback) {
     this.arrows.refreshCanvas(pageResults, callback);
 }
@@ -97,6 +105,8 @@ ArrowApp.prototype.setNeighborhoodWindow = function(nbSize) {
 
 ArrowApp.prototype.setQueryString = function(idKeyQueryString) {
     this.idKeyQueryString = idKeyQueryString;
+    this.baseIdKeyQueryString = this.idKeyQueryString;
+    this.arrows.setJobInfo(this.idKeyQueryString);
 }
 
 ArrowApp.prototype.showDefaultDiagrams = function() {
@@ -190,7 +200,7 @@ ArrowApp.prototype.addLegendItem = function(index, id, text) {
 }
 
 ArrowApp.prototype.clearFilter = function() {
-    $("input.filter-cb:checked").removeAttr("checked");
+    $("input.filter-cb:checked").prop("checked", false);
     this.filterLegendObj.empty();
     this.arrows.clearPfamFilters();
 }
@@ -299,7 +309,39 @@ ArrowApp.prototype.downloadSvg = function(svg, gnnName) {
     dlForm.submit();
 }
 
+ArrowApp.prototype.toggleUseBigscape = function() {
+    this.useBigscape = !this.useBigscape;
+    this.idKeyQueryString = this.baseIdKeyQueryString + (this.useBigscape ? "&bigscape=1" : "");
+    this.arrows.setJobInfo(this.idKeyQueryString);
+    this.refreshAll();
+}
 
+ArrowApp.prototype.runBigscape = function(gnnId, gnnKey, jobType, completionHandler) {
+    var fd = new FormData();
+    fd.append("id", gnnId);
+    fd.append("key", gnnKey);
+    fd.append("type", jobType);
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "create_bigscape.php", true);
+    xhr.send(fd);
+    xhr.onreadystatechange  = function(){
+        if (xhr.readyState == 4  ) {
+
+            // Javascript function JSON.parse to parse JSON data
+            var jsonObj = JSON.parse(xhr.responseText);
+
+            // jsonObj variable now contains the data structure and can
+            // be accessed as jsonObj.name and jsonObj.country.
+            if (jsonObj.valid) {
+                completionHandler(true, "");
+            } else {
+                completionHandler(false, jsonObj.message);
+            }
+        }
+    }
+    
+}
 
 
 

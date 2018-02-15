@@ -15,13 +15,13 @@ class diagram_data_file {
     private $blast_sequence;
     private $message = "";
 
-
     public function __construct($id) {
         $this->id = $id;
-        if ($id)
+        if ($id) {
             $this->loaded = $this->load_data();
-        else
+        } else {
             $this->loaded = false;
+        }
     }
 
     public static function create($db, $email, $tmp_filename, $filename) {
@@ -139,9 +139,28 @@ class diagram_data_file {
          */
     }
 
-    public function get_diagram_data_file() {
-        return $this->db_file;
+    public function get_diagram_data_file($useBigscape = false) {
+        $file = $this->db_file . ($useBigscape ? ".bigscape" : "");
+        return $file;
     }
+
+    public function get_bigscape_cluster_file() {
+        $file = $this->db_file . ".bigscape-clusters";
+        if (file_exists($file))
+            return $file;
+        else
+            return FALSE;
+    }
+
+    //public function get_bigscape_status() {
+    //    if (file_exists($this->db_file . ".bigscape")) {
+    //        return 2; // Bigscape is already run
+    //    } elseif (false) {
+    //        return 1; // Pending or running bigscape
+    //    } else {
+    //        return 0; // Nothing done yet
+    //    }
+    //}
 
     public function get_name() {
         return $this->gnn_name;

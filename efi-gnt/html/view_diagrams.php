@@ -3,6 +3,7 @@
 
 require_once '../includes/main.inc.php';
 require_once '../libs/settings.class.inc.php';
+require_once '../libs/bigscape_job.class.inc.php';
 
 
 
@@ -26,6 +27,8 @@ $supportsExport = true;
 $isDirectJob = false; // This flag indicates if the job is one that generated an arrow diagram from a single sequence BLAST'ed, list of IDs, or a list of FASTA sequences.
 $hasUnmatchedIds = false;
 $isBlast = false;
+$bigscapeStatus = 0; # 0 = no bigscape, 1 = running bigscape, 2 = bigscape completed
+$bigscapeType = "";
 
 if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
     $gnnKey = $_GET['key'];
@@ -43,6 +46,8 @@ if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
     elseif (time() < $gnn->get_time_completed() + settings::get_retention_days()) {
         prettyError404("That job has expired and doesn't exist anymore.");
     }
+
+    $bigscapeType = DiagramJob::GNN;
 
     $idKeyQueryString = "gnn-id=$gnnId&key=$gnnKey";
     $windowTitle = " for Job #$gnnId";
@@ -65,6 +70,8 @@ else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GE
     $cooccurrence = $arrows->get_cooccurrence();
     $nbSize = $arrows->get_neighborhood_size();
     $isDirectJob = $arrows->is_direct_job();
+
+    $bigscapeType = DiagramJob::Uploaded;
 
     $idKeyQueryString = "upload-id=$gnnId&key=$gnnKey";
     $isUploadedDiagram = true;
@@ -94,6 +101,8 @@ else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GE
     $jobTypeText = $arrows->get_verbose_job_type();;
     $nbSize = $arrows->get_neighborhood_size();
 
+    $bigscapeType = DiagramJob::Uploaded;
+
     $hasUnmatchedIds = count($unmatchedIds) > 0;
 
     #for ($i = 0; $i < count($uniprotIds); $i++) {
@@ -114,6 +123,10 @@ else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GE
 else {
     error404();
 }
+
+
+$bss = new bigscape_job($db, $gnnId, $bigscapeType);
+$bigscapeStatus = $bss->get_status();
 
 $gnnNameText = "";
 $nbSizeDiv = "";
@@ -143,9 +156,9 @@ if ($isDirectJob) {
         <title>Genome Neighborhood Diagrams<?php echo $windowTitle; ?></title>
 
         <!-- Bootstrap core CSS -->
-        <link href="/bs/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/bs/css/menu-sidebar.css" rel="stylesheet">
-        <link href="/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <link href="<?php echo $SiteUrlPrefix; ?>/bs/css/bootstrap.min.css" rel="stylesheet">
+        <link href="<?php echo $SiteUrlPrefix; ?>/bs/css/menu-sidebar.css" rel="stylesheet">
+        <link href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/fontawesome-all.min.css" rel="stylesheet">
         <link rel="shortcut icon" href="images/favicon_efi.ico" type="image/x-icon">
 
 
@@ -184,12 +197,12 @@ if ($isDirectJob) {
                 <ul class="sidebar-nav">
                     <!--<li class="sidebar-brand">
                         <a href="#menu-toggle" id="menu-toggle" style="margin-top:20px;float:right;" >
-                            <i class="fa fa-caret-square-o-right fa-toggle-size hidden" id="toggle-icon-right" aria-hidden="true"></i>
-                            <i class="fa fa-caret-square-o-left fa-toggle-size" id="toggle-icon-left" aria-hidden="true"></i>
+                            <i class="fas fa-caret-square-o-right fa-toggle-size hidden" id="toggle-icon-right" aria-hidden="true"></i>
+                            <i class="fas fa-caret-square-o-left fa-toggle-size" id="toggle-icon-left" aria-hidden="true"></i>
                         </a> 
                     </li>-->
                     <li>
-                        <i class="fa fa-search" aria-hidden="true"> </i> <span class="sidebar-header">Search</span>
+                        <i class="fas fa-search" aria-hidden="true"> </i> <span class="sidebar-header">Search</span>
                         <div id="advanced-search-panel">
 <?php if ($isDirectJob) { ?>
                             <div style="font-size:0.9em">Input specific UniProt IDs to display only those diagrams.</div>
@@ -205,14 +218,14 @@ if ($isDirectJob) {
                     </li>
                     <li>
                         <div class="initial-hidden">
-                            <i class="fa fa-filter" aria-hidden="true"> </i> <span class="sidebar-header">PFam Filtering</span>
+                            <i class="fas fa-filter" aria-hidden="true"> </i> <span class="sidebar-header">PFam Filtering</span>
                             <div class="filter-cb-div filter-cb-toggle-div" id="filter-container-toggle">
                                 <input id="filter-cb-toggle" type="checkbox" />
                                 <label for="filter-cb-toggle"><span id="filter-cb-toggle-text">Show Pfam Numbers</span></label>
                             </div>
                             <div style="width:100%;height:12em;" class="filter-container" id="filter-container">
                             </div>
-                            <button type="button" id="filter-clear"><i class="fa fa-times" aria-hidden="true"></i> Clear Filter</button>
+                            <button type="button" id="filter-clear"><i class="fas fa-times" aria-hidden="true"></i> Clear Filter</button>
                             <!--<div>
                                 <input id="filter-cb-toggle-dashes" type="checkbox" />
                                 <label for="filter-cb-toggle-dashes"><span id="filter-cb-toggle-dashes-text">Dashed lines</span></label>
@@ -223,7 +236,7 @@ if ($isDirectJob) {
                     </li>
                     <li>
                         <div id="window-tools" class="initial-hidden">
-                            <i class="fa fa-window-maximize" aria-hidden="true"></i> <span class="sidebar-header">Genome Window</span>
+                            <i class="fas fa-window-maximize" aria-hidden="true"></i> <span class="sidebar-header">Genome Window</span>
                             <div>
                                 <select id="window-size" class="light">
 <?php
@@ -234,36 +247,36 @@ if ($isDirectJob) {
 ?>
                                 </select>
                                 <button type="button" class="btn btn-default tool-button" id="refresh-window" style="width:auto">
-                                    <i class="fa fa-refresh" aria-hidden="true"></i> Apply
+                                    <i class="fas fa-refresh" aria-hidden="true"></i> Apply
                                 </button>
                             </div>
                         </div>
                     </li>
                     <li>
                         <div id="page-tools" class="initial-hidden">
-                            <i class="fa fa-wrench" aria-hidden="true"></i> <span class="sidebar-header">Tools</span>
+                            <i class="fas fa-wrench" aria-hidden="true"></i> <span class="sidebar-header">Tools</span>
 
 <?php if ($supportsDownload && !$isUploadedDiagram) { ?>
                             <div>
                                 <a id="download-data" href="download_files.php?<?php echo $idKeyQueryString; ?>&type=data-file"
                                     title="Download the data to upload it for future analysis using this tool.">
                                         <button type="button" class="btn btn-default tool-button">
-                                            <i class="fa fa-download" aria-hidden="true"></i> Download Data
+                                            <i class="fas fa-download" aria-hidden="true"></i> Download Data
                                         </button>
                                 </a>
                             </div>
 <?php } ?>
-<?php if ($supportsExport && !$isUploadedDiagram) { ?>
+<?php if ($supportsExport) { ?>
                             <div>
                                 <button type="button" class="btn btn-default tool-button" id="save-canvas-button">
-                                    <i class="fa fa-picture-o" aria-hidden="true"></i> Save as SVG
+                                    <i class="far fa-image" aria-hidden="true"></i> Save as SVG
                                 </button>
                             </div>
 <?php } ?>
                             <div>
                                 <a href="view_diagrams.php?<?php echo $idKeyQueryString; ?>" target="_blank">
                                     <button type="button" class="btn btn-default tool-button">
-                                        <i class="fa fa-window-restore" aria-hidden="true"></i> New Window
+                                        <i class="fas fa-window-restore" aria-hidden="true"></i> New Window
                                     </button>
                                 </a>
                             </div>
@@ -271,27 +284,46 @@ if ($isDirectJob) {
 <?php if ($isDirectJob) {?>
                             <div>
                                 <button type="button" class="btn btn-default tool-button" id="show-uniprot-ids">
-                                    <i class="fa fa-thumbs-o-up black" aria-hidden="true"></i> <?php if (!$isBlast) echo "Recognized"; ?> UniProt IDs
+                                    <i class="far fa-thumbs-up" aria-hidden="true"></i> <?php if (!$isBlast) echo "Recognized"; ?> UniProt IDs
                                 </button>
                             </div>
 <?php if ($hasUnmatchedIds) { ?>
                             <div>
                                 <button type="button" class="btn btn-default tool-button" id="show-unmatched-ids">
-                                <i class="fa fa-thumbs-down" aria-hidden="true"></i> Unmatched IDs
+                                <i class="fas fa-thumbs-down" aria-hidden="true"></i> Unmatched IDs
                                 </button>
                             </div>
 <?php } ?>
 <?php if ($isBlast) { ?>
                             <div>
                                 <button type="button" class="btn btn-default tool-button" id="show-blast-sequence">
-                                <i class="fa fa-file-text" aria-hidden="true"></i> Input Sequence
+                                <i class="fas fa-file-alt" aria-hidden="true"></i> Input Sequence
                                 </button>
                             </div>
 <?php } ?>
 <?php } ?>
-                        </div>
-                        <div style="margin-top:50px;width:100%;position:fixed;bottom:0;height:50px;margin-bottom:100px">
-                            <i id="progress-loader" class="fa fa-refresh fa-spin fa-4x fa-fw hidden-placeholder" style="color:white"></i>
+                            <div>
+                                <button type="button" class="btn btn-default tool-button" id="run-bigscape-btn" <?php if ($bigscapeStatus == bigscape_job::STATUS_FINISH) echo "data-toggle=\"button\""; ?>>
+<?php if ($bigscapeStatus == bigscape_job::STATUS_NONE) { ?>
+                                    <i class="fas fa-magic" aria-hidden="true"></i> <span id="run-bigscape-btn-label">Run BiG-SCAPE</span>
+<?php } elseif ($bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
+                                    <i class="fas fa-magic" aria-hidden="true"></i> BiG-SCAPE Pending
+<?php } elseif ($bigscapeStatus == bigscape_job::STATUS_FINISH) { ?>
+                                    <i class="fas fa-sort-amount-down" aria-hidden="true"></i> BiG-SCAPE Ordering
+<?php } ?>
+                                </button>
+                            </div>
+
+<?php if ($bigscapeStatus == bigscape_job::STATUS_FINISH) { ?>
+                            <div>
+                                <a href="download_files.php?<?php echo $idKeyQueryString; ?>&type=bigscape"
+                                    title="Download the BiG-SCAPE clan data.">
+                                        <button type="button" class="btn btn-default tool-button" id="view-bigscape-list-btn">
+                                            <i class="fas fa-download" aria-hidden="true"></i> Get BiG-SCAPE Data
+                                        </button>
+                                </a>
+                            </div>
+<?php } ?>
                         </div>
                     </li>
                 </ul>
@@ -301,6 +333,9 @@ if ($isDirectJob) {
                 <div id="arrow-container" style="width:100%;height:100%">
                     <br>
                     <svg id="arrow-canvas" width="100%" style="height:70px" viewBox="0 0 10 70" preserveAspectRatio="xMinYMin"></svg>
+                    <div style="margin-top:50px;width:100%;position:fixed;bottom:0;height:50px;margin-bottom:100px">
+                        <i id="progress-loader" class="fas fa-sync black fa-spin fa-4x fa-fw hidden-placeholder"></i>
+                    </div>
                 </div>
             </div>
         </div>
@@ -346,7 +381,7 @@ if ($isDirectJob) {
             $(document).ready(function() {
                 var popupIds = new PopupIds();
                 var arrowDiagrams = new ArrowDiagram("arrow-canvas", "", "arrow-container", popupIds);
-                arrowDiagrams.setJobInfo("<?php echo $idKeyQueryString; ?>");
+                //arrowDiagrams.setJobInfo("<?php echo $idKeyQueryString; ?>");
                 var arrowApp = new ArrowApp(arrowDiagrams);
                 arrowApp.setQueryString("<?php echo $idKeyQueryString; ?>");
 
@@ -386,6 +421,31 @@ if ($isDirectJob) {
 <?php } else { ?>
                 $("#start-info").show();
 <?php } ?>
+<?php if ($bigscapeStatus == bigscape_job::STATUS_FINISH) { ?>
+                $("#run-bigscape-btn").click(function(e) {
+                    arrowApp.toggleUseBigscape();
+                });
+<?php } elseif ($bigscapeStatus == bigscape_job::STATUS_NONE || $bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
+                $("#run-bigscape-btn").click(function(e) { $("#run-bigscape-modal").modal("show"); });
+<?php       if ($bigscapeStatus == bigscape_job::STATUS_NONE) { // only activate the confirm button if we haven't even started a bigscape run ?>
+                $("#run-bigscape-confirm-btn").click(function(e) {
+                    var completionHandler = function(status, message) {
+                        $("#run-bigscape-body").hide();
+                        if (!status) {
+                            $("#run-bigscape-error-msg").text(message);
+                            $("#run-bigscape-error-msg").show();
+                        } else {
+                            $("#run-bigscape-confirm-msg").show();
+                        }
+                        $("#run-bigscape-confirm-btn").hide();
+                        $("#run-bigscape-reject-btn").text("Close");
+                        $("#run-bigscape-btn-label").text("BiG-SCAPE Pending");
+                    };
+                    
+                    arrowApp.runBigscape(<?php echo $gnnId; ?>, "<?php echo $gnnKey; ?>", "<?php echo $bigscapeType; ?>", completionHandler);
+                });
+<?php       } ?>
+<?php } ?>
                 arrowApp.setNeighborhoodWindow(<?php echo $nbSize; ?>);
             });
         </script>
@@ -403,7 +463,7 @@ if ($isDirectJob) {
         </div>
 
         <div id="start-info">
-            <div><i class="fa fa-arrow-left" aria-hidden="true"></i></div>
+            <div><i class="fas fa-arrow-left" aria-hidden="true"></i></div>
             <div>Start by entering a cluster number</div>
         </div>
         <div id="download-forms" style="display:none;">
@@ -486,6 +546,50 @@ if ($isDirectJob) {
         </div>
 <?php } ?>
 <?php } ?>
+        <div id="run-bigscape-modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Run BiG-SCAPE</h4>
+                    </div>
+                    <div class="modal-body">
+<?php if ($bigscapeStatus == bigscape_job::STATUS_NONE) { ?>
+                        <div id="run-bigscape-body">
+                            The <a href="https://git.wageningenur.nl/medema-group/BiG-SCAPE">Biosynthetic Genese
+                            Similarity Clustering and Prospecting (BiG-SCAPE)</a> tool can be used to cluster the individual
+                            diagrams based on their genomic context.  This can take several hours to complete, depending on
+                            the size of the clusters.  If you proceed, you will to notified when the clustering has been
+                            completed, and your arrow diagrams will be updated to reflect the new ordering.  You can continue
+                            to use the tool as before while BiG-SCAPE is running.  Do you wish to continue?
+                        </div>
+                        <div id="run-bigscape-confirm-msg" style="display:none">
+                            The BiG-SCAPE clustering is currently pending or
+                            executing.  You will receive an email when the clustering has begun and completed.
+                        </div>
+                        <div id="run-bigscape-error-msg" style="display:none">
+                            There was an error running BiG-SCAPE.
+                        </div>
+<?php } elseif ($bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
+                        <div id="run-bigscape-confirm-msg">
+                            The BiG-SCAPE clustering is currently pending or
+                            executing.  You will receive an email when the clustering has begun and completed.
+                        </div>
+<?php } ?>
+                    </div>
+                    <div class="modal-footer">
+                        <div id="run-bigscape-footer">
+<?php if ($bigscapeStatus == bigscape_job::STATUS_NONE) { ?>
+                            <button type="button" class="btn btn-default" id="run-bigscape-confirm-btn">Yes</button>
+                            <button type="button" class="btn btn-default" id="run-bigscape-reject-btn" data-dismiss="modal">No</button>
+<?php } elseif ($bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
+                            <button type="button" class="btn btn-default" id="run-bigscape-reject-btn" data-dismiss="modal">Close</button>
+<?php } ?>
+                        </div>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div>
     </body>
 </html>
 

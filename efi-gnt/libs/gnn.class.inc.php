@@ -140,6 +140,7 @@ class gnn {
         $exec .= "module load " . settings::get_efidb_module() . "\n";
         $exec .= "module load " . settings::get_gnn_module() . "\n";
         $exec .= $binary . " ";
+        $exec .= " -queue " . settings::get_memory_queue();
         $exec .= " -ssnin " . $ssnin;
         $exec .= " -n " . $this->get_size();
         $exec .= " -gnn " . $this->get_gnn();
@@ -431,8 +432,8 @@ class gnn {
         return $this->shared_get_relative_file_path("_stats", ".txt");
     }
 
-    public function get_diagram_data_file() {
-        return $this->shared_get_full_file_path("_arrow_data", ".sqlite");
+    public function get_diagram_data_file($useBigscape = false) {
+        return $this->shared_get_full_file_path("_arrow_data", ".sqlite") . ($useBigscape ? ".bigscape" : "");
     }
     public function get_diagram_zip_file() {
         return $this->shared_get_full_file_path("_arrow_data", ".zip");
@@ -448,6 +449,16 @@ class gnn {
     }
     public function does_job_have_arrows() {
         return file_exists($this->get_diagram_data_file());
+    }
+    //public function has_bigscape_run() {
+    //    return file_exists($this->get_diagram_data_file() . ".bigscape");
+    //}
+    public function get_bigscape_cluster_file() {
+        $file = $this->get_diagram_data_file(false) . ".bigscape-clusters";
+        if (file_exists($file))
+            return $file;
+        else
+            return FALSE;
     }
 
     public function get_cooc_table_file() {
@@ -585,6 +596,7 @@ class gnn {
             return 0;
         return round(filesize($this->get_no_neighbors_file()) / 1048576,2);
     }
+
 
 
 

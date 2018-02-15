@@ -35,4 +35,7 @@ define("__RUNNING__","RUNNING");
 define("__FINISH__","FINISH");
 define("__FAILED__","FAILED");
 
+define("__MEMORY_QUEUE__","");
+define("__NORMAL_QUEUE__","");
+
 ?>

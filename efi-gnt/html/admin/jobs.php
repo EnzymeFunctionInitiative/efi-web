@@ -92,4 +92,4 @@ $monthName = date("F", mktime(0, 0, 0, $month, 10));
 
 
 
-<?php include_once 'inc/footer.inc.php' ?>
+<?php include_once '../inc/stats_footer.inc.php' ?>

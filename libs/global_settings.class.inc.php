@@ -86,5 +86,12 @@ class global_settings {
         return __ADMIN_EMAIL__;
     }
 
+    public static function get_memory_queue() {
+        return __MEMORY_QUEUE__;
+    }
+
+    public static function get_normal_queue() {
+        return __NORMAL_QUEUE__;
+    }
 }
 ?>

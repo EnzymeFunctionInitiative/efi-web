@@ -44,6 +44,7 @@ define("__TITLE__","EFI GNT");
 // JOB SCHEDULING PARAMETERS
 define("__GNN_SCRIPT__","");
 define("__PROCESS_DIAGRAM_SCRIPT__","");
+define("__PROCESS_BIGSCAPE_SCRIPT__","");
 define("__GNN_MODULE__","");
 define("__EFIDB_MODULE__","");
 define("__BLAST_MODULE__","");
