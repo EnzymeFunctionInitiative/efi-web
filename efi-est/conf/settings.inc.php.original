@@ -69,6 +69,7 @@ define("__COLORSSN_FILETYPES__","xgmml zip");
 define("__NO_MATCHES_FILENAME__", "no_accession_matches.txt");
 define("__TEMP_FASTA_ID_FILENAME__", "fasta.ids");
 define("__USE_LEGACY_GRAPHS__",false);
+define("__ENABLE_CUSTOM_CLUSTERING__",false);
 
 define("__DEFAULT_NEIGHBOR_SIZE__",10);
 define("__COOCCURRENCE__",20);

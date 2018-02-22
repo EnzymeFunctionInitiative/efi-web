@@ -7,10 +7,12 @@ require_once "../../libs/user_auth.class.inc.php";
 
 class user_jobs extends user_auth {
 
-    private $user_token;
+    private $user_token = "";
     private $user_email = "";
-    private $jobs;
-    private $diagram_jobs;
+    private $jobs = array();
+    private $diagram_jobs = array();
+    private $is_admin = false;
+    private $user_jobs = array();
 
     public function __construct() {
         $this->jobs = array();
@@ -23,14 +25,25 @@ class user_jobs extends user_auth {
         if (!$this->user_email)
             return;
 
+        $this->user_groups = self::get_user_groups($db, $this->user_email);
+        array_unshift($this->user_groups, "DEFAULT");
+        $this->is_admin = self::get_user_admin($db, $this->user_email);
+
         $this->load_gnn_jobs($db);
         $this->load_diagram_jobs($db);
     }
 
     private function load_gnn_jobs($db) {
+        $func = function($val) { return "user_group = '$val'"; };
+        $email = $this->user_email;
+        $groupClause = implode(" OR ", array_map($func, $this->user_groups));
+        if ($groupClause)
+                $groupClause = "OR $groupClause";
         $expDate = self::get_start_date_window();
-        $sql = "SELECT gnn_id, gnn_key, gnn_filename, gnn_time_completed, gnn_status, gnn_size, gnn_cooccurrence FROM gnn " .
-            "WHERE gnn_email='" . $this->user_email . "' AND " .
+
+        $sql = "SELECT gnn.gnn_id, gnn_key, gnn_filename, gnn_time_completed, gnn_status, gnn_size, gnn_cooccurrence FROM gnn " .
+            "LEFT OUTER JOIN job_group ON gnn.gnn_id = job_group.gnn_id " .
+            "WHERE (gnn_email='$email' $groupClause) AND " .
             "(gnn_time_completed >= '$expDate' OR gnn_status = 'RUNNING' OR gnn_status = 'NEW' OR gnn_status = 'FAILED')" .
             "ORDER BY gnn_status, gnn_time_completed DESC";
         $rows = $db->query($sql);
@@ -51,10 +64,18 @@ class user_jobs extends user_auth {
     }
 
     private function load_diagram_jobs($db) {
+        $func = function($val) { return "user_group = '$val'"; };
+        $email = $this->user_email;
+        $groupClause = implode(" OR ", array_map($func, $this->user_groups));
+        if ($groupClause)
+                $groupClause = "OR $groupClause";
         $expDate = self::get_start_date_window();
-        $sql = "SELECT * FROM diagram WHERE diagram_email='" . $this->user_email . "' AND " .
+
+        $sql = "SELECT diagram.diagram_id, diagram_key, diagram_title, diagram_status, diagram_type, diagram_time_completed FROM diagram " .
+            "LEFT OUTER JOIN job_group ON diagram.diagram_id = job_group.diagram_id " .
+            "WHERE (diagram_email='$email' $groupClause) AND " .
             "(diagram_time_completed >= '$expDate' OR diagram_status='RUNNING' OR diagram_status = 'NEW') " . 
-            "ORDER BY diagram_time_completed DESC, diagram_id DESC";
+            "ORDER BY diagram_time_completed DESC, diagram.diagram_id DESC";
         $rows = $db->query($sql);
 
         foreach ($rows as $row) {
@@ -114,6 +135,14 @@ class user_jobs extends user_auth {
 
     public function get_email() {
         return $this->user_email;
+    }
+
+    public function is_admin() {
+        return $this->is_admin;
+    }
+
+    public function get_groups() {
+        return $this->user_groups;
     }
 }
 

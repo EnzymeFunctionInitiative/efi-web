@@ -161,5 +161,9 @@ class settings extends global_settings {
     public static function get_cluster_scheduler() {
         return __CLUSTER_SCHEDULER__;
     }
+
+    public static function get_bigscape_enabled() {
+        return defined("__ENABLE_BIGSCAPE__") && __ENABLE_BIGSCAPE__ ? true : false;
+    }
 }
 ?>

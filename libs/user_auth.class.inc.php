@@ -192,12 +192,36 @@ class user_auth {
     public static function get_email_from_token($db, $token) {
         $userTable = self::get_user_table();
 
-        $sql = "SELECT user_email FROM $userTable WHERE user_id='" . $token . "'";
+        $sql = "SELECT user_email FROM $userTable WHERE user_id='$token'";
         $row = $db->query($sql);
         if ($row)
             return $row[0]["user_email"];
         else
             return "";
+    }
+
+    public static function get_user_admin($db, $email) {
+        $userTable = self::get_user_table();
+
+        $sql = "SELECT user_admin FROM $userTable WHERE user_email='$email'";
+        $row = $db->query($sql);
+        if ($row)
+            return $row[0]["user_admin"] == 1;
+        else
+            return false;
+    }
+
+    public static function get_user_groups($db, $email) {
+        $userTable = self::get_user_table();
+
+        $sql = "SELECT user_group FROM $userTable WHERE user_email='$email'";
+        $row = $db->query($sql);
+
+        $result = array();
+        if ($row) {
+            $result = explode(",", $row[0]["user_group"]);
+        }
+        return $result;
     }
 }
 

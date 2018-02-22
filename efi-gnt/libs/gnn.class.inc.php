@@ -67,11 +67,11 @@ class gnn {
         return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->filename, PATHINFO_EXTENSION);
     }
 
-    public static function create2($db, $email, $size, $cooccurrence, $tmp_filename, $filename) {
-        return self::create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename);
+    public static function create2($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup) {
+        return self::create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup);
     }
 
-    private static function create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename) {
+    private static function create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup) {
         $result = false;
         $key = self::generate_key();
         $insert_array = array(
@@ -88,11 +88,22 @@ class gnn {
             return false;
         }
         $info = array('id' => $result, 'key' => $key);
+
+        if ($jobGroup) {
+            $jobGroup = preg_replace("/[^A-Za-z0-9]/", "", $jobGroup);
+            $insertArray = array(
+                'gnn_id' => $result,
+                'user_group' => $jobGroup,
+            );
+            $jobGroupResult = $db->build_insert('job_group', $insertArray);
+            //TODO: check result and do something if it fails? It's not critical.
+        }
+
         return $info;
     }
 
     public static function create($db, $email, $size, $tmp_filename, $filename, $cooccurrence) {
-        $info = create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename);
+        $info = create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, "");
         if ($info === false)
             return 0;
         else

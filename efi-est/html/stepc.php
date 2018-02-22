@@ -33,12 +33,20 @@ if (isset($_POST['analyze_data'])) {
     if ($_POST['maximum'] == "") {
         $max = __MAXIMUM__;
     }
+
     $analysis = new analysis($db);
+
+    $customFile = "";
+    if (isset($_FILES['cluster_file']) && (!isset($_FILES['cluster_file']['error']) || $_FILES['cluster_file']['error'] == 0)) {
+        $customFile = $_FILES['cluster_file']['tmp_name'];
+    }
+    
     $result = $analysis->create($_POST['id'],
         $_POST['evalue'],
         $_POST['network_name'],
         $min,
-        $max);
+        $max,
+        $customFile);
 
     if ($result['RESULT']) {
         header('Location: stepd.php');
@@ -79,6 +87,9 @@ $job_name = $gen_id . "_" . $gen_type;
 $uploaded_file = "";
 $included_family = "";
 $num_family_nodes = $generate->get_num_family_sequences();
+$num_full_family_nodes = $generate->get_num_full_family_sequences();
+if (empty($num_full_family_nodes))
+    $num_full_family_nodes = $num_family_nodes;
 $total_num_nodes = $generate->get_num_sequences();
 $extra_nodes_string = "";
 $extra_nodes_ast = "";
@@ -179,7 +190,7 @@ if ($gen_type != "COLORSSN") {
 }
 
 if ($included_family && !empty($num_family_nodes))
-    $table->add_row("Number of IDs in PFAM/InterPro Family", number_format($num_family_nodes));
+    $table->add_row("Number of IDs in PFAM/InterPro Family", number_format($num_full_family_nodes));
 $table->add_row("Total Number of Nodes $extra_nodes_ast", number_format($total_num_nodes));
 $conv_ratio = $generate->get_convergence_ratio();
 $convergence_ratio_string = "";
@@ -314,72 +325,102 @@ should or should not be connected in a network is needed. This will determine th
 
 <hr><p><br></p>
 <h3><b>Finalization Parameters</b></h3>
-<h3>1: Alignment score for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
-<p>Select a lower limit for the aligment score for the output files. You will input an integer which represents the exponent of 10<sup>-X</sup> where X is the integer.</p>
 
-<form name="define_length" method="post" action="<?php echo $url; ?>" class="align_left">
+<form name="define_length" method="post" action="<?php echo $url; ?>" class="align_left" enctype="multipart/form-data">
 
-    <p><input type="text" name="evalue" 
-<?php if (isset($_POST['evalue'])) { 
-    echo "value='" . $_POST['evalue'] ."'"; }
-?>
-        > alignment score</p>
+<?php if (functions::get_custom_clustering_enabled()) { ?>
+<div class="tabs">
+    <ul class="tab-headers">
+        <li class="active"><a href="#threshold">Alignment Score Threshold</a></li>
+        <li><a href="#custom">Custom Clustering</a></li>
+    </ul>
 
-This score is the similarity threshold which determine the connection of proteins with each other. All pairs of proteins with a similarity score below this number will not be connected. Sets of connected proteins will form clusters.
+    <div class="tab-content" style="min-height: 300px">
+        <div id="threshold" class="tab active">
+<?php } ?>
+            <h3>1: Alignment score for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
+            <p>Select a lower limit for the aligment score for the output files. You will input an integer which represents the exponent of 10<sup>-X</sup> where X is the integer.</p>
+
+            <p><input type="text" name="evalue" <?php if (isset($_POST['evalue'])) { echo "value='" . $_POST['evalue'] ."'"; } ?>>
+            alignment score</p>
+
+            This score is the similarity threshold which determine the connection of proteins with each other. All pairs of proteins with a similarity score below this number will not be connected. Sets of connected proteins will form clusters.
+
+            <hr>
+            <h3>2: Sequence length restriction  <a href="tutorial_analysis.php" class="question" target="_blank">?</a>
+                <span style='color:red'>Optional</span></h3>
+            <p> This option can be used to restrict sequences used based on their length.</p>
+
+            <p>
+                <input type="text" name="minimum" maxlength='20' <?php if (isset($_POST['minimum'])) { echo "value='" . $_POST['minimum'] . "'"; } ?>> Min (Defaults: <?php echo __MINIMUM__; ?>)<br>
+                <input type="text" name="maximum" maxlength='20' <?php if (isset($_POST['maximum'])) { echo "value='" . $_POST['maximum'] . "'"; } ?>> Max (Defaults: <?php echo __MAXIMUM__; ?>)
+            </p>
+<?php if (functions::get_custom_clustering_enabled()) { ?>
+        </div>
+        <div id="custom" class="tab">
+            <h3>Custom Clustering File <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
+            
+            A file specifying which proteins are in what cluster can be uploaded.  The file must be givein in the format below.
+            Tabs or spaces can be used instead of the ',' comma separating character.
+<pre>
+Protein_ID_1,Cluster#
+Protein_ID_2,Cluster#
+Protein_ID_3,Cluster#
+...
+</pre>
+            <div class="primary-input">
+<?php echo ui::make_upload_box("Custom cluster file (text)", "cluster_file", "progress-bar-cluster", "progress-num-cluster"); ?>
+            </div>
+        </div>
+    </div>
+</div>
+<?php } ?>
+
 
 <hr>
-    <h3>2: Sequence length restriction  <a href="tutorial_analysis.php" class="question" target="_blank">?</a>
-    <span style='color:red'>Optional</span></h3>
-    <p> This option can be used to restrict sequences used based on their length.</p>
+<h3><?php if (!functions::get_custom_clustering_enabled()) { echo "3: "; } ?>Provide Network Name</h3>
 
-       <p><input type="text" name="minimum" maxlength='20' 
-<?php if (isset($_POST['minimum'])) { 
-    echo "value='" . $_POST['minimum'] . "'"; }
-?>
-        > Min (Defaults: <?php echo __MINIMUM__; ?>)<br>
-       <input type="text" name="maximum" maxlength='20'
-<?php if (isset($_POST['maximum'])) { 
-    echo "value='" . $_POST['maximum'] . "'"; }
-?>
-        > Max (Defaults: <?php echo __MAXIMUM__; ?>) </p>
-
-
-
-      <hr>
-    <h3>3: Provide Network Name</h3>
-
-
-      <p><input type="text" name="network_name" 
-<?php if (isset($_POST['network_name'])) {
-    echo "value='" . $_POST['network_name'] . "'";
-}
-?>
-        > Name
+<p>
+    <input type="text" name="network_name" <?php if (isset($_POST['network_name'])) { echo "value='" . $_POST['network_name'] . "'";} ?>>
+    Name
 </p>
 
 This name will be displayed in Cytoscape.
 
-        <p>
-        <input type='hidden' name='id' value='<?php echo $generate->get_id(); ?>'>
+<p>
+    <input type='hidden' name='id' value='<?php echo $generate->get_id(); ?>'>
 </p>
 
 <hr>
 
 <center>
-      <button type="submit" name="analyze_data" class="dark">Create SSN</button>
-
+    <button type="submit" name="analyze_data" class="dark">Create SSN</button>
     <p style="color:red"><?php if (isset($result['MESSAGE'])) { echo $result['MESSAGE']; } ?></p>
 
 <?php if (functions::is_beta_release()) { ?>
 <h4><b><span style="color: blue">BETA</span></b></h4>
 <?php } ?>
 </center>
-    </form>
+
+</form>
 
 
 <center>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</center>
 
 <script src="<?php echo $SiteUrlPrefix; ?>/js/accordion.js" type="text/javascript"></script>
+<?php if (functions::get_custom_clustering_enabled()) { ?>
+<script>
+    $(document).ready(function() {
+        $(".tabs .tab-headers a").on("click", function(e) {
+            var curAttrValue = $(this).attr("href");
+            $(".tabs " + curAttrValue).fadeIn(300).show().siblings().hide();
+            $(this).parent("li").addClass("active").siblings().removeClass("active");
+            e.preventDefault();
+        });
+    }).tooltip();
+</script>
+<script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
+<?php } ?>
 <?php
     }
 

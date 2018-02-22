@@ -39,6 +39,7 @@ define("__MYSQL_AUTH_DATABASE__","");
 //
 // UI PARAMETERS
 define("__TITLE__","EFI GNT");
+define("__ENABLE_BIGSCAPE__",false);
 
 //
 // JOB SCHEDULING PARAMETERS

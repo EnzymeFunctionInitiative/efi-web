@@ -10,6 +10,7 @@ function submitOptionAForm() {
     var fd = new FormData();
     fd.append("option_selected", "A");
     addParam(fd, "email", "option-a-email");
+    addParam(fd, "job-group", "option-a-job-group");
     addParam(fd, "blast_input", "blast-input");
     addParam(fd, "evalue", "blast-evalue");
     addParam(fd, "blast_max_seqs", "blast-max-seqs");
@@ -26,6 +27,7 @@ function submitOptionBForm() {
     var fd = new FormData();
     fd.append("option_selected", "B");
     addParam(fd, "email", "option-b-email");
+    addParam(fd, "job-group", "option-b-job-group");
     addParam(fd, "families_input", "families-input");
     addParam(fd, "evalue", "pfam-evalue");
     addParam(fd, "fraction", "pfam-fraction");
@@ -46,6 +48,7 @@ function submitOptionCForm() {
     var fd = new FormData();
     fd.append("option_selected", "C");
     addParam(fd, "email", "option-c-email");
+    addParam(fd, "job-group", "option-c-job-group");
     addParam(fd, "fasta_input", "fasta-input");
     addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
     addParam(fd, "families_input", "families-input-optc");
@@ -73,6 +76,7 @@ function submitOptionDForm() {
     var fd = new FormData();
     fd.append("option_selected", "D");
     addParam(fd, "email", "option-d-email");
+    addParam(fd, "job-group", "option-d-job-group");
     addParam(fd, "accession_input", "accession-input");
     addParam(fd, "families_input", "families-input-optd");
     addCbParam(fd, "families_use_uniref", "optd-use-uniref");
@@ -101,6 +105,7 @@ function submitOptionEForm() {
     var fd = new FormData();
     fd.append("option_selected", "E");
     addParam(fd, "email", "option-e-email");
+    addParam(fd, "job-group", "option-e-job-group");
     addParam(fd, "families_input", "option-e-input");
     addParam(fd, "evalue", "pfam-plus-evalue");
     addParam(fd, "fraction", "pfam-plus-fraction");
@@ -121,6 +126,7 @@ function submitColorSsnForm() {
     var fd = new FormData();
     fd.append("option_selected", "colorssn");
     addParam(fd, "email", "colorssn-email");
+    addParam(fd, "job-group", "colorssn-job-group");
     var completionHandler = function() {};
     var fileHandler = function(xhr) {};
     var files = document.getElementById("colorssn-file").files;

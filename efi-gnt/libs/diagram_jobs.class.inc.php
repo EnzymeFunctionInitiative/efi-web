@@ -18,7 +18,7 @@ class diagram_jobs {
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // STATIC FUNCTIONS FOR CREATING NEW JOBS
 
-    public static function create_file($db, $email, $tmp_filename, $filename) {
+    public static function create_file($db, $email, $tmp_filename, $filename, $jobGroup) {
 
         $uploadPrefix = settings::get_diagram_upload_prefix();
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
@@ -27,7 +27,7 @@ class diagram_jobs {
 
         $jobType = $ext == "zip" ? DiagramJob::UploadedZip : DiagramJob::Uploaded;
         
-        $info = self::do_database_create($db, $email, $title, $jobType, array());
+        $info = self::do_database_create($db, $email, $title, $jobType, array(), $jobGroup);
 
         if ($info['id']) {
             functions::copy_to_uploads_dir($tmp_filename, $filename, $info['id'], $uploadPrefix, $ext);
@@ -38,18 +38,18 @@ class diagram_jobs {
         return $info;
     }
 
-    public static function create_blast_job($db, $email, $title, $evalue, $maxNumSeqs, $nbSize, $blastSeq) {
+    public static function create_blast_job($db, $email, $title, $evalue, $maxNumSeqs, $nbSize, $blastSeq, $jobGroup) {
         
         $jobType = DiagramJob::BLAST;
         $params = array('blast_seq' => $blastSeq, 'evalue' => $evalue, 'max_num_sequence' => $maxNumSeqs,
                             'neighborhood_size' => $nbSize);
-
-        $info = self::do_database_create($db, $email, $title, $jobType, $params);
+        
+        $info = self::do_database_create($db, $email, $title, $jobType, $params, $jobGroup);
 
         return $info;
     }
 
-    public static function create_lookup_job($db, $email, $title, $nbSize, $content, $jobType) {
+    public static function create_lookup_job($db, $email, $title, $nbSize, $content, $jobType, $jobGroup) {
 
         if ($jobType == DiagramJob::IdLookup) {
             $content = preg_replace("/\s+/", ",", $content);
@@ -57,51 +57,20 @@ class diagram_jobs {
             $content = preg_replace("/,+$/", "", $content);
         }
 
-        return self::do_create_diagram_job($db, $email, $title, $nbSize, $jobType, "txt", $content);
-
-//        $params = array('neighborhood_size' => $nbSize);
-//
-//        $info = self::do_database_create($db, $email, $title, $jobType, $params);
-//
-//        if ($info === false || !$info["id"]) {
-//            return false;
-//        }
-//
-//        $prefix = settings::get_diagram_upload_prefix();
-//        $uploadsDir = settings::get_uploads_dir();
-//        
-//        $fileName = $prefix . $info["id"] . ".txt";
-//        $filePath = "$uploadsDir/$fileName";
-//
-//        $retCode = file_put_contents($filePath, $ids);
-//        if ($retCode === false)
-//            return false;
-//
-//        return $info;
+        return self::do_create_diagram_job($db, $email, $title, $nbSize, $jobType, "txt", $content, $jobGroup);
     }
 
-    public static function create_file_lookup_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType) {
-        return self::do_create_file_diagram_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, "txt");
+    public static function create_file_lookup_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, $jobGroup) {
+        return self::do_create_file_diagram_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, "txt", $jobGroup);
     }
-
-//    public static function create_fasta_job($db, $email, $title, $nbSize, $fasta) {
-//        $jobType = DiagramJob::FastaLookup;
-//        return do_create_diagram_job($db, $email, $title, $nbSize, $jobType, "txt", $fasta);
-//    }
-//
-//    public static function create_file_fasta_job($db, $email, $title, $nbSize, $tempName, $fileName) {
-//        $jobType = DiagramJob::FastaLookup;
-//        return self::do_create_file_diagram_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, "txt");
-//    }
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Private Helpers
 
-    private static function do_create_diagram_job($db, $email, $title, $nbSize, $jobType, $ext, $contents) {
+    private static function do_create_diagram_job($db, $email, $title, $nbSize, $jobType, $ext, $contents, $jobGroup) {
         $params = array('neighborhood_size' => $nbSize);
 
-        $info = self::do_database_create($db, $email, $title, $jobType, $params);
+        $info = self::do_database_create($db, $email, $title, $jobType, $params, $jobGroup);
 
         if ($info === false || !$info["id"]) {
             return false;
@@ -122,7 +91,7 @@ class diagram_jobs {
         return $info;
     }
 
-    private static function do_create_file_diagram_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, $ext) {
+    private static function do_create_file_diagram_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, $ext, $jobGroup) {
 
         $uploadPrefix = settings::get_diagram_upload_prefix();
         $params = array('neighborhood_size' => $nbSize);
@@ -130,7 +99,7 @@ class diagram_jobs {
         if (!$title)
             $title = self::get_diagram_title_from_file($fileName);
 
-        $info = self::do_database_create($db, $email, $title, $jobType, $params);
+        $info = self::do_database_create($db, $email, $title, $jobType, $params, $jobGroup);
 
         if ($info !== false && $info['id']) {
             functions::copy_to_uploads_dir($tempName, $fileName, $info['id'], $uploadPrefix, $ext);
@@ -145,7 +114,7 @@ class diagram_jobs {
         return $info;
     }
 
-    private static function do_database_create($db, $email, $title, $jobType, $paramsArray) {
+    private static function do_database_create($db, $email, $title, $jobType, $paramsArray, $jobGroup) {
         $key = functions::generate_key();
 
         $paramsJson = functions::encode_object($paramsArray);
@@ -162,6 +131,16 @@ class diagram_jobs {
         $result = $db->build_insert('diagram', $insertArray);
 
         $info = array('id' => $result, 'key' => $key);
+
+        if ($jobGroup) {
+            $jobGroup = preg_replace("/[^A-Za-z0-9]/", "", $jobGroup);
+            $insertArray = array(
+                'diagram_id' => $result,
+                'user_group' => $jobGroup,
+            );
+            $jobGroupResult = $db->build_insert('job_group', $insertArray);
+            //TODO: check result and do something if it fails? It's not critical.
+        }
 
         return $info;
     }

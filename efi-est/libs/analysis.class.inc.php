@@ -31,6 +31,8 @@ class analysis {
     private $db_version;
     private $beta;
     private $length_overlap;
+    private $custom_clustering;
+    private $custom_filename = "custom_cluster.txt";
 
     ///////////////Public Functions///////////
 
@@ -104,35 +106,50 @@ class analysis {
         return $num_seq;
     }
 
-    public function create($generate_id,$evalue,$name,$minimum,$maximum) {
+    public function create($generate_id, $evalue, $name, $minimum, $maximum, $customFile = "") {
         $errors = false;
         $message = "";		
         $filter = "eval";
+
+        $hasCustomClustering = 0;
+        if ($customFile && file_exists($customFile)) {
+            $uploadDir = functions::get_uploads_dir();
+            $destPath = "$uploadDir/custom_cluster_$generate_id.txt";
+            move_uploaded_file($customFile, $destPath);
+            $hasCustomClustering = 1;
+        }
+
         if (!$this->verify_length($minimum,$maximum)) {
             $message = "<br><b>Please verify the minimum and maximum lengths.</b>";
             $errors = true;
         }
+        
         $name = $this->verify_network_name($name);
         if ($name === false) {
             $message .= "<br><b>Please verify the network name.</b>";
             $message .= "<br><b>It can contain only letters, numbers, dash, and underscore.</b>";
             $errors = true;
         }
-        if (!$this->verify_evalue($evalue)) {
+        
+        if (!$hasCustomClustering && !$this->verify_evalue($evalue)) {
             $message .= "<br><b>Please verify the alignment score.</b>";
             $errors = true;	
         }
+
         if (!$errors) {
             $insert_array = array('analysis_generate_id'=>$generate_id,
                 'analysis_evalue'=>$evalue,
                 'analysis_name'=>$name,
                 'analysis_min_length'=>$minimum,
                 'analysis_max_length'=>$maximum,
-                'analysis_filter'=>$filter
+                'analysis_filter'=>$filter,
+                'analysis_custom_cluster'=>$hasCustomClustering,
             );
             $result = $this->db->build_insert("analysis",$insert_array);
             if ($result) {
                 return array('RESULT'=>true,'id'=>$result);
+            } else {
+                $message = "Unknown database error";
             }
         }
         return array('RESULT'=>false,'MESSAGE'=>$message);
@@ -391,13 +408,24 @@ class analysis {
     public function run_job($is_debug = false) {
         if ($this->available_pbs_slots()) {
 
+            $sched = functions::get_cluster_scheduler();
+
             //Setup Directories
             $job_dir = functions::get_results_dir() . "/" . $this->get_generate_id();
             $relative_output_dir = "output";
-            $full_output_dir = $job_dir . "/output/" .  $this->get_network_dir();
+            $network_dir = $this->get_network_dir();
+            $full_output_dir = "$job_dir/$relative_output_dir/$network_dir";
+
             if (@file_exists($full_output_dir)) {
                 functions::rrmdir($full_output_dir);
             }
+            if ($this->custom_clustering) {
+                mkdir($full_output_dir);
+                $start_path = functions::get_uploads_dir() . "/custom_cluster_" . $this->get_generate_id() . ".txt";
+                $end_path = "$full_output_dir/" . $this->custom_filename;
+                copy($start_path, $end_path);
+            }
+
             $current_dir = getcwd();
             if (file_exists($job_dir)) {
                 chdir($job_dir);
@@ -413,10 +441,12 @@ class analysis {
                 $exec .= "-tmp " . $relative_output_dir . " ";
                 $exec .= "-job-id " . $this->get_generate_id() . " ";
                 $exec .= "-queue " . functions::get_analyse_queue() . " ";
-                
+                if ($this->custom_clustering) {
+                    $exec .= " -custom-cluster-file " . $this->custom_filename;
+                    $exec .= " -custom-cluster-dir " . $network_dir;
+                }
                 if ($this->length_overlap)
                     $exec .= "-lengthdif " . $this->length_overlap . " ";
-                $sched = functions::get_cluster_scheduler();
                 if ($sched)
                     $exec .= " -scheduler " . $sched . " ";
 
@@ -484,6 +514,9 @@ class analysis {
             $this->time_completed = $result[0]['analysis_time_completed'];
             $this->filter_sequences = $result[0]['analysis_filter_sequences'];
             $this->db_version = functions::decode_db_version($result[0]['generate_db_version']);
+            $has_custom = array_key_exists('analysis_custom_cluster', $result[0]) &&
+                            $result[0]['analysis_custom_cluster'] == 1;
+            $this->custom_clustering = $has_custom;
             //TODO: fix this. the field doesn't come from a database column anymore; it comes from the generate_params
             // field which is a JSON structure. that would mean it would need to be decoded to get the value. this
             // feature isn't used anymore.
@@ -492,8 +525,13 @@ class analysis {
     }
 
     public function get_network_dir() {
-        $path = $this->get_filter() . "-" . $this->get_evalue();
-        $path .= "-" . $this->get_min_length() . "-" . $this->get_max_length();
+        $path = "";
+        if ($this->custom_clustering) {
+            $path = "custom_cluster_" . $this->get_id();
+        } else {
+            $path = $this->get_filter() . "-" . $this->get_evalue();
+            $path .= "-" . $this->get_min_length() . "-" . $this->get_max_length();
+        }
         return $path;
     }
 

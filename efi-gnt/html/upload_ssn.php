@@ -47,9 +47,10 @@ if (isset($_POST['submit'])) {
     }
 
     $email = $_POST['email'];
+    $jobGroup = isset($_POST['job-group']) ? $_POST['job-group'] : '';
 
     if ($valid) {
-        $gnnInfo = gnn::create2($db, $email, $_POST['neighbor_size'], $cooccurrence, $_FILES['file']['tmp_name'], $_FILES['file']['name']);
+        $gnnInfo = gnn::create2($db, $email, $_POST['neighbor_size'], $cooccurrence, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $jobGroup);
         if ($gnnInfo === false) {
             $valid = false;
         } else {

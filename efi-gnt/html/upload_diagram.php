@@ -36,9 +36,10 @@ if (isset($_POST['submit'])) {
     }
 
     $email = $_POST['email'];
+    $jobGroup = isset($_POST['job-group']) ? $_POST['job-group'] : '';
 
     if ($valid) {
-        $arrowInfo = diagram_jobs::create_file($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name']);
+        $arrowInfo = diagram_jobs::create_file($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $jobGroup);
         if ($arrowInfo === false) {
             $valid = false;
         } else {

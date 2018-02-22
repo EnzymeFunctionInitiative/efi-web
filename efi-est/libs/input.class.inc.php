@@ -3,6 +3,7 @@
 class input_data {
 
     public $email;
+    public $job_group;
     public $name;
     public $evalue;
     public $fraction;

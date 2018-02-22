@@ -74,6 +74,10 @@ abstract class option_base extends stepa {
 
             $result = $this->post_insert_action($data, $insert_result);
             if (!$result->errors && $insert_result) {
+                if (isset($data->job_group) && $data->job_group != "DEFAULT") {
+                    $group_array = array('generate_id' => $insert_result, 'user_group' => $data->job_group);
+                    $result = $this->db->build_insert("job_group", $group_array);
+                } //TODO: add error checking if the job group didn't insert properly
                 return array('RESULT' => true, 'id' => $insert_result, 'MESSAGE' => 'Job successfully created');
             }
         }

@@ -2,10 +2,11 @@
 var DIAGRAM_UPLOAD = 0;
 var SSN_UPLOAD = 1;
 
-function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, isSsn) {
+function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, jobGroupId, isSsn) {
     var fd = new FormData();
     addParam(fd, "email", emailId);
     addParam(fd, "submit", submitId);
+    addParam(fd, "job-group", jobGroupId);
     if (isSsn) {
         addParam(fd, "neighbor_size", "neighbor_size");
 //        addParam(fd, "MAX_FILE_SIZE", "MAX_FILE_SIZE");
@@ -106,7 +107,7 @@ function addParam(fd, param, id) {
     fd.append(param, document.getElementById(id).value);
 }
 
-function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId) {
+function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId, jobGroupId) {
 
     var fd = new FormData();
     addParam(fd, "option", optionId);
@@ -116,6 +117,7 @@ function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, max
     addParam(fd, "max-seqs", maxSeqId);
     addParam(fd, "nb-size", nbSizeId);
     addParam(fd, "email", emailId);
+    addParam(fd, "job-group", jobGroupId);
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
 
@@ -123,40 +125,23 @@ function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, max
 }
 
 
-function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId) {
-    submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId);
-
-//    var fd = new FormData();
-//    addParam(fd, "option", optionId);
-//    addParam(fd, "title", titleId);
-//    addParam(fd, "ids", inputId);
-//    addParam(fd, "nb-size", nbSizeId);
-//    addParam(fd, "email", emailId);
-//    var files = document.getElementById(fileId).files;
-//    var fileHandler = function(xhr) {};
-//    var completionHandler = function() {};
-//    if (files.length > 0) {
-//        fd.append("file", files[0]);
-//        fileHandler = function(xhr) {
-//            addUploadStuff(xhr, progressNumId, progressBarId);
-//        };
-//    }
-//
-//    doFormPost(formAction, fd, messageId, fileHandler, DIAGRAM_UPLOAD, completionHandler);
+function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, jobGroupId) {
+    submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, jobGroupId);
 }
 
 
-function submitOptionCForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId) {
-    submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId);
+function submitOptionCForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, jobGroupId) {
+    submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, jobGroupId);
 }
 
-function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId) {
+function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, jobGroupId) {
     var fd = new FormData();
     addParam(fd, "option", optionId);
     addParam(fd, "title", titleId);
     addParam(fd, inputField, inputId);
     addParam(fd, "nb-size", nbSizeId);
     addParam(fd, "email", emailId);
+    addParam(fd, "job-group", jobGroupId);
     var files = document.getElementById(fileId).files;
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
