@@ -228,7 +228,9 @@ function addCbParam(fd, param, id, isCheckbox) {
 function addParam(fd, param, id, isCheckbox) {
     if (typeof id === 'undefined')
         id = param;
-    fd.append(param, document.getElementById(id).value);
+    var elem = document.getElementById(id);
+    if (elem)
+        fd.append(param, elem.value);
 }
 
 
