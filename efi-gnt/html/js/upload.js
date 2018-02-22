@@ -104,7 +104,9 @@ function enableForm(formId) {
 }
 
 function addParam(fd, param, id) {
-    fd.append(param, document.getElementById(id).value);
+    var elem = document.getElementById(id);
+    if (elem)
+        fd.append(param, elem.value);
 }
 
 function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId, jobGroupId) {
