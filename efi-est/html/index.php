@@ -8,6 +8,8 @@ $userEmail = "Enter your e-mail address";
 
 $showJobsTab = false;
 $jobs = array();
+$userGroups = array();
+$isAdmin = false;
 //$analysisJobs = array();
 if (functions::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $userJobs = new user_jobs();
@@ -15,6 +17,8 @@ if (functions::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $jobs = $userJobs->get_jobs();
 //    $analysisJobs = $userJobs->get_analysis_jobs();
     $userEmail = $userJobs->get_email();
+    $userGroups = $userJobs->get_groups();
+    $isAdmin = $userJobs->is_admin();
     $showJobsTab = count($jobs) > 0; // || count($analysisJobs) > 0;
 }
 
@@ -26,6 +30,7 @@ $useUniref50 = false;
 $useAdvancedFamilyInputs = functions::option_e_enabled();
 
 $updateMessage = functions::get_update_message();
+
 
 require_once "inc/header.inc.php";
 
@@ -128,7 +133,7 @@ for ($i = 0; $i < count($jobs); $i++) {
             $linkEnd = "</a>";
         }
         $nameStyle = "style=\"padding-left: 50px;\"";
-        //$name = '<i class="fa fa-long-arrow-right" aria-hidden="true"></i> ' . $name;
+        //$name = '<i class="fas fa-long-arrow-right" aria-hidden="true"></i> ' . $name;
         $name = '[Analysis] ' . $name;
     } else {
         if ($isCompleted) {
@@ -212,7 +217,7 @@ HTML;
                     <textarea id="blast-input" name="blast-input"></textarea>
                 </div>
                  
-                <div class="advanced-toggle">Advanced Options <i class="fa fa-plus-square" aria-hidden="true"></i></div>
+                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
                 <div id="blast-advanced" style="display: none;" class="advanced-options">
                     <div>
                         E-Value:
@@ -227,6 +232,8 @@ HTML;
                         default: <?php echo functions::get_default_blast_seq(); ?>)
                     </div>
                 </div>
+
+<?php showAdminCode("option-a-job-group", $userGroups, $isAdmin); ?>
     
                 <div>
                     E-mail address:
@@ -255,6 +262,10 @@ HTML;
             Lists of Pfam families, InterPro families, and Pfam clans are included in the <a href="notes.php">release notes</a>.
             </p>
             <p>
+            <a href="https://www.ebi.ac.uk/interpro/search/sequence-search">InterProScan sequence search</a> can be used to
+            find matches within the InterPro database for a given sequence.
+            </p>
+            <p>
             The maximum number of retrieved sequences is <?php echo $maxSeqFormatted; ?>.
             For large Pfam families, InterPro families, and Pfam clans, we recommend using the UniRef90 seed sequences.
             </p>
@@ -272,7 +283,7 @@ HTML;
                 </div>
                 
 
-                <div class="advanced-toggle">Advanced Options <i class="fa fa-plus-square" aria-hidden="true"></i></div>
+                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
                 <div style="display: none;" class="advanced-options">
                     <div>
                         E-Value: <input type="text" class="small" id="pfam-evalue" name="pfam-evalue"
@@ -318,6 +329,8 @@ HTML;
 <?php    } ?>
                 </div>
     
+<?php showAdminCode("option-b-job-group", $userGroups, $isAdmin); ?>
+
                 <div>
                     E-mail address:
                     <input name="email" id="option-b-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -371,7 +384,7 @@ HTML;
                     </div>
                 </div>
                 
-                <div class="advanced-toggle">Advanced Options <i class="fa fa-plus-square" aria-hidden="true"></i></div>
+                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
                 <div style="display: none;" class="advanced-options">
                     <div>
                         E-Value: <input type="text" class="small" id="fasta-evalue" name="fasta-evalue"
@@ -397,6 +410,8 @@ HTML;
                     </div>
 <?php    } ?>
                 </div>
+
+<?php showAdminCode("option-c-job-group", $userGroups, $isAdmin); ?>
 
                 <div>
                     E-mail address:
@@ -448,7 +463,7 @@ HTML;
                     </div>
                 </div>
                 
-                <div class="advanced-toggle">Advanced Options <i class="fa fa-plus-square" aria-hidden="true"></i></div>
+                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
                 <div style="display: none;" class="advanced-options">
                     <div>
                         E-Value: <input type="text" class="small" id="accession-evalue" name="accession-evalue" 
@@ -493,6 +508,8 @@ HTML;
 <?php    } ?>
                 </div>
 
+<?php showAdminCode("option-d-job-group", $userGroups, $isAdmin); ?>
+
                 <div>
                     E-mail address:
                     <input name="email" id="option-d-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -532,7 +549,7 @@ HTML;
                 </div>
                 
 
-                <div class="advanced-toggle">Advanced Options <i class="fa fa-plus-square" aria-hidden="true"></i></div>
+                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
                 <div style="display: none;" class="advanced-options">
                     <div>
                         E-Value: <input type="text" class="small" id="pfam-plus-evalue" name="pfam-evalue"
@@ -576,6 +593,8 @@ HTML;
 <?php    } ?>
                 </div>
     
+<?php showAdminCode("option-e-job-group", $userGroups, $isAdmin); ?>
+
                 <div>
                     E-mail address:
                     <input name="email" id="option-e-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -606,6 +625,8 @@ HTML;
                 <div class="primary-input">
 <?php echo ui::make_upload_box("SNN to color and analyze (uncompressed or zipped XGMML file)", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
                 </div>
+
+<?php showAdminCode("colorssn-job-group", $userGroups, $isAdmin); ?>
 
                 <div>
                     E-mail address:
@@ -731,11 +752,11 @@ HTML;
             //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
             $content.slideToggle(100, function () {
                 if ($content.is(":visible")) {
-                    $header.find("i.fa").addClass("fa-minus-square");
-                    $header.find("i.fa").removeClass("fa-plus-square");
+                    $header.find("i.fas").addClass("fa-minus-square");
+                    $header.find("i.fas").removeClass("fa-plus-square");
                 } else {
-                    $header.find("i.fa").removeClass("fa-minus-square");
-                    $header.find("i.fa").addClass("fa-plus-square");
+                    $header.find("i.fas").removeClass("fa-minus-square");
+                    $header.find("i.fas").addClass("fa-plus-square");
                 }
             });
         
@@ -752,4 +773,22 @@ HTML;
 
 <?php require_once('inc/footer.inc.php'); ?>
 
+<?php
+
+function showAdminCode($id, $userGroups, $isAdmin) {
+    if (!$isAdmin)
+        return;
+
+    $func = function($val) { return "<option>$val</option>"; };
+    $groupList = implode("", array_map($func, $userGroups));
+    if ($groupList) {
+        echo <<<HTML
+<div style="margin:20px 0">
+    Optional job group: <select id="$id">$groupList</select>
+</div>
+HTML;
+    }
+}
+
+?>
 

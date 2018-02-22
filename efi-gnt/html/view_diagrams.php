@@ -21,6 +21,7 @@ $unmatchedIdModalText = "";
 $blastSequence = "";
 $jobTypeText = "";
 
+$isBigscapeEnabled = settings::get_bigscape_enabled();
 $isUploadedDiagram = false;
 $supportsDownload = true;
 $supportsExport = true;
@@ -47,7 +48,8 @@ if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
         prettyError404("That job has expired and doesn't exist anymore.");
     }
 
-    $bigscapeType = DiagramJob::GNN;
+    if ($isBigscapeEnabled)
+        $bigscapeType = DiagramJob::GNN;
 
     $idKeyQueryString = "gnn-id=$gnnId&key=$gnnKey";
     $windowTitle = " for Job #$gnnId";
@@ -71,7 +73,8 @@ else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GE
     $nbSize = $arrows->get_neighborhood_size();
     $isDirectJob = $arrows->is_direct_job();
 
-    $bigscapeType = DiagramJob::Uploaded;
+    if ($isBigscapeEnabled)
+        $bigscapeType = DiagramJob::Uploaded;
 
     $idKeyQueryString = "upload-id=$gnnId&key=$gnnKey";
     $isUploadedDiagram = true;
@@ -101,7 +104,8 @@ else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GE
     $jobTypeText = $arrows->get_verbose_job_type();;
     $nbSize = $arrows->get_neighborhood_size();
 
-    $bigscapeType = DiagramJob::Uploaded;
+    if ($isBigscapeEnabled)
+        $bigscapeType = DiagramJob::Uploaded;
 
     $hasUnmatchedIds = count($unmatchedIds) > 0;
 
@@ -125,8 +129,10 @@ else {
 }
 
 
-$bss = new bigscape_job($db, $gnnId, $bigscapeType);
-$bigscapeStatus = $bss->get_status();
+if ($isBigscapeEnabled) {
+    $bss = new bigscape_job($db, $gnnId, $bigscapeType);
+    $bigscapeStatus = $bss->get_status();
+}
 
 $gnnNameText = "";
 $nbSizeDiv = "";
@@ -302,6 +308,7 @@ if ($isDirectJob) {
                             </div>
 <?php } ?>
 <?php } ?>
+<?php if ($isBigscapeEnabled) { ?>
                             <div>
                                 <button type="button" class="btn btn-default tool-button" id="run-bigscape-btn" <?php if ($bigscapeStatus == bigscape_job::STATUS_FINISH) echo "data-toggle=\"button\""; ?>>
 <?php if ($bigscapeStatus == bigscape_job::STATUS_NONE) { ?>
@@ -323,6 +330,7 @@ if ($isDirectJob) {
                                         </button>
                                 </a>
                             </div>
+<?php } ?>
 <?php } ?>
                         </div>
                     </li>
@@ -421,6 +429,7 @@ if ($isDirectJob) {
 <?php } else { ?>
                 $("#start-info").show();
 <?php } ?>
+<?php if ($isBigscapeEnabled) { ?>
 <?php if ($bigscapeStatus == bigscape_job::STATUS_FINISH) { ?>
                 $("#run-bigscape-btn").click(function(e) {
                     arrowApp.toggleUseBigscape();
@@ -445,6 +454,7 @@ if ($isDirectJob) {
                     arrowApp.runBigscape(<?php echo $gnnId; ?>, "<?php echo $gnnKey; ?>", "<?php echo $bigscapeType; ?>", completionHandler);
                 });
 <?php       } ?>
+<?php } ?>
 <?php } ?>
                 arrowApp.setNeighborhoodWindow(<?php echo $nbSize; ?>);
             });
@@ -546,6 +556,7 @@ if ($isDirectJob) {
         </div>
 <?php } ?>
 <?php } ?>
+<?php if ($isBigscapeEnabled) { ?>
         <div id="run-bigscape-modal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -590,6 +601,7 @@ if ($isDirectJob) {
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div>
+<?php } ?>
     </body>
 </html>
 

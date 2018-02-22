@@ -502,6 +502,10 @@ class functions {
             return false;
         }
     }
+
+    public static function get_custom_clustering_enabled() {
+        return defined("__ENABLE_CUSTOM_CLUSTERING__") && __ENABLE_CUSTOM_CLUSTERING__ ? true : false;
+    }
 }
 
 ?>

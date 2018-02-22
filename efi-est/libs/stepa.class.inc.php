@@ -25,6 +25,7 @@ class stepa {
     protected $num_matched_file_sequences;
     protected $num_unmatched_file_sequences;
     protected $num_family_sequences;
+    protected $num_full_family_sequences;
     protected $accession_file = "allsequences.fa";
     protected $counts_file;
     protected $eol = PHP_EOL;
@@ -81,6 +82,7 @@ class stepa {
     public function get_num_matched_file_sequences() { return $this->num_matched_file_sequences; }
     public function get_num_unmatched_file_sequences() { return $this->num_unmatched_file_sequences; }
     public function get_num_family_sequences() { return $this->num_family_sequences; }
+    public function get_num_full_family_sequences() { return $this->num_full_family_sequences; }
     public function get_program() { return $this->program; }
     public function get_fraction() { return $this->fraction; }
     public function get_finish_file() { 
@@ -175,7 +177,7 @@ class stepa {
         $full_path = $results_path . "/" . $this->get_accession_file();
 
         if (file_exists($full_count_path)) {
-            $num_seq = array('total_ssn_nodes' => 0, 'file_seq' => 0, 'file_matched' => 0, 'file_unmatched' => 0, 'family' => 0);
+            $num_seq = array('total_ssn_nodes' => 0, 'file_seq' => 0, 'file_matched' => 0, 'file_unmatched' => 0, 'family' => 0, 'full_familh' => 0);
             $lines = file($full_count_path);
             foreach ($lines as $line) {
                 list($key, $val) = explode("\t", rtrim($line));
@@ -191,6 +193,8 @@ class stepa {
                     $num_seq['file_unmatched'] = intval($val);
                 else if ($key == "Family")
                     $num_seq['family'] = intval($val);
+                else if ($key == "FullFamily")
+                    $num_seq['full_family'] = intval($val);
             }
         } else if (file_exists($full_path)) {
             $exec = "grep '>' " . $full_path . " | sort | uniq | wc -l ";
@@ -213,6 +217,7 @@ class stepa {
             $update["generate_num_matched_file_seq"] = $num_seq['file_matched'];
             $update["generate_num_unmatched_file_seq"] = $num_seq['file_unmatched'];
             $update["generate_num_family_seq"] = $num_seq['family'];
+            $update["generate_num_full_family_seq"] = $num_seq['full_family'];
         } else {
             $update["generate_num_seq"] = $num_seq;
         }
@@ -226,6 +231,7 @@ class stepa {
                 $this->num_matched_file_sequences = $num_seq['file_matched'];
                 $this->num_unmatched_file_sequences = $num_seq['file_unmatched'];
                 $this->num_family_sequences = $num_seq['family'];
+                $this->num_full_family_sequences = $num_seq['full_family'];
             }
             else {
                 $this->num_sequences = $num_seq;
@@ -233,6 +239,7 @@ class stepa {
                 $this->num_matched_file_sequences = 0;
                 $this->num_unmatched_file_sequences = 0;
                 $this->num_family_sequences = 0;
+                $this->num_full_family_sequences = 0;
             }
             return true;
         }
@@ -697,6 +704,8 @@ class stepa {
                 $this->num_unmatched_file_sequences = $results_obj['generate_num_unmatched_file_seq'];
             if (array_key_exists('generate_num_family_seq', $results_obj))
                 $this->num_family_sequences = $results_obj['generate_num_family_seq'];
+            if (array_key_exists('generate_num_full_family_seq', $results_obj))
+                $this->num_full_family_sequences = $results_obj['generate_num_full_family_seq'];
         }
 
         return $params_obj;

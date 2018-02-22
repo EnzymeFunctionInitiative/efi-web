@@ -9,6 +9,9 @@ $IsLoggedIn = false;
 $showPreviousJobs = false;
 $gnnJobs = array();
 $diagramJobs = array();
+$userGroups = array();
+$isAdmin = false;
+
 if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $userJobs = new user_jobs();
     $userJobs->load_jobs($db, user_jobs::get_user_token());
@@ -20,6 +23,8 @@ if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $showPreviousJobs = count($gnnJobs) > 0 || count($diagramJobs) > 0;
     if ($userEmail)
         $IsLoggedIn = $userEmail;
+    $userGroups = $userJobs->get_groups();
+    $isAdmin = $userJobs->is_admin();
 }
 
 $neighborhood = 10;
@@ -180,6 +185,7 @@ HTML;
                     This option allows to filter the neighboring pFAMs with a co-occurrence <br>percentage lower than the set value. <br>
                     The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 1-100.
                 </p>
+<?php showAdminCode("ssn_job_group", $userGroups, $isAdmin); ?>
                 <p>
                     E-mail address: 
                     <input name='ssn_email' id='ssn_email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
@@ -192,7 +198,7 @@ HTML;
                 </div>
                 <center>
                     <div><button type="button" id='ssn_submit' name="ssn_submit" class="dark"
-                            onclick="uploadFile('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit',true)">
+                            onclick="uploadFile('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit','ssn_job_group',true)">
                                 Generate GNN
                         </button></div>
                     <div><progress id='progress_bar' max='100' value='0'></progress></div>
@@ -207,6 +213,8 @@ HTML;
                     <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "diagram_file", "progress_bar_diagram", "progress_number_diagram", "The acceptable format is sqlite."); ?>
                 </p>
     
+<?php showAdminCode("diagram_job_group", $userGroups, $isAdmin); ?>
+
                 <p>
                     E-mail address: 
                     <input name='email' id='diagram_email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
@@ -219,7 +227,7 @@ HTML;
                 </div>
                 <center>
                     <div><button type="button" id="diagram_submit" name="submit" class="dark"
-                                onclick="uploadFile('diagram_file','upload_diagram_form','progress_number_diagram','progress_bar_diagram','diagram_message','diagram_email','diagram_submit',false)">
+                                onclick="uploadFile('diagram_file','upload_diagram_form','progress_number_diagram','progress_bar_diagram','diagram_message','diagram_email','diagram_submit','diagram_job_group',false)">
                             Upload Diagram Data</button>
                     </div>
                     <div><progress id="progress_bar_diagram" max="100" value="0"></progress></div>
@@ -320,6 +328,9 @@ HTML;
                                     </td>
                                 </tr>
                             </table>
+
+<?php showAdminCode("option-a-job-group", $userGroups, $isAdmin); ?>
+
                             <div>
                                 E-mail address:
                                 <input name='email' id='option-a-email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
@@ -338,7 +349,8 @@ HTML;
                             <button type="button" class="dark"
                                             onclick="submitOptionAForm('create_diagram.php', 'option-a-option', 'option-a-input',
                                                                        'option-a-title', 'option-a-evalue', 'option-a-max-seqs',
-                                                                       'option-a-email', 'option-a-nb-size', 'option-a-message');"
+                                                                       'option-a-email', 'option-a-nb-size', 'option-a-message',
+                                                                       'option-a-job-group');"
                                 >Submit</button>
                         </center>
                     </form>
@@ -396,6 +408,8 @@ HTML;
                                 </tr>
                             </table>
 
+<?php showAdminCode("option-d-job-group", $userGroups, $isAdmin); ?>
+
                             <div>
                                 E-mail address:
                                 <input name='email' id='option-d-email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
@@ -414,7 +428,8 @@ HTML;
                             <button type="button" class="dark"
                                             onclick="submitOptionDForm('create_diagram.php', 'option-d-option', 'option-d-input',
                                                 'option-d-title', 'option-d-email', 'option-d-nb-size', 'option-d-file',
-                                                'option-d-progress-number', 'option-d-progress-bar', 'option-d-message');"
+                                                'option-d-progress-number', 'option-d-progress-bar', 'option-d-message',
+                                                'option-d-job-group');"
                                 >Submit</button>
                             <div><progress id="option-d-progress-bar" max="100" value="0"></progress></div>
                             <div id="option-d-progress-number"></div>
@@ -474,6 +489,8 @@ HTML;
                                 </tr>
                             </table>
 
+<?php showAdminCode("option-c-job-group", $userGroups, $isAdmin); ?>
+
                             <div>
                                 E-mail address:
                                 <input name='email' id='option-c-email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
@@ -492,7 +509,8 @@ HTML;
                             <button type="button" class="dark"
                                             onclick="submitOptionCForm('create_diagram.php', 'option-c-option', 'option-c-input',
                                                 'option-c-title', 'option-c-email', 'option-c-nb-size', 'option-c-file',
-                                                'option-c-progress-number', 'option-c-progress-bar', 'option-c-message');"
+                                                'option-c-progress-number', 'option-c-progress-bar', 'option-c-message',
+                                                'option-c-job-group');"
                                 >Submit</button>
                             <div><progress id="option-c-progress-bar" max="100" value="0"></progress></div>
                             <div id="option-c-progress-number"></div>
@@ -625,4 +643,23 @@ HTML;
 
 <?php require_once('inc/footer.inc.php'); ?>
 
+
+<?php
+
+function showAdminCode($id, $userGroups, $isAdmin) {
+    if (!$isAdmin)
+        return;
+
+    $func = function($val) { return "<option>$val</option>"; };
+    $groupList = implode("", array_map($func, $userGroups));
+    if ($groupList) {
+        echo <<<HTML
+<div style="margin:20px 0">
+    Optional job group: <select id="$id">$groupList</select>
+</div>
+HTML;
+    }
+}
+
+?>
 

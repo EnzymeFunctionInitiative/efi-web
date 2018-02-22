@@ -98,7 +98,10 @@ class diagram_job {
         $isUploaded = true;
         $this->handle_upload($isUploaded);
 
-        $this->db->non_select_query("UPDATE diagram SET diagram_status = '" . __FINISH__ . "' WHERE diagram_id = " . $this->id);
+        $status = __FINISH__;
+        $currentTime = date("Y-m-d H:i:s", time());
+        $this->db->non_select_query("UPDATE diagram SET diagram_status = '$status', " .
+                                    "diagram_time_completed = '$currentTime' WHERE diagram_id = " . $this->id);
         $this->email_complete();
 
         return true;

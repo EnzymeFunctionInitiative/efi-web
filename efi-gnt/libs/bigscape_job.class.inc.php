@@ -3,6 +3,7 @@
 require_once("Mail.php");
 require_once("Mail/mime.php");
 require_once("const.class.inc.php");
+require_once("functions.class.inc.php");
 
 
 class bigscape_job {

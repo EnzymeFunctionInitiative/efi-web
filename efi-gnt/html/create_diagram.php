@@ -22,14 +22,15 @@ if (isset($_POST["option"])) {
     if ($valid) {
         $email = $_POST["email"];
         $title = isset($_POST["title"]) ? $_POST["title"] : "";
+        $jobGroup = isset($_POST["job-group"]) ? $_POST["job-group"] : "";
 
         $retval = "";
         if ($opt == "a") {
-            $retval = create_blast_job($db, $email, $title);
+            $retval = create_blast_job($db, $email, $title, $jobGroup);
         } elseif ($opt == "c") {
-            $retval = create_lookup_job($db, $email, $title, "fasta", DiagramJob::FastaLookup);
+            $retval = create_lookup_job($db, $email, $title, "fasta", DiagramJob::FastaLookup, $jobGroup);
         } elseif ($opt == "d") {
-            $retval = create_lookup_job($db, $email, $title, "ids", DiagramJob::IdLookup);
+            $retval = create_lookup_job($db, $email, $title, "ids", DiagramJob::IdLookup, $jobGroup);
         }
 
         if ($retval["valid"] === false) {
@@ -67,7 +68,7 @@ echo json_encode($returnData);
 
 
 
-function create_blast_job($db, $email, $title) {
+function create_blast_job($db, $email, $title, $jobGroup) {
 
     $retval = array("id" => 0, "key" => "", "valid" => false, "message" => "");
 
@@ -90,7 +91,7 @@ function create_blast_job($db, $email, $title) {
     } else {
 
         $retval["valid"] = true;
-        $jobInfo = diagram_jobs::create_blast_job($db, $email, $title, $_POST["evalue"], $_POST["max-seqs"], $_POST["nb-size"], $_POST["sequence"]);
+        $jobInfo = diagram_jobs::create_blast_job($db, $email, $title, $_POST["evalue"], $_POST["max-seqs"], $_POST["nb-size"], $_POST["sequence"], $jobGroup);
     
         if ($jobInfo === false) {
             $retval["message"] .= " The job was unable to be created.";
@@ -105,7 +106,7 @@ function create_blast_job($db, $email, $title) {
 }
 
 
-function create_lookup_job($db, $email, $title, $contentField, $jobType) {
+function create_lookup_job($db, $email, $title, $contentField, $jobType, $jobGroup) {
 
     $retval = array("id" => 0, "key" => "", "valid" => false, "message" => "");
 
@@ -137,9 +138,9 @@ function create_lookup_job($db, $email, $title, $contentField, $jobType) {
         $retval["valid"] = true;
 
         if ($hasFile)
-            $jobInfo = diagram_jobs::create_file_lookup_job($db, $email, $title, $_POST["nb-size"], $_FILES["file"]["tmp_name"], $_FILES["file"]["name"], $jobType);
+            $jobInfo = diagram_jobs::create_file_lookup_job($db, $email, $title, $_POST["nb-size"], $_FILES["file"]["tmp_name"], $_FILES["file"]["name"], $jobType, $jobGroup);
         else
-            $jobInfo = diagram_jobs::create_lookup_job($db, $email, $title, $_POST["nb-size"], $_POST[$contentField], $jobType);
+            $jobInfo = diagram_jobs::create_lookup_job($db, $email, $title, $_POST["nb-size"], $_POST[$contentField], $jobType, $jobGroup);
 
         if ($jobInfo === false) {
             $retval["message"] .= " The job was unable to be created.";
