@@ -26,7 +26,7 @@ class user_jobs extends user_auth {
             return;
 
         $this->user_groups = self::get_user_groups($db, $this->user_email);
-        array_unshift($this->user_groups, "DEFAULT");
+        array_unshift($this->user_groups, settings::get_default_group_name());
         $this->is_admin = self::get_user_admin($db, $this->user_email);
 
         $this->load_gnn_jobs($db);

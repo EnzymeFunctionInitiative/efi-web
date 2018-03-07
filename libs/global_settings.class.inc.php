@@ -93,5 +93,9 @@ class global_settings {
     public static function get_normal_queue() {
         return __NORMAL_QUEUE__;
     }
+
+    public static function get_default_group_name() {
+        return "DEFAULT";
+    }
 }
 ?>

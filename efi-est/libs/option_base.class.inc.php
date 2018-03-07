@@ -74,7 +74,7 @@ abstract class option_base extends stepa {
 
             $result = $this->post_insert_action($data, $insert_result);
             if (!$result->errors && $insert_result) {
-                if (isset($data->job_group) && $data->job_group != "DEFAULT") {
+                if (isset($data->job_group) && $data->job_group != global_settings::get_default_group_name()) {
                     $group_array = array('generate_id' => $insert_result, 'user_group' => $data->job_group);
                     $result = $this->db->build_insert("job_group", $group_array);
                 } //TODO: add error checking if the job group didn't insert properly
@@ -198,14 +198,15 @@ abstract class option_base extends stepa {
         $exec .= "module load " . functions::get_efi_module() . "\n";
         $exec .= "module load " . functions::get_efidb_module() . "\n";
         $exec .= $this->additional_exec_modules();
-        $exec .= $this->get_run_script() . " ";
+        $exec .= $this->get_run_script();
         if ($sched)
-            $exec .= " -scheduler " . $sched;
+            $exec .= " -scheduler $sched";
         if (functions::get_use_legacy_graphs())
             $exec .= " -oldgraphs";
         foreach ($parms as $key => $value) {
-            $exec .= " " . $key . " " . $value;
+            $exec .= " $key $value";
         }
+        $exec .= " -job-id " . $this->id;
         $exec .= " 2>&1";
 
         $exit_status = 1;
