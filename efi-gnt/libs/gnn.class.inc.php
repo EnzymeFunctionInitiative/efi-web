@@ -89,7 +89,7 @@ class gnn {
         }
         $info = array('id' => $result, 'key' => $key);
 
-        if ($jobGroup) {
+        if ($jobGroup && $jobGroup != settings::get_default_group_name()) {
             $jobGroup = preg_replace("/[^A-Za-z0-9]/", "", $jobGroup);
             $insertArray = array(
                 'gnn_id' => $result,
