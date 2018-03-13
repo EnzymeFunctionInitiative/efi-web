@@ -3,13 +3,13 @@
 require_once('option_base.class.inc.php');
 require_once('generate_helper.class.inc.php');
 
-class blast extends option_base {
+class blast extends family_shared {
 
 
     private $blast_input;
     private $blast_sequence_max;
     public $fail_file = "1.out.failed";
-    public $subject = "EFI-EST PFAM/Interpro";
+    public $subject = "EFI-EST BLAST";
 
 
     public function __construct($db,$id = 0) {
@@ -81,8 +81,9 @@ class blast extends option_base {
     }
 
     protected function get_run_script_args($outDir) {
-        $parms = array();
-        $parms = generate_helper::get_run_script_args($outDir, $parms, $this);
+        //$parms = array();
+        $parms = parent::get_run_script_args($outDir);
+        //$parms = generate_helper::get_run_script_args($outDir, $parms, $this);
 
         $parms["-seq"] = "'" . $this->get_blast_input() . "'";
         if ($this->get_submitted_max_sequences() != "") {

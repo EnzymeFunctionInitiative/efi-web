@@ -14,6 +14,9 @@ function submitOptionAForm() {
     addParam(fd, "blast_input", "blast-input");
     addParam(fd, "evalue", "blast-evalue");
     addParam(fd, "blast_max_seqs", "blast-max-seqs");
+    addParam(fd, "fraction", "blast-fraction");
+    addParam(fd, "families_input", "families-input-opta");
+    addCbParam(fd, "families_use_uniref", "opta-use-uniref");
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
 
