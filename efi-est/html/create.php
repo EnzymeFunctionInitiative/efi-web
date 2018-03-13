@@ -61,8 +61,11 @@ if (!isset($_POST['submit'])) {
         case 'A':
             $blast = new blast($db);
             
+            $input->families = $_POST['families_input'];
             $input->field_input = $_POST['blast_input'];
             $input->max_seqs = $_POST['blast_max_seqs'];
+            if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true")
+                $input->uniref_version = "90";
             
             $result = $blast->create($input);
             break;

@@ -102,6 +102,9 @@ if ($gen_type == "BLAST") {
     }
     $table->add_row("Blast Sequence", $code);
     $table->add_row("E-Value", $generate->get_evalue());
+    $included_family = $generate->get_families_comma();
+    if ($included_family != "")
+        $table->add_row("PFam/Interpro Families", $included_family);
     $table->add_row("Maximum Blast Sequences", number_format($generate->get_submitted_max_sequences()));
 }
 elseif ($gen_type == "FAMILIES") {

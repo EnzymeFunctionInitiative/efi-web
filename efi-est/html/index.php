@@ -219,19 +219,44 @@ HTML;
                     <textarea id="blast-input" name="blast-input"></textarea>
                 </div>
                  
-                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
-                <div id="blast-advanced" style="display: none;" class="advanced-options">
+                <div>
+                    If desired, include a Pfam and/or InterPro families, in the analysis of your FASTA file. For Pfam families,
+                    the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the format is
+                    IPRxxxxxx (six digits); for Pfam clans, the format is CLxxxx (four digits).
+                </div>
+                <div class="primary-input">
                     <div>
-                        E-Value:
-                        <input type="text" class="small" id="blast-evalue" name="blast-evalue"
-                            value="<?php echo functions::get_evalue(); ?>">
-                        Negative log of e-value for all-by-all BLAST (&ge; 1; default: <?php echo functions::get_evalue(); ?>)
+                        <input type="text" id="families-input-opta" name="families-input-opta" 
+                            oninput='checkFamilyInput("families-input-opta","family-size-container-opta","family-count-table-opta",
+                                                      "families-input-opta",<?php echo $maxSeqNum; ?>,
+                                                      <?php echo $useUniref90; ?>, <?php echo $useUniref50; ?>)'>
+                        <input type="checkbox" id="opta-use-uniref" value="1">
+                        <label for="opta-use-uniref">Use UniRef 90 seed sequences instead of the full family</label>
+                        <div style="margin-top: 10px">
+<?php echo ui::make_pfam_size_box("family-size-container-opta", "family-count-table-opta", $useUniref90, $useUniref50); ?> 
+                        </div>
                     </div>
+                </div>
+
+                <div>
+                    E-value:
+                    <input type="text" class="small" id="blast-evalue" name="blast-evalue"
+                        value="<?php echo functions::get_evalue(); ?>">
+                    Negative log of e-value for all-by-all BLAST (&ge; 1; default: <?php echo functions::get_evalue(); ?>)
+                </div>
+                <div style="margin: 10px 0px">
+                    Maximum Blast Sequences: <input type="text" id="blast-max-seqs" class="small" name="blast-max-seqs"
+                        value="<?php  echo functions::get_default_blast_seq(); ?>">
+                    Maximum number of sequences retrieved (&le; <?php echo functions::get_max_blast_seq(); ?>;
+                    default: <?php echo functions::get_default_blast_seq(); ?>)
+                </div>
+                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
+                <div id="blast-advanced" class="advanced-options" style="display: none;">
                     <div>
-                        Maximum Blast Sequences: <input type="text" id="blast-max-seqs" class="small" name="blast-max-seqs"
-                            value="<?php  echo functions::get_default_blast_seq(); ?>">
-                        Maximum number of sequences retrieved (&le; <?php echo functions::get_max_blast_seq(); ?>;
-                        default: <?php echo functions::get_default_blast_seq(); ?>)
+                        Fraction: <input type="text" class="small" id="blast-fraction" name="blast-fraction"
+                            value="<?php echo functions::get_fraction(); ?>">
+                        Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
+                        <?php echo functions::get_fraction(); ?>)
                     </div>
                 </div>
 

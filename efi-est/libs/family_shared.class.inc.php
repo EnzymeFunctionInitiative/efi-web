@@ -90,12 +90,16 @@ abstract class family_shared extends option_base {
         $insert_array = parent::get_insert_array($data);
         $formatted_families = $this->format_families($data->families);
         $insert_array['generate_families'] = $formatted_families;
-        $insert_array['generate_sequence_identity'] = $data->seq_id;
-        $insert_array['generate_length_overlap'] = $data->length_overlap;
-        if ($data->uniref_version && ($data->uniref_version == "50" || $data->uniref_version == "90"))
+        if (isset($data->seq_id))
+            $insert_array['generate_sequence_identity'] = $data->seq_id;
+        if (isset($data->length_overlap))
+            $insert_array['generate_length_overlap'] = $data->length_overlap;
+        if (isset($data->uniref_version) && $data->uniref_version && ($data->uniref_version == "50" || $data->uniref_version == "90"))
             $insert_array['generate_uniref'] = $data->uniref_version;
-        $insert_array['generate_no_demux'] = $data->no_demux;
-        $insert_array['generate_random_fraction'] = $data->random_fraction;
+        if (isset($data->no_demux))
+            $insert_array['generate_no_demux'] = $data->no_demux;
+        if (isset($data->random_fraction))
+            $insert_array['generate_random_fraction'] = $data->random_fraction;
         return $insert_array;
     }
 
