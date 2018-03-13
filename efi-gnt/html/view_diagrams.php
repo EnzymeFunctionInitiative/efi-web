@@ -52,7 +52,8 @@ if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
         $bigscapeType = DiagramJob::GNN;
 
     $idKeyQueryString = "gnn-id=$gnnId&key=$gnnKey";
-    $windowTitle = " for Job #$gnnId";
+    $gnnNameText = "GNN <i>$gnnName</i>";
+    $windowTitle = " for GNN $gnnName (#$gnnId)";
 }
 else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GET['upload-id'])) {
     $gnnId = $_GET['upload-id'];
@@ -78,7 +79,8 @@ else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GE
 
     $idKeyQueryString = "upload-id=$gnnId&key=$gnnKey";
     $isUploadedDiagram = true;
-    $gnnNameText = "Input filename: $gnnName";
+    $gnnNameText = "filename <i>$gnnName</i>";
+    $windowTitle = " for uploaded filename $gnnName";
 }
 else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GET['direct-id'])) {
     $gnnId = $_GET['direct-id'];
@@ -122,7 +124,13 @@ else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GE
     }
 
     $idKeyQueryString = "direct-id=$gnnId&key=$gnnKey";
-    $gnnNameText = "Job name: $gnnName";
+    if ($gnnName) {
+        $gnnNameText = "<i>$gnnName</i>";
+        $windowTitle = " for $gnnName (#$gnnId)";
+    } else {
+        $gnnNameText = "job #$gnnId";
+        $windowTitle = " for job #$gnnId";
+    }
 }
 else {
     error404();
@@ -134,18 +142,18 @@ if ($isBigscapeEnabled) {
     $bigscapeStatus = $bss->get_status();
 }
 
-$gnnNameText = "";
 $nbSizeDiv = "";
 $cooccurrenceDiv = "";
 $jobTypeDiv = "";
+$jobIdDiv = "";
 
 if ($isDirectJob) {
-    $gnnNameText = $gnnName ? "Job name: $gnnName" : "";
     $jobTypeDiv = $jobTypeText ? "<div>Job Type: $jobTypeText</div>" : "";
 } else {
     $nbSizeDiv = $nbSize ? "<div>Neighborhood size: $nbSize</div>"  : "";
     $cooccurrenceDiv = $cooccurrence ? "<div>Co-occurrence: $cooccurrence</div>" : "";
 }
+$jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 
 ?>
 
@@ -174,6 +182,15 @@ if ($isDirectJob) {
         <script src="js/app.js" type="application/javascript"></script>
         <script src="js/arrows.js" type="application/javascript"></script>
 
+        <style>
+            #header-logo { float: left; width: 175px; }
+            #header-body { margin-left: 185px; overflow: hidden; height: 70px; }
+            #header-body-title  { vertical-align: middle; line-height: normal; padding-left: 15px; }
+            /*#header-body-title  { float: left; width: calc(100%-200px); display: inline-block; vertical-align: middle; line-height: normal; width: calc(100%-370px); }*/
+            #header-job-info { width: 195px; }
+            #header-job-info div { line-height: normal; }
+        </style>
+
         <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -184,17 +201,23 @@ if ($isDirectJob) {
     <body>
 
         <header class="header">
-            <div class="span6 align-middle navbar-left">
-                <a href="index.php"><img src="images/efignt_logo55.png" width="157" height="55" alt="EFI GNT Logo" style="margin-left:10px;" /></a> <span class="header-title">Genome Neighborhood Diagrams for Job #<?php echo $gnnId; ?></span>
-            </div>
-            <div class="span6">
-                <div class="header-metadata pull-right align-middle">
-                    <div><?php echo $gnnNameText; ?></div>
-                    <?php echo $cooccurrenceDiv; ?>
-                    <?php echo $nbSizeDiv; ?>
-                    <?php echo $jobTypeDiv; ?>
-                </div>
-            </div>
+            <table style="width:100%;height:70px">
+                <tr>
+                    <td style="width: 175px">
+                        <a href="index.php"><img
+                            src="images/efignt_logo55.png" width="157" height="55" alt="EFI GNT Logo" style="margin-left:10px;" /></a>
+                    </td>
+                    <td id="header-body-title" class="header-title">
+                        Genome Neighborhood Diagrams for <?php echo $gnnNameText; ?>
+                    </td>
+                    <td id="header-job-info">
+                        <?php echo $jobTypeDiv; ?>
+                        <?php echo $jobIdDiv; ?>
+                        <?php echo $cooccurrenceDiv; ?>
+                        <?php echo $nbSizeDiv; ?>
+                    </td>
+                </tr>
+            </table>
         </header>
 
         <!-- Begin page content -->

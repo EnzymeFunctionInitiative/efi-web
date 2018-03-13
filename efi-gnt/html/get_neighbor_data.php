@@ -7,6 +7,7 @@ require_once '../libs/bigscape_job.class.inc.php';
 $output = array();
 
 $dbFile = "";
+$isDirectJob = false;
 
 $message = "";
 if ((isset($_GET["gnn-id"])) && (is_numeric($_GET["gnn-id"]))) {
@@ -40,6 +41,7 @@ else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GE
     $bss = new bigscape_job($db, $gnnId, DiagramJob::Uploaded);
     $hasBigscape = $bss->get_status() == bigscape_job::STATUS_FINISH && isset($_GET['bigscape']) && $_GET['bigscape']=="1";
     $dbFile = $arrows->get_diagram_data_file($hasBigscape);
+    $isDirectJob = true;
 }
 else {
     $message = "No GNN selected.";
@@ -73,7 +75,7 @@ if (array_key_exists("query", $_GET)) {
     $blastId = getBlastId();
     //$orderData = getOrder($blastId, $items, $dbFile, $blastCacheDir, $gnn);
     $orderData = getDefaultOrder();
-    $arrowData = getArrowData($items, $dbFile, $orderData, $window);
+    $arrowData = getArrowData($items, $dbFile, $orderData, $window, $isDirectJob);
     $output["eod"] = $arrowData["eod"];
     $output["counts"] = $arrowData["counts"];
     $output["data"] = $arrowData["data"];
@@ -123,7 +125,7 @@ function getFamilies($dbFile) {
 
 
 
-function getArrowData($items, $dbFile, $orderDataStruct, $window) {
+function getArrowData($items, $dbFile, $orderDataStruct, $window, $isDirectJob) {
 
     $orderData = $orderDataStruct['order'];
     $output = array();
@@ -163,7 +165,7 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window) {
         if (++$startCount > $maxCount)
             break;
 
-        $attr = getQueryAttributes($row, $orderData);
+        $attr = getQueryAttributes($row, $orderData, $isDirectJob);
         if ($attr['rel_start_coord'] < $minBp)
             $minBp = $attr['rel_start_coord'];
         if ($attr['rel_stop_coord'] > $maxBp)
@@ -330,7 +332,7 @@ function getPageLimits() {
 }
 
 
-function getQueryAttributes($row, $orderData) {
+function getQueryAttributes($row, $orderData, $isDirectJob) {
     $attr = array();
     $attr['accession'] = $row['accession'];
     $attr['id'] = $row['id'];
@@ -344,11 +346,15 @@ function getQueryAttributes($row, $orderData) {
     $attr['direction'] = $row['direction'];
     $attr['type'] = $row['type'];
     $attr['seq_len'] = $row['seq_len'];
-    $attr['cluster_num'] = $row['cluster_num'];
     $attr['organism'] = rtrim($row['organism']);
     $attr['taxon_id'] = $row['taxon_id'];
     $attr['anno_status'] = $row['anno_status'];
     $attr['desc'] = $row['desc'];
+    if (! $isDirectJob && array_key_exists('cluster_num', $row))
+        $attr['cluster_num'] = $row['cluster_num'];
+    if (array_key_exists('evalue', $row)) {
+        $attr['evalue'] = $row['evalue'];
+    }
 
     $familyCount = count($attr['family']);
 
@@ -379,9 +385,7 @@ function getQueryAttributes($row, $orderData) {
     else
         $attr['is_bound'] = 0;
 
-    $evalue = array_key_exists($attr['accession'], $orderData) ? $orderData[$attr['accession']][0] : 100;
     $pid = array_key_exists($attr['accession'], $orderData) ? $orderData[$attr['accession']][1] : -1;
-    $attr['evalue'] = $evalue;
     $attr['pid'] = $pid;
 
     if (strlen($attr['organism']) > 0 && substr_compare($attr['organism'], ".", -1) === 0)
