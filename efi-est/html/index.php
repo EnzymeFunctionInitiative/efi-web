@@ -22,6 +22,8 @@ if (functions::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $showJobsTab = count($jobs) > 0; // || count($analysisJobs) > 0;
 }
 
+$isAdmin = $isAdmin && global_settings::get_job_groups_enabled();
+
 $maxSeqNum = functions::get_max_seq();
 $maxSeqFormatted = number_format($maxSeqNum, 0);
 

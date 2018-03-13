@@ -97,5 +97,12 @@ class global_settings {
     public static function get_default_group_name() {
         return "DEFAULT";
     }
+
+    public static function get_job_groups_enabled() {
+        if (defined("__ENABLE_JOB_GROUPS__"))
+            return __ENABLE_JOB_GROUPS__ == true;
+        else
+            return false;
+    }
 }
 ?>
