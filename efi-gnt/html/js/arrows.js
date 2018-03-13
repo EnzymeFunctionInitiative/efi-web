@@ -305,6 +305,9 @@ function makeStruct(data) {
     
     if (data.hasOwnProperty("cluster_num"))
         struct.cluster_num = data.cluster_num;
+
+    if (data.hasOwnProperty("evalue"))
+        struct.evalue = data.evalue;
     
     if (data.hasOwnProperty("is_bound"))
         struct.is_bound = data.is_bound;
@@ -383,6 +386,8 @@ ArrowDiagram.prototype.drawTitle = function(svgContainer, ypos, data) {
         title = title + "; ENA ID: " + data.id;
     if (data.hasOwnProperty("cluster_num"))
         title = title + "; Cluster: " + data.cluster_num;
+    if (data.hasOwnProperty("evalue"))
+        title = title + "; E-Value: " + data.evalue;
 //    if (title.length == 0)
 //        title = data.strain + " [global width = " + (data.max_stop - data.max_start) + "]";
 //    if (data.hasOwnProperty("evalue") && data.evalue >= 0)
