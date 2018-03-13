@@ -27,6 +27,8 @@ if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $isAdmin = $userJobs->is_admin();
 }
 
+$isAdmin = $isAdmin && global_settings::get_job_groups_enabled();
+
 $neighborhood = 10;
 $cooccurrence = 20;
 $neighbor_size_html = "";

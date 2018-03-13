@@ -27,6 +27,7 @@ define("__INTERPRO_VERSION__","");
 define("__EMAIL_FOOTER__","");
 //define("__BETA_RELEASE__","BETA --");
 define("__ENABLE_RECENT_JOBS__",true);
+define("__ENABLE_JOB_GROUPS__",false);
 
 //
 // STATUS
