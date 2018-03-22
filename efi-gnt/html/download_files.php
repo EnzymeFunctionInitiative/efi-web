@@ -9,10 +9,12 @@ $isError = false;
 $dbFile = "";
 $arrows = NULL;
 $theId = "";
+$isGnn = false;
 
 if (isset($_GET["gnn-id"]) && is_numeric($_GET["gnn-id"])) {
     $theId = $_GET["gnn-id"];
     $gnn = new gnn($db, $theId);
+    $isGnn = true;
 
     if ($gnn->get_key() != $_GET["key"]) {
         $isError = true;
@@ -24,6 +26,7 @@ if (isset($_GET["gnn-id"]) && is_numeric($_GET["gnn-id"])) {
     $dbFile = $gnn->get_diagram_data_file();
     if (!file_exists($dbFile))
         $dbFile = $gnn->get_diagram_data_file_legacy();
+    $arrows = $gnn; // gnn class has shared API to diagram_data_file class for the purposes of this functionality
 }
 elseif (isset($_GET["direct-id"]) && is_numeric($_GET["direct-id"])) {
     $theId = $_GET["direct-id"];
@@ -54,8 +57,8 @@ if (isset($_GET["type"])) {
         exit(0);
     } elseif ($arrows === NULL) {
         $isError = true;
-    } elseif ($type == "uniprot") {
-        $gnnName = $arrows->get_name();
+    } elseif ($isGnn == false && $type == "uniprot") {
+        $gnnName = $arrows->get_gnn_name();
         $downloadFilename = "${theId}_${gnnName}_UniProt_IDs.txt";
         $ids = $arrows->get_uniprot_ids();
         $content = "UniProt ID\tQuery ID\n";
@@ -66,16 +69,16 @@ if (isset($_GET["type"])) {
         sendHeaders($downloadFilename, strlen($content));
         print $content;
         exit(0);
-    } elseif ($type == "unmatched") {
-        $gnnName = $arrows->get_name();
+    } elseif ($isGnn == false && $type == "unmatched") {
+        $gnnName = $arrows->get_gnn_name();
         $downloadFilename = "${theId}_${gnnName}_Unmatched_IDs.txt";
         $ids = $arrows->get_unmatched_ids();
         $content = implode("\n", $ids);
         sendHeaders($downloadFilename, strlen($content));
         print $content;
         exit(0);
-    } elseif ($type == "blast") {
-        $gnnName = $arrows->get_name();
+    } elseif ($isGnn == false && $type == "blast") {
+        $gnnName = $arrows->get_gnn_name();
         $downloadFilename = "${theId}_${gnnName}_BLAST_Sequence.txt";
         $content = $arrows->get_blast_sequence();
         sendHeaders($downloadFilename, strlen($content));
@@ -84,7 +87,7 @@ if (isset($_GET["type"])) {
     } elseif ($type == "bigscape") {
         $clusterFile = $arrows->get_bigscape_cluster_file();
         if ($clusterFile !== FALSE) {
-            $gnnName = $arrows->get_name();
+            $gnnName = $arrows->get_gnn_name();
             $downloadFilename = "${theId}_${gnnName}_BiG-SCAPE_clusters.txt";
             $contentSize = filesize($clusterFile);
             sendHeaders($downloadFilename, $contentSize);
