@@ -69,7 +69,7 @@ else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GE
         prettyError404("Oops, something went wrong. Please send us an e-mail and mention the following diagnostic code: $gnnId");
     }
 
-    $gnnName = $arrows->get_name();
+    $gnnName = $arrows->get_gnn_name();
     $cooccurrence = $arrows->get_cooccurrence();
     $nbSize = $arrows->get_neighborhood_size();
     $isDirectJob = $arrows->is_direct_job();
@@ -97,7 +97,7 @@ else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GE
         prettyError404("Oops, something went wrong. Please send us an e-mail and mention the following diagnostic code: $gnnId");
     }
 
-    $gnnName = $arrows->get_name();
+    $gnnName = $arrows->get_gnn_name();
     $isDirectJob = true;
     $isBlast = $arrows->is_job_type_blast();
     $unmatchedIds = $arrows->get_unmatched_ids();
@@ -590,7 +590,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     <div class="modal-body">
 <?php if ($bigscapeStatus == bigscape_job::STATUS_NONE) { ?>
                         <div id="run-bigscape-body">
-                            The <a href="https://git.wageningenur.nl/medema-group/BiG-SCAPE">Biosynthetic Genese
+                            The <a href="https://git.wageningenur.nl/medema-group/BiG-SCAPE">Biosynthetic Genes
                             Similarity Clustering and Prospecting (BiG-SCAPE)</a> tool can be used to cluster the individual
                             diagrams based on their genomic context.  This can take several hours to complete, depending on
                             the size of the clusters.  If you proceed, you will to notified when the clustering has been

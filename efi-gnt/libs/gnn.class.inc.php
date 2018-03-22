@@ -4,7 +4,7 @@ require_once('../includes/main.inc.php');
 require_once('Mail.php');
 require_once('Mail/mime.php');
 
-class gnn {
+class gnn extends arrow_api {
 
     ////////////////Private Variables//////////
 
@@ -443,9 +443,9 @@ class gnn {
         return $this->shared_get_relative_file_path("_stats", ".txt");
     }
 
-    public function get_diagram_data_file($useBigscape = false) {
-        return $this->shared_get_full_file_path("_arrow_data", ".sqlite") . ($useBigscape ? ".bigscape" : "");
-    }
+//    public function get_diagram_data_file($useBigscape = false) {
+//        return $this->shared_get_full_file_path("_arrow_data", ".sqlite") . ($useBigscape ? ".bigscape" : "");
+//    }
     public function get_diagram_zip_file() {
         return $this->shared_get_full_file_path("_arrow_data", ".zip");
     }
@@ -464,13 +464,13 @@ class gnn {
     //public function has_bigscape_run() {
     //    return file_exists($this->get_diagram_data_file() . ".bigscape");
     //}
-    public function get_bigscape_cluster_file() {
-        $file = $this->get_diagram_data_file(false) . ".bigscape-clusters";
-        if (file_exists($file))
-            return $file;
-        else
-            return FALSE;
-    }
+//    public function get_bigscape_cluster_file() {
+//        $file = $this->get_diagram_data_file(false) . ".bigscape-clusters";
+//        if (file_exists($file))
+//            return $file;
+//        else
+//            return FALSE;
+//    }
 
     public function get_cooc_table_file() {
         return $this->shared_get_full_file_path("_cooc_table", ".txt");
@@ -706,6 +706,9 @@ class gnn {
                 $this->basefilename = substr($this->filename, 0, $ext_pos);
             else
                 $this->basefilename = $this->filename;
+
+            $this->set_diagram_data_file($this->shared_get_full_file_path("_arrow_data", ".sqlite"));
+            $this->set_gnn_name($this->basefilename);
         }	
     }
 

@@ -350,11 +350,10 @@ function getQueryAttributes($row, $orderData, $isDirectJob) {
     $attr['taxon_id'] = $row['taxon_id'];
     $attr['anno_status'] = $row['anno_status'];
     $attr['desc'] = $row['desc'];
-    if (! $isDirectJob && array_key_exists('cluster_num', $row))
-        $attr['cluster_num'] = $row['cluster_num'];
-    if (array_key_exists('evalue', $row)) {
+    if (array_key_exists('evalue', $row) && $row['evalue'] !== NULL)
         $attr['evalue'] = $row['evalue'];
-    }
+    elseif (! $isDirectJob && array_key_exists('cluster_num', $row))
+        $attr['cluster_num'] = $row['cluster_num'];
 
     $familyCount = count($attr['family']);
 

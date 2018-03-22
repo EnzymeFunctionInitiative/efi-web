@@ -1,12 +1,13 @@
 <?php
 
 require_once('const.class.inc.php');
+require_once('arrow_api.class.inc.php');
 
-class diagram_data_file {
+class diagram_data_file extends arrow_api {
 
     private $id;
-    private $gnn_name;
-    private $db_file;
+//    private $gnn_name;
+//    private $db_file;
     private $loaded;
     private $nb_size;
     private $cooccurrence;
@@ -55,15 +56,18 @@ class diagram_data_file {
     }
 
     private function load_data() {
-        $this->db_file = functions::get_diagram_file_path($this->id);
+        
+        $dbFile = functions::get_diagram_file_path($this->id);
+        $this->set_diagram_data_file($dbFile);
 
-        if (!file_exists($this->db_file)) {
-            $this->message = "File " . $this->db_file . " does not exist.";
+        if (!file_exists($dbFile)) {
+            $this->message = "File " . $dbFile . " does not exist.";
             return false;
         }
 
-        $db = new SQLite3($this->db_file);
+        $db = new SQLite3($dbFile);
 
+        $gnnName = "";
         if (functions::sqlite_table_exists($db, "metadata")) {
             $sql = "SELECT * FROM metadata";
             $dbQuery = $db->query($sql);
@@ -94,11 +98,12 @@ class diagram_data_file {
             $this->is_direct = $this->job_type == DiagramJob::BLAST || $this->job_type == DiagramJob::IdLookup || $this->job_type == DiagramJob::FastaLookup;
 
             $this->nb_size = $row["neighborhood_size"];
-            $this->gnn_name = $row["name"];
+            $gnnName = $row["name"];
+//            $this->gnn_name = $row["name"];
         } else {
             $this->cooccurrence = "";
             $this->nb_size = "";
-            $this->gnn_name = "";
+//            $this->gnn_name = "";
             $this->is_direct = false;
             $this->job_type = "";
             $this->blast_sequence = "";
@@ -106,54 +111,55 @@ class diagram_data_file {
 
         $db->close();
 
+        $this->set_gnn_name($gnnName);
         $this->message = "";
 
         return true;
     }
 
-    private static function get_diagram_title_from_file($file) {
-        $file = preg_replace("/\.sqlite$/", "", $file);
-        $file = preg_replace("/_arrow_data/", "", $file);
-        return $file;
-        /*
-        try {
-            $db = new SQLite3($file);
+//    private static function get_diagram_title_from_file($file) {
+//        $file = preg_replace("/\.sqlite$/", "", $file);
+//        $file = preg_replace("/_arrow_data/", "", $file);
+//        return $file;
+//        /*
+//        try {
+//            $db = new SQLite3($file);
+//
+//            $sql = "SELECT * FROM metadata";
+//            $dbQuery = $db->query($sql);
+//
+//            $row = $dbQuery->fetchArray();
+//            if (!$row)
+//            {
+//                $db->close();
+//                return "";
+//            }
+//            $gnn_name = $row['name'];
+//
+//            $db->close();
+//
+//            return $gnn_name;
+//        } catch (Exception $e) {
+//            return "";
+//        }
+//         */
+//    }
 
-            $sql = "SELECT * FROM metadata";
-            $dbQuery = $db->query($sql);
+//    public function get_diagram_data_file($useBigscape = false) {
+//        $file = $this->db_file . ($useBigscape ? ".bigscape" : "");
+//        return $file;
+//    }
 
-            $row = $dbQuery->fetchArray();
-            if (!$row)
-            {
-                $db->close();
-                return "";
-            }
-            $gnn_name = $row['name'];
-
-            $db->close();
-
-            return $gnn_name;
-        } catch (Exception $e) {
-            return "";
-        }
-         */
-    }
-
-    public function get_diagram_data_file($useBigscape = false) {
-        $file = $this->db_file . ($useBigscape ? ".bigscape" : "");
-        return $file;
-    }
-
-    public function get_bigscape_cluster_file() {
-        $file = $this->db_file . ".bigscape-clusters";
-        if (file_exists($file))
-            return $file;
-        else
-            return FALSE;
-    }
+//    public function get_bigscape_cluster_file() {
+//        $file = $this->get_diagram_data_file() . ".bigscape-clusters";
+//        if (file_exists($file))
+//            return $file;
+//        else
+//            return FALSE;
+//    }
 
     //public function get_bigscape_status() {
-    //    if (file_exists($this->db_file . ".bigscape")) {
+    //    if (file_exists($this->get_diagram_data_file() . ".bigscape")) {
     //        return 2; // Bigscape is already run
     //    } elseif (false) {
     //        return 1; // Pending or running bigscape
@@ -162,9 +168,9 @@ class diagram_data_file {
     //    }
     //}
 
-    public function get_name() {
-        return $this->gnn_name;
-    }
+//    public function get_name() {
+//        return $this->gnn_name;
+//    }
 
     public function get_neighborhood_size() {
         return $this->nb_size;
@@ -193,11 +199,11 @@ class diagram_data_file {
     public function get_uniprot_ids() {
         $ids = array();
 
-        $this->db_file = functions::get_diagram_file_path($this->id);
-        if (!file_exists($this->db_file))
+        $dbFile = $this->get_diagram_data_file();
+        if (!file_exists($dbFile))
             return false;
 
-        $db = new SQLite3($this->db_file);
+        $db = new SQLite3($dbFile);
         if (!functions::sqlite_table_exists($db, "matched")) {
             $rawIds = $this->get_ids_from_accessions($db);
             for ($i = 0; $i < count($rawIds); $i++)
@@ -240,11 +246,11 @@ class diagram_data_file {
     public function get_unmatched_ids() {
         $ids = array();
 
-        $this->db_file = functions::get_diagram_file_path($this->id);
-        if (!file_exists($this->db_file))
+        $dbFile = $this->get_diagram_data_file();
+        if (!file_exists($dbFile))
             return false;
 
-        $db = new SQLite3($this->db_file);
+        $db = new SQLite3($dbFile);
         if (!functions::sqlite_table_exists($db, "unmatched"))
             return $ids;
 
