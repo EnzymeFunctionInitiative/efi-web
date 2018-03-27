@@ -218,9 +218,22 @@ HTML;
                 <div class="primary-input">
                     <textarea id="blast-input" name="blast-input"></textarea>
                 </div>
-                 
                 <div>
-                    If desired, include a Pfam and/or InterPro families, in the analysis of your FASTA file. For Pfam families,
+                    UniProt BLAST Query E-value:
+                    <input type="text" class="small" id="blast-evalue" name="blast-evalue"
+                        value="<?php echo functions::get_evalue(); ?>">
+                    Negative log of e-value for retrieving similar sequences (&ge; 1; default: <?php echo functions::get_evalue(); ?>)
+                </div>
+                <div style="margin: 10px 0px">
+                    Maximum Blast Sequences: <input type="text" id="blast-max-seqs" class="small" name="blast-max-seqs"
+                        value="<?php  echo functions::get_default_blast_seq(); ?>">
+                    Maximum number of sequences retrieved (&le; <?php echo functions::get_max_blast_seq(); ?>;
+                    default: <?php echo functions::get_default_blast_seq(); ?>)
+                </div>
+
+<?php if (functions::option_a_families_enabled()) { ?>                 
+                <div>
+                    If desired, include Pfam and/or InterPro families, in the analysis of your sequence. For Pfam families,
                     the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the format is
                     IPRxxxxxx (six digits); for Pfam clans, the format is CLxxxx (four digits).
                 </div>
@@ -238,20 +251,13 @@ HTML;
                     </div>
                 </div>
 
-                <div>
-                    E-value:
-                    <input type="text" class="small" id="blast-evalue" name="blast-evalue"
-                        value="<?php echo functions::get_evalue(); ?>">
-                    Negative log of e-value for all-by-all BLAST (&ge; 1; default: <?php echo functions::get_evalue(); ?>)
-                </div>
-                <div style="margin: 10px 0px">
-                    Maximum Blast Sequences: <input type="text" id="blast-max-seqs" class="small" name="blast-max-seqs"
-                        value="<?php  echo functions::get_default_blast_seq(); ?>">
-                    Maximum number of sequences retrieved (&le; <?php echo functions::get_max_blast_seq(); ?>;
-                    default: <?php echo functions::get_default_blast_seq(); ?>)
-                </div>
-                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
+                <div class="advanced-toggle">Advanced Family Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
                 <div id="blast-advanced" class="advanced-options" style="display: none;">
+                    <div>
+                        E-Value: <input type="text" class="small" id="families-evalue-opta" name="families-evalue-opta"
+                            value="<?php echo functions::get_evalue(); ?>">
+                        Negative log of e-value for all-by-all BLAST (&ge;1; default <?php echo functions::get_evalue(); ?>)
+                    </div>
                     <div>
                         Fraction: <input type="text" class="small" id="blast-fraction" name="blast-fraction"
                             value="<?php echo functions::get_fraction(); ?>">
@@ -259,6 +265,7 @@ HTML;
                         <?php echo functions::get_fraction(); ?>)
                     </div>
                 </div>
+<?php } ?>
 
 <?php showAdminCode("option-a-job-group", $userGroups, $isAdmin); ?>
     
@@ -393,7 +400,7 @@ HTML;
                 </div>
 
                     <div>
-                        If desired, include a Pfam and/or InterPro families, in the analysis of your FASTA file. For Pfam families,
+                        If desired, include Pfam and/or InterPro families, in the analysis of your FASTA file. For Pfam families,
                         the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the format is
                         IPRxxxxxx (six digits); for Pfam clans, the format is CLxxxx (four digits).
                     </div>
@@ -472,7 +479,7 @@ HTML;
                 </div>
 
                 <div>
-                    If desired, include a Pfam and/or InterPro families, in the analysis of your FASTA file. For Pfam families,
+                    If desired, include Pfam and/or InterPro families, in the analysis of your list of IDs. For Pfam families,
                     the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the format is
                     IPRxxxxxx (six digits); for Pfam clans, the format is CLxxxx (four digits).
                 </div>

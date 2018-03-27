@@ -331,7 +331,7 @@ should or should not be connected in a network is needed. This will determine th
 
 <form name="define_length" method="post" action="<?php echo $url; ?>" class="align_left" enctype="multipart/form-data">
 
-<?php if (functions::get_custom_clustering_enabled()) { ?>
+<?php if (functions::custom_clustering_enabled()) { ?>
 <div class="tabs">
     <ul class="tab-headers">
         <li class="active"><a href="#threshold">Alignment Score Threshold</a></li>
@@ -358,7 +358,7 @@ should or should not be connected in a network is needed. This will determine th
                 <input type="text" name="minimum" maxlength='20' <?php if (isset($_POST['minimum'])) { echo "value='" . $_POST['minimum'] . "'"; } ?>> Min (Defaults: <?php echo __MINIMUM__; ?>)<br>
                 <input type="text" name="maximum" maxlength='20' <?php if (isset($_POST['maximum'])) { echo "value='" . $_POST['maximum'] . "'"; } ?>> Max (Defaults: <?php echo __MAXIMUM__; ?>)
             </p>
-<?php if (functions::get_custom_clustering_enabled()) { ?>
+<?php if (functions::custom_clustering_enabled()) { ?>
         </div>
         <div id="custom" class="tab">
             <h3>Custom Clustering File <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
@@ -381,7 +381,7 @@ Protein_ID_3,Cluster#
 
 
 <hr>
-<h3><?php if (!functions::get_custom_clustering_enabled()) { echo "3: "; } ?>Provide Network Name</h3>
+<h3><?php if (!functions::custom_clustering_enabled()) { echo "3: "; } ?>Provide Network Name</h3>
 
 <p>
     <input type="text" name="network_name" <?php if (isset($_POST['network_name'])) { echo "value='" . $_POST['network_name'] . "'";} ?>>
@@ -411,7 +411,7 @@ This name will be displayed in Cytoscape.
 <center>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</center>
 
 <script src="<?php echo $SiteUrlPrefix; ?>/js/accordion.js" type="text/javascript"></script>
-<?php if (functions::get_custom_clustering_enabled()) { ?>
+<?php if (functions::custom_clustering_enabled()) { ?>
 <script>
     $(document).ready(function() {
         $(".tabs .tab-headers a").on("click", function(e) {

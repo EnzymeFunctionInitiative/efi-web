@@ -141,9 +141,14 @@ abstract class family_shared extends option_base {
             $parms["-uniref-version"] = $this->uniref_version;
         if (($this->length_overlap || $this->seq_id) && $this->no_demux)
             $parms["-no-demux"] = "";
-        $parms["-fraction"] = $this->get_fraction();
-        if ($this->get_fraction() > 1 && $this->random_fraction)
-            $parms["-random-fraction"] = "";
+        
+        $fraction = $this->get_fraction();
+        if ($fraction) {
+            $parms["-fraction"] = $this->get_fraction();
+            if ($fraction > 1 && $this->random_fraction)
+                $parms["-random-fraction"] = "";
+        }
+
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
         $parms["-conv-ratio-file"] = functions::get_convergence_ratio_filename();
 
