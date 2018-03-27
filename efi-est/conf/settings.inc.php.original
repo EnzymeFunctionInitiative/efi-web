@@ -62,6 +62,7 @@ define("__ENABLE_D__",true);
 define("__ENABLE_E__",true);
 define("__ENABLE_COLORSSN__",true);
 define("__ENABLE_PROGRAM_SELECTION__",false);
+define("__ENABLE_OPTION_A_FAMILIES__",false);
 define("__UPLOADS_DIR__","");
 define("__FASTA_FILETYPES__","txt fasta fa zip");
 define("__ACCESSION_FILETYPES__","txt");

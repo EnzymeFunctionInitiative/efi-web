@@ -481,10 +481,13 @@ class functions {
     }
 
     public static function get_update_message() {
-        return "The EST database has been updated to use UniProt " . 
-            self::get_uniprot_version() . " and InterPro " . self::get_interpro_version() . ". " .
-            "You now have the ability to register a user account for the purpose of viewing prior " .
-            "jobs in a summary table. You can also access both EFI-EST and EFI-GNT from the top of each page.";
+        $msg = 
+            "The EST database has been updated to use UniProt " . 
+            self::get_uniprot_version() . " and InterPro " . self::get_interpro_version() . ". ";
+        //$msg .=
+        //    "You now have the ability to register a user account for the purpose of viewing prior " .
+        //    "jobs in a summary table. You can also access both EFI-EST and EFI-GNT from the top of each page.";
+        return $msg;
     }
 
     public static function get_max_queuable_jobs() {
@@ -503,8 +506,12 @@ class functions {
         }
     }
 
-    public static function get_custom_clustering_enabled() {
+    public static function custom_clustering_enabled() {
         return defined("__ENABLE_CUSTOM_CLUSTERING__") && __ENABLE_CUSTOM_CLUSTERING__ ? true : false;
+    }
+
+    public static function option_a_families_enabled() {
+        return defined("__ENABLE_OPTION_A_FAMILIES__") && __ENABLE_OPTION_A_FAMILIES__ ? true : false;
     }
 }
 

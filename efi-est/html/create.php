@@ -60,12 +60,17 @@ if (!isset($_POST['submit'])) {
         //Option A - Blast Input
         case 'A':
             $blast = new blast($db);
-            
-            $input->families = $_POST['families_input'];
+
+            if (array_key_exists('families_input', $_POST))
+                $input->families = $_POST['families_input'];
+            $input->blast_evalue = $_POST['blast_evalue'];
             $input->field_input = $_POST['blast_input'];
             $input->max_seqs = $_POST['blast_max_seqs'];
             if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true")
                 $input->uniref_version = "90";
+
+            if (!isset($_POST['evalue']))
+                $input->evalue = $input->blast_evalue; // in case we don't have family code enabled
             
             $result = $blast->create($input);
             break;

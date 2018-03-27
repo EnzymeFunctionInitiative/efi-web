@@ -12,10 +12,11 @@ function submitOptionAForm() {
     addParam(fd, "email", "option-a-email");
     addParam(fd, "job-group", "option-a-job-group");
     addParam(fd, "blast_input", "blast-input");
-    addParam(fd, "evalue", "blast-evalue");
+    addParam(fd, "blast_evalue", "blast-evalue");
     addParam(fd, "blast_max_seqs", "blast-max-seqs");
     addParam(fd, "fraction", "blast-fraction");
     addParam(fd, "families_input", "families-input-opta");
+    addParam(fd, "evalue", "families-evalue-opta");
     addCbParam(fd, "families_use_uniref", "opta-use-uniref");
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
@@ -223,8 +224,9 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
 function addCbParam(fd, param, id, isCheckbox) {
     if (typeof id === 'undefined')
         id = param;
-    var isChecked = document.getElementById(id).checked;
-    fd.append(param, isChecked);
+    var elem = document.getElementById(id);
+    if (elem)
+        fd.append(param, elem.checked);
 }
 
 

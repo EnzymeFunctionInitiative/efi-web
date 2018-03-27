@@ -8,6 +8,7 @@ class blast extends family_shared {
 
     private $blast_input;
     private $blast_sequence_max;
+    private $blast_evalue; // the evalue to use for the SEQUENCE blast, not the family one
     public $fail_file = "1.out.failed";
     public $subject = "EFI-EST BLAST";
 
@@ -55,6 +56,7 @@ class blast extends family_shared {
     protected function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
         $insert_array['generate_blast_max_sequence'] = $data->max_seqs;
+        $insert_array['generate_blast_evalue'] = $data->blast_evalue;
         $formatted_blast = $this->format_blast($data->field_input);
         $insert_array['generate_blast'] = $formatted_blast;
         return $insert_array;
@@ -72,6 +74,10 @@ class blast extends family_shared {
             $result->errors = true;	
             $result->message .= "<br><b>Please enter a valid maximum number of sequences</b></br>";
         }
+        if (!$this->verify_evalue($data->blast_evalue)) {
+            $result->errors = true;
+            $result->message .= "<br><b>Please enter a valid E-Value</b></br>";
+        }
 
         return $result;
     }
@@ -86,6 +92,7 @@ class blast extends family_shared {
         //$parms = generate_helper::get_run_script_args($outDir, $parms, $this);
 
         $parms["-seq"] = "'" . $this->get_blast_input() . "'";
+        $parms["-blast-evalue"] = $this->blast_evalue;
         if ($this->get_submitted_max_sequences() != "") {
             $parms["-nresults"] = $this->get_submitted_max_sequences();
         }
@@ -105,6 +112,10 @@ class blast extends family_shared {
 
         $this->blast_input = $result['generate_blast'];
         $this->blast_sequence_max = $result['generate_blast_max_sequence'];
+        if (! array_key_exists('generate_blast_evalue', $result))
+            $this->blast_evalue = $result['generate_evalue'];  // legacy cases
+        else
+            $this->blast_evalue = $result['generate_blast_evalue'];
 
         return $result;
     }
@@ -114,7 +125,12 @@ class blast extends family_shared {
         $message .= "Computation Type: " . functions::format_job_type($this->get_type()) . $eol;
         $message .= "Blast Sequence: " . $eol;
         $message .= $this->get_formatted_blast() . $eol;
-        $message .= "E-Value: " . $this->get_evalue() . $eol;
+        $message .= "E-Value: " . $this->blast_evalue . $eol;
+        $fams = $this->get_families_comma();
+        if ($fams) {
+            $message .= "PFAM/Interpro Families: " . $fams . $eol;
+            $message .= "PFAM/Interpro Families BLAST E-Value: " . $this->get_evalue() . $eol;
+        }
         $message .= "Maximum Blast Sequences: " . $this->get_submitted_max_sequences() . $eol;
         //$message .= "Selected Program: " . $this->get_program() . $eol;
         

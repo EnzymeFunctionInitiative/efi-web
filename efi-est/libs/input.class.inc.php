@@ -13,6 +13,9 @@ class input_data {
     // For option A, C, D
     public $field_input;
 
+    // For option A
+    public $blast_evalue; // For Option A, this is the sequence blast evalue.  the $evalue var above is for the optional families added in by the user.
+
     // For option D
     public $expand_homologs;
 
