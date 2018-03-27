@@ -9,6 +9,18 @@ require_once "inc/header.inc.php";
 
 <h2>Release Notes</h2>
 
+<h3>March 27, 2018</h3>
+
+<p>
+The EST database now uses UniProt release 2018_02 and InterPro 67.  UniProt release 2018_02 includes
+a total of 109,414,541 entries: 108,857,716 in TrEMBL and 556,825 in SwissProt.
+</p>
+
+<p>
+This database includes 16,712 Pfam famliies, 33,707 InterPro families, and 605 Pfam clans.
+Tables of family sizes are available <a href="family_list.php">here</a>.
+</p>
+
 <h3>January 17, 2018</h3>
 
 <p>
@@ -31,13 +43,13 @@ The EFI-EST and EFI-GNT tools were updated with the following changes:
 
 <p>
 The EST database now uses UniProt release 2017_11 and InterPro 66.  UniProt release 2017_11 includes 
-a total of 99.261,416 entries:  98,705,220 in TrEMBL and 556,196 in SwissProt.
+a total of 99,261,416 entries:  98,705,220 in TrEMBL and 556,196 in SwissProt.
 </p>
 
 <p>
 This database includes 16,712 Pfam families, 32,568 InterPro families, and 604 Pfam clans.   Lists of 
 the families/clans are available along with the number number of sequences (full and UniRef90) can be 
-accessed with the links.  The reductions in the number of sequences when using UniRef90 seed sequences 
+accessed with the link below.  The reductions in the number of sequences when using UniRef90 seed sequences 
 are provided; the time required for the BLAST is decreased by the sequence of this reduction.  Use of 
 UniRef90 seed sequences also allows SSNs to be generated for larger families/clans (305,000 sequence 
 limit).
