@@ -18,7 +18,7 @@ function ArrowApp(arrows, popupIds) {
     this.idKeyQueryString = "";
     this.baseIdKeyQueryString = ""; // used for toggling bigscape ordering
     this.showAll = false;
-    this.useBigscape = false;
+    this.useBigscape = true; // Default to bigscape if it's available
     this.bigscapeRunning = false;
 
     var that = this;
@@ -106,6 +106,7 @@ ArrowApp.prototype.setNeighborhoodWindow = function(nbSize) {
 ArrowApp.prototype.setQueryString = function(idKeyQueryString) {
     this.idKeyQueryString = idKeyQueryString;
     this.baseIdKeyQueryString = this.idKeyQueryString;
+    this.idKeyQueryString = this.baseIdKeyQueryString + (this.useBigscape ? "&bigscape=1" : "");
     this.arrows.setJobInfo(this.idKeyQueryString);
 }
 
@@ -343,7 +344,9 @@ ArrowApp.prototype.runBigscape = function(gnnId, gnnKey, jobType, completionHand
     
 }
 
-
+ArrowApp.prototype.isOrderingBigscape = function() {
+    return this.useBigscape;
+}
 
 
 
