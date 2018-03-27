@@ -278,10 +278,13 @@ class functions {
     }
 
     public static function get_update_message() {
-        return "The GNT database has been updated to use UniProt " . 
-            settings::get_uniprot_version() . " and ENA " . settings::get_ena_version() . "." .
-            "You now have the ability to register a user account for the purpose of viewing prior " .
-            "jobs in a summary table. You can also access both EFI-EST and EFI-GNT from the top of each page.";
+        $msg = 
+            "The GNT database has been updated to use UniProt " . 
+            settings::get_uniprot_version() . " and ENA " . settings::get_ena_version() . ". ";
+        //$msg .=
+        //    "You now have the ability to register a user account for the purpose of viewing prior " .
+        //    "jobs in a summary table. You can also access both EFI-EST and EFI-GNT from the top of each page.";
+        return $msg;
     }
 
 }

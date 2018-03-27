@@ -339,7 +339,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 <?php } elseif ($bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
                                     <i class="fas fa-magic" aria-hidden="true"></i> BiG-SCAPE Pending
 <?php } elseif ($bigscapeStatus == bigscape_job::STATUS_FINISH) { ?>
-                                    <i class="fas fa-sort-amount-down" aria-hidden="true"></i> BiG-SCAPE Ordering
+                                    <i class="fas fa-sort-amount-down" aria-hidden="true"></i> <span id="bigscape-ordering-btn-text">Use BLAST Ordering</span>
 <?php } ?>
                                 </button>
                             </div>
@@ -456,6 +456,11 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 <?php if ($bigscapeStatus == bigscape_job::STATUS_FINISH) { ?>
                 $("#run-bigscape-btn").click(function(e) {
                     arrowApp.toggleUseBigscape();
+                    //if (arrowApp.isOrderingBigscape()) {
+                    //    $("#bigscape-ordering-btn-text").text("Default Ordering");
+                    //} else {
+                    //    $("#bigscape-ordering-btn-text").text("BiG-SCAPE Ordering");
+                    //}
                 });
 <?php } elseif ($bigscapeStatus == bigscape_job::STATUS_NONE || $bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
                 $("#run-bigscape-btn").click(function(e) { $("#run-bigscape-modal").modal("show"); });
