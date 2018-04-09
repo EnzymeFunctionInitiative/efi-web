@@ -9,20 +9,20 @@ $userEmail = "Enter your e-mail address";
 $showJobsTab = false;
 $jobs = array();
 $userGroups = array();
-$isAdmin = false;
+$IsAdminUser = false;
 //$analysisJobs = array();
-if (functions::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
+if (global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
     $userJobs = new user_jobs();
-    $userJobs->load_jobs($db, user_jobs::get_user_token());
+    $userJobs->load_jobs($db, user_auth::get_user_token());
     $jobs = $userJobs->get_jobs();
 //    $analysisJobs = $userJobs->get_analysis_jobs();
     $userEmail = $userJobs->get_email();
     $userGroups = $userJobs->get_groups();
-    $isAdmin = $userJobs->is_admin();
+    $IsAdminUser = $userJobs->is_admin();
     $showJobsTab = count($jobs) > 0; // || count($analysisJobs) > 0;
 }
 
-$isAdmin = $isAdmin && global_settings::get_job_groups_enabled();
+$showJobGroups = $IsAdminUser && global_settings::get_job_groups_enabled();
 
 $maxSeqNum = functions::get_max_seq();
 $maxSeqFormatted = number_format($maxSeqNum, 0);
@@ -267,7 +267,7 @@ HTML;
                 </div>
 <?php } ?>
 
-<?php showAdminCode("option-a-job-group", $userGroups, $isAdmin); ?>
+<?php showAdminCode("option-a-job-group", $userGroups, $showJobGroups); ?>
     
                 <div>
                     E-mail address:
@@ -363,7 +363,7 @@ HTML;
 <?php    } ?>
                 </div>
     
-<?php showAdminCode("option-b-job-group", $userGroups, $isAdmin); ?>
+<?php showAdminCode("option-b-job-group", $userGroups, $showJobGroups); ?>
 
                 <div>
                     E-mail address:
@@ -445,7 +445,7 @@ HTML;
 <?php    } ?>
                 </div>
 
-<?php showAdminCode("option-c-job-group", $userGroups, $isAdmin); ?>
+<?php showAdminCode("option-c-job-group", $userGroups, $showJobGroups); ?>
 
                 <div>
                     E-mail address:
@@ -542,7 +542,7 @@ HTML;
 <?php    } ?>
                 </div>
 
-<?php showAdminCode("option-d-job-group", $userGroups, $isAdmin); ?>
+<?php showAdminCode("option-d-job-group", $userGroups, $showJobGroups); ?>
 
                 <div>
                     E-mail address:
@@ -627,7 +627,7 @@ HTML;
 <?php    } ?>
                 </div>
     
-<?php showAdminCode("option-e-job-group", $userGroups, $isAdmin); ?>
+<?php showAdminCode("option-e-job-group", $userGroups, $showJobGroups); ?>
 
                 <div>
                     E-mail address:
@@ -660,7 +660,7 @@ HTML;
 <?php echo ui::make_upload_box("SNN to color and analyze (uncompressed or zipped XGMML file)", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
                 </div>
 
-<?php showAdminCode("colorssn-job-group", $userGroups, $isAdmin); ?>
+<?php showAdminCode("colorssn-job-group", $userGroups, $showJobGroups); ?>
 
                 <div>
                     E-mail address:
@@ -809,8 +809,8 @@ HTML;
 
 <?php
 
-function showAdminCode($id, $userGroups, $isAdmin) {
-    if (!$isAdmin)
+function showAdminCode($id, $userGroups, $showJobGroups) {
+    if (!$showJobGroups)
         return;
 
     $func = function($val) { return "<option>$val</option>"; };

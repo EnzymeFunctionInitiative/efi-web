@@ -3,6 +3,8 @@ require_once(__DIR__."/../../libs/global_settings.class.inc.php");
 
 if (!isset($LoginText))
     $LoginText = "";
+if (!isset($IsAdminUser))
+    $IsAdminUser = false;
 
 $UrlPrefix = "";
 if (isset($SiteUrlPrefix))
@@ -20,6 +22,9 @@ $IncludeShortBred = global_settings::get_shortbred_enabled();
                 <li><a href="<?php echo $UrlPrefix; ?>/efi-gnt/" class="gnt">EFI-GNT</a></li>
 <?php if (isset($IncludeShortBred) && $IncludeShortBred) { ?>
                 <li><a href="<?php echo $UrlPrefix; ?>/shortbred/" class="shortbred">ShortBRED-CGFP</a></li>
+<?php } ?>
+<?php if ($IsAdminUser) { ?>
+                <li><a href="admin/" class="about">Admin Page</a></li>
 <?php } ?>
                 <li style="float:right"><?php echo $LoginText; ?></li>
             </ul>

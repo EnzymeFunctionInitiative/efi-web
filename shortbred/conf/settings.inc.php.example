@@ -57,28 +57,8 @@ define("__GNN_MODULE__","");
 define("__EFIDB_MODULE__","");
 define("__BLAST_MODULE__","");
 define("__ENABLE_LOG__",false);
-define("__ENABLE_LEGACY__",false);
 
-//
-// DEFAULTS
-define("__DEFAULT_NEIGHBOR_SIZE__",10);
-define("__MAX_TIMEOUT__","3600");
-define("__COOCCURRENCE__",20);
-define("__RETENTION_DAYS__","7");
-define("__DEFAULT_EVALUE__","5");
-define("__DEFAULT_NUM_BLAST_SEQ__","200");
-define("__MAX_NUM_BLAST_SEQ__","500");
-define("__DEFAULT_NEIGHBORHOOD_SIZE__","10");
-
-//
-// STATUS
-define("__NEW__","NEW");
-define("__RUNNING__","RUNNING");
-define("__FINISH__","FINISH");
-define("__FAILED__","FAILED");
-
-// LEGACY
 define("__CLUSTER_USER__","");
-define("__CLUSTER_SCHEDULER__","local"); //local,torque,slurm
+define("__NUM_PROCESSORS__",24);
 
 ?>

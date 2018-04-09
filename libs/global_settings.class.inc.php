@@ -2,33 +2,12 @@
 
 class global_settings {
 
-    public static function get_default_neighbor_size() {
-        return __DEFAULT_NEIGHBOR_SIZE__;
-    }
-
-    public static function get_gnn_script() {
-        return __GNN_SCRIPT__;
-    }
-
-    public static function get_process_diagram_script() {
-        return __PROCESS_DIAGRAM_SCRIPT__;
-    }
-
     public static function get_uploads_dir() {
         $dir =__UPLOAD_DIR__;
         if (is_dir($dir)) {
             return $dir;
         }
         return false;
-    }
-
-    public static function get_valid_file_type() {
-        return __VALID_FILE_TYPE__;
-    }
-
-    public static function get_default_file_type($filetype) {
-        $filetypes = explode(" ", __VALID_FILE_TYPE__);
-        return $filetypes[0];
     }
 
     public static function get_output_dir() {
@@ -38,25 +17,8 @@ class global_settings {
         return false;
     }
 
-    public static function get_diagram_output_dir() {
-        if (is_dir(__DIAGRAM_OUTPUT_DIR__))
-            return __DIAGRAM_OUTPUT_DIR__;
-        return false;
-    }
-
-    public static function get_legacy_output_dir() {
-        if (is_dir(__LEGACY_OUTPUT_DIR__)) {
-            return __LEGACY_OUTPUT_DIR__;
-        }
-        return false;
-    }
-
     public static function get_rel_output_dir() {
         return __RELATIVE_OUTPUT_DIR__;		
-    }
-
-    public static function get_legacy_rel_output_dir() {
-        return __LEGACY_RELATIVE_OUTPUT_DIR__;		
     }
 
     public static function get_web_address() {
@@ -85,6 +47,10 @@ class global_settings {
     public static function get_admin_email() {
         return __ADMIN_EMAIL__;
     }
+    
+    public static function get_error_admin_email() {
+        return __ERROR_ADMIN_EMAIL__;
+    }
 
     public static function get_memory_queue() {
         return __MEMORY_QUEUE__;
@@ -92,6 +58,10 @@ class global_settings {
 
     public static function get_normal_queue() {
         return __NORMAL_QUEUE__;
+    }
+
+    public static function get_cluster_scheduler() {
+        return __CLUSTER_SCHEDULER__;
     }
 
     public static function get_default_group_name() {
@@ -103,6 +73,18 @@ class global_settings {
             return __ENABLE_JOB_GROUPS__ == true;
         else
             return false;
+    }
+
+    public static function is_recent_jobs_enabled() {
+        return __ENABLE_RECENT_JOBS__;
+    }
+
+    public static function get_release_status() {
+        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? __BETA_RELEASE__ . " " : "";
+    }
+
+    public static function is_beta_release() {
+        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? true : false;
     }
 }
 ?>

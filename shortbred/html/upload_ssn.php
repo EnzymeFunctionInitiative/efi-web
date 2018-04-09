@@ -1,5 +1,7 @@
 <?php
 require_once '../includes/main.inc.php';
+require_once '../../libs/user_auth.class.inc.php';
+
 $id = 0;
 $key = 0;
 $message = "";
@@ -16,10 +18,6 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     $file_type = "";
     //Sets default % Co-Occurrence value if nothing was inputted.
 
-    $cooccurrence = settings::get_default_cooccurrence();
-    if ($_POST['cooccurrence'] != "") {
-        $cooccurrence = (int)$_POST['cooccurrence'];
-    }
     if (isset($_FILES['file'])) {
         $file_type = strtolower(pathinfo($_FILES['file']['name'],PATHINFO_EXTENSION));
     }
@@ -42,29 +40,24 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         $message .= "<br><b>Please verify your e-mail address</b>";
     }
 
-    if ((!is_int($cooccurrence)) || ($cooccurrence > 100) || ($cooccurrence < 0)) {
-        $valid = 0;
-        $message .= "<br><b>Invalid % Co-Occurrence.  It must be an integer between 0 and 100.</b>";
-    }
-
     $email = $_POST['email'];
     $jobGroup = isset($_POST['job-group']) ? $_POST['job-group'] : '';
 
     if ($valid) {
-        $gnnInfo = gnn::create2($db, $email, $_POST['neighbor_size'], $cooccurrence, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $jobGroup);
-        if ($gnnInfo === false) {
+        $newInfo = identify::create($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $jobGroup);
+        if ($newInfo === false) {
             $valid = false;
         } else {
-            $id = $gnnInfo['id'];
-            $key = $gnnInfo['key'];
+            $id = $newInfo['id'];
+            $key = $newInfo['key'];
         }
     }
 }
 
 // This resets the expiration date of the cookie so that frequent users don't have to login in every X days as long
 // as they keep using the app.
-if ($valid && settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
-    $cookieInfo = user_jobs::get_cookie_shared(user_jobs::get_user_token());
+if ($valid && global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
+    $cookieInfo = user_auth::get_cookie_shared(user_auth::get_user_token());
     $returnData["cookieInfo"] = $cookieInfo;
 }
 
