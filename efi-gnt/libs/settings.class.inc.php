@@ -154,10 +154,6 @@ class settings extends global_settings {
         return __DEFAULT_NEIGHBORHOOD_SIZE__;
     }
 
-    public static function is_recent_jobs_enabled() {
-        return __ENABLE_RECENT_JOBS__;
-    }
-
     public static function get_cluster_scheduler() {
         return __CLUSTER_SCHEDULER__;
     }

@@ -1,7 +1,7 @@
 <?php
 
 require_once "global_settings.class.inc.php";
-require_once "../includes/PasswordHash.php";
+require_once "PasswordHash.php";
 
 class user_auth {
 

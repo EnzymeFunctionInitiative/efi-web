@@ -4,8 +4,8 @@ if (!isset($TopLevelUrl))
     $TopLevelUrl = "http://efi.igb.illinois.edu/efi-gnt/";
 
 $title = "ShortBRED Utility";
-if (isset($GnnId))
-    $title .= ": Job #$GnnId";
+if (isset($ExtraTitle) && $ExtraTitle)
+    $title = "$title: $ExtraTitle";
 
 if (isset($Is404Page) && $Is404Page)
     $title = "Page Not Found";
@@ -13,7 +13,8 @@ if (isset($Is404Page) && $Is404Page)
 if (isset($IsExpiredPage) && $IsExpiredPage)
     $title = "Expired Job";
 
-include("../../html/inc/global_login_button.inc.php");
+include_once("../../includes/login_check.inc.php");
+include_once("../../html/inc/global_login_button.inc.php");
 
 ?>
 
@@ -30,7 +31,8 @@ include("../../html/inc/global_login_button.inc.php");
 
     <script src="<?php echo $SiteUrlPrefix; ?>/js/login.js" type="text/javascript"></script>
     <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-3.2.1.min.js" type="text/javascript"></script>
-    <script src="<?php echo $SiteUrlPrefix; ?>/jquery-ui-1.12.1/jquery-ui.js" type="text/javascript"></script>
+    <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.js" type="text/javascript"></script>
+    <script src="js/upload.js" type="text/javascript"></script>
 </head>
 
 <body>

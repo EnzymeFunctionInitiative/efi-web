@@ -476,10 +476,6 @@ class functions {
         return $hash;
     }
 
-    public static function is_recent_jobs_enabled() {
-        return __ENABLE_RECENT_JOBS__;
-    }
-
     public static function get_update_message() {
         $msg = 
             "The EST database has been updated to use UniProt " . 

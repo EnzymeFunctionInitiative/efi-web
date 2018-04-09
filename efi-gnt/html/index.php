@@ -10,7 +10,7 @@ $showPreviousJobs = false;
 $gnnJobs = array();
 $diagramJobs = array();
 $userGroups = array();
-$isAdmin = false;
+$IsAdminUser = false;
 
 if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $userJobs = new user_jobs();
@@ -24,10 +24,10 @@ if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     if ($userEmail)
         $IsLoggedIn = $userEmail;
     $userGroups = $userJobs->get_groups();
-    $isAdmin = $userJobs->is_admin();
+    $IsAdminUser = $userJobs->is_admin();
 }
 
-$isAdmin = $isAdmin && global_settings::get_job_groups_enabled();
+$showJobGroups = $IsAdminUser && global_settings::get_job_groups_enabled();
 
 $neighborhood = 10;
 $cooccurrence = 20;
@@ -187,7 +187,7 @@ HTML;
                     This option allows to filter the neighboring pFAMs with a co-occurrence <br>percentage lower than the set value. <br>
                     The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 1-100.
                 </p>
-<?php showAdminCode("ssn_job_group", $userGroups, $isAdmin); ?>
+<?php showAdminCode("ssn_job_group", $userGroups, $showJobGroups); ?>
                 <p>
                     E-mail address: 
                     <input name='ssn_email' id='ssn_email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
@@ -215,7 +215,7 @@ HTML;
                     <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "diagram_file", "progress_bar_diagram", "progress_number_diagram", "The acceptable format is sqlite."); ?>
                 </p>
     
-<?php showAdminCode("diagram_job_group", $userGroups, $isAdmin); ?>
+<?php showAdminCode("diagram_job_group", $userGroups, $showJobGroups); ?>
 
                 <p>
                     E-mail address: 
@@ -331,7 +331,7 @@ HTML;
                                 </tr>
                             </table>
 
-<?php showAdminCode("option-a-job-group", $userGroups, $isAdmin); ?>
+<?php showAdminCode("option-a-job-group", $userGroups, $showJobGroups); ?>
 
                             <div>
                                 E-mail address:
@@ -410,7 +410,7 @@ HTML;
                                 </tr>
                             </table>
 
-<?php showAdminCode("option-d-job-group", $userGroups, $isAdmin); ?>
+<?php showAdminCode("option-d-job-group", $userGroups, $showJobGroups); ?>
 
                             <div>
                                 E-mail address:
@@ -491,7 +491,7 @@ HTML;
                                 </tr>
                             </table>
 
-<?php showAdminCode("option-c-job-group", $userGroups, $isAdmin); ?>
+<?php showAdminCode("option-c-job-group", $userGroups, $showJobGroups); ?>
 
                             <div>
                                 E-mail address:
@@ -648,8 +648,8 @@ HTML;
 
 <?php
 
-function showAdminCode($id, $userGroups, $isAdmin) {
-    if (!$isAdmin)
+function showAdminCode($id, $userGroups, $showJobGroups) {
+    if (!$showJobGroups)
         return;
 
     $func = function($val) { return "<option>$val</option>"; };

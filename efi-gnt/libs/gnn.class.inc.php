@@ -217,11 +217,13 @@ class gnn extends arrow_api {
         copy($ssnin, $target_ssnin);
 
         $sched = settings::get_cluster_scheduler();
+        $queue = settings::get_memory_queue();
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
         $exec .= "module load " . settings::get_gnn_module() . "\n";
         $exec .= $binary . " ";
+        $exec .= " -queue " . $queue;
         $exec .= " -ssnin \"" . $target_ssnin . "\"";
         $exec .= " -nb-size " . $this->get_size();
         $exec .= " -cooc " . $this->get_cooccurrence();

@@ -28,6 +28,11 @@ define("__EMAIL_FOOTER__","");
 //define("__BETA_RELEASE__","BETA --");
 define("__ENABLE_RECENT_JOBS__",true);
 define("__ENABLE_JOB_GROUPS__",false);
+define("__ENABLE_SHORTBRED__",false);
+
+define("__MEMORY_QUEUE__","");
+define("__NORMAL_QUEUE__","");
+define("__CLUSTER_SCHEDULER__","slurm");
 
 //
 // STATUS
@@ -36,7 +41,9 @@ define("__RUNNING__","RUNNING");
 define("__FINISH__","FINISH");
 define("__FAILED__","FAILED");
 
-define("__MEMORY_QUEUE__","");
-define("__NORMAL_QUEUE__","");
+//
+// DEFAULTS
+define("__MAX_TIMEOUT__","3600");
+define("__RETENTION_DAYS__","30");
 
 ?>

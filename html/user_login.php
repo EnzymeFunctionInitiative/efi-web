@@ -1,7 +1,7 @@
 <?php
 require_once '../includes/main.inc.php';
 require_once '../libs/user_auth.class.inc.php';
-require_once '../includes/PasswordHash.php';
+require_once '../libs/PasswordHash.php';
 require_once '../includes/pear/Mail.php';
 require_once '../includes/pear/Mail/mime.php';
 
