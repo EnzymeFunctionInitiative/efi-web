@@ -13,6 +13,12 @@ if (isset($Is404Page) && $Is404Page)
 if (isset($IsExpiredPage) && $IsExpiredPage)
     $title = "Expired Job";
 
+$extraCssLinkText = "";
+if (isset($ExtraCssLinks)) {
+    $func = function($value) { return "    <link rel=\"stylesheet\" type=\"text/css\" href=\"$value\">\n"; };
+    $extraCssLinkText = implode("", array_map($func, $ExtraCssLinks));
+}
+
 include_once("../../includes/login_check.inc.php");
 include_once("../../html/inc/global_login_button.inc.php");
 
@@ -27,12 +33,14 @@ include_once("../../html/inc/global_login_button.inc.php");
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="css/shortbred.css">
     <link rel="shortcut icon" href="<?php echo $SiteUrlPrefix; ?>/images/favicon_efi.ico" type="image/x-icon">
+<?php echo $extraCssLinkText; ?>
+
     <title><?php echo $title; ?></title>
 
     <script src="<?php echo $SiteUrlPrefix; ?>/js/login.js" type="text/javascript"></script>
     <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-3.2.1.min.js" type="text/javascript"></script>
     <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.js" type="text/javascript"></script>
-    <script src="js/upload.js" type="text/javascript"></script>
+    <script src="js/submit.js" type="text/javascript"></script>
 </head>
 
 <body>

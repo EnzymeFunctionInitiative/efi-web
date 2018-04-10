@@ -14,6 +14,13 @@ class identify extends job_shared {
     private $db;
     private $error_message = "";
 
+
+    public function get_filename() {
+        return $this->filename;
+    }
+
+
+
     public function __construct($db, $job_id, $is_debug = false) {
         parent::__construct($db);
         $this->set_id($job_id);
@@ -267,7 +274,12 @@ class identify extends job_shared {
 
 
 
-
+    public function get_marker_file_path() {
+        $id = $this->get_id();
+        $out_dir = settings::get_output_dir() . "/" . $id;
+        $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
+        return "$res_dir/markers.faa";
+    }
 
     private function get_full_ssn_path() {
         $uploads_dir = settings::get_uploads_dir();

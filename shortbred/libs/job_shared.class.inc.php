@@ -52,7 +52,7 @@ abstract class job_shared {
         $this->status = $status;
         $this->update_status($status);
     }
-    protected function get_status() {
+    public function get_status() {
         return $this->status;
     }
 
@@ -118,6 +118,9 @@ abstract class job_shared {
     protected abstract function get_email_completed_subject();
     protected abstract function get_email_completed_message();
     protected abstract function get_completed_url();
+    protected function get_completed_url_params() {
+        return array();
+    }
 
     protected function email_started() {
         $subject = $this->beta . $this->get_email_started_subject();
@@ -161,7 +164,12 @@ abstract class job_shared {
         $subject = $this->beta . $this->get_email_completed_subject();
 
         $url = $this->get_completed_url();
-        $full_url = $url . "?" . http_build_query(array('id'=>$this->get_id(), 'key'=>$this->get_key()));
+        $params = $this->get_completed_url_params();
+        $query_params = array('id'=>$this->get_id(), 'key'=>$this->get_key());
+        if (count($params)) {
+            $query_params = $params;
+        }
+        $full_url = $url . "?" . http_build_query($query_params);
 
         $plain_email = "";
         $plain_email .= $this->get_email_completed_message();
@@ -213,7 +221,7 @@ abstract class job_shared {
         return $this->time_started;
     }
 
-    protected function get_time_completed() {
+    public function get_time_completed() {
         return $this->time_completed;
     }
 
