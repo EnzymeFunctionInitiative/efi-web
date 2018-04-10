@@ -8,6 +8,10 @@ class settings extends global_settings {
         return __IDENTIFY_SCRIPT__;
     }
 
+    public static function get_quantify_script() {
+        return __QUANTIFY_SCRIPT__;
+    }
+
     public static function get_valid_file_type() {
         return __VALID_FILE_TYPE__;
     }
@@ -51,6 +55,22 @@ class settings extends global_settings {
 
     public static function get_est_url() {
         return __EST_URL__ ? __EST_URL__ : "#";
+    }
+
+    public static function get_metagenome_db_list() {
+        if (defined("__METAGENOME_DB_LIST__")) {
+            return __METAGENOME_DB_LIST__;
+        } else {
+            return "";
+        }
+    }
+
+    public static function get_quantify_rel_output_dir() {
+        if (defined("__QUANTIFY_REL_OUTPUT_DIR__")) {
+            return __QUANTIFY_REL_OUTPUT_DIR__;
+        } else {
+            return "";
+        }
     }
 }
 ?>

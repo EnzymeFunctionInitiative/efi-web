@@ -1,4 +1,22 @@
 
+function submitQuantify(formId, selectId, messageId, sbId, sbKey) {
+    var fd = new FormData();
+    addParam(fd, "id", sbId);
+    addParam(fd, "key", sbKey);
+    
+    hmpIdList = $("#" + selectId).val();
+    hmpIds = hmpIdList.join();
+
+    addParam(fd, "hmp-ids", hmpIds);
+
+    var completionHandler = function() { enableForm(formId); };
+    var fileHandler = function(xhr) {};
+
+    disableForm(formId);
+
+    var script = "submit_quantify.php";
+    doFormPost(script, fd, messageId, fileHandler, completionHandler);
+}
 
 function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, jobGroupId, isSsn) {
     var fd = new FormData();

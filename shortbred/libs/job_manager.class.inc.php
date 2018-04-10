@@ -15,6 +15,10 @@ class job_manager {
         $this->get_jobs();
     }
 
+    public function validate_job($id, $key) {
+        return isset($this->jobs_by_id[$id]) && $this->jobs_by_id[$id]["key"] == $key;
+    }
+
     private function get_jobs() {
         $table = $this->table_name;
         $col_email = "${table}_email";

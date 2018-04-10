@@ -14,20 +14,17 @@
 //
 // PATHS
 define("__OUTPUT_DIR__","");
-define("__DIAGRAM_OUTPUT_DIR__","");
-define("__LEGACY_OUTPUT_DIR__","");
 define("__UPLOAD_DIR__","");
 define("__LOG_FILE__","");
+define("__WEB_PATH__","");
 define("__WEB_ROOT__","");
-define("__EST_URL__","");
+define("__METAGENOME_DB_LIST__","");
 
 //
 // FILE INFO
 define("__RELATIVE_OUTPUT_DIR__","");
-define("__LEGACY_RELATIVE_OUTPUT_DIR__","");
+define("__QUANTIFY_REL_OUTPUT_DIR__","");
 define("__VALID_FILE_TYPE__","xgmml zip");
-define("__VALID_DIAGRAM_FILE_TYPE__","sqlite");
-define("__VALID_ID_FILE_TYPE__","txt fasta");
 
 //
 // DATABASE
@@ -38,27 +35,16 @@ define("__MYSQL_DATABASE__","");
 
 //
 // UI PARAMETERS
-define("__TITLE__","EFI GNT");
-define("__TIMEZONE__","America/Chicago");
-define("__ADMIN_EMAIL__","");
-define("__UNIPROT_VERSION__","2015_02");
-define("__ENA_VERSION__","122");
-define("__GNT_VERSION__","1.0");
-define("__EST_VERSION__","2.0");
-define("__EMAIL_FOOTER__","");
-define("__BETA_RELEASE__","");
-define("__ENABLE_RECENT_JOBS__",false);
+define("__TITLE__","EFI/ShortBRED");
 
 //
 // JOB SCHEDULING PARAMETERS
-define("__GNN_SCRIPT__","");
-define("__PROCESS_DIAGRAM_SCRIPT__","");
-define("__GNN_MODULE__","");
-define("__EFIDB_MODULE__","");
-define("__BLAST_MODULE__","");
-define("__ENABLE_LOG__",false);
-
 define("__CLUSTER_USER__","");
+define("__IDENTIFY_SCRIPT__","");
+define("__QUANTIFY_SCRIPT__","");
+define("__SHORTBRED_MODULE__","");
+define("__EFIDB_MODULE__","");
+define("__ENABLE_LOG__",true);
 define("__NUM_PROCESSORS__",24);
 
 ?>
