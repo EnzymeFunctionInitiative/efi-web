@@ -56,8 +56,6 @@ class identify extends job_shared {
     }
 
     public function run_job() {
-        //TODO: run the job here
-        
         $result = $this->start_job();
         if ($result === true) {
             if (!$this->is_debug) {
@@ -287,7 +285,7 @@ class identify extends job_shared {
     }
 
     protected function get_table_name() {
-        return "identify";
+        return job_types::Identify;
     }
 }
 

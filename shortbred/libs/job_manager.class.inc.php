@@ -21,12 +21,18 @@ class job_manager {
 
     private function get_jobs() {
         $table = $this->table_name;
-        $col_email = "${table}_email";
-        $col_key = "${table}_key";
+        $id_table = job_types::Identify;
+        $col_email = "${id_table}_email";
+        $col_key = "${id_table}_key";
         $col_id = "${table}_id";
         $col_status = "${table}_status";
 
-        $sql = "SELECT $col_id, $col_key, $col_email, $col_status FROM $table";
+        $q_sql = "";
+        if ($table == job_types::Quantify) {
+            $q_sql = " JOIN $id_table ON $table.${table}_identify_id = ${id_table}_id";
+        }
+        $sql = "SELECT $col_id, $col_key, $col_email, $col_status FROM $table $q_sql";
+
         $rows = $this->db->query($sql);
 
         if (!$rows) {

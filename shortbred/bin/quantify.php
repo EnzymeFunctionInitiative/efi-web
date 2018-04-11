@@ -1,16 +1,17 @@
 <?php
 chdir(dirname(__FILE__));
-require_once '../includes/main.inc.php';
-require_once '../libs/job_manager.class.inc.php';
-
+require_once("../includes/main.inc.php");
+require_once("../libs/job_manager.class.inc.php");
+require_once("../libs/quantify.class.inc.php");
 
 $sapi_type = php_sapi_name();
+$is_debug = false;
 
 if ($sapi_type != 'cli') {
     echo "Error: This script can only be run from the command line.\n";
 }
 else {
-    $jobManager = new job_manager($db, "identify");
+    $jobManager = new job_manager($db, job_types::Quantify);
     $jobs = $jobManager->get_new_job_ids();
     if (count($jobs)) {
         foreach ($jobs as $jobId) {
@@ -19,8 +20,7 @@ else {
 
             print "\nProcessing $jobId\n";
 
-            $is_debug = false;
-            $job = new identify($db, $jobId, $is_debug);
+            $job = new quantify($db, $jobId, $is_debug);
             $msg = $job->run_job();
             
             if (!$msg) {
