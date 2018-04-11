@@ -40,27 +40,25 @@ class quantify extends job_shared {
     }
 
     public function run_job() {
-//        //TODO: run the job here
-//        
-//        $result = $this->start_job();
-//        if ($result === true) {
-//            if (!$this->is_debug) {
-//                $this->set_time_started();
-//                $this->set_status(__RUNNING__);
-//                $this->email_started();
-//            } else {
-//                print "would have sent email started\n";
-//            }
-//        } else {
-//            functions::log_message("Error running job: $result");
-//            if (!$this->is_debug) {
-//                $this->email_admin_failure($result); // Don't email the user
-//                $this->set_status(__FAILED__);
-//            } else {
-//                print "would have sent email failure $result\n";
-//            }
-//        }
-//        return $result;
+        $result = $this->start_job();
+        if ($result === true) {
+            if (!$this->is_debug) {
+                $this->set_time_started();
+                $this->set_status(__RUNNING__);
+                $this->email_started();
+            } else {
+                print "would have sent email started\n";
+            }
+        } else {
+            functions::log_message("Error running job: $result");
+            if (!$this->is_debug) {
+                $this->email_admin_failure($result); // Don't email the user
+                $this->set_status(__FAILED__);
+            } else {
+                print "would have sent email failure $result\n";
+            }
+        }
+        return $result;
     }
 
     public function get_message() {
@@ -74,16 +72,23 @@ class quantify extends job_shared {
 
 
     private function start_job() {
-        $id = $this->get_id();
+        $id = $this->identify_id;
+        $qid = $this->get_id();
 
         $script = settings::get_quantify_script();
         $id_out_dir = settings::get_output_dir() . "/" . $id;
-        $out_dir = $id_out_dir . "/" . settings::get_quantify_rel_output_dir();
+        $q_dir = settings::get_quantify_rel_output_dir() . "-$qid";
+        $out_dir = $id_out_dir . "/" . $q_dir;
 
-        if (@file_exists($out_dir)) {
-            global_functions::rrmdir($out_dir);
+        if ($this->is_debug) {
+            print("rmdir $out_dir\n");
+            print("cd $id_out_dir\n");
+        } else {
+            if (@file_exists($out_dir)) {
+                global_functions::rrmdir($out_dir);
+            }
+            chdir($id_out_dir);
         }
-        chdir($id_out_dir);
 
         $sched = settings::get_cluster_scheduler();
         $queue = settings::get_normal_queue();
@@ -93,17 +98,18 @@ class quantify extends job_shared {
         $exec .= "module load " . settings::get_shortbred_module() . "\n";
         $exec .= "$script";
         $exec .= " -metagenome-db " . settings::get_metagenome_db_list();
-        $exec .= " -qu-dir " . settings::get_quantify_rel_output_dir();
+        $exec .= " -quantify-dir " . $q_dir;
         $exec .= " -id-dir " . settings::get_rel_output_dir();
         $exec .= " -metagenome-ids " . implode(",", $this->metagenome_ids);
-        $exec .= " -job-id " . $id;
+        $exec .= " -job-id " . $qid;
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
         if ($sched)
             $exec .= " -scheduler $sched";
 
         if ($this->is_debug) {
-            print("Job ID: $id\n");
+            print("Identify Job ID: $id\n");
+            print("Quantify Job ID: $qid\n");
             print("Exec: $exec\n");
         } else {
             functions::log_message($exec);
@@ -138,7 +144,8 @@ class quantify extends job_shared {
     }
 
     private function load_job() {
-        $sql = "SELECT * FROM quantify WHERE quantify_id='" . $this->get_id() . "'";
+        $sql = "SELECT quantify.*, identify_email, identify_key FROM quantify ";
+        $sql .= "JOIN identify ON quantify.quantify_identify_id = identify.identify_id WHERE quantify_id='" . $this->get_id() . "'";
         $result = $this->db->query($sql);
 
         if (!$result) {
@@ -151,6 +158,8 @@ class quantify extends job_shared {
 
         $this->identify_id = $result['quantify_identify_id'];
         $mg_ids = $result['quantify_metagenome_ids'];
+        $this->set_email($result['identify_email']);
+        $this->set_key($result['identify_key']);
         $this->metagenome_ids = explode(",", $mg_ids);
 
         $this->loaded = true;
@@ -159,35 +168,33 @@ class quantify extends job_shared {
 
 
     public function check_if_job_is_done() {
-//        $id = $this->get_id();
-//        $out_dir = settings::get_output_dir() . "/" . $id;
-//        $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
-//
-//        $fasta_failed = "$res_dir/get_fasta.failed";
-//        $finish_file = "$res_dir/job.completed";
-//
-//        $is_fasta_error = file_exists($fasta_failed);
-//        $is_finished = file_exists($finish_file);
-//        $is_running = $this->is_job_running();
-//
-//        $result = 1;
-//        if ($is_fasta_error) {
-//            $result = 0;
-//            $this->set_status(__FAILED__);
-//            $this->email_failure("Unable to find any accession IDs in the SSN.  Is it in the correct format?");
-//        } elseif (!$is_running && !$is_finished) {
-//            $result = 0;
-//            $this->set_status(__FAILED__);
-//            $this->email_failure();
-//            $this->email_admin_failure("Job died.");
-//        } elseif (!$is_running) {
-//            $result = 2;
-//            $this->set_status(__FINISH__);
-//            $this->email_completed();
-//        }
-//        // Else the job is still running
-//
-//        return $result;
+        $qid = $this->get_id(); // quantify_id
+        $id = $this->identify_id;
+        $out_dir = settings::get_output_dir() . "/" . $id;
+        $id_dir = $out_dir . "/" . settings::get_rel_output_dir();
+        $res_dir = $id_dir . "/" . settings::get_quantify_rel_output_dir() . "-$qid";
+
+        $fasta_failed = "$res_dir/get_fasta.failed";
+        $finish_file = "$res_dir/job.completed";
+
+        $is_fasta_error = file_exists($fasta_failed);
+        $is_finished = file_exists($finish_file);
+        $is_running = $this->is_job_running();
+
+        $result = 1; // still running
+        if (!$is_running && !$is_finished) {
+            $result = 0;
+            $this->set_status(__FAILED__);
+            $this->email_failure();
+            $this->email_admin_failure("Job died.");
+        } elseif (!$is_running) {
+            $result = 2;
+            $this->set_status(__FINISH__);
+            $this->email_completed();
+        }
+        // Else the job is still running
+
+        return $result;
     }
 
 
@@ -259,7 +266,7 @@ class quantify extends job_shared {
 
 
     protected function get_table_name() {
-        return "quantify";
+        return job_types::Quantify;
     }
 }
 

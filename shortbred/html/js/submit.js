@@ -1,15 +1,19 @@
 
 function submitQuantify(formId, selectId, messageId, sbId, sbKey) {
     var fd = new FormData();
-    addParam(fd, "id", sbId);
-    addParam(fd, "key", sbKey);
+    fd.append("id", sbId);
+    fd.append("key", sbKey);
     
     hmpIdList = $("#" + selectId).val();
     hmpIds = hmpIdList.join();
 
-    addParam(fd, "hmp-ids", hmpIds);
+    fd.append("hmp-ids", hmpIds);
 
-    var completionHandler = function() { enableForm(formId); };
+    var completionHandler = function(jsonObj) {
+        enableForm(formId);
+        var nextStepScript = "stepd.php";
+        window.location.href = nextStepScript + "?id=" + sbId + "&quantify-id=" + jsonObj.quantify_id + "&key=" + sbKey;
+    };
     var fileHandler = function(xhr) {};
 
     disableForm(formId);
@@ -25,7 +29,12 @@ function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId
     addParam(fd, "job-group", jobGroupId);
 
     var files = document.getElementById(fileInputId).files;
-    var completionHandler = function() { enableForm(formId); };
+    var completionHandler = function(jsonObj) {
+        enableForm(formId);
+        var nextStepScript = "stepb.php";
+        window.location.href = nextStepScript + "?id=" + jsonObj.id + "&key=" + jsonObj.key;
+    };
+
     fd.append("file", files[0]);
     var fileHandler = function(xhr) {
         addUploadStuff(xhr, progressNumId, progressBarId);
@@ -99,15 +108,13 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
             // jsonObj variable now contains the data structure and can
             // be accessed as jsonObj.name and jsonObj.country.
             if (jsonObj.valid) {
-                var nextStepScript = "stepb.php";
                 if (jsonObj.cookieInfo)
                     document.cookie = jsonObj.cookieInfo;
-                window.location.href = nextStepScript + "?id=" + jsonObj.id + "&key=" + jsonObj.key;
             }
             if (jsonObj.message) {
                 document.getElementById(messageId).innerHTML = jsonObj.message;
-            } else {
-                completionHandler();
+            } else if (jsonObj.valid) {
+                completionHandler(jsonObj);
                 document.getElementById(messageId).innerHTML = "";
             }
         }

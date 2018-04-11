@@ -74,7 +74,7 @@ require_once "inc/header.inc.php";
 <p><a href="download_files.php?type=markers&<?php echo $id_query_string; ?>">Download marker file.</a></p>
 
 
-<h3>Select Metagenomes from the Human Metagenome Project</h3>
+<h3>Select Metagenomes from the Human Microbiome Project</h3>
 
 <p>
 The next step in the process is quantifying the occurrence of the markers against a metagenome dataset.

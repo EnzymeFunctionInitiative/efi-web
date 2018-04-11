@@ -10,7 +10,7 @@ $key = 0;
 $message = "";
 $valid = 0;
 
-if (isset($_POST['key']) && isset($_POST['id']) && isset($_POST['hmp-ids']) {
+if (isset($_POST['key']) && isset($_POST['id']) && isset($_POST['hmp-ids'])) {
 
     $key = $_POST['key'];
     $id = $_POST['id'];
@@ -21,7 +21,7 @@ if (isset($_POST['key']) && isset($_POST['id']) && isset($_POST['hmp-ids']) {
     }
 
     if ($valid) {
-        $job_mgr = new job_manager($db);
+        $job_mgr = new job_manager($db, job_types::Identify);
     
         if (!$job_mgr->validate_job($id, $key)) {
             $valid = 0;

@@ -187,6 +187,7 @@ abstract class job_shared {
 
         if (!$to)
             $to = $this->get_email();
+        print("TO: $to\n");
         $from = "EFI/ShortBRED <" . settings::get_admin_email() . ">";
 
         $html_email = nl2br($plain_email, false);

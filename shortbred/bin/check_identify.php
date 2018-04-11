@@ -1,8 +1,8 @@
 <?php
 chdir(dirname(__FILE__));
-require_once '../includes/main.inc.php';
-require_once '../libs/job_manager.class.inc.php';
-require_once '../libs/identify.class.inc.php';
+require_once("../includes/main.inc.php");
+require_once("../libs/job_manager.class.inc.php");
+require_once("../libs/identify.class.inc.php");
 
 
 $sapi_type = php_sapi_name();
@@ -13,7 +13,7 @@ if ($sapi_type != 'cli') {
     echo "Error: This script can only be run from the command line.\n";
 }
 else {
-    $jobManager = new job_manager($db, "identify");
+    $jobManager = new job_manager($db, job_types::Identify);
     $jobs = $jobManager->get_running_job_ids();
     if (count($jobs)) {
         foreach ($jobs as $jobId) {
