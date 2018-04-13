@@ -112,7 +112,8 @@ class identify extends job_shared {
         $exec .= "module load " . settings::get_efidb_module() . "\n";
         $exec .= "module load " . settings::get_shortbred_module() . "\n";
         $exec .= "$script";
-        $exec .= " -ssn $target_ssn_path";
+        $exec .= " -ssn-in $target_ssn_path";
+        $exec .= " -ssn-out-name " . $this->get_ssn_name();
         $exec .= " -tmpdir " . settings::get_rel_output_dir();
         $exec .= " -job-id " . $id;
         $exec .= " -np " . settings::get_num_processors();
@@ -192,15 +193,18 @@ class identify extends job_shared {
         if ($is_fasta_error) {
             $result = 0;
             $this->set_status(__FAILED__);
+            $this->set_time_completed();
             $this->email_failure("Unable to find any accession IDs in the SSN.  Is it in the correct format?");
         } elseif (!$is_running && !$is_finished) {
             $result = 0;
             $this->set_status(__FAILED__);
+            $this->set_time_completed();
             $this->email_failure();
             $this->email_admin_failure("Job died.");
         } elseif (!$is_running) {
             $result = 2;
             $this->set_status(__FINISH__);
+            $this->set_time_completed();
             $this->email_completed();
         }
         // Else the job is still running
@@ -277,6 +281,19 @@ class identify extends job_shared {
         $out_dir = settings::get_output_dir() . "/" . $id;
         $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
         return "$res_dir/markers.faa";
+    }
+
+    public function get_ssn_http_path() {
+        $id = $this->get_id();
+        $res_dir = settings::get_rel_output_dir();
+        return "$id/$res_dir/" . $this->get_ssn_name();
+    }
+
+    private function get_ssn_name() {
+        $id = $this->get_id();
+        $name = preg_replace("/.zip$/", ".xgmml", $this->filename);
+        $name = preg_replace("/.xgmml$/", "_markers.xgmml", $name);
+        return "${id}_$name";
     }
 
     private function get_full_ssn_path() {

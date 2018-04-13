@@ -13,6 +13,15 @@ class quantify extends job_shared {
     private $error_message = "";
     private $identify_id;
     private $metagenome_ids;
+    private $filename;
+
+
+    
+    
+    
+    public function get_filename() {
+        return $this->filename;
+    }
 
 
     // job_id represents the analysis id, not the identify id.
@@ -102,6 +111,10 @@ class quantify extends job_shared {
         $exec .= " -id-dir " . settings::get_rel_output_dir();
         $exec .= " -metagenome-ids " . implode(",", $this->metagenome_ids);
         $exec .= " -job-id " . $qid;
+        $exec .= " -ssn-in " . $this->get_full_ssn_path();
+        $exec .= " -ssn-out-name " . $this->get_ssn_name();
+        $exec .= " -protein-file " . $this->get_protein_file_path();
+        $exec .= " -cluster-file " . $this->get_cluster_file_path();
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
         if ($sched)
@@ -144,7 +157,7 @@ class quantify extends job_shared {
     }
 
     private function load_job() {
-        $sql = "SELECT quantify.*, identify_email, identify_key FROM quantify ";
+        $sql = "SELECT quantify.*, identify_email, identify_key, identify_filename FROM quantify ";
         $sql .= "JOIN identify ON quantify.quantify_identify_id = identify.identify_id WHERE quantify_id='" . $this->get_id() . "'";
         $result = $this->db->query($sql);
 
@@ -157,6 +170,7 @@ class quantify extends job_shared {
         $this->load_job_shared($result);
 
         $this->identify_id = $result['quantify_identify_id'];
+        $this->filename = $result['identify_filename'];
         $mg_ids = $result['quantify_metagenome_ids'];
         $this->set_email($result['identify_email']);
         $this->set_key($result['identify_key']);
@@ -174,10 +188,8 @@ class quantify extends job_shared {
         $id_dir = $out_dir . "/" . settings::get_rel_output_dir();
         $res_dir = $id_dir . "/" . settings::get_quantify_rel_output_dir() . "-$qid";
 
-        $fasta_failed = "$res_dir/get_fasta.failed";
         $finish_file = "$res_dir/job.completed";
 
-        $is_fasta_error = file_exists($fasta_failed);
         $is_finished = file_exists($finish_file);
         $is_running = $this->is_job_running();
 
@@ -249,13 +261,15 @@ class quantify extends job_shared {
     }
 
     protected function get_completed_url_params() {
-        $query_params = array('id' => $this->identify_id, 'quantify_id' => $this->get_id(), 'key' => $this->get_key());
+        $query_params = array('id' => $this->identify_id, 'quantify-id' => $this->get_id(), 'key' => $this->get_key());
         return $query_params;
     }
 
     protected function get_job_info() {
-        $info = parent::get_job_info();
-        return $info;
+        $message = "EFI/ShortBRED Job ID: " . $this->identify_id . $this->eol;
+        $message .= "Quantify ID: " . $this->get_id() . $this->eol;
+        $message .= "Time Submitted: " . $this->get_time_created() . $this->eol;
+        return $message;
     }
 
 
@@ -263,7 +277,58 @@ class quantify extends job_shared {
 
 
 
+    private function get_quantify_res_dir() {
+        $id = $this->get_id(); # quantify ID
+        $id_dir = settings::get_rel_output_dir();
+        $res_dir = settings::get_quantify_rel_output_dir();
+        return "$id_dir/$res_dir-$id";
+    }
 
+    public function get_protein_file_path() {
+        $id = $this->get_id();
+        $path = settings::get_output_dir() . "/" .
+            $this->identify_id . "/" .
+            $this->get_quantify_res_dir() . "/" .
+            $this->get_protein_file_name();
+        return $path;
+    }
+
+    private function get_protein_file_name() {
+        return "protein_abundance.txt";
+    }
+
+    public function get_cluster_file_path() {
+        $id = $this->get_id();
+        $path = settings::get_output_dir() . "/" .
+            $this->identify_id . "/" .
+            $this->get_quantify_res_dir() . "/" .
+            $this->get_cluster_file_name();
+        return $path;
+    }
+
+    private function get_cluster_file_name() {
+        return "cluster_abundance.txt";
+    }
+
+    public function get_ssn_http_path() {
+        $path = 
+            $this->identify_id . "/" .
+            $this->get_quantify_res_dir() . "/" .
+            $this->get_ssn_name();
+        return $path;
+    }
+
+    private function get_ssn_name() {
+        $id = $this->identify_id;
+        $name = preg_replace("/.zip$/", ".xgmml", $this->filename);
+        $name = preg_replace("/.xgmml$/", "_quantify.xgmml", $name);
+        return "${id}_$name";
+    }
+
+    private function get_full_ssn_path() {
+        $uploads_dir = settings::get_uploads_dir();
+        return $uploads_dir . "/" . $this->identify_id . "." . pathinfo($this->filename, PATHINFO_EXTENSION);
+    }
 
     protected function get_table_name() {
         return job_types::Quantify;

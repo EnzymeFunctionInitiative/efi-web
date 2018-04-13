@@ -2,32 +2,43 @@
 
 require_once "../../libs/ui.class.inc.php";
 require_once "../includes/main.inc.php";
+require_once "../../libs/user_auth.class.inc.php";
 
-$userEmail = "Enter your e-mail address";
+$user_email = "Enter your e-mail address";
 
 $IsLoggedIn = false;
-$showPreviousJobs = false;
-$batchJobs = array();
-$userGroups = array();
+$show_previous_jobs = false;
+$jobs = array();
+$user_groups = array();
 $IsAdminUser = false;
 
-//if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
+if (settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
+    $user_token = user_auth::get_user_token();
+    $user_email = user_auth::get_email_from_token($db, $user_token);
+
+    $job_manager = new job_manager($db, job_types::Identify);
+    $jobs = $job_manager->get_jobs_by_user($user_token);
+    $show_previous_jobs = count($jobs) > 0;
+
+    if ($user_email)
+        $IsLoggedIn = $user_email;
+
 //    $userJobs = new user_jobs();
 //    $userJobs->load_jobs($db, user_jobs::get_user_token());
-//    $batchJobs = $userJobs->get_jobs();
+//    $jobs = $userJobs->get_jobs();
 //    $jobEmail = $userJobs->get_email();
 //    if ($jobEmail)
-//        $userEmail = $jobEmail;
-//    $showPreviousJobs = count($batchJobs) > 0;
-//    if ($userEmail)
-//        $IsLoggedIn = $userEmail;
-//    $userGroups = $userJobs->get_groups();
+//        $user_email = $jobEmail;
+//    $show_previous_jobs = count($jobs) > 0;
+//    if ($user_email)
+//        $IsLoggedIn = $user_email;
+//    $user_groups = $userJobs->get_groups();
 //    $IsAdminUser = $userJobs->is_admin();
-//}
+}
 
 $showJobGroups = $IsAdminUser && global_settings::get_job_groups_enabled();
 
-$updateMessage = functions::get_update_message();
+$update_message = functions::get_update_message();
 
 require_once "inc/header.inc.php";
 
@@ -39,25 +50,25 @@ require_once "inc/header.inc.php";
 </p>
 
 <div id="update-message" class="update_message initial-hidden">
-<?php if (isset($updateMessage)) echo $updateMessage; ?>
+<?php if (isset($update_message)) echo $update_message; ?>
 </div>
 
 <!--A listing of new features and other information pertaining to GNT is available on the <a href="notes.php">release notes page</a>. -->
 
 <div class="tabs">
     <ul class="tab-headers">
-<?php if ($showPreviousJobs) { ?>
+<?php if ($show_previous_jobs) { ?>
         <li class="active"><a href="#jobs">Previous Jobs</a></li>
 <?php } ?>
         <li><a href="#create">Run ShortBRED</a></li>
-        <li <?php if (! $showPreviousJobs) echo "class=\"active\""; ?>><a href="#tutorial">Tutorial</a></li>
+        <li <?php if (! $show_previous_jobs) echo "class=\"active\""; ?>><a href="#tutorial">Tutorial</a></li>
     </ul>
 
     <div class="tab-content">
-<?php if ($showPreviousJobs) { ?>
+<?php if ($show_previous_jobs) { ?>
         <div id="jobs" class="tab active">
 <?php } ?>
-<?php if (count($batchJobs) > 0) { ?>
+<?php if (count($jobs) > 0) { ?>
             <h4>ShortBRED Jobs</h4>
             <table class="pretty">
                 <thead>
@@ -67,24 +78,41 @@ require_once "inc/header.inc.php";
                 </thead>
                 <tbody>
 <?php
-for ($i = 0; $i < count($batchJobs); $i++) {
-    $key = $batchJobs[$i]["key"];
-    $id = $batchJobs[$i]["id"];
-    $name = $batchJobs[$i]["filename"];
-    $dateCompleted = $batchJobs[$i]["completed"];
-    $isActive = $dateCompleted == "PENDING" || $dateCompleted == "RUNNING";
+$last_bg_color = "#eee";
+for ($i = 0; $i < count($jobs); $i++) {
+    $key = $jobs[$i]["key"];
+    $id = $jobs[$i]["id"];
+    $name = $jobs[$i]["job_name"];
+    $is_completed = $jobs[$i]["is_completed"];
+    $date_completed = $jobs[$i]["date_completed"];
+    $is_active = $date_completed == "PENDING" || $date_completed == "RUNNING";
 
-    $linkStart = $isActive ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
-    $linkEnd = $isActive ? "" : "</a>";
+    $link_start = "";
+    $link_end = "";
+    $name_style = "";
 
-    if (array_key_exists("diagram", $batchJobs[$i]))
-        $linkStart = "<a href=\"stepc.php?upload-id=$id&key=$key\">";
+    if ($jobs[$i]["is_quantify"]) {
+        if ($is_completed) {
+            $quantify_id = $jobs[$i]["quantify_id"];
+            $link_start = "<a href=\"stepe.php?id=$id&key=$key&quantify-id=$quantify_id\">";
+            $link_end = "</a>";
+        }
+        $name_style = "style=\"padding-left: 50px;\"";
+        $name = "[Quantify] " . $name;
+    } else {
+        $link_start = $is_active ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
+        $link_end = $is_active ? "" : "</a>";
+        if ($last_bg_color == "#fff")
+            $last_bg_color = "#eee";
+        else
+            $last_bg_color = "#fff";
+    }
 
     echo <<<HTML
-                    <tr>
-                        <td>$linkStart${id}$linkEnd</td>
-                        <td>$linkStart${name}$linkEnd</td>
-                        <td>$dateCompleted</td>
+                    <tr style="background-color: $last_bg_color">
+                        <td>$link_start${id}$link_end</td>
+                        <td $name_style>$link_start${name}$link_end</td>
+                        <td>$date_completed</td>
                     </tr>
 HTML;
 }
@@ -93,7 +121,7 @@ HTML;
             </table>
 <?php } ?>
             
-<?php if ($showPreviousJobs) { ?>
+<?php if ($show_previous_jobs) { ?>
         </div>
 <?php } ?>
 
@@ -111,10 +139,10 @@ HTML;
                 <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", $SiteUrlPrefix); ?>
                 </p>
     
-<?php showAdminCode("ssn_job_group", $userGroups, $showJobGroups); ?>
+<?php showAdminCode("ssn_job_group", $user_groups, $showJobGroups); ?>
                 <p>
                     E-mail address: 
-                    <input name='ssn_email' id='ssn_email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
+                    <input name='ssn_email' id='ssn_email' type="text" value="<?php echo $user_email; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
                     When the file has been uploaded and processed, you will receive an e-mail containing a link
                     to download the data.
                 </p>
@@ -133,7 +161,7 @@ HTML;
             </form>
         </div>
 
-        <div id="tutorial" class="tab <?php if (!$showPreviousJobs) echo "active"; ?>">
+        <div id="tutorial" class="tab <?php if (!$show_previous_jobs) echo "active"; ?>">
             <h3>ShortBRED Tool Overview</h3>
     
             <p>
@@ -222,12 +250,12 @@ HTML;
 
 <?php
 
-function showAdminCode($id, $userGroups, $showJobGroups) {
+function showAdminCode($id, $user_groups, $showJobGroups) {
     if (!$showJobGroups)
         return;
 
     $func = function($val) { return "<option>$val</option>"; };
-    $groupList = implode("", array_map($func, $userGroups));
+    $groupList = implode("", array_map($func, $user_groups));
     if ($groupList) {
         echo <<<HTML
 <div style="margin:20px 0">
