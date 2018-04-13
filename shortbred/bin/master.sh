@@ -5,15 +5,19 @@ echo "$DATE: Start EFI-ShortBRED Master script"
 
 #export EFI_DEBUG=1
 
+echo "CHECKING UP ON IDENTIFY JOBS"
 sleep 1
 php $DIR/check_identify.php
 
+echo "CHECKING UP ON QUANTIFY JOBS"
 sleep 1
 php $DIR/check_quantify.php
 
+echo "STARTING ANY NEW IDENTIFY JOBS"
 sleep 1
 php $DIR/identify.php
 
+echo "STARTING ANY NEW QUANTIFY JOBS"
 sleep 1
 php $DIR/quantify.php
 

@@ -72,5 +72,13 @@ class settings extends global_settings {
             return "";
         }
     }
+
+    public static function get_rel_http_output_dir() {
+        if (defined("__HTTP_OUTPUT_DIR__")) {
+            return __HTTP_OUTPUT_DIR__;
+        } else {
+            return "";
+        }
+    }
 }
 ?>

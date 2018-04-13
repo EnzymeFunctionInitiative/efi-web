@@ -69,7 +69,7 @@ require_once "inc/header.inc.php";
 
 <p>The markers have been computed.</p>
 
-<!--<p><a href="download.php?type=ssn-c&<?php echo $id_query_string; ?>">Download SSN with markers identified.</a></p>-->
+<p><a href="download_files.php?type=ssn-c&<?php echo $id_query_string; ?>">Download SSN with markers identified.</a></p>
 
 <p><a href="download_files.php?type=markers&<?php echo $id_query_string; ?>">Download marker file.</a></p>
 
