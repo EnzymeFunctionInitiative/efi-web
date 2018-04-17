@@ -90,15 +90,17 @@ for ($i = 0; $i < count($jobs); $i++) {
     $link_start = "";
     $link_end = "";
     $name_style = "";
+    $id_field = $id;
 
     if ($jobs[$i]["is_quantify"]) {
+        $quantify_id = $jobs[$i]["quantify_id"];
         if ($is_completed) {
-            $quantify_id = $jobs[$i]["quantify_id"];
             $link_start = "<a href=\"stepe.php?id=$id&key=$key&quantify-id=$quantify_id\">";
             $link_end = "</a>";
         }
         $name_style = "style=\"padding-left: 50px;\"";
         $name = "[Quantify] " . $name;
+        $id_field = "";
     } else {
         $link_start = $is_active ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
         $link_end = $is_active ? "" : "</a>";
@@ -110,7 +112,7 @@ for ($i = 0; $i < count($jobs); $i++) {
 
     echo <<<HTML
                     <tr style="background-color: $last_bg_color">
-                        <td>$link_start${id}$link_end</td>
+                        <td>$link_start${id_field}$link_end</td>
                         <td $name_style>$link_start${name}$link_end</td>
                         <td>$date_completed</td>
                     </tr>
