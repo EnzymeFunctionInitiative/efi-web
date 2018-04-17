@@ -88,6 +88,7 @@ class quantify extends job_shared {
         $id_out_dir = settings::get_output_dir() . "/" . $id;
         $q_dir = settings::get_quantify_rel_output_dir() . "-$qid";
         $out_dir = $id_out_dir . "/" . $q_dir;
+        $target_ssn_path = $this->get_input_identify_ssn_path();
 
         if ($this->is_debug) {
             print("rmdir $out_dir\n");
@@ -111,10 +112,10 @@ class quantify extends job_shared {
         $exec .= " -id-dir " . settings::get_rel_output_dir();
         $exec .= " -metagenome-ids " . implode(",", $this->metagenome_ids);
         $exec .= " -job-id " . $qid;
-        $exec .= " -ssn-in " . $this->get_full_ssn_path();
+        $exec .= " -ssn-in " . $target_ssn_path;
         $exec .= " -ssn-out-name " . $this->get_ssn_name();
-        $exec .= " -protein-file " . $this->get_protein_file_path();
-        $exec .= " -cluster-file " . $this->get_cluster_file_path();
+        $exec .= " -protein-file " . $this->get_protein_file_name();
+        $exec .= " -cluster-file " . $this->get_cluster_file_name();
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
         if ($sched)
@@ -197,11 +198,13 @@ class quantify extends job_shared {
         if (!$is_running && !$is_finished) {
             $result = 0;
             $this->set_status(__FAILED__);
+            $this->set_time_completed();
             $this->email_failure();
             $this->email_admin_failure("Job died.");
         } elseif (!$is_running) {
             $result = 2;
             $this->set_status(__FINISH__);
+            $this->set_time_completed();
             $this->email_completed();
         }
         // Else the job is still running
@@ -325,10 +328,20 @@ class quantify extends job_shared {
         return "${id}_$name";
     }
 
-    private function get_full_ssn_path() {
-        $uploads_dir = settings::get_uploads_dir();
-        return $uploads_dir . "/" . $this->identify_id . "." . pathinfo($this->filename, PATHINFO_EXTENSION);
+    private function get_input_identify_ssn_path() {
+        $path = settings::get_output_dir() . "/" .
+            $this->identify_id . "/" .
+            $this->identify_id . ".xgmml";
+        return $path;
     }
+
+//    private function get_output_ssn_path() {
+//        $path = settings::get_output_dir() . "/" .
+//            $this->identify_id . "/" .
+//            $this->get_quantify_res_dir() . "/" .
+//            $this->get_ssn_name();
+//        return $path;
+//    }
 
     protected function get_table_name() {
         return job_types::Quantify;

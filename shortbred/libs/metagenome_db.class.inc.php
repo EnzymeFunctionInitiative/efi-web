@@ -73,6 +73,14 @@ class metagenome_db {
 
         return $result;
     }
+
+    public function get_metagenome_data($mg_name) {
+        if (isset($this->mg_info[$mg_name])) {
+            return $this->mg_info[$mg_name];
+        } else {
+            return array('name' => "", 'desc' => "", 'file_name' => "");
+        }
+    }
 }
 
 ?>
