@@ -21,7 +21,8 @@ function submitOptionAForm() {
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
 
-    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+    var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
+    checkUniRef90Requirement("families-input-opta", "opta-use-uniref", "blast-fraction", submitFn);
 }
 
 function submitOptionBForm() {
@@ -42,7 +43,9 @@ function submitOptionBForm() {
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
 
-    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+//    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+    var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
+    checkUniRef90Requirement("families-input", "pfam-use-uniref", "pfam-fraction", submitFn);
 }
 
 function submitOptionCForm() {
@@ -70,7 +73,9 @@ function submitOptionCForm() {
         };
     }
 
-    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+//    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+    var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
+    checkUniRef90Requirement("families-input-optc", "optc-use-uniref", "fasta-fraction", submitFn);
 }
 
 function submitOptionDForm() {
@@ -99,7 +104,9 @@ function submitOptionDForm() {
         };
     }
 
-    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+//    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+    var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
+    checkUniRef90Requirement("families-input-optd", "optd-use-uniref", "accession-fraction", submitFn);
 }
 
 function submitOptionEForm() {
@@ -120,7 +127,9 @@ function submitOptionEForm() {
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
 
-    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+//    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+    var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
+    checkUniRef90Requirement("option-e-input", "nope", "nope", submitFn);
 }
 
 function submitColorSsnForm() {

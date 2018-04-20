@@ -191,6 +191,7 @@ abstract class option_base extends stepa {
         chdir($out->job_dir);
 
         $sched = functions::get_cluster_scheduler();
+        $max_full_fam = functions::get_maximum_full_family_count();
 
         $parms = $this->get_run_script_args($out);
 
@@ -203,6 +204,8 @@ abstract class option_base extends stepa {
             $exec .= " -scheduler $sched";
         if (functions::get_use_legacy_graphs())
             $exec .= " -oldgraphs";
+        if ($max_full_fam && $max_full_fam > 0)
+            $exec .= " -max-full-family $max_full_fam";
         foreach ($parms as $key => $value) {
             $exec .= " $key $value";
         }

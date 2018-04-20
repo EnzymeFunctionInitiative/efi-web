@@ -53,7 +53,8 @@ define("__MAX_SEQ__",100000);
 
 define("__MAX_BLAST_SEQ__",10000);
 define("__DEFAULT_BLAST_SEQ__",5000);
-define("__RETENTION_DAYS__",14);
+
+define("__MAX_FULL_FAMILY_COUNT__",30000);
 
 define("__ENABLE_A__",true);
 define("__ENABLE_B__",true);

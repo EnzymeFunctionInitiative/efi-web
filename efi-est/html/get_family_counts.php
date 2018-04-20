@@ -9,6 +9,10 @@ $queryString = str_replace("\r", ",", $queryString);
 $queryString = str_replace(" ", ",", $queryString);
 $families = explode(",", $queryString);
 
+$isUniref90Check = isset($_GET["check-warning"]) && $_GET["check-warning"] == 1;
+$fraction = isset($_GET["fraction"]) ? $_GET["fraction"] : 1;
+
+$totalFull = 0;
 $results = array();
 
 foreach ($families as $family) {
@@ -28,6 +32,18 @@ foreach ($families as $family) {
             "all" => $dbResult[0]["num_members"],
             "uniref90" => $dbResult[0]["num_uniref90_members"],
             "uniref50" => $dbResult[0]["num_uniref50_members"]);
+        $totalFull += $dbResult[0]["num_members"];
+    }
+}
+
+if ($isUniref90Check) {
+    $maxFull = functions::get_maximum_full_family_count();
+    $totalFraction = $totalFull / $fraction;
+    //$isWarning = $maxFull > 0 && $totalFull > $maxFull;
+    $isWarning = $maxFull > 0 && $totalFraction > $maxFull;
+    $results = array("is_warning" => $isWarning, "max_full" => $maxFull, "total" => $totalFull);
+    if ($totalFraction < $totalFull) {
+        $results["total_fraction"] = $totalFraction;
     }
 }
 

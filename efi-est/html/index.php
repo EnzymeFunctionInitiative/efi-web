@@ -30,6 +30,7 @@ $maxSeqFormatted = number_format($maxSeqNum, 0);
 $useUniref90 = true;
 $useUniref50 = false;
 $useAdvancedFamilyInputs = functions::option_e_enabled();
+$maxFullFamily = number_format(functions::get_maximum_full_family_count(), 0);
 
 $updateMessage = functions::get_update_message();
 
@@ -54,8 +55,9 @@ easily generate SSNs that can be visualized in
 </div>
 
 <p>
-When a family is selected in Options B, C, and D, SSNs now can be generated using the 
-UniRef90 database in which UniProt sequences that share &ge;90% sequence identity over 80% 
+When a family greater than <?php echo $maxFullFamily; ?> in size is selected in
+Options B, C, and D, <b>SSNs are now be generated using the 
+UniRef90 database</b> in which UniProt sequences that share &ge;90% sequence identity over 80% 
 of the sequence length are clustered and represented by a single seed sequence. For most 
 families, use of Uniref90 seed sequences decreases the time for the BLAST step by a
 factor of &ge;4. The UniRef90 SSNs are analogous to 90% representative node SSNs generated
@@ -236,6 +238,8 @@ HTML;
                     If desired, include Pfam and/or InterPro families, in the analysis of your sequence. For Pfam families,
                     the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the format is
                     IPRxxxxxx (six digits); for Pfam clans, the format is CLxxxx (four digits).
+                    For Pfam families, InterPro families, and Pfam clans with a size greater than <?php echo $maxFullFamily; ?>,
+                    UniRef90 seed sequences will be utilized instead of the full family.
                 </div>
                 <div class="primary-input">
                     <div>
@@ -301,7 +305,8 @@ HTML;
             </p>
             <p>
             The maximum number of retrieved sequences is <?php echo $maxSeqFormatted; ?>.
-            For large Pfam families, InterPro families, and Pfam clans, we recommend using the UniRef90 seed sequences.
+            For Pfam families, InterPro families, and Pfam clans with a size greater than <?php echo $maxFullFamily; ?>,
+            UniRef90 seed sequences will be utilized instead of the full family.
             </p>
 
             <form name="optionBform" id="optionBform" method="post" action="">
@@ -403,6 +408,8 @@ HTML;
                         If desired, include Pfam and/or InterPro families, in the analysis of your FASTA file. For Pfam families,
                         the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the format is
                         IPRxxxxxx (six digits); for Pfam clans, the format is CLxxxx (four digits).
+                        For Pfam families, InterPro families, and Pfam clans with a size greater than <?php echo $maxFullFamily; ?>,
+                        UniRef90 seed sequences will be utilized instead of the full family.
                     </div>
                 <div class="primary-input">
                     <div>
@@ -482,6 +489,8 @@ HTML;
                     If desired, include Pfam and/or InterPro families, in the analysis of your list of IDs. For Pfam families,
                     the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the format is
                     IPRxxxxxx (six digits); for Pfam clans, the format is CLxxxx (four digits).
+                    For Pfam families, InterPro families, and Pfam clans with a size greater than <?php echo $maxFullFamily; ?>,
+                    UniRef90 seed sequences will be utilized instead of the full family.
                 </div>
                 <div class="primary-input">
                     <div>
@@ -570,6 +579,8 @@ HTML;
                 UniRef, sequence identity, and sequence length are provided.
                 For Pfam families, the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the
                 format is IPRxxxxxx (six digits). The maximum number of retrieved sequences is <?php echo $maxSeqFormatted; ?>.
+                For Pfam families, InterPro families, and Pfam clans with a size greater than <?php echo $maxFullFamily; ?>,
+                UniRef90 seed sequences will be utilized instead of the full family.
             </div>
 
             <form name="optionEform" id="optionEform" method="post" action="">
@@ -804,6 +815,15 @@ HTML;
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
 <script src="js/family-counts.js" type="text/javascript"></script>
+
+<div id="family-warning" class="hidden" title="Family Size Warning">
+    The family(ies) selected has <span id="family-warning-total-size"> </span> 
+    proteins<span id="family-warning-fraction-size"></span>, which is greater
+    than the maximum allowed (<?php echo $maxFullFamily; ?>) for full family
+    inclusion.  UniRef90 seed sequences will automatically be 
+    used instead of the full number of proteins in the family(ies).  Press OK to continue with UniRef90
+    or Cancel to enter a different family, or option.
+</div>
 
 <?php require_once('inc/footer.inc.php'); ?>
 
