@@ -41,6 +41,10 @@ class global_functions {
         }
         rmdir($dir);
     }
+
+    public static function bytes_to_megabytes($bytes) {
+        return number_format($bytes / 1048576, 0);
+    }
 }
 
 ?>

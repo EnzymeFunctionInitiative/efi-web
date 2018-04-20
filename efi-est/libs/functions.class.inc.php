@@ -509,6 +509,10 @@ class functions {
     public static function option_a_families_enabled() {
         return defined("__ENABLE_OPTION_A_FAMILIES__") && __ENABLE_OPTION_A_FAMILIES__ ? true : false;
     }
+
+    public static function get_maximum_full_family_count() {
+        return defined("__MAX_FULL_FAMILY_COUNT__") ? __MAX_FULL_FAMILY_COUNT__ : 0;
+    }
 }
 
 ?>

@@ -31,6 +31,7 @@
                                         <li><a href='generate.php'>Generate Jobs</a></li>
 					<li><a href='analyse.php'>Analyse Jobs</a></li>
 					<li><a href='databases.php'>Databases</a></li>
+					<li><a href='queue.php'>Queue Status</a></li>
                         </ul>
 
                 </div>

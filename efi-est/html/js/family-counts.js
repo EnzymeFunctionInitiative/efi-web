@@ -1,5 +1,6 @@
 
 
+// Private
 function getFamilyCountsRaw(familyInputId, countOutputId, handler, useUniref90, useUniref50) {
     var family = document.getElementById(familyInputId).value;
 
@@ -139,5 +140,66 @@ function checkFamilyInput(familyInputId, containerOutputId, countOutputId, warni
     };
 
     getFamilyCountsRaw(familyInputId, countOutputId, handleResponse, useUniref90, useUniref50);
+}
+
+// Public
+function checkUniRef90Requirement(familyInputId, useUnirefId, fractionId, continueWarningFn) {
+    var input = document.getElementById(familyInputId).value;
+    var isUnirefElem = document.getElementById(useUnirefId);
+    var fractionElem = document.getElementById(fractionId);
+    var isUnirefChecked = false;
+    if (isUnirefElem)
+        isUnirefChecked = isUnirefElem.checked;
+    var fraction = 1;
+    if (fractionElem)
+        fraction = fractionElem.value;
+
+    // If UniRef90 is checked, then continue without checking the family size
+    if (isUnirefChecked) {
+        continueWarningFn();
+        return;
+    }
+
+    var onCheckFn = function() {
+    };
+
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200 && this.responseText.length > 1) {
+            var data = JSON.parse(this.responseText);
+            var fraction = typeof data.total_fraction !== "undefined" ? data.total_fraction : 0;
+            if (data.is_warning)
+                showUniRefRequirement(data.total, fraction, continueWarningFn);
+            else
+                continueWarningFn();
+        }
+    };
+    var family_query = input.replace(/\n/g, " ").replace(/\r/g, " ");
+    xmlhttp.open("GET", "get_family_counts.php?check-warning=1&families=" + family_query + "&fraction=" + fraction, true);
+    xmlhttp.send();
+}
+
+// Private
+function showUniRefRequirement(numFound, numAfterFraction, continueFn) {
+    var warningDialog = $("#family-warning");
+    $("#family-warning-total-size").text(commaFormatted(numFound.toString()));
+    if (numAfterFraction > 0) {
+        $("#family-warning-fraction-size").text(" (" + commaFormatted(numAfterFraction.toString()) + " after applying a fraction)");
+    }
+
+    var warningOkFn = function() {
+        $(this).dialog("close");
+        continueFn(); // this is a callback from the submit.js functions that allows the submission to continue
+    };
+
+    var warningCancelFn = function() {
+        $(this).dialog("close");
+    };
+
+    warningDialog.dialog({resizeable: false, draggable: false, autoOpen: false, height: 350, width: 500,
+        buttons: { "Ok": warningOkFn, "Cancel": warningCancelFn }
+    });
+
+    warningDialog.dialog("open");
 }
 
