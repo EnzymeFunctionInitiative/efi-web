@@ -69,6 +69,28 @@ if (isset($_GET["type"])) {
         } else {
             $is_error = true;
         }
+    } elseif ($type == "q-prot-m") {
+        $protein_file = $job_obj->get_merged_protein_file_path();
+        if (file_exists($protein_file)) {
+            $download_filename = $the_id . "_" . pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_protein_abundance.txt";
+            $content_size = filesize($protein_file);
+            sendHeaders($download_filename, $content_size);
+            readfile($protein_file);
+            exit(0);
+        } else {
+            $is_error = true;
+        }
+    } elseif ($type == "q-clust-m") {
+        $cluster_file = $job_obj->get_merged_cluster_file_path();
+        if (file_exists($cluster_file)) {
+            $download_filename = pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_cluster_abundance.txt";
+            $content_size = filesize($cluster_file);
+            sendHeaders($download_filename, $content_size);
+            readfile($cluster_file);
+            exit(0);
+        } else {
+            $is_error = true;
+        }
     } elseif ($type == "ssn-q") {
         $ssn_file = $job_obj->get_ssn_http_path();
         $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;

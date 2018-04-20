@@ -94,9 +94,13 @@ for ($i = 0; $i < count($jobs); $i++) {
 
     if ($jobs[$i]["is_quantify"]) {
         $quantify_id = $jobs[$i]["quantify_id"];
+        $title_str = "title=\"" . $jobs[$i]["full_job_name"] . "\"";
         if ($is_completed) {
-            $link_start = "<a href=\"stepe.php?id=$id&key=$key&quantify-id=$quantify_id\">";
+            $link_start = "<a href=\"stepe.php?id=$id&key=$key&quantify-id=$quantify_id\" $title_str>";
             $link_end = "</a>";
+        } else {
+            $link_start = "<span $title_str>";
+            $link_end = "</span>";
         }
         $name_style = "style=\"padding-left: 50px;\"";
         $name = "[Quantify] " . $name;

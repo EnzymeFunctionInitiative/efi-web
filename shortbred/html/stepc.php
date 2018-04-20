@@ -86,22 +86,36 @@ Human Microbiome Project</a>.
 <input type="hidden" name="id" value="<?php echo $id; ?>">
 <input type="hidden" name="key" value="<?php echo $key; ?>">
 
-<select id="hmp-id" name="hmp-id" multiple size="5">
+<div class="row">
+    <div class="col-xs-5">
+        <select id="search" name="from[]" multiple="multiple" size="8">
 <?php
 
 foreach ($hmp_list as $hmp_id => $hmp_name) {
-    echo "<option value=\"$hmp_id\">$hmp_name</option>\n";
+    echo "                <option value=\"$hmp_id\">$hmp_name</option>\n";
 }
 
 ?>
-</select>
+        </select>
+    </div>
+    <div class="col-xs-2" style="text-align:center;">
+        <button type="button" id="search_rightAll" class="light btn-select"><i class="fas fa-angle-double-right"></i></button>
+        <button type="button" id="search_rightSelected" class="light btn-select"><i class="fas fa-angle-right"></i></button>
+        <button type="button" id="search_leftSelected" class="light btn-select"><i class="fas fa-angle-left"></i></button>
+        <button type="button" id="search_leftAll" class="light btn-select"><i class="fas fa-angle-double-left"></i></button>
+    </div>
+    
+    <div class="col-xs-5">
+        <select name="to[]" id="search_to" class="form-control" size="8" multiple="multiple"></select>
+    </div>
+</div>
 
 <p>&nbsp;</p>
 <div id="error-message" style="color: red"></div>
 
 <center>
 <button class="dark" type="button" name="submit" id="quantify-submit"
-    onclick="submitQuantify('quantify-params', 'hmp-id', 'error-message', '<?php echo $id; ?>', '<?php echo $key; ?>')">Quantify Markers</button>
+    onclick="submitQuantify('quantify-params', 'search_to', 'error-message', '<?php echo $id; ?>', '<?php echo $key; ?>')">Quantify Markers</button>
 </center>
 
 </form>
@@ -117,7 +131,16 @@ foreach ($hmp_list as $hmp_id => $hmp_name) {
 <script src="<?php echo $SiteUrlPrefix; ?>/chosen/chosen.jquery.min.js" type="text/javascript"></script>
 <script>
 $(document).ready(function() {
-    $("#hmp-id").chosen({width: "35%", placeholder_text_multiple: "Click to Select Metagenomes"});
+    $('#search').multiselect({
+        search: {
+            left: '<input type="text" name="ql" class="form-control" placeholder="Search..." />',
+            right: '<input type="text" name="qr" class="form-control" placeholder="Search..." />',
+        },
+        fireSearch: function(value) {
+            return value.length > 3;
+        }
+    });
+//    $("#hmp-id").chosen({width: "35%", placeholder_text_multiple: "Click to Select Metagenomes"});
 });
 </script>
 

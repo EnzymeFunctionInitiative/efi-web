@@ -71,10 +71,25 @@ button {
     margin-bottom: 15px;
 }
 
+button.mini {
+    font-size: 90%;
+    padding: 2px 9px;
+    margin: 0;
+    border: 1px solid #bbb;
+    border-radius: 0px;
+    background-color: #ddd;
+}
+
 button.small {
     font-size: 100%;
     padding: 3px 7px;
     margin: 0;
+}
+
+button.btn-select {
+    width: 75%;
+    margin: 5px;
+    padding: 5px;
 }
 
 a button:hover {
@@ -338,7 +353,7 @@ table.pretty tr:nth-of-type(even) td {
 /* FORM INPUT */
 
 input[type="text"] {
-/*    font-size: 125%;*/
+    font-size: 100%;
     padding: 6px;
 }
 

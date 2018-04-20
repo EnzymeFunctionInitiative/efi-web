@@ -97,8 +97,8 @@ class job_manager {
 
         $start_date = user_auth::get_start_date_window();
         $id_sql = "SELECT identify_id, identify_key, identify_time_completed, identify_filename, identify_status " .
-            "FROM identify WHERE identify_email='$email' AND identify_time_completed >= '$start_date' " .
-            "OR (identify_time_created >= '$start_date' AND (identify_status = 'NEW' OR identify_status = 'RUNNING')) " .
+            "FROM identify WHERE identify_email='$email' AND (identify_time_completed >= '$start_date' " .
+            "OR (identify_time_created >= '$start_date' AND (identify_status = 'NEW' OR identify_status = 'RUNNING'))) " .
             "ORDER BY identify_status, identify_time_completed DESC";
         $id_rows = $this->db->query($id_sql);
 
@@ -127,10 +127,17 @@ class job_manager {
                     $q_is_completed = $q_comp_result[0];
                     $q_id = $q_row["quantify_id"];
 
-                    $q_job_name = $q_row["quantify_metagenome_ids"];
+                    $mg_ids = explode(",", $q_row["quantify_metagenome_ids"]);
+                    $q_full_job_name = implode(", ", $mg_ids);
+                    if (count($mg_ids) > 6) {
+                        $q_job_name = implode(", ", array_slice($mg_ids, 0, 5)) . " ...";
+                    } else {
+                        $q_job_name = $q_full_job_name;
+                    }
 
                     array_push($jobs, array("id" => $id_id, "key" => $key, "quantify_id" => $q_id, "job_name" => $q_job_name,
-                                            "is_completed" => $q_is_completed, "is_quantify" => true, "date_completed" => $q_comp));
+                        "is_completed" => $q_is_completed, "is_quantify" => true, "date_completed" => $q_comp,
+                        "full_job_name" => $q_full_job_name));
                 }
             }
         }

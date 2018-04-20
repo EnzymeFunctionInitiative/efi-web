@@ -30,7 +30,7 @@ include_once("../../html/inc/global_login_button.inc.php");
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/shared.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/tabs.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css">
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/fontawesome-all.css">
     <link rel="stylesheet" type="text/css" href="css/shortbred.css">
     <link rel="shortcut icon" href="<?php echo $SiteUrlPrefix; ?>/images/favicon_efi.ico" type="image/x-icon">
 <?php echo $extraCssLinkText; ?>
@@ -41,6 +41,30 @@ include_once("../../html/inc/global_login_button.inc.php");
     <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-3.2.1.min.js" type="text/javascript"></script>
     <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.js" type="text/javascript"></script>
     <script src="js/submit.js" type="text/javascript"></script>
+    <script src="js/multiselect.min.js" type="text/javascript"></script>
+
+    <style>
+        /* We're not using Bootstrap yet so these styles are meant to mimic the Boostrap classes in a crude way. */
+        .row {
+            display: flex;
+        }
+
+        .col-xs-5 {
+            flex: 40%;
+            padding: 5px;
+        }
+
+        .col-xs-2 {
+            flex: 20%;
+            padding: 5px;
+        }
+   
+        .row select {
+            width: 100%;
+        }
+
+
+    </style>
 </head>
 
 <body>
