@@ -18,7 +18,7 @@ if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"])) {
 $identify_id = $_GET["id"];
 $key = $_GET["key"];
 $qid = $_GET["quantify-id"];
-$id_query_string = "id=$identify_id&key=$key"; #&quantify-id=$qid";
+$id_query_string = "id=$identify_id&key=$key&quantify-id=$qid";
 
 
 $q_jobs = $job_mgr->get_quantify_jobs($identify_id);
@@ -27,7 +27,7 @@ $mg_db->load_db();
 
 $ExtraTitle = "ShortBRED Quantify Results";
 
-#$job = new quantify($db, $qid);
+$job = new quantify($db, $qid);
 #$status = $job->get_status();
 #
 #$is_failed = false;
@@ -47,6 +47,11 @@ $ExtraTitle = "ShortBRED Quantify Results";
 
 
 
+$ssnFileSize = global_functions::bytes_to_megabytes($job->get_merged_ssn_file_sze());
+$protFileSize = 1; // files are small
+$clustFileSize = 1; // files are small
+
+
 require_once "inc/header.inc.php"; 
 
 ?>
@@ -63,6 +68,36 @@ require_once "inc/header.inc.php";
 <?php } else { ?>
 -->
 <!--<p>ShortBRED-Quantify has finished.</p>-->
+
+
+<table width="100%" border="1">
+    <thead>
+        <th></th>
+        <th>File</th>
+        <th>Size</th>
+    </thead>
+    <tbody>
+        <tr>
+            <td style='text-align:center;'><a href="download_files.php?type=ssn-q&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
+            <td>SSN with all quantify results</td>
+            <td style='text-align:center;'><?php echo $ssnFileSize; ?> MB</td>
+        </tr>
+        <tr>
+            <td style='text-align:center;'><a href="download_files.php?type=q-prot-m&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
+            <td>Protein abundance data for all runs</td>
+            <td style='text-align:center;'><?php echo $protFileSize; ?> MB</td>
+        </tr>
+        <tr>
+            <td style='text-align:center;'><a href="download_files.php?type=q-clust-m&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
+            <td>Cluster/protein abundance data for all runs</td>
+            <td style='text-align:center;'><?php echo $clustFileSize; ?> MB</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h3>Individual Quantify Run Results</h3>
+
 
 <?php
 foreach ($q_jobs as $job) {
@@ -88,7 +123,7 @@ foreach ($q_jobs as $job) {
     $hdr_color = $show_results ? "" : "color: $inactive_color";
     $border_color = $show_results ? "black" : $inactive_color;
 
-    echo "<h3 style='border-bottom: 1px solid $hdr_color; $hdr_color'>Metagenome$is_plural: $job_name</h3>";
+    echo "<h4 style='border-bottom: 1px solid $hdr_color; $hdr_color'>Metagenome$is_plural: $job_name</h4>";
 
     if (!$show_results) {
         echo "<div style=\"color: #ddd\">";
@@ -112,7 +147,6 @@ foreach ($q_jobs as $job) {
     if ($show_results) {
 ?>
     <ul>
-        <li><a href="download_files.php?type=ssn-q&<?php echo $id_query_string . "&quantify-id=" . $job["quantify_id"]; ?>">Download SSN with markers and protein abundance.</a></li>
         <li><a href="download_files.php?type=q-prot&<?php echo $id_query_string . "&quantify-id=" . $job["quantify_id"]; ?>">Download abundance data by protein.</a></li>
         <li><a href="download_files.php?type=q-clust&<?php echo $id_query_string . "&quantify-id=" . $job["quantify_id"]; ?>">Download abundance data by cluster.</a></li>
     </ul>

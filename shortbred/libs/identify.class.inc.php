@@ -283,6 +283,13 @@ class identify extends job_shared {
         return "$res_dir/markers.faa";
     }
 
+    public function get_results_path() {
+        $id = $this->get_id();
+        $out_dir = settings::get_output_dir() . "/" . $id;
+        $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
+        return $res_dir;
+    }
+
     public function get_ssn_http_path() {
         $id = $this->get_id();
         $res_dir = settings::get_rel_output_dir();
@@ -290,8 +297,11 @@ class identify extends job_shared {
     }
 
     private function get_ssn_name() {
-        $id = $this->get_id();
-        $name = preg_replace("/.zip$/", ".xgmml", $this->filename);
+        return self::make_ssn_name($this->get_id(), $this->filename);
+    }
+
+    public static function make_ssn_name($id, $filename) {
+        $name = preg_replace("/.zip$/", ".xgmml", $filename);
         $name = preg_replace("/.xgmml$/", "_markers.xgmml", $name);
         return "${id}_$name";
     }

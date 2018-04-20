@@ -4,8 +4,18 @@ function submitQuantify(formId, selectId, messageId, sbId, sbKey) {
     fd.append("id", sbId);
     fd.append("key", sbKey);
     
-    hmpIdList = $("#" + selectId).val();
-    hmpIds = hmpIdList.join();
+    //hmpIdList = $("#" + selectId).val();
+    //hmpIds = hmpIdList.join();
+
+    var hmpIds = [];
+    var selObj = document.getElementById(selectId); //$("#" + selectId);
+    for (var i = 0; i < selObj.options.length; i++) {
+        hmpIds.push(selObj.options[i].value);
+    }
+
+    if (hmpIds.length == 0) {
+        alert("You must select at least one metagenome.");
+    }
 
     fd.append("hmp-ids", hmpIds);
 
