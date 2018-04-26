@@ -55,7 +55,18 @@ abstract class option_base extends stepa {
     public function create($data) { //$email, $evalue, $families, $tmp_file, $uploaded_filename, $fraction, $program) {
         $type = $this->get_create_type();
 
+        $is_uniref90 = (isset($data->uniref_version) && $data->uniref_version) ? true : false;
+        $families = explode(",", $data->families);
+        $sizes = family_size::compute_family_size($this->db, $families, $data->fraction, $is_uniref90);
+
         $result = $this->validate($data);
+
+        if ($sizes["is_too_large"]) {
+            $result->errors = true;
+            $result->message .= " The selected family(is) is too large to process.";
+        } elseif ($sizes["is_uniref90_required"] && !$is_uniref90) {
+            $data->uniref_version = functions::get_default_uniref_version();
+        }
         
         if (!$result->errors) {
             $table_name = "generate";

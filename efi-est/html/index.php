@@ -54,6 +54,23 @@ easily generate SSNs that can be visualized in
 <?php if (isset($updateMessage)) echo $updateMessage; ?>
 </div>
 
+<div class="new_feature"></div>
+<p>
+For any input format, when protein families (Pfam and/or InterPro) are selected for the
+generation of a SSN and they contain more than <?php echo $maxFullFamily; ?> sequences,
+the SSN <b>will be</b> generated 
+using the UniRef90 database. In UniRef90, sequences that share &ge;90% sequence identity 
+over 80% of the sequence length are grouped together and represented by a single seed 
+sequence (the longest sequence in the group). This is done to reduce computing time 
+and the size of output SSNs without loosing information: the output SSN is equivalent 
+to a 90% Representative Node Network with each node corresponding to a seed sequence,
+and for which the node attribute "UniRef90 Cluster IDs" lists all the sequences 
+represented by a node so that any sequence in input family can be located by searching 
+this node attribute. UniRef90 SSNs are compatible with the Color SSN utility as well 
+as the EFI-GNT tool: the UniRef90 groups are automatically expanded when needed.
+</p>
+
+<?php /*
 <p>
 When a family greater than <?php echo $maxFullFamily; ?> in size is selected in
 Options B, C, and D, <b>SSNs are now be generated using the 
@@ -66,6 +83,7 @@ IDs" that lists the UniProt IDs is each node and is searchable with Cytoscape, s
 UniProt IDs in the family can be located. The UniRef90 SSNs are compatible with the 
 EFI-GNT tool.
 </p>
+<?php */ ?>
 
 <p>
 A listing of new features and other information pertaining to EST is available on the
@@ -165,42 +183,6 @@ HTML;
             </table>
 <?php     } ?>
 
-<?php /* ?>
-<?php     if (count($analysisJobs) > 0) { ?>
-            <h4>Completed SSN Jobs</h4>
-            <table class="pretty">
-                <thead>
-                    <th class="id-col">ID</th>
-                    <th>Job Name</th>
-                    <th class="date-col">Date Completed</th>
-                </thead>
-                <tbody>
-<?php
-for ($i = 0; $i < count($analysisJobs); $i++) {
-    $key = $analysisJobs[$i]["key"];
-    $id = $analysisJobs[$i]["id"];
-    $analysisId = $analysisJobs[$i]["analysis_id"];
-    $name = $analysisJobs[$i]["job_name"];
-    $dateCompleted = $analysisJobs[$i]["date_completed"];
-    $isCompleted = $analysisJobs[$i]["is_completed"];
-
-    //TODO: proper URL (step C or step E)
-    $linkStart = $isCompleted ? "<a href=\"stepe.php?id=$id&key=$key&analysis_id=$analysisId\">" : "";
-    $linkEnd = $isCompleted ? "</a>" : "";
-
-    echo <<<HTML
-                    <tr>
-                        <td>$linkStart${id}$linkEnd</td>
-                        <td>$linkStart${name}$linkEnd</td>
-                        <td>$dateCompleted</td>
-                    </tr>
-HTML;
-}
-?>
-                </tbody>
-            </table>
-<?php     } ?>
-<?php */ ?>
 <?php } ?>
             
 <?php if ($showJobsTab) { ?>
@@ -243,11 +225,8 @@ HTML;
                 </div>
                 <div class="primary-input">
                     <div>
-                        <input type="text" id="families-input-opta" name="families-input-opta" 
-                            oninput='checkFamilyInput("families-input-opta","family-size-container-opta","family-count-table-opta",
-                                                      "families-input-opta",<?php echo $maxSeqNum; ?>,
-                                                      <?php echo $useUniref90; ?>, <?php echo $useUniref50; ?>)'>
-                        <input type="checkbox" id="opta-use-uniref" value="1">
+                        <input type="text" id="families-input-opta" name="families-input-opta">
+                        <input type="checkbox" id="opta-use-uniref" class="cb-use-uniref" value="1">
                         <label for="opta-use-uniref">Use UniRef 90 seed sequences instead of the full family</label>
                         <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box("family-size-container-opta", "family-count-table-opta", $useUniref90, $useUniref50); ?> 
@@ -311,10 +290,8 @@ HTML;
 
             <form name="optionBform" id="optionBform" method="post" action="">
                 <div class="primary-input">
-                    <input type="text" id="families-input" name="families-input"
-                        oninput="checkFamilyInput('families-input','family-size-container','family-count-table','families-input',
-                            <?php echo $maxSeqNum; ?>, <?php echo $useUniref90; ?>, <?php echo $useUniref50; ?>)"><br>
-                    <input type="checkbox" id="pfam-use-uniref" value="1">
+                    <input type="text" id="families-input" name="families-input">
+                    <input type="checkbox" id="pfam-use-uniref" class="cb-use-uniref" value="1">
                     <label for="pfam-use-uniref">Use UniRef 90 seed sequences instead of the full family</label>
                     <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box('family-size-container', 'family-count-table', $useUniref90, $useUniref50); ?> 
@@ -413,11 +390,8 @@ HTML;
                     </div>
                 <div class="primary-input">
                     <div>
-                        <input type="text" id="families-input-optc" name="families-input-optc" 
-                            oninput='checkFamilyInput("families-input-optc","family-size-container-optc","family-count-table-optc",
-                                                      "families-input-optc",<?php echo $maxSeqNum; ?>,
-                                                      <?php echo $useUniref90; ?>, <?php echo $useUniref50; ?>)'>
-                        <input type="checkbox" id="optc-use-uniref" value="1">
+                        <input type="text" id="families-input-optc" name="families-input-optc">
+                        <input type="checkbox" id="optc-use-uniref" class="cb-use-uniref" value="1">
                         <label for="optc-use-uniref">Use UniRef 90 seed sequences instead of the full family</label>
                         <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box("family-size-container-optc", "family-count-table-optc", $useUniref90, $useUniref50); ?> 
@@ -494,11 +468,8 @@ HTML;
                 </div>
                 <div class="primary-input">
                     <div>
-                        <input type="text" id="families-input-optd" name="families-input-optd" 
-                            oninput='checkFamilyInput("families-input-optd","family-size-container-optd","family-count-table-optd",
-                                                      "families-input-optd",<?php echo $maxSeqNum; ?>,
-                                                      <?php echo $useUniref90; ?>, <?php echo $useUniref50; ?>)'>
-                        <input type="checkbox" id="optd-use-uniref" value="1">
+                        <input type="text" id="families-input-optd" name="families-input-optd">
+                        <input type="checkbox" id="optd-use-uniref" class="cb-use-uniref" value="1">
                         <label for="optd-use-uniref">Use UniRef 90 seed sequences instead of the full family</label>
                         <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box("family-size-container-optd", "family-count-table-optd", $useUniref90, $useUniref50); ?> 
@@ -586,8 +557,6 @@ HTML;
             <form name="optionEform" id="optionEform" method="post" action="">
                 <div class="primary-input">
                     <input type="text" id="option-e-input" name="option-e-input"
-                        oninput="checkFamilyInput('option-e-input','option-e-size-container','option-e-count-table','option-e-input',
-                            <?php echo $maxSeqNum; ?>, <?php echo $useUniref90; ?>, <?php echo $useUniref50; ?>)"><br>
                     <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box('option-e-size-container', 'option-e-count-table', $useUniref90, $useUniref50); ?> 
                     </div>
@@ -782,6 +751,8 @@ HTML;
 </div>
 
 <script>
+    var AutoCheckedUniRef = false;
+
     $(document).ready(function() {
         $(".tabs .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");
@@ -811,18 +782,55 @@ HTML;
             icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" },
             heightStyle: "content"
         });
+
+        var setupFamilyInput = function (familyInputId, containerOutputId, countOutputId, uniref90Id, fractionId) {
+            $("#" + familyInputId).on("input", function() {
+                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, uniref90Id, fractionId);
+            });
+            $("#" + uniref90Id).change(function() {
+                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, uniref90Id, fractionId);
+            });
+            $("#" + fractionId).on("input", function() {
+                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, uniref90Id, fractionId);
+            });
+        };
+
+        setupFamilyInput("families-input-opta", "family-size-container-opta", "family-count-table-opta", "opta-use-uniref", "blast-fraction");
+        setupFamilyInput("families-input", "family-size-container", "family-count-table", "pfam-use-uniref", "pfam-fraction");
+        setupFamilyInput("option-e-input", "option-e-size-container", "option-e-count-table", "opte-use-uniref90", "pfam-plus-fraction");
+        setupFamilyInput("families-input-optd", "family-size-container-optd", "family-count-table-optd", "optd-use-uniref", "accession-fraction");
+        setupFamilyInput("families-input-optc", "family-size-container-optc", "family-count-table-optc", "optc-use-uniref", "fasta-fraction");
+
     }).tooltip();
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
 <script src="js/family-counts.js" type="text/javascript"></script>
 
 <div id="family-warning" class="hidden" title="Family Size Warning">
+<div style="color:red;">
+The family(ies) selected has <span id="family-warning-total-size"> </span> proteins&mdash;this is greater than
+the maximum allowed (<?php echo $maxFullFamily; ?>). To reduce computing time and the size of
+output SSN, UniRef90 seed sequences will automatically be used.
+</div>
+
+<p>In UniRef90, sequences that share &ge;90% sequence identity over 80% of the sequence 
+length are grouped together and represented by a single seed sequence. The output 
+SSN is equivalent a to 90% Representative Node Network with each node corresponding 
+to a seed sequence, and for which the node attribute "UniRef90 Cluster IDs" lists 
+all the sequences represented by a node. UniRef90 SSNs are compatible with the Color 
+SSN utility as well as the EFI-GNT tool.
+</p>
+
+<p>Press Ok to continue with UniRef90.</p>
+
+<?php /* ?>
     The family(ies) selected has <span id="family-warning-total-size"> </span> 
     proteins<span id="family-warning-fraction-size"></span>, which is greater
     than the maximum allowed (<?php echo $maxFullFamily; ?>) for full family
     inclusion.  UniRef90 seed sequences will automatically be 
     used instead of the full number of proteins in the family(ies).  Press OK to continue with UniRef90
     or Cancel to enter a different family, or option.
+<?php */ ?>
 </div>
 
 <?php require_once('inc/footer.inc.php'); ?>

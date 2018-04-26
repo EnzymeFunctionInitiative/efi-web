@@ -24,7 +24,7 @@ HTML;
         $uniref50 = $showUniref50 ? "<th>UniRef50 Size</th>" : "";
         return <<<HTML
                 <center>
-                        <div style="width:80%;display:none" id="$parentId">
+                        <div style="width:85%;display:none" id="$parentId">
                             <table border="0" width="100%" class="family">
                                 <thead>
                                     <th>Family</th>

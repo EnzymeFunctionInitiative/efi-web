@@ -513,6 +513,10 @@ class functions {
     public static function get_maximum_full_family_count() {
         return defined("__MAX_FULL_FAMILY_COUNT__") ? __MAX_FULL_FAMILY_COUNT__ : 0;
     }
+
+    public static function get_default_uniref_version() {
+        return defined("__DEFAULT_UNIREF_VERSION__") ? __DEFAULT_UNIREF_VERSION__ : "90";
+    }
 }
 
 ?>
