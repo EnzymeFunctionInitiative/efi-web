@@ -1,7 +1,8 @@
 <?php
 
-require_once('option_base.class.inc.php');
-require_once('generate_helper.class.inc.php');
+require_once("option_base.class.inc.php");
+require_once("generate_helper.class.inc.php");
+require_once("family_size.class.inc.php");
 
 abstract class family_shared extends option_base {
 
@@ -89,6 +90,7 @@ abstract class family_shared extends option_base {
     protected function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
         $formatted_families = $this->format_families($data->families);
+
         $insert_array['generate_families'] = $formatted_families;
         if (isset($data->seq_id))
             $insert_array['generate_sequence_identity'] = $data->seq_id;

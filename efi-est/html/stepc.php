@@ -40,7 +40,7 @@ if (isset($_POST['analyze_data'])) {
     if (isset($_FILES['cluster_file']) && (!isset($_FILES['cluster_file']['error']) || $_FILES['cluster_file']['error'] == 0)) {
         $customFile = $_FILES['cluster_file']['tmp_name'];
     }
-    
+
     $result = $analysis->create($_POST['id'],
         $_POST['evalue'],
         $_POST['network_name'],
