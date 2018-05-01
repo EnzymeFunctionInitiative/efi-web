@@ -140,12 +140,13 @@ class gnn extends arrow_api {
     public function run_gnn() {
         $this->delete_outputs();
         $this->set_time_started();
+        $id = $this->get_id();
 
         $ssnin = $this->unzip_file();
 
         $binary = settings::get_gnn_script();
 
-        mkdir(settings::get_output_dir() . "/" . $this->get_id());
+        mkdir(settings::get_output_dir() . "/" . $id);
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
@@ -172,15 +173,16 @@ class gnn extends arrow_api {
         $exec .= " -hub-count-file \"" . $this->get_hub_count_file() . "\"";
         if (settings::get_cluster_scheduler())
             $exec .= " -scheduler " . settings::get_cluster_scheduler();
+        $exec .= " -job-id " . $id;
 
-        error_log("Job ID: " . $this->get_id());
+        error_log("Job ID: " . $id);
         error_log("Exec: " . $exec);
 
         $output_array = array();
         $output = exec($exec,$output_array,$exit_status);
         $output = trim(rtrim($output));
 
-        error_log("Job ID: " . $this->get_id() . ", Exit Status: " . $exit_status);
+        error_log("Job ID: " . $id . ", Exit Status: " . $exit_status);
 
         $this->set_time_completed();
         $formatted_output = implode("\n",$output_array);
