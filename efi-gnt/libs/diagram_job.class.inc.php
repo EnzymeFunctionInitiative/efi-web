@@ -168,6 +168,7 @@ class diagram_job {
             $exec .= " -nb-size " . $this->params["neighborhood_size"];
         if ($sched)
             $exec .= " -scheduler $sched";
+        $exec .= " -job-id " . $this->id;
 
         //TODO: remove this debug message
         error_log("Job ID: " . $this->id);
