@@ -1,7 +1,7 @@
 <?php
 
 require_once("job_types.class.inc.php");
-require_once("../../libs/user_auth.class.inc.php");
+require_once(__DIR__ . "/../../libs/user_auth.class.inc.php");
 
 
 class job_manager {
@@ -24,16 +24,31 @@ class job_manager {
     private function get_jobs() {
         $table = $this->table_name;
         $id_table = job_types::Identify;
+        $q_table = job_types::Quantify;
         $col_email = "${id_table}_email";
         $col_key = "${id_table}_key";
         $col_id = "${table}_id";
         $col_status = "${table}_status";
+        $col_time_created = "${table}_time_created";
+        $col_time_started = "${table}_time_started";
+        $col_time_completed = "${table}_time_completed";
+        $col_filename = "${id_table}_filename";
+        $col_mg = "${q_table}_metagenome_ids";
+        $col_qid = "${q_table}_${id_table}_id";
+
+        $cols = implode(",", array($col_id, $col_key, $col_email, $col_status, $col_filename, $col_time_created,
+            $col_time_started, $col_time_completed));
+        if ($table == job_types::Quantify) {
+            $cols .= ", $col_qid, $col_mg";
+        }
 
         $q_sql = "";
+        $order_sql = "ORDER BY $col_id";
         if ($table == job_types::Quantify) {
-            $q_sql = " JOIN $id_table ON $table.${table}_identify_id = ${id_table}_id";
+            $q_sql = "JOIN $id_table ON $table.${table}_identify_id = ${id_table}_id";
+            $order_sql = "ORDER BY $table.$col_qid";
         }
-        $sql = "SELECT $col_id, $col_key, $col_email, $col_status FROM $table $q_sql";
+        $sql = "SELECT $cols FROM $table $q_sql $order_sql";
 
         $rows = $this->db->query($sql);
 
@@ -52,10 +67,47 @@ class job_manager {
             }
 
             array_push($this->jobs_by_status[$status], array("email" => $email, "key" => $key, "id" => $id));
-            $this->jobs_by_id[$id] = array("email" => $email, "key" => $key);
+            $this->jobs_by_id[$id] = array("email" => $email, "key" => $key, "filename" => $result[$col_filename],
+                                           "time_completed" => $result[$col_time_completed],
+                                           "time_started" => $result[$col_time_started],
+                                           "time_created" => $result[$col_time_created],
+                                       );
+            if ($table == job_types::Quantify) {
+                $this->jobs_by_id[$id]["metagenomes"] = $result[$col_mg];
+                $this->jobs_by_id[$id]["identify_id"] = $result[$col_qid];
+            }
         }  
         
         return true;
+    }
+
+    public function get_all_job_ids() {
+        $ids = array();
+        foreach ($this->jobs_by_id as $id => $job) {
+            array_push($ids, $id);
+        }
+        return $ids;
+    }
+
+    public function get_job_by_id($job_id) {
+        $id_table = job_types::Identify;
+        $job = array();
+        if (isset($this->jobs_by_id[$job_id])) {
+            $job["id"] = $job_id;
+            $job["key"] = $this->jobs_by_id[$job_id]["key"];
+            $job["email"] = $this->jobs_by_id[$job_id]["email"];
+            $job["filename"] = $this->jobs_by_id[$job_id]["filename"];
+            $job["time_completed"] = self::format_short_date($this->jobs_by_id[$job_id]["time_completed"]);
+            $job["time_started"] = self::format_short_date($this->jobs_by_id[$job_id]["time_started"]);
+            $job["time_created"] = self::format_short_date($this->jobs_by_id[$job_id]["time_created"]);
+
+            if ($this->table_name == job_types::Quantify) {
+                $mg_ids = explode(",", $this->jobs_by_id[$job_id]["metagenomes"]);
+                $job["metagenomes"] = $mg_ids;
+                $job["identify_id"] = $this->jobs_by_id[$job_id]["identify_id"];
+            }
+        }
+        return $job;
     }
 
     public function get_new_job_ids() {
@@ -178,13 +230,15 @@ class job_manager {
             if ($comp == "NEW")
                 $comp = "PENDING";
         } else {
-            $comp = date_format(date_create($comp), "n/j h:i A");
+            $comp = self::format_short_date($comp);
             $isCompleted = true;
         }
         return array($isCompleted, $comp);
     }
 
-
+    private static function format_short_date($comp) {
+        return date_format(date_create($comp), "n/j h:i A");
+    }
 }
 
 

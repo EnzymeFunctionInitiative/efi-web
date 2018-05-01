@@ -15,6 +15,7 @@ $IsAdminUser = false;
 if (settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
     $user_token = user_auth::get_user_token();
     $user_email = user_auth::get_email_from_token($db, $user_token);
+    $IsAdminUser = user_auth::get_user_admin($db, $user_email);
 
     $job_manager = new job_manager($db, job_types::Identify);
     $jobs = $job_manager->get_jobs_by_user($user_token);
@@ -70,7 +71,7 @@ require_once "inc/header.inc.php";
 <?php } ?>
 <?php if (count($jobs) > 0) { ?>
             <h4>ShortBRED Jobs</h4>
-            <table class="pretty">
+            <table class="pretty_nested">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>

@@ -118,6 +118,8 @@ class quantify extends job_shared {
         $exec .= " -ssn-out-name " . $this->get_ssn_name();
         $exec .= " -protein-file " . self::get_protein_file_name();
         $exec .= " -cluster-file " . self::get_cluster_file_name();
+        $exec .= " -protein-norm " . self::get_normalized_protein_file_name();
+        $exec .= " -cluster-norm " . self::get_normalized_cluster_file_name();
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
         if ($sched)
@@ -284,49 +286,59 @@ class quantify extends job_shared {
 
     private function get_quantify_res_dir() {
         $id = $this->get_id(); # quantify ID
-        $id_dir = settings::get_rel_output_dir();
         $res_dir = settings::get_quantify_rel_output_dir();
-        return "$id_dir/$res_dir-$id";
+        return "$res_dir-$id";
+    }
+    public function get_identify_output_path() {
+        $path = settings::get_output_dir() . "/" . $this->identify_id . "/" . settings::get_rel_output_dir();
+        return $path;
     }
 
     public function get_protein_file_path() {
-        $path = settings::get_output_dir() . "/" .
-            $this->identify_id . "/" .
+        $path = $this->get_identify_output_path() . "/" .
             $this->get_quantify_res_dir() . "/" .
             self::get_protein_file_name();
         return $path;
     }
+    public function get_cluster_file_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            $this->get_quantify_res_dir() . "/" .
+            self::get_cluster_file_name();
+        return $path;
+    }
 
     public function get_merged_protein_file_path() {
-        $path = settings::get_output_dir() . "/" .
-            $this->identify_id . "/" .
-            settings::get_rel_output_dir() . "/" .
+        $path = $this->get_identify_output_path() . "/" .
             self::get_protein_file_name();
+        return $path;
+    }
+    public function get_merged_cluster_file_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            self::get_cluster_file_name();
+        return $path;
+    }
+    public function get_merged_normalized_protein_file_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            self::get_normalized_protein_file_name();
+        return $path;
+    }
+    public function get_merged_normalized_cluster_file_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            self::get_normalized_cluster_file_name();
         return $path;
     }
 
     public static function get_protein_file_name() {
         return "protein_abundance.txt";
     }
-
-    public function get_cluster_file_path() {
-        $path = settings::get_output_dir() . "/" .
-            $this->identify_id . "/" .
-            $this->get_quantify_res_dir() . "/" .
-            self::get_cluster_file_name();
-        return $path;
+    public static function get_normalized_protein_file_name() {
+        return "protein_abundance_normalized.txt";
     }
-
-    public function get_merged_cluster_file_path() {
-        $path = settings::get_output_dir() . "/" .
-            $this->identify_id . "/" .
-            settings::get_rel_output_dir() . "/" .
-            self::get_cluster_file_name();
-        return $path;
-    }
-
     public static function get_cluster_file_name() {
         return "cluster_abundance.txt";
+    }
+    public static function get_normalized_cluster_file_name() {
+        return "cluster_abundance_normalized.txt";
     }
 
     public function get_ssn_http_path() {
@@ -336,6 +348,10 @@ class quantify extends job_shared {
             $this->get_ssn_name();
         return $path;
     }
+    public function get_zip_ssn_http_path() {
+        $path = $this->get_ssn_http_path() . ".zip";
+        return $path;
+    }
 
     private function get_ssn_name() {
         $id = $this->identify_id;
@@ -343,36 +359,38 @@ class quantify extends job_shared {
         $name = preg_replace("/.xgmml$/", "_quantify.xgmml", $name);
         return "${id}_$name";
     }
-
+    
+    public function get_merged_ssn_zip_file_path() {
+        $path = $this->get_merged_ssn_file_path() . ".zip";
+        return $path;
+    }
     private function get_merged_ssn_file_path() {
-        $path = settings::get_output_dir() . "/" .
-            $this->identify_id . "/" .
-            settings::get_rel_output_dir() . "/" .
+        $path = $this->get_identify_output_path() . "/" .
             $this->get_ssn_name();
         return $path;
     }
 
-    public function get_merged_ssn_file_sze() {
+    public function get_merged_ssn_file_size() {
         $file = $this->get_merged_ssn_file_path();
-        return filesize($file);
+        if (file_exists($file))
+            return filesize($file);
+        else
+            return 0;
+    }
+    public function get_merged_ssn_zip_file_size() {
+        $file = $this->get_merged_ssn_zip_file_path();
+        if (file_exists($file))
+            return filesize($file);
+        else
+            return 0;
     }
 
     private function get_input_identify_ssn_path() {
         $id_ssn_name = identify::make_ssn_name($this->identify_id, $this->filename);
-        $path = settings::get_output_dir() . "/" .
-            $this->identify_id . "/" .
-            settings::get_rel_output_dir() . "/" .
+        $path = $this->get_identify_output_path() . "/" .
             $id_ssn_name;
         return $path;
     }
-
-//    private function get_output_ssn_path() {
-//        $path = settings::get_output_dir() . "/" .
-//            $this->identify_id . "/" .
-//            $this->get_quantify_res_dir() . "/" .
-//            $this->get_ssn_name();
-//        return $path;
-//    }
 
     protected function get_table_name() {
         return job_types::Quantify;
