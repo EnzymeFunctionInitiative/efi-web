@@ -34,10 +34,12 @@ if ($status == __FAILED__) {
     $ExtraTitle = "Computation Still Running";
     $is_running = true;
 } else {
-    $ExtraTitle = "Markers Computation Results";
+    $ExtraTitle = "Markers Computation Results for ID $id";
     $is_finished = true;
 }
 
+
+$filename = $job->get_filename();
 
 $hmp_list = array();
 if ($is_finished) {
@@ -51,6 +53,10 @@ if ($is_finished) {
 
 
 $ExtraCssLinks = array("$SiteUrlPrefix/chosen/chosen.min.css");
+
+$zipFileExists = file_exists($job->get_output_ssn_zip_file_path());
+$ssnZipFileSize = $zipFileExists ? global_functions::bytes_to_megabytes($job->get_output_ssn_zip_file_size()) : "";
+$ssnFileSize = global_functions::bytes_to_megabytes($job->get_output_ssn_file_size());
 
 require_once "inc/header.inc.php"; 
 
@@ -67,12 +73,53 @@ require_once "inc/header.inc.php";
 <p>The computation is still running.</p>
 <?php } else { ?>
 
+<p>Input filename: <?php echo $filename; ?></>
+
 <p>The markers have been computed.</p>
 
+<table width="100%" border="1">
+    <thead>
+        <th></th>
+        <th>File</th>
+        <th>Size</th>
+    </thead>
+    <tbody>
+        <tr>
+            <td style='text-align:center;'><a href="download_files.php?type=ssn-c&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
+            <td>SSN with marker results</td>
+            <td style='text-align:center;'><?php echo $ssnFileSize; ?> MB</td>
+        </tr>
+<?php if ($zipFileExists) { ?>
+        <tr>
+            <td style='text-align:center;'><a href="download_files.php?type=ssn-c-zip&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
+            <td>SSN with marker results (ZIP)</td>
+            <td style='text-align:center;'><?php echo $ssnZipFileSize; ?> MB</td>
+        </tr>
+<?php } ?>
+        <tr>
+            <td style='text-align:center;'><a href="download_files.php?type=markers&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
+            <td>Marker data</td>
+            <td style='text-align:center;'>1MB</td>
+        </tr>
+        <tr>
+            <td style='text-align:center;'><a href="download_files.php?type=cdhit&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
+            <td>CD-HIT mapping file (as table)</td>
+            <td style='text-align:center;'>1 MB</td>
+        </tr>
+    </tbody>
+</table>
+
+<?php /*
 <p><a href="download_files.php?type=ssn-c&<?php echo $id_query_string; ?>">Download SSN with markers identified.</a></p>
+
+<?php if ($zipFileExists) { ?>
+<p><a href="download_files.php?type=ssn-c&<?php echo $id_query_string; ?>">Download SSN with markers identified.</a></p>a
+<?php } ?>
 
 <p><a href="download_files.php?type=markers&<?php echo $id_query_string; ?>">Download marker file.</a></p>
 
+<p><a href="download_files.php?type=cdhit&<?php echo $id_query_string; ?>">Download CD-HIT mapping file (formatted as a table).</a></p>
+ */ ?>
 
 <h3>Select Metagenomes from the Human Microbiome Project</h3>
 
@@ -109,6 +156,14 @@ foreach ($hmp_list as $hmp_id => $hmp_name) {
         <select name="to[]" id="search_to" class="form-control" size="8" multiple="multiple"></select>
     </div>
 </div>
+
+<p>
+Metagenomes originate from samples collected from 300 healthy adult men and women 
+between the ages of 18 and 40, recruited at Baylor College of Medicine in Houston, 
+TX and Washington University in St. Louis, MO. More information about the Sample Collection 
+&amp; Participant Guidelines, and methods applied can be found at:
+<a href="https://www.hmpdacc.org/hmp/micro_analysis/microbiome_analyses.php">https://www.hmpdacc.org/hmp/micro_analysis/microbiome_analyses.php</a>.
+</p>
 
 <p>&nbsp;</p>
 <div id="error-message" style="color: red"></div>

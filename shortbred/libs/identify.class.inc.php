@@ -114,6 +114,7 @@ class identify extends job_shared {
         $exec .= "$script";
         $exec .= " -ssn-in $target_ssn_path";
         $exec .= " -ssn-out-name " . $this->get_ssn_name();
+        $exec .= " -cdhit-out-name cdhit.txt";
         $exec .= " -tmpdir " . settings::get_rel_output_dir();
         $exec .= " -job-id " . $id;
         $exec .= " -np " . settings::get_num_processors();
@@ -295,6 +296,18 @@ class identify extends job_shared {
         $res_dir = settings::get_rel_output_dir();
         return "$id/$res_dir/" . $this->get_ssn_name();
     }
+    
+    public function get_output_ssn_zip_http_path() {
+        $path = $this->get_ssn_http_path() . ".zip";
+        return $path;
+    }
+
+    public function get_cdhit_file_path() {
+        $id = $this->get_id();
+        $out_dir = settings::get_output_dir() . "/" . $id;
+        $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
+        return "$res_dir/cdhit.txt";
+    }
 
     private function get_ssn_name() {
         return self::make_ssn_name($this->get_id(), $this->filename);
@@ -306,9 +319,35 @@ class identify extends job_shared {
         return "${id}_$name";
     }
 
-    private function get_full_ssn_path() {
+    public function get_output_ssn_path() {
+        $path = $this->get_results_path() . "/" . $this->get_ssn_name();
+        return $path;
+    }
+
+    public function get_full_ssn_path() {
         $uploads_dir = settings::get_uploads_dir();
         return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->filename, PATHINFO_EXTENSION);
+    }
+
+    public function get_output_ssn_file_size() {
+        $path = $this->get_output_ssn_path();
+        if (file_exists($path))
+            return filesize($path);
+        else
+            return 0;
+    }
+
+    public function get_output_ssn_zip_file_size() {
+        $path = $this->get_output_ssn_zip_file_path();
+        if (file_exists($path))
+            return filesize($path);
+        else
+            return 0;
+    }
+
+    public function get_output_ssn_zip_file_path() {
+        $path = $this->get_output_ssn_path() . ".zip";
+        return $path;
     }
 
     protected function get_table_name() {

@@ -25,7 +25,7 @@ $q_jobs = $job_mgr->get_quantify_jobs($identify_id);
 $mg_db = new metagenome_db();
 $mg_db->load_db();
 
-$ExtraTitle = "ShortBRED Quantify Results";
+$ExtraTitle = "Quantify Results for Identify ID $identify_id / Quantify ID $qid";
 
 $job = new quantify($db, $qid);
 #$status = $job->get_status();
@@ -46,11 +46,15 @@ $job = new quantify($db, $qid);
 #}
 
 
+$filename = $job->get_filename();
 
-$ssnFileSize = global_functions::bytes_to_megabytes($job->get_merged_ssn_file_sze());
-$protFileSize = 1; // files are small
-$clustFileSize = 1; // files are small
+$ssnFileSize = global_functions::bytes_to_megabytes($job->get_merged_ssn_file_size());
+$protFileSize = $ssnFileSize ? "<1" : 0; // files are small
+$clustFileSize = $ssnFileSize ? "<1" : 0; // files are small
 
+$zipFilePath = $job->get_merged_ssn_zip_file_path();
+$zipFileExists = file_exists($zipFilePath);
+$ssnZipFileSize = $zipFileExists ? global_functions::bytes_to_megabytes($job->get_merged_ssn_zip_file_size()) : "0";
 
 require_once "inc/header.inc.php"; 
 
@@ -69,6 +73,7 @@ require_once "inc/header.inc.php";
 -->
 <!--<p>ShortBRED-Quantify has finished.</p>-->
 
+<p>Input filename: <?php echo $filename; ?></>
 
 <table width="100%" border="1">
     <thead>
@@ -78,19 +83,55 @@ require_once "inc/header.inc.php";
     </thead>
     <tbody>
         <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=ssn-q&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
-            <td>SSN with all quantify results</td>
-            <td style='text-align:center;'><?php echo $ssnFileSize; ?> MB</td>
+            <td style='text-align:center;'>
+                <?php if ($ssnFileSize) { ?>
+                <a href="download_files.php?type=ssn-q&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a>
+                <?php } ?>
+            </td>
+            <td>SSN with quantify results</td>
+            <td style='text-align:center;'><?php if ($ssnFileSize) echo $ssnFileSize; else echo "--"; ?> MB</td>
         </tr>
+<?php if ($zipFileExists) { ?>
         <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=q-prot-m&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
+            <td style='text-align:center;'><a href="download_files.php?type=ssn-q-zip&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
+            <td>SSN with quantify results (ZIP)</td>
+            <td style='text-align:center;'><?php echo $ssnZipFileSize; ?> MB</td>
+        </tr>
+<?php } ?>
+        <tr>
+            <td style='text-align:center;'>
+                <?php if ($protFileSize) { ?>
+                <a href="download_files.php?type=q-prot-m&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a>
+                <?php } ?>
+            </td>
             <td>Protein abundance data for all runs</td>
-            <td style='text-align:center;'><?php echo $protFileSize; ?> MB</td>
+            <td style='text-align:center;'><?php if ($protFileSize) echo $protFileSize; else echo "--"; ?> MB</td>
         </tr>
         <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=q-clust-m&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
+            <td style='text-align:center;'>
+                <?php if ($clustFileSize) { ?>
+                <a href="download_files.php?type=q-clust-m&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
+                <?php } ?>
             <td>Cluster/protein abundance data for all runs</td>
-            <td style='text-align:center;'><?php echo $clustFileSize; ?> MB</td>
+            <td style='text-align:center;'><?php if ($clustFileSize) echo $clustFileSize; else echo "--"; ?> MB</td>
+        </tr>
+        <tr>
+            <td style='text-align:center;'>
+                <?php if ($protFileSize) { ?>
+                <a href="download_files.php?type=q-prot-m-n&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a>
+                <?php } ?>
+            </td>
+            <td>Normalized protein abundance data for all runs</td>
+            <td style='text-align:center;'><?php if ($protFileSize) echo $protFileSize; else echo "--"; ?> MB</td>
+        </tr>
+        <tr>
+            <td style='text-align:center;'>
+                <?php if ($clustFileSize) { ?>
+                <a href="download_files.php?type=q-clust-m-n&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a>
+                <?php } ?>
+            </td>
+            <td>Normalized cluster/protein abundance data for all runs</td>
+            <td style='text-align:center;'><?php if ($clustFileSize) echo $clustFileSize; else echo "--"; ?> MB</td>
         </tr>
     </tbody>
 </table>

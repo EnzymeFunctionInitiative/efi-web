@@ -47,6 +47,17 @@ if (isset($_GET["type"])) {
         } else {
             $is_error = true;
         }
+    } elseif ($type == "cdhit") {
+        $cdhit_file = $job_obj->get_cdhit_file_path();
+        if (file_exists($cdhit_file)) {
+            $download_filename = $the_id . "_" . pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_cdhit.txt";
+            $content_size = filesize($cdhit_file);
+            sendHeaders($download_filename, $content_size);
+            readfile($cdhit_file);
+            exit(0);
+        } else {
+            $is_error = true;
+        }
     } elseif ($type == "q-prot") {
         $protein_file = $job_obj->get_protein_file_path();
         if (file_exists($protein_file)) {
@@ -91,35 +102,44 @@ if (isset($_GET["type"])) {
         } else {
             $is_error = true;
         }
+    } elseif ($type == "q-prot-m-n") {
+        $protein_file = $job_obj->get_merged_normalized_protein_file_path();
+        if (file_exists($protein_file)) {
+            $download_filename = $the_id . "_" . pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_protein_abundance_norm.txt";
+            $content_size = filesize($protein_file);
+            sendHeaders($download_filename, $content_size);
+            readfile($protein_file);
+            exit(0);
+        } else {
+            $is_error = true;
+        }
+    } elseif ($type == "q-clust-m-n") {
+        $cluster_file = $job_obj->get_merged_normalized_cluster_file_path();
+        if (file_exists($cluster_file)) {
+            $download_filename = pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_cluster_abundance_norm.txt";
+            $content_size = filesize($cluster_file);
+            sendHeaders($download_filename, $content_size);
+            readfile($cluster_file);
+            exit(0);
+        } else {
+            $is_error = true;
+        }
     } elseif ($type == "ssn-q") {
         $ssn_file = $job_obj->get_ssn_http_path();
         $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
         header("Location: $url");
-#        $marker_file = $job_obj->get_marker_file_path();
-#        if (file_exists($marker_file)) {
-#            $download_filename = pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . ".faa";
-#            $content_size = filesize($marker_file);
-#            sendHeaders($download_filename, $content_size);
-#            readfile($marker_file);
-#            exit(0);
-#        } else {
-#            $is_error = true;
-#        }
+    } elseif ($type == "ssn-q-zip") {
+        $ssn_file = $job_obj->get_zip_ssn_http_path();
+        $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
+        header("Location: $url");
     } elseif ($type == "ssn-c") {
         $ssn_file = $job_obj->get_ssn_http_path();
         $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
         header("Location: $url");
-        # We need to do a redirect because the output files can be very large and we don't want to (can't?)
-        # read the entire file into memory like php wants to do below.
-        #if (file_exists($xgmml_file)) {
-        #    $download_filename = pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_marker.xgmml";
-        #    $content_size = filesize($xgmml_file);
-        #    sendHeaders($download_filename, $content_size);
-        #    readfile($xgmml_file);
-        #    exit(0);
-        #} else {
-        #    $is_error = true;
-        #}
+    } elseif ($type == "ssn-c-zip") {
+        $ssn_file = $job_obj->get_output_ssn_zip_http_path();
+        $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
+        header("Location: $url");
     } else {
         $is_error = true;
     }
