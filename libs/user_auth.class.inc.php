@@ -20,11 +20,27 @@ class user_auth {
         return self::get_cookie_shared_date("*", "-1101987");
     }
 
-    private static function get_user_table() {
+    public static function get_user_table() {
         $userTable = __MYSQL_AUTH_DATABASE__;
         if ($userTable)
             $userTable = "`$userTable`.";
         $userTable .= "`user_token`";
+        return $userTable;
+    }
+
+    public static function get_master_group_table() {
+        $userTable = __MYSQL_AUTH_DATABASE__;
+        if ($userTable)
+            $userTable = "`$userTable`.";
+        $userTable .= "`groups`";
+        return $userTable;
+    }
+
+    public static function get_user_group_table() {
+        $userTable = __MYSQL_AUTH_DATABASE__;
+        if ($userTable)
+            $userTable = "`$userTable`.";
+        $userTable .= "`user_group`";
         return $userTable;
     }
 
