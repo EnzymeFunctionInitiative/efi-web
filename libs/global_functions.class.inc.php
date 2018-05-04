@@ -45,6 +45,19 @@ class global_functions {
     public static function bytes_to_megabytes($bytes) {
         return number_format($bytes / 1048576, 0);
     }
+    
+    public static function decode_object($json) {
+        $data = json_decode($json, true);
+        if (!$data)
+            return array();
+        else
+            return $data;
+    }
+
+    public static function encode_object($obj) {
+        return json_encode($obj);
+    }
+
 }
 
 ?>

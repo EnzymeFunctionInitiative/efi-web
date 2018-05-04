@@ -10,7 +10,6 @@ $user_mgr = new user_manager($db);
 //$gnn_job_mgr = new job_manager($db, __EFI_GNT_DB_NAME__, __EFI_GNT_GNN_TABLE__);
 //$gnd_job_mgr = new job_manager($db, __EFI_GNT_DB_NAME__, __EFI_GNT_DIAGRAM_TABLE__);
 
-$show_max_ids = 15;
 $user_ids = $user_mgr->get_user_ids();
 $group_names = $user_mgr->get_group_names();
 
@@ -33,7 +32,7 @@ require_once("inc/header.inc.php");
     <tbody>
 <?php
 
-for ($i = 0; $i < min($show_max_ids, count($group_names)); $i++) {
+for ($i = 0; $i < count($group_names); $i++) {
     $group_name = $group_names[$i];
     $group = $user_mgr->get_group($group_name);
     $group_status = $group["status"];

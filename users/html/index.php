@@ -14,6 +14,9 @@ $show_max_ids = 15;
 $user_ids = $user_mgr->get_user_ids();
 $group_names = $user_mgr->get_group_names();
 
+$job_mgr = new job_manager($db, __MYSQL_AUTH_DATABASE__, __EFI_EST_DB_NAME__, __EFI_GNT_DB_NAME__);
+$est_ids = $job_mgr->get_grouped_est_job_ids();
+$gnt_ids = $job_mgr->get_grouped_gnt_job_ids();
 
 require_once("inc/header.inc.php");
 
@@ -89,17 +92,82 @@ for ($i = 0; $i < min($show_max_ids, count($user_ids)); $i++) {
 
 <h3>Jobs</h3>
 
-<h4>EST</h4>
+<h4>EST Jobs</h4>
 
-<!--
-<table class="pretty_nested">
+<table class="pretty">
     <thead>
-        <th class="id-col">ID</th>
-        <th>Filename</th>
-        <th class="date-col">Date Completed</th>
+        <th>Generate ID</th>
+        <th>Job Info</th>
+        <th>Job Status</th>
+        <th>Email Address</th>
+        <th>Group(s)</th>
     </thead>
     <tbody>
--->
+<?php
+
+for ($i = 0; $i < count($est_ids); $i++) {
+    $id = $est_ids[$i];
+    $job = $job_mgr->get_est_job_by_id($id);
+
+    $info = $job["info"];
+    $status = $job["status"];
+    $email = $job["email"];
+    $group = implode(", ", $job["group"]);
+
+    echo <<<HTML
+        <tr>
+            <td>$id</td>
+            <td>$info</td>
+            <td>$status</td>
+            <td>$email</td>
+            <td>$group</td>
+        </tr>
+
+HTML;
+}
+
+?>
+    </tbody>
+</table>
+
+<h4>GNT Jobs</h4>
+
+<table class="pretty">
+    <thead>
+        <th>GNN ID</th>
+        <th>Job Info</th>
+        <th>Job Status</th>
+        <th>Email Address</th>
+        <th>Group(s)</th>
+    </thead>
+    <tbody>
+<?php
+
+for ($i = 0; $i < count($gnt_ids); $i++) {
+    $id = $gnt_ids[$i];
+    $job = $job_mgr->get_gnt_job_by_id($id);
+
+    $info = $job["info"];
+    $status = $job["status"];
+    $email = $job["email"];
+    $group = implode(", ", $job["group"]);
+
+    echo <<<HTML
+        <tr>
+            <td>$id</td>
+            <td>$info</td>
+            <td>$status</td>
+            <td>$email</td>
+            <td>$group</td>
+        </tr>
+
+HTML;
+}
+
+?>
+    </tbody>
+</table>
+
 
 
 <?php require_once("inc/footer.inc.php"); ?>

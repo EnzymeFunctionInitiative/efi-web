@@ -77,6 +77,29 @@ function submitUpdateGroup(completionHandler, action) {
 }
 
 
+function submitUpdateJobGroup(completionHandler, type, action) {
+
+    var formAction = "do_job.php";
+
+    var jobIdList = [];
+    $.each($("input[name='" + type + "-job-id']:checked"), function() {
+        jobIdList.push($(this).val())
+    });
+    var jobIds = jobIdList.join(",");
+
+    var action = action == 1 ? "remove" : "update";
+    var prefix = type + "-" + action;
+
+    var fd = new FormData();
+    fd.append("action", action + "-group");
+    fd.append("type", type);
+    fd.append("job-ids", jobIds);
+    addParam(fd, "group", prefix + "-job-group");
+
+    doFormPost(formAction, fd, completionHandler);
+}
+
+
 function doFormPost(formAction, formData, completionHandler) {
 
     var xhr = new XMLHttpRequest();
