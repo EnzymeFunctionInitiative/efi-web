@@ -141,10 +141,10 @@ $(document).ready(function() {
     };
 
     var updateGroupFn = function() {
-        submitUpdateGroup(defaultHandler, 1);
+        submitUpdateGroup(defaultHandler, 2);
     };
     var removeGroupFn = function() {
-        submitUpdateGroup(defaultHandler, 2);
+        submitUpdateGroup(defaultHandler, 1);
     };
 
     addDlg.dialog({resizeable: false, draggable: false, autoOpen: false, height: 300, width: 400,
@@ -160,7 +160,7 @@ $(document).ready(function() {
     $("#bulk-add-btn").click(function() { submitBulkUser(defaultHandler); });
     $("#add-btn").click(function() { addDlg.dialog("open"); });
     $("#update-group-btn").click(function() { updateGroupDlg.dialog("open"); });
-    $("#remove-group-btn").click(function() { updateGroupDlg.dialog("open"); });
+    $("#remove-group-btn").click(function() { removeGroupDlg.dialog("open"); });
 });
 
 </script>
