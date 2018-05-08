@@ -13,6 +13,7 @@ class user_jobs extends user_auth {
     private $diagram_jobs = array();
     private $is_admin = false;
     private $user_jobs = array();
+    private $user_groups = array();
 
     public function __construct() {
         $this->jobs = array();

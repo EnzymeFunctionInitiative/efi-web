@@ -7,6 +7,7 @@ require_once '../libs/bigscape_job.class.inc.php';
 $output = array();
 
 $dbFile = "";
+$hasBigscape = false;
 $isDirectJob = false;
 
 $message = "";
@@ -21,8 +22,10 @@ if ((isset($_GET["gnn-id"])) && (is_numeric($_GET["gnn-id"]))) {
         $message = "GNN results are expired.";
     }
 
-    $bss = new bigscape_job($db, $gnnId, DiagramJob::GNN);
-    $hasBigscape = $bss->get_status() == bigscape_job::STATUS_FINISH && isset($_GET['bigscape']) && $_GET['bigscape']=="1";
+    if (settings::get_bigscape_enabled()) {
+        $bss = new bigscape_job($db, $gnnId, DiagramJob::GNN);
+        $hasBigscape = $bss->get_status() == bigscape_job::STATUS_FINISH && isset($_GET['bigscape']) && $_GET['bigscape']=="1";
+    }
     
     $dbFile = $gnn->get_diagram_data_file($hasBigscape);
     if (!file_exists($dbFile))
@@ -31,15 +34,19 @@ if ((isset($_GET["gnn-id"])) && (is_numeric($_GET["gnn-id"]))) {
 else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GET['upload-id'])) {
     $gnnId = $_GET['upload-id'];
     $arrows = new diagram_data_file($gnnId);
-    $bss = new bigscape_job($db, $gnnId, DiagramJob::Uploaded);
-    $hasBigscape = $bss->get_status() == bigscape_job::STATUS_FINISH && isset($_GET['bigscape']) && $_GET['bigscape']=="1";
+    if (settings::get_bigscape_enabled()) {
+        $bss = new bigscape_job($db, $gnnId, DiagramJob::Uploaded);
+        $hasBigscape = $bss->get_status() == bigscape_job::STATUS_FINISH && isset($_GET['bigscape']) && $_GET['bigscape']=="1";
+    }
     $dbFile = $arrows->get_diagram_data_file($hasBigscape);
 }
 else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GET['direct-id'])) {
     $gnnId = $_GET['direct-id'];
     $arrows = new diagram_data_file($gnnId);
-    $bss = new bigscape_job($db, $gnnId, DiagramJob::Uploaded);
-    $hasBigscape = $bss->get_status() == bigscape_job::STATUS_FINISH && isset($_GET['bigscape']) && $_GET['bigscape']=="1";
+    if (settings::get_bigscape_enabled()) {
+        $bss = new bigscape_job($db, $gnnId, DiagramJob::Uploaded);
+        $hasBigscape = $bss->get_status() == bigscape_job::STATUS_FINISH && isset($_GET['bigscape']) && $_GET['bigscape']=="1";
+    }
     $dbFile = $arrows->get_diagram_data_file($hasBigscape);
     $isDirectJob = true;
 }
@@ -215,15 +222,6 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $isDirectJob) 
 
 function getOrderByClause($db) {
     $hasSortOrder = 0;
-
-    #$cols = $db->fetchColumnTypes('attributes', SQLITE_ASSOC);
-    #foreach ($cols as $col => $type) {
-    #    print "$col\n";
-    #    if ($col == "sort_order") {
-    #        $hasSortOrder = 1;
-    #        break;
-    #    }
-    #}
 
     $result = $db->query("PRAGMA table_info(attributes)");
     while ($row = $result->fetchArray()) {
