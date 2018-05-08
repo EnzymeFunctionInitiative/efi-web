@@ -3,10 +3,6 @@
 require_once("../includes/main.inc.php");
 require_once(__DIR__."/../../libs/user_auth.class.inc.php");
 
-class group_status {
-    const Active = "ACTIVE";
-    const Inactive = "INACTIVE";
-}
 
 class user_manager {
 

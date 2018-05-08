@@ -71,6 +71,7 @@ class job_manager {
                                            "time_completed" => $result[$col_time_completed],
                                            "time_started" => $result[$col_time_started],
                                            "time_created" => $result[$col_time_created],
+                                           "status" => $status
                                        );
             if ($table == job_types::Quantify) {
                 $this->jobs_by_id[$id]["metagenomes"] = $result[$col_mg];
@@ -97,9 +98,17 @@ class job_manager {
             $job["key"] = $this->jobs_by_id[$job_id]["key"];
             $job["email"] = $this->jobs_by_id[$job_id]["email"];
             $job["filename"] = $this->jobs_by_id[$job_id]["filename"];
-            $job["time_completed"] = self::format_short_date($this->jobs_by_id[$job_id]["time_completed"]);
-            $job["time_started"] = self::format_short_date($this->jobs_by_id[$job_id]["time_started"]);
-            $job["time_created"] = self::format_short_date($this->jobs_by_id[$job_id]["time_created"]);
+            $tco = $this->jobs_by_id[$job_id]["time_completed"];
+            if ($tco && $tco != "FAILED")
+                $job["time_completed"] = self::format_short_date($tco);
+            else
+                $job["time_completed"] = $this->jobs_by_id[$job_id]["status"];
+            $ts = $this->jobs_by_id[$job_id]["time_started"];
+            if ($ts)
+                $job["time_started"] = self::format_short_date($ts);
+            else
+                $job["time_started"] = "";
+            $job["time_created"] = $this->jobs_by_id[$job_id]["time_created"];
 
             if ($this->table_name == job_types::Quantify) {
                 $mg_ids = explode(",", $this->jobs_by_id[$job_id]["metagenomes"]);

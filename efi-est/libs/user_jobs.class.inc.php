@@ -11,11 +11,10 @@ class user_jobs extends user_auth {
     private $user_groups = array();
     private $is_admin = false;
     private $jobs = array();
+    private $training_jobs = array();
     private $analysis_jobs = array();
 
     public function __construct() {
-        $this->jobs = array();
-        $this->analysis_jobs = array();
     }
 
     public function load_jobs($db, $token) {
@@ -24,33 +23,56 @@ class user_jobs extends user_auth {
         if (!$this->user_email)
             return;
 
-        $this->user_groups = self::get_user_groups($db, $this->user_email);
+        $this->user_groups = self::get_user_groups($db, $this->user_token);
         array_unshift($this->user_groups, global_settings::get_default_group_name());
         $this->is_admin = self::get_user_admin($db, $this->user_email);
 
         $this->load_generate_jobs($db);
         $this->load_analysis_jobs($db);
+        $this->load_training_jobs($db);
     }
 
     private function load_generate_jobs($db) {
         $func = function($val) { return "user_group = '$val'"; };
         $email = $this->user_email;
-        $groupClause = implode(" OR ", array_map($func, $this->user_groups));
-        if ($groupClause)
-            $groupClause = "OR $groupClause";
+        $group_clause = "";
+//        $group_clause = implode(" OR ", array_map($func, $this->user_groups));
+//        if ($group_clause)
+//            $group_clause = "OR $group_clause";
 
         $expDate = self::get_start_date_window();
         $sql = "SELECT generate.generate_id, generate_key, generate_time_completed, generate_status, generate_type, generate_params FROM generate " .
-            "LEFT OUTER JOIN job_group ON generate.generate_id = job_group.generate_id " .
-            "WHERE (generate_email='$email' $groupClause) AND " .
+//            "LEFT OUTER JOIN job_group ON generate.generate_id = job_group.generate_id " .
+            "WHERE (generate_email = '$email' $group_clause) AND " .
             "(generate_time_completed >= '$expDate' OR (generate_time_created >= '$expDate' AND (generate_status = 'NEW' OR generate_status = 'RUNNING'))) " .
             "ORDER BY generate_status, generate_time_completed DESC";
         $rows = $db->query($sql);
 
-        $this->process_load_generate_rows($db, $rows);
+        $this->jobs = $this->process_load_generate_rows($db, $rows);
     }
 
-    private function process_load_generate_rows($db, $rows) {
+    private function load_training_jobs($db) {
+        $func = function($val) { return "user_group = '$val'"; };
+        $email = $this->user_email;
+        $group_clause = implode(" OR ", array_map($func, $this->user_groups));
+        if ($group_clause)
+            $group_clause = "($group_clause) AND";
+
+        $expDate = self::get_start_date_window();
+        $sql = "SELECT generate.generate_id, generate_key, generate_time_completed, generate_status, generate_type, generate_params FROM generate " .
+            "LEFT OUTER JOIN job_group ON generate.generate_id = job_group.generate_id " .
+            "WHERE $group_clause generate_status = 'FINISH' " .
+//            "(generate_time_completed >= '$expDate' OR (generate_time_created >= '$expDate' AND (generate_status = 'NEW' OR generate_status = 'RUNNING'))) " .
+            "ORDER BY generate_status, generate_time_completed DESC";
+        $rows = $db->query($sql);
+
+        $includeFailedAnalysisJobs = false;
+        $this->training_jobs = $this->process_load_generate_rows($db, $rows, $includeFailedAnalysisJobs);
+    }
+
+    private function process_load_generate_rows($db, $rows, $includeFailedAnalysisJobs = true) {
+        $jobs = array();
+
         foreach ($rows as $row) {
             $compResult = $this->get_completed_date_label($row["generate_time_completed"], $row["generate_status"]);
             $jobName = $this->build_job_name($row["generate_params"], $row["generate_type"]);
@@ -60,13 +82,15 @@ class user_jobs extends user_auth {
             $id = $row["generate_id"];
             $key = $row["generate_key"];
 
-            array_push($this->jobs, array("id" => $id, "key" => $key,
+            array_push($jobs, array("id" => $id, "key" => $key,
                     "job_name" => $jobName, "is_completed" => $isCompleted, "is_analysis" => false,
                     "date_completed" => $comp, "is_colorssn" => $row["generate_type"] == "COLORSSN"));
 
             if ($isCompleted) {
                 $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length FROM analysis " .
-                    "WHERE analysis_generate_id = $id";
+                    "WHERE analysis_generate_id = $id ";
+                if (!$includeFailedAnalysisJobs)
+                    $sql .= "AND analysis_status = 'FINISH'";
                 $arows = $db->query($sql); // Analysis Rows
 
                 foreach ($arows as $arow) {
@@ -78,12 +102,14 @@ class user_jobs extends user_auth {
 
                     $aJobName = "AS=" . $arow["analysis_evalue"] . " $aMin $aMax Title=<i>" . $arow["analysis_name"] . "</i>";
 
-                    array_push($this->jobs, array("id" => $id, "key" => $key, "analysis_id" => $arow["analysis_id"],
+                    array_push($jobs, array("id" => $id, "key" => $key, "analysis_id" => $arow["analysis_id"],
                             "job_name" => $aJobName,
                             "is_completed" => $aIsCompleted, "is_analysis" => true, "date_completed" => $acomp));
                 }
             }
         }
+
+        return $jobs;
     }
 
     private function get_job_label($type) {
@@ -219,14 +245,15 @@ class user_jobs extends user_auth {
         $expDate = self::get_start_date_window();
         $func = function($val) { return "user_group = '$val'"; };
         $email = $this->user_email;
-        $groupClause = implode(" OR ", array_map($func, $this->user_groups));
-        if ($groupClause)
-            $groupClause = "OR $groupClause";
+        $group_clause = "";
+//        $group_clause = implode(" OR ", array_map($func, $this->user_groups));
+//        if ($group_clause)
+//            $group_clause = "OR $group_clause";
 
         $sql = "SELECT analysis_id, analysis_generate_id, generate_key, analysis_time_completed, analysis_status, generate_type FROM analysis " .
             "LEFT JOIN generate ON analysis_generate_id = generate_id " .
-            "LEFT OUTER JOIN job_group ON analysis_generate_id = job_group.generate_id " .
-            "WHERE (generate_email='$email' $groupClause) AND " .
+//            "LEFT OUTER JOIN job_group ON analysis_generate_id = job_group.generate_id " .
+            "WHERE (generate_email = '$email' $group_clause) AND " .
             "(analysis_time_completed >= '$expDate' OR (analysis_time_created >= '$expDate' AND (analysis_status = 'NEW' OR analysis_status = 'RUNNING'))) " .
             "ORDER BY analysis_status, analysis_time_completed DESC";
         $rows = $db->query($sql);
@@ -258,7 +285,7 @@ class user_jobs extends user_auth {
 //        $userTable = self::get_user_table();
 //        $this->user_email = $email;
 //
-//        $sql = "SELECT user_id, user_email FROM $userTable WHERE user_email='" . $this->user_email . "'";
+//        $sql = "SELECT user_id, user_email FROM $userTable WHERE user_email = '" . $this->user_email . "'";
 //        $rows = $db->query($sql);
 //
 //        $isUpdate = false;
@@ -299,6 +326,10 @@ class user_jobs extends user_auth {
 
     public function get_jobs() {
         return $this->jobs;
+    }
+
+    public function get_training_jobs() {
+        return $this->training_jobs;
     }
 
     public function get_analysis_jobs() {

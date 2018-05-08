@@ -70,7 +70,7 @@ class job_manager {
         $sql = "SELECT $cols FROM $dbn.generate " . 
             "JOIN $auth_db.user_token ON $dbn.generate.generate_email = $auth_db.user_token.user_email " .
 //            "JOIN $dbn.job_group ON $dbn.generate.generate_id = $dbn.job_group.generate_id " .
-            "WHERE $auth_db.user_token.user_admin = 1 ORDER BY $col_id";
+            "WHERE $auth_db.user_token.user_admin = 1 ORDER BY $col_id DESC";
 
         $rows = $this->db->query($sql);
 
@@ -94,7 +94,7 @@ class job_manager {
             $id = $result["${table}_id"];
             $info = "";
             if ($table == "gnn") {
-                $info = $result["${table}_filename"];
+                $info = substr($result["${table}_filename"], 0, 40);
             } else {
                 $type = $result["generate_type"];
                 $parms = global_functions::decode_object($result["generate_params"]);
@@ -147,7 +147,7 @@ class job_manager {
 
         $sql = "SELECT $cols FROM $dbn.gnn " . 
             "JOIN $auth_db.user_token ON $dbn.gnn.gnn_email = $auth_db.user_token.user_email " .
-            "WHERE $auth_db.user_token.user_admin = 1 ORDER BY $col_id";
+            "WHERE $auth_db.user_token.user_admin = 1 ORDER BY $col_id DESC";
 
         $rows = $this->db->query($sql);
 

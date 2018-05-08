@@ -25,8 +25,15 @@ require_once("inc/header.inc.php");
 <p style="margin-top: 30px">
 </p>
 
-<h3>EST Jobs</h3>
+<div class="tabs">
+    <ul class="tab-headers">
+        <li class="active"><a href="#est">EST Jobs</a></li>
+        <li><a href="#gnt">GNT Jobs</a></li>
+    </ul>
 
+    <div class="tab-content">
+        <div class="tab active" id="est">
+            <div style="max-height: 700px; overflow-y: scroll">
 <table class="pretty">
     <thead>
         <th>Generate ID</th>
@@ -44,13 +51,14 @@ for ($i = 0; $i < count($est_ids); $i++) {
     $job = $job_mgr->get_est_job_by_id($id);
 
     $info = $job["info"];
+    $key = $job["key"];
     $status = $job["status"];
     $email = $job["email"];
     $group = implode(", ", $job["group"]);
 
     echo <<<HTML
         <tr>
-            <td>$id</td>
+            <td><a href="../efi-est/stepc.php?id=$id&key=$key">$id</a></td>
             <td>$info</td>
             <td>$status</td>
             <td>$email</td>
@@ -64,12 +72,15 @@ HTML;
 ?>
     </tbody>
 </table>
+            </div>
 
 <button id="est-update-group-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-users-cog"></i> Add Job to Group</button>
 <button id="est-remove-group-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-user-secret"></i> Remove Job from Group</button>
+        </div>
 
 
-<h3>GNT Jobs</h3>
+        <div class="tab" id="gnt">
+            <div style="max-height: 700px; overflow-y: auto">
 
 <table class="pretty">
     <thead>
@@ -83,18 +94,19 @@ HTML;
     <tbody>
 <?php
 
-for ($i = 0; $i < count($est_ids); $i++) {
-    $id = $est_ids[$i];
-    $job = $job_mgr->get_est_job_by_id($id);
+for ($i = 0; $i < count($gnt_ids); $i++) {
+    $id = $gnt_ids[$i];
+    $job = $job_mgr->get_gnt_job_by_id($id);
 
     $info = $job["info"];
+    $key = $job["key"];
     $status = $job["status"];
     $email = $job["email"];
     $group = implode(", ", $job["group"]);
 
     echo <<<HTML
         <tr>
-            <td>$id</td>
+            <td><a href="../efi-gnt/stepc.php?id=$id&key=$key">$id</a></td>
             <td>$info</td>
             <td>$status</td>
             <td>$email</td>
@@ -108,11 +120,14 @@ HTML;
 ?>
     </tbody>
 </table>
+            </div>
 
 <button id="gnt-update-group-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-users-cog"></i> Add Job to Group</button>
 <button id="gnt-remove-group-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-user-secret"></i> Remove Job from Group</button>
 
-
+        </div>
+    </div>
+</div>
 
 
 
@@ -217,6 +232,13 @@ $(document).ready(function() {
     $("#est-remove-group-btn").click(function() { estRemoveDlg.dialog("open"); });
     $("#gnt-update-group-btn").click(function() { gntUpdateDlg.dialog("open"); });
     $("#gnt-remove-group-btn").click(function() { gntRemoveDlg.dialog("open"); });
+
+    $(".tabs .tab-headers a").on("click", function(e) {
+        var curAttrValue = $(this).attr("href");
+        $(".tabs " + curAttrValue).fadeIn(300).show().siblings().hide();
+        $(this).parent("li").addClass("active").siblings().removeClass("active");
+        e.preventDefault();
+    });
 });
 
 </script>

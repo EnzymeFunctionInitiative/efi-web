@@ -3,6 +3,11 @@
 require_once "global_settings.class.inc.php";
 require_once "PasswordHash.php";
 
+class group_status {
+    const Active = "ACTIVE";
+    const Inactive = "INACTIVE";
+}
+
 class user_auth {
 
     const USER_TOKEN_NAME = "efi_token";
@@ -227,15 +232,23 @@ class user_auth {
             return false;
     }
 
-    public static function get_user_groups($db, $email) {
-        $userTable = self::get_user_table();
+    public static function get_user_groups($db, $user_id) {
+        $userTable = self::get_user_group_table();
+        $mtable = self::get_master_group_table();
 
-        $sql = "SELECT user_group FROM $userTable WHERE user_email='$email'";
-        $row = $db->query($sql);
+        $activeStatus = group_status::Active;
+
+        $sql = "SELECT $userTable.group_name FROM $userTable " .
+            "JOIN $mtable ON $userTable.group_name = $mtable.group_name " .
+            "WHERE user_id='$user_id' AND " .
+            "$mtable.group_status='$activeStatus' AND " .
+            "(CURRENT_TIMESTAMP >= $mtable.group_time_open OR $mtable.group_time_open IS NULL) AND " .
+            "(CURRENT_TIMESTAMP <= $mtable.group_time_closed OR $mtable.group_time_closed IS NULL)";
+        $rows = $db->query($sql);
 
         $result = array();
-        if ($row) {
-            $result = explode(",", $row[0]["user_group"]);
+        foreach ($rows as $row) {
+            array_push($result, $row["group_name"]);
         }
         return $result;
     }
