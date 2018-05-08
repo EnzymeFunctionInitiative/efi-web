@@ -9,6 +9,18 @@ require_once "inc/header.inc.php";
 
 <h2>Release Notes</h2>
 
+<h3>May 9, 2018</h3>
+
+<p>
+The EST database now uses UniProt release 2018_04 and InterPro 68.  UniProt release 2018_04 includes
+a total of 115,316,915 entries: 114,759,640 in TrEMBL and 557,275 in SwissProt.
+</p>
+
+<p>
+This database includes 16,712 Pfam famliies, 33,947 InterPro families, and 604 Pfam clans.
+Tables of family sizes are available <a href="family_list.php">here</a>.
+</p>
+
 <h3>March 27, 2018</h3>
 
 <p>
@@ -17,7 +29,7 @@ a total of 109,414,541 entries: 108,857,716 in TrEMBL and 556,825 in SwissProt.
 </p>
 
 <p>
-This database includes 16,712 Pfam famliies, 33,707 InterPro families, and 605 Pfam clans.
+This database includes 16,712 Pfam famliies, 33,707 InterPro families, and 604 Pfam clans.
 Tables of family sizes are available <a href="family_list.php">here</a>.
 </p>
 

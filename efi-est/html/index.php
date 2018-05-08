@@ -7,7 +7,9 @@ require_once "../libs/ui.class.inc.php";
 $userEmail = "Enter your e-mail address";
 
 $showJobsTab = false;
+$showTrainingJobsTab = false;
 $jobs = array();
+$tjobs = array(); // training jobs
 $userGroups = array();
 $IsAdminUser = false;
 //$analysisJobs = array();
@@ -15,11 +17,13 @@ if (global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) 
     $userJobs = new user_jobs();
     $userJobs->load_jobs($db, user_auth::get_user_token());
     $jobs = $userJobs->get_jobs();
+    $tjobs = $userJobs->get_training_jobs();
 //    $analysisJobs = $userJobs->get_analysis_jobs();
     $userEmail = $userJobs->get_email();
     $userGroups = $userJobs->get_groups();
     $IsAdminUser = $userJobs->is_admin();
     $showJobsTab = count($jobs) > 0; // || count($analysisJobs) > 0;
+    $showTrainingJobsTab = count($tjobs) > 0;
 }
 
 $showJobGroups = $IsAdminUser && global_settings::get_job_groups_enabled();
@@ -100,6 +104,9 @@ the <a href="family_list.php">Family Information page</a>.
 <?php if ($showJobsTab) { ?>
         <li class="active"><a href="#jobs">Previous Jobs</a></li>
 <?php } ?>
+<?php if ($showTrainingJobsTab) { ?>
+        <li><a href="#tjobs">Training</a></li>
+<?php } ?>
 <?php if (functions::option_a_enabled()) { ?>
         <li><a href="#optionAtab" title="Option A">Sequence BLAST</a></li>
 <?php } ?>
@@ -122,72 +129,17 @@ the <a href="family_list.php">Family Information page</a>.
     </ul>
 
     <div class="tab-content">
-<?php if ($showJobsTab) { ?>
-        <div id="jobs" class="tab active">
-<?php } ?>
-<?php if ($showJobsTab) { ?>
-<?php     if (count($jobs) > 0) { ?>
-            <table class="pretty_nested">
-                <thead>
-                    <th class="id-col">ID</th>
-                    <th>Job Name</th>
-                    <th class="date-col">Date Completed</th>
-                </thead>
-                <tbody>
-<?php
-$lastBgColor = "#eee";
-for ($i = 0; $i < count($jobs); $i++) {
-    $key = $jobs[$i]["key"];
-    $id = $jobs[$i]["id"];
-    $name = $jobs[$i]["job_name"];
-    $dateCompleted = $jobs[$i]["date_completed"];
-    $isCompleted = $jobs[$i]["is_completed"];
+<?php if ($showJobsTab) {
+    echo "        <div id=\"jobs\" class=\"tab active\">\n";
+    outputJobList($jobs);
+    echo "        </div>\n";
+} ?>
 
-    $idText = "";
-    $linkStart = "";
-    $linkEnd = "";
-    $nameStyle = "";
-
-    if ($jobs[$i]["is_analysis"]) {
-        if ($isCompleted) {
-            $analysisId = $jobs[$i]["analysis_id"];
-            $linkStart = "<a href=\"stepe.php?id=$id&key=$key&analysis_id=$analysisId\">";
-            $linkEnd = "</a>";
-        }
-        $nameStyle = "style=\"padding-left: 50px;\"";
-        //$name = '<i class="fas fa-long-arrow-right" aria-hidden="true"></i> ' . $name;
-        $name = '[Analysis] ' . $name;
-    } else {
-        if ($isCompleted) {
-            $theScript = $jobs[$i]["is_colorssn"] ? "view_coloredssn.php" : "stepc.php";
-            $linkStart = "<a href=\"$theScript?id=$id&key=$key\">";
-            $linkEnd = "</a>";
-        }
-        $idText = "$linkStart${id}$linkEnd";
-        if ($lastBgColor == "#fff")
-            $lastBgColor = "#eee";
-        else
-            $lastBgColor = "#fff";
-    }
-    
-    echo <<<HTML
-                    <tr style="background-color: $lastBgColor">
-                        <td>$idText</td>
-                        <td $nameStyle>$linkStart${name}$linkEnd</td>
-                        <td>$dateCompleted</td>
-                    </tr>
-HTML;
-}
-?>
-                </tbody>
-            </table>
-<?php     } ?>
-
-<?php } ?>
-            
-<?php if ($showJobsTab) { ?>
-        </div>
-<?php } ?>
+<?php if ($showTrainingJobsTab) {
+    echo "        <div id=\"tjobs\" class=\"tab\">\n";
+    outputJobList($tjobs);
+    echo "        </div>\n";
+} ?>
 
 <?php if (functions::option_a_enabled()) { ?>
         <div id="optionAtab" class="tab">
@@ -556,7 +508,7 @@ HTML;
 
             <form name="optionEform" id="optionEform" method="post" action="">
                 <div class="primary-input">
-                    <input type="text" id="option-e-input" name="option-e-input"
+                    <input type="text" id="option-e-input" name="option-e-input">
                     <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box('option-e-size-container', 'option-e-count-table', $useUniref90, $useUniref50); ?> 
                     </div>
@@ -850,6 +802,68 @@ function showAdminCode($id, $userGroups, $showJobGroups) {
 </div>
 HTML;
     }
+}
+
+
+function outputJobList($jobs) {
+    echo <<<HTML
+            <table class="pretty_nested">
+                <thead>
+                    <th class="id-col">ID</th>
+                    <th>Job Name</th>
+                    <th class="date-col">Date Completed</th>
+                </thead>
+                <tbody>
+HTML;
+
+    $lastBgColor = "#eee";
+    for ($i = 0; $i < count($jobs); $i++) {
+        $key = $jobs[$i]["key"];
+        $id = $jobs[$i]["id"];
+        $name = $jobs[$i]["job_name"];
+        $dateCompleted = $jobs[$i]["date_completed"];
+        $isCompleted = $jobs[$i]["is_completed"];
+    
+        $idText = "";
+        $linkStart = "";
+        $linkEnd = "";
+        $nameStyle = "";
+    
+        if ($jobs[$i]["is_analysis"]) {
+            if ($isCompleted) {
+                $analysisId = $jobs[$i]["analysis_id"];
+                $linkStart = "<a href=\"stepe.php?id=$id&key=$key&analysis_id=$analysisId\">";
+                $linkEnd = "</a>";
+            }
+            $nameStyle = "style=\"padding-left: 50px;\"";
+            //$name = '<i class="fas fa-long-arrow-right" aria-hidden="true"></i> ' . $name;
+            $name = '[Analysis] ' . $name;
+        } else {
+            if ($isCompleted) {
+                $theScript = $jobs[$i]["is_colorssn"] ? "view_coloredssn.php" : "stepc.php";
+                $linkStart = "<a href=\"$theScript?id=$id&key=$key\">";
+                $linkEnd = "</a>";
+            }
+            $idText = "$linkStart${id}$linkEnd";
+            if ($lastBgColor == "#fff")
+                $lastBgColor = "#eee";
+            else
+                $lastBgColor = "#fff";
+        }
+        
+        echo <<<HTML
+                    <tr style="background-color: $lastBgColor">
+                        <td>$idText</td>
+                        <td $nameStyle>$linkStart${name}$linkEnd</td>
+                        <td>$dateCompleted</td>
+                    </tr>
+HTML;
+    }
+
+    echo <<<HTML
+                </tbody>
+            </table>
+HTML;
 }
 
 ?>
