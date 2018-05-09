@@ -113,6 +113,31 @@ class functions {
         return $result;
     }
 
+    public static function is_job_sticky($db, $generate_id, $user_email) {
+        //$sql = "SELECT generate_parent_id FROM generate WHERE generate_id = $generate_id AND generate_parent_id IS NOT NULL";
+        $pre_group = self::get_precompute_group();
+        $sql = "SELECT job_group.generate_id, generate.generate_email FROM job_group " .
+            "JOIN generate ON job_group.generate_id = generate.generate_id " .
+            "WHERE job_group.generate_id = $generate_id AND job_group.user_group = '$pre_group' AND generate.generate_email != '$user_email'";
+        // users can't create copies of sticky jobs that they own.
+        $result = $db->query($sql);
+        if ($result)
+            return true;
+        else
+            return false;
+    }
+    
+    // Check if the given ID is already a parent to a job in the user's profile.  If so then we return the ID of the
+    // user's job.  This prevents us from creating lots of new generate jobs for each use of the precompute job.
+    public static function is_parented($db, $generate_id, $user_email) {
+        $sql = "SELECT generate_id FROM generate WHERE generate_parent_id = $generate_id AND generate_email = '$user_email'";
+        $result = $db->query($sql);
+        if ($result)
+            return $result[0]["generate_id"];
+        else
+            return false;
+    }
+
 
     public static function parse_datetime($datetimeString) {
         return DateTime::createFromFormat("Y-m-d H:i:s", $datetimeString);
@@ -327,10 +352,10 @@ class functions {
             return "";
         }
 
-        $ipv = ($ver % 10000) / 10;
+        $ipv = ($ver % 1000) / 10;
         $upvYear = intval($ver / 1000000);
         $upvMon = intval(intval($ver / 10000) % 100);
-        return sprintf("UniProt: %d-%02d / Interpro: %.1f", $upvYear, $upvMon, $ipv);
+        return sprintf("UniProt: %d-%02d / Interpro: %.0f", $upvYear, $upvMon, $ipv);
     }
 
 
@@ -516,6 +541,10 @@ class functions {
 
     public static function get_default_uniref_version() {
         return defined("__DEFAULT_UNIREF_VERSION__") ? __DEFAULT_UNIREF_VERSION__ : "90";
+    }
+
+    public static function get_precompute_group() {
+        return defined("__PRECOMPUTE_USER_GROUP__") ? __PRECOMPUTE_USER_GROUP__ : "PRECOMPUTE";
     }
 }
 

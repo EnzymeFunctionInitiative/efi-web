@@ -99,7 +99,7 @@ class efi_statistics
             $results[$i]['Families'] = $res_obj['generate_families'];
             $results[$i]['Number of Sequences'] = $res_obj['generate_num_seq'];
         }
-        //$sql .= "generate.generate_blast as Blast, ";
+        //$sql .= else echo "--"; "generate.generate_blast as Blast, ";
         //$sql .= "generate.generate_families as Families, ";
         //$sql .= "generate_num_seq as 'Number of Sequences', ";
 
@@ -130,6 +130,10 @@ class efi_statistics
             $results[$i]['Families'] = $res_obj['generate_families'];
             $results[$i]['E-Value'] = $res_obj['generate_evalue'];
             $results[$i]['Number of Sequences'] = $res_obj['generate_num_seq'];
+            $results[$i]['Time Started'] = self::format_date($results[$i]['Time Started']);
+            $results[$i]['Time Completed'] = self::format_date($results[$i]['Time Completed']);
+            $results[$i]['Time Submitted'] = self::format_date($results[$i]['Time Submitted']);
+            $results[$i]['UniRef'] = array_key_exists('generate_uniref', $res_obj) ? $res_obj['generate_uniref'] : '';
         }
         //$sql .= "generate.generate_blast as Blast, ";
         //$sql .= "generate.generate_families as Families, ";
@@ -157,7 +161,15 @@ class efi_statistics
         $sql .= "WHERE MONTH(analysis.analysis_time_created)='" . $month . "' ";
         $sql .= "AND YEAR(analysis.analysis_time_created)='" . $year . "' ";
         $sql .= "ORDER BY generate.generate_id ASC";
-        return $db->query($sql);
+
+        $results = $db->query($sql);
+        for ($i = 0; $i < count($results); $i++) {
+            $results[$i]['Time Started'] = self::format_date($results[$i]['Time Started']);
+            $results[$i]['Time Completed'] = self::format_date($results[$i]['Time Completed']);
+            $results[$i]['Time Submitted'] = self::format_date($results[$i]['Time Submitted']);
+        }
+        
+        return $results;
     }
 
 
@@ -211,6 +223,13 @@ class efi_statistics
         return $new_data;
     }
 
+    private static function format_date($date_str) {
+        if ($date_str == "NULL" || !$date_str)
+            return "";
+        $date = date_create($date_str);
+        $formatted = date_format($date, "n/j h:i A");
+        return $formatted;
+    }
 }
 
 

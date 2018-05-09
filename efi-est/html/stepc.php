@@ -18,6 +18,9 @@ if ($generate->get_key() != $_GET['key']) {
     exit;
 }
 
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // This code handles submission of the form.  It exits at the end of the code block if the
 // analysis job was successfully created.
@@ -34,6 +37,8 @@ if (isset($_POST['analyze_data'])) {
         $max = __MAXIMUM__;
     }
 
+    $job_id = $_POST['id'];
+
     $analysis = new analysis($db);
 
     $customFile = "";
@@ -41,7 +46,26 @@ if (isset($_POST['analyze_data'])) {
         $customFile = $_FILES['cluster_file']['tmp_name'];
     }
 
-    $result = $analysis->create($_POST['id'],
+    if (user_auth::has_token_cookie()) {
+        $email = user_auth::get_email_from_token($db, user_auth::get_user_token());
+        if (functions::is_job_sticky($db, $job_id, $email)) {
+            $parent_id = $job_id;
+            $parent_check = functions::is_parented($db, $job_id, $email);
+
+            if ($parent_check === false) {
+                $job_id = stepa::duplicate_job($db, $job_id, $email);
+                if ($job_id === false) {
+                    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+                    die("Unable to create duplicate of $parent_id for $email");
+                }
+            } else {
+                $job_id = $parent_check;
+            }
+        }
+    }
+
+    $result = $analysis->create(
+        $job_id,
         $_POST['evalue'],
         $_POST['network_name'],
         $min,

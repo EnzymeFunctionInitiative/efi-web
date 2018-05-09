@@ -666,6 +666,37 @@ class stepa {
     }
 
 
+
+
+    public static function duplicate_job($db, $parent_id, $email) {
+        $result = $db->query("SELECT * FROM generate WHERE generate_id = $parent_id");
+        if (!$result)
+            return false;
+
+        $parent = $result[0];
+        $copy = array();
+        foreach ($parent as $key => $val) {
+            if ($key == "generate_id")
+                $val = "NULL";
+            elseif ($key == "generate_parent_id")
+                $val = $parent_id;
+            elseif ($key == "generate_email")
+                $val = $email;
+            $copy[$key] = $val;
+        }
+
+        $new_id = $db->build_insert("generate", $copy);
+        if ($new_id)
+            return $new_id;
+        else
+            return false;
+    }
+
+
+
+
+
+
     ///////////////Protected Functions///////////
 
 
