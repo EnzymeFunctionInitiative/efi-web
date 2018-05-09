@@ -22,7 +22,7 @@
 	<div class='container'>
 		
 		<div class='navbar-header'>
-			<a class='navbar-brand' href='#'><?php echo __TITLE__; ?></a>
+			<a class='navbar-brand' href='../'><?php echo __TITLE__; ?></a>
 		</div>	
                 <div id='navbar' class='collapse navbar-collapse'>
 			<ul class='nav navbar-nav'>

@@ -53,6 +53,7 @@ foreach ($jobs as $job) {
 	}
 	$generate_html .= "<td>" . $families . "</td>\n";
     $generate_html .= "<td>" . $job['E-Value'] . "</td>\n";
+    $generate_html .= "<td>" . $job['UniRef'] . "</td>\n";
 	$generate_html .= "<td>" . str_replace(" ", "&nbsp;", $job['Time Submitted']) . "</td>\n";
 	$generate_html .= "<td>" . str_replace(" ", "&nbsp;", $job['Time Started']) . "</td>\n";
 	$generate_html .= "<td>" . str_replace(" ", "&nbsp;", $job['Time Completed'])  ."</td>\n";
@@ -106,6 +107,7 @@ $monthName = date("F", mktime(0, 0, 0, $month, 10));
 	<th>Blast</th>
 	<th>Family</th>
     <th>E-Value</th>
+    <th>UniRef</th>
 	<th>Time Submitted</th>
 	<th>Time Started</th>
 	<th>Time Finished</th>

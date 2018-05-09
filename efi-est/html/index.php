@@ -25,6 +25,7 @@ if (global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) 
     $showJobsTab = count($jobs) > 0; // || count($analysisJobs) > 0;
     $showTrainingJobsTab = count($tjobs) > 0;
 }
+$showTrainingJobsTab = false; // currently we don't want it to be displayed since we put the training jobs below the previous jobs.
 
 $showJobGroups = $IsAdminUser && global_settings::get_job_groups_enabled();
 
@@ -131,7 +132,12 @@ the <a href="family_list.php">Family Information page</a>.
     <div class="tab-content">
 <?php if ($showJobsTab) {
     echo "        <div id=\"jobs\" class=\"tab active\">\n";
+    echo "            <a href=\"precompute.php\">Precomputed Jobs</a>\n";
+    echo "            <h3>User Jobs</h3>\n";
     outputJobList($jobs);
+
+    echo "            <h3>Training Jobs</h3>\n";
+    outputJobList($tjobs);
     echo "        </div>\n";
 } ?>
 

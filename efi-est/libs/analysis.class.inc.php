@@ -33,6 +33,7 @@ class analysis {
     private $length_overlap;
     private $custom_clustering;
     private $custom_filename = "custom_cluster.txt";
+    private $parent_id = 0; // The parent ID of the generate job that this analysis job is associated with
 
     ///////////////Public Functions///////////
 
@@ -414,13 +415,24 @@ class analysis {
             $job_dir = functions::get_results_dir() . "/" . $this->get_generate_id();
             $relative_output_dir = "output";
             $network_dir = $this->get_network_dir();
-            $full_output_dir = "$job_dir/$relative_output_dir/$network_dir";
+            $gen_output_dir = "$job_dir/$relative_output_dir";
+            $full_output_dir = "$gen_output_dir/$network_dir";
+
+            $parent_dir_opt = "";
+            $parent_id = $this->parent_id;
+            if ($parent_id > 0) {
+                $parent_dir = functions::get_results_dir() . "/$parent_id/$relative_output_dir";
+                if (!@file_exists($gen_output_dir)) {
+                    mkdir($gen_output_dir, 0777, true); // This job is a parent
+                }
+                $parent_dir_opt = "-parent-id $parent_id -parent-dir $parent_dir";
+            }
 
             if (@file_exists($full_output_dir)) {
                 functions::rrmdir($full_output_dir);
             }
             if ($this->custom_clustering) {
-                mkdir($full_output_dir);
+                mkdir($full_output_dir, 0777, true); // recursively create
                 $start_path = functions::get_uploads_dir() . "/custom_cluster_" . $this->get_generate_id() . ".txt";
                 $end_path = "$full_output_dir/" . $this->custom_filename;
                 copy($start_path, $end_path);
@@ -449,6 +461,8 @@ class analysis {
                     $exec .= "-lengthdif " . $this->length_overlap . " ";
                 if ($sched)
                     $exec .= " -scheduler " . $sched . " ";
+                if ($parent_id > 0)
+                    $exec .= " " . $parent_dir_opt;
 
                 $exec .= " 2>&1 ";
 
@@ -514,6 +528,7 @@ class analysis {
             $this->time_completed = $result[0]['analysis_time_completed'];
             $this->filter_sequences = $result[0]['analysis_filter_sequences'];
             $this->db_version = functions::decode_db_version($result[0]['generate_db_version']);
+            $this->parent_id = $result[0]['generate_parent_id'];
             $has_custom = array_key_exists('analysis_custom_cluster', $result[0]) &&
                             $result[0]['analysis_custom_cluster'] == 1;
             $this->custom_clustering = $has_custom;
