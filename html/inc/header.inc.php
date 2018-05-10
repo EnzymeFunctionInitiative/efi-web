@@ -13,6 +13,9 @@ if (isset($Is404Page) && $Is404Page)
 if (isset($IsExpiredPage) && $IsExpiredPage)
     $title = "Expired Job";
 
+if (!isset($HeaderAdditional))
+    $HeaderAdditional = array();
+
 include("global_login_button.inc.php");
 
 ?>
@@ -36,6 +39,7 @@ include("global_login_button.inc.php");
     <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.js" type="text/javascript"></script>
     <script src="js/main.js" type="text/javascript"></script>
     <script src="js/upload.js" type="text/javascript"></script>
+<?php foreach ($HeaderAdditional as $line) { echo "    $line\n"; } ?>
 </head>
 
 <body>

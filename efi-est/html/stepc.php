@@ -373,6 +373,11 @@ should or should not be connected in a network is needed. This will determine th
 
             This score is the similarity threshold which determine the connection of proteins with each other. All pairs of proteins with a similarity score below this number will not be connected. Sets of connected proteins will form clusters.
 
+            <br><button id="file-size-button" class="mini" type="button" style="margin-top: 20px">View Node-Edge-File Size Chart</button>
+            <div id="node-edge-chart" class="advanced-options" style="display: none;">
+                <iframe src="<?php echo $SiteUrlPrefix; ?>/node_edge_filesize.php" width="900" height="500" style="border: none"></iframe>
+            </div>
+
             <hr>
             <h3>2: Sequence length restriction  <a href="tutorial_analysis.php" class="question" target="_blank">?</a>
                 <span style='color:red'>Optional</span></h3>
@@ -435,6 +440,35 @@ This name will be displayed in Cytoscape.
 <center>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</center>
 
 <script src="<?php echo $SiteUrlPrefix; ?>/js/accordion.js" type="text/javascript"></script>
+<script>
+$(document).ready(function() {
+    var iframes = $('iframe');
+    
+    $('#file-size-button').click(function() {
+        $header = $(this);
+        //getting the next element
+        $content = $header.next();
+        //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+        $content.slideToggle(100, function () {
+            if ($content.is(":visible")) {
+                $header.find("i.fas").addClass("fa-minus-square");
+                $header.find("i.fas").removeClass("fa-plus-square");
+            } else {
+                $header.find("i.fas").removeClass("fa-minus-square");
+                $header.find("i.fas").addClass("fa-plus-square");
+            }
+        });
+        iframes.attr('src', function() {
+            return $(this).data('src');
+        });
+    });
+    
+    iframes.each(function() {
+        var src = $(this).attr('src');
+        $(this).data('src', src).attr('src', '');
+    });
+});
+</script>
 <?php if (functions::custom_clustering_enabled()) { ?>
 <script>
     $(document).ready(function() {
