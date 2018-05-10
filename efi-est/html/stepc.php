@@ -12,6 +12,7 @@ if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
 
 $generate = new stepa($db,$_GET['id']);
 $gen_id = $generate->get_id();
+$key = $_GET['key'];
 
 if ($generate->get_key() != $_GET['key']) {
     header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
@@ -267,7 +268,7 @@ else {
 
     function make_plot_download($gen, $hdr, $type, $preview_img, $download_img) {
         $html = "<span class='plot_header'>$hdr</span> \n";
-        $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $gen->get_key() . "'><button class='file_download'>Download <img src='images/download.svg' /></button></a>\n";
+        $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=$key'><button class='file_download'>Download <img src='images/download.svg' /></button></a>\n";
         if ($preview_img) {
             $html .= "<button class='accordion'>Preview</button>\n";
             $html .= "<div class='acpanel'>\n";
@@ -295,7 +296,7 @@ else {
 
 <p>
 Generation Summary Table
-<a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=" . $_GET['key'] . "&as-table=1" ?>'><button class="normal">Download</button></a>
+<a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1" ?>'><button class="normal">Download</button></a>
 </p>
 
 <table width="100%" border="1">
@@ -373,9 +374,16 @@ should or should not be connected in a network is needed. This will determine th
 
             This score is the similarity threshold which determine the connection of proteins with each other. All pairs of proteins with a similarity score below this number will not be connected. Sets of connected proteins will form clusters.
 
+<?php if (functions::file_size_graph_enabled()) { ?>
             <br><button id="file-size-button" class="mini" type="button" style="margin-top: 20px">View Node-Edge-File Size Chart</button>
             <div id="node-edge-chart" class="advanced-options" style="display: none;">
-                <iframe src="<?php echo $SiteUrlPrefix; ?>/node_edge_filesize.php" width="900" height="500" style="border: none"></iframe>
+                <iframe id="file-size-iframe" src="<?php echo $SiteUrlPrefix; ?>/node_edge_filesize.php" width="900" height="500" style="border: none"></iframe>
+            </div>
+<?php } ?>
+
+            <br><button id="edge-evalue-button" class="mini" type="button" style="margin-top: 20px">View Edge Count vs Alignment Score Chart</button>
+            <div id="edge-evalue-chart" style="display: none;">
+                <iframe id="edge-evalue-iframe" src="edge_evalue.php?<?php echo "id=$gen_id&key=$key"; ?>" width="900" height="500" style="border: none"></iframe>
             </div>
 
             <hr>
@@ -442,7 +450,8 @@ This name will be displayed in Cytoscape.
 <script src="<?php echo $SiteUrlPrefix; ?>/js/accordion.js" type="text/javascript"></script>
 <script>
 $(document).ready(function() {
-    var iframes = $('iframe');
+    var fileSizeIframe = $("#file-size-iframe");
+    var edgeIframe = $("#edge-evalue-iframe");
     
     $('#file-size-button').click(function() {
         $header = $(this);
@@ -458,12 +467,27 @@ $(document).ready(function() {
                 $header.find("i.fas").addClass("fa-plus-square");
             }
         });
-        iframes.attr('src', function() {
+        fileSizeIframe.attr('src', function() {
             return $(this).data('src');
         });
     });
     
-    iframes.each(function() {
+    $('#edge-evalue-button').click(function() {
+        $header = $(this);
+        //getting the next element
+        $content = $header.next();
+        //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+        $content.toggle();
+        edgeIframe.attr('src', function() {
+            return $(this).data('src');
+        });
+    });
+
+    fileSizeIframe.each(function() {
+        var src = $(this).attr('src');
+        $(this).data('src', src).attr('src', '');
+    });
+    edgeIframe.each(function() {
         var src = $(this).attr('src');
         $(this).data('src', src).attr('src', '');
     });

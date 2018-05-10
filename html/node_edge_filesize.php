@@ -50,6 +50,8 @@ function processData(allRows) {
         row = allRows[i];
         var nodes = (Math.trunc(row['NumNodes'] / 1000) + 0.0) * 1000;
         var edges = Math.trunc(row['NumEdges'] / 100000) * 100000;
+        if (edges > 10000000)
+            continue;
         numNode.push(nodes);
         numEdge.push(edges);
         size.push( row['FileSize'] / (1024*1024) );
