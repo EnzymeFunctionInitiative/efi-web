@@ -137,6 +137,13 @@ require_once "inc/header.inc.php";
 </table>
 
 
+<br><button id="heatmap-button" class="mini" type="button" style="margin-top: 20px">View Heatmap for All Quantify Results</button>
+
+<div id="heatmap" style="display: none;">
+<iframe src="graph.php?<?php echo "id=$identify_id&key=$key"; ?>" width="970" height="750" style="border: none"></iframe>
+</div>
+
+
 <h3>Individual Quantify Run Results</h3>
 
 
@@ -211,6 +218,35 @@ foreach ($q_jobs as $job) {
 <p></p>
 <p>&nbsp;</p>
 
+<script>
+$(document).ready(function() {
+    var iframes = $('iframe');
+    
+    $('#heatmap-button').click(function() {
+        $header = $(this);
+        //getting the next element
+        $content = $header.next();
+        //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+        $content.slideToggle(100, function () {
+            if ($content.is(":visible")) {
+                $header.find("i.fas").addClass("fa-minus-square");
+                $header.find("i.fas").removeClass("fa-plus-square");
+            } else {
+                $header.find("i.fas").removeClass("fa-minus-square");
+                $header.find("i.fas").addClass("fa-plus-square");
+            }
+        });
+        iframes.attr('src', function() {
+            return $(this).data('src');
+        });
+    });
+    
+    iframes.each(function() {
+        var src = $(this).attr('src');
+        $(this).data('src', src).attr('src', '');
+    });
+});
+</script>
 
 <?php require_once "inc/footer.inc.php"; ?>
 
