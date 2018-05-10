@@ -282,6 +282,11 @@ else {
         return $html;
     }
 
+
+
+    $has_edge_evalue_data = $generate->get_has_edge_evalue_data();
+
+
 ?>	
 
 
@@ -381,10 +386,12 @@ should or should not be connected in a network is needed. This will determine th
             </div>
 <?php } ?>
 
+<?php if ($has_edge_evalue_data) { ?>
             <br><button id="edge-evalue-button" class="mini" type="button" style="margin-top: 20px">View Edge Count vs Alignment Score Chart</button>
             <div id="edge-evalue-chart" style="display: none;">
                 <iframe id="edge-evalue-iframe" src="edge_evalue.php?<?php echo "id=$gen_id&key=$key"; ?>" width="900" height="500" style="border: none"></iframe>
             </div>
+<?php } ?>
 
             <hr>
             <h3>2: Sequence length restriction  <a href="tutorial_analysis.php" class="question" target="_blank">?</a>
