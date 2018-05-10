@@ -182,6 +182,12 @@ class stepa {
         return $data;
     }
 
+    public function get_has_edge_evalue_data() {
+        $results_path = functions::get_results_dir() . "/" . $this->get_output_dir();
+        $file_path = $results_path . "/" . $this->evalue_data_file;
+        return file_exists($file_path);
+    }
+
     public function set_status($status) {
 
         $sql = "UPDATE generate ";
