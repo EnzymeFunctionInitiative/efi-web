@@ -546,6 +546,10 @@ class functions {
     public static function get_precompute_group() {
         return defined("__PRECOMPUTE_USER_GROUP__") ? __PRECOMPUTE_USER_GROUP__ : "PRECOMPUTE";
     }
+
+    public static function file_size_graph_enabled() {
+        return defined("__FILE_SIZE_GRAPH_ENABLED__") ? __FILE_SIZE_GRAPH_ENABLED__ : false;
+    }
 }
 
 ?>

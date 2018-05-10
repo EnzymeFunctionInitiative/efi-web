@@ -34,6 +34,7 @@ class stepa {
     protected $fraction;
     protected $db_version;
     protected $beta;
+    protected $evalue_data_file = "evalue.tab";
 
     //private $alignment_length = "r_quartile_align.png";
     //private $length_histogram = "r_hist_length.png";
@@ -157,6 +158,28 @@ class stepa {
         $full_path = $results_path . "/" . $this->get_finish_file();
         return file_exists($full_path);
 
+    }
+
+    public function get_evalue_data() {
+        $results_path = functions::get_results_dir() . "/" . $this->get_output_dir();
+        $file_path = $results_path . "/" . $this->evalue_data_file;
+        if (!file_exists($file_path)) {
+            return array();
+        }
+
+        $data = array();
+
+        $fh = fopen($file_path, "r");
+        while (!feof($fh)) {
+            $line = fgets($fh, 1000);
+            if (!$line)
+                continue;
+            $parts = str_getcsv($line, "\t");
+            $data[$parts[0]] = $parts[2];
+        }
+        fclose($fh);
+
+        return $data;
     }
 
     public function set_status($status) {
