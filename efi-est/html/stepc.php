@@ -268,7 +268,7 @@ else {
 
     function make_plot_download($gen, $hdr, $type, $preview_img, $download_img) {
         $html = "<span class='plot_header'>$hdr</span> \n";
-        $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=$key'><button class='file_download'>Download <img src='images/download.svg' /></button></a>\n";
+        $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "'><button class='file_download'>Download <img src='images/download.svg' /></button></a>\n";
         if ($preview_img) {
             $html .= "<button class='accordion'>Preview</button>\n";
             $html .= "<div class='acpanel'>\n";
