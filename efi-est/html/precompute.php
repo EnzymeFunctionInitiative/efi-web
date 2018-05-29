@@ -10,7 +10,8 @@ $jobs = array();
 // Require a token/login because we can't create jobs from Step C unless we have a valid email
 // address.
 if (global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
-    $jobs = user_jobs::load_jobs_for_group($db, functions::get_precompute_group());
+    $show_family_names = true;
+    $jobs = user_jobs::load_jobs_for_group($db, functions::get_precompute_group(), $show_family_names);
 }
 
 
