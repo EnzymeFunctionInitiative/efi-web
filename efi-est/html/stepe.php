@@ -22,7 +22,7 @@ $key = $_GET['key'];
 $analysis_id = $_GET['analysis_id'];
 $analysis = new analysis($db, $analysis_id);
 
-$mig_info = functions::get_gnt_migrate_info($db, $generate_id, $analysis_id);
+$mig_info = false; //functions::get_gnt_migrate_info($db, $generate_id, $analysis_id);
 $is_migrated = false;
 if ($mig_info !== false) {
     $is_migrated = true;

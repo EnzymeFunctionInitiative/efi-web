@@ -160,7 +160,7 @@ class user_jobs extends user_auth {
         if (array_key_exists("generate_fasta_file", $data)) {
             $file = $data["generate_fasta_file"];
             if ($file) {
-                return $file;
+                return str_replace("_", " ", $file);
             } elseif ($type == "FASTA" || $type == "FASTA_ID" || $type == "ACCESSION") {
                 return "Text Input";
             } else {
