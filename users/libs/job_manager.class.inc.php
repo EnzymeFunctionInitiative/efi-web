@@ -102,7 +102,7 @@ class job_manager {
                 if (isset($parms["generate_fasta_file"]) && $parms["generate_fasta_file"])
                     $info .= " file=" . substr($parms["generate_fasta_file"], 0, 40);
                 if (isset($parms["generate_families"]) && $parms["generate_families"])
-                    $info .=  " family=" . $parms["generate_families"];
+                    $info .=  " family=" . implode(", ", explode(",", $parms["generate_families"]));
             }
 
             $job_data[$id] = array("email" => $email, "key" => $key,

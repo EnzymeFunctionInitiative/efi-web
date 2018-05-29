@@ -25,7 +25,7 @@ require_once("inc/header.inc.php");
 <p style="margin-top: 30px">
 </p>
 
-<div class="tabs">
+<div class="tabs" style="margin-left: -50px; width: 1200px;">
     <ul class="tab-headers">
         <li class="active"><a href="#est">EST Jobs</a></li>
         <li><a href="#gnt">GNT Jobs</a></li>

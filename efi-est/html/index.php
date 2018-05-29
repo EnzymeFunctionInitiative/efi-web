@@ -12,17 +12,15 @@ $jobs = array();
 $tjobs = array(); // training jobs
 $userGroups = array();
 $IsAdminUser = false;
-//$analysisJobs = array();
 if (global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
     $userJobs = new user_jobs();
     $userJobs->load_jobs($db, user_auth::get_user_token());
     $jobs = $userJobs->get_jobs();
     $tjobs = $userJobs->get_training_jobs();
-//    $analysisJobs = $userJobs->get_analysis_jobs();
     $userEmail = $userJobs->get_email();
     $userGroups = $userJobs->get_groups();
     $IsAdminUser = $userJobs->is_admin();
-    $showJobsTab = count($jobs) > 0; // || count($analysisJobs) > 0;
+    $showJobsTab = count($jobs) > 0 || count($tjobs) > 0;
     $showTrainingJobsTab = count($tjobs) > 0;
 }
 $showTrainingJobsTab = false; // currently we don't want it to be displayed since we put the training jobs below the previous jobs.
@@ -136,9 +134,11 @@ the <a href="family_list.php">Family Information page</a>.
     echo "            <h3>User Jobs</h3>\n";
     outputJobList($jobs);
 
-    echo "            <h3>Training Jobs</h3>\n";
-    outputJobList($tjobs);
-    echo "        </div>\n";
+    if (count($tjobs)) {
+        echo "            <h3>Training Jobs</h3>\n";
+        outputJobList($tjobs);
+        echo "        </div>\n";
+    }
 } ?>
 
 <?php if ($showTrainingJobsTab) {

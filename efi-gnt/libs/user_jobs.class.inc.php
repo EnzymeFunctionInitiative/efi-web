@@ -11,13 +11,12 @@ class user_jobs extends user_auth {
     private $user_email = "";
     private $jobs = array();
     private $diagram_jobs = array();
+    private $training_jobs = array();
     private $is_admin = false;
     private $user_jobs = array();
     private $user_groups = array();
 
     public function __construct() {
-        $this->jobs = array();
-        $this->diagram_jobs = array();
     }
 
     public function load_jobs($db, $token) {
@@ -32,22 +31,57 @@ class user_jobs extends user_auth {
 
         $this->load_gnn_jobs($db);
         $this->load_diagram_jobs($db);
+        $this->load_training_jobs($db);
+    }
+
+    private static function get_select_statement() {
+        $sql = "SELECT gnn.gnn_id, gnn_key, gnn_filename, gnn_time_completed, gnn_status, gnn_size, gnn_cooccurrence FROM gnn ";
+        return $sql;
+    }
+
+    private static function get_group_select_statement($group_clause) {
+        $group_clause .= " AND";
+        $sql = self::get_select_statement() .
+            "LEFT OUTER JOIN job_group ON gnn.gnn_id = job_group.gnn_id " .
+            "WHERE $group_clause gnn_status = 'FINISH' " .
+            "ORDER BY gnn_status, gnn_time_completed DESC";
+        return $sql;
     }
 
     private function load_gnn_jobs($db) {
-        $func = function($val) { return "user_group = '$val'"; };
         $email = $this->user_email;
-        $groupClause = implode(" OR ", array_map($func, $this->user_groups));
-        if ($groupClause)
-                $groupClause = "OR $groupClause";
         $expDate = self::get_start_date_window();
 
-        $sql = "SELECT gnn.gnn_id, gnn_key, gnn_filename, gnn_time_completed, gnn_status, gnn_size, gnn_cooccurrence FROM gnn " .
-            "LEFT OUTER JOIN job_group ON gnn.gnn_id = job_group.gnn_id " .
-            "WHERE (gnn_email='$email' $groupClause) AND " .
-            "(gnn_time_completed >= '$expDate' OR gnn_status = 'RUNNING' OR gnn_status = 'NEW' OR gnn_status = 'FAILED')" .
+        $sql = self::get_select_statement();
+        $sql .=
+            "WHERE gnn_email='$email' AND " .
+            "(gnn_time_completed >= '$expDate' OR gnn_status = 'RUNNING' OR gnn_status = 'NEW' OR gnn_status = 'FAILED') " .
             "ORDER BY gnn_status, gnn_time_completed DESC";
         $rows = $db->query($sql);
+
+        $includeFailedJobs = true;
+        $this->jobs = self::process_load_rows($db, $rows, $includeFailedJobs);
+    }
+
+    private function load_training_jobs($db) {
+        $func = function($val) { return "user_group = '$val'"; };
+        $group_clause = implode(" OR ", array_map($func, $this->user_groups));
+        if ($group_clause) {
+            $group_clause = "($group_clause)";
+        } else {
+            $this->training_jobs = array();
+            return;
+        }
+
+        $sql = self::get_group_select_statement($group_clause);
+        $rows = $db->query($sql);
+
+        $includeFailedJobs = false;
+        $this->training_jobs = self::process_load_rows($db, $rows, $includeFailedJobs);
+    }
+ 
+    private static function process_load_rows($db, $rows, $includeFailedJobs) {
+        $jobs = array();
 
         foreach ($rows as $row) {
             $comp = $row["gnn_time_completed"];
@@ -59,9 +93,11 @@ class user_jobs extends user_auth {
                 $comp = date_format(date_create($comp), "n/j h:i A");
             }
             $jobName = "N=" . $row["gnn_size"] . " Cooc=" . $row["gnn_cooccurrence"] . " Submission=<i>" . $row["gnn_filename"] . "</i>";
-            array_push($this->jobs, array("id" => $row["gnn_id"], "key" => $row["gnn_key"], "filename" => $jobName,
+            array_push($jobs, array("id" => $row["gnn_id"], "key" => $row["gnn_key"], "filename" => $jobName,
                                           "completed" => $comp));
         }
+
+        return $jobs;
     }
 
     private function load_diagram_jobs($db) {
@@ -132,6 +168,10 @@ class user_jobs extends user_auth {
 
     public function get_diagram_jobs() {
         return $this->diagram_jobs;
+    }
+
+    public function get_training_jobs() {
+        return $this->training_jobs;
     }
 
     public function get_email() {

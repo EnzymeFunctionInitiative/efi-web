@@ -10,16 +10,38 @@ if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
 }
 
 $generate = new stepa($db,$_GET['id']);
-$gen_id = $generate->get_id();
+$generate_id = $generate->get_id();
 
 if ($generate->get_key() != $_GET['key']) {
     header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
     //echo "No EFI-EST Selected. Please go back";
     exit;
 }
+$key = $_GET['key'];
 
 $analysis_id = $_GET['analysis_id'];
 $analysis = new analysis($db, $analysis_id);
+
+$mig_info = functions::get_gnt_migrate_info($db, $generate_id, $analysis_id);
+$is_migrated = false;
+if ($mig_info !== false) {
+    $is_migrated = true;
+    $mig_status = $mig_info["status"];
+    $gnn_id = $mig_info["gnn_id"];
+    $gnn_key = $mig_info["gnn_key"];
+}
+
+$cooccurrence = 20;
+$neighbor_size_html = "";
+$default_neighbor_size = 10;
+if (!$is_migrated) {
+    for ($i=3;$i<=20;$i++) {
+        if ($i == $default_neighbor_size)
+            $neighbor_size_html .= "<option value='" . $i . "' selected='selected'>" . $i . "</option>";
+        else
+            $neighbor_size_html .= "<option value='" . $i . "'>" . $i . "</option>";
+    }
+}
 
 
 $table_format = "html";
@@ -43,7 +65,7 @@ if (!empty($db_version)) {
     $table->add_row("Database Version", $db_version);
 }
 $table->add_row("Input Option", $formatted_gen_type);
-$table->add_row("Job Number", $gen_id);
+$table->add_row("Job Number", $generate_id);
 
 $uploaded_file = "";
 $included_family = "";
@@ -207,13 +229,15 @@ else {
     $rep_network_html = "";
     $full_network_html = "";
     $full_edge_count = 0;
+    $network_sel_list = array();
 
     for ($i = 0; $i < count($stats); $i++) {
         if ($i == 0) {
             $full_edge_count = number_format($stats[$i]['Edges'], 0);
             if ($stats[$i]['Nodes'] == 0)
                 continue;
-            $path = functions::get_web_root() . "/results/" . $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
+            $rel_path = $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
+            $path = functions::get_web_root() . "/results/" . $rel_path;
             $full_network_html = "<tr>";
             $full_network_html .= "<td style='text-align:center;'><a href='$path'><button class='mini'>Download</button></a>";
             if (!$legacy)
@@ -223,13 +247,15 @@ else {
             $full_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
             $full_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($stats[$i]['Size'],0) . " MB</td>\n";
             $full_network_html .= "</tr>";
+            $network_sel_list["full"] = $rel_path;
         }
         else {
             $percent_identity = substr($stats[$i]['File'], strrpos($stats[$i]['File'],'-') + 1);
             $sep_char = $legacy ? "." : "_";
             $percent_identity = substr($percent_identity, 0, strrpos($percent_identity, $sep_char));
             $percent_identity = str_replace(".","",$percent_identity);
-            $path = functions::get_web_root() . "/results/" . $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
+            $rel_path = $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
+            $path = functions::get_web_root() . "/results/" . $rel_path;
             $rep_network_html .= "<tr>";
             if ($stats[$i]['Nodes'] == 0) {
                 $rep_network_html .= "<td style='text-align:center;'></a>";
@@ -249,6 +275,7 @@ else {
                 $rep_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($stats[$i]['Size'],0) . " MB</td>\n";
             }
             $rep_network_html .= "</tr>";
+            $network_sel_list[$percent_identity] = $rel_path;
         }
     }
 
@@ -321,7 +348,34 @@ else {
                             "&analysis_id=" . $_GET['analysis_id'] .
                             "&stats-as-table=1" ?>"><button class='mini'>Download Network Statistics as Table</button></a>
     </div>
+
     <hr>
+
+<?php /*
+    <div style="margin-top: 20px;">
+<?php if (!$is_migrated) { ?>
+        You can directly submit an SSN to the EFI-GNT tool by selecting one of the following options:<br>
+        <select id="migrate-ssn">
+<?php
+        foreach ($network_sel_list as $type => $file) {
+            $label = is_numeric($type) ? "$type repnode" : $type;
+            echo "<option value='$type'>$label network</option>\n";
+        }
+?>
+        </select>
+        <button type="button" id="submit-migrate" class="mini">Submit SSN to GNT</button>
+<?php } elseif ($mig_status == __RUNNING__) { ?>
+        The job has been sent to EFI-GNT and is running.
+<?php } elseif ($mig_status == __NEW__) { ?>
+        The job has been sent to EFI-GNT and is pending.
+<?php } elseif ($mig_status == __FAILED__) { ?>
+        The job has failed to run in EFI-GNT.
+<?php } elseif ($mig_status == __FINISH__) { ?>
+        <a href="../efi-gnt/stepc.php?<?php echo "id=$gnn_id&key=$gnn_key"; ?>">The GNN has been successfully generated.</a>
+<?php } ?>
+    </div>
+    <hr>
+ */ ?>
 
 <center><p><a href='http://enzymefunction.org/resources/tutorials/efi-and-cytoscape3'>New to Cytoscape?</a></p></center>
 
@@ -351,6 +405,59 @@ Biochimica et Biophysica Acta (BBA) - Proteins and Proteomics, Volume 1854, Issu
 <center><h4><b><span style="color: blue">BETA</span></b></h4></center>
 <?php } ?>
 
+<div id="migrate-gnt-dlg" class="hidden" title="GNT Parameters">
+
+<div style="margin-top: 20px">
+    <b>Neighborhood Size:</b>
+    <select name='migrate-size' id='migrate-size'>
+        <?php echo $neighbor_size_html; ?>
+    </select><br>
+    With a value of <?php echo $default_neighbor_size; ?>, the PFAM families for <?php echo $default_neighbor_size; ?>
+    genes located upstream and for <?php echo $default_neighbor_size; ?> genes
+    located downstream of sequences in the SNN will be collected and displayed.
+    The default value is  <?php echo $default_neighbor_size; ?>.
+</div>
+<div>
+    <b>Co-occurrence percentage lower limit:</b>
+    <input type="text" id="migrate-cooccurrence" value="20" style="width: 50px; font-size: 100%;">
+    <br>
+    This option allows to filter the neighboring pFAMs with a co-occurrence percentage lower than the set value. 
+    The default value is  <?php echo $cooccurrence; ?>, Valid values are 1-100.
+</div>
+
+<div id="migrate-error" style="font-weight: bold; color: red"></div>
+</div>
+
+
+
+<script>
+$(document).ready(function() {
+    var migrateDialog = $("#migrate-gnt-dlg");
+
+    var completionHandler = function(jsonObj) {
+        var nextStepScript = "stepm.php";
+        migrateDialog.dialog("close");
+        window.location.href = nextStepScript + "?id=" + jsonObj.id;
+    };
+
+    var submitMigrateFn = function() {
+        submitMigrate(
+            <?php echo $generate_id; ?>,
+            <?php echo $analysis_id; ?>,
+            "<?php echo $key; ?>",
+            completionHandler);
+    };
+    var cancelMigrateFn = function() { $(this).dialog("close"); };
+
+    migrateDialog.dialog({resizeable: false, draggable: false, autoOpen: false, height: 400, width: 500,
+        buttons: { "Ok": submitMigrateFn, "Cancel": cancelMigrateFn }
+    });
+
+    $('#submit-migrate').click(function() {
+        migrateDialog.dialog("open");
+    });
+});
+</script>
 <?php
 
     require_once 'inc/footer.inc.php';

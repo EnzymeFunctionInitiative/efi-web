@@ -77,6 +77,24 @@ function submitUpdateGroup(completionHandler, action) {
 }
 
 
+function submitPasswordReset(completionHandler) {
+
+    var formAction = "do_user.php";
+
+    var userIdList = [];
+    $.each($("input[name='sel-user-id']:checked"), function() {
+        userIdList.push($(this).val())
+    });
+    var userIds = userIdList.join(",");
+
+    var fd = new FormData();
+    fd.append("action", "reset-pass");
+    fd.append("user-ids", userIds);
+
+    doFormPost(formAction, fd, completionHandler);
+}
+
+
 function submitUpdateJobGroup(completionHandler, type, action) {
 
     var formAction = "do_job.php";

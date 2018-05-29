@@ -21,6 +21,15 @@ $isLegacy = is_null($gnn->get_pbs_number());
 $baseUrl = settings::get_web_address();
 $gnnId = $gnn->get_id();
 $gnnKey = $gnn->get_key();
+$isMigrated = false;
+$migInfo = functions::get_migrated_est_info($db, $gnnId);
+if ($migInfo !== false) {
+    $isMigrated = true;
+    $generateId = $migInfo["generate_id"];
+    $analysisId = $migInfo["analysis_id"];
+    $generateKey = $migInfo["generate_key"];
+    $estParams = "id=$generateId&key=$generateKey&analysis_id=$analysisId";
+}
 
 $ssnFile = $gnn->get_relative_color_ssn();
 $ssnZipFile = $gnn->get_relative_color_ssn_zip_file();
@@ -309,6 +318,13 @@ require_once('inc/header.inc.php');
 <?php } ?>
         </tbody>
     </table>
+
+    <hr>
+
+<?php if ($isMigrated) { ?>
+    <a href="../efi-est/stepe.php?<?php echo $estParams; ?>">Go back to original SSN</a>
+<?php } ?>
+    
 
     <?php if (isset($message)) { echo "<h3 class='center'>" . $message . "</h3>"; } ?>  
 

@@ -1,7 +1,8 @@
 <?php
 require_once("const.class.inc.php");
+require_once(__DIR__."/../../libs/global_functions.class.inc.php");
 
-class functions {
+class functions extends global_functions {
 
     //Possible errors when you upload a file
     private static $upload_errors = array(
@@ -131,26 +132,109 @@ class functions {
         return $result;
     }
 
+    public static function get_migrated_jobs($db, $status) {
+        $table_name = self::get_migrate_table_name();
+
+        if (!$table_name)
+            return array();
+
+        $sql = "SELECT * ";
+        $sql .= "FROM $table_name ";
+        $sql .= "WHERE migrate_status='" . $status . "' ";
+        $result = $db->query($sql);
+
+        return $result;
+    }
+
+    private static function get_migrate_table_name() {
+        $est_db = settings::get_est_database();
+        $migrate_table = settings::get_migrate_table();
+
+        $table_name = "";
+        if ($migrate_table)
+            $table_name = $migrate_table;
+        if ($est_db)
+            $table_name = "$est_db.$table_name";
+
+        return $table_name;
+    }
+
+    public static function is_migrated_job($db, $gnn_id) {
+        $result = self::get_migrate_job_id($db, $gnn_id);
+        return $result !== false ? true : false;
+    }
+
+    public static function get_migrate_job_id($db, $gnn_id) {
+        $sql = "SELECT gnn_source_id FROM gnn WHERE gnn_id = $gnn_id";
+        $result = $db->query($sql);
+        if ($result && $result[0]["gnn_source_id"])
+            return $result[0]["gnn_source_id"];
+        else
+            return false;
+    }
+
+    public static function update_migrated_status($db, $gnn_id, $gnn_key, $status) {
+        $table_name = self::get_migrate_table_name();
+        $migrate_id = self::get_migrate_job_id($db, $gnn_id);
+
+        if ($migrate_id === false)
+            return false;
+
+        $extra_set = "";
+        if ($gnn_key) 
+            $extra_set = ", migrate_gnn_id = $gnn_id, migrate_gnn_key = '$gnn_key'";
+
+        $sql = "UPDATE $table_name SET migrate_status = '$status' $extra_set WHERE migrate_id = $migrate_id";
+        echo $sql;
+        $db->non_select_query($sql);
+
+        return true;
+    }
+
     public static function get_is_debug() {
         return getenv('EFI_DEBUG') ? true : false;
     }
 
-    # recursively remove a directory
-    public static function rrmdir($dir) {
-        foreach(glob($dir . '/*') as $file) {
-            if(is_dir($file))
-                self::rrmdir($file);
-            else
-                unlink($file);
+    public static function get_migrated_est_info($db, $gnn_id) {
+        $table_name = self::get_migrate_table_name();
+        $mig_id = self::get_migrate_job_id($db, $gnn_id);
+        if ($mig_id === false)
+            return false;
+
+        $sql = "SELECT * FROM $table_name WHERE migrate_id = $mig_id";
+        $result = $db->query($sql);
+
+        if ($result) {
+            $result = $result[0];
+
+            $info = array();
+            $info["generate_id"] = $result["migrate_generate_id"];
+            $info["analysis_id"] = $result["migrate_analysis_id"];
+            $info["generate_key"] = $result["migrate_generate_key"];
+            $info["status"] = $result["migrate_status"];
+
+            return $info;
+        } else {
+            return false;
         }
-        rmdir($dir);
     }
 
-    public static function generate_key() {
-        $key = uniqid(rand(), true);
-        $hash = sha1($key);
-        return $hash;
-    }
+//    # recursively remove a directory
+//    public static function rrmdir($dir) {
+//        foreach(glob($dir . '/*') as $file) {
+//            if(is_dir($file))
+//                self::rrmdir($file);
+//            else
+//                unlink($file);
+//        }
+//        rmdir($dir);
+//    }
+//
+//    public static function generate_key() {
+//        $key = uniqid(rand(), true);
+//        $hash = sha1($key);
+//        return $hash;
+//    }
 
     public static function is_diagram_upload_id_valid($id) {
         // Make sure the ID only contains numbers and letters to prevent attacks.
@@ -170,24 +254,49 @@ class functions {
         return $filePath;
     }
 
-    public static function copy_to_uploads_dir($tmp_file, $uploaded_filename, $id, $prefix = "", $forceExtension = "") {
-        $uploads_dir = settings::get_uploads_dir();
+//    public static function copy_to_uploads_dir($tmp_file, $uploaded_filename, $id, $prefix = "", $forceExtension = "") {
+//        $uploads_dir = settings::get_uploads_dir();
+//
+//        // By this time we have verified that the uploaded file is valid. Now we need to retain the
+//        // extension in case the file is a zipped file.
+//        if ($forceExtension)
+//            $file_type = $forceExtension;
+//        else
+//            $file_type = strtolower(pathinfo($uploaded_filename, PATHINFO_EXTENSION));
+//        $filename = $prefix . $id . "." . $file_type;
+//        $full_path = $uploads_dir . "/" . $filename;
+//        if (is_uploaded_file($tmp_file)) {
+//            if (move_uploaded_file($tmp_file,$full_path)) { return $filename; }
+//        }
+//        else {
+//            if (copy($tmp_file,$full_path)) { return $filename; }
+//        }
+//        return false;
+//    }
 
-        // By this time we have verified that the uploaded file is valid. Now we need to retain the
-        // extension in case the file is a zipped file.
-        if ($forceExtension)
-            $file_type = $forceExtension;
-        else
-            $file_type = strtolower(pathinfo($uploaded_filename, PATHINFO_EXTENSION));
-        $filename = $prefix . $id . "." . $file_type;
-        $full_path = $uploads_dir . "/" . $filename;
-        if (is_uploaded_file($tmp_file)) {
-            if (move_uploaded_file($tmp_file,$full_path)) { return $filename; }
+    public static function copy_est_job($db, $data) {
+        $file_path = $data["migrate_file"];
+        if (!$file_path || !file_exists($file_path))
+            return false;
+
+        $file_name = pathinfo($file_path, PATHINFO_BASENAME);
+
+        $info = gnn_shared::create3(
+            $db,
+            $data["migrate_email"], 
+            $data["migrate_size"], 
+            $data["migrate_cooccurrence"], 
+            $file_path, 
+            $file_name, 
+            $data["migrate_id"]);
+
+        if ($info !== false) {
+            self::update_migrated_status($db, $info['id'], "", __RUNNING__);
+        } else {
+            self::update_migrated_status($db, $info['id'], "", __FAILED__);
         }
-        else {
-            if (copy($tmp_file,$full_path)) { return $filename; }
-        }
-        return false;
+
+        return $info;
     }
 
     public static function sqlite_table_exists($sqliteDb, $tableName) {
@@ -201,17 +310,17 @@ class functions {
         }
     }
 
-    public static function decode_object($json) {
-        $data = json_decode($json, true);
-        if (!$data)
-            return array();
-        else
-            return $data;
-    }
-
-    public static function encode_object($obj) {
-        return json_encode($obj);
-    }
+//    public static function decode_object($json) {
+//        $data = json_decode($json, true);
+//        if (!$data)
+//            return array();
+//        else
+//            return $data;
+//    }
+//
+//    public static function encode_object($obj) {
+//        return json_encode($obj);
+//    }
 
     public static function update_results_object_tmpl($db, $prefix, $table, $column, $id, $data) {
         $theCol = "${prefix}_${column}";

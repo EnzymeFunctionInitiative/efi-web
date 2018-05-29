@@ -9,7 +9,6 @@ $IsLoggedIn = false;
 $showPreviousJobs = false;
 $gnnJobs = array();
 $diagramJobs = array();
-$userGroups = array();
 $IsAdminUser = false;
 
 if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
@@ -17,17 +16,15 @@ if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $userJobs->load_jobs($db, user_jobs::get_user_token());
     $gnnJobs = $userJobs->get_jobs();
     $diagramJobs = $userJobs->get_diagram_jobs();
+    $trainingJobs = $userJobs->get_training_jobs();
     $jobEmail = $userJobs->get_email();
     if ($jobEmail)
         $userEmail = $jobEmail;
-    $showPreviousJobs = count($gnnJobs) > 0 || count($diagramJobs) > 0;
+    $showPreviousJobs = count($gnnJobs) > 0 || count($diagramJobs) > 0 || count($trainingJobs) > 0;
     if ($userEmail)
         $IsLoggedIn = $userEmail;
-    $userGroups = $userJobs->get_groups();
     $IsAdminUser = $userJobs->is_admin();
 }
-
-$showJobGroups = $IsAdminUser && global_settings::get_job_groups_enabled();
 
 $neighborhood = 10;
 $cooccurrence = 20;
@@ -148,6 +145,48 @@ HTML;
                 </tbody>
             </table>
 <?php } ?>
+
+
+
+<?php if (count($trainingJobs) > 0) { ?>
+            <h4>Training Jobs</h4>
+            <table class="pretty">
+                <thead>
+                    <th class="id-col">ID</th>
+                    <th>Filename</th>
+                    <th class="date-col">Date Completed</th>
+                </thead>
+                <tbody>
+<?php
+for ($i = 0; $i < count($trainingJobs); $i++) {
+    $key = $trainingJobs[$i]["key"];
+    $id = $trainingJobs[$i]["id"];
+    $name = $trainingJobs[$i]["filename"];
+    $dateCompleted = $trainingJobs[$i]["completed"];
+    $isActive = $dateCompleted == "PENDING" || $dateCompleted == "RUNNING";
+
+    $linkStart = $isActive ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
+    $linkEnd = $isActive ? "" : "</a>";
+
+    if (array_key_exists("diagram", $trainingJobs[$i]))
+        $linkStart = "<a href=\"view_diagrams.php?upload-id=$id&key=$key\">";
+
+    echo <<<HTML
+                    <tr>
+                        <td>$linkStart${id}$linkEnd</td>
+                        <td>$linkStart${name}$linkEnd</td>
+                        <td>$dateCompleted</td>
+                    </tr>
+HTML;
+}
+?>
+                </tbody>
+            </table>
+<?php } ?>
+
+
+
+
 <?php if ($showPreviousJobs) { ?>
         </div>
 <?php } ?>
@@ -187,7 +226,6 @@ HTML;
                     This option allows to filter the neighboring pFAMs with a co-occurrence <br>percentage lower than the set value. <br>
                     The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 1-100.
                 </p>
-<?php showAdminCode("ssn_job_group", $userGroups, $showJobGroups); ?>
                 <p>
                     E-mail address: 
                     <input name='ssn_email' id='ssn_email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
@@ -215,8 +253,6 @@ HTML;
                     <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "diagram_file", "progress_bar_diagram", "progress_number_diagram", "The acceptable format is sqlite."); ?>
                 </p>
     
-<?php showAdminCode("diagram_job_group", $userGroups, $showJobGroups); ?>
-
                 <p>
                     E-mail address: 
                     <input name='email' id='diagram_email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
@@ -331,8 +367,6 @@ HTML;
                                 </tr>
                             </table>
 
-<?php showAdminCode("option-a-job-group", $userGroups, $showJobGroups); ?>
-
                             <div>
                                 E-mail address:
                                 <input name='email' id='option-a-email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
@@ -409,8 +443,6 @@ HTML;
                                     </td>
                                 </tr>
                             </table>
-
-<?php showAdminCode("option-d-job-group", $userGroups, $showJobGroups); ?>
 
                             <div>
                                 E-mail address:
@@ -490,8 +522,6 @@ HTML;
                                     </td>
                                 </tr>
                             </table>
-
-<?php showAdminCode("option-c-job-group", $userGroups, $showJobGroups); ?>
 
                             <div>
                                 E-mail address:
@@ -645,23 +675,4 @@ HTML;
 
 <?php require_once('inc/footer.inc.php'); ?>
 
-
-<?php
-
-function showAdminCode($id, $userGroups, $showJobGroups) {
-    if (!$showJobGroups)
-        return;
-
-    $func = function($val) { return "<option>$val</option>"; };
-    $groupList = implode("", array_map($func, $userGroups));
-    if ($groupList) {
-        echo <<<HTML
-<div style="margin:20px 0">
-    Optional job group: <select id="$id">$groupList</select>
-</div>
-HTML;
-    }
-}
-
-?>
 

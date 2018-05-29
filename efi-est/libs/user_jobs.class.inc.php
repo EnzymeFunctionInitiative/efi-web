@@ -40,7 +40,7 @@ class user_jobs extends user_auth {
         $sql = self::get_group_select_statement($group_clause);
         $rows = $db->query($sql);
         
-        $jobs = self::process_load_generate_rows($db, $rows, false, false);
+        $jobs = self::process_load_generate_rows($db, $rows, true, false);
         
         return $jobs;
     }
@@ -64,7 +64,6 @@ class user_jobs extends user_auth {
         $expDate = self::get_start_date_window();
 
         $sql = self::get_select_statement() .
-//            "LEFT OUTER JOIN job_group ON generate.generate_id = job_group.generate_id " .
             "WHERE (generate_email = '$email') AND " .
             "(generate_time_completed >= '$expDate' OR (generate_time_created >= '$expDate' AND (generate_status = 'NEW' OR generate_status = 'RUNNING'))) " .
             "ORDER BY generate_status, generate_time_completed DESC";
@@ -82,6 +81,7 @@ class user_jobs extends user_auth {
             $group_clause = "($group_clause)";
         } else {
             $this->training_jobs = array();
+            return;
         }
 
         $sql = self::get_group_select_statement($group_clause);

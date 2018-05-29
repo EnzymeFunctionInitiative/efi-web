@@ -80,16 +80,17 @@ class user_manager {
         if (preg_match("/[^A-Za-z0-9\-_@\.\+]/", $email)) {
             return user_manager::CREATE_USER_INVALID_EMAIL;
         }
-        
-        $result = self::do_create_user($db, $email, $pass, $group);
-        
+
+        $send_email = true;
+        $result = self::do_create_user($db, $email, $pass, $group, $send_email);
+
         //TODO: send email
 
         return $result;
     }
 
     // Inputs are already validated.
-    private static function do_create_user($db, $email, $pass, $group) {
+    private static function do_create_user($db, $email, $pass, $group, $send_email = false) {
         $result = user_manager::CREATE_USER_OK;
 
         $utable = user_auth::get_user_table();
@@ -115,6 +116,11 @@ class user_manager {
             }
         }
 
+        if ($send_email && $result === user_manager::CREATE_USER_OK) {
+            $set_password = true;
+            functions::send_confirmation_email($email, $user_id, $set_password);
+        }
+
         return $result;
     }
 
@@ -132,12 +138,22 @@ class user_manager {
                 $user_group = $user_info[1];
             }
 
-            $result = self::do_create_user($db, $user_email, "", $user_group);
+            $send_email = true;
+            $result = self::do_create_user($db, $user_email, "", $user_group, $send_email);
             //TODO: log result and continue if it's not OK.
             array_push($results, $result);
         }
 
         return $results;
+    }
+
+    public static function reset_passwords($db, $user_list) {
+        $warn_user = false;
+        foreach ($user_list as $user_id) {
+            $email = user_auth::get_email_from_token($db, $user_id);
+            functions::send_reset_email($email, $user_id, $warn_user);
+        }
+        return true;
     }
 
     public static function update_user_group($db, $user_list, $group, $remove = false) {

@@ -23,7 +23,7 @@ if (defined("__BASE_WEB_PATH__"))
 else
     $SiteUrlPrefix = "";
 
-require_once("../../includes/error_helpers.inc.php");
+require_once(__DIR__."/../../includes/error_helpers.inc.php");
 
 ?>
 

@@ -67,17 +67,28 @@ HTML;
         $linkStart = "";
         $linkEnd = "";
         $nameStyle = "";
-    
-        if ($isCompleted) {
-            $theScript = "stepc.php";
-            $linkStart = "<a href=\"$theScript?id=$id&key=$key\">";
-            $linkEnd = "</a>";
-        }
-        $idText = "$linkStart${id}$linkEnd";
-        if ($lastBgColor == "#fff")
-            $lastBgColor = "#eee";
-        else
-            $lastBgColor = "#fff";
+
+        if ($jobs[$i]["is_analysis"]) {
+            if ($isCompleted) {
+                $analysisId = $jobs[$i]["analysis_id"];
+                $linkStart = "<a href=\"stepe.php?id=$id&key=$key&analysis_id=$analysisId\">";
+                $linkEnd = "</a>";
+            }
+            $nameStyle = "style=\"padding-left: 50px;\"";
+            //$name = '<i class="fas fa-long-arrow-right" aria-hidden="true"></i> ' . $name;
+            $name = '[Analysis] ' . $name;
+        } else {
+            if ($isCompleted) {
+                $theScript = $jobs[$i]["is_colorssn"] ? "view_coloredssn.php" : "stepc.php";
+                $linkStart = "<a href=\"$theScript?id=$id&key=$key\">";
+                $linkEnd = "</a>";
+            }
+            $idText = "$linkStart${id}$linkEnd";
+            if ($lastBgColor == "#fff")
+                $lastBgColor = "#eee";
+            else
+                $lastBgColor = "#fff";
+        }    
         
         echo <<<HTML
                     <tr style="background-color: $lastBgColor">
