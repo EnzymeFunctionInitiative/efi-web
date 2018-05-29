@@ -3,8 +3,9 @@
 require_once('../includes/main.inc.php');
 require_once('Mail.php');
 require_once('Mail/mime.php');
+require_once('gnn_shared.class.inc.php');
 
-class gnn extends arrow_api {
+class gnn extends gnn_shared {
 
     ////////////////Private Variables//////////
 
@@ -67,48 +68,48 @@ class gnn extends arrow_api {
         return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->filename, PATHINFO_EXTENSION);
     }
 
-    public static function create2($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup) {
-        return self::create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup);
-    }
-
-    private static function create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup) {
-        $result = false;
-        $key = self::generate_key();
-        $insert_array = array(
-            'gnn_email' => $email,
-            'gnn_size' => $size,
-            'gnn_key' => $key,
-            'gnn_filename' => $filename,
-            'gnn_cooccurrence' => $cooccurrence,
-            'gnn_status' => __NEW__);
-        $result = $db->build_insert('gnn',$insert_array);
-        if ($result) {	
-            functions::copy_to_uploads_dir($tmp_filename, $filename, $result);
-        } else {
-            return false;
-        }
-        $info = array('id' => $result, 'key' => $key);
-
-        if ($jobGroup && $jobGroup != settings::get_default_group_name()) {
-            $jobGroup = preg_replace("/[^A-Za-z0-9]/", "", $jobGroup);
-            $insertArray = array(
-                'gnn_id' => $result,
-                'user_group' => $jobGroup,
-            );
-            $jobGroupResult = $db->build_insert('job_group', $insertArray);
-            //TODO: check result and do something if it fails? It's not critical.
-        }
-
-        return $info;
-    }
-
-    public static function create($db, $email, $size, $tmp_filename, $filename, $cooccurrence) {
-        $info = create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, "");
-        if ($info === false)
-            return 0;
-        else
-            return $info['id'];
-    }
+//    public static function create2($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup) {
+//        return self::create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup);
+//    }
+//
+//    private static function create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup) {
+//        $result = false;
+//        $key = self::generate_key();
+//        $insert_array = array(
+//            'gnn_email' => $email,
+//            'gnn_size' => $size,
+//            'gnn_key' => $key,
+//            'gnn_filename' => $filename,
+//            'gnn_cooccurrence' => $cooccurrence,
+//            'gnn_status' => __NEW__);
+//        $result = $db->build_insert('gnn',$insert_array);
+//        if ($result) {	
+//            functions::copy_to_uploads_dir($tmp_filename, $filename, $result);
+//        } else {
+//            return false;
+//        }
+//        $info = array('id' => $result, 'key' => $key);
+//
+//        if ($jobGroup && $jobGroup != settings::get_default_group_name()) {
+//            $jobGroup = preg_replace("/[^A-Za-z0-9]/", "", $jobGroup);
+//            $insertArray = array(
+//                'gnn_id' => $result,
+//                'user_group' => $jobGroup,
+//            );
+//            $jobGroupResult = $db->build_insert('job_group', $insertArray);
+//            //TODO: check result and do something if it fails? It's not critical.
+//        }
+//
+//        return $info;
+//    }
+//
+//    public static function create($db, $email, $size, $tmp_filename, $filename, $cooccurrence) {
+//        $info = create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, "");
+//        if ($info === false)
+//            return 0;
+//        else
+//            return $info['id'];
+//    }
 
     public function unzip_file() { 
         $file = $this->get_full_path();
@@ -289,8 +290,13 @@ class gnn extends arrow_api {
         $this->set_gnn_stats();
         $this->set_ssn_stats();
 
-        $this->set_status(__FINISH__); 
+        $this->set_status(__FINISH__);
         $this->set_time_completed();
+
+        if (functions::is_migrated_job($this->db, $this->id)) {
+            functions::update_migrated_status($this->db, $this->id, $this->key, __FINISH__);
+        }
+
         $this->email_complete();
     }
 
@@ -716,11 +722,6 @@ class gnn extends arrow_api {
         }	
     }
 
-    protected static function generate_key() {
-        $key = uniqid (rand (),true);
-        $hash = sha1($key);
-        return $hash;
-    }
 
     private function delete_outputs() {
         if (file_exists($this->get_color_ssn())) {

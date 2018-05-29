@@ -118,7 +118,8 @@ class functions {
         $pre_group = self::get_precompute_group();
         $sql = "SELECT job_group.generate_id, generate.generate_email FROM job_group " .
             "JOIN generate ON job_group.generate_id = generate.generate_id " .
-            "WHERE job_group.generate_id = $generate_id AND job_group.user_group = '$pre_group' AND generate.generate_email != '$user_email'";
+            "WHERE job_group.generate_id = $generate_id AND generate.generate_email != '$user_email'";
+            //"WHERE job_group.generate_id = $generate_id AND job_group.user_group = '$pre_group' AND generate.generate_email != '$user_email'";
         // users can't create copies of sticky jobs that they own.
         $result = $db->query($sql);
         if ($result)
@@ -137,6 +138,70 @@ class functions {
         else
             return false;
     }
+
+    public static function get_job_email($db, $generate_id, $analysis_id, $key) {
+        $sql = "SELECT generate_email FROM analysis ";
+        $sql .= "JOIN generate ON generate.generate_id = analysis.analysis_generate_id ";
+        $sql .= "WHERE generate_id = $generate_id AND analysis_id = $analysis_id AND generate_key = '$key'";
+        $result = $db->query($sql);
+        if ($result)
+            return $result[0]["generate_email"];
+        else
+            return false;
+    }
+
+    public static function add_migrate_job($db, $data) {
+        $table_name = "migrate_gnt";
+
+        $job = new analysis($db, $data["analysis_id"]);
+        $stats = $job->get_network_stats();
+
+        $rel_path = "";
+        for ($i = 0; $i < count($stats); $i++) {
+            if ($stats[$i]["PctId"] == $data["network"]) {
+                $rel_path = $stats[$i]["RelPath"];
+                break;
+            }
+        }
+
+        if (!$rel_path) {
+            return 0;
+        }
+
+        $file_path = functions::get_results_dir() . "/" . $rel_path;
+
+        $insert_array = array(
+            "migrate_generate_id" => $data["generate_id"],
+            "migrate_analysis_id" => $data["analysis_id"],
+            "migrate_generate_key" => $data["key"],
+            "migrate_email" => $data["email"],
+            "migrate_status" => __NEW__,
+            "migrate_size" => $data["size"],
+            "migrate_cooccurrence" => $data["cooccurrence"],
+            "migrate_file" => $file_path,
+        );
+
+        $insert_result = $db->build_insert($table_name, $insert_array);
+
+        return $insert_result;
+    }
+
+    public static function get_gnt_migrate_info($db, $generate_id, $analysis_id) {
+        $sql = "SELECT * FROM migrate_gnt WHERE migrate_generate_id = $generate_id AND migrate_analysis_id = $analysis_id";
+        $result = $db->query($sql);
+        if ($result) {
+            $info = array();
+            $result = $result[0];
+            $info["status"] = $result["migrate_status"];
+            $info["gnn_id"] = $result["migrate_gnn_id"];
+            $info["gnn_key"] = $result["migrate_gnn_key"];
+            return $info;
+        } else {
+            return false;
+        }
+    }
+
+
 
 
     public static function parse_datetime($datetimeString) {

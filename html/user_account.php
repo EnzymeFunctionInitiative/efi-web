@@ -8,6 +8,10 @@ $action = "";
 if (isset($_GET["action"]))
     $action = $_GET["action"];
 
+$setPassword = false;
+if (isset($_GET["sp"]))
+    $setPassword = true;
+
 $loginAction = "user_login.php";
 
 ?>
@@ -104,12 +108,19 @@ if ($action == "create") {
 
 ////// RESET PASSWORD /////////////////////////////////////////////////////////////////////////////////////////////////
 
-} elseif ($action == "reset") {
+} elseif ($action == "reset" || ($action == "confirm" && $setPassword)) {
     $resetToken = "";
     if (isset($_GET["reset-token"]) && $_GET["reset-token"]) {
         if (user_auth::check_reset_token($db, $_GET["reset-token"])) {
             $resetToken = $_GET["reset-token"];
         }
+    }
+
+    if ($action == "confirm") {
+        $titleText = "Set";
+        $resetToken = $_GET["token"];
+    } else {
+        $titleText = "Reset";
     }
 
     if (!$resetToken) {
@@ -119,7 +130,7 @@ if ($action == "create") {
 
 ?>
 
-    <h2>Reset a Password</h2>
+    <h2><?php echo $titleText; ?> a Password</h2>
     <div id="login-reset-form-contents" class="login-form">
         <table border="0" style="margin-top: 15px; margin-bottom: 15px">
             <tbody>

@@ -96,6 +96,25 @@ if ($action == "new") {
             }
         }
     }
+} elseif ($action == "reset-pass") {
+    $user_ids = array();
+    $user_ids_text = "";
+    $user_group = "";
+
+    if (isset($_POST["user-ids"]))
+        $user_ids_text = $_POST["user-ids"];
+
+    if ($user_ids_text) {
+        $user_ids = explode(",", $user_ids_text);
+        if (count($user_ids)) {
+            $update_result = false;
+            user_manager::reset_passwords($db, $user_ids);
+            $result["valid"] = true;
+            if (!$update_result) {
+                $result["message"] = "Unknown error occurred.";
+            }
+        }
+    }
 }
 
 

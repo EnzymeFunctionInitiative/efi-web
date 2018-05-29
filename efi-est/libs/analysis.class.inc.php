@@ -227,14 +227,27 @@ class analysis {
         $row = 0;
         while (($data = fgetcsv($file_handle,0,"\t")) !== FALSE) {
 
+            $stats_row = array();
             if ($row == 1) {
                 $result = array_splice($data,1,1);
-                array_push($stats_array,array_combine($keys,$data));
+                $stats_row = array_combine($keys, $data);
+            } elseif ($row > 1) {
+                $stats_row = array_combine($keys, $data);
             }
-            elseif ($row > 1) {
 
-                array_push($stats_array,array_combine($keys,$data));
+            if (count($stats_row)) {
+                $raw_file = $stats_row["File"];
+                $percent_identity = substr($raw_file, strrpos($raw_file, "-") + 1);
+                $percent_identity = substr($percent_identity, 0, strrpos($percent_identity, "_"));
+                $percent_identity = str_replace(".", "", $percent_identity);
+
+                $rel_path = $this->get_output_dir() . "/" . $this->get_network_dir() . "/" . $raw_file;
+                $stats_row["RelPath"] = $rel_path;
+                $stats_row["PctId"] = $row == 1 ? "full" : $percent_identity;
+
+                array_push($stats_array, $stats_row);
             }
+
             $row++;
         }
         fclose($file_handle);
@@ -656,6 +669,10 @@ class analysis {
 
         $message = $stepa->get_job_info();
         return $message;
+    }
+
+    public function get_gnt_migrate_state() {
+        return false;
     }
 }
 

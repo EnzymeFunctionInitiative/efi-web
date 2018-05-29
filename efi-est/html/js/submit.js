@@ -3,6 +3,14 @@ var FORM_ACTION = "create.php";
 var DEBUG = 0;
 
 
+function getDefaultCompletionHandler() {
+    var handler = function(jsonObj) {
+        var nextStepScript = "stepb.php";
+        window.location.href = nextStepScript + "?id=" + jsonObj.id;
+    };
+    return handler;
+}
+
 function submitOptionAForm() {
 
     var messageId = "option-a-message";
@@ -19,7 +27,7 @@ function submitOptionAForm() {
     addParam(fd, "evalue", "families-evalue-opta");
     addCbParam(fd, "families_use_uniref", "opta-use-uniref");
     var fileHandler = function(xhr) {};
-    var completionHandler = function() {};
+    var completionHandler = getDefaultCompletionHandler();
 
     var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
     checkUniRef90Requirement("families-input-opta", "opta-use-uniref", "blast-fraction", submitFn);
@@ -41,7 +49,7 @@ function submitOptionBForm() {
     addParam(fd, "pfam_length_overlap", "pfam-length-overlap");
     addCbParam(fd, "families_use_uniref", "pfam-use-uniref");
     var fileHandler = function(xhr) {};
-    var completionHandler = function() {};
+    var completionHandler = getDefaultCompletionHandler();
 
 //    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
     var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
@@ -63,7 +71,7 @@ function submitOptionCForm() {
     addParam(fd, "evalue", "fasta-evalue");
     addParam(fd, "fraction", "fasta-fraction");
 
-    var completionHandler = function() {};
+    var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
     var files = document.getElementById("fasta-file").files;
     if (files.length > 0) {
@@ -94,7 +102,7 @@ function submitOptionDForm() {
     addParam(fd, "evalue", "accession-evalue");
     addParam(fd, "fraction", "accession-fraction");
 
-    var completionHandler = function() {};
+    var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
     var files = document.getElementById("accession-file").files;
     if (files.length > 0) {
@@ -125,7 +133,7 @@ function submitOptionEForm() {
     addParam(fd, "pfam_length_overlap", "pfam-plus-length-overlap");
     addCbParam(fd, "pfam_demux", "pfam-plus-demux");
     var fileHandler = function(xhr) {};
-    var completionHandler = function() {};
+    var completionHandler = getDefaultCompletionHandler();
 
 //    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
     var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
@@ -140,7 +148,7 @@ function submitColorSsnForm() {
     fd.append("option_selected", "colorssn");
     addParam(fd, "email", "colorssn-email");
     addParam(fd, "job-group", "colorssn-job-group");
-    var completionHandler = function() {};
+    var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
     var files = document.getElementById("colorssn-file").files;
     if (files.length > 0) {
@@ -152,6 +160,25 @@ function submitColorSsnForm() {
 
     doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
 }
+
+function submitMigrate(generateId, analysisId, key, completionHandler) {
+
+    var messageId = "migrate-error";
+
+    var fd = new FormData();
+    fd.append("option-selected", "migrate-ssn");
+    fd.append("generate-id", generateId);
+    fd.append("analysis-id", analysisId);
+    fd.append("key", key);
+    addParam(fd, "size", "migrate-size");
+    addParam(fd, "cooccurrence", "migrate-cooccurrence");
+    addParam(fd, "network", "migrate-ssn");
+
+    var fileHandler = function(xhr) {};
+
+    doFormPost("migrate.php", fd, messageId, fileHandler, completionHandler);
+}
+
 
 
 
@@ -210,19 +237,18 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
             if (xhr.readyState == 4  ) {
                 // Javascript function JSON.parse to parse JSON data
                 var jsonObj = JSON.parse(xhr.responseText);
+                console.log(jsonObj);
     
                 // jsonObj variable now contains the data structure and can
                 // be accessed as jsonObj.name and jsonObj.country.
                 if (jsonObj.valid) {
-                    var nextStepScript = "stepb.php";
                     if (jsonObj.cookieInfo)
                         document.cookie = jsonObj.cookieInfo;
-                    window.location.href = nextStepScript + "?id=" + jsonObj.id;
+                    completionHandler(jsonObj);
                 }
                 if (!jsonObj.valid && jsonObj.message) {
                     document.getElementById(messageId).innerHTML = jsonObj.message;
                 } else {
-                    completionHandler();
                     document.getElementById(messageId).innerHTML = "";
                 }
             }
