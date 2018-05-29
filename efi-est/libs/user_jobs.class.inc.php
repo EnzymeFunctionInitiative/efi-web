@@ -32,15 +32,18 @@ class user_jobs extends user_auth {
         $this->load_training_jobs($db);
     }
 
-    public static function load_jobs_for_group($db, $group_name) {
+    public static function load_jobs_for_group($db, $group_name, $show_family_names = false) {
         if (!$group_name)
             return array();
 
         $group_clause = "user_group = '$group_name'";
         $sql = self::get_group_select_statement($group_clause);
         $rows = $db->query($sql);
-        
-        $jobs = self::process_load_generate_rows($db, $rows, true, false);
+
+        $family_lookup_fn = function($family_id) use($db) { return self::lookup_family_name($db, $family_id); };
+
+        $includeAnalysisJobs = false;
+        $jobs = self::process_load_generate_rows($db, $rows, $includeAnalysisJobs, false, $family_lookup_fn);
         
         return $jobs;
     }
@@ -69,9 +72,10 @@ class user_jobs extends user_auth {
             "ORDER BY generate_status, generate_time_completed DESC";
         $rows = $db->query($sql);
 
+        $familyLookupFn = function($family_id) {};
         $includeFailedAnalysisJobs = true;
         $includeAnalysisJobs = true;
-        $this->jobs = self::process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs);
+        $this->jobs = self::process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn);
     }
 
     private function load_training_jobs($db) {
@@ -87,17 +91,18 @@ class user_jobs extends user_auth {
         $sql = self::get_group_select_statement($group_clause);
         $rows = $db->query($sql);
 
+        $familyLookupFn = function($family_id) {};
         $includeFailedAnalysisJobs = false;
         $includeAnalysisJobs = true;
-        $this->training_jobs = self::process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs);
+        $this->training_jobs = self::process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn);
     }
 
-    private static function process_load_generate_rows($db, $rows, $includeAnalysisJobs = true, $includeFailedAnalysisJobs = true) {
+    private static function process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn) {
         $jobs = array();
 
         foreach ($rows as $row) {
             $compResult = self::get_completed_date_label($row["generate_time_completed"], $row["generate_status"]);
-            $jobName = self::build_job_name($row["generate_params"], $row["generate_type"]);
+            $jobName = self::build_job_name($row["generate_params"], $row["generate_type"], $familyLookupFn);
             $comp = $compResult[1];
             $isCompleted = $compResult[0];
 
@@ -166,16 +171,15 @@ class user_jobs extends user_auth {
         }
     }
 
-    private static function get_families($data, $type) {
+    private static function get_families($data, $type, $familyLookupFn) {
         $famStr = "";
         if (array_key_exists("generate_families", $data)) {
             $fams = $data["generate_families"];
             if ($fams) {
                 $famParts = explode(",", $fams);
                 if (count($famParts) > 2)
-                    $fams = $famParts[0] . ", " . $famParts[1] . " ...";
-                else
-                    $fams = implode(", ", $famParts);
+                    $famParts = array($famParts[0], $famParts[1]);
+                $fams = implode(", ", array_map($familyLookupFn, $famParts));
                 $famStr = $fams;
             }
         }
@@ -220,11 +224,16 @@ class user_jobs extends user_auth {
         return $domainStr;
     }
 
-    private static function build_job_name($json, $type) {
+    private static function build_job_name($json, $type, $familyLookupFn) {
         $data = functions::decode_object($json);
+
+        $newFamilyLookupFn = function($family_id) use($familyLookupFn) {
+            $fam_name = $familyLookupFn($family_id);
+            return $fam_name ? "$family_id-$fam_name" : $family_id;
+        };
         
         $fileName = self::get_filename($data, $type);
-        $families = self::get_families($data, $type);
+        $families = self::get_families($data, $type, $newFamilyLookupFn);
         $evalue = self::get_evalue($data);
         $fraction = self::get_fraction($data);
         $uniref = self::get_uniref_version($data);
@@ -248,6 +257,16 @@ class user_jobs extends user_auth {
         return $jobName;
     }
 
+    private static function lookup_family_name($db, $family_id) {
+        $sql = "SELECT short_name FROM family_info WHERE family = '$family_id'";
+        $rows = $db->query($sql);
+        if ($rows) {
+            return $rows[0]["short_name"];
+        } else {
+            return "";
+        }
+    }
+
     private static function get_completed_date_label($comp, $status) {
         $isCompleted = false;
         if ($status == "FAILED") {
@@ -268,13 +287,9 @@ class user_jobs extends user_auth {
         $func = function($val) { return "user_group = '$val'"; };
         $email = $this->user_email;
         $group_clause = "";
-//        $group_clause = implode(" OR ", array_map($func, $this->user_groups));
-//        if ($group_clause)
-//            $group_clause = "OR $group_clause";
 
         $sql = "SELECT analysis_id, analysis_generate_id, generate_key, analysis_time_completed, analysis_status, generate_type FROM analysis " .
             "LEFT JOIN generate ON analysis_generate_id = generate_id " .
-//            "LEFT OUTER JOIN job_group ON analysis_generate_id = job_group.generate_id " .
             "WHERE (generate_email = '$email' $group_clause) AND " .
             "(analysis_time_completed >= '$expDate' OR (analysis_time_created >= '$expDate' AND (analysis_status = 'NEW' OR analysis_status = 'RUNNING'))) " .
             "ORDER BY analysis_status, analysis_time_completed DESC";
@@ -303,48 +318,9 @@ class user_jobs extends user_auth {
         }
     }
 
-//    public function save_user($db, $email) {
-//        $userTable = self::get_user_table();
-//        $this->user_email = $email;
-//
-//        $sql = "SELECT user_id, user_email FROM $userTable WHERE user_email = '" . $this->user_email . "'";
-//        $rows = $db->query($sql);
-//
-//        $isUpdate = false;
-//        if ($rows && count($rows) > 0) {
-//            $isUpdate = true;
-//            $this->user_token = $rows[0]["user_id"];
-//        } else {
-//            $this->user_token = functions::generate_key();
-//        }
-//
-//        $insert_array = array("user_id" => $this->user_token, "user_email" => $this->user_email);
-//        if (!$isUpdate) {
-//            $db->build_insert("user_token", $insert_array);
-//        }
-//
-//        return true;
-//    }
-
     public function get_cookie() {
         return self::get_cookie_shared($this->user_token);
     }
-
-//    public static function get_cookie_shared($user_token) {
-//        $dom = parse_url(functions::get_web_root(), PHP_URL_HOST);
-//        $maxAge = 30 * 86400; // 30 days
-//        $tokenField = user_jobs::USER_TOKEN_NAME;
-//        $token = $user_token;
-//        return "$tokenField=$token;max-age=$maxAge;Path=/";
-//    }
-
-//    public function get_start_date_window() {
-//        $numDays = functions::get_retention_days();
-//        $dt = new DateTime();
-//        $pastDt = $dt->sub(new DateInterval("P${numDays}D"));
-//        $mysqlDate = $pastDt->format("Y-m-d");
-//        return $mysqlDate;
-//    }
 
     public function get_jobs() {
         return $this->jobs;
