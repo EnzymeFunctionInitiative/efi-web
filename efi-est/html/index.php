@@ -35,7 +35,7 @@ $useUniref50 = false;
 $useAdvancedFamilyInputs = functions::option_e_enabled();
 $maxFullFamily = number_format(functions::get_maximum_full_family_count(), 0);
 
-$updateMessage = functions::get_update_message() . "<br>For users with a login, a selected set of precomputed results are available for generating SSNs.";
+$updateMessage = functions::get_update_message() . "<br>For users with a login, a selected set of precomputed results is available for generating SSNs.";
 
 
 require_once "inc/header.inc.php";
