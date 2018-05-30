@@ -223,6 +223,14 @@ $table->add_row("Total Number of Nodes $extra_nodes_ast", number_format($total_n
 $conv_ratio = $generate->get_convergence_ratio();
 $convergence_ratio_string = "";
 if ($conv_ratio > -0.5) {
+//    $convergence_ratio_string = <<<STR
+//The convergence ratio is a measure of the similarity of the sequences used in the BLAST.  It is the
+//ratio of the total number of edges retained from the BLAST (e-values less than the specified threshold;
+//default 5) to the total number of sequence pairs.  The value decreases from 1.0 for sequences that are
+//very similar (identical) to 0.0 for sequences that are very different (unrelated).
+//STR;
+//    $table->add_row("Convergence Ratio<a href=\"\" class=\"question\" title=\"$convergence_ratio_string\">?</a>", number_format($conv_ratio, 3));
+//    $convergence_ratio_string = "";
     $table->add_row("Convergence Ratio<sup>+</sup>", number_format($conv_ratio, 3));
     $convergence_ratio_string = <<<STR
 <div><sup>+</sup>

@@ -85,7 +85,7 @@ for ($i = 0; $i < min($show_max_ids, count($user_ids)); $i++) {
 </table>
 
 <?php if (count($user_ids) > $show_max_ids) { ?>
-<a href="manage_group.php">View All</a>
+<a href="manage_user.php">View All</a>
 <?php } ?>
 
 
