@@ -35,7 +35,8 @@ $useUniref50 = false;
 $useAdvancedFamilyInputs = functions::option_e_enabled();
 $maxFullFamily = number_format(functions::get_maximum_full_family_count(), 0);
 
-$updateMessage = functions::get_update_message() . "<br>For users with a login, a selected set of precomputed results is available for generating SSNs.";
+$updateMessage = functions::get_update_message() .
+    "<br>For users with a login, a selected set of results is available for generating family SSNs.";
 
 
 require_once "inc/header.inc.php";
@@ -128,10 +129,14 @@ the <a href="family_list.php">Family Information page</a>.
     </ul>
 
     <div class="tab-content">
-<?php if ($showJobsTab) {
-    echo "        <div id=\"jobs\" class=\"tab active\">\n";
-    echo "            <a href=\"precompute.php\">Precomputed Jobs</a>\n";
-    echo "            <h3>User Jobs</h3>\n";
+<?php if ($showJobsTab) { ?>
+        <div id="jobs" class="tab active">
+            <h3>Precomputed Option B Jobs</h3>
+            Precomputed jobs for selected families are available 
+            <a href="precompute.php">here</a>.
+            <!--<a href="precompute.php"><button type="button" class="mini">Precomputed Option B Jobs</button></a>-->
+            <h3>User Jobs</h3>
+<?php 
     outputJobList($jobs);
 
     if (count($tjobs)) {
