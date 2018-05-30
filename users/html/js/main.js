@@ -66,12 +66,14 @@ function submitUpdateGroup(completionHandler, action) {
     var userIds = userIdList.join(",");
 
     var fd = new FormData();
-    if (action == 1)
+    if (action == 1) {
         fd.append("action", "remove-group");
-    else if (action == 2)
+        addParam(fd, "group", "remove-user-group");
+    } else if (action == 2) {
         fd.append("action", "update-group");
+        addParam(fd, "group", "update-user-group");
+    }
     fd.append("user-ids", userIds);
-    addParam(fd, "group", "update-user-group");
 
     doFormPost(formAction, fd, completionHandler);
 }

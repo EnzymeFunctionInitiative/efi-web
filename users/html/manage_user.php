@@ -50,7 +50,7 @@ ROW;
 
 
 <button id="add-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-user-plus"></i> Add Single User</button>
-<button id="update-group-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-users-cog"></i> Update Users Group</button>
+<button id="update-group-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-users-cog"></i> Add Users to Group</button>
 <button id="remove-group-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-user-secret"></i> Remove Users from Group</button>
 <button id="reset-password-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-user-secret"></i> Reset Passwords</button>
 
