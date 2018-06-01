@@ -61,7 +61,7 @@ if (isset($_GET["type"])) {
     } elseif ($type == "q-prot") {
         $protein_file = $job_obj->get_protein_file_path();
         if (file_exists($protein_file)) {
-            $download_filename = $the_id . "_" . pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_protein_abundance.txt";
+            $download_filename = "${the_id}_q${q_id}_" . pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_protein_abundance.txt";
             $content_size = filesize($protein_file);
             sendHeaders($download_filename, $content_size);
             readfile($protein_file);
@@ -72,7 +72,7 @@ if (isset($_GET["type"])) {
     } elseif ($type == "q-clust") {
         $cluster_file = $job_obj->get_cluster_file_path();
         if (file_exists($cluster_file)) {
-            $download_filename = pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_cluster_abundance.txt";
+            $download_filename = "${the_id}_q${q_id}_" . pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_cluster_abundance.txt";
             $content_size = filesize($cluster_file);
             sendHeaders($download_filename, $content_size);
             readfile($cluster_file);
@@ -117,6 +117,28 @@ if (isset($_GET["type"])) {
         $cluster_file = $job_obj->get_merged_normalized_cluster_file_path();
         if (file_exists($cluster_file)) {
             $download_filename = pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_cluster_abundance_norm.txt";
+            $content_size = filesize($cluster_file);
+            sendHeaders($download_filename, $content_size);
+            readfile($cluster_file);
+            exit(0);
+        } else {
+            $is_error = true;
+        }
+    } elseif ($type == "q-prot-n") {
+        $protein_file = $job_obj->get_normalized_protein_file_path();
+        if (file_exists($protein_file)) {
+            $download_filename = "${the_id}_q${q_id}_" . pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_protein_abundance_norm.txt";
+            $content_size = filesize($protein_file);
+            sendHeaders($download_filename, $content_size);
+            readfile($protein_file);
+            exit(0);
+        } else {
+            $is_error = true;
+        }
+    } elseif ($type == "q-clust-n") {
+        $cluster_file = $job_obj->get_normalized_cluster_file_path();
+        if (file_exists($cluster_file)) {
+            $download_filename = "${the_id}_q${q_id}_" . pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_cluster_abundance_norm.txt";
             $content_size = filesize($cluster_file);
             sendHeaders($download_filename, $content_size);
             readfile($cluster_file);

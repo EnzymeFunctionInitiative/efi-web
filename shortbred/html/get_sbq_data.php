@@ -35,7 +35,7 @@ if ($is_error) {
 }
 
 $id_dir = $job_obj->get_results_path();
-$clust_file = $id_dir . "/" . quantify::get_cluster_file_name();
+$clust_file = $id_dir . "/" . quantify::get_normalized_cluster_file_name();
 
 if (!file_exists($clust_file)) {
     echo json_encode($result);
@@ -56,6 +56,9 @@ if ($fh) {
         $line = trim($line);
         $parts = explode("\t", $line);
         $cluster = $parts[0];
+
+        if ($cluster == "#N/A")
+            continue;
 
         $info = array("number" => $cluster, "abundance" => array());
         for ($i = 0; $i < count($metagenomes); $i++) {

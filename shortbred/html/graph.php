@@ -32,6 +32,22 @@ label {
 
 <script>
 
+var colors6 = [
+    'rgb(68, 1, 84)',
+    'rgb(65, 68, 135)',
+    'rgb(42, 120, 142)',
+    'rgb(34, 168, 132)',
+    'rgb(122, 209, 81)',
+    'rgb(253, 231, 37)',
+];
+var colors5 = [
+    'rgb(68, 1, 84)',
+    'rgb(59, 82, 139)',
+    'rgb(33, 144, 140)',
+    'rgb(93, 201, 99)',
+    'rgb(253, 231, 37)',
+];
+
 var parms = new FormData;
 parms.append("id", <?php echo $_GET["id"]; ?>);
 parms.append("key", "<?php echo $_GET["key"]; ?>");
@@ -47,139 +63,90 @@ linspace = function (a,b,n) {
 
 var processData = function(data) {
 
+    var logScale = true;
+    var minLog = 4;
+    var minLogVal = Math.pow(10, -minLog);
+
     var numMetagenomes = data.metagenomes.length;
     var numClusters = data.clusters.length;
-//    var numMetagenomes = 80;
-//    var numClusters = 400;
 
-    var x = linspace(1, numClusters),
-        y = [],
-        z = [];
+    var x = [],
+        y = linspace(1, numClusters),
+        z = [],
+        label = [];
     for (var i = 0; i < numMetagenomes; i++) {
-        y.push(data.metagenomes[i]);
+        x.push(data.metagenomes[i]);
     }
 
-    for (var i = 0; i < numMetagenomes; i++) {
+    for (var i = 0; i < numClusters; i++) {
         z.push([]);
-        for (var j = 0; j < numClusters; j++) {
-            z[i][j] = data.clusters[j].abundance[i];
+        label.push([]);
+        for (var j = 0; j < numMetagenomes; j++) {
+            var rawVal = data.clusters[i].abundance[j];
+            if (x[j] == "SRS011061")
+                console.log(rawVal);
+            // <0.000001 = -6, 0.00001 = -5, 0.0001 = -4, 0.001 = -3, 0.01 = -2, 0.1 = -1, 1 = 0
+            if (logScale) {
+                var val;
+                if (rawVal >= minLogVal)
+                    val = Math.log10(rawVal);
+                else
+                    val = -minLog;
+                if (val < -minLog)
+                    console.log("" + j + " " + i + " " + rawVal + " " + val);
+                var posVal = minLog + val;
+                z[i].push(posVal);
+            } else {
+                z[i][j] = rawVal;
+            }
+            label[i].push(x[j] + ", " + y[i] + " = " + rawVal);
         }
     }
 
-//    console.log(x);
-//    console.log(y);
-    console.log(z);
+    var colors = colors6;
+
+    var colorScale = [];
+    for (var i in colors) {
+        var colorVal = i / (colors.length-1);
+        colorScale.push([colorVal, colors[i]]);
+    }
 
     var traces = [{
         x: x,
         y: y,
         z: z,
         type: 'heatmap',
-        colorscale: 'Jet',
-//        zsmooth: 'best',
-//        connectgaps: true,
-//        showscale: false,
+        //colorscale: 'Jet',
+        colorscale: colorScale,
+        text: label,
+        hoverinfo: "text",
     }];
+
+    if (logScale) {
+        var tickVals = [0, 1, 2, 3, 3.90];
+        traces[0].colorbar = {
+            tick0: 0,
+            tickmode: "array",
+            tickvals: tickVals,
+            ticktext: ["<1:10K", "1:1K", "1:100", "1:10", "1:1"],
+        };
+    }
 
     var layout = {
         title: 'Cluster/Metagenome Abundances',
         width: 950,
         height: 700,
+        xaxis: {
+            tickangle: -45,
+            title: "Metagenome",
+        },
+        yaxis: {
+            title: "Cluster Number",
+        },
     };
 
     Plotly.newPlot('plot', traces, layout);
 
-
-
-    
-//    var xz = [];
-//    var yz = [];
-//    var y1Max = 0;
-//    
-//    for (var i = 0; i < data.clusters.length; i++) {
-//        xz.push(data.clusters[i].number);
-//        var row = [];
-//        var sum = 0;
-//        for (var j = 0; j < numMetagenomes; j++) {
-//            var a = data.clusters[i].abundance[j];
-//            row.push(a);
-//            y1Max = Math.max(y1Max, a);
-//            sum += a;
-//        }
-//        if (sum > 0) {
-//            yz.push(row);
-//        }
-//    }
-//
-//    console.log(y1Max);
-//    
-//    var stackObj = d3.stack().keys(data.metagenomes)(yz);
-//    
-//    
-//    //// The xz array has numClusters elements, representing the x-values shared by all series.
-//    //// The yz array has numMetagenomes elements, representing the y-values of each of the numMetagenomes series.
-//    //// Each yz[i] is an array of numClusters non-negative numbers representing a y-value for xz[i].
-//    //// The y01z array has the same structure as yz, but with stacked [y₀, y₁] instead of y.
-//    //var xz = d3.range(numClusters),
-//    //    yz = d3.range(numMetagenomes).map(function() { return bumps(numClusters); }),
-//    //    y01z = d3.stack().keys(d3.range(numMetagenomes))(d3.transpose(yz)),
-//    //    yMax = d3.max(yz, function(y) { return d3.max(y); }),
-//    //    y1Max = d3.max(y01z, function(y) { return d3.max(y, function(d) { return d[1]; }); });
-//    
-//    var svg = d3.select("svg"),
-//        margin = {top: 40, right: 10, bottom: 20, left: 10},
-//        width = +svg.attr("width") - margin.left - margin.right,
-//        height = +svg.attr("height") - margin.top - margin.bottom,
-//        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-//    
-//    var x = d3.scaleBand()
-////        .domain(xz)
-//        .domain([1, 50])
-//        .rangeRound([0, width])
-//        .padding(0.08);
-//    
-//    var y = d3.scaleLinear()
-//        .domain([0, y1Max])
-//        .range([height, 0]);
-//    
-//    var color = d3.scaleOrdinal()
-//        .domain(d3.range(numMetagenomes))
-//        .range(d3.schemeCategory20c);
-//    
-//    var series = g.selectAll(".series")
-//      .data(stackObj)
-//      .enter().append("g")
-//        .attr("fill", function(d, i) { return color(i); });
-//    
-//    var rect = series.selectAll("rect")
-//      .data(function(d) { return d; })
-//      .enter().append("rect")
-//        .attr("x", function(d, i) { return x(i); })
-//        .attr("y", height)
-//        .attr("width", x.bandwidth())
-//        .attr("height", 0);
-//    
-////    rect.transition()
-////        .delay(function(d, i) { return i * 10; })
-////        .attr("y", function(d) { return y(d[1]); })
-////        .attr("height", function(d) { return y(d[0]) - y(d[1]); });
-////    
-//    g.append("g")
-//        .attr("class", "axis axis--x")
-//        .attr("transform", "translate(0," + height + ")")
-//        .call(d3.axisBottom(x)
-//            .tickSize(0)
-//            .tickPadding(6));
-////    
-////    d3.selectAll("input")
-////        .on("change", changed);
-//    
-//    //var timeout = d3.timeout(function() {
-//    //  d3.select("input[value=\"grouped\"]")
-//    //      .property("checked", true)
-//    //      .dispatch("change");
-//    //}, 2000);
-//
 };
 
 
