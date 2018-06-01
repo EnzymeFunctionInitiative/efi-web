@@ -327,6 +327,18 @@ class quantify extends job_shared {
             self::get_normalized_cluster_file_name();
         return $path;
     }
+    public function get_normalized_protein_file_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            $this->get_quantify_res_dir() . "/" .
+            self::get_normalized_protein_file_name();
+        return $path;
+    }
+    public function get_normalized_cluster_file_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            $this->get_quantify_res_dir() . "/" .
+            self::get_normalized_cluster_file_name();
+        return $path;
+    }
 
     public static function get_protein_file_name() {
         return "protein_abundance.txt";
