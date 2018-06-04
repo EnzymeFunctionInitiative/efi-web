@@ -166,7 +166,7 @@ class job_manager {
         $jobs = array();
 
         foreach ($id_rows as $id_row) {
-            $comp_result = $this->get_completed_date_label($id_row["identify_time_completed"], $id_row["identify_status"]);
+            $comp_result = self::get_completed_date_label($id_row["identify_time_completed"], $id_row["identify_status"]);
             $job_name = $id_row["identify_filename"];
             $comp = $comp_result[1];
             $is_completed = $comp_result[0];
@@ -183,7 +183,7 @@ class job_manager {
                 $q_rows = $this->db->query($q_sql);
 
                 foreach ($q_rows as $q_row) {
-                    $q_comp_result = $this->get_completed_date_label($q_row["quantify_time_completed"], $q_row["quantify_status"]);
+                    $q_comp_result = self::get_completed_date_label($q_row["quantify_time_completed"], $q_row["quantify_status"]);
                     $q_comp = $q_comp_result[1];
                     $q_is_completed = $q_comp_result[0];
                     $q_id = $q_row["quantify_id"];
@@ -206,15 +206,15 @@ class job_manager {
         return $jobs;
     }
 
-    public function get_quantify_jobs($identify_id) {
+    public static function get_quantify_jobs($db, $identify_id) {
         $jobs = array();
 
         $q_sql = "SELECT quantify_id, quantify_time_completed, quantify_status, quantify_metagenome_ids " .
             "FROM quantify WHERE quantify_identify_id = $identify_id";
-        $q_rows = $this->db->query($q_sql);
+        $q_rows = $db->query($q_sql);
 
         foreach ($q_rows as $q_row) {
-            $q_comp_result = $this->get_completed_date_label($q_row["quantify_time_completed"], $q_row["quantify_status"]);
+            $q_comp_result = self::get_completed_date_label($q_row["quantify_time_completed"], $q_row["quantify_status"]);
             $q_comp = $q_comp_result[1];
             $q_is_completed = $q_comp_result[0];
             $q_id = $q_row["quantify_id"];
@@ -230,7 +230,7 @@ class job_manager {
     }
 
     // Candidate for refacotring to centralize
-    private function get_completed_date_label($comp, $status) {
+    private static function get_completed_date_label($comp, $status) {
         $isCompleted = false;
         if ($status == "FAILED") {
             $comp = "FAILED";
