@@ -61,12 +61,37 @@ if ($fh) {
             continue;
 
         $info = array("number" => $cluster, "abundance" => array());
+        $sum = 0;
         for ($i = 0; $i < count($metagenomes); $i++) {
             $info["abundance"][$i] = $parts[1 + $i];
+            $sum += $parts[1 + $i];
         }
 
-        array_push($clusters, $info);
+        if ($sum >= 1e-6)
+            array_push($clusters, $info);
     }
+
+    $site_info = get_mg_db_info();
+
+    $sort_fn = function($a, $b) use ($site_info) {
+        if (!isset($site_info["site"][$a]))
+            return 0;
+        elseif (!isset($site_info["site"][$b]))
+            return 0;
+
+        $cmp = strcmp($site_info["site"][$a], $site_info["site"][$b]);
+        if ($cmp != 0)
+            return $cmp;
+        
+        $cmp = strcmp($site_info["gender"][$a], $site_info["gender"][$b]);
+        if ($cmp != 0)
+            return $cmp;
+
+        $cmp = strcmp($a, $b);
+        return $cmp;
+    };
+
+    usort($metagenomes, $sort_fn);
 
     $result["clusters"] = $clusters;
     $result["metagenomes"] = $metagenomes;
@@ -79,121 +104,37 @@ if ($fh) {
 echo json_encode($result);
 
 
-#if (isset($_POST["type"])) {
-#
-#    $type = $_POST["type"];
-#
-#    if ($type == "markers") {
-#        $marker_file = $job_obj->get_marker_file_path();
-#        if (file_exists($marker_file)) {
-#            $download_filename = $the_id . "_" . pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . ".faa";
-#            $content_size = filesize($marker_file);
-#            sendHeaders($download_filename, $content_size);
-#            readfile($marker_file);
-#            exit(0);
-#        } else {
-#            $is_error = true;
-#        }
-#    } elseif ($type == "q-prot") {
-#        $protein_file = $job_obj->get_protein_file_path();
-#        if (file_exists($protein_file)) {
-#            $download_filename = $the_id . "_" . pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_protein_abundance.txt";
-#            $content_size = filesize($protein_file);
-#            sendHeaders($download_filename, $content_size);
-#            readfile($protein_file);
-#            exit(0);
-#        } else {
-#            $is_error = true;
-#        }
-#    } elseif ($type == "q-clust") {
-#        $cluster_file = $job_obj->get_cluster_file_path();
-#        if (file_exists($cluster_file)) {
-#            $download_filename = pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_cluster_abundance.txt";
-#            $content_size = filesize($cluster_file);
-#            sendHeaders($download_filename, $content_size);
-#            readfile($cluster_file);
-#            exit(0);
-#        } else {
-#            $is_error = true;
-#        }
-#    } elseif ($type == "q-prot-m") {
-#        $protein_file = $job_obj->get_merged_protein_file_path();
-#        if (file_exists($protein_file)) {
-#            $download_filename = $the_id . "_" . pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_protein_abundance.txt";
-#            $content_size = filesize($protein_file);
-#            sendHeaders($download_filename, $content_size);
-#            readfile($protein_file);
-#            exit(0);
-#        } else {
-#            $is_error = true;
-#        }
-#    } elseif ($type == "q-clust-m") {
-#        $cluster_file = $job_obj->get_merged_cluster_file_path();
-#        if (file_exists($cluster_file)) {
-#            $download_filename = pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_cluster_abundance.txt";
-#            $content_size = filesize($cluster_file);
-#            sendHeaders($download_filename, $content_size);
-#            readfile($cluster_file);
-#            exit(0);
-#        } else {
-#            $is_error = true;
-#        }
-#    } elseif ($type == "ssn-q") {
-#        $ssn_file = $job_obj->get_ssn_http_path();
-#        $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
-#        header("Location: $url");
-##        $marker_file = $job_obj->get_marker_file_path();
-##        if (file_exists($marker_file)) {
-##            $download_filename = pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . ".faa";
-##            $content_size = filesize($marker_file);
-##            sendHeaders($download_filename, $content_size);
-##            readfile($marker_file);
-##            exit(0);
-##        } else {
-##            $is_error = true;
-##        }
-#    } elseif ($type == "ssn-c") {
-#        $ssn_file = $job_obj->get_ssn_http_path();
-#        $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
-#        header("Location: $url");
-#        # We need to do a redirect because the output files can be very large and we don't want to (can't?)
-#        # read the entire file into memory like php wants to do below.
-#        #if (file_exists($xgmml_file)) {
-#        #    $download_filename = pathinfo($job_obj->get_filename(), PATHINFO_FILENAME) . "_marker.xgmml";
-#        #    $content_size = filesize($xgmml_file);
-#        #    sendHeaders($download_filename, $content_size);
-#        #    readfile($xgmml_file);
-#        #    exit(0);
-#        #} else {
-#        #    $is_error = true;
-#        #}
-#    } else {
-#        $is_error = true;
-#    }
-#}
-#
-#if ($is_error) {
-#    error404();
-#}
-#
-#
-#
-#
-#
-#function sendHeaders($download_filename, $content_size) {
-#    header('Content-Description: File Transfer');
-#    header('Content-Type: application/octet-stream');
-#    header('Content-Disposition: attachment; filename="' . $download_filename . '"');
-#    header('Content-Transfer-Encoding: binary');
-#    header('Connection: Keep-Alive');
-#    header('Expires: 0');
-#    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-#    header('Pragma: public');
-#    header('Content-Length: ' . $content_size);
-#    ob_clean();
-#}
 
 
 
+
+
+function get_mg_db_info() {
+    $mg_dbs = settings::get_metagenome_db_list();
+
+    $mg_db_list = explode(",", $mg_dbs);
+
+    $info = array("site" => array(), "gender" => array());
+
+    foreach ($mg_db_list as $mg_db) {
+        $fh = fopen($mg_db, "r");
+        if ($fh === false)
+            continue;
+
+        while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
+            if (isset($data[0]) && $data[0] && $data[0][0] == "#")
+                continue; // skip comments
+
+            $pos = strpos($data[1], "-");
+            $site = trim(substr($data[1], $pos));
+            $info["site"][$data[0]] = $site;
+            $info["gender"][$data[0]] = $data[2];
+        }
+
+        fclose($fh);
+    }
+
+    return $info;
+}
 
 ?>

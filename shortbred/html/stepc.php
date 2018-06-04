@@ -51,6 +51,8 @@ if ($is_finished) {
 }
 
 
+$q_jobs = job_manager::get_quantify_jobs($db, $id);
+
 
 $ExtraCssLinks = array("$SiteUrlPrefix/chosen/chosen.min.css");
 
@@ -174,6 +176,21 @@ TX and Washington University in St. Louis, MO. More information about the Sample
 </center>
 
 </form>
+
+
+<?php
+if (count($q_jobs)) {
+
+    echo "<hr>";
+    echo "<h2>Existing Quantify Jobs</h2>";
+
+    foreach ($q_jobs as $job) {
+        $qid = $job["quantify_id"];
+        echo "<p><a href='stepe.php?id=$id&key=$key&quantify-id=$qid'><button type='button' class='mini'>Quantify Job #$qid</button></a></p>";
+    }
+}
+?>
+
 
 <?php } ?>
 

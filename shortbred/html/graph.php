@@ -81,10 +81,10 @@ var processData = function(data) {
     for (var i = 0; i < numClusters; i++) {
         z.push([]);
         label.push([]);
+        y[i] = data.clusters[i].number;
+        console.log(y[i]);
         for (var j = 0; j < numMetagenomes; j++) {
             var rawVal = data.clusters[i].abundance[j];
-            if (x[j] == "SRS011061")
-                console.log(rawVal);
             // <0.000001 = -6, 0.00001 = -5, 0.0001 = -4, 0.001 = -3, 0.01 = -2, 0.1 = -1, 1 = 0
             if (logScale) {
                 var val;
@@ -92,8 +92,8 @@ var processData = function(data) {
                     val = Math.log10(rawVal);
                 else
                     val = -minLog;
-                if (val < -minLog)
-                    console.log("" + j + " " + i + " " + rawVal + " " + val);
+//                if (val < -minLog)
+//                    console.log("" + j + " " + i + " " + rawVal + " " + val);
                 var posVal = minLog + val;
                 z[i].push(posVal);
             } else {
@@ -116,10 +116,13 @@ var processData = function(data) {
         y: y,
         z: z,
         type: 'heatmap',
-        //colorscale: 'Jet',
-        colorscale: colorScale,
+        colorscale: 'Jet',
+        //colorscale: colorScale,
         text: label,
         hoverinfo: "text",
+        legend: {
+            orientation: "h",
+        },
     }];
 
     if (logScale) {
@@ -142,6 +145,8 @@ var processData = function(data) {
         },
         yaxis: {
             title: "Cluster Number",
+                autorange: "reversed",
+                type: "category",
         },
     };
 

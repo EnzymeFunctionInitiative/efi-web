@@ -21,7 +21,7 @@ $qid = $_GET["quantify-id"];
 $id_query_string = "id=$identify_id&key=$key&quantify-id=$qid";
 
 
-$q_jobs = $job_mgr->get_quantify_jobs($identify_id);
+$q_jobs = job_manager::get_quantify_jobs($db, $identify_id);
 $mg_db = new metagenome_db();
 $mg_db->load_db();
 
@@ -83,6 +83,8 @@ require_once "inc/header.inc.php";
 <?php } else { ?>
 -->
 <!--<p>ShortBRED-Quantify has finished.</p>-->
+
+<p><a href="stepc.php?<?php echo "id=$identify_id&key=$key"; ?>"><button class="mini" type="button">Return to Identify Results</button></a></p>
 
 <p>Input filename: <?php echo $filename; ?></>
 
