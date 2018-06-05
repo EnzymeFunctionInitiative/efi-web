@@ -408,7 +408,7 @@ class functions {
 
     public static function get_encoded_db_version() {
         $ver = ((int)str_replace("_", "", functions::get_uniprot_version())) * 10000;
-        $ver += ((int)str_replace(".", "", functions::get_interpro_version()));
+        $ver += (int)functions::get_interpro_version();
         return $ver;
     }
 
@@ -417,7 +417,7 @@ class functions {
             return "";
         }
 
-        $ipv = ($ver % 1000) / 10;
+        $ipv = $ver % 1000;
         $upvYear = intval($ver / 1000000);
         $upvMon = intval(intval($ver / 10000) % 100);
         return sprintf("UniProt: %d-%02d / Interpro: %.0f", $upvYear, $upvMon, $ipv);
