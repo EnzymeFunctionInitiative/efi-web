@@ -42,9 +42,16 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
 
     $email = $_POST['email'];
     $jobGroup = isset($_POST['job-group']) ? $_POST['job-group'] : '';
+    $updateId = isset($_POST['update-id']) ? $_POST['update-id'] : '';
+    $updateKey = isset($_POST['update-key']) ? $_POST['update-key'] : '';
 
     if ($valid) {
-        $newInfo = identify::create($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $jobGroup);
+        if ($updateId && $updateKey) {
+            $newInfo = identify::create_update_ssn($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $updateId, $updateKey);
+        } else {
+            $newInfo = identify::create($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $jobGroup);
+        }
+
         if ($newInfo === false) {
             $valid = false;
         } else {

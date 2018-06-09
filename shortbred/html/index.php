@@ -146,7 +146,6 @@ HTML;
                 <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", $SiteUrlPrefix); ?>
                 </p>
     
-<?php showAdminCode("ssn_job_group", $user_groups, $showJobGroups); ?>
                 <p>
                     E-mail address: 
                     <input name='ssn_email' id='ssn_email' type="text" value="<?php echo $user_email; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
@@ -254,23 +253,4 @@ HTML;
 
 <?php require_once('inc/footer.inc.php'); ?>
 
-
-<?php
-
-function showAdminCode($id, $user_groups, $showJobGroups) {
-    if (!$showJobGroups)
-        return;
-
-    $func = function($val) { return "<option>$val</option>"; };
-    $groupList = implode("", array_map($func, $user_groups));
-    if ($groupList) {
-        echo <<<HTML
-<div style="margin:20px 0">
-    Optional job group: <select id="$id">$groupList</select>
-</div>
-HTML;
-    }
-}
-
-?>
 

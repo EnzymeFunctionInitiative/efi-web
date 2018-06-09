@@ -30,6 +30,14 @@ label {
 
 <div id="plot"></div>
 
+<div style="margin-top: 20px;">
+Show specific cluster numbers: <input type="text" id="cluster-filter" />
+<button type="button" id="filter-btn" onclick='doFormPost()'>Apply Filter</button>
+<button type="button" id="filter-btn" onclick='resetFilter()'>Reset Filter</button>
+</div>
+
+
+
 <script>
 
 var colors6 = [
@@ -48,9 +56,8 @@ var colors5 = [
     'rgb(253, 231, 37)',
 ];
 
-var parms = new FormData;
-parms.append("id", <?php echo $_GET["id"]; ?>);
-parms.append("key", "<?php echo $_GET["key"]; ?>");
+var Id = <?php echo $_GET["id"]; ?>;
+var Key = "<?php echo $_GET["key"]; ?>";
 
 linspace = function (a,b,n) {
     if(typeof n === "undefined") n = Math.max(Math.round(b-a)+1,1);
@@ -73,16 +80,19 @@ var processData = function(data) {
     var x = [],
         y = linspace(1, numClusters),
         z = [],
+        bodysite = [],
+        gender = [],
         label = [];
     for (var i = 0; i < numMetagenomes; i++) {
         x.push(data.metagenomes[i]);
+        bodysite.push(data.site_info.site[data.metagenomes[i]]);
+        gender.push(data.site_info.gender[data.metagenomes[i]]);
     }
 
     for (var i = 0; i < numClusters; i++) {
         z.push([]);
         label.push([]);
         y[i] = data.clusters[i].number;
-        console.log(y[i]);
         for (var j = 0; j < numMetagenomes; j++) {
             var rawVal = data.clusters[i].abundance[j];
             // <0.000001 = -6, 0.00001 = -5, 0.0001 = -4, 0.001 = -3, 0.01 = -2, 0.1 = -1, 1 = 0
@@ -99,7 +109,7 @@ var processData = function(data) {
             } else {
                 z[i][j] = rawVal;
             }
-            label[i].push(x[j] + ", " + y[i] + " = " + rawVal);
+            label[i].push(x[j] + ", " + y[i] + " = " + rawVal + "<br>" + bodysite[j] + ", " + gender[j]);
         }
     }
 
@@ -156,66 +166,35 @@ var processData = function(data) {
 
 
 
+doFormPost();
 
 
+function resetFilter() {
 
+    var clusterField = document.getElementById("cluster-filter");
+    clusterField.value = "";
 
+    doFormPost();
+}
 
-//function changed() {
-////  timeout.stop();
-//  if (this.value === "grouped") transitionGrouped();
-//  else transitionStacked();
-//}
-//
-//function transitionGrouped() {
-//  y.domain([0, yMax]);
-//
-//  rect.transition()
-//      .duration(500)
-//      .delay(function(d, i) { return i * 10; })
-//      .attr("x", function(d, i) { return x(i) + x.bandwidth() / numMetagenomes * this.parentNode.__data__.key; })
-//      .attr("width", x.bandwidth() / numMetagenomes)
-//    .transition()
-//      .attr("y", function(d) { return y(d[1] - d[0]); })
-//      .attr("height", function(d) { return y(0) - y(d[1] - d[0]); });
-//}
-//
-//function transitionStacked() {
-//  y.domain([0, y1Max]);
-//
-//  rect.transition()
-//      .duration(500)
-//      .delay(function(d, i) { return i * 10; })
-//      .attr("y", function(d) { return y(d[1]); })
-//      .attr("height", function(d) { return y(d[0]) - y(d[1]); })
-//    .transition()
-//      .attr("x", function(d, i) { return x(i); })
-//      .attr("width", x.bandwidth());
-//}
+function doFormPost() {
 
+    var formAction = "get_sbq_data.php";
+    var completionHandler = processData;
 
+    var parms = new FormData;
+    parms.append("id", Id);
+    parms.append("key", Key);
 
+    var clusterList = document.getElementById("cluster-filter").value;
+    if (clusterList) {
+        console.log("Clusters: " + clusterList);
+        parms.append("clusters", clusterList);
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-doFormPost("get_sbq_data.php", parms, processData);
-
-function doFormPost(formAction, formData, completionHandler) {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", formAction, true);
-    xhr.send(formData);
+    xhr.send(parms);
     xhr.onreadystatechange  = function(){
         if (xhr.readyState == 4  ) {
             var jsonObj = JSON.parse(xhr.responseText);
@@ -226,7 +205,6 @@ function doFormPost(formAction, formData, completionHandler) {
     }
 }
 </script>
-
 
 </body>
 </html>

@@ -14,6 +14,7 @@ abstract class job_shared {
     private $time_created;
     private $time_started;
     private $time_completed;
+    private $parent_id = 0;
 
     private $db;
     private $beta;
@@ -63,6 +64,20 @@ abstract class job_shared {
         return $this->email;
     }
 
+    protected function set_parent_id($parent_id) {
+        $this->parent_id = $parent_id;
+    }
+    public function get_parent_id() {
+        return $this->parent_id;
+    }
+
+
+
+    public function get_child_jobs() {
+        $table = $this->get_table_name();
+        $jobs = array();
+        return $jobs;
+    }
 
 
     protected function load_job_shared($result) {
@@ -72,6 +87,9 @@ abstract class job_shared {
         $this->time_started = $result["${table}_time_started"];
         $this->time_completed = $result["${table}_time_completed"];
         $this->pbs_number = $result["${table}_pbs_number"];
+        $parent_field = "${table}_parent_id";
+        if (isset($result[$parent_field]) && $result[$parent_field])
+            $this->parent_id = $result[$parent_field];
     }
 
 
