@@ -157,7 +157,7 @@ class job_manager {
         $email = user_auth::get_email_from_token($this->db, $user_token);
 
         $start_date = user_auth::get_start_date_window();
-        $id_sql = "SELECT identify_id, identify_key, identify_time_completed, identify_filename, identify_status " .
+        $id_sql = "SELECT identify_id, identify_key, identify_time_completed, identify_filename, identify_status, identify_parent_id " .
             "FROM identify WHERE identify_email='$email' AND (identify_time_completed >= '$start_date' " .
             "OR (identify_time_created >= '$start_date' AND (identify_status = 'NEW' OR identify_status = 'RUNNING'))) " .
             "ORDER BY identify_status, identify_time_completed DESC";
@@ -173,6 +173,9 @@ class job_manager {
 
             $id_id = $id_row["identify_id"];
             $key = $id_row["identify_key"];
+            $parent_id = $id_row["identify_parent_id"];
+            if ($parent_id)
+                $job_name .= " [<b>Child of #$parent_id</b>]";
 
             array_push($jobs, array("id" => $id_id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed,
                                     "is_quantify" => false, "date_completed" => $comp));
@@ -223,7 +226,7 @@ class job_manager {
             $q_job_name = $q_row["quantify_metagenome_ids"];
 
             array_push($jobs, array("quantify_id" => $q_id, "job_name" => $q_job_name,
-                                        "is_completed" => $q_is_completed, "is_quantify" => true, "date_completed" => $q_comp));
+                                    "is_completed" => $q_is_completed, "is_quantify" => true, "date_completed" => $q_comp));
         }
 
         return $jobs;

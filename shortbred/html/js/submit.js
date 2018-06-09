@@ -54,7 +54,31 @@ function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId
 
     var script = "upload_ssn.php";
     doFormPost(script, fd, messageId, fileHandler, completionHandler);
-    
+}
+
+function uploadAlignmentScoreUpdateSSN(fileInputId, formId, progressNumId, progressBarId, messageId, email, parentId, parentKey) {
+    var fd = new FormData();
+    fd.append("email", email);
+    fd.append("submit", "submit");
+    fd.append("update-id", parentId);
+    fd.append("update-key", parentKey);
+
+    var files = document.getElementById(fileInputId).files;
+    var completionHandler = function(jsonObj) {
+        enableForm(formId);
+        var nextStepScript = "stepb.php";
+        window.location.href = nextStepScript + "?id=" + jsonObj.id + "&key=" + jsonObj.key;
+    };
+
+    fd.append("file", files[0]);
+    var fileHandler = function(xhr) {
+        addUploadStuff(xhr, progressNumId, progressBarId);
+    };
+
+    disableForm(formId);
+
+    var script = "upload_ssn.php";
+    doFormPost(script, fd, messageId, fileHandler, completionHandler);
 }
 
 function addUploadStuff(xhr, progressNumId, progressBarId) {

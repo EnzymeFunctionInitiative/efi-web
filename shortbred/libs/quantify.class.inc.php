@@ -25,6 +25,10 @@ class quantify extends job_shared {
         return $this->filename;
     }
 
+    private function get_metagenome_ids() {
+        return $this->metagenome_ids;
+    }
+
 
     // job_id represents the analysis id, not the identify id.
     public function __construct($db, $job_id, $is_debug = false) {
@@ -35,18 +39,35 @@ class quantify extends job_shared {
         $this->load_job();
     }
 
-    public static function create($db, $identify_id, $metagenome_ids) {
+    public static function create($db, $identify_id, $metagenome_id) {
+        $info = self::create_shared($db, $identify_id, $metagenome_ids, "");
+        return $info;
+    }
 
+    private static function create_shared($db, $identify_id, $metagenome_ids, $parent_id) {
         $insert_array = array(
             'quantify_identify_id' => $identify_id,
             'quantify_metagenome_ids' => $metagenome_ids,
             'quantify_status' => __NEW__,
             'quantify_time_created' => self::get_current_time(),
         );
+        if ($parent_id)
+            $insert_array['quantify_parent_id'] = $parent_id; // the parent QUANTIFY job ID, not identify
+
         $result = $db->build_insert('quantify', $insert_array);
 
         $info = array('id' => $result);
+    }
+    
+    public static function create_copy($db, $parent_quantify_id, $identify_id) {
+        $job = new quantify($db, $parent_quantify_id);
+        $mg_id_array = $job->get_metagenome_ids();
+        $mg_ids = implode(",", $mg_id_array);
 
+        if (!$mg_ids)
+            return false;
+
+        $info = self::create_shared($db, $identify_id, $mg_ids, $parent_quantify_id);
         return $info;
     }
 
@@ -101,9 +122,19 @@ class quantify extends job_shared {
             }
             chdir($id_out_dir);
         }
+        print "$id_out_dir\n";
 
         $sched = settings::get_cluster_scheduler();
         $queue = settings::get_normal_queue();
+        $parent_quantify_id = $this->get_parent_id();
+        $parent_identify_id = "";
+        if ($parent_quantify_id) {
+            $sql = "SELECT quantify_identify_id FROM quantify WHERE quantify_id = $parent_quantify_id";
+            $result = $this->db->query($sql);
+            if ($result) {
+                $parent_identify_id = $result[0]["quantify_identify_id"];
+            }
+        }
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
@@ -120,10 +151,16 @@ class quantify extends job_shared {
         $exec .= " -cluster-file " . self::get_cluster_file_name();
         $exec .= " -protein-norm " . self::get_normalized_protein_file_name();
         $exec .= " -cluster-norm " . self::get_normalized_cluster_file_name();
+        $exec .= " -protein-genome-norm " . self::get_genome_normalized_protein_file_name();
+        $exec .= " -cluster-genome-norm " . self::get_genome_normalized_cluster_file_name();
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
         if ($sched)
             $exec .= " -scheduler $sched";
+        if ($parent_quantify_id && $parent_identify_id) {
+            $exec .= " -parent-quantify-id $parent_quantify_id";
+            $exec .= " -parent-identify-id $parent_identify_id";
+        }
 
         if ($this->is_debug) {
             print("Identify Job ID: $id\n");
@@ -327,6 +364,16 @@ class quantify extends job_shared {
             self::get_normalized_cluster_file_name();
         return $path;
     }
+    public function get_merged_genome_normalized_protein_file_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            self::get_genome_normalized_protein_file_name();
+        return $path;
+    }
+    public function get_merged_genome_normalized_cluster_file_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            self::get_genome_normalized_cluster_file_name();
+        return $path;
+    }
     public function get_normalized_protein_file_path() {
         $path = $this->get_identify_output_path() . "/" .
             $this->get_quantify_res_dir() . "/" .
@@ -339,6 +386,18 @@ class quantify extends job_shared {
             self::get_normalized_cluster_file_name();
         return $path;
     }
+    public function get_genome_normalized_protein_file_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            $this->get_quantify_res_dir() . "/" .
+            self::get_genome_normalized_protein_file_name();
+        return $path;
+    }
+    public function get_genome_normalized_cluster_file_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            $this->get_quantify_res_dir() . "/" .
+            self::get_genome_normalized_cluster_file_name();
+        return $path;
+    }
 
     public static function get_protein_file_name() {
         return "protein_abundance.txt";
@@ -346,11 +405,17 @@ class quantify extends job_shared {
     public static function get_normalized_protein_file_name() {
         return "protein_abundance_normalized.txt";
     }
+    public static function get_genome_normalized_protein_file_name() {
+        return "protein_abundance_genome_normalized.txt";
+    }
     public static function get_cluster_file_name() {
         return "cluster_abundance.txt";
     }
     public static function get_normalized_cluster_file_name() {
         return "cluster_abundance_normalized.txt";
+    }
+    public static function get_genome_normalized_cluster_file_name() {
+        return "cluster_abundance_genome_normalized.txt";
     }
 
     public function get_ssn_http_path() {

@@ -27,8 +27,8 @@ $mg_db->load_db();
 
 $ExtraTitle = "Quantify Results for Identify ID $identify_id / Quantify ID $qid";
 
-$job = new quantify($db, $qid);
-#$status = $job->get_status();
+$job_obj = new quantify($db, $qid);
+#$status = $job_obj->get_status();
 #
 #$is_failed = false;
 #$is_running = false;
@@ -46,17 +46,19 @@ $job = new quantify($db, $qid);
 #}
 
 
-$filename = $job->get_filename();
+$filename = $job_obj->get_filename();
 
-$ssnFileSize = global_functions::bytes_to_megabytes($job->get_merged_ssn_file_size());
+$ssnFileSize = global_functions::bytes_to_megabytes($job_obj->get_merged_ssn_file_size());
 $protFileSize = $ssnFileSize ? "<1" : 0; // files are small
 $clustFileSize = $ssnFileSize ? "<1" : 0; // files are small
 $normProtFileSize = $ssnFileSize ? "<1" : 0; // files are small
 $normClustFileSize = $ssnFileSize ? "<1" : 0; // files are small
+$genomeNormProtFileSize = $ssnFileSize ? "<1" : 0; // files are small
+$genomeNormClustFileSize = $ssnFileSize ? "<1" : 0; // files are small
 
-$zipFilePath = $job->get_merged_ssn_zip_file_path();
+$zipFilePath = $job_obj->get_merged_ssn_zip_file_path();
 $zipFileExists = file_exists($zipFilePath);
-$ssnZipFileSize = $zipFileExists ? global_functions::bytes_to_megabytes($job->get_merged_ssn_zip_file_size()) : "0";
+$ssnZipFileSize = $zipFileExists ? global_functions::bytes_to_megabytes($job_obj->get_merged_ssn_zip_file_size()) : "0";
 
 $size_data = array(
     "ssn" => $ssnFileSize,
@@ -66,6 +68,13 @@ $size_data = array(
     "protein_norm" => $normProtFileSize,
     "cluster_norm" => $normClustFileSize,
 );
+
+$gn_file = $job_obj->get_merged_genome_normalized_cluster_file_path();
+if (file_exists($gn_file)) {
+    $size_data["protein_genome_norm"] = $genomeNormProtFileSize;
+    $size_data["cluster_genome_norm"] = $genomeNormClustFileSize;
+}
+
 
 require_once "inc/header.inc.php"; 
 
@@ -93,7 +102,7 @@ require_once "inc/header.inc.php";
 <br><button id="heatmap-button" class="mini" type="button" style="margin-top: 20px">View Heatmap for All Quantify Results</button>
 
 <div id="heatmap" style="display: none;">
-<iframe src="graph.php?<?php echo "id=$identify_id&key=$key"; ?>" width="970" height="750" style="border: none"></iframe>
+<iframe src="heatmap.php?<?php echo "id=$identify_id&key=$key"; ?>" width="970" height="780" style="border: none"></iframe>
 </div>
 
 
@@ -156,6 +165,13 @@ foreach ($q_jobs as $job) {
             "protein_norm" => $normProtFileSize,
             "cluster_norm" => $normClustFileSize,
         );
+
+        $gn_file = $job_obj->get_genome_normalized_cluster_file_path();
+        if (file_exists($gn_file)) {
+            $size_data["protein_genome_norm"] = $genomeNormProtFileSize;
+            $size_data["cluster_genome_norm"] = $genomeNormClustFileSize;
+        }
+
         outputResultsTable($is_global, $id_query_string, $size_data);
         /*
 ?>
@@ -275,21 +291,28 @@ HTML;
         "cluster" => "q-clust$arg_suffix",
         "protein_norm" => "q-prot$arg_suffix-n",
         "cluster_norm" => "q-clust$arg_suffix-n",
+        "protein_genome_norm" => "q-prot$arg_suffix-gn",
+        "cluster_genome_norm" => "q-clust$arg_suffix-gn",
     );
     $html_label = array(
         "protein" => "Protein abundance data $run_suffix",
         "cluster" => "Cluster abundance data $run_suffix",
         "protein_norm" => "Normalized protein abundance data $run_suffix",
         "cluster_norm" => "Normalized cluster abundance data $run_suffix",
+        "protein_genome_norm" => "Average genome size (AGS) normalized protein abundance data $run_suffix",
+        "cluster_genome_norm" => "Average genome size (AGS) normalized cluster abundance data $run_suffix",
     );
 
     foreach ($file_type as $type => $arg) {
+        if (!isset($size_data[$type]))
+            continue;
+
         $label = $html_label[$type];
         echo <<<HTML
         <tr>
             <td style='text-align:center;'>
 HTML;
-        
+
         $size_label = "--";
         $label = $html_label[$type];
         if (isset($size_data[$type]) && $size_data[$type]) {
@@ -298,7 +321,7 @@ HTML;
         } else {
             echo "";
         }
-
+    
         echo <<<HTML
             </td>
             <td>$label</td>

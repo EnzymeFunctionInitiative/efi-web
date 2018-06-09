@@ -29,12 +29,18 @@ class identify extends job_shared {
         $this->load_job();
     }
 
-    public static function create($db, $email, $tmpFilename, $filename, $jobGroup) {
+    public static function create($db, $email, $tmp_filename, $filename, $jobGroup) {
+        $info = self::create_shared($db, $email, $tmp_filename, $filename, "");
+        return $info;
+    }
+
+    private static function create_shared($db, $email, $tmp_filename, $filename, $parent_id) {
 
         // Sanitize filename
         $filename = preg_replace("([^a-zA-Z0-9\-_\.])", '', $filename);
 
         $key = functions::generate_key();
+        
         $insert_array = array(
             'identify_email' => $email,
             'identify_key' => $key,
@@ -42,16 +48,29 @@ class identify extends job_shared {
             'identify_status' => __NEW__,
             'identify_time_created' => self::get_current_time(),
         );
-        $result = $db->build_insert('identify', $insert_array);
+        if ($parent_id)
+            $insert_array['identify_parent_id'] = $parent_id;
 
-        if ($result) {	
-            global_functions::copy_to_uploads_dir($tmpFilename, $filename, $result);
+        $new_id = $db->build_insert('identify', $insert_array);
+
+        if ($new_id) {	
+            global_functions::copy_to_uploads_dir($tmp_filename, $filename, $new_id);
         } else {
             return false;
         }
 
-        $info = array('id' => $result, 'key' => $key);
+        $info = array('id' => $new_id, 'key' => $key);
 
+        return $info;
+    }
+
+    public static function create_update_ssn($db, $email, $tmp_filename, $filename, $parent_id, $parent_key) {
+        $sql = "SELECT * FROM identify WHERE identify_id='$parent_id' AND identify_key='$parent_key'";
+        $result = $db->query($sql);
+        if (!$result)
+            return false;
+
+        $info = self::create_shared($db, $email, $tmp_filename, $filename, $parent_id);
         return $info;
     }
 
@@ -107,6 +126,7 @@ class identify extends job_shared {
 
         $sched = settings::get_cluster_scheduler();
         $queue = settings::get_normal_queue();
+        $parent_id = $this->get_parent_id();
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
@@ -121,6 +141,8 @@ class identify extends job_shared {
         $exec .= " -queue $queue";
         if ($sched)
             $exec .= " -scheduler $sched";
+        if ($parent_id)
+            $exec .= " -parent-job-id $parent_id";
 
         if ($this->is_debug) {
             print("Job ID: $id\n");
@@ -204,6 +226,12 @@ class identify extends job_shared {
             $this->email_admin_failure("Job died.");
         } elseif (!$is_running) {
             $result = 2;
+
+            $parent_id = $this->get_parent_id();
+            if ($parent_id) {
+                $this->create_quantify_jobs_from_parent();
+            }
+
             $this->set_status(__FINISH__);
             $this->set_time_completed();
             $this->email_completed();
@@ -214,6 +242,23 @@ class identify extends job_shared {
     }
 
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // PARENT JOB FUNCTIONS
+    //
+
+    private function create_quantify_jobs_from_parent() {
+        $parent_id = $this->get_parent_id();
+        if (!$parent_id)
+            return;
+        $id = $this->get_id();
+
+        $q_jobs = job_manager::get_quantify_jobs($this->db, $parent_id);
+
+        foreach ($q_jobs as $job) {
+            $q_id = $job["quantify_id"];
+            quantify::create_copy($this->db, $q_id, $id, $parent_id);
+        }
+    }
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -279,6 +324,9 @@ class identify extends job_shared {
 
     public function get_marker_file_path() {
         $id = $this->get_id();
+        $parent_id = $this->get_parent_id();
+        if ($parent_id)
+            $id = $parent_id;
         $out_dir = settings::get_output_dir() . "/" . $id;
         $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
         return "$res_dir/markers.faa";
