@@ -38,7 +38,7 @@ if ($parent_id) {
 }
 $child_data = $job->get_child_jobs();
 
-
+$is_submittable = ! functions::is_job_sticky($db, $id, $user_email);
 
 
 $is_failed = false;
@@ -146,6 +146,7 @@ require_once "inc/header.inc.php";
 <p><a href="download_files.php?type=cdhit&<?php echo $id_query_string; ?>">Download CD-HIT mapping file (formatted as a table).</a></p>
  */ ?>
 
+<?php if ($is_submittable) { ?>
 <h3>Select Metagenomes from the Human Microbiome Project</h3>
 
 <p>
@@ -200,6 +201,7 @@ TX and Washington University in St. Louis, MO. More information about the Sample
 
 </form>
 
+<?php } // is submittable ?>
 
 <?php
 if (count($q_jobs)) {
@@ -219,7 +221,7 @@ if (count($child_data)) {
 
 ?>
 
-<?php if ($user_email) { ?>
+<?php if ($is_submittable && $user_email) { ?>
 
 <hr>
 <h3>Upload SSN with Different Alignment Score</h3>

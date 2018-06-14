@@ -31,6 +31,8 @@ if ($action == "update-group" || $action == "remove-group") {
             $db_name = __EFI_EST_DB_NAME__;
         elseif ($type == "gnt")
             $db_name = __EFI_GNT_DB_NAME__;
+        elseif ($type == "shortbred")
+            $db_name = __EFI_SHORTBRED_DB_NAME__;
 
         $job_ids = explode(",", $job_ids_text);
         if (count($job_ids)) {

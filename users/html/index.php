@@ -4,19 +4,16 @@ require_once("../../libs/user_auth.class.inc.php");
 require_once("../../includes/login_check.inc.php");
 
 
-//$group_mgr = new group_manager($db);
 $user_mgr = new user_manager($db);
-//$est_job_mgr = new job_manager($db, __EFI_EST_DB_NAME__, __EFI_EST_TABLE__);
-//$gnn_job_mgr = new job_manager($db, __EFI_GNT_DB_NAME__, __EFI_GNT_GNN_TABLE__);
-//$gnd_job_mgr = new job_manager($db, __EFI_GNT_DB_NAME__, __EFI_GNT_DIAGRAM_TABLE__);
 
 $show_max_ids = 15;
 $user_ids = $user_mgr->get_user_ids();
 $group_names = $user_mgr->get_group_names();
 
-$job_mgr = new job_manager($db, __MYSQL_AUTH_DATABASE__, __EFI_EST_DB_NAME__, __EFI_GNT_DB_NAME__);
+$job_mgr = new job_manager($db, __MYSQL_AUTH_DATABASE__, __EFI_EST_DB_NAME__, __EFI_GNT_DB_NAME__, __EFI_SHORTBRED_DB_NAME__);
 $est_ids = $job_mgr->get_grouped_est_job_ids();
 $gnt_ids = $job_mgr->get_grouped_gnt_job_ids();
+$shortbred_ids = $job_mgr->get_grouped_shortbred_job_ids();
 
 require_once("inc/header.inc.php");
 
@@ -146,6 +143,44 @@ HTML;
 for ($i = 0; $i < count($gnt_ids); $i++) {
     $id = $gnt_ids[$i];
     $job = $job_mgr->get_gnt_job_by_id($id);
+
+    $info = $job["info"];
+    $status = $job["status"];
+    $email = $job["email"];
+    $group = implode(", ", $job["group"]);
+
+    echo <<<HTML
+        <tr>
+            <td>$id</td>
+            <td>$info</td>
+            <td>$status</td>
+            <td>$email</td>
+            <td>$group</td>
+        </tr>
+
+HTML;
+}
+
+?>
+    </tbody>
+</table>
+
+<h4>ShortBRED Jobs</h4>
+
+<table class="pretty">
+    <thead>
+        <th>ShortBRED ID</th>
+        <th>Job Info</th>
+        <th>Job Status</th>
+        <th>Email Address</th>
+        <th>Group(s)</th>
+    </thead>
+    <tbody>
+<?php
+
+for ($i = 0; $i < count($shortbred_ids); $i++) {
+    $id = $shortbred_ids[$i];
+    $job = $job_mgr->get_shortbred_job_by_id($id);
 
     $info = $job["info"];
     $status = $job["status"];

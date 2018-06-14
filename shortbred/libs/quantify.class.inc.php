@@ -39,7 +39,7 @@ class quantify extends job_shared {
         $this->load_job();
     }
 
-    public static function create($db, $identify_id, $metagenome_id) {
+    public static function create($db, $identify_id, $metagenome_ids) {
         $info = self::create_shared($db, $identify_id, $metagenome_ids, "");
         return $info;
     }
@@ -57,6 +57,7 @@ class quantify extends job_shared {
         $result = $db->build_insert('quantify', $insert_array);
 
         $info = array('id' => $result);
+        return $info;
     }
     
     public static function create_copy($db, $parent_quantify_id, $identify_id) {

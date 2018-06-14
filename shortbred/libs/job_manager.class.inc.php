@@ -157,12 +157,55 @@ class job_manager {
         $email = user_auth::get_email_from_token($this->db, $user_token);
 
         $start_date = user_auth::get_start_date_window();
-        $id_sql = "SELECT identify_id, identify_key, identify_time_completed, identify_filename, identify_status, identify_parent_id " .
-            "FROM identify WHERE identify_email='$email' AND (identify_time_completed >= '$start_date' " .
+        $id_sql = self::get_user_jobs_sql();
+        $id_sql .=
+            "WHERE identify_email='$email' AND (identify_time_completed >= '$start_date' " .
             "OR (identify_time_created >= '$start_date' AND (identify_status = 'NEW' OR identify_status = 'RUNNING'))) " .
             "ORDER BY identify_status, identify_time_completed DESC";
+        //$id_sql = "SELECT identify_id, identify_key, identify_time_completed, identify_filename, identify_status, identify_parent_id " .
+        //    "FROM identify WHERE identify_email='$email' AND (identify_time_completed >= '$start_date' " .
+        //    "OR (identify_time_created >= '$start_date' AND (identify_status = 'NEW' OR identify_status = 'RUNNING'))) " .
+        //    "ORDER BY identify_status, identify_time_completed DESC";
         $id_rows = $this->db->query($id_sql);
 
+        $jobs = $this->get_jobs_by_user_shared($id_rows);
+
+        return $jobs;
+    }
+
+    public function get_training_jobs($user_token) {
+        $email = user_auth::get_email_from_token($this->db, $user_token);
+        $user_groups = user_auth::get_user_groups($this->db, $user_token);
+
+        $func = function($val) { return "user_group = '$val'"; };
+        $group_clause = implode(" OR ", array_map($func, $user_groups));
+        if ($group_clause) {
+            $group_clause = "($group_clause)";
+        } else {
+            return array();
+        }
+
+        $sql = self::get_user_jobs_sql($group_clause);
+        $sql .= "ORDER BY identify_status, identify_time_completed DESC";
+        $id_rows = $this->db->query($sql);
+
+        $jobs = $this->get_jobs_by_user_shared($id_rows);
+
+        return $jobs;
+    }
+
+    private static function get_user_jobs_sql($group_clause = "") {
+        $sql = "SELECT identify.identify_id, identify_key, identify_time_completed, identify_filename, identify_status, identify_parent_id ";
+        $sql .= "FROM identify ";
+        if ($group_clause) {
+            $sql .= 
+                "LEFT OUTER JOIN job_group ON identify.identify_id = job_group.identify_id " .
+                "WHERE $group_clause AND identify_status = 'FINISH' ";
+        }
+        return $sql;
+    }
+
+    private function get_jobs_by_user_shared($id_rows) {
         $jobs = array();
 
         foreach ($id_rows as $id_row) {
