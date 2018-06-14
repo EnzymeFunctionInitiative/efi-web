@@ -205,16 +205,14 @@ the <a href="family_list.php">Family Information page</a>.
                         Negative log of e-value for all-by-all BLAST (&ge;1; default <?php echo functions::get_evalue(); ?>)
                     </div>
                     <div>
-                        Fraction: <input type="text" class="small" id="blast-fraction" name="blast-fraction"
-                            value="<?php echo functions::get_fraction(); ?>">
+                        Fraction: <input type="text" class="small fraction" id="blast-fraction" name="blast-fraction"
+                            value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
                         <?php echo functions::get_fraction(); ?>)
                     </div>
                 </div>
 <?php } ?>
 
-<?php showAdminCode("option-a-job-group", $userGroups, $showJobGroups); ?>
-    
                 <div>
                     E-mail address:
                     <input name="email" id="option-a-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -270,8 +268,8 @@ the <a href="family_list.php">Family Information page</a>.
                         Negative log of e-value for all-by-all BLAST (&ge;1; default <?php echo functions::get_evalue(); ?>)
                     </div>
                     <div>
-                        Fraction: <input type="text" class="small" id="pfam-fraction" name="pfam-fraction"
-                            value="<?php echo functions::get_fraction(); ?>">
+                        Fraction: <input type="text" class="small fraction" id="pfam-fraction" name="pfam-fraction"
+                            value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
                         <?php echo functions::get_fraction(); ?>)
                     </div>
@@ -308,8 +306,6 @@ the <a href="family_list.php">Family Information page</a>.
 <?php    } ?>
                 </div>
     
-<?php showAdminCode("option-b-job-group", $userGroups, $showJobGroups); ?>
-
                 <div>
                     E-mail address:
                     <input name="email" id="option-b-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -371,8 +367,8 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
                     <div>
                         Fraction:
-                        <input type="text" class="small" id="fasta-fraction" name="fasta-fraction"
-                            value="<?php echo functions::get_fraction(); ?>">
+                        <input type="text" class="small fraction" id="fasta-fraction" name="fasta-fraction"
+                            value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default: 
                         <?php echo functions::get_fraction(); ?>)
                     </div>
@@ -388,8 +384,6 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
 <?php    } ?>
                 </div>
-
-<?php showAdminCode("option-c-job-group", $userGroups, $showJobGroups); ?>
 
                 <div>
                     E-mail address:
@@ -448,8 +442,8 @@ the <a href="family_list.php">Family Information page</a>.
                         Negative log of e-value for all-by-all BLAST (&ge;1; default: <?php echo functions::get_evalue(); ?>)
                     </div>
                     <div>
-                        Fraction: <input type="text" class="small" id="accession-fraction" name="accession-fraction" 
-                            value="<?php echo functions::get_fraction(); ?>">
+                        Fraction: <input type="text" class="small fraction" id="accession-fraction" name="accession-fraction" 
+                            value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
                         <?php echo functions::get_fraction(); ?>)
                     </div>
@@ -484,8 +478,6 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
 <?php    } ?>
                 </div>
-
-<?php showAdminCode("option-d-job-group", $userGroups, $showJobGroups); ?>
 
                 <div>
                     E-mail address:
@@ -534,8 +526,8 @@ the <a href="family_list.php">Family Information page</a>.
                         Negative log of e-value for all-by-all BLAST (&ge;1; default <?php echo functions::get_evalue(); ?>)
                     </div>
                     <div>
-                        Fraction: <input type="text" class="small" id="pfam-plus-fraction" name="pfam-fraction"
-                            value="<?php echo functions::get_fraction(); ?>">
+                        Fraction: <input type="text" class="small fraction" id="pfam-plus-fraction" name="pfam-fraction"
+                            value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
                         <?php echo functions::get_fraction(); ?>)
                     </div>
@@ -570,8 +562,6 @@ the <a href="family_list.php">Family Information page</a>.
 <?php    } ?>
                 </div>
     
-<?php showAdminCode("option-e-job-group", $userGroups, $showJobGroups); ?>
-
                 <div>
                     E-mail address:
                     <input name="email" id="option-e-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -602,8 +592,6 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="primary-input">
 <?php echo ui::make_upload_box("SNN to color and analyze (uncompressed or zipped XGMML file)", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
                 </div>
-
-<?php showAdminCode("colorssn-job-group", $userGroups, $showJobGroups); ?>
 
                 <div>
                     E-mail address:
@@ -764,6 +752,18 @@ the <a href="family_list.php">Family Information page</a>.
         setupFamilyInput("families-input-optd", "family-size-container-optd", "family-count-table-optd", "optd-use-uniref", "accession-fraction");
         setupFamilyInput("families-input-optc", "family-size-container-optc", "family-count-table-optc", "optc-use-uniref", "fasta-fraction");
 
+        $(".cb-use-uniref").click(function() {
+            if (this.checked) {
+                $(".fraction").val("1");
+            }
+        });
+
+        $(".fraction").on("input", function() {
+            if (this.value != "1") {
+                $(".cb-use-uniref").prop("checked", false);
+            }
+        });
+
     }).tooltip();
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
@@ -799,22 +799,6 @@ SSN utility as well as the EFI-GNT tool.
 <?php require_once('inc/footer.inc.php'); ?>
 
 <?php
-
-function showAdminCode($id, $userGroups, $showJobGroups) {
-    if (!$showJobGroups)
-        return;
-
-    $func = function($val) { return "<option>$val</option>"; };
-    $groupList = implode("", array_map($func, $userGroups));
-    if ($groupList) {
-        echo <<<HTML
-<div style="margin:20px 0">
-    Optional job group: <select id="$id">$groupList</select>
-</div>
-HTML;
-    }
-}
-
 
 function outputJobList($jobs) {
     echo <<<HTML
