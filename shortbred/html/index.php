@@ -9,7 +9,7 @@ $user_email = "Enter your e-mail address";
 $IsLoggedIn = false;
 $show_previous_jobs = false;
 $jobs = array();
-$user_groups = array();
+$training_jobs = array();
 $IsAdminUser = false;
 
 if (settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
@@ -19,22 +19,11 @@ if (settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
 
     $job_manager = new job_manager($db, job_types::Identify);
     $jobs = $job_manager->get_jobs_by_user($user_token);
-    $show_previous_jobs = count($jobs) > 0;
+    $training_jobs = $job_manager->get_training_jobs($user_token);
+    $show_previous_jobs = count($jobs) > 0 || count($training_jobs) > 0;
 
     if ($user_email)
         $IsLoggedIn = $user_email;
-
-//    $userJobs = new user_jobs();
-//    $userJobs->load_jobs($db, user_jobs::get_user_token());
-//    $jobs = $userJobs->get_jobs();
-//    $jobEmail = $userJobs->get_email();
-//    if ($jobEmail)
-//        $user_email = $jobEmail;
-//    $show_previous_jobs = count($jobs) > 0;
-//    if ($user_email)
-//        $IsLoggedIn = $user_email;
-//    $user_groups = $userJobs->get_groups();
-//    $IsAdminUser = $userJobs->is_admin();
 }
 
 $showJobGroups = $IsAdminUser && global_settings::get_job_groups_enabled();
@@ -79,50 +68,23 @@ require_once "inc/header.inc.php";
                 </thead>
                 <tbody>
 <?php
-$last_bg_color = "#eee";
-for ($i = 0; $i < count($jobs); $i++) {
-    $key = $jobs[$i]["key"];
-    $id = $jobs[$i]["id"];
-    $name = $jobs[$i]["job_name"];
-    $is_completed = $jobs[$i]["is_completed"];
-    $date_completed = $jobs[$i]["date_completed"];
-    $is_active = $date_completed == "PENDING" || $date_completed == "RUNNING";
-
-    $link_start = "";
-    $link_end = "";
-    $name_style = "";
-    $id_field = $id;
-
-    if ($jobs[$i]["is_quantify"]) {
-        $quantify_id = $jobs[$i]["quantify_id"];
-        $title_str = "title=\"" . $jobs[$i]["full_job_name"] . "\"";
-        if ($is_completed) {
-            $link_start = "<a href=\"stepe.php?id=$id&key=$key&quantify-id=$quantify_id\" $title_str>";
-            $link_end = "</a>";
-        } else {
-            $link_start = "<span $title_str>";
-            $link_end = "</span>";
-        }
-        $name_style = "style=\"padding-left: 50px;\"";
-        $name = "[Quantify] " . $name;
-        $id_field = "";
-    } else {
-        $link_start = $is_active ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
-        $link_end = $is_active ? "" : "</a>";
-        if ($last_bg_color == "#fff")
-            $last_bg_color = "#eee";
-        else
-            $last_bg_color = "#fff";
-    }
-
-    echo <<<HTML
-                    <tr style="background-color: $last_bg_color">
-                        <td>$link_start${id_field}$link_end</td>
-                        <td $name_style>$link_start${name}$link_end</td>
-                        <td>$date_completed</td>
-                    </tr>
-HTML;
-}
+show_jobs($jobs);
+?>
+                </tbody>
+            </table>
+<?php } ?>
+            
+<?php if (count($training_jobs) > 0) { ?>
+            <h4>Training Jobs</h4>
+            <table class="pretty_nested">
+                <thead>
+                    <th class="id-col">ID</th>
+                    <th>Filename</th>
+                    <th class="date-col">Date Completed</th>
+                </thead>
+                <tbody>
+<?php
+show_jobs($training_jobs);
 ?>
                 </tbody>
             </table>
@@ -251,6 +213,59 @@ HTML;
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
 
-<?php require_once('inc/footer.inc.php'); ?>
 
+<?php
+
+function show_jobs($jobs) {
+    $last_bg_color = "#eee";
+    for ($i = 0; $i < count($jobs); $i++) {
+        $key = $jobs[$i]["key"];
+        $id = $jobs[$i]["id"];
+        $name = $jobs[$i]["job_name"];
+        $is_completed = $jobs[$i]["is_completed"];
+        $date_completed = $jobs[$i]["date_completed"];
+        $is_active = $date_completed == "PENDING" || $date_completed == "RUNNING";
+    
+        $link_start = "";
+        $link_end = "";
+        $name_style = "";
+        $id_field = $id;
+    
+        if ($jobs[$i]["is_quantify"]) {
+            $quantify_id = $jobs[$i]["quantify_id"];
+            $title_str = "title=\"" . $jobs[$i]["full_job_name"] . "\"";
+            if ($is_completed) {
+                $link_start = "<a href=\"stepe.php?id=$id&key=$key&quantify-id=$quantify_id\" $title_str>";
+                $link_end = "</a>";
+            } else {
+                $link_start = "<span $title_str>";
+                $link_end = "</span>";
+            }
+            $name_style = "style=\"padding-left: 50px;\"";
+            $name = "[Quantify] " . $name;
+            $id_field = "";
+        } else {
+            $link_start = $is_active ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
+            $link_end = $is_active ? "" : "</a>";
+            if ($last_bg_color == "#fff")
+                $last_bg_color = "#eee";
+            else
+                $last_bg_color = "#fff";
+        }
+    
+        echo <<<HTML
+                    <tr style="background-color: $last_bg_color">
+                        <td>$link_start${id_field}$link_end</td>
+                        <td $name_style>$link_start${name}$link_end</td>
+                        <td>$date_completed</td>
+                    </tr>
+HTML;
+    }
+}
+
+
+require_once('inc/footer.inc.php');
+
+
+?>
 

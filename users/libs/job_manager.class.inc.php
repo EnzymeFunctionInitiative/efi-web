@@ -9,23 +9,36 @@ class job_manager {
     private $auth_db_name = "";
     private $est_db_name = "";
     private $gnt_db_name = "";
+    private $shortbred_db_name = "";
     private $db = "";
     private $est_jobs = array();
     private $gnt_jobs = array();
+    private $shortbred_jobs = array();
 
     
-    function __construct($db, $auth_db_name, $est_db_name, $gnt_db_name) {
+    function __construct($db, $auth_db_name, $est_db_name, $gnt_db_name, $shortbred_db_name) {
         $this->est_db_name = $est_db_name; // should include db name: efi_est_dev.generate
         $this->gnt_db_name = $gnt_db_name; // should include db name: efi_gnt_dev.generate
+        $this->shortbred_db_name = $shortbred_db_name; // should include db name: efi_shortbred_dev.generate
         $this->auth_db_name = $auth_db_name; // user_auth db
         $this->db = $db;
         $this->get_est_jobs();
         $this->get_gnt_jobs();
+        $this->get_shortbred_jobs();
     }
 
 
     public static function update_job_group($db, $db_name, $job_ids, $user_group, $type, $do_update) {
-        $col = $type == "est" ? "generate_id" : ($type == "gnt" ? "gnn_id" : "");
+
+        $col = "";
+        if ($type == "est") {
+            $col = "generate_id";
+        } elseif ($type == "gnt") {
+            $col = "gnn_id";
+        } elseif ($type == "shortbred") {
+            $col = "identify_id";
+        }
+
         if (!$col)
             return false;
 
@@ -93,7 +106,7 @@ class job_manager {
             $key = $result["${table}_key"];
             $id = $result["${table}_id"];
             $info = "";
-            if ($table == "gnn") {
+            if ($table == "gnn" || $table == "identify") {
                 $info = substr($result["${table}_filename"], 0, 40);
             } else {
                 $type = $result["generate_type"];
@@ -160,6 +173,37 @@ class job_manager {
         return true;
     }
 
+    
+    private function get_shortbred_jobs() {
+        $auth_db = $this->auth_db_name; 
+        $dbn = $this->shortbred_db_name;
+        $col_email = "$dbn.identify.identify_email";
+        $col_key = "$dbn.identify.identify_key";
+        $col_id = "$dbn.identify.identify_id";
+        $col_status = "$dbn.identify.identify_status";
+        $col_time_created = "$dbn.identify.identify_time_created";
+        $col_time_started = "$dbn.identify.identify_time_started";
+        $col_time_completed = "$dbn.identify.identify_time_completed";
+        $col_filename = "$dbn.identify.identify_filename";
+
+        $cols = implode(",", array($col_id, $col_key, $col_email, $col_status, $col_time_created,
+            $col_time_started, $col_time_completed, $col_filename));
+
+        $sql = "SELECT $cols FROM $dbn.identify " . 
+            "JOIN $auth_db.user_token ON $dbn.identify.identify_email = $auth_db.user_token.user_email " .
+            "WHERE $auth_db.user_token.user_admin = 1 ORDER BY $col_id DESC";
+
+        $rows = $this->db->query($sql);
+
+        if (!$rows) {
+            return false;
+        }
+
+        $this->shortbred_jobs = $this->get_jobs($rows, "identify", $dbn);
+
+        return true;
+    }
+
 
     public function get_all_est_job_ids() {
         return $this->get_all_job_ids($this->est_jobs, false);
@@ -169,12 +213,20 @@ class job_manager {
         return $this->get_all_job_ids($this->gnt_jobs, false);
     }
 
+    public function get_all_shortbred_job_ids() {
+        return $this->get_all_job_ids($this->shortbred_jobs, false);
+    }
+
     public function get_grouped_est_job_ids() {
         return $this->get_all_job_ids($this->est_jobs, true);
     }
 
     public function get_grouped_gnt_job_ids() {
         return $this->get_all_job_ids($this->gnt_jobs, true);
+    }
+
+    public function get_grouped_shortbred_job_ids() {
+        return $this->get_all_job_ids($this->shortbred_jobs, true);
     }
 
     private function get_all_job_ids($data, $grouped_only = false) {
@@ -198,6 +250,10 @@ class job_manager {
 
     public function get_gnt_job_by_id($job_id) {
         return $this->get_job_by_id($job_id, $this->gnt_jobs);
+    }
+
+    public function get_shortbred_job_by_id($job_id) {
+        return $this->get_job_by_id($job_id, $this->shortbred_jobs);
     }
 
     private function get_job_by_id($job_id, $data) {

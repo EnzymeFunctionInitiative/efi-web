@@ -30,11 +30,16 @@ class identify extends job_shared {
     }
 
     public static function create($db, $email, $tmp_filename, $filename, $jobGroup) {
-        $info = self::create_shared($db, $email, $tmp_filename, $filename, "");
+        $info = self::create_shared($db, $email, $tmp_filename, $filename, "", false);
         return $info;
     }
 
-    private static function create_shared($db, $email, $tmp_filename, $filename, $parent_id) {
+    // $parent_id > 0 and $true_copy = true makes a true copy of the job in the database (i.e. no
+    // identify step is run at all, no SSN is provided).
+    //
+    // $parent_id > 0 and $true_copy = false creates a new job based
+    // on the parent job, but re-runs parts of the identify step with the new SSN. 
+    private static function create_shared($db, $email, $tmp_filename, $filename, $parent_id, $true_copy) {
 
         // Sanitize filename
         $filename = preg_replace("([^a-zA-Z0-9\-_\.])", '', $filename);
@@ -45,16 +50,20 @@ class identify extends job_shared {
             'identify_email' => $email,
             'identify_key' => $key,
             'identify_filename' => $filename,
-            'identify_status' => __NEW__,
+            'identify_status' => $status,
             'identify_time_created' => self::get_current_time(),
         );
-        if ($parent_id)
+        if ($true_copy && $parent_id)
+            $insert_array['identify_copy_id'] = $parent_id;
+        elseif ($parent_id)
             $insert_array['identify_parent_id'] = $parent_id;
 
         $new_id = $db->build_insert('identify', $insert_array);
 
-        if ($new_id) {	
-            global_functions::copy_to_uploads_dir($tmp_filename, $filename, $new_id);
+        if ($new_id) {
+            if (!$parent_id || $tmp_filename) {
+                global_functions::copy_to_uploads_dir($tmp_filename, $filename, $new_id);
+            }
         } else {
             return false;
         }
@@ -64,13 +73,27 @@ class identify extends job_shared {
         return $info;
     }
 
+    private static function get_create_args($email, $filename, $parent_id, $true_copy) {
+    }
+
     public static function create_update_ssn($db, $email, $tmp_filename, $filename, $parent_id, $parent_key) {
         $sql = "SELECT * FROM identify WHERE identify_id='$parent_id' AND identify_key='$parent_key'";
         $result = $db->query($sql);
         if (!$result)
             return false;
+        $info = self::create_shared($db, $email, $tmp_filename, $filename, $parent_id, false);
+        return $info;
+    }
 
-        $info = self::create_shared($db, $email, $tmp_filename, $filename, $parent_id);
+    public static function create_copy($db, $email, $parent_id, $parent_key) {
+        $sql = "SELECT * FROM identify WHERE identify_id='$parent_id' AND identify_key='$parent_key'";
+        $result = $db->query($sql);
+        if (!$result)
+            return false;
+        
+        $filename = $result[0]["identify_filename"];
+
+        $info = self::create_shared($db, $email, "", $filename, $parent_id, true);
         return $info;
     }
 
@@ -118,15 +141,18 @@ class identify extends job_shared {
             global_functions::rrmdir($out_dir);
         }
 
-        if (!$this->is_debug && !file_exists($out_dir)) {
-            mkdir($out_dir);
-            chdir($out_dir);
-            copy($ssn_path, $target_ssn_path);
+        $parent_id = $this->get_parent_id();
+
+        if (!$this->is_debug) {
+            if ((!$parent_id || file_exists($ssn_path)) && !file_exists($out_dir)) {
+                mkdir($out_dir);
+                chdir($out_dir);
+                copy($ssn_path, $target_ssn_path);
+            }
         }
 
         $sched = settings::get_cluster_scheduler();
         $queue = settings::get_normal_queue();
-        $parent_id = $this->get_parent_id();
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";

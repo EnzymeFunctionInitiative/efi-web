@@ -28,6 +28,8 @@ define("__EFI_GNT_GNN_TABLE__","");
 define("__EFI_GNT_DIAGRAM_TABLE__","");
 define("__EFI_EST_DB_NAME__","");
 define("__EFI_EST_TABLE__","");
+define("__EFI_SHORTBRED_DB_NAME__","");
+define("__EFI_SHORTBRED_TABLE__","");
 
 //
 // UI PARAMETERS
