@@ -146,7 +146,6 @@ require_once "inc/header.inc.php";
 <p><a href="download_files.php?type=cdhit&<?php echo $id_query_string; ?>">Download CD-HIT mapping file (formatted as a table).</a></p>
  */ ?>
 
-<?php if ($is_submittable) { ?>
 <h3>Select Metagenomes from the Human Microbiome Project</h3>
 
 <p>
@@ -195,13 +194,16 @@ TX and Washington University in St. Louis, MO. More information about the Sample
 <div id="error-message" style="color: red"></div>
 
 <center>
+<?php if ($is_submittable) { ?>
 <button class="dark" type="button" name="submit" id="quantify-submit"
     onclick="submitQuantify('quantify-params', 'search_to', 'error-message', '<?php echo $id; ?>', '<?php echo $key; ?>')">Quantify Markers</button>
+<?php } else { // is submittable ?>
+<button class="dark" type="button" name="submit">Quantify Markers (inactive for training jobs)</button>
+<?php } ?>
 </center>
 
 </form>
 
-<?php } // is submittable ?>
 
 <?php
 if (count($q_jobs)) {
@@ -221,7 +223,7 @@ if (count($child_data)) {
 
 ?>
 
-<?php if ($is_submittable && $user_email) { ?>
+<?php if ($user_email) { ?>
 
 <hr>
 <h3>Upload SSN with Different Alignment Score</h3>
@@ -239,12 +241,19 @@ Identify and Quantify data.
     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
 </div>
 <center>
-    <div><button type="button" id='ssn_submit' name="ssn_submit" class="dark"
+    <div>
+<?php if ($is_submittable) { ?>
+        <button type="button" id='ssn_submit' name="ssn_submit" class="dark"
             onclick="uploadAlignmentScoreUpdateSSN('ssn_file','upload_form','progress_number','progress_bar','ssn_message','<?php echo $user_email; ?>',<?php echo $id; ?>,'<?php echo $key; ?>')"
             >
-<!--onclick="alert('You’re Gonna Need A Bigger Boat if you want to run that SSN.')"-->
                 Upload SSN
-        </button></div>
+        </button>
+<?php } else { // is submittable ?>
+        <button type="button" id='ssn_submit' name="ssn_submit" class="dark">
+            Upload SSN (inactive for training jobs)
+        </button>
+<?php } ?>
+    </div>
     <div><progress id='progress_bar' max='100' value='0'></progress></div>
     <div id="progress_number"></div>
 </center>
