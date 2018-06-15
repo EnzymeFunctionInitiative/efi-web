@@ -7,6 +7,10 @@ require_once("../../includes/login_check.inc.php");
 $user_mgr = new user_manager($db);
 $user_ids = $user_mgr->get_user_ids();
 $all_groups = $user_mgr->get_group_names();
+$user_est = $user_mgr->get_user_stats(__EFI_EST_DB_NAME__, __EFI_EST_TABLE__);
+$user_gnt = $user_mgr->get_user_stats(__EFI_GNT_DB_NAME__, __EFI_GNT_GNN_TABLE__);
+$user_diagrams = $user_mgr->get_user_stats(__EFI_GNT_DB_NAME__, __EFI_GNT_DIAGRAM_TABLE__);
+$user_shortbred = $user_mgr->get_user_stats(__EFI_SHORTBRED_DB_NAME__, __EFI_SHORTBRED_TABLE__);
 
 require_once("inc/header.inc.php");
 
@@ -22,6 +26,7 @@ require_once("inc/header.inc.php");
         <th class="id-col">Email</th>
         <th>Group(s)</th>
         <th>Status</th>
+        <th># Jobs</th>
         <th>Actions</th>
     </thead>
     <tbody>
@@ -32,12 +37,14 @@ for ($i = 0; $i < count($user_ids); $i++) {
     $user = $user_mgr->get_user($user_id);
     $user_email = $user["email"];
     $user_status = $user["status"];
+    $num_jobs = count_jobs($user_email, $user_est, $user_gnt, $user_diagrams, $user_shortbred);
     $groups = implode(", ", $user["group"]);
     echo <<<ROW
         <tr>
             <td>$user_email</td>
             <td>$groups</td>
             <td>$user_status</td>
+            <td>$num_jobs</td>
             <td><input type="checkbox" name="sel-user-id" value="$user_id"></td>
         </tr>
 
@@ -167,6 +174,23 @@ $(document).ready(function() {
 
 </script>
 
+
+<?php
+
+function count_jobs($email, $est, $gnt, $diagrams, $shortbred) {
+    $num_jobs = 0;
+    if (isset($est[$email]))
+        $num_jobs += $est[$email];
+    if (isset($gnt[$email]))
+        $num_jobs += $gnt[$email];
+    if (isset($diagrams[$email]))
+        $num_jobs += $diagrams[$email];
+    if (isset($shortbred[$email]))
+        $num_jobs += $shortbred[$email];
+
+    return $num_jobs;
+}
+?>
 
 <?php require_once("inc/footer.inc.php"); ?>
 

@@ -270,6 +270,25 @@ class user_manager {
         }
     }
 
+
+    public function get_user_stats($db_name, $table_name) {
+        $stats = array();
+
+        $email_col = "${table_name}_email";
+
+        $sql = "SELECT COUNT(*) AS count, $email_col FROM $db_name.$table_name GROUP BY $email_col";
+        $results = $this->db->query($sql);
+        if (!$results)
+            return $stats;
+
+        foreach ($results as $row) {
+            $stats[$row[$email_col]] = $row["count"];
+        }
+
+        return $stats;
+    }
+
+
     private static function mysql_date($dt) {
         $dt_str = date_format($dt, "Y-m-d H:i:s");
         return $dt_str;
