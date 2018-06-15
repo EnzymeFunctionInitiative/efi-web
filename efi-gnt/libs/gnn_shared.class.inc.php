@@ -19,7 +19,7 @@ class gnn_shared extends arrow_api {
 
         // Sanitize the filename
         if (!$est_job_id)
-            $filename = preg_replace("([\._]{2,})", '', preg_replace("([^a-zA-Z0-9\-_\.])", '', $this->filename));
+            $filename = preg_replace("([\._]{2,})", '', preg_replace("([^a-zA-Z0-9\-_\.])", '', $filename));
 
         $result = false;
         $key = global_functions::generate_key();

@@ -192,6 +192,9 @@ class functions extends global_functions {
         else
             return false;
 
+        if (!$analysis_id)
+            return false;
+
         $est_db = settings::get_est_database();
         $sql = "SELECT analysis.*, generate_key FROM $est_db.analysis " .
             "JOIN $est_db.generate ON generate_id = analysis_generate_id " .
