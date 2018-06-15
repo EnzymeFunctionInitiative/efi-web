@@ -32,6 +32,7 @@ class gnn extends gnn_shared {
     protected $status;
     protected $beta;
     protected $is_legacy = false;
+    protected $est_id = 0; // gnn_source_id, we use the EST job with this analysis ID
 
     ///////////////Public Functions///////////
 
@@ -64,52 +65,13 @@ class gnn extends gnn_shared {
     public function get_gnn_edges() { return $this->gnn_edges; }
 
     public function get_full_path() {
-        $uploads_dir = settings::get_uploads_dir();
-        return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->filename, PATHINFO_EXTENSION);
+        if ($this->est_id) {
+            return $this->filename; // if we are originating from an EST job, this field contains the full filename.
+        } else {
+            $uploads_dir = settings::get_uploads_dir();
+            return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->filename, PATHINFO_EXTENSION);
+        }
     }
-
-//    public static function create2($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup) {
-//        return self::create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup);
-//    }
-//
-//    private static function create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $jobGroup) {
-//        $result = false;
-//        $key = self::generate_key();
-//        $insert_array = array(
-//            'gnn_email' => $email,
-//            'gnn_size' => $size,
-//            'gnn_key' => $key,
-//            'gnn_filename' => $filename,
-//            'gnn_cooccurrence' => $cooccurrence,
-//            'gnn_status' => __NEW__);
-//        $result = $db->build_insert('gnn',$insert_array);
-//        if ($result) {	
-//            functions::copy_to_uploads_dir($tmp_filename, $filename, $result);
-//        } else {
-//            return false;
-//        }
-//        $info = array('id' => $result, 'key' => $key);
-//
-//        if ($jobGroup && $jobGroup != settings::get_default_group_name()) {
-//            $jobGroup = preg_replace("/[^A-Za-z0-9]/", "", $jobGroup);
-//            $insertArray = array(
-//                'gnn_id' => $result,
-//                'user_group' => $jobGroup,
-//            );
-//            $jobGroupResult = $db->build_insert('job_group', $insertArray);
-//            //TODO: check result and do something if it fails? It's not critical.
-//        }
-//
-//        return $info;
-//    }
-//
-//    public static function create($db, $email, $size, $tmp_filename, $filename, $cooccurrence) {
-//        $info = create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, "");
-//        if ($info === false)
-//            return 0;
-//        else
-//            return $info['id'];
-//    }
 
     public function unzip_file() { 
         $file = $this->get_full_path();
@@ -273,6 +235,9 @@ class gnn extends gnn_shared {
                 $this->set_time_started();
                 $this->email_started();
                 $this->set_status(__RUNNING__);
+                if ($this->est_id) {
+                    $this->update_est_job_file_field($ssnin);
+                }
             }
 
             //TODO: remove this debug message
@@ -292,10 +257,6 @@ class gnn extends gnn_shared {
 
         $this->set_status(__FINISH__);
         $this->set_time_completed();
-
-        if (functions::is_migrated_job($this->db, $this->id)) {
-            functions::update_migrated_status($this->db, $this->id, $this->key, __FINISH__);
-        }
 
         $this->email_complete();
     }
@@ -687,35 +648,38 @@ class gnn extends gnn_shared {
         $sql = "SELECT * FROM gnn WHERE gnn_id='" . $id . "' LIMIT 1";
         $result = $this->db->query($sql);
         if ($result) {
-            $this->id = $result[0]['gnn_id'];
-            $this->email = $result[0]['gnn_email'];
-            $this->key = $result[0]['gnn_key'];
-            $this->size = $result[0]['gnn_size'];
-            $this->cooccurrence = $result[0]['gnn_cooccurrence'];
-            $this->filename = $result[0]['gnn_filename'];
-            $this->time_created = $result[0]['gnn_time_created'];
-            $this->time_started = $result[0]['gnn_time_started'];
-            $this->time_completed = $result[0]['gnn_time_completed'];
-            $this->ssn_nodes = $result[0]['gnn_ssn_nodes'];
-            $this->ssn_edges = $result[0]['gnn_ssn_edges'];
-            $this->gnn_nodes = $result[0]['gnn_gnn_nodes'];
-            $this->gnn_edges = $result[0]['gnn_gnn_edges'];
-            $this->gnn_pfams = $result[0]['gnn_gnn_pfams'];
-            $this->pbs_number = $result[0]['gnn_pbs_number'];
-            $this->status = $result[0]['gnn_status'];
+            $result = $result[0];
+            $this->id = $result['gnn_id'];
+            $this->email = $result['gnn_email'];
+            $this->key = $result['gnn_key'];
+            $this->size = $result['gnn_size'];
+            $this->cooccurrence = $result['gnn_cooccurrence'];
+            $this->filename = $result['gnn_filename'];
+            $this->time_created = $result['gnn_time_created'];
+            $this->time_started = $result['gnn_time_started'];
+            $this->time_completed = $result['gnn_time_completed'];
+            $this->ssn_nodes = $result['gnn_ssn_nodes'];
+            $this->ssn_edges = $result['gnn_ssn_edges'];
+            $this->gnn_nodes = $result['gnn_gnn_nodes'];
+            $this->gnn_edges = $result['gnn_gnn_edges'];
+            $this->gnn_pfams = $result['gnn_gnn_pfams'];
+            $this->pbs_number = $result['gnn_pbs_number'];
+            $this->status = $result['gnn_status'];
             $this->is_legacy = is_null($this->status);
+            if (isset($result['gnn_source_id']))
+                $this->est_id = $result['gnn_source_id'];
 
-            // Sanitize the filename
-            $this->filename = preg_replace("([\._]{2,})", '', preg_replace("([^a-zA-Z0-9\-_\.])", '', $this->filename));
+            $basefilename = $this->filename;
+            if ($this->est_id) {
+                $basefilename = pathinfo($basefilename, PATHINFO_BASENAME);
+            }
 
-            $fname = strtolower($this->filename);
+            $fname = strtolower($basefilename);
             $ext_pos = strpos($fname, ".xgmml");
             if ($ext_pos === false)
                 $ext_pos = strpos($fname, ".zip");
             if ($ext_pos !== false)
-                $this->basefilename = substr($this->filename, 0, $ext_pos);
-            else
-                $this->basefilename = $this->filename;
+                $this->basefilename = substr($basefilename, 0, $ext_pos);
 
             $this->set_diagram_data_file($this->shared_get_full_file_path("_arrow_data", ".sqlite"));
             $this->set_gnn_name($this->basefilename);
@@ -878,12 +842,19 @@ class gnn extends gnn_shared {
 
     public function get_pbs_number() { return $this->pbs_number; }
 
-        public function set_pbs_number($pbs_number) {
-            $sql = "UPDATE gnn SET gnn_pbs_number='" . $pbs_number . "' ";
-            $sql .= "WHERE gnn_id='" . $this->get_id() . "' LIMIT 1";
-            $this->db->non_select_query($sql);
-            $this->pbs_number = $pbs_number;
-        }
+    public function set_pbs_number($pbs_number) {
+        $sql = "UPDATE gnn SET gnn_pbs_number='" . $pbs_number . "' ";
+        $sql .= "WHERE gnn_id='" . $this->get_id() . "' LIMIT 1";
+        $this->db->non_select_query($sql);
+        $this->pbs_number = $pbs_number;
+    }
+
+    public function update_est_job_file_field($full_ssn_path) {
+        $file_name = pathinfo($full_ssn_path, PATHINFO_BASENAME);
+        $sql = "UPDATE gnn SET gnn_filename='$file_name' ";
+        $sql .= "WHERE gnn_id='" . $this->get_id() . "' LIMIT 1";
+        $this->db->non_select_query($sql);
+    }
 
     public function check_pbs_running() {
         $sched = strtolower(settings::get_cluster_scheduler());

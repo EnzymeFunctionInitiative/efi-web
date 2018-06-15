@@ -670,10 +670,6 @@ class analysis {
         $message = $stepa->get_job_info();
         return $message;
     }
-
-    public function get_gnt_migrate_state() {
-        return false;
-    }
 }
 
 ?>

@@ -166,8 +166,11 @@ class settings extends global_settings {
         return defined("__MYSQL_EST_DATABASE__") ? __MYSQL_EST_DATABASE__ : "";
     }
 
-    public static function get_migrate_table() {
-        return defined("__MYSQL_MIGRATE_TABLE__") ? __MYSQL_MIGRATE_TABLE__ : "";
+    public static function get_est_output_dir() {
+        if (is_dir(__EST_OUTPUT_DIR__)) {
+            return __EST_OUTPUT_DIR__;
+        }
+        return false;
     }
 }
 ?>
