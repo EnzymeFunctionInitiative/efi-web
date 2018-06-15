@@ -24,9 +24,30 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         $file_type = strtolower(pathinfo($_FILES['file']['name'],PATHINFO_EXTENSION));
     }
 
+    $est_analysis_id = "";
+    $est_file_path = ""; // relative to the EST job dir
+    $est_file_Name = "";
     if (!isset($_FILES['file'])) {
-        $valid = 0;
-        $message .= "<br><b>Please select a file to upload</b>";
+        if (isset($_POST["est-id"]) && isset($_POST["est-key"]) && isset($_POST["est-ssn"])) {
+            $the_aid = $_POST["est-id"];
+            $the_key = $_POST["est-key"];
+            $the_idx = $_POST["est-ssn"];
+
+            $job_info = functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
+            if ($job_info !== false) {
+                $est_file_info = functions::get_est_filename($job_info, $the_aid, $the_idx);
+                if ($est_file_info !== false) {
+                    $est_analysis_id = $job_info["analysis_id"];
+                    $est_file_path = $est_file_info["full_ssn_path"];
+                    $est_file_name = $est_file_info["filename"];
+                }
+            }
+        }
+
+        if (!$est_analysis_id) {
+            $valid = 0;
+            $message .= "<br><b>Please select a file to upload</b>";
+        }
     }
     elseif (isset($_FILES['file']['error']) && ($_FILES['file']['error'] != 0)) {
         $valid = 0;
@@ -48,10 +69,13 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     }
 
     $email = $_POST['email'];
-    $jobGroup = isset($_POST['job-group']) ? $_POST['job-group'] : '';
 
     if ($valid) {
-        $gnnInfo = gnn::create2($db, $email, $_POST['neighbor_size'], $cooccurrence, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $jobGroup);
+        if ($est_analysis_id) {
+            $gnnInfo = gnn::create_from_est_job($db, $email, $_POST['neighbor_size'], $cooccurrence, $est_file_path, $est_analysis_id);
+        } else {
+            $gnnInfo = gnn::create2($db, $email, $_POST['neighbor_size'], $cooccurrence, $_FILES['file']['tmp_name'], $_FILES['file']['name']);
+        }
         if ($gnnInfo === false) {
             $valid = false;
         } else {

@@ -1,6 +1,6 @@
 <?php
 require_once "../libs/user_jobs.class.inc.php";
-require_once "../libs/ui.class.inc.php";
+require_once "../../libs/ui.class.inc.php";
 require_once "../includes/main.inc.php";
 
 $userEmail = "Enter your e-mail address";
@@ -37,6 +37,32 @@ for ($i=3;$i<=20;$i++) {
         $neighbor_size_html .= "<option value='" . $i . "'>" . $i . "</option>";
 }
 
+
+$est_id = "";
+$est_key = "";
+$est_file_name = "";
+$est_file_index = "";
+$submit_est_args = "";
+if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])) {
+    $the_aid = $_GET["est-id"];
+    $the_key = $_GET["est-key"];
+    $the_idx = $_GET["est-ssn"];
+
+    $job_info = functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
+    if ($job_info !== false) {
+        $est_file_info = functions::get_est_filename($job_info, $the_aid, $the_idx);
+        if ($est_file_info !== false) {
+            $est_id = $job_info["generate_id"];
+            $est_key = $the_key;
+            $est_file_index = $the_idx;
+            $est_file_name = $est_file_info["filename"];
+
+            $submit_est_args = "'$the_aid','$the_key','$the_idx'";
+        }
+    }
+}
+
+
 $updateMessage = functions::get_update_message();
 
 require_once "inc/header.inc.php";
@@ -70,7 +96,7 @@ A listing of new features and other information pertaining to GNT is available o
 
     <div class="tab-content">
 <?php if ($showPreviousJobs) { ?>
-        <div id="jobs" class="tab active">
+        <div id="jobs" class="tab <?php echo $est_id ? "" : "active"; ?>">
 <?php } ?>
 <?php if (count($gnnJobs) > 0) { ?>
             <h4>GNN Jobs</h4>
@@ -191,7 +217,7 @@ HTML;
         </div>
 <?php } ?>
 
-        <div id="create" class="tab">
+        <div id="create" class="tab <?php echo $est_id ? "active" : ""; ?>">
             <p>
             <strong class="blue">Upload the Sequence Similarity Network (SSN) for which you want to create a Genome Neighborhood Network (GNN)</strong>
             </p>
@@ -201,11 +227,11 @@ HTML;
             of <a href='http://efi.igb.illinois.edu/efi-est'>EFI-EST <?php echo settings::get_est_version(); ?></a> (released 8/16/2017) to be interpreted.
             <br>The SSNs generated with these Options can be modified in Cytoscape.
             </p>
-    
+
             <form name="upload_form" id='upload_form' method="post" action="" enctype="multipart/form-data">
     
                 <p>
-                <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml."); ?>
+                <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", "", $est_file_name); ?>
                 </p>
     
                 <p>
@@ -238,12 +264,24 @@ HTML;
                 </div>
                 <center>
                     <div><button type="button" id='ssn_submit' name="ssn_submit" class="dark"
-                            onclick="uploadFile('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit','ssn_job_group',true)">
+<?php if ($est_id) {?>
+                            onclick="submitEstJob('upload_form','ssn_message','ssn_email','ssn_submit',<?php echo $submit_est_args; ?>)"
+<?php } else { ?>
+                            onclick="uploadSsn('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit')"
+<?php } ?>
+                            >
                                 Generate GNN
                         </button></div>
                     <div><progress id='progress_bar' max='100' value='0'></progress></div>
                     <div id="progress_number"></div>
                 </center>
+
+<?php /* if ($est_id) {?>
+<input type="hidden" name="est-id" value="<?php echo $est_id; ?>">
+<input type="hidden" name="est-key" value="<?php echo $est_key; ?>">
+<input type="hidden" name="est-ssn" value="<?php echo $est_file_index; ?>">
+<?php } */ ?>
+    
             </form>
         </div>
 
@@ -265,7 +303,7 @@ HTML;
                 </div>
                 <center>
                     <div><button type="button" id="diagram_submit" name="submit" class="dark"
-                                onclick="uploadFile('diagram_file','upload_diagram_form','progress_number_diagram','progress_bar_diagram','diagram_message','diagram_email','diagram_submit','diagram_job_group',false)">
+                                onclick="uploadDiagramFile('diagram_file','upload_diagram_form','progress_number_diagram','progress_bar_diagram','diagram_message','diagram_email','diagram_submit')">
                             Upload Diagram Data</button>
                     </div>
                     <div><progress id="progress_bar_diagram" max="100" value="0"></progress></div>
@@ -385,8 +423,7 @@ HTML;
                             <button type="button" class="dark"
                                             onclick="submitOptionAForm('create_diagram.php', 'option-a-option', 'option-a-input',
                                                                        'option-a-title', 'option-a-evalue', 'option-a-max-seqs',
-                                                                       'option-a-email', 'option-a-nb-size', 'option-a-message',
-                                                                       'option-a-job-group');"
+                                                                       'option-a-email', 'option-a-nb-size', 'option-a-message');"
                                 >Submit</button>
                         </center>
                     </form>
@@ -462,8 +499,7 @@ HTML;
                             <button type="button" class="dark"
                                             onclick="submitOptionDForm('create_diagram.php', 'option-d-option', 'option-d-input',
                                                 'option-d-title', 'option-d-email', 'option-d-nb-size', 'option-d-file',
-                                                'option-d-progress-number', 'option-d-progress-bar', 'option-d-message',
-                                                'option-d-job-group');"
+                                                'option-d-progress-number', 'option-d-progress-bar', 'option-d-message');"
                                 >Submit</button>
                             <div><progress id="option-d-progress-bar" max="100" value="0"></progress></div>
                             <div id="option-d-progress-number"></div>
@@ -541,8 +577,7 @@ HTML;
                             <button type="button" class="dark"
                                             onclick="submitOptionCForm('create_diagram.php', 'option-c-option', 'option-c-input',
                                                 'option-c-title', 'option-c-email', 'option-c-nb-size', 'option-c-file',
-                                                'option-c-progress-number', 'option-c-progress-bar', 'option-c-message',
-                                                'option-c-job-group');"
+                                                'option-c-progress-number', 'option-c-progress-bar', 'option-c-message');"
                                 >Submit</button>
                             <div><progress id="option-c-progress-bar" max="100" value="0"></progress></div>
                             <div id="option-c-progress-number"></div>

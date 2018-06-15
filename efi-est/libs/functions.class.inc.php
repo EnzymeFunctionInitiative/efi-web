@@ -150,51 +150,18 @@ class functions {
             return false;
     }
 
-    public static function add_migrate_job($db, $data) {
-        $table_name = "migrate_gnt";
+    public static function get_gnt_migrate_info($db, $analysis_id) {
+        $db_name = self::get_gnt_database();
+        if (!$db_name)
+            return false;
 
-        $job = new analysis($db, $data["analysis_id"]);
-        $stats = $job->get_network_stats();
-
-        $rel_path = "";
-        for ($i = 0; $i < count($stats); $i++) {
-            if ($stats[$i]["PctId"] == $data["network"]) {
-                $rel_path = $stats[$i]["RelPath"];
-                break;
-            }
-        }
-
-        if (!$rel_path) {
-            return 0;
-        }
-
-        $file_path = functions::get_results_dir() . "/" . $rel_path;
-
-        $insert_array = array(
-            "migrate_generate_id" => $data["generate_id"],
-            "migrate_analysis_id" => $data["analysis_id"],
-            "migrate_generate_key" => $data["key"],
-            "migrate_email" => $data["email"],
-            "migrate_status" => __NEW__,
-            "migrate_size" => $data["size"],
-            "migrate_cooccurrence" => $data["cooccurrence"],
-            "migrate_file" => $file_path,
-        );
-
-        $insert_result = $db->build_insert($table_name, $insert_array);
-
-        return $insert_result;
-    }
-
-    public static function get_gnt_migrate_info($db, $generate_id, $analysis_id) {
-        $sql = "SELECT * FROM migrate_gnt WHERE migrate_generate_id = $generate_id AND migrate_analysis_id = $analysis_id";
+        $sql = "SELECT gnn_id, gnn_key FROM $db_name.gnn WHERE gnn_source_id = $analysis_id";
         $result = $db->query($sql);
         if ($result) {
             $info = array();
             $result = $result[0];
-            $info["status"] = $result["migrate_status"];
-            $info["gnn_id"] = $result["migrate_gnn_id"];
-            $info["gnn_key"] = $result["migrate_gnn_key"];
+            $info["gnn_id"] = $result["gnn_id"];
+            $info["gnn_key"] = $result["gnn_key"];
             return $info;
         } else {
             return false;
@@ -614,6 +581,10 @@ class functions {
 
     public static function file_size_graph_enabled() {
         return defined("__FILE_SIZE_GRAPH_ENABLED__") ? __FILE_SIZE_GRAPH_ENABLED__ : false;
+    }
+
+    public static function get_gnt_database() {
+        return defined("__MYSQL_GNT_DATABASE__") ? __MYSQL_GNT_DATABASE__ : "";
     }
 }
 

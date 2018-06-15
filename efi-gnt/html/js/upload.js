@@ -2,57 +2,46 @@
 var DIAGRAM_UPLOAD = 0;
 var SSN_UPLOAD = 1;
 
-function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, jobGroupId, isSsn) {
+function submitEstJob(formId, messageId, emailId, submitId, estId, estKey, estSsn) {
+    uploadFileShared("", formId, "", "", messageId, emailId, submitId, true, estId, estKey, estSsn);
+}
+
+function uploadSsn(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId) {
+    uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, true, 0, "", 0);
+}
+
+function uploadDiagramFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId) {
+    uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, false, 0, "", 0);
+}
+
+function uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, isSsn, estId, estKey, estSsn) {
     var fd = new FormData();
     addParam(fd, "email", emailId);
     addParam(fd, "submit", submitId);
-    addParam(fd, "job-group", jobGroupId);
     if (isSsn) {
         addParam(fd, "neighbor_size", "neighbor_size");
-//        addParam(fd, "MAX_FILE_SIZE", "MAX_FILE_SIZE");
         addParam(fd, "cooccurrence", "cooccurrence");
     }
 
-    var files = document.getElementById(fileInputId).files;
     var completionHandler = function() { enableForm(formId); };
-    fd.append("file", files[0]);
-    var fileHandler = function(xhr) {
-        addUploadStuff(xhr, progressNumId, progressBarId);
-    };
+    var fileHandler = function(xhr) {};
+    if (estId) {
+        fd.append("est-id", estId);
+        fd.append("est-key", estKey);
+        fd.append("est-ssn", estSsn);
+    } else {
+        var files = document.getElementById(fileInputId).files;
+        fd.append("file", files[0]);
+        fileHandler = function(xhr) {
+            addUploadStuff(xhr, progressNumId, progressBarId);
+        };
+    }
 
     disableForm(formId);
     var script = isSsn ? "upload_ssn.php" : "upload_diagram.php";
 
     var uploadType = isSsn ? SSN_UPLOAD : DIAGRAM_UPLOAD;
     doFormPost(script, fd, messageId, fileHandler, uploadType, completionHandler);
-    
-//    var xhr = new XMLHttpRequest();
-//    addUploadStuff(xhr, progressNumId, progressBarId);
-//    xhr.open("POST", script, true);
-//    xhr.send(fd);
-//    xhr.onreadystatechange  = function(){
-//        if (xhr.readyState == 4  ) {
-//
-//            // Javascript function JSON.parse to parse JSON data
-//            var jsonObj = JSON.parse(xhr.responseText);
-//
-//            // jsonObj variable now contains the data structure and can
-//            // be accessed as jsonObj.name and jsonObj.country.
-//            if (jsonObj.valid) {
-//                var nextStepScript = "stepb.php";
-//                var diagUpload = isSsn ? "" : "&diagram=1";
-//                if (jsonObj.cookieInfo)
-//                    document.cookie = jsonObj.cookieInfo;
-//                window.location.href = nextStepScript + "?id=" + jsonObj.id + "&key=" + jsonObj.key + diagUpload;
-//            }
-//            if (jsonObj.message) {
-//                enableForm(formId);
-//                document.getElementById(messageId).innerHTML = jsonObj.message;
-//            }
-//
-//        }
-//    }
-
 }
 
 function addUploadStuff(xhr, progressNumId, progressBarId) {
@@ -109,7 +98,7 @@ function addParam(fd, param, id) {
         fd.append(param, elem.value);
 }
 
-function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId, jobGroupId) {
+function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId) {
 
     var fd = new FormData();
     addParam(fd, "option", optionId);
@@ -119,7 +108,6 @@ function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, max
     addParam(fd, "max-seqs", maxSeqId);
     addParam(fd, "nb-size", nbSizeId);
     addParam(fd, "email", emailId);
-    addParam(fd, "job-group", jobGroupId);
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
 
@@ -127,23 +115,22 @@ function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, max
 }
 
 
-function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, jobGroupId) {
-    submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, jobGroupId);
+function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId) {
+    submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId);
 }
 
 
-function submitOptionCForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, jobGroupId) {
-    submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, jobGroupId);
+function submitOptionCForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId) {
+    submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId);
 }
 
-function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, jobGroupId) {
+function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId) {
     var fd = new FormData();
     addParam(fd, "option", optionId);
     addParam(fd, "title", titleId);
     addParam(fd, inputField, inputId);
     addParam(fd, "nb-size", nbSizeId);
     addParam(fd, "email", emailId);
-    addParam(fd, "job-group", jobGroupId);
     var files = document.getElementById(fileId).files;
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};

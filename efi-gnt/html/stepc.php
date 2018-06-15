@@ -22,12 +22,12 @@ $baseUrl = settings::get_web_address();
 $gnnId = $gnn->get_id();
 $gnnKey = $gnn->get_key();
 $isMigrated = false;
-$migInfo = functions::get_migrated_est_info($db, $gnnId);
+$migInfo = functions::get_est_job_info($db, $gnnId);
 if ($migInfo !== false) {
     $isMigrated = true;
     $generateId = $migInfo["generate_id"];
     $analysisId = $migInfo["analysis_id"];
-    $generateKey = $migInfo["generate_key"];
+    $generateKey = $migInfo["key"];
     $estParams = "id=$generateId&key=$generateKey&analysis_id=$analysisId";
 }
 
@@ -322,7 +322,7 @@ require_once('inc/header.inc.php');
     <hr>
 
 <?php if ($isMigrated) { ?>
-    <a href="../efi-est/stepe.php?<?php echo $estParams; ?>">Go back to original SSN</a>
+    <a href="../efi-est/stepe.php?<?php echo $estParams; ?>"><button type="button" class="small light">Go back to original SSN</button></a>
 <?php } ?>
     
 
