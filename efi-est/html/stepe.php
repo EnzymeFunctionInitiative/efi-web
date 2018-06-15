@@ -233,7 +233,6 @@ else {
             $full_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Nodes'],0) . "</td>\n";
             $full_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
             $full_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($stats[$i]['Size'],0) . " MB</td>\n";
-            if (!$is_migrated)
                 $full_network_html .= "<td style='text-align:center;'><a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>Make GNN</button></a></td>\n";
             $full_network_html .= "</tr>";
             $network_sel_list["full"] = $rel_path;
@@ -263,7 +262,6 @@ else {
                 $rep_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
                 $rep_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($stats[$i]['Size'],0) . " MB</td>\n";
             }
-            if (!$is_migrated)
                 $rep_network_html .= "<td style='text-align:center;'><a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>Make GNN</button></a></td>\n";
             $rep_network_html .= "</tr>";
             $network_sel_list[$percent_identity] = $rel_path;
@@ -303,9 +301,7 @@ else {
         <th># Nodes</th>
         <th># Edges</th>
         <th>File Size (MB)</th>
-<?php if (!$is_migrated) {?>
         <th></th>
-<?php } ?>
     </tr>
     <?php echo $full_network_html; ?>
     </table>
@@ -331,9 +327,7 @@ else {
         <th># Nodes</th>
         <th># Edges</th>
         <th>File Size (MB)</th>
-<?php if (!$is_migrated) {?>
         <th></th>
-<?php } ?>
     </tr>
 
     <?php echo $rep_network_html; ?>

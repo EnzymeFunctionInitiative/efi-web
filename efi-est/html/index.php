@@ -142,9 +142,9 @@ the <a href="family_list.php">Family Information page</a>.
     if (count($tjobs)) {
         echo "            <h3>Training Jobs</h3>\n";
         outputJobList($tjobs);
-        echo "        </div>\n";
     }
 } ?>
+         </div>
 
 <?php if ($showTrainingJobsTab) {
     echo "        <div id=\"tjobs\" class=\"tab\">\n";

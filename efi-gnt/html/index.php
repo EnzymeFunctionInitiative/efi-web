@@ -86,9 +86,9 @@ A listing of new features and other information pertaining to GNT is available o
 <div class="tabs">
     <ul class="tab-headers">
 <?php if ($showPreviousJobs) { ?>
-        <li class="active"><a href="#jobs">Previous Jobs</a></li>
+        <li <?php if (!$est_id) echo "class=\"active\""; ?>><a href="#jobs">Previous Jobs</a></li>
 <?php } ?>
-        <li><a href="#create">Create GNN</a></li>
+        <li <?php if ($est_id) echo "class=\"active\""; ?>><a href="#create">Create GNN</a></li>
         <li><a href="#diagrams">View Saved Diagrams</a></li>
         <li><a href="#create-diagrams">Retrieve Neighborhoods</a></li>
         <li <?php if (! $showPreviousJobs) echo "class=\"active\""; ?>><a href="#tutorial">Tutorial</a></li>
