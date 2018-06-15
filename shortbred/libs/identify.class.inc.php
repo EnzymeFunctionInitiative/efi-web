@@ -45,6 +45,7 @@ class identify extends job_shared {
         $filename = preg_replace("([^a-zA-Z0-9\-_\.])", '', $filename);
 
         $key = functions::generate_key();
+        $status = $true_copy ? __FINISH__ : __NEW__;
         
         $insert_array = array(
             'identify_email' => $email,
