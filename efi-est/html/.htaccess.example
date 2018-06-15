@@ -1,6 +1,7 @@
+
 <Files *.xgmml>
-ForceType application/octet-stream
-Header set Content-Disposition attachment
+    ForceType application/octet-stream
+    Header set Content-Disposition attachment
 </Files>
 
 
