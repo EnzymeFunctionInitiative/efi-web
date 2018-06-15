@@ -1,7 +1,7 @@
 <?php
 
 if (!isset($TopLevelUrl))
-    $TopLevelUrl = "http://efi.igb.illinois.edu/efi-gnt/";
+    $TopLevelUrl = "http://efi.igb.illinois.edu/$SiteUrlPrefix/shortbred/";
 
 $title = "ShortBRED Utility";
 if (isset($ExtraTitle) && $ExtraTitle)
@@ -74,9 +74,7 @@ include("../../html/inc/global_nav.inc.php");
     <div id="container">
         <div class="header">
             <div class="header_logo">
-                A collaboration between the Institute for Genomic Biology (or should we say EFI?)
-                and the Huttenhower Lab at the Harvard T.H. Chan School of Public Health.
-                We need to make a collaborative logo.
+                <a href="<?php echo $TopLevelUrl; ?>"><img src="<?php echo $SiteUrlPrefix; ?>/shortbred/images/shortbred_efi_logo.png" alt="ShortBRED-EFI Logo" width="846" height="75"></a>
             </div>
         </div>
 
