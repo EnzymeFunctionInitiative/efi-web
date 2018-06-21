@@ -13,6 +13,7 @@ require_once("../../conf/settings_base.inc.php");
 //
 // PATHS
 define("__OUTPUT_DIR__","");
+define("__EST_OUTPUT_DIR__","");
 define("__DIAGRAM_OUTPUT_DIR__","");
 define("__LEGACY_OUTPUT_DIR__","");
 define("__UPLOAD_DIR__","");
@@ -34,6 +35,7 @@ define("__MYSQL_HOST__","");
 define("__MYSQL_USER__","");
 define("__MYSQL_PASSWORD__","");
 define("__MYSQL_DATABASE__","");
+define("__MYSQL_EST_DATABASE__","");
 define("__MYSQL_AUTH_DATABASE__","");
 
 //
@@ -67,5 +69,7 @@ define("__DEFAULT_NEIGHBORHOOD_SIZE__","10");
 // LEGACY
 define("__CLUSTER_USER__","");
 define("__CLUSTER_SCHEDULER__","local"); //local,torque,slurm
+
+define("__SYNC_KEYS__","");
 
 ?>

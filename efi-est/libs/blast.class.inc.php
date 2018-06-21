@@ -57,7 +57,7 @@ class blast extends family_shared {
         $insert_array = parent::get_insert_array($data);
         $insert_array['generate_blast_max_sequence'] = $data->max_seqs;
         $insert_array['generate_blast_evalue'] = $data->blast_evalue;
-        $formatted_blast = $this->format_blast($data->field_input);
+        $formatted_blast = self::format_blast($data->field_input);
         $insert_array['generate_blast'] = $formatted_blast;
         return $insert_array;
     }
@@ -65,6 +65,12 @@ class blast extends family_shared {
 
     protected function validate($data) {
         $result = parent::validate($data);
+
+        // Remove any header line
+        if (preg_match('/^>/', $data->field_input)) {
+            $parts = preg_split('/[\r\n]+/', $data->field_input);
+            $data->field_input = implode("", array_slice($parts, 1));
+        }
 
         if (($data->field_input != "") && (!$this->verify_blast_input($data->field_input))) {
             $result->errors = true;
@@ -153,7 +159,6 @@ class blast extends family_shared {
         }
         if (preg_match('/[^a-z-* \n\t\r]/',$blast_input)) {
             $valid = 0;
-
         }
         return $valid;
     }
@@ -165,8 +170,6 @@ class blast extends family_shared {
         $replace = "";
         $formatted_blast = str_ireplace($search,$replace,$blast_input);
         return $formatted_blast;
-
-
     }
 
     protected function verify_max_seqs($max_seqs) {

@@ -143,8 +143,10 @@ the <a href="family_list.php">Family Information page</a>.
         echo "            <h3>Training Jobs</h3>\n";
         outputJobList($tjobs);
     }
-} ?>
+?>
          </div>
+<?php
+} ?>
 
 <?php if ($showTrainingJobsTab) {
     echo "        <div id=\"tjobs\" class=\"tab\">\n";
