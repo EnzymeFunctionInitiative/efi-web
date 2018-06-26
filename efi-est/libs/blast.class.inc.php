@@ -98,7 +98,7 @@ class blast extends family_shared {
         //$parms = generate_helper::get_run_script_args($outDir, $parms, $this);
 
         $parms["-seq"] = "'" . $this->get_blast_input() . "'";
-        $parms["-blast-evalue"] = $this->blast_evalue;
+        $parms["-blast-evalue"] = $this->blast_evalue; // initial blast evalue
         if ($this->get_submitted_max_sequences() != "") {
             $parms["-nresults"] = $this->get_submitted_max_sequences();
         }
