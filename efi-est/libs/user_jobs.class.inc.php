@@ -224,6 +224,38 @@ class user_jobs extends user_auth {
         return $domainStr;
     }
 
+    private static function get_sequence($data) {
+        $seqStr = "";
+        if (array_key_exists("generate_blast", $data) && $data["generate_blast"]) {
+            $seq = $data["generate_blast"];
+            $seqLabel = substr($seq, 0, 20);
+            $seqTitle = "";
+            $pos = 0;
+            while ($pos < strlen($seq)) {
+                $seqTitle .= substr($seq, $pos, 27) . "\n";
+                $pos += 40;
+            }
+            $seqStr = "Sequence: <span title='$seqTitle'>$seqLabel...</span>";
+        }
+        return $seqStr;
+    }
+
+    private static function get_blast_evalue($data) {
+        $info = "";
+        if (array_key_exists("generate_blast_evalue", $data) && $data["generate_blast_evalue"]) {
+            $info = "e-value=" . $data["generate_blast_evalue"];
+        }
+        return $info;
+    }
+
+    private static function get_max_blast_hits($data) {
+        $info = "";
+        if (array_key_exists("generate_blast_max_sequence", $data) && $data["generate_blast_max_sequence"]) {
+            $info = "max hits=" . $data["generate_blast_max_sequence"];
+        }
+        return $info;
+    }
+
     private static function build_job_name($json, $type, $familyLookupFn) {
         $data = functions::decode_object($json);
 
@@ -231,13 +263,16 @@ class user_jobs extends user_auth {
             $fam_name = $familyLookupFn($family_id);
             return $fam_name ? "$family_id-$fam_name" : $family_id;
         };
-        
+
         $fileName = self::get_filename($data, $type);
         $families = self::get_families($data, $type, $newFamilyLookupFn);
         $evalue = self::get_evalue($data);
         $fraction = self::get_fraction($data);
         $uniref = self::get_uniref_version($data);
         $domain = self::get_domain($data);
+        $sequence = self::get_sequence($data);
+        $blastEvalue = self::get_blast_evalue($data);
+        $maxHits = self::get_max_blast_hits($data);
 
         $info = array();
         if ($fileName) array_push($info, $fileName);
@@ -246,6 +281,9 @@ class user_jobs extends user_auth {
         if ($fraction) array_push($info, $fraction);
         if ($uniref) array_push($info, $uniref);
         if ($domain) array_push($info, $domain);
+        if ($sequence) array_push($info, $sequence);
+        if ($blastEvalue) array_push($info, $blastEvalue);
+        if ($maxHits) array_push($info, $maxHits);
         
         $jobName = self::get_job_label($type);
         
