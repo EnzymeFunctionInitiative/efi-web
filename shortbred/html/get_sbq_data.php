@@ -35,7 +35,7 @@ if ($is_error) {
 }
 
 $id_dir = $job_obj->get_results_path();
-$clust_file = $id_dir . "/" . quantify::get_normalized_cluster_file_name();
+$clust_file = $id_dir . "/" . quantify::get_genome_normalized_cluster_file_name();
 
 if (!file_exists($clust_file)) {
     echo json_encode($result);
