@@ -1,7 +1,8 @@
 <?php
 
-require_once('Mail.php');
-require_once('Mail/mime.php');
+require_once("Mail.php");
+require_once("Mail/mime.php");
+require_once("../../libs/user_auth.class.inc.php");
 
 class stepa {
 
@@ -35,6 +36,7 @@ class stepa {
     protected $db_version;
     protected $beta;
     protected $evalue_data_file = "evalue.tab";
+    protected $is_sticky = false;
 
     //private $alignment_length = "r_quartile_align.png";
     //private $length_histogram = "r_hist_length.png";
@@ -246,7 +248,10 @@ class stepa {
             $update["generate_num_matched_file_seq"] = $num_seq['file_matched'];
             $update["generate_num_unmatched_file_seq"] = $num_seq['file_unmatched'];
             $update["generate_num_family_seq"] = $num_seq['family'];
-            $update["generate_num_full_family_seq"] = $num_seq['full_family'];
+            if (isset($num_seq['full_family']))
+                $update["generate_num_full_family_seq"] = $num_seq['full_family'];
+            else
+                $update["generate_num_full_family_seq"] = $num_seq['family'];
         } else {
             $update["generate_num_seq"] = $num_seq;
         }
@@ -260,7 +265,10 @@ class stepa {
                 $this->num_matched_file_sequences = $num_seq['file_matched'];
                 $this->num_unmatched_file_sequences = $num_seq['file_unmatched'];
                 $this->num_family_sequences = $num_seq['family'];
-                $this->num_full_family_sequences = $num_seq['full_family'];
+                if (isset($num_seq['full_family']))
+                    $this->num_full_family_sequences = $num_seq['full_family'];
+                else
+                    $this->num_full_family_sequences = $num_seq['family'];
             }
             else {
                 $this->num_sequences = $num_seq;
@@ -766,6 +774,8 @@ class stepa {
                 $this->num_family_sequences = $results_obj['generate_num_family_seq'];
             if (array_key_exists('generate_num_full_family_seq', $results_obj))
                 $this->num_full_family_sequences = $results_obj['generate_num_full_family_seq'];
+            
+            $this->is_sticky = functions::is_job_sticky($this->db, $this->id, $this->email);
         }
 
         return $params_obj;
@@ -867,6 +877,14 @@ class stepa {
     //	$message .= "E-Value: " . $this->get_evalue() . "\r\n";	
     //            return $message;
     //}
+    
+    public function is_expired() {
+        if (!$this->is_sticky && time() > $this->get_unixtime_completed() + functions::get_retention_secs()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 ?>
