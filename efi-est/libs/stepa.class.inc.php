@@ -119,22 +119,26 @@ class stepa {
     }
 
     public function set_time_started() {
-        $current_time = date("Y-m-d H:i:s",time());
+        $current_time = self::get_current_datetime();
         $sql = "UPDATE generate SET generate_time_started='" . $current_time . "' ";
         $sql .= "WHERE generate_id='" . $this->get_id() . "' LIMIT 1";
         $this->db->non_select_query($sql);
         $this->time_started = $current_time;
-
-
     }
+
     public function set_time_completed() {
-        $current_time = date("Y-m-d H:i:s",time());
+        $current_time = self::get_current_datetime();
         $sql = "UPDATE generate SET generate_time_completed='" . $current_time . "' ";
         $sql .= "WHERE generate_id='" . $this->get_id() . "' LIMIT 1";
         $this->db->non_select_query($sql);
         $this->time_completed = $current_time;
-
     }
+
+    private static function get_current_datetime() {
+        $current_time = date("Y-m-d H:i:s",time());
+        return $current_time;
+    }
+
     public function check_pbs_running() {
         $sched = strtolower(functions::get_cluster_scheduler());
         $jobNum = $this->get_pbs_number();
@@ -719,7 +723,14 @@ class stepa {
                 $val = $parent_id;
             elseif ($key == "generate_email")
                 $val = $email;
-            $copy[$key] = $val;
+            elseif ($key == "generate_key")
+                $val = functions::generate_key();
+            elseif ($key == "generate_time_created")
+                $val = "NULL";
+            elseif ($key == "generate_time_started" || $key == "generate_time_completed")
+                $val = self::get_current_datetime();
+            if ($val != "NULL")
+                $copy[$key] = $val;
         }
 
         $new_id = $db->build_insert("generate", $copy);
