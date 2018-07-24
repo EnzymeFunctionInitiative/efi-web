@@ -44,6 +44,13 @@ class settings extends global_settings {
         return false;
     }
 
+    public static function get_sync_output_dir() {
+        if (defined("__SYNC_OUTPUT_DIR__") && is_dir(__SYNC_OUTPUT_DIR__))
+            return __SYNC_OUTPUT_DIR__;
+        else
+            return false;
+    }
+
     public static function get_diagram_output_dir() {
         if (is_dir(__DIAGRAM_OUTPUT_DIR__))
             return __DIAGRAM_OUTPUT_DIR__;

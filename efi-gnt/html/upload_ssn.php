@@ -83,6 +83,17 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
             $key = $gnnInfo['key'];
         }
     }
+
+    if ($valid && isset($_POST["sync_key"]) && functions::check_sync_key($_POST["sync_key"])) {
+        $gnn = new gnn($db, $id);
+        $result = $gnn->run_gnn_sync(functions::get_is_debug());
+        if ($result['RESULT']) {
+            $message = functions::dump_gnn_info($gnn);
+        } else {
+            $valid = false;
+            $message = "Unable to run synchronously: " . $result['MESSAGE'];
+        }
+    }
 }
 
 // This resets the expiration date of the cookie so that frequent users don't have to login in every X days as long
