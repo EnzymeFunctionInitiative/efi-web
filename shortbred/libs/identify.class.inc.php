@@ -154,6 +154,7 @@ class identify extends job_shared {
 
         $sched = settings::get_cluster_scheduler();
         $queue = settings::get_normal_queue();
+        $memQueue = settings::get_memory_queue();
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
@@ -166,6 +167,7 @@ class identify extends job_shared {
         $exec .= " -job-id " . $id;
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
+        $exec .= " -mem-queue $memQueue";
         if ($sched)
             $exec .= " -scheduler $sched";
         if ($parent_id)
@@ -233,10 +235,12 @@ class identify extends job_shared {
         $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
 
         $fasta_failed = "$res_dir/get_fasta.failed";
+        $clnum_failed = "$res_dir/ssn_cl_num.failed"; // If the input SSN doesn't have "Cluster Number" then it aborts.
         $finish_file = "$res_dir/job.completed";
 
         $is_fasta_error = file_exists($fasta_failed);
         $is_finished = file_exists($finish_file);
+        $is_clnum_error = file_exists($clnum_failed);
         $is_running = $this->is_job_running();
 
         $result = 1;
@@ -245,6 +249,12 @@ class identify extends job_shared {
             $this->set_status(__FAILED__);
             $this->set_time_completed();
             $this->email_failure("Unable to find any accession IDs in the SSN.  Is it in the correct format?");
+        } elseif ($is_clnum_error) {
+            $result = 0;
+            $this->set_status(__FAILED__);
+            $this->set_time_completed();
+            $this->email_failure("The input SSN must have the Cluster Number attribute; run it through the Color SSN "
+                                 . "utility or GNT to number the clusters.");
         } elseif (!$is_running && !$is_finished) {
             $result = 0;
             $this->set_status(__FAILED__);
