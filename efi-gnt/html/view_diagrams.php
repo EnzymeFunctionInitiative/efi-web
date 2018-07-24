@@ -178,6 +178,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 
         <!-- Custom styles for this template -->
         <link href="css/diagrams.css" rel="stylesheet">
+        <link href="css/alert.css" rel="stylesheet">
 
         <script src="js/app.js" type="application/javascript"></script>
         <script src="js/arrows.js" type="application/javascript"></script>
@@ -394,12 +395,15 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     <div class="col-md-4">
                         <div class="button-wrapper pull-right">
                             <button type="button" class="btn btn-default" id="show-all-arrows-button">Show All</button>
-                            <button type="button" class="btn btn-default" id="show-more-arrows-button">Show 20 More</button>
+                            <button type="button" class="btn btn-default" id="show-more-arrows-button">Show 50 More</button>
+<!--                            <button type="button" class="btn btn-default" id="show-more-arrows-button-100">Show 100 More</button>-->
                         </div>
                     </div>
                 </div>
             </div>
         </footer>
+
+        <div id="alert-msg">Unable to show reqeuested diagrams.</div> 
 
 
         <!-- Bootstrap core JavaScript
@@ -493,6 +497,19 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 <?php } ?>
                 arrowApp.setNeighborhoodWindow(<?php echo $nbSize; ?>);
             });
+
+            function showAlertMsg() {
+                // Get the snackbar DIV
+                var x = document.getElementById("alert-msg");
+            
+                // Add the "show" class to DIV
+                x.className = "show";
+            
+                // After 3 seconds, remove the show class from DIV
+                setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+
+                alert("Unable to retrieve the selected diagrams: probably because too many were selected.");
+            } 
         </script>
 
         <div id="info-popup" class="info-popup hidden">

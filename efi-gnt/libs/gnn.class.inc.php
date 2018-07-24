@@ -100,52 +100,54 @@ class gnn extends gnn_shared {
     }
 
 
-    public function run_gnn() {
+    public function run_gnn_sync($is_debug = false) {
         $this->delete_outputs();
         $this->set_time_started();
         $id = $this->get_id();
 
+        $is_sync = true;
         $ssnin = $this->unzip_file();
+        $target_ssnin = $this->do_run_file_actions($ssnin, $is_debug, $is_sync);
 
-        $binary = settings::get_gnn_script();
-
-        mkdir(settings::get_output_dir() . "/" . $id);
-
-        $exec = "source /etc/profile\n";
-        $exec .= "module load " . settings::get_efidb_module() . "\n";
-        $exec .= "module load " . settings::get_gnn_module() . "\n";
-        $exec .= $binary . " ";
-        $exec .= " -queue " . settings::get_memory_queue();
-        $exec .= " -ssnin " . $ssnin;
-        $exec .= " -n " . $this->get_size();
-        $exec .= " -gnn " . $this->get_gnn();
-        $exec .= " -ssnout " . $this->get_color_ssn();
-        $exec .= " -incfrac " . $this->get_cooccurrence();
-        $exec .= " -stats " . $this->get_stats();
-        $exec .= " -warning-file " . $this->get_warning_file();
-        $exec .= " -pfam " . $this->get_pfam_hub();
-        $exec .= " -pfam-dir " . $this->get_pfam_data_dir() ;
-        $exec .= " -pfam-zip " . $this->get_pfam_data_zip_file();
-        $exec .= " -id-dir " . $this->get_cluster_data_dir() ;
-        $exec .= " -id-zip " . $this->get_cluster_data_zip_file();
-        $exec .= " -id-out " . $this->get_id_table_file();
-        $exec .= " -none-dir " . $this->get_pfam_none_dir();
-        $exec .= " -none-zip " . $this->get_pfam_none_zip_file();
-        $exec .= " -arrow-file " . $this->get_diagram_data_file();
-        $exec .= " -cooc-table " . $this->get_cooc_table_file();
-        $exec .= " -hub-count-file \"" . $this->get_hub_count_file() . "\"";
-        if (settings::get_cluster_scheduler())
-            $exec .= " -scheduler " . settings::get_cluster_scheduler();
-        $exec .= " -job-id " . $id;
+        $exec = $this->get_run_exec_cmd($target_ssnin);
 
         error_log("Job ID: " . $id);
         error_log("Exec: " . $exec);
 
         $output_array = array();
         $output = exec($exec,$output_array,$exit_status);
+        print(implode("\n", $output_array));
         $output = trim(rtrim($output));
-
+        
+        $sched = settings::get_cluster_scheduler();
+        if ($sched == "slurm")
+            $pbs_job_number = $output;
+        else
+            $pbs_job_number = substr($output, 0, strpos($output, "."));
         error_log("Job ID: " . $id . ", Exit Status: " . $exit_status);
+
+        $timeout_count = 0;
+        $max_timeout = 40; // 10 minutes
+        $error = 0;
+        while (true) {
+            if ($this->check_finish_file() && !$this->check_pbs_running()) {
+                // Successfully ran
+                break;
+            } elseif (!$this->check_finish_file() && !$this->check_pbs_running()) {
+                $error = 1;
+                break;
+            }
+
+            print "Checking $timeout_count\n";
+            sleep(15);
+            
+            if ($timeout_count++ > $max_timeout) {
+                $error = 2;
+                break;
+            }
+        }
+
+        print "Status = $error\n";
 
         $this->set_time_completed();
         $formatted_output = implode("\n",$output_array);
@@ -153,27 +155,71 @@ class gnn extends gnn_shared {
         file_put_contents($this->get_log_file(), $exec . "\n");
         file_put_contents($this->get_log_file(), $formatted_output, FILE_APPEND);
 
-        if (($exit_status == 0) && (strpos($output,'clustergnn.pl finished') !== false)) {
+        if ($error == 1) {
+            return array('RESULT' => false, 'MESSAGE' => "The job crashed.");
+        } elseif ($error == 2) {
+            return array('RESULT' => false, 'MESSAGE' => "The job ran too long.");
+        } else {
             $this->set_gnn_stats();
             $this->set_ssn_stats();
-            return array('RESULT'=>true,'OUTPUT'=>$formatted_output);
+            return array('RESULT' => true, 'MESSAGE' => "");
         }
-        else {
-            $this->email_error($formatted_output); 
-            return array('RESULT'=>false,'OUTPUT'=>$formatted_output);
-        }
-
     }
 
     public function run_gnn_async($is_debug = false) {
 
         $ssnin = $this->get_full_path();
+        $target_ssnin = $this->do_run_file_actions($ssnin, $is_debug);
 
-        $binary = settings::get_gnn_script();
+        $exec = $this->get_run_exec_cmd($target_ssnin);
 
-        $out_dir = settings::get_output_dir() . "/" . $this->get_id();
+        //TODO: remove this debug message
+        error_log("Job ID: " . $this->get_id());
+        error_log("Exec: " . $exec);
+
+        $exit_status = 1;
+
+        file_put_contents($this->get_log_file(), $exec . "\n");
+
+        $output_array = array();
+        $output = exec($exec, $output_array, $exit_status);
+        $output = trim(rtrim($output));
+
+        $sched = settings::get_cluster_scheduler();
+        if ($sched == "slurm")
+            $pbs_job_number = $output;
+        else
+            $pbs_job_number = substr($output, 0, strpos($output, "."));
+
+        if ($pbs_job_number && !$exit_status) {
+            if (!$is_debug) {
+                $this->set_pbs_number($pbs_job_number);
+                $this->set_time_started();
+                $this->email_started();
+                $this->set_status(__RUNNING__);
+                if ($this->est_id) {
+                    $this->update_est_job_file_field($ssnin);
+                }
+            }
+
+            //TODO: remove this debug message
+            error_log("Job ID: " . $this->get_id() . ", Exit Status: " . $exit_status);
+
+            return array('RESULT' => true, 'PBS_NUMBER' => $pbs_job_number, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => 'Job Successfully Submitted');
+        }
+        else {
+            error_log("There was an error submitting the GNN job: $output  // exit status: $exit_status  " . join(',', $output_array));
+            return array('RESULT' => false, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => $output_array[18]);
+        }
+    }
+
+    private function do_run_file_actions($ssnin, $is_debug, $is_sync = false) {
+        if ($is_sync)
+            $out_dir = settings::get_sync_output_dir();
+        else
+            $out_dir = settings::get_output_dir();
+        $out_dir .= "/" . $this->get_id();
         $target_ssnin = $out_dir . "/" . $this->get_id() . "." . pathinfo($ssnin, PATHINFO_EXTENSION);
-
         if (@file_exists($out_dir))
             functions::rrmdir($out_dir);
         if (!$is_debug && !file_exists($out_dir))
@@ -181,8 +227,13 @@ class gnn extends gnn_shared {
         chdir($out_dir);
         copy($ssnin, $target_ssnin);
 
+        return $target_ssnin;
+    }
+
+    private function get_run_exec_cmd($target_ssnin) {
         $sched = settings::get_cluster_scheduler();
         $queue = settings::get_memory_queue();
+        $binary = settings::get_gnn_script();
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
@@ -211,44 +262,7 @@ class gnn extends gnn_shared {
         $exec .= " -hub-count-file \"" . $this->get_hub_count_file() . "\"";
         if ($sched)
             $exec .= " -scheduler $sched";
-
-        //TODO: remove this debug message
-        error_log("Job ID: " . $this->get_id());
-        error_log("Exec: " . $exec);
-
-        $exit_status = 1;
-
-        file_put_contents($this->get_log_file(), $exec . "\n");
-
-        $output_array = array();
-        $output = exec($exec, $output_array, $exit_status);
-        $output = trim(rtrim($output));
-
-        if ($sched == "slurm")
-            $pbs_job_number = $output;
-        else
-            $pbs_job_number = substr($output, 0, strpos($output, "."));
-
-        if ($pbs_job_number && !$exit_status) {
-            if (!$is_debug) {
-                $this->set_pbs_number($pbs_job_number);
-                $this->set_time_started();
-                $this->email_started();
-                $this->set_status(__RUNNING__);
-                if ($this->est_id) {
-                    $this->update_est_job_file_field($ssnin);
-                }
-            }
-
-            //TODO: remove this debug message
-            error_log("Job ID: " . $this->get_id() . ", Exit Status: " . $exit_status);
-
-            return array('RESULT' => true, 'PBS_NUMBER' => $pbs_job_number, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => 'Job Successfully Submitted');
-        }
-        else {
-            error_log("There was an error submitting the GNN job: $output  // exit status: $exit_status  " . join(',', $output_array));
-            return array('RESULT' => false, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => $output_array[18]);
-        }
+        return $exec;
     }
 
     public function complete_gnn() {
@@ -854,6 +868,7 @@ class gnn extends gnn_shared {
         $sql = "UPDATE gnn SET gnn_filename='$file_name' ";
         $sql .= "WHERE gnn_id='" . $this->get_id() . "' LIMIT 1";
         $this->db->non_select_query($sql);
+        $this->filename = $file_name;
     }
 
     public function check_pbs_running() {
