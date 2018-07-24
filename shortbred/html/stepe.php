@@ -93,16 +93,33 @@ require_once "inc/header.inc.php";
 -->
 <!--<p>ShortBRED-Quantify has finished.</p>-->
 
-<p><a href="stepc.php?<?php echo "id=$identify_id&key=$key"; ?>"><button class="mini" type="button">Return to Identify Results</button></a></p>
+<p><a href="stepc.php?<?php echo $id_query_string; ?>"><button class="mini" type="button">Return to Identify Results</button></a></p>
 
 <p>Input filename: <?php echo $filename; ?></>
 
-<?php outputResultsTable(true, $id_query_string, $size_data); ?>
+<?php $addl_html = <<<HTML
+        <tr>
+            <td style='text-align:center;'><a href="download_files.php?type=cdhit&id=$identify_id&key=$key"><button class="mini">Download</button></a></td>
+            <td>CD-HIT mapping file (as table)</td>
+            <td style='text-align:center;'>1 MB</td>
+        </tr>
+HTML;
+?>
+<?php outputResultsTable(true, $id_query_string, $size_data, $addl_html); ?>
 
-<br><button id="heatmap-button" class="mini" type="button" style="margin-top: 20px">View Heatmap for All Quantify Results</button>
+<br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Clusters</button>
+<div id="heatmap-clusters" style="display: none;">
+<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=c" width="970" height="780" style="border: none"></iframe>
+</div>
 
-<div id="heatmap" style="display: none;">
-<iframe src="heatmap.php?<?php echo "id=$identify_id&key=$key"; ?>" width="970" height="780" style="border: none"></iframe>
+<br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Singletons</button>
+<div id="heatmap-singletons" style="display: none;">
+<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=s" width="970" height="780" style="border: none"></iframe>
+</div>
+
+<br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Clusters and Singltetons</button>
+<div id="heatmap-merged" style="display: none;">
+<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=m" width="970" height="780" style="border: none"></iframe>
 </div>
 
 
@@ -199,14 +216,13 @@ foreach ($q_jobs as $job) {
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
-<p></p>
 <p>&nbsp;</p>
 
 <script>
 $(document).ready(function() {
     var iframes = $('iframe');
     
-    $('#heatmap-button').click(function() {
+    $('.heatmap-button').click(function() {
         $header = $(this);
         //getting the next element
         $content = $header.next();
@@ -220,7 +236,7 @@ $(document).ready(function() {
                 $header.find("i.fas").addClass("fa-plus-square");
             }
         });
-        iframes.attr('src', function() {
+        $content.children().attr('src', function() {
             return $(this).data('src');
         });
     });
@@ -236,7 +252,7 @@ $(document).ready(function() {
 
 <?php
 
-function outputResultsTable($is_global, $id_query_string, $size_data) {
+function outputResultsTable($is_global, $id_query_string, $size_data, $addl_html = "") {
 
     $arg_suffix = $is_global ? "-m" : "";
     $run_suffix = $is_global ? "for all runs" : "";
@@ -331,6 +347,7 @@ HTML;
     }
 
     echo <<<HTML
+$addl_html
     </tbody>
 </table>
 HTML;
