@@ -2,4 +2,6 @@ results
 log
 uploads
 .htaccess
+settings.inc.php
+settings_base.inc.php
 

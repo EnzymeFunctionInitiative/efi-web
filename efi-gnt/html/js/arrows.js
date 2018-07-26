@@ -5,6 +5,7 @@ var DM_INDEX = 2;
 var ARROW_ADD_PAGE = 0;
 var ARROW_RESET_REFRESH = 1;
 var ARROW_REFRESH = 2;
+var DEFAULT_PAGE_SIZE = 50;
 
 
 function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
@@ -48,20 +49,20 @@ function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
     this.S.attr({viewBox: "0 0 " + this.initialWidth + " " + this.diagramHeight});
 }
 
-ArrowDiagram.prototype.nextPage = function(callback) {
+ArrowDiagram.prototype.nextPage = function(callback, pageSize = 20) {
     this.diagramPage++;
-    this.retrieveArrowData(this.idList, true, ARROW_ADD_PAGE, callback);
+    this.retrieveArrowData(this.idList, true, ARROW_ADD_PAGE, callback, pageSize);
 }
 
 ArrowDiagram.prototype.refreshCanvas = function(usePaging, callback) {
-    this.retrieveArrowData(this.idList, usePaging, ARROW_REFRESH, callback);
+    this.retrieveArrowData(this.idList, usePaging, ARROW_REFRESH, callback, DEFAULT_PAGE_SIZE);
 }
 
 ArrowDiagram.prototype.searchArrows = function(usePaging, callback) {
-    this.retrieveArrowData(this.idList, usePaging, ARROW_RESET_REFRESH, callback);
+    this.retrieveArrowData(this.idList, usePaging, ARROW_RESET_REFRESH, callback, DEFAULT_PAGE_SIZE);
 }
 
-ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAction, callback) {
+ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAction, callback, pageSize) {
     if (typeof idList !== 'undefined')
         this.idList = idList;
 
@@ -80,18 +81,32 @@ ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAct
                 pageString = "&page=0-" + this.diagramPage;
             else 
                 pageString = "&page=" + this.diagramPage;
+            pageString += "&pagesize=" + pageSize;
         }
         var nbSizeString = "&window=" + this.nbSize;
+
 
         var theUrl = "get_neighbor_data.php?" + this.idKeyQueryString + "&query=" + idListQuery + pageString + nbSizeString;
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", theUrl, true);
         xmlhttp.onload = function() {
             if (this.readyState == 4 && this.status == 200) {
-                var data = JSON.parse(this.responseText);
-                that.makeArrowDiagram(data, usePaging, resetCanvas);
-                that.data = data;
-                typeof callback === 'function' && callback(data.eod);
+                var data = null;
+                var isError = false;
+                try {
+                    data = JSON.parse(this.responseText);
+                } catch (e) {
+                    isError = true;
+                }
+                var eod = false;
+                if (data !== null) {
+                    that.makeArrowDiagram(data, usePaging, resetCanvas);
+                    that.data = data;
+                    eod = data.eod;
+                } else {
+                    that.data = {'data': []};
+                }
+                typeof callback === 'function' && callback(eod, isError);
             }
         };
         xmlhttp.send(null);

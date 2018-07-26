@@ -178,7 +178,7 @@ class user_jobs extends user_auth {
             if ($fams) {
                 $famParts = explode(",", $fams);
                 if (count($famParts) > 2)
-                    $famParts = array($famParts[0], $famParts[1]);
+                    $famParts = array($famParts[0], $famParts[1], "...");
                 $fams = implode(", ", array_map($familyLookupFn, $famParts));
                 $famStr = $fams;
             }

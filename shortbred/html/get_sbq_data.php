@@ -4,6 +4,11 @@ require_once("../includes/main.inc.php");
 require_once("../libs/identify.class.inc.php");
 require_once("../libs/quantify.class.inc.php");
 
+const MERGED = 1;       // Both clusters and singletons
+const SINGLETONS = 2;   // Only singletons in the SSN
+const CLUSTERS = 3;     // Only SSN clusters >= 2 in size
+
+
 $is_error = false;
 $the_id = "";
 $q_id = "";
@@ -26,6 +31,23 @@ if (isset($_POST["id"]) && is_numeric($_POST["id"]) && isset($_POST["key"])) {
         $is_error = false;
     }
 }
+
+$get_results = MERGED;
+if (isset($_POST["res"])) {
+    switch ($_POST["res"]) {
+        case "s":
+            $get_results = SINGLETONS;
+            break;
+        case "c":
+            $get_results = CLUSTERS;
+            break;
+        case "m":
+        default:
+            $get_results = MERGED;
+            break;
+    }
+}
+
 
 $result = array("valid" => false);
 
@@ -85,29 +107,42 @@ if ($fh) {
 
     $clusters = array();
 
+    $min = 1000000;
+    $max = -1000000;
+
     while (($line = fgets($fh)) !== false) {
         $line = trim($line);
         $parts = explode("\t", $line);
         $cluster = $parts[0];
+        $size = $start_idx == 2 ? $parts[1] : 10000000;
 
         if ($cluster == "#N/A")
             continue;
-        // If the user requested specific clusters, only return results for those clusters.
-        if (count($req_clusters) && !isset($req_clusters[$cluster]))
-            continue;
 
-        $info = array("number" => $cluster, "abundance" => array_fill(0, count($metagenomes), 0));
+        $cluster_number = $size == 1 ? "S$cluster" : $cluster;
+        $info = array("number" => $cluster_number, "abundance" => array_fill(0, count($metagenomes), 0));
         $sum = 0;
         for ($i = 0; $i < count($metagenomes); $i++) {
             $mg_idx = $mg_lookup[$i];
-#            print $metagenomes[$i] . " $mg_idx\n";
-            $info["abundance"][$mg_idx] = $parts[$start_idx + $i];
-            $sum += $parts[1 + $i];
-#            var_dump($info);
-#           die();
+            $val = $parts[$start_idx + $i];
+            $info["abundance"][$mg_idx] = $val;
+            if ($val > $max)
+                $max = $val;
+            if ($val < $min)
+                $min = $val;
+            $sum += $parts[$start_idx + $i];
         }
-#        var_dump($info);
-#        die();
+
+        // We do these checks after getting the values in order to obtain the min/max extents of the
+        // data.  This is to allow consistent scaling between different plot types.
+        //
+        // If the user requested specific clusters, only return results for those clusters.
+        if (count($req_clusters) && !isset($req_clusters[$cluster]))
+            continue;
+        if ($get_results == SINGLETONS && $size > 1 && !isset($req_clusters[$cluster]))
+            continue;
+        elseif ($get_results == CLUSTERS && $size < 2 && !isset($req_clusters[$cluster]))
+            continue;
 
         if ($sum >= 1e-6)
             array_push($clusters, $info);
@@ -118,6 +153,7 @@ if ($fh) {
     $result["metagenomes"] = $metagenomes;
     $result["site_info"] = $site_info;
     $result["valid"] = true;
+    $result["extent"] = array("min" => $min, "max" => $max);
     
     fclose($fh);
 } else {

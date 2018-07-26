@@ -127,6 +127,7 @@ class quantify extends job_shared {
 
         $sched = settings::get_cluster_scheduler();
         $queue = settings::get_normal_queue();
+        $memQueue = settings::get_memory_queue();
         $parent_quantify_id = $this->get_parent_id();
         $parent_identify_id = "";
         if ($parent_quantify_id) {
@@ -156,6 +157,7 @@ class quantify extends job_shared {
         $exec .= " -cluster-genome-norm " . self::get_genome_normalized_cluster_file_name();
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
+        $exec .= " -mem-queue $memQueue";
         if ($sched)
             $exec .= " -scheduler $sched";
         if ($parent_quantify_id && $parent_identify_id) {

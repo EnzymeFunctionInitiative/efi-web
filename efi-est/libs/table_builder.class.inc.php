@@ -39,7 +39,11 @@ class table_builder {
     }
 
     public function as_string() {
-        return $this->buffer;
+        $cleaned = $this->buffer;
+        if (!$this->is_html) {
+            $cleaned = preg_replace("/<[^>]*>/", "", $this->buffer);
+        }
+        return $cleaned;
     }
 }
 

@@ -1,4 +1,6 @@
 
+var DEFAULT_PAGE_SIZE = 50;
+
 function ArrowApp(arrows, popupIds) {
 
     this.arrows = arrows;
@@ -7,6 +9,7 @@ function ArrowApp(arrows, popupIds) {
     this.advancedInputObj = document.getElementById("advanced-search-input");
     this.progressObj = $("#progress-loader");
     this.showMoreObj = $("#show-more-arrows-button");
+    this.showMore100Obj = $("#show-more-arrows-button-100");
     this.showAllObj = $("#show-all-arrows-button");
     this.filterListObj = $("#filter-container");
     this.filterContainerToggleObj = $("#filter-container-toggle");
@@ -43,12 +46,22 @@ function ArrowApp(arrows, popupIds) {
 
     this.showMoreObj.click(function() {
         that.startProgressBar();
-        that.arrows.nextPage(function(isEod) {
+        that.arrows.nextPage(function(isEod, isError) {
             that.nextPageCallback(isEod);
             that.populateFilterList();
             that.stopProgressBar();
             that.updateCountFields();
-        });
+        }, DEFAULT_PAGE_SIZE);
+    });
+
+    this.showMore100Obj.click(function() {
+        that.startProgressBar();
+        that.arrows.nextPage(function(isEod, isError) {
+            that.nextPageCallback(isEod);
+            that.populateFilterList();
+            that.stopProgressBar();
+            that.updateCountFields();
+        }, 100);
     });
 
     $("#refresh-window").click(function(e) {
@@ -61,11 +74,15 @@ function ArrowApp(arrows, popupIds) {
         that.startProgressBar();
         that.showAll = true;
         
-        var finishCb = function(isEod) {
-            that.updateMoreButtonStatus(isEod);
-            that.populateFilterList();
+        var finishCb = function(isEod, isError) {
             that.stopProgressBar();
-            that.updateCountFields();
+            if (!isError) {
+                that.updateMoreButtonStatus(isEod);
+                that.populateFilterList();
+                that.updateCountFields();
+            } else {
+                showAlertMsg();
+            }
         };
 
         that.arrows.searchArrows(!that.showAll, finishCb);
@@ -90,7 +107,7 @@ function ArrowApp(arrows, popupIds) {
 ArrowApp.prototype.refreshAll = function() {
     var that = this;
     that.startProgressBar();
-    that.refreshCanvas(!that.showAll, function(isEod) {
+    that.refreshCanvas(!that.showAll, function(isEod, isError) {
         that.stopProgressBar();
     });
 }
@@ -126,7 +143,7 @@ ArrowApp.prototype.doSearch = function(idList) {
     this.clearFilter();
     
     var that = this;
-    var finishCb = function(isEod ) {
+    var finishCb = function(isEod, isError) {
         that.populateFilterList();
         that.updateMoreButtonStatus(isEod);
         that.stopProgressBar();
@@ -229,9 +246,11 @@ ArrowApp.prototype.getIdList = function(inputObj) {
 ArrowApp.prototype.updateMoreButtonStatus = function (isEod) {
     if (isEod) {
         this.showMoreObj.prop('disabled', true).addClass("disabled");
+        this.showMore100Obj.prop('disabled', true).addClass("disabled");
         this.showAllObj.prop('disabled', true).addClass("disabled");
     } else {
         this.showMoreObj.prop('disabled', false).removeClass("disabled");
+        this.showMore100Obj.prop('disabled', false).removeClass("disabled");
         this.showAllObj.prop('disabled', false).removeClass("disabled");
     }
 }
