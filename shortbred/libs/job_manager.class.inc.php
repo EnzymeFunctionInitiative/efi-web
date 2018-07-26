@@ -125,8 +125,7 @@ class job_manager {
             return array();
         }
 
-        $admin_users = array(); //TODO: for testing
-        //$admin_users = $this->get_admin_users();
+        $admin_users = $this->get_admin_users();
         $users = array();
         $ids = array();
         foreach ($this->jobs_by_status[__NEW__] as $job) {
