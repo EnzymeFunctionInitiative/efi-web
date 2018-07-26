@@ -232,6 +232,17 @@ class user_auth {
             return false;
     }
 
+    public static function get_admin_users($db) {
+        $userTable = self::get_user_table();
+        $users = array();
+        $sql = "SELECT user_email FROM $userTable WHERE user_admin = 1";
+        $results = $db->query($sql);
+        foreach ($results as $row) {
+            $users[$row["user_email"]] = 1;
+        }
+        return $users;
+    }
+
     public static function get_user_groups($db, $user_id) {
         $userTable = self::get_user_group_table();
         $mtable = self::get_master_group_table();
