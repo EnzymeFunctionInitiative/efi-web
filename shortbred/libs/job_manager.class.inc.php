@@ -119,17 +119,43 @@ class job_manager {
         return $job;
     }
 
-    public function get_new_job_ids() {
+    // $queue_limit - set to true to allow only 1 RUNNING job per non admin-user.
+    public function get_new_job_ids($queue_limit = false) {
         if (!isset($this->jobs_by_status[__NEW__])) {
             return array();
         }
 
+        $admin_users = array(); //TODO: for testing
+        //$admin_users = $this->get_admin_users();
+        $users = array();
         $ids = array();
         foreach ($this->jobs_by_status[__NEW__] as $job) {
-            array_push($ids, $job["id"]);
+            $id = $job["id"];
+            $email = $this->jobs_by_id[$id]["email"];
+            if ($queue_limit && !isset($users[$email])) {
+                if (isset($admin_users[$email])) {
+                    array_push($ids, $id);
+                } else {
+                    $user_jobs = $this->get_running_jobs_by_user($email);
+                    if (count($user_jobs) == 0)
+                        array_push($ids, $id);
+                    else
+                        print "Skipping $id because the user's queue limit has been exceeded.\n";
+                    $users[$email] = 1;
+                }
+            } elseif (!$queue_limit) {
+                array_push($ids, $id);
+            } else {
+                print "Skipping $id because the user's queue limit has been exceeded.\n";
+            }
         }
 
         return $ids;
+    }
+
+    private function get_admin_users() {
+        $users = user_auth::get_admin_users($this->db);
+        return $users;
     }
 
     public function get_running_job_ids() {
@@ -151,6 +177,20 @@ class job_manager {
         } else {
             return $this->jobs_by_id[$job_id]["key"];
         }
+    }
+
+    public function get_running_jobs_by_user($email) {
+        $id_sql = "SELECT identify_id, quantify_id FROM identify " .
+            "LEFT JOIN quantify ON identify_id = quantify_identify_id " .
+            "WHERE identify_email = '$email' AND " .
+            "(identify_status = 'RUNNING' OR quantify_status = 'RUNNING')";
+        //    "(identify_status = 'NEW' OR identify_status = 'RUNNING' OR quantify_status = 'NEW' OR quantify_status = 'RUNNING')";
+        $id_rows = $this->db->query($id_sql);
+        $ids = array();
+        foreach ($id_rows as $row) {
+            array_push($ids, $row["identify_id"]);
+        }
+        return $ids;
     }
 
     public function get_jobs_by_user($user_token) {
