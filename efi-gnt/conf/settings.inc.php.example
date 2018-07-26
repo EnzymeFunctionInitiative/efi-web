@@ -14,6 +14,7 @@ require_once("../../conf/settings_base.inc.php");
 // PATHS
 define("__OUTPUT_DIR__","");
 define("__EST_OUTPUT_DIR__","");
+define("__SYNC_OUTPUT_DIR__","");
 define("__DIAGRAM_OUTPUT_DIR__","");
 define("__LEGACY_OUTPUT_DIR__","");
 define("__UPLOAD_DIR__","");

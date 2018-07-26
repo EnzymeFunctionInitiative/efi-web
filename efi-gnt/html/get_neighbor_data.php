@@ -60,6 +60,11 @@ if (isset($_GET["window"]) && is_numeric($_GET["window"])) {
     $window = intval($_GET["window"]);
 }
 
+$pageSize = 20;
+if (isset($_GET["pagesize"]) && is_numeric($_GET["pagesize"])) {
+    $pageSize = $_GET["pagesize"];
+}
+
 $output["message"] = "";
 $output["error"] = false;
 $output["eod"] = false;
@@ -82,7 +87,7 @@ if (array_key_exists("query", $_GET)) {
     $blastId = getBlastId();
     //$orderData = getOrder($blastId, $items, $dbFile, $blastCacheDir, $gnn);
     $orderData = getDefaultOrder();
-    $arrowData = getArrowData($items, $dbFile, $orderData, $window, $isDirectJob);
+    $arrowData = getArrowData($items, $dbFile, $orderData, $window, $isDirectJob, $pageSize);
     $output["eod"] = $arrowData["eod"];
     $output["counts"] = $arrowData["counts"];
     $output["data"] = $arrowData["data"];
@@ -132,7 +137,7 @@ function getFamilies($dbFile) {
 
 
 
-function getArrowData($items, $dbFile, $orderDataStruct, $window, $isDirectJob) {
+function getArrowData($items, $dbFile, $orderDataStruct, $window, $isDirectJob, $pageSize) {
 
     $orderData = $orderDataStruct['order'];
     $output = array();
@@ -142,7 +147,7 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $isDirectJob) 
 
     $ids = parseIds($items, $orderDataStruct, $resultsDb, $orderByClause);
 
-    $pageBounds = getPageLimits();
+    $pageBounds = getPageLimits($pageSize);
     $startCount = $pageBounds['start'];
     $maxCount = $pageBounds['end'];
     $output["eod"] = "$startCount $maxCount";
@@ -305,8 +310,7 @@ function parseIds($items, $orderDataStruct, $resultsDb, $sortOrderClause) {
 }
 
 
-function getPageLimits() {
-    $pageSize = 20;
+function getPageLimits($pageSize) {
     $startCount = 0;
     $maxCount = 100000000;
     if (array_key_exists("page", $_GET)) {
