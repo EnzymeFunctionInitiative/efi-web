@@ -12,7 +12,8 @@ if ($sapi_type != 'cli') {
 }
 else {
     $jobManager = new job_manager($db, job_types::Quantify);
-    $jobs = $jobManager->get_new_job_ids();
+    $queue_limit = true;
+    $jobs = $jobManager->get_new_job_ids($queue_limit);
     if (count($jobs)) {
         foreach ($jobs as $jobId) {
             sleep(1);
