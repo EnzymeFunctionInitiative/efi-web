@@ -4,4 +4,5 @@ uploads
 .htaccess
 settings.inc.php
 settings_base.inc.php
+remove_old_uploads.sh
 
