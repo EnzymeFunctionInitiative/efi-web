@@ -74,13 +74,21 @@ if (isset($_POST['analyze_data'])) {
         }
     }
 
+    $cdhitOpt = "";
+    if (functions::custom_clustering_enabled() && isset($_POST["cdhit-opt"])) {
+        $opt = $_POST["cdhit-opt"];
+        if ($opt == "sb" || $opt == "est" || $opt == "est+")
+            $cdhitOpt = $opt;
+    }
+
     $result = $analysis->create(
         $job_id,
         $_POST['evalue'],
         $_POST['network_name'],
         $min,
         $max,
-        $customFile);
+        $customFile,
+        $cdhitOpt);
 
     if ($result['RESULT']) {
         header('Location: stepd.php');
@@ -115,6 +123,8 @@ if (!empty($db_version)) {
 }
 $table->add_row("Input Option", $formatted_gen_type);
 $table->add_row("Job Number", $gen_id);
+if ($generate->get_job_name())
+    $table->add_row("Job Name", $generate->get_job_name());
 
 $job_name = $gen_id . "_" . $gen_type;
 
@@ -418,7 +428,19 @@ should or should not be connected in a network is needed. This will determine th
                 <input type="text" name="minimum" maxlength='20' <?php if (isset($_POST['minimum'])) { echo "value='" . $_POST['minimum'] . "'"; } ?>> Min (Defaults: <?php echo __MINIMUM__; ?>)<br>
                 <input type="text" name="maximum" maxlength='20' <?php if (isset($_POST['maximum'])) { echo "value='" . $_POST['maximum'] . "'"; } ?>> Max (Defaults: <?php echo __MAXIMUM__; ?>)
             </p>
+
 <?php if (functions::custom_clustering_enabled()) { ?>
+            <hr>
+            <h3>3: CD-HIT Clustering Options (For Repnode Networks)
+                <span style='color:red'>Optional</span></h3>
+            <p>
+                <input type="radio" name="cdhit-opt" value="sb" id="cdhit-opt-sb">
+                    <label for="cdhit-opt-sb">ShortBRED (-b 10, -g 1, -n 5)</label><br>
+                <input type="radio" name="cdhit-opt" value="est+" id="cdhit-opt-est-g1"> 
+                    <label for="cdhit-opt-est-g1">Legacy EST, accurate mode (-g 1)</label><br>
+                <input type="radio" name="cdhit-opt" value="est" id="cdhit-opt-est" checked> 
+                    <label for="cdhit-opt-est">Legacy EST</label>
+            </p>
         </div>
         <div id="custom" class="tab">
             <h3>Custom Clustering File <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>

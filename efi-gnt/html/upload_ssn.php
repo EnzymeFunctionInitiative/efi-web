@@ -69,12 +69,17 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     }
 
     $email = $_POST['email'];
+    $job_name = isset($_POST['job_name']) ? $_POST['job_name'] : "";
 
     if ($valid) {
         if ($est_analysis_id) {
             $gnnInfo = gnn::create_from_est_job($db, $email, $_POST['neighbor_size'], $cooccurrence, $est_file_path, $est_analysis_id);
         } else {
-            $gnnInfo = gnn::create2($db, $email, $_POST['neighbor_size'], $cooccurrence, $_FILES['file']['tmp_name'], $_FILES['file']['name']);
+            $gnnInfo = gnn::create2(
+                $db, $email, $_POST['neighbor_size'], $cooccurrence,
+                $_FILES['file']['tmp_name'], $_FILES['file']['name'],
+                $job_name
+            );
         }
         if ($gnnInfo === false) {
             $valid = false;

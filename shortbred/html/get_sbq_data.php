@@ -106,6 +106,7 @@ if ($fh) {
 #    die();
 
     $clusters = array();
+    $singles = array();
 
     $min = 1000000;
     $max = -1000000;
@@ -119,7 +120,7 @@ if ($fh) {
         if ($cluster == "#N/A")
             continue;
 
-        $cluster_number = $size == 1 ? "S$cluster" : $cluster;
+        $cluster_number = $cluster; // $size == 1 ? "S$cluster" : $cluster;
         $info = array("number" => $cluster_number, "abundance" => array_fill(0, count($metagenomes), 0));
         $sum = 0;
         for ($i = 0; $i < count($metagenomes); $i++) {
@@ -144,10 +145,16 @@ if ($fh) {
         elseif ($get_results == CLUSTERS && $size < 2 && !isset($req_clusters[$cluster]))
             continue;
 
-        if ($sum >= 1e-6)
-            array_push($clusters, $info);
+        if ($sum >= 1e-6) {
+            if ($size == 1)
+                array_push($singles, $info);
+            else
+                array_push($clusters, $info);
+        }
     }
 
+    usort($singles, "cmp_singles");
+    $clusters = array_merge($clusters, $singles);
 
     $result["clusters"] = $clusters;
     $result["metagenomes"] = $metagenomes;
@@ -164,6 +171,16 @@ echo json_encode($result);
 
 
 
+
+function cmp_singles($a, $b) {
+    $aa = $a["number"];
+    $bb = $b["number"];
+    if (substr($aa, 0, 1) == "S")
+        $aa = substr($aa, 1);
+    if (substr($bb, 0, 1) == "S")
+        $bb = substr($bb, 1);
+    return $aa - $bb;
+}
 
 
 function parse_clusters($params) {

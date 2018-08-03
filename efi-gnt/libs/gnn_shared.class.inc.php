@@ -5,21 +5,23 @@ require_once(__DIR__.'/../../libs/global_functions.class.inc.php');
 
 class gnn_shared extends arrow_api {
 
-    public static function create2($db, $email, $size, $cooccurrence, $tmp_filename, $filename) {
-        return self::create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, 0);
+    public static function create2($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $job_name) {
+        return self::create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, 0, $job_name);
     }
 
     public static function create_from_est_job($db, $email, $size, $cooccurrence, $ssn_file_path, $est_id) {
-        return self::create_shared($db, $email, $size, $cooccurrence, "", $ssn_file_path, $est_id);
+        return self::create_shared($db, $email, $size, $cooccurrence, "", $ssn_file_path, $est_id, $job_name);
     }
 
     // For jobs originating from EST, we save the full path to the SSN into the filename field.
     // When the job processing workflow starts, we set the filename field in the db to be just the filename.
-    private static function create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $est_job_id) {
+    private static function create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $est_job_id, $job_name) {
 
         // Sanitize the filename
         if (!$est_job_id)
             $filename = preg_replace("([\._]{2,})", '', preg_replace("([^a-zA-Z0-9\-_\.])", '', $filename));
+
+        $job_name = preg_replace('/[^A-Za-z0-9 \-_?!#\$%&*()\[\],\.<>:;{}]/', "_", $job_name);
 
         $result = false;
         $key = global_functions::generate_key();
@@ -47,7 +49,7 @@ class gnn_shared extends arrow_api {
     }
 
     public static function create($db, $email, $size, $tmp_filename, $filename, $cooccurrence) {
-        $info = create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, 0);
+        $info = create_shared($db, $email, $size, $cooccurrence, $tmp_filename, $filename, 0, "");
         if ($info === false)
             return 0;
         else
