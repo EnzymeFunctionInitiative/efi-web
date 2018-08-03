@@ -36,6 +36,7 @@ class analysis {
     private $parent_id = 0; // The parent ID of the generate job that this analysis job is associated with
     private $cdhit_opt = "";
     private $job_type = "";
+    protected $is_sticky = false;
 
     ///////////////Public Functions///////////
 
@@ -570,6 +571,8 @@ class analysis {
             $has_custom = array_key_exists('analysis_custom_cluster', $result[0]) &&
                             $result[0]['analysis_custom_cluster'] == 1;
             $this->custom_clustering = $has_custom;
+            $email = $result[0]['generate_email'];
+            $this->is_sticky = functions::is_job_sticky($this->db, $this->generate_id, $email);
             //TODO: fix this. the field doesn't come from a database column anymore; it comes from the generate_params
             // field which is a JSON structure. that would mean it would need to be decoded to get the value. this
             // feature isn't used anymore.
@@ -696,6 +699,14 @@ class analysis {
 
         $message = $stepa->get_job_info();
         return $message;
+    }
+    
+    public function is_expired() {
+        if (!$this->is_sticky && time() > $this->get_unixtime_completed() + functions::get_retention_secs()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
