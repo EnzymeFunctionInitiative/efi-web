@@ -119,7 +119,7 @@ class functions {
         $sql = "SELECT job_group.generate_id, generate.generate_email FROM job_group " .
             "JOIN generate ON job_group.generate_id = generate.generate_id " .
             //"WHERE job_group.generate_id = $generate_id AND generate.generate_email != '$user_email'";
-            "WHERE job_group.generate_id = $generate_id AND (generate.generate_email != '$user_email' OR job_group.user_group = '$pre_group')";
+            "WHERE job_group.generate_id = $generate_id AND (generate.generate_email != '$user_email' OR job_group.user_group != '')";
         // users can't create copies of sticky jobs that they own.
         $result = $db->query($sql);
         if ($result)
