@@ -34,6 +34,8 @@ class analysis {
     private $custom_clustering;
     private $custom_filename = "custom_cluster.txt";
     private $parent_id = 0; // The parent ID of the generate job that this analysis job is associated with
+    private $cdhit_opt = "";
+    private $job_type = "";
 
     ///////////////Public Functions///////////
 
@@ -76,6 +78,14 @@ class analysis {
     public function get_output_dir() {
         return $this->get_generate_id() . "/" . $this->output_dir;
     }
+    public function get_cdhit_method_nice() {
+        if ($this->cdhit_opt == "sb")
+            return "ShortBRED";
+        elseif ($this->cdhit_opt == "est+")
+            return "EST/High Accuracy";
+        else
+            return "EST";
+    }
 
     public function set_num_sequences_post_filter() {
         $num_seq = $this->get_num_sequences_post_filter();
@@ -107,7 +117,7 @@ class analysis {
         return $num_seq;
     }
 
-    public function create($generate_id, $evalue, $name, $minimum, $maximum, $customFile = "") {
+    public function create($generate_id, $evalue, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "") {
         $errors = false;
         $message = "";		
         $filter = "eval";
@@ -146,6 +156,9 @@ class analysis {
                 'analysis_filter'=>$filter,
                 'analysis_custom_cluster'=>$hasCustomClustering,
             );
+            if ($cdhitOpt)
+                $insert_array['analysis_cdhit_opt'] = $cdhitOpt;
+
             $result = $this->db->build_insert("analysis",$insert_array);
             if ($result) {
                 return array('RESULT'=>true,'id'=>$result);
@@ -436,7 +449,7 @@ class analysis {
             if ($parent_id > 0) {
                 $parent_dir = functions::get_results_dir() . "/$parent_id/$relative_output_dir";
                 if (!@file_exists($gen_output_dir)) {
-                    mkdir($gen_output_dir, 0777, true); // This job is a parent
+                    mkdir($gen_output_dir, 0755, true); // This job is a parent
                 }
                 $parent_dir_opt = "-parent-id $parent_id -parent-dir $parent_dir";
             }
@@ -449,6 +462,12 @@ class analysis {
                 $start_path = functions::get_uploads_dir() . "/custom_cluster_" . $this->get_generate_id() . ".txt";
                 $end_path = "$full_output_dir/" . $this->custom_filename;
                 copy($start_path, $end_path);
+            }
+
+            $cdhit_opt = "";
+            if ($this->cdhit_opt) {
+                if ($this->cdhit_opt == "sb" || $this->cdhit_opt == "est+")
+                    $cdhit_opt = $this->cdhit_opt;
             }
 
             $current_dir = getcwd();
@@ -470,12 +489,16 @@ class analysis {
                     $exec .= " -custom-cluster-file " . $this->custom_filename;
                     $exec .= " -custom-cluster-dir " . $network_dir;
                 }
+                if ($cdhit_opt)
+                    $exec .= " -cdhit-opt $cdhit_opt";
                 if ($this->length_overlap)
                     $exec .= "-lengthdif " . $this->length_overlap . " ";
                 if ($sched)
                     $exec .= " -scheduler " . $sched . " ";
                 if ($parent_id > 0)
                     $exec .= " " . $parent_dir_opt;
+                if ($this->job_type == "FASTA_ID")
+                    $exec .= "-include-sequences ";
 
                 $exec .= " 2>&1 ";
 
@@ -542,6 +565,8 @@ class analysis {
             $this->filter_sequences = $result[0]['analysis_filter_sequences'];
             $this->db_version = functions::decode_db_version($result[0]['generate_db_version']);
             $this->parent_id = $result[0]['generate_parent_id'];
+            $this->job_type = $result[0]['generate_type'];
+            $this->cdhit_opt = array_key_exists('analysis_cdhit_opt', $result[0]) ? $result[0]['analysis_cdhit_opt'] : "";
             $has_custom = array_key_exists('analysis_custom_cluster', $result[0]) &&
                             $result[0]['analysis_custom_cluster'] == 1;
             $this->custom_clustering = $has_custom;
@@ -559,6 +584,8 @@ class analysis {
         } else {
             $path = $this->get_filter() . "-" . $this->get_evalue();
             $path .= "-" . $this->get_min_length() . "-" . $this->get_max_length();
+            if ($this->cdhit_opt == "sb" || $this->cdhit_opt == "est+")
+                $path .= "-" . $this->cdhit_opt;
         }
         return $path;
     }

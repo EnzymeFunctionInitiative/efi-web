@@ -4,7 +4,7 @@ class input_data {
 
     public $email;
     public $job_group;
-    public $name;
+    public $job_name;
     public $evalue;
     public $fraction;
     public $max_seqs;

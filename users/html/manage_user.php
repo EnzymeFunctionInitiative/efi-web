@@ -23,6 +23,7 @@ require_once("inc/header.inc.php");
 
 <table class="pretty">
     <thead>
+        <th>#</th>
         <th class="id-col">Email</th>
         <th>Group(s)</th>
         <th>Status</th>
@@ -39,13 +40,15 @@ for ($i = 0; $i < count($user_ids); $i++) {
     $user_status = $user["status"];
     $num_jobs = count_jobs($user_email, $user_est, $user_gnt, $user_diagrams, $user_shortbred);
     $groups = implode(", ", $user["group"]);
+    $user_num = $i + 1;
     echo <<<ROW
         <tr>
+            <td>$user_num</td>
             <td>$user_email</td>
             <td>$groups</td>
             <td>$user_status</td>
             <td>$num_jobs</td>
-            <td><input type="checkbox" name="sel-user-id" value="$user_id"></td>
+            <td><input type="checkbox" name="sel-user-id" value="$user_id" data-info="$user_email (#jobs=$num_jobs; status=$user_status)"></td>
         </tr>
 
 ROW;
@@ -59,7 +62,8 @@ ROW;
 <button id="add-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-user-plus"></i> Add Single User</button>
 <button id="update-group-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-users-cog"></i> Add Users to Group</button>
 <button id="remove-group-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-user-secret"></i> Remove Users from Group</button>
-<button id="reset-password-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-user-secret"></i> Reset Passwords</button>
+<button id="reset-password-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-unlock-alt"></i> Reset Passwords</button>
+<button id="delete-user-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-trash-alt"></i> Delete User</button>
 
 <div style="margin-top:30px;">
 Bulk insert/update:<br>
@@ -120,6 +124,11 @@ foreach ($all_groups as $group) {
 </select>
 </div>
 
+<div id="delete-user-dlg" class="hidden" title="Delete Users">
+Are you sure you want to delete these users from the system?<br>
+<div id="delete-user-list"></div>
+</div>
+
 
 
 
@@ -129,6 +138,7 @@ $(document).ready(function() {
     var addDlg = $("#add-user-dlg");
     var updateGroupDlg = $("#add-group-dlg");
     var removeGroupDlg = $("#remove-group-dlg");
+    var deleteUserDlg = $("#delete-user-dlg");
     
     var defaultHandler = function(json) {
         if (json.valid) {
@@ -154,6 +164,17 @@ $(document).ready(function() {
     var removeGroupFn = function() {
         submitUpdateGroup(defaultHandler, 1);
     };
+    var deleteUserFn = function() {
+        submitUserDelete(defaultHandler);
+    };
+
+    var populateDeleteUserDlg = function() {
+        var list = $("#delete-user-list");
+        $.each($("input[name='sel-user-id']:checked"), function() {
+            var info = $(this).data("info");
+            list.append(info + "<br>");
+        });
+    };
 
     addDlg.dialog({resizeable: false, draggable: false, autoOpen: false, height: 300, width: 400,
         buttons: { "Ok": addUserFn, "Cancel": function() { $(this).dialog("close"); } }
@@ -164,12 +185,16 @@ $(document).ready(function() {
     removeGroupDlg.dialog({resizeable: false, draggable: false, autoOpen: false, height: 300, width: 400,
         buttons: { "Ok": removeGroupFn, "Cancel": function() { $(this).dialog("close"); } }
     });
+    deleteUserDlg.dialog({resizeable: false, draggable: false, autoOpen: false, height: 300, width: 500,
+        buttons: { "Ok": deleteUserFn, "Cancel": function() { $(this).dialog("close"); } }
+    });
 
     $("#bulk-add-btn").click(function() { submitBulkUser(defaultHandler); });
     $("#add-btn").click(function() { addDlg.dialog("open"); });
     $("#update-group-btn").click(function() { updateGroupDlg.dialog("open"); });
     $("#remove-group-btn").click(function() { removeGroupDlg.dialog("open"); });
     $("#reset-password-btn").click(function() { submitPasswordReset(defaultHandler); });
+    $("#delete-user-btn").click(function() { populateDeleteUserDlg(); deleteUserDlg.dialog("open"); ; });
 });
 
 </script>

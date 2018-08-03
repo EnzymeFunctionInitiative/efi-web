@@ -215,6 +215,7 @@ the <a href="family_list.php">Family Information page</a>.
                 </div>
 <?php } ?>
 
+                <div>Optional job name: <input type="text" class="small" name="option-a-job-name" id="option-a-job-name" value=""></div>
                 <div>
                     E-mail address:
                     <input name="email" id="option-a-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -307,7 +308,8 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
 <?php    } ?>
                 </div>
-    
+
+                <div>Optional job name: <input type="text" class="small" name="option-b-job-name" id="option-b-job-name" value=""></div>
                 <div>
                     E-mail address:
                     <input name="email" id="option-b-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -387,6 +389,7 @@ the <a href="family_list.php">Family Information page</a>.
 <?php    } ?>
                 </div>
 
+                <div>Optional job name: <input type="text" class="small" name="option-c-job-name" id="option-c-job-name" value=""></div>
                 <div>
                     E-mail address:
                     <input name="email" id="option-c-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -481,6 +484,7 @@ the <a href="family_list.php">Family Information page</a>.
 <?php    } ?>
                 </div>
 
+                <div>Optional job name: <input type="text" class="small" name="option-d-job-name" id="option-d-job-name" value=""></div>
                 <div>
                     E-mail address:
                     <input name="email" id="option-d-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -564,6 +568,7 @@ the <a href="family_list.php">Family Information page</a>.
 <?php    } ?>
                 </div>
     
+                <div>Optional job name: <input type="text" class="small" name="option-e-job-name" id="option-e-job-name" value=""></div>
                 <div>
                     E-mail address:
                     <input name="email" id="option-e-email" type="text" value="<?php echo $userEmail; ?>" class="email"
