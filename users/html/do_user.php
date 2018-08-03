@@ -53,7 +53,14 @@ if ($action == "new") {
     $lines = preg_split("/\r\n|\n|\r/", $text);
 
     foreach ($lines as $line) {
+        $line = trim($line);
+        if (!$line)
+            continue;
+
         $parts = preg_split("/\s+/", $line);
+        if (count($parts) == 0)
+            continue;
+
         $user = array();
 
         if (count($parts) > 0 && $parts[0])
@@ -109,6 +116,25 @@ if ($action == "new") {
         if (count($user_ids)) {
             $update_result = false;
             user_manager::reset_passwords($db, $user_ids);
+            $result["valid"] = true;
+            if (!$update_result) {
+                $result["message"] = "Unknown error occurred.";
+            }
+        }
+    }
+} elseif ($action == "delete-user") {
+    $user_ids = array();
+    $user_ids_text = "";
+    $user_group = "";
+
+    if (isset($_POST["user-ids"]))
+        $user_ids_text = $_POST["user-ids"];
+
+    if ($user_ids_text) {
+        $user_ids = explode(",", $user_ids_text);
+        if (count($user_ids)) {
+            $update_result = false;
+            user_manager::delete_users($db, $user_ids);
             $result["valid"] = true;
             if (!$update_result) {
                 $result["message"] = "Unknown error occurred.";
