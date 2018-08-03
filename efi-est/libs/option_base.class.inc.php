@@ -124,6 +124,8 @@ abstract class option_base extends stepa {
             'generate_evalue' => $data->evalue,
             'generate_fraction' => $data->fraction,
         );
+        if (isset($data->job_name))
+            $insert_array['generate_job_name'] = $data->job_name;
         return $insert_array;
     }
 
@@ -148,6 +150,7 @@ abstract class option_base extends stepa {
             $result->errors = true;
             $result->message .= "<br><b>Please enter a valid E-Value</b></br>";
         }
+        $data->job_name = preg_replace('/[^A-Za-z0-9 \-_?!#\$%&*()\[\],\.<>:;{}]/', "_", $data->job_name);
 
         return $result;
     }

@@ -18,6 +18,7 @@ function submitOptionAForm() {
     var fd = new FormData();
     fd.append("option_selected", "A");
     addParam(fd, "email", "option-a-email");
+    addParam(fd, "job-name", "option-a-job-name");
     addParam(fd, "job-group", "option-a-job-group");
     addParam(fd, "blast_input", "blast-input");
     addParam(fd, "blast_evalue", "blast-evalue");
@@ -40,6 +41,7 @@ function submitOptionBForm() {
     var fd = new FormData();
     fd.append("option_selected", "B");
     addParam(fd, "email", "option-b-email");
+    addParam(fd, "job-name", "option-b-job-name");
     addParam(fd, "job-group", "option-b-job-group");
     addParam(fd, "families_input", "families-input");
     addParam(fd, "evalue", "pfam-evalue");
@@ -63,6 +65,7 @@ function submitOptionCForm() {
     var fd = new FormData();
     fd.append("option_selected", "C");
     addParam(fd, "email", "option-c-email");
+    addParam(fd, "job-name", "option-c-job-name");
     addParam(fd, "job-group", "option-c-job-group");
     addParam(fd, "fasta_input", "fasta-input");
     addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
@@ -93,6 +96,7 @@ function submitOptionDForm() {
     var fd = new FormData();
     fd.append("option_selected", "D");
     addParam(fd, "email", "option-d-email");
+    addParam(fd, "job-name", "option-d-job-name");
     addParam(fd, "job-group", "option-d-job-group");
     addParam(fd, "accession_input", "accession-input");
     addParam(fd, "families_input", "families-input-optd");
@@ -124,6 +128,7 @@ function submitOptionEForm() {
     var fd = new FormData();
     fd.append("option_selected", "E");
     addParam(fd, "email", "option-e-email");
+    addParam(fd, "job-name", "option-e-job-name");
     addParam(fd, "job-group", "option-e-job-group");
     addParam(fd, "families_input", "option-e-input");
     addParam(fd, "evalue", "pfam-plus-evalue");

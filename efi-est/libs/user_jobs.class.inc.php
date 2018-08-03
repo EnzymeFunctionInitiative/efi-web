@@ -273,6 +273,7 @@ class user_jobs extends user_auth {
         $sequence = self::get_sequence($data);
         $blastEvalue = self::get_blast_evalue($data);
         $maxHits = self::get_max_blast_hits($data);
+        $jobNameField = isset($data["generate_job_name"]) ? $data["generate_job_name"] : "";
 
         $info = array();
         if ($fileName) array_push($info, $fileName);
@@ -286,12 +287,18 @@ class user_jobs extends user_auth {
         if ($maxHits) array_push($info, $maxHits);
         
         $jobName = self::get_job_label($type);
-        
-        $jobInfo = implode("; ", $info);
+
+        $jobInfo = "";
+        if ($jobNameField) {
+            $jobInfo = $jobNameField;
+        } else {
+            $jobInfo = implode("; ", $info);
+        }
 
         if ($jobInfo) {
             $jobName .= " ($jobInfo)";
         }
+
         return $jobName;
     }
 

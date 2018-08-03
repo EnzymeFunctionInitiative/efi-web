@@ -37,6 +37,7 @@ class stepa {
     protected $beta;
     protected $evalue_data_file = "evalue.tab";
     protected $is_sticky = false;
+    protected $job_name = "";
 
     //private $alignment_length = "r_quartile_align.png";
     //private $length_histogram = "r_hist_length.png";
@@ -106,6 +107,7 @@ class stepa {
     public function get_blast_input() { return ""; }
     public function get_families() { return array(); }
     public function get_db_version() { return $this->db_version; }
+    public function get_job_name() { return $this->job_name; }
     public function is_cd_hit_job() { return FALSE; } //HACK: this is a temporary hack for research purposes
 
 
@@ -771,6 +773,7 @@ class stepa {
             $params_obj = $this->decode_object($result['generate_params']);
             $this->evalue = $params_obj['generate_evalue'];
             $this->fraction = $params_obj['generate_fraction'];
+            $this->job_name = isset($params_obj['generate_job_name']) ? $params_obj['generate_job_name'] : "";
             
             $results_obj = $this->decode_object($result['generate_results']);
             if (array_key_exists('generate_num_seq', $results_obj))
