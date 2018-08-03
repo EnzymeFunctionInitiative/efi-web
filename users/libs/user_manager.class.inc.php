@@ -150,8 +150,28 @@ class user_manager {
     public static function reset_passwords($db, $user_list) {
         $warn_user = false;
         foreach ($user_list as $user_id) {
+            if (preg_match("/[^A-Za-z0-9]/", $user_id)) // Skip invalid user IDs
+                continue;
+
             $email = user_auth::get_email_from_token($db, $user_id);
             functions::send_reset_email($email, $user_id, $warn_user);
+        }
+        return true;
+    }
+
+    public static function delete_users($db, $user_list) {
+        $utable = user_auth::get_user_table();
+        $gutable = user_auth::get_user_group_table();
+
+        foreach ($user_list as $user_id) {
+            if (preg_match("/[^A-Za-z0-9]/", $user_id)) // Skip invalid user IDs
+                continue;
+
+            $sql = "DELETE FROM $gutable WHERE user_id = \"$user_id\"";
+            $db->non_select_query($sql);
+
+            $sql = "DELETE FROM $utable WHERE user_id = \"$user_id\"";
+            $db->non_select_query($sql);
         }
         return true;
     }
