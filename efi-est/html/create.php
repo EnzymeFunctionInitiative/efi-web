@@ -55,6 +55,8 @@ if (!isset($_POST['submit'])) {
         $input->fraction = $_POST['fraction'];
     if (array_key_exists('job-group', $_POST))
         $input->job_group = $_POST['job-group'];
+    if (array_key_exists('job-name', $_POST))
+        $input->job_name = $_POST['job-name'];
     
     switch($option) {
         //Option A - Blast Input

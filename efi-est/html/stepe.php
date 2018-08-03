@@ -52,6 +52,8 @@ if (!empty($db_version)) {
 }
 $table->add_row("Input Option", $formatted_gen_type);
 $table->add_row("Job Number", $generate_id);
+if ($generate->get_job_name())
+    $table->add_row("Job Name", $generate->get_job_name());
 
 $uploaded_file = "";
 $included_family = "";
@@ -150,6 +152,8 @@ $table->add_row("Network Name", $analysis->get_name());
 $table->add_row("Alignment Score", $analysis->get_evalue());
 $table->add_row("Minimum Length", number_format($analysis->get_min_length()));
 $table->add_row("Maximum Length", number_format($analysis->get_max_length()));
+if (functions::custom_clustering_enabled())
+    $table->add_row("CD-HIT Method", $analysis->get_cdhit_method_nice());
 $conv_ratio = $generate->get_convergence_ratio();
 $convergence_ratio_string = "";
 if ($conv_ratio > -0.5) {
