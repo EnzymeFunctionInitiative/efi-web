@@ -68,9 +68,20 @@ var mgColors = [
     "LightSteelBlue",
 ];
 
+getColor = function(site_info, lastBodysiteIndex, mg) {
+    var color = "";
+    if (typeof site_info.color[mg] !== 'undefined')
+        color = site_info.color[mg];
+    if (!color)
+        return mgColors[lastBodysiteIndex % mgColors.length];
+    else
+        return color;
+}
+
 var Id = <?php echo $_GET["id"]; ?>;
 var Key = "<?php echo $_GET["key"]; ?>";
 var ResType = "<?php echo $_GET["res"]; ?>";
+var QuantifyId = <?php echo(isset($_GET["quantify-id"]) ? $_GET["quantify-id"] : 0); ?>;
 
 linspace = function (a,b,n) {
     if(typeof n === "undefined") n = Math.max(Math.round(b-a)+1,1);
@@ -123,9 +134,11 @@ var processData = function(data) {
     var regions = [];
     var lastBodysite = "";
     var lastBodysiteIndex = 0;
+    var lastColor = "";
     for (var i = 0; i < numMetagenomes; i++) {
         var mg = data.metagenomes[i];
         var bodysite = data.site_info.site[mg];
+        var regionColor = getColor(data.site_info, regions.length, mg);
         x.push(mg);
         bodysiteMgLabels.push(bodysite);
         gender.push(data.site_info.gender[mg]);
@@ -133,13 +146,14 @@ var processData = function(data) {
         if (i == 0)
             lastBodysite = bodysite;
         if (bodysite != lastBodysite) {
-            regions.push([lastBodysiteIndex, i, lastBodysite]);
+            regions.push([lastBodysiteIndex, i-1, lastBodysite, lastColor]);
             lastBodysite = bodysite;
-            lastBodysiteIndex = i + 1;
+            lastBodysiteIndex = i;
         }
+        lastColor = regionColor;
     }
 
-    regions.push([lastBodysiteIndex, numMetagenomes-1, bodysiteMgLabels[numMetagenomes-1]]);
+    regions.push([lastBodysiteIndex, numMetagenomes-1, bodysiteMgLabels[numMetagenomes-1], lastColor]);
 
     for (var i = 0; i < numClusters; i++) {
         z.push([]);
@@ -199,21 +213,41 @@ var processData = function(data) {
     }
 
     var shapes = [];
+    var labels = [];
     if (regions.length > 0) {
         for (var i in regions) {
             var region = regions[i];
+            var x0 = region[0]-0.5;
+            var x1 = region[1]+0.5;
             var shape = {
                 type: 'rect',
                 xref: 'x',
                 yref: 'paper',
-                x0: region[0]-0.5,
+                x0: x0,
                 y0: 0,
-                x1: region[1]+0.5,
+                x1: x1,
                 y1: -0.02,
-                fillcolor: mgColors[i % mgColors.length],
+                fillcolor: region[3],
+//                fillcolor: mgColors[i % mgColors.length],
                 line: { width: 0, },
             };
             shapes.push(shape);
+            var xMid = (x1 - x0) / 2 + x0;
+            var label = region[2].replace(" ", "<br>");
+            var anno = {
+                x: xMid,
+                y: -0.12,
+                xref: 'x',
+                yref: 'paper',
+                text: label,
+                showarrow: false,
+                valign: "top",
+                height: 50,
+                font: {
+                    color: 'black',
+                },
+            };
+            labels.push(anno);
         }
     }
 
@@ -223,7 +257,6 @@ var processData = function(data) {
         height: 700,
         xaxis: {
             tickangle: -45,
-//            title: "Metagenome",
             showticklabels: false,
         },
         yaxis: {
@@ -232,6 +265,7 @@ var processData = function(data) {
                 type: "category",
         },
         shapes: shapes,
+        annotations: labels,
     };
 
     Plotly.newPlot('plot', traces, layout);
@@ -265,6 +299,8 @@ function doFormPost() {
     parms.append("id", Id);
     parms.append("key", Key);
     parms.append("res", ResType);
+    if (QuantifyId)
+        parms.append("quantify-id", QuantifyId);
 
     var clusterList = document.getElementById("cluster-filter").value;
     if (clusterList) {

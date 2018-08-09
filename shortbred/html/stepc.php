@@ -213,7 +213,12 @@ if (count($q_jobs)) {
 
     foreach ($q_jobs as $job) {
         $qid = $job["quantify_id"];
-        echo "<p><a href='stepe.php?id=$id&key=$key&quantify-id=$qid'><button type='button' class='mini'>Quantify Job #$qid</button></a></p>";
+        $status = $job["is_completed"];
+        if ($status) {
+            echo "<p><a href='stepe.php?id=$id&key=$key&quantify-id=$qid'><button type='button' class='mini'>Quantify Job #$qid</button></a></p>";
+        } else {
+            echo "<p>Quantify Job #$qid - not completed</p>";
+        }
     }
 }
 

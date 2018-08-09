@@ -50,7 +50,7 @@ require_once "inc/header.inc.php";
 <?php if ($show_previous_jobs) { ?>
         <li class="active"><a href="#jobs">Previous Jobs</a></li>
 <?php } ?>
-        <li><a href="#create">Run ShortBRED</a></li>
+        <li><a href="#create">Run CGFP/ShortBRED</a></li>
         <li <?php if (! $show_previous_jobs) echo "class=\"active\""; ?>><a href="#tutorial">Tutorial</a></li>
     </ul>
 
@@ -130,45 +130,7 @@ show_jobs($training_jobs);
         </div>
 
         <div id="tutorial" class="tab <?php if (!$show_previous_jobs) echo "active"; ?>">
-            <h3>ShortBRED Tool Overview</h3>
-    
-            <p>
-            </p>
-    
-            <p>
-            </p>
-    
-            <h3>ShortBRED acceptable input</h3>
-    
-            <p>
-            The sequence datasets are generated from an SSN produced by the EFI-Enzyme Similarity Tool (EFI-EST).
-<!--Acceptable 
-            SSNs are generated for an entire Pfam and/or InterPro protein family (from Option B of EFI-EST), a focused region of a 
-            family (from Option A of EFI-EST), a set of protein sequence that can be identified from FASTA headers (from option C of 
-            EFI-EST with header reading) or a list of recognizable UniProt and/or NCBI IDs (from option D of EFI-EST). A manually 
-            modified SSN within Cytoscape that originated from any of the EST options is also acceptable. SSNs that have been 
-            colored using the "Color SSN Utility" of EFI-EST and that originated from any of acceptable Options are also acceptable.
--->
-            </p>
-    
-            <h3>Principle of ShortBRED</h3>
-    
-            <p>
-            </p>
-    
-            <h3>ShortBRED output</h3>
-    
-            <p>
-            </p>
-    
-            <p>
-            </p>
-    
-            <p>
-            </p>
-    
-            <!--<p class="center"><a href='tutorial.php'><button class="light">Continue Tutorial</button></a></p>-->
-    
+<?php include("tutorial.inc.php"); ?>
         </div>
     </div> <!-- tab-content -->
 </div> <!-- tabs -->
