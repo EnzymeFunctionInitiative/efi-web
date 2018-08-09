@@ -21,7 +21,7 @@ $IncludeShortBred = global_settings::get_shortbred_enabled();
                 <li><a href="<?php echo $UrlPrefix; ?>/efi-est/" class="est">EFI-EST</a></li>
                 <li><a href="<?php echo $UrlPrefix; ?>/efi-gnt/" class="gnt">EFI-GNT</a></li>
 <?php if (isset($IncludeShortBred) && $IncludeShortBred) { ?>
-                <li><a href="<?php echo $UrlPrefix; ?>/shortbred/" class="shortbred">ShortBRED-CGFP</a></li>
+                <li><a href="<?php echo $UrlPrefix; ?>/shortbred/" class="shortbred">EFI-CGFP</a></li>
 <?php } ?>
 <?php if ($IsAdminUser) { ?>
                 <li><a href="admin/" class="about">Admin Page</a></li>

@@ -3,7 +3,7 @@
 if (!isset($TopLevelUrl))
     $TopLevelUrl = "http://efi.igb.illinois.edu/$SiteUrlPrefix/shortbred/";
 
-$title = "ShortBRED Utility";
+$title = "EFI-CGFP";
 if (isset($ExtraTitle) && $ExtraTitle)
     $title = "$title: $ExtraTitle";
 
@@ -79,7 +79,7 @@ include("../../html/inc/global_nav.inc.php");
         </div>
 
         <div class="content_holder">
-            <h1 class="ruled">ShortBRED</h1>
+            <h1 class="ruled">EFI-CGFP/ShortBRED</h1>
 <?php if (settings::is_beta_release()) { ?>
             <div class="beta"><h4>BETA</h4></div>
 <?php } ?>

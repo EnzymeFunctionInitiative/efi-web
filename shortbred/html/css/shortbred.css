@@ -386,4 +386,7 @@ a.ui-button:active,
 }
 
 
-
+.tutorial_figure {
+    padding-left: 30px;
+    width: 95%;
+}
