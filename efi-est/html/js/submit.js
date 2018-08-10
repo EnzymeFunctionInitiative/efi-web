@@ -166,6 +166,20 @@ function submitColorSsnForm() {
     doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
 }
 
+function submitStepEColorSsnForm(email, analysisId, ssnIndex) {
+
+    var fd = new FormData();
+    fd.append("option_selected", "colorssn");
+    fd.append("email", email);
+    fd.append("ssn-source-id", analysisId);
+    fd.append("ssn-source-idx", ssnIndex);
+
+    var completionHandler = getDefaultCompletionHandler();
+    var fileHandler = function(xhr) {};
+
+    doFormPost(FORM_ACTION, fd, "", fileHandler, completionHandler);
+}
+
 function submitMigrate(generateId, analysisId, key, completionHandler) {
 
     var messageId = "migrate-error";
