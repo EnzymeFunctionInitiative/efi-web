@@ -10,7 +10,7 @@ class gnn_shared extends arrow_api {
     }
 
     public static function create_from_est_job($db, $email, $size, $cooccurrence, $ssn_file_path, $est_id) {
-        return self::create_shared($db, $email, $size, $cooccurrence, "", $ssn_file_path, $est_id, $job_name);
+        return self::create_shared($db, $email, $size, $cooccurrence, "", $ssn_file_path, $est_id, "");
     }
 
     // For jobs originating from EST, we save the full path to the SSN into the filename field.
