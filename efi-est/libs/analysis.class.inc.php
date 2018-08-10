@@ -498,7 +498,7 @@ class analysis {
                     $exec .= " -scheduler " . $sched . " ";
                 if ($parent_id > 0)
                     $exec .= " " . $parent_dir_opt;
-                if ($this->job_type == "FASTA_ID")
+                if ($this->job_type == "FASTA_ID" || $this->job_type == "FASTA")
                     $exec .= "-include-sequences ";
 
                 $exec .= " 2>&1 ";

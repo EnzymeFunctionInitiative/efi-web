@@ -586,6 +586,66 @@ class functions {
     public static function get_gnt_database() {
         return defined("__MYSQL_GNT_DATABASE__") ? __MYSQL_GNT_DATABASE__ : "";
     }
+
+    public static function get_analysis_job_info($db, $analysis_id) {
+        $sql = "SELECT * FROM analysis WHERE analysis_id = $analysis_id";
+        $result = $db->query($sql);
+
+        $info = array();
+
+        if ($result) {
+            $result = $result[0];
+            $info["generate_id"] = $result["analysis_generate_id"];
+            $info["analysis_id"] = $analysis_id;
+            $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
+                                    $result["analysis_evalue"] . "-" .
+                                    $result["analysis_min_length"] . "-" .
+                                    $result["analysis_max_length"];
+            return $info;
+        } else {
+            return false;
+        }
+    }
+
+    public static function get_ssn_file_info($info, $ssn_idx) {
+
+        $est_gid = $info["generate_id"];
+        $a_dir = $info["analysis_dir"];
+
+        $base_est_results = functions::get_results_dir();
+        $est_results_name = "output";
+        $est_results_dir = "$base_est_results/$est_gid/$est_results_name/$a_dir";
+
+        if (!is_dir($est_results_dir)) {
+            return false;
+        }
+
+        $filename = "";
+
+        $stats_file = "$est_results_dir/stats.tab";
+        $fh = fopen($stats_file, "r");
+
+        $c = -1; # header
+        while (($line = fgets($fh)) !== false) {
+            if ($c++ == $ssn_idx) {
+                $parts = explode("\t", $line);
+                $filename = $parts[0];
+                break;
+            }
+        }
+
+        fclose($fh);
+
+        $info = array();
+        if ($filename) {
+            $info["filename"] = $filename;
+            $info["full_ssn_path"] = "$est_results_dir/$filename";
+            return $info;
+        } else {
+            return false;
+        }
+    }
+
 }
 
 ?>
