@@ -316,7 +316,7 @@ class user_jobs extends user_auth {
         $isCompleted = false;
         if ($status == "FAILED") {
             $comp = "FAILED";
-        } elseif (!$comp || substr($comp, 0, 4) == "0000") {
+        } elseif (!$comp || substr($comp, 0, 4) == "0000" || $status == "RUNNING") {
             $comp = $status;
             if ($comp == "NEW")
                 $comp = "PENDING";

@@ -138,8 +138,10 @@ if (!isset($_POST['submit'])) {
                     }
                 } else if ($option == "colorssn") {
                     $obj = new colorssn($db);
-                    //$input->cooccurrence = $_POST['cooccurrence'];
-                    //$input->neighborhood_size = $_POST['neighborhood_size'];
+                    if (isset($_POST['ssn-source-id']))
+                        $input->color_ssn_source_id = $_POST['ssn-source-id'];
+                    if (isset($_POST['ssn-source-idx']))
+                        $input->color_ssn_source_idx = $_POST['ssn-source-idx'];
                 }
 
                 if (isset($_FILES['file'])) {

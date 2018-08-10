@@ -25,7 +25,7 @@ class quantify extends job_shared {
         return $this->filename;
     }
 
-    private function get_metagenome_ids() {
+    public function get_metagenome_ids() {
         return $this->metagenome_ids;
     }
 
@@ -424,9 +424,14 @@ class quantify extends job_shared {
     public function get_ssn_http_path() {
         $path = 
             $this->identify_id . "/" .
-            settings::get_rel_output_dir() . "/" .
-            $this->get_ssn_name();
-        return $path;
+            settings::get_rel_output_dir() . "/";
+        $q_dir = $this->get_quantify_res_dir();
+        $ssn = $this->get_ssn_name();
+        if (file_exists("$path/$q_dir/$ssn")) {
+            return "$path/$q_dir/$ssn";
+        } else {
+            return "$path/$ssn";
+        }
     }
     public function get_zip_ssn_http_path() {
         $path = $this->get_ssn_http_path() . ".zip";

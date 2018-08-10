@@ -39,6 +39,10 @@ class input_data {
     // This flag is set to true if the script is called from the command line.
     public $is_debug;
 
+    // For Color SSN option
+    public $color_ssn_source_id;  // analysis ID
+    public $color_ssn_source_idx; // SSN index
+
     //public $cooccurrence;
     //public $neighborhood_size;
 }

@@ -8,6 +8,9 @@ const MERGED = 1;       // Both clusters and singletons
 const SINGLETONS = 2;   // Only singletons in the SSN
 const CLUSTERS = 3;     // Only SSN clusters >= 2 in size
 
+const GROUP_ALL = 1;
+const GROUP_JOB = 2;
+
 
 $is_error = false;
 $the_id = "";
@@ -16,12 +19,12 @@ $job_obj = NULL;
 
 if (isset($_POST["id"]) && is_numeric($_POST["id"]) && isset($_POST["key"])) {
     $the_id = $_POST["id"];
-#    if (isset($_POST["quantify-id"]) && is_numeric($_POST["quantify-id"])) {
-#        $q_id = $_POST["quantify-id"];
-#        $job_obj = new quantify($db, $q_id);
-#    } else {
+    if (isset($_POST["quantify-id"]) && is_numeric($_POST["quantify-id"])) {
+        $q_id = $_POST["quantify-id"];
+        $job_obj = new quantify($db, $q_id);
+    } else {
         $job_obj = new identify($db, $the_id);
-#    }
+    }
 
     if ($job_obj->get_key() != $_POST["key"]) {
         $is_error = true;
@@ -56,8 +59,12 @@ if ($is_error) {
     exit(0);
 }
 
-$id_dir = $job_obj->get_results_path();
-$clust_file = $id_dir . "/" . quantify::get_genome_normalized_cluster_file_name();
+if ($q_id) {
+    $clust_file = $job_obj->get_genome_normalized_cluster_file_path();
+} else {
+    $id_dir = $job_obj->get_results_path();
+    $clust_file = $id_dir . "/" . quantify::get_genome_normalized_cluster_file_name();
+}
 
 if (!file_exists($clust_file)) {
     echo json_encode($result);
@@ -99,6 +106,7 @@ if ($fh) {
     };
     usort($metagenomes, $sort_fn);
     $mg_lookup = array();
+    $site_color = array();
     for ($i = 0; $i < count($metagenomes); $i++) {
         $mg_lookup[$mg_lookup_temp[$metagenomes[$i]]] = $i;
     }
@@ -216,18 +224,50 @@ function get_mg_db_info() {
         if ($fh === false)
             continue;
 
+        $colors = get_color_scheme($mg_db);
+
         while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
             if (isset($data[0]) && $data[0] && $data[0][0] == "#")
                 continue; // skip comments
 
+            $mg_id = $data[0];
+
             $pos = strpos($data[1], "-");
             $site = trim(substr($data[1], $pos+1));
-            $info["site"][$data[0]] = $site;
-            $info["gender"][$data[0]] = $data[2];
+            $site = str_replace("_", " ", $site);
+            $info["site"][$mg_id] = $site;
+            $info["gender"][$mg_id] = $data[2];
+            $info["color"][$mg_id] = isset($colors[$site]) ? $colors[$site] : "";
         }
 
         fclose($fh);
     }
+
+    return $info;
+}
+
+function get_color_scheme($mg_db) {
+
+    $info = array(); # map site to color
+
+    $scheme_file = "$mg_db.color";
+    if (file_exists($scheme_file)) {
+        $fh = fopen($scheme_file, "r");
+        if ($fh === false)
+            return false;
+    } else {
+        return false;
+    }
+
+    while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
+        if (isset($data[0]) && $data[0] && $data[0][0] == "#")
+            continue; // skip comments
+
+        $site = str_replace("_", " ", $data[0]);
+        $info[$site] = $data[1];
+    }
+
+    fclose($fh);
 
     return $info;
 }

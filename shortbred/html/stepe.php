@@ -21,7 +21,7 @@ $qid = $_GET["quantify-id"];
 $id_query_string = "id=$identify_id&key=$key&quantify-id=$qid";
 
 
-$q_jobs = job_manager::get_quantify_jobs($db, $identify_id);
+#$q_jobs = job_manager::get_quantify_jobs($db, $identify_id);
 $mg_db = new metagenome_db();
 $mg_db->load_db();
 
@@ -105,59 +105,28 @@ require_once "inc/header.inc.php";
         </tr>
 HTML;
 ?>
-<?php outputResultsTable(true, $id_query_string, $size_data, $addl_html); ?>
+<?php outputResultsTable(false, $id_query_string, $size_data, $addl_html); ?>
 
 <br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Clusters</button>
 <div id="heatmap-clusters" style="display: none;">
-<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=c" width="970" height="780" style="border: none"></iframe>
+<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=c&g=q" width="970" height="780" style="border: none"></iframe>
 </div>
 
 <br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Singletons</button>
 <div id="heatmap-singletons" style="display: none;">
-<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=s" width="970" height="780" style="border: none"></iframe>
+<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=s&g=q" width="970" height="780" style="border: none"></iframe>
 </div>
 
 <br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Clusters and Singltetons</button>
 <div id="heatmap-merged" style="display: none;">
-<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=m" width="970" height="780" style="border: none"></iframe>
+<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=m&g=q" width="970" height="780" style="border: none"></iframe>
 </div>
 
-
-<h3>Individual Quantify Run Results</h3>
-
-
+<br><br>
+Metagenomes:
+<div style='margin-left: 40px; max-height: 300px; overflow-y: auto'>
 <?php
-foreach ($q_jobs as $job) {
-    $mgs = explode(",", $job["job_name"]);
-    $is_plural = count($mgs) > 1 ? "s" : "";
-    $job_name = implode(", ", $mgs);
-
-    $show_results = false;
-    $status = $job["date_completed"];
-    $nice_status = "";
-    if ($status == "FAILED") {
-        $nice_status = "Job failed.";
-    } elseif ($status == "PENDING") {
-        $nice_status = "Job pending execution.";
-    } elseif ($status == "RUNNING") {
-        $nice_status = "Job is currently running.";
-    } else {
-        $nice_status = "Job completed successfully.";
-        $show_results = true;
-    }
-
-    $inactive_color = "#aaa";
-    $hdr_color = $show_results ? "" : "color: $inactive_color";
-    $border_color = $show_results ? "black" : $inactive_color;
-
-    echo "<h4 style='border-bottom: 1px solid'>Quantify Job $qid</h4>\n";
-    echo "<br>Status: <b>$nice_status</b><br>";
-    if (!$show_results) {
-        echo "<div style=\"color: #ddd\">";
-    }
-    echo "Metagenome$is_plural:\n"; // $job_name\n";
-    echo "<div style='margin-left: 40px; max-height: 300px; overflow-y: auto'>\n";
-
+    $mgs = $job_obj->get_metagenome_ids();
     foreach ($mgs as $mg_id) {
         $mg_info = $mg_db->get_metagenome_data($mg_id);
         $info = "$mg_id";
@@ -170,53 +139,16 @@ foreach ($q_jobs as $job) {
         $info .= "<br>";
         echo $info;
     }
-
-    echo "</div>\n";
-
-
-    if ($show_results) {
-        $is_global = false;
-        $size_data = array(
-            "protein" => $protFileSize,
-            "cluster" => $clustFileSize,
-            "protein_norm" => $normProtFileSize,
-            "cluster_norm" => $normClustFileSize,
-        );
-
-        $gn_file = $job_obj->get_genome_normalized_cluster_file_path();
-        if (file_exists($gn_file)) {
-            $size_data["protein_genome_norm"] = $genomeNormProtFileSize;
-            $size_data["cluster_genome_norm"] = $genomeNormClustFileSize;
-        }
-
-        outputResultsTable($is_global, $id_query_string, $size_data);
-        /*
 ?>
-    <ul>
-        <li><a href="download_files.php?type=q-prot&<?php echo $id_query_string . "&quantify-id=" . $job["quantify_id"]; ?>">Download abundance data by protein.</a></li>
-        <li><a href="download_files.php?type=q-clust&<?php echo $id_query_string . "&quantify-id=" . $job["quantify_id"]; ?>">Download abundance data by cluster.</a></li>
-    </ul>
-<?php 
-         */
-    } else {
-        echo "</div>";
-    }
-
-    echo "<hr style='margin: 20px 0'>\n";
-}
-?>
-
-<!--
-<p><a href="download_files.php?type=ssn-q&<?php echo $id_query_string; ?>">Download SSN with markers and protein abundance.</a></p>
-<p><a href="download_files.php?type=q-prot&<?php echo $id_query_string; ?>">Download abundance data by protein.</a></p>
-<p><a href="download_files.php?type=q-clust&<?php echo $id_query_string; ?>">Download abundance data by cluster.</a></p>
--->
+</div>
 
 <?php } ?>
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
+
+<hr style='margin: 20px 0'>
 
 <script>
 $(document).ready(function() {
@@ -267,7 +199,7 @@ function outputResultsTable($is_global, $id_query_string, $size_data, $addl_html
     <tbody>
 HTML;
 
-    if ($is_global) {
+#    if ($is_global) {
         $file_type = array(
             "ssn" => "ssn-q",
             "ssn_zip" => "ssn-q-zip",
@@ -299,7 +231,7 @@ HTML;
         </tr>
 HTML;
         }
-    }
+#    }
 
 
     $file_type = array(
@@ -353,72 +285,5 @@ $addl_html
 HTML;
 }
 
-/*
-?>
-
-<!--
-<table width="100%" border="1">
-    <thead>
-        <th></th>
-        <th>File</th>
-        <th>Size</th>
-    </thead>
-    <tbody>
-        <tr>
-            <td style='text-align:center;'>
-                <?php if ($ssnFileSize) { ?>
-                <a href="download_files.php?type=ssn-q&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a>
-                <?php } ?>
-            </td>
-            <td>SSN with quantify results</td>
-            <td style='text-align:center;'><?php if ($ssnFileSize) echo $ssnFileSize; else echo "--"; ?> MB</td>
-        </tr>
-<?php if ($zipFileExists) { ?>
-        <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=ssn-q-zip&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
-            <td>SSN with quantify results (ZIP)</td>
-            <td style='text-align:center;'><?php echo $ssnZipFileSize; ?> MB</td>
-        </tr>
-<?php } ?>
-        <tr>
-            <td style='text-align:center;'>
-                <?php if ($protFileSize) { ?>
-                <a href="download_files.php?type=q-prot-m&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a>
-                <?php } ?>
-            </td>
-            <td>Protein abundance data for all runs</td>
-            <td style='text-align:center;'><?php if ($protFileSize) echo $protFileSize; else echo "--"; ?> MB</td>
-        </tr>
-        <tr>
-            <td style='text-align:center;'>
-                <?php if ($clustFileSize) { ?>
-                <a href="download_files.php?type=q-clust-m&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
-                <?php } ?>
-            <td>Cluster/protein abundance data for all runs</td>
-            <td style='text-align:center;'><?php if ($clustFileSize) echo $clustFileSize; else echo "--"; ?> MB</td>
-        </tr>
-        <tr>
-            <td style='text-align:center;'>
-                <?php if ($protFileSize) { ?>
-                <a href="download_files.php?type=q-prot-m-n&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a>
-                <?php } ?>
-            </td>
-            <td>Normalized protein abundance data for all runs</td>
-            <td style='text-align:center;'><?php if ($protFileSize) echo $protFileSize; else echo "--"; ?> MB</td>
-        </tr>
-        <tr>
-            <td style='text-align:center;'>
-                <?php if ($clustFileSize) { ?>
-                <a href="download_files.php?type=q-clust-m-n&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a>
-                <?php } ?>
-            </td>
-            <td>Normalized cluster/protein abundance data for all runs</td>
-            <td style='text-align:center;'><?php if ($clustFileSize) echo $clustFileSize; else echo "--"; ?> MB</td>
-        </tr>
-    </tbody>
-</table>
--->
-
- */
 ?>
 
