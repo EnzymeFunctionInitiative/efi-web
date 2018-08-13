@@ -60,6 +60,7 @@ if ($is_error) {
 }
 
 if ($q_id) {
+    $id_dir = $job_obj->get_identify_output_path();
     $clust_file = $job_obj->get_genome_normalized_cluster_file_path();
 } else {
     $id_dir = $job_obj->get_results_path();
@@ -110,8 +111,9 @@ if ($fh) {
     for ($i = 0; $i < count($metagenomes); $i++) {
         $mg_lookup[$mg_lookup_temp[$metagenomes[$i]]] = $i;
     }
-#    var_dump($mg_lookup);
-#    die();
+
+    //TODO: this is only needed until legacy jobs (prior to 8/4/2018) are eased out of the system.
+    $cluster_sizes = get_cluster_sizes("$id_dir/cluster.sizes");
 
     $clusters = array();
     $singles = array();
@@ -123,7 +125,16 @@ if ($fh) {
         $line = trim($line);
         $parts = explode("\t", $line);
         $cluster = $parts[0];
-        $size = $start_idx == 2 ? $parts[1] : 10000000;
+        $size = $start_idx == 2 ? $parts[1] : 2;
+        if (substr($cluster, 0, 1) == "S")
+            $size = 1;
+        
+        //TODO: this is only needed until legacy jobs (prior to 8/4/2018) are eased out of the system.
+        if (isset($cluster_sizes[$cluster]))
+            $size = $cluster_sizes[$cluster];
+        //TODO: this is only needed until legacy jobs (prior to 8/4/2018) are eased out of the system.
+        if ($size == 1 && $cluster[0] != "S")
+            $cluster = "S$cluster";
 
         if ($cluster == "#N/A")
             continue;
@@ -270,6 +281,21 @@ function get_color_scheme($mg_db) {
     fclose($fh);
 
     return $info;
+}
+
+function get_cluster_sizes($file) {
+    $sizes = array();
+
+    if (!file_exists($file))
+        return $sizes;
+
+    $fh = fopen($file, "r");
+    while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
+        $sizes[$data[0]] = $data[1];
+    }
+    fclose($fh);
+
+    return $sizes;
 }
 
 ?>
