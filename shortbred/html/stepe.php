@@ -48,7 +48,7 @@ $job_obj = new quantify($db, $qid);
 
 $filename = $job_obj->get_filename();
 
-$ssnFileSize = global_functions::bytes_to_megabytes($job_obj->get_merged_ssn_file_size());
+$ssnFileSize = global_functions::bytes_to_megabytes($job_obj->get_ssn_file_size());
 $protFileSize = $ssnFileSize ? "<1" : 0; // files are small
 $clustFileSize = $ssnFileSize ? "<1" : 0; // files are small
 $normProtFileSize = $ssnFileSize ? "<1" : 0; // files are small
@@ -56,9 +56,9 @@ $normClustFileSize = $ssnFileSize ? "<1" : 0; // files are small
 $genomeNormProtFileSize = $ssnFileSize ? "<1" : 0; // files are small
 $genomeNormClustFileSize = $ssnFileSize ? "<1" : 0; // files are small
 
-$zipFilePath = $job_obj->get_merged_ssn_zip_file_path();
+$zipFilePath = $job_obj->get_ssn_zip_file_path();
 $zipFileExists = file_exists($zipFilePath);
-$ssnZipFileSize = $zipFileExists ? global_functions::bytes_to_megabytes($job_obj->get_merged_ssn_zip_file_size()) : "0";
+$ssnZipFileSize = $zipFileExists ? global_functions::bytes_to_megabytes($job_obj->get_ssn_zip_file_size()) : "0";
 
 $size_data = array(
     "ssn" => $ssnFileSize,
@@ -69,7 +69,7 @@ $size_data = array(
     "cluster_norm" => $normClustFileSize,
 );
 
-$gn_file = $job_obj->get_merged_genome_normalized_cluster_file_path();
+$gn_file = $job_obj->get_genome_normalized_cluster_file_path();
 if (file_exists($gn_file)) {
     $size_data["protein_genome_norm"] = $genomeNormProtFileSize;
     $size_data["cluster_genome_norm"] = $genomeNormClustFileSize;

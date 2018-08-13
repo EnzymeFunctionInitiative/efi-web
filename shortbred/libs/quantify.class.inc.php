@@ -333,6 +333,11 @@ class quantify extends job_shared {
         $path = settings::get_output_dir() . "/" . $this->identify_id . "/" . settings::get_rel_output_dir();
         return $path;
     }
+    private function get_quantify_output_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            $this->get_quantify_res_dir();
+        return $path;
+    }
 
     public function get_protein_file_path() {
         $path = $this->get_identify_output_path() . "/" .
@@ -426,8 +431,11 @@ class quantify extends job_shared {
             $this->identify_id . "/" .
             settings::get_rel_output_dir() . "/";
         $q_dir = $this->get_quantify_res_dir();
+
         $ssn = $this->get_ssn_name();
-        if (file_exists("$path/$q_dir/$ssn")) {
+        $local_ssn = $this->get_quantify_output_path() . "/" . $ssn;
+
+        if (file_exists($local_ssn)) {
             return "$path/$q_dir/$ssn";
         } else {
             return "$path/$ssn";
@@ -444,19 +452,14 @@ class quantify extends job_shared {
         $name = preg_replace("/.xgmml$/", "_quantify.xgmml", $name);
         return "${id}_$name";
     }
-    
-    public function get_merged_ssn_zip_file_path() {
-        $path = $this->get_merged_ssn_file_path() . ".zip";
-        return $path;
-    }
-    private function get_merged_ssn_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            $this->get_ssn_name();
-        return $path;
-    }
 
+    // MERGED    
+    public function get_merged_ssn_zip_file_path() {
+        $path = $this->get_ssn_file_path_shared() . ".zip";
+        return $path;
+    }
     public function get_merged_ssn_file_size() {
-        $file = $this->get_merged_ssn_file_path();
+        $file = $this->get_ssn_file_path_shared();
         if (file_exists($file))
             return filesize($file);
         else
@@ -464,6 +467,37 @@ class quantify extends job_shared {
     }
     public function get_merged_ssn_zip_file_size() {
         $file = $this->get_merged_ssn_zip_file_path();
+        if (file_exists($file))
+            return filesize($file);
+        else
+            return 0;
+    }
+
+    // LOCAL
+    private function get_ssn_file_path_shared() {
+        $path = $this->get_identify_output_path();
+        $q_dir = $this->get_quantify_res_dir();
+        $ssn = $this->get_ssn_name();
+
+        if (file_exists("$path/$q_dir/$ssn"))
+            return "$path/$q_dir/$ssn";
+        else
+            return "$path/$ssn";
+    }
+
+    public function get_ssn_zip_file_path() {
+        $path = $this->get_ssn_file_path_shared() . ".zip";
+        return $path;
+    }
+    public function get_ssn_file_size() {
+        $file = $this->get_ssn_file_path_shared();
+        if (file_exists($file))
+            return filesize($file);
+        else
+            return 0;
+    }
+    public function get_ssn_zip_file_size() {
+        $file = $this->get_ssn_zip_file_path();
         if (file_exists($file))
             return filesize($file);
         else
