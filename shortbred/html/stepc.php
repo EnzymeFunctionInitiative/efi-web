@@ -58,6 +58,7 @@ if ($status == __FAILED__) {
 
 
 $filename = $job->get_filename();
+$msl = $job->get_min_seq_len();
 
 $hmp_list = array();
 if ($is_finished) {
@@ -94,6 +95,11 @@ require_once "inc/header.inc.php";
 <?php } else { ?>
 
 <p>Input filename: <?php echo $filename; ?></>
+<?php
+if ($msl) {
+    echo "<p>Minimum sequence length: $msl</p>\n";
+}
+?>
 
 <?php if ($parent_id) { ?>
 <p>Parent Job is

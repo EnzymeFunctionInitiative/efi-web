@@ -107,10 +107,15 @@ show_jobs($training_jobs);
                 <p>
                 <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", $SiteUrlPrefix); ?>
                 </p>
+
+                <p>
+                    Minimum sequence length: <input name="ssn_min_seq_len" id="ssn_min_seq_len" type="text" /> (Optional)
+                    <a class="question" title="If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a minimum sequence length, in order to eliminate fragments that may be included in UniRef90 clusters.">?</a>
+                </p>
     
                 <p>
                     E-mail address: 
-                    <input name='ssn_email' id='ssn_email' type="text" value="<?php echo $user_email; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
+                    <input name="ssn_email" id="ssn_email" type="text" value="<?php echo $user_email; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
                     When the file has been uploaded and processed, you will receive an e-mail containing a link
                     to download the data.
                 </p>
@@ -120,7 +125,7 @@ show_jobs($training_jobs);
                 </div>
                 <center>
                     <div><button type="button" id='ssn_submit' name="ssn_submit" class="dark"
-                            onclick="uploadFile('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit','ssn_job_group')">
+                            onclick="uploadFile('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit','ssn_min_seq_len')">
                                 Upload SSN
                         </button></div>
                     <div><progress id='progress_bar' max='100' value='0'></progress></div>

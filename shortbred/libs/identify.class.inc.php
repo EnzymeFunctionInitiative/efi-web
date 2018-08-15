@@ -13,10 +13,14 @@ class identify extends job_shared {
     private $loaded = false;
     private $db;
     private $error_message = "";
+    private $min_seq_len = "";
 
 
     public function get_filename() {
         return $this->filename;
+    }
+    public function get_min_seq_len() {
+        return $this->min_seq_len;
     }
 
 
@@ -29,8 +33,8 @@ class identify extends job_shared {
         $this->load_job();
     }
 
-    public static function create($db, $email, $tmp_filename, $filename, $jobGroup) {
-        $info = self::create_shared($db, $email, $tmp_filename, $filename, "", false);
+    public static function create($db, $email, $tmp_filename, $filename, $min_seq_len) {
+        $info = self::create_shared($db, $email, $tmp_filename, $filename, "", false, $min_seq_len);
         return $info;
     }
 
@@ -39,7 +43,7 @@ class identify extends job_shared {
     //
     // $parent_id > 0 and $true_copy = false creates a new job based
     // on the parent job, but re-runs parts of the identify step with the new SSN. 
-    private static function create_shared($db, $email, $tmp_filename, $filename, $parent_id, $true_copy) {
+    private static function create_shared($db, $email, $tmp_filename, $filename, $parent_id, $true_copy, $min_seq_len) {
 
         // Sanitize filename
         $filename = preg_replace("([^a-zA-Z0-9\-_\.])", '', $filename);
@@ -58,6 +62,8 @@ class identify extends job_shared {
             $insert_array['identify_copy_id'] = $parent_id;
         elseif ($parent_id)
             $insert_array['identify_parent_id'] = $parent_id;
+        if ($min_seq_len)
+            $insert_array['identify_min_seq_len'] = $min_seq_len;
 
         $new_id = $db->build_insert('identify', $insert_array);
 
@@ -82,7 +88,7 @@ class identify extends job_shared {
         $result = $db->query($sql);
         if (!$result)
             return false;
-        $info = self::create_shared($db, $email, $tmp_filename, $filename, $parent_id, false);
+        $info = self::create_shared($db, $email, $tmp_filename, $filename, $parent_id, false, "");
         return $info;
     }
 
@@ -94,7 +100,7 @@ class identify extends job_shared {
         
         $filename = $result[0]["identify_filename"];
 
-        $info = self::create_shared($db, $email, "", $filename, $parent_id, true);
+        $info = self::create_shared($db, $email, "", $filename, $parent_id, true, "");
         return $info;
     }
 
@@ -172,6 +178,8 @@ class identify extends job_shared {
             $exec .= " -scheduler $sched";
         if ($parent_id)
             $exec .= " -parent-job-id $parent_id";
+        if ($this->min_seq_len)
+            $exec .= " -min-seq-len " . $this->min_seq_len;
 
         if ($this->is_debug) {
             print("Job ID: $id\n");
@@ -223,6 +231,7 @@ class identify extends job_shared {
         $this->set_email($result['identify_email']);
         $this->set_key($result['identify_key']);
         $this->filename = $result['identify_filename'];
+        $this->min_seq_len = $result['identify_min_seq_len'];
 
         $this->loaded = true;
         return true;
