@@ -32,11 +32,11 @@ function submitQuantify(formId, selectId, messageId, sbId, sbKey) {
     doFormPost(script, fd, messageId, fileHandler, completionHandler);
 }
 
-function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, jobGroupId, isSsn) {
+function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, minSeqLenId) {
     var fd = new FormData();
     addParam(fd, "email", emailId);
     addParam(fd, "submit", submitId);
-    addParam(fd, "job-group", jobGroupId);
+    addParam(fd, "min-seq-len", minSeqLenId);
 
     var files = document.getElementById(fileInputId).files;
     var completionHandler = function(jsonObj) {
