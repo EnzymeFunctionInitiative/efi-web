@@ -59,12 +59,17 @@ not be able to view a full SSN, but the user will be able to view a rep node
 SSN. We recommend the highest resolution rep node SSN that can be manipulated 
 with Cytoscape on the user’s computer (largest possible sequence identity) so 
 that proteins with different functions can be expected to be located in 
-separate SSN clusters.
+separate SSN clusters. EFI-CGFP "expands" the metanodes in rep node SSNs to
+include all of the sequences in the identification of markers
 </p>
 
 <p>
 We also recommend that users apply a minimum length filter to ensure that the 
-sequences are "full length" when the input SSN is generated with EFI-EST.  The 
+sequences are "full length" when the input SSN is generated with EFI-EST.  An 
+appropriate minimum length can be selected by examining the length histogram 
+provided by EFI-EST.  Rep node SSNs are generated after the minimum length 
+filter is applied; therefore, all of the sequences in rep node SSNs will be 
+"full length". The 
 marker identification step in ShortBRED involves initial clustering of proteins 
 into groups of sequences that share &ge;85% sequence identity (CD-HIT 85 
 clusters); these sequences then are aligned (multiple sequence alignment using 
@@ -77,14 +82,13 @@ SSN clusters that contain the CD-HIT 85 sequences with the markers.
 </p>
 
 <p>
-We do not recommend the use of UniRef90 sequences for generating the input SSN.   
-For UniRef90 sequences, the minimum length filter in EFI-EST is applied only to 
-the seed sequence (longest sequence) in a UniRef90 clusters provided by 
-UniProt.  UniRef90 clusters often contain fragments, so if an SSN generated 
-with UniRef90 sequences is used as the input for EFI-CGFP, the multiple 
-sequence alignments/consensus sequences may be biased by the presence of these 
-fragments.
-</p>
+EFI-EST uses UniRef90 clusters when a user-specified family contains ≥25,000 
+sequences (Options B, C, and D).  EFI-CGFP "expands" UniRef90 clusters to 
+include all of the sequences in the identification of markers; however, the 
+clusters can include fragments.  Because the minimum length filter in EFI-EST 
+is applied only to the UniRef90 seed sequence, the same minimum length filter 
+should be specified in the "minimum sequence length" window to remove 
+fragments.  </p>
 
 <p>
 EFI-CGFP identifies and uses only unique sequences (100% sequence identity over 
