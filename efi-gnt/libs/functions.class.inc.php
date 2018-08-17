@@ -347,7 +347,7 @@ class functions extends global_functions {
         return in_array($key, $keys);
     }
 
-    public static function dump_gnn_info($gnn) {
+    public static function dump_gnn_info($gnn, $is_sync = false) {
         $baseUrl = settings::get_web_address();
         
         $ssnFile = $gnn->get_relative_color_ssn();
@@ -368,21 +368,24 @@ class functions extends global_functions {
         $diagramZipFile = $gnn->get_relative_diagram_zip_file();
 
         $files["ssn"] = $baseUrl . "/" . $ssnFile;
-        $files["ssnZip"] = $baseUrl . "/" . $ssnZipFile;
         $files["gnnFile"] = $baseUrl . "/" . $gnnFile;
-        $files["gnnZipFile"] = $baseUrl . "/" . $gnnZipFile;
         $files["pfamFile"] = $baseUrl . "/" . $pfamFile;
-        $files["pfamZipFile"] = $baseUrl . "/" . $pfamZipFile;
-        $files["idDataZip"] = $baseUrl . "/" . $idDataZip;
-        $files["pfamDataZip"] = $baseUrl . "/" . $pfamDataZip;
         $files["warningFile"] = $baseUrl . "/" . $warningFile;
-        $files["idTableFile"] = $baseUrl . "/" . $idTableFile;
-        $files["pfamNoneZip"] = $baseUrl . "/" . $pfamNoneZip;
-        $files["fastaZip"] = $baseUrl . "/" . $fastaZip;
-        $files["coocTableFile"] = $baseUrl . "/" . $coocTableFile;
-        $files["hubCountFile"] = $baseUrl . "/" . $hubCountFile;
-        $files["diagramFile"] = $baseUrl . "/" . $diagramFile;
-        $files["diagramZipFile"] = $baseUrl . "/" . $diagramZipFile;
+
+        if (!$is_sync) {
+            $files["ssnZip"] = $baseUrl . "/" . $ssnZipFile;
+            $files["gnnZipFile"] = $baseUrl . "/" . $gnnZipFile;
+            $files["pfamZipFile"] = $baseUrl . "/" . $pfamZipFile;
+            $files["idDataZip"] = $baseUrl . "/" . $idDataZip;
+            $files["pfamDataZip"] = $baseUrl . "/" . $pfamDataZip;
+            $files["idTableFile"] = $baseUrl . "/" . $idTableFile;
+            $files["pfamNoneZip"] = $baseUrl . "/" . $pfamNoneZip;
+            $files["fastaZip"] = $baseUrl . "/" . $fastaZip;
+            $files["coocTableFile"] = $baseUrl . "/" . $coocTableFile;
+            $files["hubCountFile"] = $baseUrl . "/" . $hubCountFile;
+            $files["diagramFile"] = $baseUrl . "/" . $diagramFile;
+            $files["diagramZipFile"] = $baseUrl . "/" . $diagramZipFile;
+        }
 
         return $files;
     }
