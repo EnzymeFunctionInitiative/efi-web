@@ -25,6 +25,7 @@ define("__WEB_ROOT__","");
 //
 // FILE INFO
 define("__RELATIVE_OUTPUT_DIR__","");
+define("__RELATIVE_SYNC_OUTPUT_DIR__","");
 define("__LEGACY_RELATIVE_OUTPUT_DIR__","");
 define("__VALID_FILE_TYPE__","xgmml zip");
 define("__VALID_DIAGRAM_FILE_TYPE__","sqlite");
@@ -47,6 +48,7 @@ define("__ENABLE_BIGSCAPE__",false);
 //
 // JOB SCHEDULING PARAMETERS
 define("__GNN_SCRIPT__","");
+define("__SYNC_GNN_SCRIPT__","");
 define("__PROCESS_DIAGRAM_SCRIPT__","");
 define("__PROCESS_BIGSCAPE_SCRIPT__","");
 define("__GNN_MODULE__","");

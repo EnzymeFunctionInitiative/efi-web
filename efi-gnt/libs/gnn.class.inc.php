@@ -34,9 +34,11 @@ class gnn extends gnn_shared {
     protected $is_legacy = false;
     protected $est_id = 0; // gnn_source_id, we use the EST job with this analysis ID
 
+    private $is_sync = false;
+
     ///////////////Public Functions///////////
 
-    public function __construct($db,$id = 0) {
+    public function __construct($db, $id = 0, $is_sync = false) {
         $this->db = $db;
 
         if ($id) {
@@ -44,6 +46,7 @@ class gnn extends gnn_shared {
         }
 
         $this->beta = settings::get_release_status();
+        $this->is_sync = $is_sync;
     }
 
     public function __destruct() {
@@ -105,9 +108,9 @@ class gnn extends gnn_shared {
         $this->set_time_started();
         $id = $this->get_id();
 
-        $is_sync = true;
+        $output_dir = $this->get_output_dir();
         $ssnin = $this->unzip_file();
-        $target_ssnin = $this->do_run_file_actions($ssnin, $is_debug, $is_sync);
+        $target_ssnin = $this->do_run_file_actions($ssnin, $is_debug);
 
         $exec = $this->get_run_exec_cmd($target_ssnin);
 
@@ -116,38 +119,11 @@ class gnn extends gnn_shared {
 
         $output_array = array();
         $output = exec($exec,$output_array,$exit_status);
-        print(implode("\n", $output_array));
         $output = trim(rtrim($output));
-        
-        $sched = settings::get_cluster_scheduler();
-        if ($sched == "slurm")
-            $pbs_job_number = $output;
-        else
-            $pbs_job_number = substr($output, 0, strpos($output, "."));
-        error_log("Job ID: " . $id . ", Exit Status: " . $exit_status);
 
-        $timeout_count = 0;
-        $max_timeout = 40; // 10 minutes
+        $script = "$output_dir/submit_gnn.sh";
+        $output = shell_exec($script);
         $error = 0;
-        while (true) {
-            if ($this->check_finish_file() && !$this->check_pbs_running()) {
-                // Successfully ran
-                break;
-            } elseif (!$this->check_finish_file() && !$this->check_pbs_running()) {
-                $error = 1;
-                break;
-            }
-
-            print "Checking $timeout_count\n";
-            sleep(15);
-            
-            if ($timeout_count++ > $max_timeout) {
-                $error = 2;
-                break;
-            }
-        }
-
-        print "Status = $error\n";
 
         $this->set_time_completed();
         $formatted_output = implode("\n",$output_array);
@@ -173,9 +149,8 @@ class gnn extends gnn_shared {
 
         $exec = $this->get_run_exec_cmd($target_ssnin);
 
-        //TODO: remove this debug message
-        error_log("Job ID: " . $this->get_id());
-        error_log("Exec: " . $exec);
+        //error_log("Job ID: " . $this->get_id());
+        //error_log("Exec: " . $exec);
 
         $exit_status = 1;
 
@@ -213,8 +188,8 @@ class gnn extends gnn_shared {
         }
     }
 
-    private function do_run_file_actions($ssnin, $is_debug, $is_sync = false) {
-        if ($is_sync)
+    private function do_run_file_actions($ssnin, $is_debug) {
+        if ($this->is_sync)
             $out_dir = settings::get_sync_output_dir();
         else
             $out_dir = settings::get_output_dir();
@@ -234,11 +209,17 @@ class gnn extends gnn_shared {
         $sched = settings::get_cluster_scheduler();
         $queue = settings::get_memory_queue();
         $binary = settings::get_gnn_script();
+        $sync_binary = settings::get_sync_gnn_script();
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
         $exec .= "module load " . settings::get_gnn_module() . "\n";
-        $exec .= $binary . " ";
+
+        if ($this->is_sync) {
+            $exec .= $sync_binary . " ";
+        } else {
+            $exec .= $binary . " ";
+        }
         $exec .= " -queue " . $queue;
         $exec .= " -ssnin \"" . $target_ssnin . "\"";
         $exec .= " -nb-size " . $this->get_size();
@@ -249,19 +230,23 @@ class gnn extends gnn_shared {
         $exec .= " -warning-file \"" . $this->get_warning_file() . "\"";
         $exec .= " -pfam \"" . $this->get_pfam_hub() . "\"";
         $exec .= " -pfam-dir \"" . $this->get_pfam_data_dir()  . "\"";
-        $exec .= " -pfam-zip \"" . $this->get_pfam_data_zip_file() . "\"";
         $exec .= " -id-dir \"" . $this->get_cluster_data_dir()  . "\"";
-        $exec .= " -id-zip \"" . $this->get_cluster_data_zip_file() . "\"";
         $exec .= " -id-out \"" . $this->get_id_table_file() . "\"";
         $exec .= " -none-dir \"" . $this->get_pfam_none_dir() . "\"";
-        $exec .= " -none-zip \"" . $this->get_pfam_none_zip_file() . "\"";
-        $exec .= " -fasta-dir \"" . $this->get_fasta_dir() . "\"";
-        $exec .= " -fasta-zip \"" . $this->get_fasta_zip_file() . "\"";
-        $exec .= " -arrow-file \"" . $this->get_diagram_data_file() . "\"";
-        $exec .= " -cooc-table \"" . $this->get_cooc_table_file() . "\"";
-        $exec .= " -hub-count-file \"" . $this->get_hub_count_file() . "\"";
+        
+        if (!$this->is_sync) {
+            $exec .= " -pfam-zip \"" . $this->get_pfam_data_zip_file() . "\"";
+            $exec .= " -id-zip \"" . $this->get_cluster_data_zip_file() . "\"";
+            $exec .= " -none-zip \"" . $this->get_pfam_none_zip_file() . "\"";
+            $exec .= " -fasta-dir \"" . $this->get_fasta_dir() . "\"";
+            $exec .= " -fasta-zip \"" . $this->get_fasta_zip_file() . "\"";
+            $exec .= " -arrow-file \"" . $this->get_diagram_data_file() . "\"";
+            $exec .= " -cooc-table \"" . $this->get_cooc_table_file() . "\"";
+            $exec .= " -hub-count-file \"" . $this->get_hub_count_file() . "\"";
+        }
         if ($sched)
             $exec .= " -scheduler $sched";
+
         return $exec;
     }
 
@@ -289,8 +274,8 @@ class gnn extends gnn_shared {
 
     public function get_log_file() {
         $filename = $this->log_file;
-        $output_dir = settings::get_output_dir();
-        $full_path = $output_dir . "/" . $this->get_id() . "/" . $filename;
+        $output_dir = $this->get_output_dir();
+        $full_path = $output_dir . "/" . $filename;
         return $full_path;
     }
 
@@ -428,9 +413,6 @@ class gnn extends gnn_shared {
         return $this->shared_get_relative_file_path("_stats", ".txt");
     }
 
-//    public function get_diagram_data_file($useBigscape = false) {
-//        return $this->shared_get_full_file_path("_arrow_data", ".sqlite") . ($useBigscape ? ".bigscape" : "");
-//    }
     public function get_diagram_zip_file() {
         return $this->shared_get_full_file_path("_arrow_data", ".zip");
     }
@@ -446,16 +428,6 @@ class gnn extends gnn_shared {
     public function does_job_have_arrows() {
         return file_exists($this->get_diagram_data_file());
     }
-    //public function has_bigscape_run() {
-    //    return file_exists($this->get_diagram_data_file() . ".bigscape");
-    //}
-//    public function get_bigscape_cluster_file() {
-//        $file = $this->get_diagram_data_file(false) . ".bigscape-clusters";
-//        if (file_exists($file))
-//            return $file;
-//        else
-//            return FALSE;
-//    }
 
     public function get_cooc_table_file() {
         return $this->shared_get_full_file_path("_cooc_table", ".txt");
@@ -599,10 +571,14 @@ class gnn extends gnn_shared {
 
 
     public function get_rel_output_dir() {
-        if ($this->is_legacy)
+        if ($this->is_legacy) {
             return settings::get_legacy_rel_output_dir();
-        else
-            return settings::get_rel_output_dir();
+        } else {
+            if ($this->is_sync)
+                return settings::get_rel_sync_output_dir();
+            else
+                return settings::get_rel_output_dir();
+        }
     }
 
     public function set_time_started() {
@@ -848,10 +824,16 @@ class gnn extends gnn_shared {
     }
 
     public function get_output_dir() {
-        if ($this->is_legacy)
+        if ($this->is_legacy) {
             return settings::get_legacy_output_dir() . "/" . $this->get_id();
-        else
-            return settings::get_output_dir() . "/" . $this->get_id();
+        } else {
+            $base_dir = "";
+            if ($this->is_sync)
+                $base_dir = settings::get_sync_output_dir();
+            else
+                $base_dir = settings::get_output_dir();
+            return $base_dir . "/" . $this->get_id();
+        }
     }
 
     public function get_pbs_number() { return $this->pbs_number; }
