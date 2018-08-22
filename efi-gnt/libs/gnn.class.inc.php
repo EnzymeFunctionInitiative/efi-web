@@ -230,12 +230,14 @@ class gnn extends gnn_shared {
         $exec .= " -warning-file \"" . $this->get_warning_file() . "\"";
         $exec .= " -pfam \"" . $this->get_pfam_hub() . "\"";
         $exec .= " -pfam-dir \"" . $this->get_pfam_data_dir()  . "\"";
+        $exec .= " -all-pfam-dir \"" . $this->get_all_pfam_data_dir()  . "\"";
         $exec .= " -id-dir \"" . $this->get_cluster_data_dir()  . "\"";
         $exec .= " -id-out \"" . $this->get_id_table_file() . "\"";
         $exec .= " -none-dir \"" . $this->get_pfam_none_dir() . "\"";
         
         if (!$this->is_sync) {
             $exec .= " -pfam-zip \"" . $this->get_pfam_data_zip_file() . "\"";
+            $exec .= " -all-pfam-zip \"" . $this->get_all_pfam_data_zip_file() . "\"";
             $exec .= " -id-zip \"" . $this->get_cluster_data_zip_file() . "\"";
             $exec .= " -none-zip \"" . $this->get_pfam_none_zip_file() . "\"";
             $exec .= " -fasta-dir \"" . $this->get_fasta_dir() . "\"";
@@ -327,6 +329,9 @@ class gnn extends gnn_shared {
     public function get_pfam_data_dir() {
         return $this->shared_get_dir("pfam-data");
     }
+    public function get_all_pfam_data_dir() {
+        return $this->shared_get_dir("all-pfam-data");
+    }
     public function get_pfam_none_dir() {
         return $this->shared_get_dir("pfam-none");
     }
@@ -393,6 +398,16 @@ class gnn extends gnn_shared {
         if ($this->is_legacy)
             return "";
         return $this->shared_get_relative_file_path("_pfam_mapping", ".zip");
+    }
+
+    public function get_all_pfam_data_zip_file() {
+        return $this->shared_get_full_file_path("_all_pfam_mapping", ".zip");
+    }
+    public function get_relative_all_pfam_data_zip_file() {
+        $full_file = $this->get_all_pfam_data_zip_file();
+        if (!file_exists($full_file))
+            return "";
+        return $this->shared_get_relative_file_path("_all_pfam_mapping", ".zip");
     }
 
     public function get_id_table_file() {
@@ -490,9 +505,11 @@ class gnn extends gnn_shared {
         return $this->get_shared_file_size($file);
     }
     public function get_pfam_data_zip_filesize() {
-        if ($this->is_legacy)
-            return 0;
         $file = $this->get_pfam_data_zip_file();
+        return $this->get_shared_file_size($file);
+    }
+    public function get_all_pfam_data_zip_filesize() {
+        $file = $this->get_all_pfam_data_zip_file();
         return $this->get_shared_file_size($file);
     }
     public function get_stats_filesize() {

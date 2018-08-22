@@ -358,6 +358,7 @@ class functions extends global_functions {
         $pfamZipFile = $gnn->get_relative_pfam_hub_zip_file();
         $idDataZip = $gnn->get_relative_cluster_data_zip_file();
         $pfamDataZip = $gnn->get_relative_pfam_data_zip_file();
+        $allPfamDataZip = $gnn->get_relative_all_pfam_data_zip_file();
         $warningFile = $gnn->get_relative_warning_file();
         $idTableFile = $gnn->get_relative_id_table_file();
         $pfamNoneZip = $gnn->get_relative_pfam_none_zip_file();
@@ -376,6 +377,7 @@ class functions extends global_functions {
             $files["ssnZip"] = $baseUrl . "/" . $ssnZipFile;
             $files["gnnZipFile"] = $baseUrl . "/" . $gnnZipFile;
             $files["pfamZipFile"] = $baseUrl . "/" . $pfamZipFile;
+            $files["allPfamZipFile"] = $baseUrl . "/" . $allPfamZipFile;
             $files["idDataZip"] = $baseUrl . "/" . $idDataZip;
             $files["pfamDataZip"] = $baseUrl . "/" . $pfamDataZip;
             $files["idTableFile"] = $baseUrl . "/" . $idTableFile;
