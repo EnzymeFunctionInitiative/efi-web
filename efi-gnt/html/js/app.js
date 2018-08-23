@@ -24,6 +24,8 @@ function ArrowApp(arrows, popupIds) {
     this.useBigscape = true; // Default to bigscape if it's available
     this.bigscapeRunning = false;
 
+    this.filterRevMap = {};
+
     var that = this;
     this.filterLegendObj.empty();
     $("#search-cluster-button").click(function() {
@@ -164,10 +166,28 @@ ArrowApp.prototype.doSearch = function(idList) {
 //    });
 }
 
+ArrowApp.prototype.uiFilterUpdate = function(fam, doRemove) {
+    if (fam in this.filterRevMap) {
+        var data = this.filterRevMap[fam];
+        var i = data[0];
+        var text = data[1];
+
+        var checkbox = $("#filter-cb-" + i);
+        checkbox.prop('checked', !checkbox.prop('checked'));
+
+        if (doRemove)
+            $("#legend-" + i).remove();
+        else
+            this.addLegendItem(i, fam, data[1]);
+
+    }
+}
+
 ArrowApp.prototype.populateFilterList = function() {
     this.fams = this.arrows.getFamilies(this.showFamsById);
     this.filterListObj.empty();
     this.filterLegendObj.empty();
+    this.filterRevMap = {};
 
     var that = this;
     $.each(this.fams, function(i, fam) {
@@ -180,23 +200,20 @@ ArrowApp.prototype.populateFilterList = function() {
         $("<input id='filter-cb-" + i + "' class='filter-cb' type='checkbox' value='" + i + "' " + isChecked + "/>")
             .appendTo(entry)
             .click(function(e) {
+                console.log("cb clicked");
                 if (this.checked) {
                     that.arrows.addPfamFilter(fam.id);
                     that.addLegendItem(i, fam.id, famText);
-//    var color = that.arrows.getPfamColor(id);
-//                    var activeFilter = $("<div id='legend-" + this.value + "'>" +
-//                            "<span class='active-filter-icon' style='background-color:" + color + "'> </span> " + famText + "</div>")
-//                        .appendTo("#active-filter-list");
                 } else {
                     that.arrows.removePfamFilter(fam.id);
                     $("#legend-" + i).remove();
                 }
             });
-         //$(" <span id='filter-cb-text-" + i + "' class='filter-cb-name'>" + fam.name + "</span>").
-         //   appendTo(entry);
          $("<span id='filter-cb-text-" + i + "' class='filter-cb-number'><label for='filter-cb-" + i + "'>" + famText + "</label></span>").
             appendTo(entry);
          
+         that.filterRevMap[fam.id] = [i, famText];
+
          if (fam.checked)
              that.addLegendItem(i, fam.id, famText);
     });

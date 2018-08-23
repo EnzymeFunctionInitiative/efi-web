@@ -422,9 +422,16 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
         <script type="application/javascript">
             $(document).ready(function() {
                 var popupIds = new PopupIds();
+
                 var arrowDiagrams = new ArrowDiagram("arrow-canvas", "", "arrow-container", popupIds);
-                //arrowDiagrams.setJobInfo("<?php echo $idKeyQueryString; ?>");
                 var arrowApp = new ArrowApp(arrowDiagrams);
+
+                var filterUpdateCb = function(fam, doRemove) {
+                    arrowApp.uiFilterUpdate(fam, doRemove);
+                };
+                arrowDiagrams.setUiFilterUpdateCb(filterUpdateCb);
+
+                //arrowDiagrams.setJobInfo("<?php echo $idKeyQueryString; ?>");
                 arrowApp.setQueryString("<?php echo $idKeyQueryString; ?>");
 
                 $("#menu-toggle").click(function(e) {
