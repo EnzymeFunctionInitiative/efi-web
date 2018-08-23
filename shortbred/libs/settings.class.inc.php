@@ -41,8 +41,12 @@ class settings extends global_settings {
         return __NUM_PROCESSORS__;
     }
 
-    public static function get_shortbred_module() {
-        return __SHORTBRED_MODULE__;
+    public static function get_shortbred_blast_module() {
+        return __SHORTBRED_BLAST_MODULE__;
+    }
+
+    public static function get_shortbred_diamond_module() {
+        return __SHORTBRED_DIAMOND_MODULE__;
     }
 
     public static function get_efidb_module() {

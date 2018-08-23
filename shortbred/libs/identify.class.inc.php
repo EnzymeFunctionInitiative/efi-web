@@ -33,8 +33,8 @@ class identify extends job_shared {
         $this->load_job();
     }
 
-    public static function create($db, $email, $tmp_filename, $filename, $min_seq_len) {
-        $info = self::create_shared($db, $email, $tmp_filename, $filename, "", false, $min_seq_len);
+    public static function create($db, $email, $tmp_filename, $filename, $min_seq_len, $search_type) {
+        $info = self::create_shared($db, $email, $tmp_filename, $filename, "", false, $min_seq_len, $search_type);
         return $info;
     }
 
@@ -43,7 +43,7 @@ class identify extends job_shared {
     //
     // $parent_id > 0 and $true_copy = false creates a new job based
     // on the parent job, but re-runs parts of the identify step with the new SSN. 
-    private static function create_shared($db, $email, $tmp_filename, $filename, $parent_id, $true_copy, $min_seq_len) {
+    private static function create_shared($db, $email, $tmp_filename, $filename, $parent_id, $true_copy, $min_seq_len, $search_type) {
 
         // Sanitize filename
         $filename = preg_replace("([^a-zA-Z0-9\-_\.])", '', $filename);
@@ -54,7 +54,6 @@ class identify extends job_shared {
         $insert_array = array(
             'identify_email' => $email,
             'identify_key' => $key,
-            'identify_filename' => $filename,
             'identify_status' => $status,
             'identify_time_created' => self::get_current_time(),
         );
@@ -62,8 +61,17 @@ class identify extends job_shared {
             $insert_array['identify_copy_id'] = $parent_id;
         elseif ($parent_id)
             $insert_array['identify_parent_id'] = $parent_id;
+
+        $parms_array = array('identify_filename' => $filename);
         if ($min_seq_len)
-            $insert_array['identify_min_seq_len'] = $min_seq_len;
+            $parms_array['identify_min_seq_len'] = $min_seq_len;
+        if ($search_type) {
+            $search_type = strtolower($search_type);
+            if ($search_type == "diamond" || $search_type == "blast")
+                $parms_array['identify_search_type'] = $search_type;
+        }
+
+        $insert_array['identify_params'] = global_functions::encode_object($parms_array);
 
         $new_id = $db->build_insert('identify', $insert_array);
 
@@ -88,7 +96,11 @@ class identify extends job_shared {
         $result = $db->query($sql);
         if (!$result)
             return false;
-        $info = self::create_shared($db, $email, $tmp_filename, $filename, $parent_id, false, "");
+        
+        $params = global_functions::decode_object($result[0]['identify_params']);
+        $search_type = $params['identify_search_type'];
+
+        $info = self::create_shared($db, $email, $tmp_filename, $filename, $parent_id, false, "", $search_type);
         return $info;
     }
 
@@ -98,9 +110,11 @@ class identify extends job_shared {
         if (!$result)
             return false;
         
-        $filename = $result[0]["identify_filename"];
+        $params = global_functions::decode_object($result[0]['identify_params']);
+        $filename = $params['identify_filename'];
+        $search_type = $params['identify_search_type'];
 
-        $info = self::create_shared($db, $email, "", $filename, $parent_id, true, "");
+        $info = self::create_shared($db, $email, "", $filename, $parent_id, true, "", "", $search_type);
         return $info;
     }
 
@@ -161,10 +175,13 @@ class identify extends job_shared {
         $sched = settings::get_cluster_scheduler();
         $queue = settings::get_normal_queue();
         $memQueue = settings::get_memory_queue();
+        $sb_module = settings::get_shortbred_blast_module();
+        if ($this->search_type == "diamond")
+            $sb_module = settings::get_shortbred_diamond_module();
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
-        $exec .= "module load " . settings::get_shortbred_module() . "\n";
+        $exec .= "module load $sb_module\n";
         $exec .= "$script";
         $exec .= " -ssn-in $target_ssn_path";
         $exec .= " -ssn-out-name " . $this->get_ssn_name();
@@ -174,6 +191,7 @@ class identify extends job_shared {
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
         $exec .= " -mem-queue $memQueue";
+        $exec .= " -search-type " . $this->search_type;
         if ($sched)
             $exec .= " -scheduler $sched";
         if ($parent_id)
@@ -227,11 +245,12 @@ class identify extends job_shared {
         $result = $result[0];
 
         $this->load_job_shared($result);
+        $params = global_functions::decode_object($result['identify_params']);
 
         $this->set_email($result['identify_email']);
         $this->set_key($result['identify_key']);
-        $this->filename = $result['identify_filename'];
-        $this->min_seq_len = $result['identify_min_seq_len'];
+        $this->filename = $params['identify_filename'];
+        $this->min_seq_len = isset($params['identify_min_seq_len']) ? $params['identify_min_seq_len'] : "";
 
         $this->loaded = true;
         return true;
