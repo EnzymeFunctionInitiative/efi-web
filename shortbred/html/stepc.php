@@ -59,6 +59,7 @@ if ($status == __FAILED__) {
 
 $filename = $job->get_filename();
 $msl = $job->get_min_seq_len();
+$search_type = $job->get_search_type();
 
 $hmp_list = array();
 if ($is_finished) {
@@ -98,6 +99,9 @@ require_once "inc/header.inc.php";
 <?php
 if ($msl) {
     echo "<p>Minimum sequence length: $msl</p>\n";
+}
+if ($search_type) {
+    echo "<p>Search type: $search_type</p>\n";
 }
 ?>
 
@@ -189,6 +193,10 @@ foreach ($hmp_list as $hmp_id => $hmp_name) {
 </div>
 
 <p>
+    Sequence search type: <select name="search_type" id="search_type"><option>USEARCH</option><option>DIAMOND</option></select> (Optional)
+</p>
+    
+<p>
 Metagenomes originate from samples collected from 300 healthy adult men and women 
 between the ages of 18 and 40, recruited at Baylor College of Medicine in Houston, 
 TX and Washington University in St. Louis, MO. More information about the Sample Collection 
@@ -202,7 +210,7 @@ TX and Washington University in St. Louis, MO. More information about the Sample
 <center>
 <?php if ($is_submittable) { ?>
 <button class="dark" type="button" name="submit" id="quantify-submit"
-    onclick="submitQuantify('quantify-params', 'search_to', 'error-message', '<?php echo $id; ?>', '<?php echo $key; ?>')">Quantify Markers</button>
+    onclick="submitQuantify('quantify-params', 'search_to', 'search_type', 'error-message', '<?php echo $id; ?>', '<?php echo $key; ?>')">Quantify Markers</button>
 <?php } else { // is submittable ?>
 <button class="dark" type="button" name="submit">Quantify Markers (inactive for training jobs)</button>
 <?php } ?>

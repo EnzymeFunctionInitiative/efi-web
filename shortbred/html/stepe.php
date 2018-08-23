@@ -47,6 +47,7 @@ $job_obj = new quantify($db, $qid);
 
 
 $filename = $job_obj->get_filename();
+$search_type = $job_obj->get_search_type();
 
 $ssnFileSize = global_functions::bytes_to_megabytes($job_obj->get_ssn_file_size());
 $protFileSize = $ssnFileSize ? "<1" : 0; // files are small
@@ -96,6 +97,11 @@ require_once "inc/header.inc.php";
 <p><a href="stepc.php?<?php echo $id_query_string; ?>"><button class="mini" type="button">Return to Identify Results</button></a></p>
 
 <p>Input filename: <?php echo $filename; ?></>
+<?php
+if ($search_type) {
+    echo "<p>Search type: $search_type</p>\n";
+}
+?>
 
 <?php $addl_html = <<<HTML
         <tr>

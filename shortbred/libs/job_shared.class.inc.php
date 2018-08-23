@@ -15,6 +15,7 @@ abstract class job_shared {
     private $time_started;
     private $time_completed;
     private $parent_id = 0;
+    protected $search_type = "";
 
     private $db;
     private $beta;
@@ -71,6 +72,9 @@ abstract class job_shared {
         return $this->parent_id;
     }
 
+    public function get_search_type() {
+        return strtoupper($this->search_type);
+    }
 
 
     public function get_child_jobs() {
@@ -90,6 +94,12 @@ abstract class job_shared {
         $parent_field = "${table}_parent_id";
         if (isset($result[$parent_field]) && $result[$parent_field])
             $this->parent_id = $result[$parent_field];
+
+        $params = array();
+        if (isset($result["${table}_params"]))
+            $params = global_functions::decode_object($result["${table}_params"]);
+        if (isset($params["${table}_search_type"]))
+            $this->search_type = $params["${table}_search_type"];
     }
 
 
