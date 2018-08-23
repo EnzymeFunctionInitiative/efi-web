@@ -25,6 +25,8 @@ $svg = $_POST["svg"];
 $svg = rawurldecode($svg);
 
 if ($type == "svg") {
+    $pos = strpos($svg, '>') + 1;
+    $svg = substr($svg, 0, $pos) . '<defs><style type="text/css"><![CDATA[.an-arrow-selected{opacity:1.0;stroke:#000;stroke-width:3;}.an-arrow-mute{opacity:0.4;}]]></style></defs>' . substr($svg, 16);
     header('Content-type: image/svg+xml');
     header('Content-Disposition: attachment; filename="' . $filename . '"'); 
     print $svg;
