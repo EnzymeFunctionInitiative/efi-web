@@ -450,7 +450,6 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         var svg = escape($("#arrow-canvas")[0].outerHTML);
                         arrowApp.downloadSvg(svg, "<?php echo $gnnName ?>");
                     });
-
 <?php if ($isDirectJob) { ?>
                 arrowApp.showDefaultDiagrams();
                 $("#advanced-search-reset-button").click(function(e) {
