@@ -11,6 +11,10 @@ class settings extends global_settings {
     public static function get_gnn_script() {
         return __GNN_SCRIPT__;
     }
+    
+    public static function get_sync_gnn_script() {
+        return __SYNC_GNN_SCRIPT__;
+    }
 
     public static function get_process_diagram_script() {
         return __PROCESS_DIAGRAM_SCRIPT__;
@@ -47,6 +51,13 @@ class settings extends global_settings {
     public static function get_sync_output_dir() {
         if (defined("__SYNC_OUTPUT_DIR__") && is_dir(__SYNC_OUTPUT_DIR__))
             return __SYNC_OUTPUT_DIR__;
+        else
+            return false;
+    }
+
+    public static function get_rel_sync_output_dir() {
+        if (defined("__RELATIVE_SYNC_OUTPUT_DIR__"))
+            return __RELATIVE_SYNC_OUTPUT_DIR__;
         else
             return false;
     }

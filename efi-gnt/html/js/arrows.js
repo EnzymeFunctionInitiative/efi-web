@@ -8,6 +8,7 @@ var ARROW_REFRESH = 2;
 var DEFAULT_PAGE_SIZE = 50;
 
 
+// filterUpdateCb is the callback for updating the UI filter checkboxes, when we CTRL+click to add a family filter.
 function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
 
     this.canvasId = canvasId;
@@ -40,6 +41,7 @@ function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
     this.arrowMap = {};
     this.pfamFilter = {};
     this.pfamList = {};
+    this.groupList = [];
 
     this.idKeyQueryString = ""; 
 
@@ -47,6 +49,10 @@ function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
     this.initialWidth = container.getBoundingClientRect().width + this.padding * 2;
 
     this.S.attr({viewBox: "0 0 " + this.initialWidth + " " + this.diagramHeight});
+}
+
+ArrowDiagram.prototype.setUiFilterUpdateCb = function(callback) {
+    this.filterUpdateCb = callback;
 }
 
 ArrowDiagram.prototype.nextPage = function(callback, pageSize = 20) {
@@ -290,6 +296,8 @@ ArrowDiagram.prototype.drawDiagram = function(canvas, index, data, drawingWidth)
     data.attributes.max_start = max_start;
     //data.attributes.max_stop = max_stop;
     this.drawTitle(group, index * this.diagramHeight + this.fontHeight - 2, data.attributes);
+
+    this.groupList.push(group);
 }
 
 function getDefaultOrder(start, numElements) {
@@ -491,8 +499,22 @@ ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isC
 
     var that = this;
     var pos = $("#" + this.canvasId).offset();
-    var clickEvt = function(event) {
-        window.open("http://uniprot.org/uniprot/" + this.attr("accession"));
+    var clickEvt = function(ev) {
+        if (ev.ctrlKey) {
+            var fams = this.attr("family").split("-");
+            console.log(ev.target.className.baseVal);
+            var isActive = ev.target.className.baseVal.includes("an-arrow-selected");
+            fams.forEach((fam, idx) => {
+                if (isActive)
+                    that.removePfamFilter(fam);
+                else
+                    that.addPfamFilter(fam);
+                that.filterUpdateCb(fam, isActive);
+            });
+            console.log(ev);
+        } else {
+            window.open("http://uniprot.org/uniprot/" + this.attr("accession"));
+        }
     };
     var overEvt = function(e) {
         var boxX, boxY;
@@ -650,6 +672,12 @@ ArrowDiagram.prototype.removePfamFilter = function(pfam) {
     
     if (Object.keys(this.pfamFilter).length == 0) {
         $(".an-arrow").removeClass("an-arrow-mute");
+    }
+}
+
+ArrowDiagram.prototype.showHiddenDiagrams = function() {
+    for (var i = 0; i < this.groupList.length; i++) {
+        this.groupList.attr({visibility: "visible"});
     }
 }
 

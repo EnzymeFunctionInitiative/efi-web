@@ -98,40 +98,6 @@ class functions extends global_functions {
         return false;
     }
 
-    public static function decode_object($json) {
-        $data = json_decode($json, true);
-        if (!$data)
-            return array();
-        else
-            return $data;
-    }
-
-    public static function encode_object($obj) {
-        return json_encode($obj);
-    }
-
-    public static function update_results_object_tmpl($db, $prefix, $table, $column, $id, $data) {
-        $theCol = "${prefix}_${column}";
-
-        $sql = "SELECT $theCol FROM $table WHERE ${prefix}_id='$id'";
-        $result = $db->query($sql);
-        if (!$result)
-            return NULL;
-        $result = $result[0];
-        $results_obj = self::decode_object($result[$theCol]);
-
-        foreach ($data as $key => $value)
-            $results_obj[$key] = $value;
-
-        $json = self::encode_object($results_obj);
-
-        $sql = "UPDATE $table SET $theCol = '" . $db->escape_string($json) . "'";
-        $sql .= " WHERE ${prefix}_id='$id' LIMIT 1";
-        $result = $db->non_select_query($sql);
-
-        return $result;
-    }
-
     public static function is_valid_file_type($filetype) {
         $filetypes = explode(" ", __VALID_FILE_TYPE__);
         return in_array($filetype, $filetypes);

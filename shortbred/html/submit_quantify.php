@@ -15,6 +15,7 @@ if (isset($_POST['key']) && isset($_POST['id']) && isset($_POST['hmp-ids'])) {
     $key = $_POST['key'];
     $id = $_POST['id'];
     $hmp_ids = $_POST['hmp-ids'];
+    $search_type = isset($_POST['search-type']) ? $_POST['search-type'] : "";
 
     if ($hmp_ids) {
         $valid = 1;
@@ -30,7 +31,7 @@ if (isset($_POST['key']) && isset($_POST['id']) && isset($_POST['hmp-ids'])) {
     }
 
     if ($valid) {
-        $new_info = quantify::create($db, $id, $hmp_ids);
+        $new_info = quantify::create($db, $id, $hmp_ids, $search_type);
         if ($new_info === false) {
             $valid = 0;
         } else {

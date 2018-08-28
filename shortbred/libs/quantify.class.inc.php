@@ -39,22 +39,33 @@ class quantify extends job_shared {
         $this->load_job();
     }
 
-    public static function create($db, $identify_id, $metagenome_ids) {
-        $info = self::create_shared($db, $identify_id, $metagenome_ids, "");
+    public static function create($db, $identify_id, $metagenome_ids, $search_type) {
+        $info = self::create_shared($db, $identify_id, $metagenome_ids, "", $search_type);
         return $info;
     }
 
-    private static function create_shared($db, $identify_id, $metagenome_ids, $parent_id) {
+    private static function create_shared($db, $identify_id, $metagenome_ids, $parent_id, $search_type) {
         $insert_array = array(
             'quantify_identify_id' => $identify_id,
-            'quantify_metagenome_ids' => $metagenome_ids,
             'quantify_status' => __NEW__,
             'quantify_time_created' => self::get_current_time(),
         );
         if ($parent_id)
             $insert_array['quantify_parent_id'] = $parent_id; // the parent QUANTIFY job ID, not identify
 
+        $params_array = array('quantify_metagenome_ids' => $metagenome_ids);
+        if ($search_type) {
+            $search_type = strtolower($search_type);
+            if ($search_type == "diamond" || $search_type == "usearch")
+                $params_array['quantify_search_type'] = $search_type;
+        }
+        $params = global_functions::encode_object($params_array);
+
+        $insert_array['quantify_params'] = $params;
+
         $result = $db->build_insert('quantify', $insert_array);
+        if (!$result)
+            return false;
 
         $info = array('id' => $result);
         return $info;
@@ -64,11 +75,12 @@ class quantify extends job_shared {
         $job = new quantify($db, $parent_quantify_id);
         $mg_id_array = $job->get_metagenome_ids();
         $mg_ids = implode(",", $mg_id_array);
+        $search_type = $job->get_search_type();
 
         if (!$mg_ids)
             return false;
 
-        $info = self::create_shared($db, $identify_id, $mg_ids, $parent_quantify_id);
+        $info = self::create_shared($db, $identify_id, $mg_ids, $parent_quantify_id, $search_type);
         return $info;
     }
 
@@ -128,6 +140,9 @@ class quantify extends job_shared {
         $sched = settings::get_cluster_scheduler();
         $queue = settings::get_normal_queue();
         $memQueue = settings::get_memory_queue();
+        $sb_module = settings::get_shortbred_blast_module();
+        if ($this->search_type == "diamond")
+            $sb_module = settings::get_shortbred_diamond_module();
         $parent_quantify_id = $this->get_parent_id();
         $parent_identify_id = "";
         if ($parent_quantify_id) {
@@ -140,7 +155,7 @@ class quantify extends job_shared {
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
-        $exec .= "module load " . settings::get_shortbred_module() . "\n";
+        $exec .= "module load $sb_module\n";
         $exec .= "$script";
         $exec .= " -metagenome-db " . settings::get_metagenome_db_list();
         $exec .= " -quantify-dir " . $q_dir;
@@ -158,12 +173,15 @@ class quantify extends job_shared {
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
         $exec .= " -mem-queue $memQueue";
+        $exec .= " -search-type " . $this->search_type;
         if ($sched)
             $exec .= " -scheduler $sched";
         if ($parent_quantify_id && $parent_identify_id) {
             $exec .= " -parent-quantify-id $parent_quantify_id";
             $exec .= " -parent-identify-id $parent_identify_id";
         }
+        if ($this->search_type == "usearch")
+            $exec .= " -search-type " . $this->search_type;
 
         if ($this->is_debug) {
             print("Identify Job ID: $id\n");
@@ -202,7 +220,7 @@ class quantify extends job_shared {
     }
 
     private function load_job() {
-        $sql = "SELECT quantify.*, identify_email, identify_key, identify_filename FROM quantify ";
+        $sql = "SELECT quantify.*, identify_email, identify_key, identify_params FROM quantify ";
         $sql .= "JOIN identify ON quantify.quantify_identify_id = identify.identify_id WHERE quantify_id='" . $this->get_id() . "'";
         $result = $this->db->query($sql);
 
@@ -214,12 +232,20 @@ class quantify extends job_shared {
 
         $this->load_job_shared($result);
 
+        $qparams = global_functions::decode_object($result['quantify_params']);
+        $iparams = global_functions::decode_object($result['identify_params']);
+
         $this->identify_id = $result['quantify_identify_id'];
-        $this->filename = $result['identify_filename'];
-        $mg_ids = $result['quantify_metagenome_ids'];
         $this->set_email($result['identify_email']);
         $this->set_key($result['identify_key']);
+        
+        $this->filename = $iparams['identify_filename'];
+
+        $mg_ids = $qparams['quantify_metagenome_ids'];
         $this->metagenome_ids = explode(",", $mg_ids);
+
+        if ($this->search_type != "diamond")
+            $this->search_type = "usearch";
 
         $this->loaded = true;
         return true;
@@ -333,6 +359,11 @@ class quantify extends job_shared {
         $path = settings::get_output_dir() . "/" . $this->identify_id . "/" . settings::get_rel_output_dir();
         return $path;
     }
+    private function get_quantify_output_path() {
+        $path = $this->get_identify_output_path() . "/" .
+            $this->get_quantify_res_dir();
+        return $path;
+    }
 
     public function get_protein_file_path() {
         $path = $this->get_identify_output_path() . "/" .
@@ -426,8 +457,11 @@ class quantify extends job_shared {
             $this->identify_id . "/" .
             settings::get_rel_output_dir() . "/";
         $q_dir = $this->get_quantify_res_dir();
+
         $ssn = $this->get_ssn_name();
-        if (file_exists("$path/$q_dir/$ssn")) {
+        $local_ssn = $this->get_quantify_output_path() . "/" . $ssn;
+
+        if (file_exists($local_ssn)) {
             return "$path/$q_dir/$ssn";
         } else {
             return "$path/$ssn";
@@ -444,19 +478,14 @@ class quantify extends job_shared {
         $name = preg_replace("/.xgmml$/", "_quantify.xgmml", $name);
         return "${id}_$name";
     }
-    
-    public function get_merged_ssn_zip_file_path() {
-        $path = $this->get_merged_ssn_file_path() . ".zip";
-        return $path;
-    }
-    private function get_merged_ssn_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            $this->get_ssn_name();
-        return $path;
-    }
 
+    // MERGED    
+    public function get_merged_ssn_zip_file_path() {
+        $path = $this->get_ssn_file_path_shared() . ".zip";
+        return $path;
+    }
     public function get_merged_ssn_file_size() {
-        $file = $this->get_merged_ssn_file_path();
+        $file = $this->get_ssn_file_path_shared();
         if (file_exists($file))
             return filesize($file);
         else
@@ -464,6 +493,37 @@ class quantify extends job_shared {
     }
     public function get_merged_ssn_zip_file_size() {
         $file = $this->get_merged_ssn_zip_file_path();
+        if (file_exists($file))
+            return filesize($file);
+        else
+            return 0;
+    }
+
+    // LOCAL
+    private function get_ssn_file_path_shared() {
+        $path = $this->get_identify_output_path();
+        $q_dir = $this->get_quantify_res_dir();
+        $ssn = $this->get_ssn_name();
+
+        if (file_exists("$path/$q_dir/$ssn"))
+            return "$path/$q_dir/$ssn";
+        else
+            return "$path/$ssn";
+    }
+
+    public function get_ssn_zip_file_path() {
+        $path = $this->get_ssn_file_path_shared() . ".zip";
+        return $path;
+    }
+    public function get_ssn_file_size() {
+        $file = $this->get_ssn_file_path_shared();
+        if (file_exists($file))
+            return filesize($file);
+        else
+            return 0;
+    }
+    public function get_ssn_zip_file_size() {
+        $file = $this->get_ssn_zip_file_path();
         if (file_exists($file))
             return filesize($file);
         else

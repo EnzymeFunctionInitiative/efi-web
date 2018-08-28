@@ -41,15 +41,16 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     }
 
     $email = $_POST['email'];
-    $jobGroup = isset($_POST['job-group']) ? $_POST['job-group'] : '';
-    $updateId = isset($_POST['update-id']) ? $_POST['update-id'] : '';
-    $updateKey = isset($_POST['update-key']) ? $_POST['update-key'] : '';
+    $updateId = isset($_POST['update-id']) ? $_POST['update-id'] : "";
+    $updateKey = isset($_POST['update-key']) ? $_POST['update-key'] : "";
+    $minSeqLen = isset($_POST['min-seq-len']) ? $_POST['min-seq-len'] : "";
+    $searchType = isset($_POST['search-type']) ? $_POST['search-type'] : "";
 
     if ($valid) {
         if ($updateId && $updateKey) {
             $newInfo = identify::create_update_ssn($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $updateId, $updateKey);
         } else {
-            $newInfo = identify::create($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $jobGroup);
+            $newInfo = identify::create($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $minSeqLen, $searchType);
         }
 
         if ($newInfo === false) {
