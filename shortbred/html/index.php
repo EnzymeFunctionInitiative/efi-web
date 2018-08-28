@@ -107,10 +107,19 @@ show_jobs($training_jobs);
                 <p>
                 <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", $SiteUrlPrefix); ?>
                 </p>
+
+                <p>
+                    Minimum sequence length: <input name="ssn_min_seq_len" id="ssn_min_seq_len" type="text" /> (Optional)
+                    <a class="question" title="If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a minimum sequence length, in order to eliminate fragments that may be included in UniRef90 clusters.">?</a>
+                </p>
+    
+                <p>
+                    Sequence search type: <select name="ssn_search_type" id="ssn_search_type"><option>BLAST</option><option>DIAMOND</option></select> (Optional)
+                </p>
     
                 <p>
                     E-mail address: 
-                    <input name='ssn_email' id='ssn_email' type="text" value="<?php echo $user_email; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
+                    <input name="ssn_email" id="ssn_email" type="text" value="<?php echo $user_email; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
                     When the file has been uploaded and processed, you will receive an e-mail containing a link
                     to download the data.
                 </p>
@@ -120,7 +129,7 @@ show_jobs($training_jobs);
                 </div>
                 <center>
                     <div><button type="button" id='ssn_submit' name="ssn_submit" class="dark"
-                            onclick="uploadFile('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit','ssn_job_group')">
+                            onclick="uploadFile('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit','ssn_min_seq_len','ssn_search_type')">
                                 Upload SSN
                         </button></div>
                     <div><progress id='progress_bar' max='100' value='0'></progress></div>
@@ -187,6 +196,7 @@ function show_jobs($jobs) {
         $is_completed = $jobs[$i]["is_completed"];
         $date_completed = $jobs[$i]["date_completed"];
         $is_active = $date_completed == "PENDING" || $date_completed == "RUNNING";
+        $search_type = $jobs[$i]["search_type"];
     
         $link_start = "";
         $link_end = "";
@@ -214,6 +224,8 @@ function show_jobs($jobs) {
             else
                 $last_bg_color = "#fff";
         }
+        if ($search_type)
+            $name = $name . " /$search_type/";
     
         echo <<<HTML
                     <tr style="background-color: $last_bg_color">

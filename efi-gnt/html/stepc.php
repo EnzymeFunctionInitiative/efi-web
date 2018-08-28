@@ -44,7 +44,9 @@ $pfamZipFilesize = $gnn->get_pfam_hub_zip_filesize();
 $idDataZip = $gnn->get_relative_cluster_data_zip_file();
 $idDataZipFilesize = $gnn->get_cluster_data_zip_filesize();
 $pfamDataZip = $gnn->get_relative_pfam_data_zip_file();
-$pfamDataZipFilesize = $gnn->get_pfam_hub_zip_filesize();
+$pfamDataZipFilesize = $gnn->get_pfam_data_zip_filesize();
+$allPfamDataZip = $gnn->get_relative_all_pfam_data_zip_file();
+$allPfamDataZipFilesize = $gnn->get_all_pfam_data_zip_filesize();
 $warningFile = $gnn->get_relative_warning_file();
 $warningFilesize = $gnn->get_warning_filesize();
 $idTableFile = $gnn->get_relative_id_table_file();
@@ -172,9 +174,10 @@ require_once('inc/header.inc.php');
     </table>
 
 <?php if ($hasDiagrams) { ?>
-    <div style="color:red">
-        <h3 style="color:red">Genome Neighborhood Diagrams</h3> 
-        <div class="new_feature"></div>
+<!--    <div style="color:red">-->
+<!--        <h3 style="color:red">Genome Neighborhood Diagrams</h3> -->
+        <h3>Genome Neighborhood Diagrams</h3> 
+<!--        <div class="new_feature"></div>-->
         Genome neighboorhoods can be visualized in an arrow digram format in a new window.
     
         <table width="100%" border="1" class="pretty">
@@ -209,7 +212,7 @@ require_once('inc/header.inc.php');
                 </tr>
             </tbody>
         </table>
-    </div>
+<!--    </div>-->
 <?php } else { ?>
     <div style="color:red">
         <br><br>
@@ -260,6 +263,15 @@ require_once('inc/header.inc.php');
                 </td>
                 <td>PFAM Neighbor Mapping Tables</td>
                 <td><?php echo $pfamDataZipFilesize; ?> MB</td>
+            </tr>
+<?php } ?>
+<?php if ($allPfamDataZip) { ?>
+            <tr style='text-align:center;'>
+                <td>
+                    <a href="<?php echo "$baseUrl/$allPfamDataZip"; ?>"><button class="light small">Download All (ZIP)</button></a>
+                </td>
+                <td>PFAM Neighbor Mapping Tables (all cooccurrences)</td>
+                <td><?php echo $allPfamDataZipFilesize; ?> MB</td>
             </tr>
 <?php } ?>
 <?php if ($pfamNoneZip) { ?>

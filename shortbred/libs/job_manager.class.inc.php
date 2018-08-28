@@ -2,6 +2,7 @@
 
 require_once("job_types.class.inc.php");
 require_once(__DIR__ . "/../../libs/user_auth.class.inc.php");
+require_once(__DIR__ . "/../../libs/global_functions.class.inc.php");
 
 
 class job_manager {
@@ -35,12 +36,19 @@ class job_manager {
         $col_filename = "${id_table}_filename";
         $col_mg = "${q_table}_metagenome_ids";
         $col_qid = "${q_table}_${id_table}_id";
+        $col_iparams = "${id_table}_params";
+        $col_qparams = "${q_table}_params";
 
-        $cols = implode(",", array($col_id, $col_key, $col_email, $col_status, $col_filename, $col_time_created,
-            $col_time_started, $col_time_completed));
+        $cols = implode(",", array($col_id, $col_key, $col_email, $col_status, $col_time_created, $col_time_started,
+            $col_time_completed, $col_iparams));
         if ($table == job_types::Quantify) {
-            $cols .= ", $col_qid, $col_mg";
+            $cols .= ", $col_qid, $col_qparams";
         }
+        //$cols = implode(",", array($col_id, $col_key, $col_email, $col_status, $col_filename, $col_time_created,
+        //    $col_time_started, $col_time_completed));
+        //if ($table == job_types::Quantify) {
+        //    $cols .= ", $col_qid, $col_mg";
+        //}
 
         $q_sql = "";
         $order_sql = "ORDER BY $col_id";
@@ -66,16 +74,19 @@ class job_manager {
                 $this->jobs_by_status[$status] = array();
             }
 
+            $iparams = global_functions::decode_object($result[$col_iparams]);
+
             array_push($this->jobs_by_status[$status], array("email" => $email, "key" => $key, "id" => $id));
-            $this->jobs_by_id[$id] = array("email" => $email, "key" => $key, "filename" => $result[$col_filename],
+            $this->jobs_by_id[$id] = array("email" => $email, "key" => $key, "filename" => $iparams[$col_filename],
                                            "time_completed" => $result[$col_time_completed],
                                            "time_started" => $result[$col_time_started],
                                            "time_created" => $result[$col_time_created],
                                            "status" => $status
                                        );
             if ($table == job_types::Quantify) {
-                $this->jobs_by_id[$id]["metagenomes"] = $result[$col_mg];
                 $this->jobs_by_id[$id]["identify_id"] = $result[$col_qid];
+                $qparams = global_functions::decode_object($result[$col_qparams]);
+                $this->jobs_by_id[$id]["metagenomes"] = $qparams[$col_mg];
             }
         }  
         
@@ -201,10 +212,6 @@ class job_manager {
             "WHERE identify_email='$email' AND (identify_time_completed >= '$start_date' " .
             "OR (identify_time_created >= '$start_date' AND (identify_status = 'NEW' OR identify_status = 'RUNNING'))) " .
             "ORDER BY identify_status, identify_time_completed DESC";
-        //$id_sql = "SELECT identify_id, identify_key, identify_time_completed, identify_filename, identify_status, identify_parent_id " .
-        //    "FROM identify WHERE identify_email='$email' AND (identify_time_completed >= '$start_date' " .
-        //    "OR (identify_time_created >= '$start_date' AND (identify_status = 'NEW' OR identify_status = 'RUNNING'))) " .
-        //    "ORDER BY identify_status, identify_time_completed DESC";
         $id_rows = $this->db->query($id_sql);
 
         $jobs = $this->get_jobs_by_user_shared($id_rows);
@@ -234,7 +241,7 @@ class job_manager {
     }
 
     private static function get_user_jobs_sql($group_clause = "") {
-        $sql = "SELECT identify.identify_id, identify_key, identify_time_completed, identify_filename, identify_status, identify_parent_id ";
+        $sql = "SELECT identify.identify_id, identify_key, identify_time_completed, identify_params, identify_status, identify_parent_id ";
         $sql .= "FROM identify ";
         if ($group_clause) {
             $sql .= 
@@ -248,8 +255,10 @@ class job_manager {
         $jobs = array();
 
         foreach ($id_rows as $id_row) {
+            $iparams = global_functions::decode_object($id_row["identify_params"]);
+
             $comp_result = self::get_completed_date_label($id_row["identify_time_completed"], $id_row["identify_status"]);
-            $job_name = $id_row["identify_filename"];
+            $job_name = $iparams["identify_filename"];
             $comp = $comp_result[1];
             $is_completed = $comp_result[0];
 
@@ -259,21 +268,28 @@ class job_manager {
             if ($parent_id)
                 $job_name .= " [<b>Child of #$parent_id</b>]";
 
-            array_push($jobs, array("id" => $id_id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed,
-                                    "is_quantify" => false, "date_completed" => $comp));
+            $i_job_info = array("id" => $id_id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed,
+                "is_quantify" => false, "date_completed" => $comp);
+            if (isset($iparams["identify_search_type"]) && $iparams["identify_search_type"])
+                $i_job_info["search_type"] = $iparams["identify_search_type"];
+            else
+                $i_job_info["search_type"] = "";
+            array_push($jobs, $i_job_info);
             
             if ($is_completed) {
-                $q_sql = "SELECT quantify_id, quantify_time_completed, quantify_status, quantify_metagenome_ids " .
+                $q_sql = "SELECT quantify_id, quantify_time_completed, quantify_status, quantify_params " .
                     "FROM quantify WHERE quantify_identify_id = $id_id";
                 $q_rows = $this->db->query($q_sql);
 
                 foreach ($q_rows as $q_row) {
+                    $qparams = global_functions::decode_object($q_row["quantify_params"]);
+
                     $q_comp_result = self::get_completed_date_label($q_row["quantify_time_completed"], $q_row["quantify_status"]);
                     $q_comp = $q_comp_result[1];
                     $q_is_completed = $q_comp_result[0];
                     $q_id = $q_row["quantify_id"];
 
-                    $mg_ids = explode(",", $q_row["quantify_metagenome_ids"]);
+                    $mg_ids = explode(",", $qparams["quantify_metagenome_ids"]);
                     $q_full_job_name = implode(", ", $mg_ids);
                     if (count($mg_ids) > 6) {
                         $q_job_name = implode(", ", array_slice($mg_ids, 0, 5)) . " ...";
@@ -281,9 +297,15 @@ class job_manager {
                         $q_job_name = $q_full_job_name;
                     }
 
-                    array_push($jobs, array("id" => $id_id, "key" => $key, "quantify_id" => $q_id, "job_name" => $q_job_name,
+                    $q_job_info = array("id" => $id_id, "key" => $key, "quantify_id" => $q_id, "job_name" => $q_job_name,
                         "is_completed" => $q_is_completed, "is_quantify" => true, "date_completed" => $q_comp,
-                        "full_job_name" => $q_full_job_name));
+                        "full_job_name" => $q_full_job_name);
+
+                    if (isset($qparams["quantify_search_type"]) && $qparams["quantify_search_type"])
+                        $q_job_info["search_type"] = $qparams["quantify_search_type"];
+                    else
+                        $q_job_info["search_type"] = "";
+                    array_push($jobs, $q_job_info);
                 }
             }
         }
@@ -294,7 +316,7 @@ class job_manager {
     public static function get_quantify_jobs($db, $identify_id) {
         $jobs = array();
 
-        $q_sql = "SELECT quantify_id, quantify_time_completed, quantify_status, quantify_metagenome_ids " .
+        $q_sql = "SELECT quantify_id, quantify_time_completed, quantify_status, quantify_params " .
             "FROM quantify WHERE quantify_identify_id = $identify_id";
         $q_rows = $db->query($q_sql);
 
@@ -304,8 +326,8 @@ class job_manager {
             $q_is_completed = $q_comp_result[0];
             $q_id = $q_row["quantify_id"];
 
-            //$q_job_name = implode(", ", explode(",", $q_row["quantify_metagenome_ids"]));
-            $q_job_name = $q_row["quantify_metagenome_ids"];
+            $qparams = global_functions::decode_object($q_row["quantify_params"]);
+            $q_job_name = $qparams["quantify_metagenome_ids"];
 
             array_push($jobs, array("quantify_id" => $q_id, "job_name" => $q_job_name,
                                     "is_completed" => $q_is_completed, "is_quantify" => true, "date_completed" => $q_comp));

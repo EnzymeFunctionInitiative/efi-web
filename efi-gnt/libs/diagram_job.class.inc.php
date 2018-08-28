@@ -15,6 +15,7 @@ class diagram_job {
     private $key;
     private $type;
     private $params;
+    private $pbs_number;
     private $message = "";
     private $title = "";
     private $eol = PHP_EOL;
@@ -36,6 +37,7 @@ class diagram_job {
         $this->type = $this->get_job_type($result["diagram_type"]);
         $this->title = $result["diagram_title"];
         $this->params = functions::decode_object($result["diagram_params"]);
+        $this->pbs_number = $result["diagram_pbs_number"];
     }
 
     public function process() {
@@ -186,7 +188,11 @@ class diagram_job {
 
         if (!$exit_status) {
             error_log("Job running with job # $pbs_job_number");
-            $this->db->non_select_query("UPDATE diagram SET diagram_status = '" . __RUNNING__ . "' WHERE diagram_id = " . $this->id);
+            $update_sql = "UPDATE diagram " .
+                "SET diagram_status = '" . __RUNNING__ . "', diagram_pbs_number = $pbs_job_number " .
+                "WHERE diagram_id = " . $this->id;
+            $this->db->non_select_query($update_sql);
+            $this->email_started();
         } else {
             $currentTime = date("Y-m-d H:i:s", time());
             $this->db->non_select_query("UPDATE diagram SET diagram_status = '" . __FAILED__ . "', " .
@@ -201,7 +207,7 @@ class diagram_job {
     public function check_if_job_is_done() {
 
         $outDir = $this->get_output_dir();
-        $isDone = file_exists("$outDir/" . DiagramJob::JobCompleted) || file_exists("$outDir/unzip.completed");
+        $isDone = file_exists("$outDir/" . DiagramJob::JobCompleted) || !$this->check_pbs_running();
         $isError = file_exists("$outDir/" . DiagramJob::JobError) || !file_exists($this->get_output_file());
 
         if ($isDone) {
@@ -222,11 +228,37 @@ class diagram_job {
         }
     }
 
+    private function check_pbs_running() {
+        $sched = strtolower(settings::get_cluster_scheduler());
+        $jobNum = $this->pbs_number;
+        $output = "";
+        $exit_status = "";
+        $exec = "";
+        if ($sched == "slurm")
+            $exec = "squeue --job $jobNum 2> /dev/null | grep $jobNum";
+        else
+            $exec = "qstat $jobNum 2> /dev/null | grep $jobNum";
+        exec($exec,$output,$exit_status);
+        if (count($output) == 1) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     private function email_failed() {
+
+        $message = "";
+        if ($this->type == DiagramJob::BLAST) {
+            $message = "Check your input FASTA sequence.";
+        }
 
         $emailTitleBit = "failed to be retrieved";
         $emailBody = "";
         $emailBody .= "There was an error retrieving the neighborhood data for the job (job #" . $this->id . ").";
+        if ($message)
+            $emailBody .= $this->eol . $message;
         $emailBody .= $this->eol . $this->eol;
 
         $this->email_shared($emailTitleBit, $emailBody);
@@ -241,41 +273,16 @@ class diagram_job {
         $emailBody .= "These data will only be retained for " . settings::get_retention_days() . " days." . $this->eol . $this->eol;
 
         $this->email_shared($emailTitleBit, $emailBody);
+    }
 
-        //$queryType = $this->get_query_string_id_field();
-        //$subject = $this->beta . "EFI-GNT - GNN diagrams ready";
-        //$to = $this->email;
-        //$from = "EFI GNT <" . settings::get_admin_email() . ">";
-        //$url = settings::get_web_root() . "/view_diagrams.php";
-        //$full_url = $url . "?" . http_build_query(array($queryType => $this->id, 'key' => $this->key));
+    private function email_started() {
 
-        //$plain_email = "";
+        $emailTitleBit = "started";
+        $emailBody = "";
+        $emailBody .= "The uploaded diagram data has started computation.";
+        $emailBody .= $this->eol . $this->eol;
 
-        //if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-GNT." . $this->eol;
-
-        ////plain text email
-        //$plain_email .= "The diagram data file you uploaded is ready to be viewed at ";
-        //$plain_email .= "THE_URL" . $this->eol . $this->eol;
-        //$plain_email .= "These data will only be retained for " . settings::get_retention_days() . " days." . $this->eol . $this->eol;
-        //$plain_email .= settings::get_email_footer();
-
-        //$html_email = nl2br($plain_email, false);
-
-        //$plain_email = str_replace("THE_URL", $full_url, $plain_email);
-        //$html_email = str_replace("THE_URL", "<a href='" . htmlentities($full_url) . "'>" . $full_url . "</a>", $html_email);
-
-        //$message = new Mail_mime(array("eol" => $this->eol));
-        //$message->setTXTBody($plain_email);
-        //$message->setHTMLBody($html_email);
-        //$body = $message->get();
-        //$extraheaders = array(
-        //    "From" => $from,
-        //    "Subject" => $subject
-        //);
-        //$headers = $message->headers($extraheaders);
-
-        //$mail = Mail::factory("mail");
-        //$mail->send($to, $headers, $body);
+        $this->email_shared($emailTitleBit, $emailBody);
     }
 
     private function email_shared($titleBit, $message) {

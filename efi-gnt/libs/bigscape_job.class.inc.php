@@ -26,6 +26,7 @@ class bigscape_job {
     private $bigscape_status = self::STATUS_NONE; // this represents if the job exists, is pending/running, or is complete
     private $eol = PHP_EOL;
     private $email;
+    private $pbs_number;
 
     public function __construct($db, $diagram_id, $job_type) {
         if ($diagram_id && $job_type !== NULL) {
@@ -117,11 +118,13 @@ class bigscape_job {
         $sql = "SELECT * FROM bigscape WHERE bigscape_diagram_id = " . $this->diagram_id . " AND bigscape_job_type = \"" . $this->job_type . "\"";
         $result = $db->query($sql);
         if ($result) {
-            $this->bigscape_id = $result[0]['bigscape_id'];
-            $this->time_created = $result[0]['bigscape_time_created'];
-            $this->time_started = $result[0]['bigscape_time_started'];
-            $this->time_completed = $result[0]['bigscape_time_completed'];
-            $this->job_status = $result[0]['bigscape_status'];
+            $result = $result[0];
+            $this->bigscape_id = $result['bigscape_id'];
+            $this->time_created = $result['bigscape_time_created'];
+            $this->time_started = $result['bigscape_time_started'];
+            $this->time_completed = $result['bigscape_time_completed'];
+            $this->job_status = $result['bigscape_status'];
+            $this->pbs_number = $result['bigscape_pbs_number'];
             if ($this->job_status == __NEW__ || $this->job_status == __RUNNING__)
                 return self::STATUS_RUNNING;
             else
@@ -138,12 +141,14 @@ class bigscape_job {
         $sql = "SELECT * FROM bigscape WHERE bigscape_id = " . $this->bigscape_id;
         $result = $db->query($sql);
         if ($result) {
-            $this->diagram_id = $result[0]['bigscape_diagram_id'];
-            $this->job_type = $result[0]['bigscape_job_type'];
-            $this->time_created = $result[0]['bigscape_time_created'];
-            $this->time_started = $result[0]['bigscape_time_started'];
-            $this->time_completed = $result[0]['bigscape_time_completed'];
-            $this->job_status = $result[0]['bigscape_status'];
+            $result = $result[0];
+            $this->diagram_id = $result['bigscape_diagram_id'];
+            $this->job_type = $result['bigscape_job_type'];
+            $this->time_created = $result['bigscape_time_created'];
+            $this->time_started = $result['bigscape_time_started'];
+            $this->time_completed = $result['bigscape_time_completed'];
+            $this->job_status = $result['bigscape_status'];
+            $this->pbs_number = $result['bigscape_pbs_number'];
             if ($this->job_status == __NEW__ || $this->job_status == __RUNNING__)
                 return self::STATUS_RUNNING;
             else
@@ -207,7 +212,10 @@ class bigscape_job {
 
         if (!$exit_status) {
             error_log("Job running with job # $pbs_job_number");
-            $this->db->non_select_query("UPDATE bigscape SET bigscape_status = '" . __RUNNING__ . "' WHERE bigscape_id = " . $this->bigscape_id);
+            $update_sql = "UPDATE bigscape " .
+                "SET bigscape_status = '" . __RUNNING__ . "', bigscape_pbs_number = $pbs_job_number " .
+                "WHERE bigscape_id = " . $this->bigscape_id;
+            $this->db->non_select_query($update_sql);
             $this->email_started();
         } else {
             $currentTime = date("Y-m-d H:i:s", time());
@@ -303,8 +311,9 @@ class bigscape_job {
         $main_job_dir = pathinfo($diagram_file, PATHINFO_DIRNAME);
         $job_dir = "$main_job_dir/" . $this->job_dir;
 
-        $isDone = file_exists("$job_dir/" . $this->job_completed);
-        $isError = file_exists("$job_dir/" . $this->job_error);
+        $finish_file_exists = file_exists("$job_dir/" . $this->job_completed);
+        $isDone = $finish_file_exists || !$this->check_pbs_running();
+        $isError = file_exists("$job_dir/" . $this->job_error) || !$finish_file_exists;
 
         if ($isDone) {
             $currentTime = date("Y-m-d H:i:s", time());
@@ -321,6 +330,25 @@ class bigscape_job {
                 $this->email_failed();
             else
                 $this->email_complete();
+        }
+    }
+
+    private function check_pbs_running() {
+        $sched = strtolower(settings::get_cluster_scheduler());
+        $jobNum = $this->pbs_number;
+        $output = "";
+        $exit_status = "";
+        $exec = "";
+        if ($sched == "slurm")
+            $exec = "squeue --job $jobNum 2> /dev/null | grep $jobNum";
+        else
+            $exec = "qstat $jobNum 2> /dev/null | grep $jobNum";
+        exec($exec,$output,$exit_status);
+        if (count($output) == 1) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
 

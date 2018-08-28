@@ -1,5 +1,6 @@
 <?php
-require_once '../includes/main.inc.php';
+require_once("../includes/main.inc.php");
+require_once("../libs/user_jobs.class.inc.php");
 $id = 0;
 $key = 0;
 $message = "";
@@ -71,14 +72,19 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     $email = $_POST['email'];
     $job_name = isset($_POST['job_name']) ? $_POST['job_name'] : "";
 
+    $is_sync = false;
+    if ($valid && isset($_POST["sync_key"]) && functions::check_sync_key($_POST["sync_key"])) {
+        $is_sync = true;
+    }
+
     if ($valid) {
         if ($est_analysis_id) {
             $gnnInfo = gnn::create_from_est_job($db, $email, $_POST['neighbor_size'], $cooccurrence, $est_file_path, $est_analysis_id);
         } else {
-            $gnnInfo = gnn::create2(
+            $gnnInfo = gnn::create3(
                 $db, $email, $_POST['neighbor_size'], $cooccurrence,
                 $_FILES['file']['tmp_name'], $_FILES['file']['name'],
-                $job_name
+                $job_name, $is_sync
             );
         }
         if ($gnnInfo === false) {
@@ -89,11 +95,11 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         }
     }
 
-    if ($valid && isset($_POST["sync_key"]) && functions::check_sync_key($_POST["sync_key"])) {
-        $gnn = new gnn($db, $id);
+    if ($is_sync) {
+        $gnn = new gnn($db, $id, $is_sync);
         $result = $gnn->run_gnn_sync(functions::get_is_debug());
         if ($result['RESULT']) {
-            $message = functions::dump_gnn_info($gnn);
+            $message = functions::dump_gnn_info($gnn, $is_sync);
         } else {
             $valid = false;
             $message = "Unable to run synchronously: " . $result['MESSAGE'];

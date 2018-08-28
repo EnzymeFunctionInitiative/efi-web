@@ -1,8 +1,9 @@
 
-function submitQuantify(formId, selectId, messageId, sbId, sbKey) {
+function submitQuantify(formId, selectId, searchTypeId, messageId, sbId, sbKey) {
     var fd = new FormData();
     fd.append("id", sbId);
     fd.append("key", sbKey);
+    addParam(fd, "search-type", searchTypeId);
     
     //hmpIdList = $("#" + selectId).val();
     //hmpIds = hmpIdList.join();
@@ -32,11 +33,12 @@ function submitQuantify(formId, selectId, messageId, sbId, sbKey) {
     doFormPost(script, fd, messageId, fileHandler, completionHandler);
 }
 
-function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, jobGroupId, isSsn) {
+function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, minSeqLenId, searchTypeId) {
     var fd = new FormData();
     addParam(fd, "email", emailId);
     addParam(fd, "submit", submitId);
-    addParam(fd, "job-group", jobGroupId);
+    addParam(fd, "min-seq-len", minSeqLenId);
+    addParam(fd, "search-type", searchTypeId);
 
     var files = document.getElementById(fileInputId).files;
     var completionHandler = function(jsonObj) {

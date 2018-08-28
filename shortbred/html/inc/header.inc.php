@@ -74,7 +74,7 @@ include("../../html/inc/global_nav.inc.php");
     <div id="container">
         <div class="header">
             <div class="header_logo">
-                <a href="<?php echo $TopLevelUrl; ?>"><img src="<?php echo $SiteUrlPrefix; ?>/shortbred/images/shortbred_efi_logo.png" alt="ShortBRED-EFI Logo" width="980" height="73"></a>
+                <a href="<?php echo $TopLevelUrl; ?>"><img src="<?php echo $SiteUrlPrefix; ?>/shortbred/images/shortbred_efi_logo.png" alt="ShortBRED-EFI Logo" height="75"></a>
             </div>
         </div>
 

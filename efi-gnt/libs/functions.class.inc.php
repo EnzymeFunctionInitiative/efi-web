@@ -347,7 +347,7 @@ class functions extends global_functions {
         return in_array($key, $keys);
     }
 
-    public static function dump_gnn_info($gnn) {
+    public static function dump_gnn_info($gnn, $is_sync = false) {
         $baseUrl = settings::get_web_address();
         
         $ssnFile = $gnn->get_relative_color_ssn();
@@ -358,6 +358,7 @@ class functions extends global_functions {
         $pfamZipFile = $gnn->get_relative_pfam_hub_zip_file();
         $idDataZip = $gnn->get_relative_cluster_data_zip_file();
         $pfamDataZip = $gnn->get_relative_pfam_data_zip_file();
+        $allPfamDataZip = $gnn->get_relative_all_pfam_data_zip_file();
         $warningFile = $gnn->get_relative_warning_file();
         $idTableFile = $gnn->get_relative_id_table_file();
         $pfamNoneZip = $gnn->get_relative_pfam_none_zip_file();
@@ -368,21 +369,25 @@ class functions extends global_functions {
         $diagramZipFile = $gnn->get_relative_diagram_zip_file();
 
         $files["ssn"] = $baseUrl . "/" . $ssnFile;
-        $files["ssnZip"] = $baseUrl . "/" . $ssnZipFile;
         $files["gnnFile"] = $baseUrl . "/" . $gnnFile;
-        $files["gnnZipFile"] = $baseUrl . "/" . $gnnZipFile;
         $files["pfamFile"] = $baseUrl . "/" . $pfamFile;
-        $files["pfamZipFile"] = $baseUrl . "/" . $pfamZipFile;
-        $files["idDataZip"] = $baseUrl . "/" . $idDataZip;
-        $files["pfamDataZip"] = $baseUrl . "/" . $pfamDataZip;
         $files["warningFile"] = $baseUrl . "/" . $warningFile;
-        $files["idTableFile"] = $baseUrl . "/" . $idTableFile;
-        $files["pfamNoneZip"] = $baseUrl . "/" . $pfamNoneZip;
-        $files["fastaZip"] = $baseUrl . "/" . $fastaZip;
-        $files["coocTableFile"] = $baseUrl . "/" . $coocTableFile;
-        $files["hubCountFile"] = $baseUrl . "/" . $hubCountFile;
-        $files["diagramFile"] = $baseUrl . "/" . $diagramFile;
-        $files["diagramZipFile"] = $baseUrl . "/" . $diagramZipFile;
+
+        if (!$is_sync) {
+            $files["ssnZip"] = $baseUrl . "/" . $ssnZipFile;
+            $files["gnnZipFile"] = $baseUrl . "/" . $gnnZipFile;
+            $files["pfamZipFile"] = $baseUrl . "/" . $pfamZipFile;
+            $files["allPfamZipFile"] = $baseUrl . "/" . $allPfamZipFile;
+            $files["idDataZip"] = $baseUrl . "/" . $idDataZip;
+            $files["pfamDataZip"] = $baseUrl . "/" . $pfamDataZip;
+            $files["idTableFile"] = $baseUrl . "/" . $idTableFile;
+            $files["pfamNoneZip"] = $baseUrl . "/" . $pfamNoneZip;
+            $files["fastaZip"] = $baseUrl . "/" . $fastaZip;
+            $files["coocTableFile"] = $baseUrl . "/" . $coocTableFile;
+            $files["hubCountFile"] = $baseUrl . "/" . $hubCountFile;
+            $files["diagramFile"] = $baseUrl . "/" . $diagramFile;
+            $files["diagramZipFile"] = $baseUrl . "/" . $diagramZipFile;
+        }
 
         return $files;
     }
