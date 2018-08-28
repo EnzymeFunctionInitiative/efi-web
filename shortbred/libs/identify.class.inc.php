@@ -164,6 +164,7 @@ class identify extends job_shared {
 
         $parent_id = $this->get_parent_id();
 
+
         if (!$this->is_debug) {
             if ((!$parent_id || file_exists($ssn_path)) && !file_exists($out_dir)) {
                 mkdir($out_dir);
@@ -191,7 +192,8 @@ class identify extends job_shared {
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
         $exec .= " -mem-queue $memQueue";
-        $exec .= " -search-type " . $this->search_type;
+        if ($this->search_type == "diamond")
+            $exec .= " -search-type " . $this->search_type;
         if ($sched)
             $exec .= " -scheduler $sched";
         if ($parent_id)

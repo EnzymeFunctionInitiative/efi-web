@@ -113,9 +113,11 @@ show_jobs($training_jobs);
                     <a class="question" title="If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a minimum sequence length, in order to eliminate fragments that may be included in UniRef90 clusters.">?</a>
                 </p>
     
+<?php if (settings::get_diamond_enabled()) { ?>
                 <p>
                     Sequence search type: <select name="ssn_search_type" id="ssn_search_type"><option>BLAST</option><option>DIAMOND</option></select> (Optional)
                 </p>
+<?php } ?>
     
                 <p>
                     E-mail address: 
