@@ -37,6 +37,7 @@ define("__MYSQL_DATABASE__","");
 //
 // UI PARAMETERS
 define("__TITLE__","EFI/ShortBRED");
+define("__ENABLE_DIAMOND__",false);
 
 //
 // JOB SCHEDULING PARAMETERS

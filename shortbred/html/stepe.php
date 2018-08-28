@@ -98,7 +98,7 @@ require_once "inc/header.inc.php";
 
 <p>Input filename: <?php echo $filename; ?></>
 <?php
-if ($search_type) {
+if ($search_type && settings::get_diamond_enabled()) {
     echo "<p>Search type: $search_type</p>\n";
 }
 ?>

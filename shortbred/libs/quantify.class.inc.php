@@ -173,14 +173,13 @@ class quantify extends job_shared {
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
         $exec .= " -mem-queue $memQueue";
-        $exec .= " -search-type " . $this->search_type;
         if ($sched)
             $exec .= " -scheduler $sched";
         if ($parent_quantify_id && $parent_identify_id) {
             $exec .= " -parent-quantify-id $parent_quantify_id";
             $exec .= " -parent-identify-id $parent_identify_id";
         }
-        if ($this->search_type == "usearch")
+        if ($this->search_type == "diamond")
             $exec .= " -search-type " . $this->search_type;
 
         if ($this->is_debug) {
@@ -244,8 +243,10 @@ class quantify extends job_shared {
         $mg_ids = $qparams['quantify_metagenome_ids'];
         $this->metagenome_ids = explode(",", $mg_ids);
 
-        if ($this->search_type != "diamond")
+        if ($this->search_type != "diamond" && settings::get_diamond_enabled())
             $this->search_type = "usearch";
+        else
+            $this->search_type = "";
 
         $this->loaded = true;
         return true;

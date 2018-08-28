@@ -100,7 +100,7 @@ require_once "inc/header.inc.php";
 if ($msl) {
     echo "<p>Minimum sequence length: $msl</p>\n";
 }
-if ($search_type) {
+if ($search_type && settings::get_diamond_enabled()) {
     echo "<p>Search type: $search_type</p>\n";
 }
 ?>
@@ -192,9 +192,11 @@ foreach ($hmp_list as $hmp_id => $hmp_name) {
     </div>
 </div>
 
+<?php if (settings::get_diamond_enabled()) { ?>
 <p>
     Sequence search type: <select name="search_type" id="search_type"><option>USEARCH</option><option>DIAMOND</option></select> (Optional)
 </p>
+<?php } ?>
     
 <p>
 Metagenomes originate from samples collected from 300 healthy adult men and women 
