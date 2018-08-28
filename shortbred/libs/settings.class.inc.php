@@ -61,6 +61,10 @@ class settings extends global_settings {
         return __EST_URL__ ? __EST_URL__ : "#";
     }
 
+    public static function get_diamond_enabled() {
+        return defined("__ENABLE_DIAMOND__") ? __ENABLE_DIAMOND__ : false;
+    }
+
     public static function get_metagenome_db_list() {
         if (defined("__METAGENOME_DB_LIST__")) {
             return __METAGENOME_DB_LIST__;

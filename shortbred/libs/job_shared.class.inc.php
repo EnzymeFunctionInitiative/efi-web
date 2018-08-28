@@ -98,8 +98,11 @@ abstract class job_shared {
         $params = array();
         if (isset($result["${table}_params"]))
             $params = global_functions::decode_object($result["${table}_params"]);
-        if (isset($params["${table}_search_type"]))
+
+        if (isset($params["${table}_search_type"]) && settings::get_diamond_enabled())
             $this->search_type = $params["${table}_search_type"];
+        else
+            $this->search_type = "";
     }
 
 
