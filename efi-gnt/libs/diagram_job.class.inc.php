@@ -190,7 +190,7 @@ class diagram_job {
             error_log("Job running with job # $pbs_job_number");
             $update_sql = "UPDATE diagram " .
                 "SET diagram_status = '" . __RUNNING__ . "', diagram_pbs_number = $pbs_job_number " .
-                "WHERE diagram_id = " . $this->diagram_id;
+                "WHERE diagram_id = " . $this->id;
             $this->db->non_select_query($update_sql);
             $this->email_started();
         } else {
