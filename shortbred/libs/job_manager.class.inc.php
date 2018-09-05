@@ -270,10 +270,17 @@ class job_manager {
 
             $i_job_info = array("id" => $id_id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed,
                 "is_quantify" => false, "date_completed" => $comp);
+            
             if (isset($iparams["identify_search_type"]) && $iparams["identify_search_type"])
                 $i_job_info["search_type"] = $iparams["identify_search_type"];
             else
                 $i_job_info["search_type"] = "";
+            
+            if (isset($iparams["identify_ref_db"]) && $iparams["identify_ref_db"])
+                $i_job_info["ref_db"] = $iparams["identify_ref_db"];
+            else
+                $i_job_info["ref_db"] = "";
+
             array_push($jobs, $i_job_info);
             
             if ($is_completed) {
@@ -305,6 +312,7 @@ class job_manager {
                         $q_job_info["search_type"] = $qparams["quantify_search_type"];
                     else
                         $q_job_info["search_type"] = "";
+                    $q_job_info["ref_db"] = "";
                     array_push($jobs, $q_job_info);
                 }
             }

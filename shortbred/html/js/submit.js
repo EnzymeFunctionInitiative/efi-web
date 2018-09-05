@@ -33,12 +33,20 @@ function submitQuantify(formId, selectId, searchTypeId, messageId, sbId, sbKey) 
     doFormPost(script, fd, messageId, fileHandler, completionHandler);
 }
 
-function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, minSeqLenId, searchTypeId) {
+function uploadInitialSSNFile() {
+    fileInputId = "ssn_file";
+    formId = "upload_form";
+    progressNumId = "progress_number";
+    progressBarId = "progress_bar";
+    messageId = "ssn_message";
+
     var fd = new FormData();
-    addParam(fd, "email", emailId);
-    addParam(fd, "submit", submitId);
-    addParam(fd, "min-seq-len", minSeqLenId);
-    addParam(fd, "search-type", searchTypeId);
+    addParam(fd, "email", "ssn_email");
+    addParam(fd, "submit", "ssn_submit");
+    addParam(fd, "min-seq-len", "ssn_min_seq_len");
+    addParam(fd, "search-type", "ssn_search_type");
+    addParam(fd, "ref-db", "ssn_ref_db");
+    addParam(fd, "cdhit-sid", "ssn_cdhit_sid");
 
     var files = document.getElementById(fileInputId).files;
     var completionHandler = function(jsonObj) {

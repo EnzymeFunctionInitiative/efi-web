@@ -16,6 +16,8 @@ class quantify extends job_shared {
     private $identify_id;
     private $metagenome_ids;
     private $filename;
+    private $ref_db = "";
+    private $identify_search_type = "";
 
 
     
@@ -27,6 +29,12 @@ class quantify extends job_shared {
 
     public function get_metagenome_ids() {
         return $this->metagenome_ids;
+    }
+    public function get_ref_db() {
+        return $this->ref_db;
+    }
+    public function get_identify_search_type() {
+        return $this->identify_search_type;
     }
 
 
@@ -247,6 +255,14 @@ class quantify extends job_shared {
             $this->search_type = "usearch";
         else
             $this->search_type = "";
+        if (isset($iparams['identify_ref_db']))
+            $this->ref_db = $iparams['identify_ref_db'];
+        else
+            $this->ref_db = "";
+        if (settings::get_diamond_enabled() && isset($iparams['identify_search_type']))
+            $this->identify_search_type = $iparams['identify_search_type'];
+        else
+            $this->identify_search_type = "";
 
         $this->loaded = true;
         return true;

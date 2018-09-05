@@ -98,6 +98,8 @@ if ($fh) {
     $sort_fn = function($a, $b) use ($site_info) {
         if (!isset($site_info["site"][$a])) return 0;
         elseif (!isset($site_info["site"][$b])) return 0;
+        $cmp = strcmp($site_info["order"][$a], $site_info["order"][$b]);
+        if ($cmp != 0) return $cmp;
         $cmp = strcmp($site_info["site"][$a], $site_info["site"][$b]);
         if ($cmp != 0) return $cmp;
         $cmp = strcmp($site_info["gender"][$a], $site_info["gender"][$b]);
@@ -248,7 +250,8 @@ function get_mg_db_info() {
             $site = str_replace("_", " ", $site);
             $info["site"][$mg_id] = $site;
             $info["gender"][$mg_id] = $data[2];
-            $info["color"][$mg_id] = isset($colors[$site]) ? $colors[$site] : "";
+            $info["color"][$mg_id] = isset($colors[$site]) ? $colors[$site]["color"] : "";
+            $info["order"][$mg_id] = isset($colors[$site]) ? $colors[$site]["order"] : "";
         }
 
         fclose($fh);
@@ -275,7 +278,9 @@ function get_color_scheme($mg_db) {
             continue; // skip comments
 
         $site = str_replace("_", " ", $data[0]);
-        $info[$site] = $data[1];
+        $color = $data[1];
+        $order = isset($data[2]) ? $data[2] : 0;
+        $info[$site] = array('color' => $color, 'order' => $order);
     }
 
     fclose($fh);

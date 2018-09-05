@@ -48,6 +48,8 @@ $job_obj = new quantify($db, $qid);
 
 $filename = $job_obj->get_filename();
 $search_type = $job_obj->get_search_type();
+$ref_db = $job_obj->get_ref_db();
+$id_search_type = $job_obj->get_identify_search_type();
 
 $ssnFileSize = global_functions::bytes_to_megabytes($job_obj->get_ssn_file_size());
 $protFileSize = $ssnFileSize ? "<1" : 0; // files are small
@@ -98,8 +100,16 @@ require_once "inc/header.inc.php";
 
 <p>Input filename: <?php echo $filename; ?></>
 <?php
-if ($search_type && settings::get_diamond_enabled()) {
-    echo "<p>Search type: $search_type</p>\n";
+if (settings::get_diamond_enabled()) {
+    if ($id_search_type) {
+        echo "<p>Identify search type: $id_search_type</p>\n";
+    }
+    if ($search_type) {
+        echo "<p>Quantify search type: $search_type</p>\n";
+    }
+    if ($ref_db) {
+        echo "<p>Reference database: $ref_db</p>\n";
+    }
 }
 ?>
 
