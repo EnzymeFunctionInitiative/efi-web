@@ -102,7 +102,7 @@ show_jobs($training_jobs);
             <p>
             </p>
     
-            <form name="upload_form" id='upload_form' method="post" action="" enctype="multipart/form-data">
+            <form name="upload_form" id="upload_form" method="post" action="" enctype="multipart/form-data">
     
                 <p>
                 <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", $SiteUrlPrefix); ?>
@@ -115,9 +115,19 @@ show_jobs($training_jobs);
     
 <?php if (settings::get_diamond_enabled()) { ?>
                 <p>
-                    Sequence search type: <select name="ssn_search_type" id="ssn_search_type"><option>BLAST</option><option>DIAMOND</option></select> (Optional)
+                    Sequence search type: <select name="ssn_search_type" id="ssn_search_type"><option>BLAST</option><option>DIAMOND</option><option>V2-BLAST</option></select> (Optional)
+                    <a class="question" title="This is the search engine that will be used to remove false positives and identify unique markers.">?</a>
                 </p>
 <?php } ?>
+                <p>
+                    Reference database: <select name="ssn_ref_db" id="ssn_ref_db"><option value="uniprot">Full UniProt</option><option value="uniref90">UniRef 90</option><option value="uniref50">UniRef 50</option></select> (Optional)
+                    <a class="question" title="Defaults to UniProt.">?</a>
+                </p>
+
+                <p>
+                    CD-HIT sequence identity: <input type="text" name="ssn_cdhit_sid" id="ssn_cdhit_sid" value=""> (Optional)
+                    <a class="question" title="This is the sequence identity parameter that will be used for determining the ShortBRED consensus sequence families.">?</a>
+                </p>
     
                 <p>
                     E-mail address: 
@@ -126,15 +136,14 @@ show_jobs($training_jobs);
                     to download the data.
                 </p>
     
-                <div id='ssn_message' style="color: red">
+                <div id="ssn_message" style="color: red">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
-                    <div><button type="button" id='ssn_submit' name="ssn_submit" class="dark"
-                            onclick="uploadFile('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit','ssn_min_seq_len','ssn_search_type')">
+                    <div><button type="button" id="ssn_submit" name="ssn_submit" class="dark" onclick="uploadInitialSSNFile()">
                                 Upload SSN
                         </button></div>
-                    <div><progress id='progress_bar' max='100' value='0'></progress></div>
+                    <div><progress id="progress_bar" max="100" value="0"></progress></div>
                     <div id="progress_number"></div>
                 </center>
             </form>
@@ -199,6 +208,7 @@ function show_jobs($jobs) {
         $date_completed = $jobs[$i]["date_completed"];
         $is_active = $date_completed == "PENDING" || $date_completed == "RUNNING";
         $search_type = $jobs[$i]["search_type"];
+        $ref_db = $jobs[$i]["ref_db"];
     
         $link_start = "";
         $link_end = "";
@@ -227,7 +237,9 @@ function show_jobs($jobs) {
                 $last_bg_color = "#fff";
         }
         if ($search_type)
-            $name = $name . " /$search_type/";
+            $name .= " /$search_type/";
+        if ($ref_db)
+            $name .= " &lt;$ref_db&gt;";
     
         echo <<<HTML
                     <tr style="background-color: $last_bg_color">
@@ -240,7 +252,7 @@ HTML;
 }
 
 
-require_once('inc/footer.inc.php');
+require_once("inc/footer.inc.php");
 
 
 ?>

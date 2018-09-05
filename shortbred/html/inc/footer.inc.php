@@ -25,7 +25,7 @@ A prominent glycyl radical enzyme in human gut microbiomes metabolizes trans-4-h
 
 <p>For more information on ShortBRED, see
 <div style="margin-left: 20px;">
-Kaminski J, Gibson MK, Franzosa EA, Segata N, Dantas G, Huttenhower C.
+Kaminski J., Gibson M. K., Franzosa E. A., Segata N., Dantas G., Huttenhower C.
 High-specificity targeted functional profiling in microbial communities with ShortBRED.
 <i>PLoS Comput Biol.</i> 2015 Dec 18;11(12):e1004557. DOI: <a href="https://doi.org/10.1371/journal.pcbi.1004557">10.1371/journal.pcbi.1004557</a>
 </div>

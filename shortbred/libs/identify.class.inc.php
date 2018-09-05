@@ -14,6 +14,10 @@ class identify extends job_shared {
     private $db;
     private $error_message = "";
     private $min_seq_len = "";
+    //$search_type is defined in job_shared
+    private $cdhit_sid = "";
+    private $ref_db = "";
+    private $cons_thresh = "";
 
 
     public function get_filename() {
@@ -21,6 +25,15 @@ class identify extends job_shared {
     }
     public function get_min_seq_len() {
         return $this->min_seq_len;
+    }
+    public function get_cdhit_sid() {
+        return $this->cdhit_sid;
+    }
+    public function get_ref_db() {
+        return $this->ref_db;
+    }
+    public function get_consensus_threshold() {
+        return $this->cons_thresh;
     }
 
 
@@ -33,8 +46,8 @@ class identify extends job_shared {
         $this->load_job();
     }
 
-    public static function create($db, $email, $tmp_filename, $filename, $min_seq_len, $search_type) {
-        $info = self::create_shared($db, $email, $tmp_filename, $filename, "", false, $min_seq_len, $search_type);
+    public static function create($db, $email, $tmp_filename, $filename, $create_params) {
+        $info = self::create_shared($db, $email, $tmp_filename, $filename, "", false, $create_params);
         return $info;
     }
 
@@ -43,7 +56,7 @@ class identify extends job_shared {
     //
     // $parent_id > 0 and $true_copy = false creates a new job based
     // on the parent job, but re-runs parts of the identify step with the new SSN. 
-    private static function create_shared($db, $email, $tmp_filename, $filename, $parent_id, $true_copy, $min_seq_len, $search_type) {
+    private static function create_shared($db, $email, $tmp_filename, $filename, $parent_id, $true_copy, $create_params) {
 
         // Sanitize filename
         $filename = preg_replace("([^a-zA-Z0-9\-_\.])", '', $filename);
@@ -63,12 +76,35 @@ class identify extends job_shared {
             $insert_array['identify_parent_id'] = $parent_id;
 
         $parms_array = array('identify_filename' => $filename);
-        if ($min_seq_len)
-            $parms_array['identify_min_seq_len'] = $min_seq_len;
-        if ($search_type) {
-            $search_type = strtolower($search_type);
-            if ($search_type == "diamond" || $search_type == "blast")
+
+        if (isset($create_params['min_seq_len'])) {
+            $min_seq_len = $create_params['min_seq_len'];
+            if (is_numeric($min_seq_len) && $min_seq_len >= 0 && $min_seq_len < 1000000000)
+                $parms_array['identify_min_seq_len'] = $create_params['min_seq_len'];
+        }
+
+        if (isset($create_params['search_type'])) {
+            $search_type = strtolower($create_params['search_type']);
+            if ($search_type == "diamond" || $search_type == "blast" || $search_type == "v2-blast")
                 $parms_array['identify_search_type'] = $search_type;
+        }
+
+        if (isset($create_params['ref_db'])) {
+            $ref_db = $create_params['ref_db'];
+            if ($ref_db == "uniprot" || $ref_db == "uniref50" || $ref_db = "uniref90")
+                $parms_array['identify_ref_db'] = $create_params['ref_db'];
+        }
+
+        if (isset($create_params['cdhit_sid'])) {
+            $cdhit_sid = $create_params['cdhit_sid'];
+            if (is_numeric($cdhit_sid) && $cdhit_sid >= 10 && $cdhit_sid <= 100)
+                $parms_array['identify_cdhit_sid'] = $cdhit_sid;
+        }
+
+        if (isset($create_params['cons_thresh'])) {
+            $cons_thresh = $create_params['cons_thresh'];
+            if (is_numeric($cons_thresh) && $cons_thresh >= 10 && $cons_thresh <= 100)
+                $parms_array['identify_cons_thresh'] = $cons_thresh;
         }
 
         $insert_array['identify_params'] = global_functions::encode_object($parms_array);
@@ -177,8 +213,10 @@ class identify extends job_shared {
         $queue = settings::get_normal_queue();
         $memQueue = settings::get_memory_queue();
         $sb_module = settings::get_shortbred_blast_module();
-        if ($this->search_type == "diamond")
+        if ($this->search_type == "diamond" || $this->search_type == "v2-blast")
             $sb_module = settings::get_shortbred_diamond_module();
+//        elseif ($this->search_type == "v2-blast")
+//            $sb_module = __SHORTBRED_V2_MODULE__; //TODO:
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
@@ -200,6 +238,12 @@ class identify extends job_shared {
             $exec .= " -parent-job-id $parent_id";
         if ($this->min_seq_len)
             $exec .= " -min-seq-len " . $this->min_seq_len;
+        if ($this->ref_db)
+            $exec .= " -ref-db " . $this->ref_db;
+        if ($this->cdhit_sid)
+            $exec .= " -cdhit-sid " . $this->cdhit_sid;
+        if ($this->cons_thresh)
+            $exec .= " -cons-thresh " . $this->cons_thresh;
 
         if ($this->is_debug) {
             print("Job ID: $id\n");
@@ -253,6 +297,9 @@ class identify extends job_shared {
         $this->set_key($result['identify_key']);
         $this->filename = $params['identify_filename'];
         $this->min_seq_len = isset($params['identify_min_seq_len']) ? $params['identify_min_seq_len'] : "";
+        $this->ref_db = isset($params['identify_ref_db']) ? $params['identify_ref_db'] : "";
+        $this->cdhit_sid = isset($params['identify_cdhit_sid']) ? $params['identify_cdhit_sid'] : "";
+        $this->cons_thresh = isset($params['identify_cons_thresh']) ? $params['identify_cons_thresh'] : "";
 
         $this->loaded = true;
         return true;

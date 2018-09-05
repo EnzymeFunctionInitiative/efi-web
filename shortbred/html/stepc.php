@@ -60,6 +60,9 @@ if ($status == __FAILED__) {
 $filename = $job->get_filename();
 $msl = $job->get_min_seq_len();
 $search_type = $job->get_search_type();
+$ref_db = $job->get_ref_db();
+$cdhit_sid = $job->get_cdhit_sid();
+$cons_thresh = $job->get_consensus_threshold();
 
 $hmp_list = array();
 if ($is_finished) {
@@ -102,6 +105,15 @@ if ($msl) {
 }
 if ($search_type && settings::get_diamond_enabled()) {
     echo "<p>Search type: $search_type</p>\n";
+}
+if ($ref_db) {
+    echo "<p>Reference database: $ref_db</p>\n";
+}
+if ($cdhit_sid) {
+    echo "<p>CD-HIT sequence identity: $cdhit_sid</p>\n";
+}
+if ($cons_thresh) {
+    echo "<p>Consensus threshold: $cons_thresh</p>\n";
 }
 ?>
 
