@@ -391,7 +391,10 @@ function getQueryAttributes($row, $orderData, $isDirectJob) {
 
     $familyCount = count($attr['family']);
 
-    $attr['family_desc'] = explode("-", $row['family_desc']);
+    $familyDesc = explode(";", $row['family_desc']);
+    if (count($familyDesc) == 1)
+        $familyDesc = explode("-", $row['family_desc']);
+    $attr['family_desc'] = $familyDesc;
     if (count($attr['family_desc']) < $familyCount) {
         if (count($attr['family_desc']) > 0)
             $attr['family_desc'] = array_fill(0, $familyCount, $attr['family_desc'][0]);
@@ -446,7 +449,10 @@ function getNeighborAttributes($row) {
 
     $familyCount = count($nb['family']);
 
-    $nb['family_desc'] = explode("-", $row['family_desc']);
+    $familyDesc = explode(";", $row['family_desc']);
+    if (count($familyDesc) == 1)
+        $familyDesc = explode("-", $row['family_desc']);
+    $nb['family_desc'] = $familyDesc;
     if (count($nb['family_desc']) < $familyCount) {
         if (count($nb['family_desc']) > 0)
             $nb['family_desc'] = array_fill(0, $familyCount, $nb['family_desc'][0]);

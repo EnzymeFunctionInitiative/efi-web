@@ -42,6 +42,7 @@ function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
     this.pfamFilter = {};
     this.pfamList = {};
     this.groupList = [];
+    this.legendGroup = undefined;
 
     this.idKeyQueryString = ""; 
 
@@ -146,11 +147,14 @@ ArrowDiagram.prototype.getFamilies = function(sortById) {
     var keys = Object.keys(this.pfamList);
     for (var fi = 0; fi < keys.length; fi++) {
         var famId = keys[fi];
+        var famName = "";
         if (famId == "none")
-            continue;
+            famName = "None";
+        else
+            famName = this.pfamList[famId];
 
         var isChecked = typeof this.pfamFilter[famId] !== 'undefined';
-        fams.push({'id': famId, 'name': this.pfamList[famId], 'checked': isChecked});
+        fams.push({'id': famId, 'name': famName, 'checked': isChecked});
     }
 
     if (sortById)
@@ -210,6 +214,9 @@ ArrowDiagram.prototype.makeArrowDiagram = function(data, usePaging, resetCanvas)
 }
 
 ArrowDiagram.prototype.drawLegendLine = function(canvas, index, data, drawingWidth) {
+    if (this.legendGroup)
+        this.legendGroup.remove();
+
     var ypos = index * this.diagramHeight + this.padding + this.fontHeight;
 
     var legendScale = data["legend_scale"]; // This comes in base-pair units, whereas the GUI displays things in terms of AA position.
@@ -250,6 +257,7 @@ ArrowDiagram.prototype.drawLegendLine = function(canvas, index, data, drawingWid
     textObj = group.text(this.padding + lineLength + 10, textYpos, legendLength + " amino acids");
     textObj.attr({'style':'diagram-title'});
     
+    this.legendGroup = group;
 }
 
 // Draw a diagram for a single arrow
@@ -557,6 +565,7 @@ ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isC
         if (ev.ctrlKey || ev.altKey) {
             var fams = this.attr("family").split("-");
             console.log(ev.target.className.baseVal);
+            console.log(fams);
             var isActive = ev.target.className.baseVal.includes("an-arrow-selected");
             fams.forEach((fam, idx) => {
                 if (isActive)
