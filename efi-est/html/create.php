@@ -96,6 +96,10 @@ if (!isset($_POST['submit'])) {
                 $input->random_fraction = $_POST['pfam_random_fraction'] == "true" ? true : false;
             if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true")
                 $input->uniref_version = "90";
+            if (isset($_POST['pfam_min_seq_len']) && is_numeric($_POST['pfam_min_seq_len']))
+                $input->min_seq_len = $_POST['pfam_min_seq_len'];
+            if (isset($_POST['pfam_max_seq_len']) && is_numeric($_POST['pfam_max_seq_len']))
+                $input->max_seq_len = $_POST['pfam_max_seq_len'];
     
             $result = $generate->create($input);
             break;

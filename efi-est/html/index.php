@@ -546,6 +546,12 @@ the <a href="family_list.php">Family Information page</a>.
                         Sequence identity (&le; 1; default: 1)
                     </div>
                     <div>
+                        Minimum Sequence Length: <input type="text" class="small" id="pfam-plus-min-seq-len" name="pfam-min-seq-len" value="">
+                    </div>
+                    <div>
+                        Maximum Sequence Length: <input type="text" class="small" id="pfam-plus-max-seq-len" name="pfam-max-seq-len" value="">
+                    </div>
+                    <div>
                         Sequence Length Overlap:
                         <input type="text" class="small" id="pfam-plus-length-overlap" name="pfam-length-overlap" value="1">
                         Sequence length overlap (&le; 1; default: 1)

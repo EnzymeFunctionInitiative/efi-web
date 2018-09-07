@@ -36,6 +36,10 @@ class input_data {
     public $minimum;
     public $maximum;
 
+    // For Option E
+    public $min_seq_len;
+    public $max_seq_len;
+
     // This flag is set to true if the script is called from the command line.
     public $is_debug;
 
