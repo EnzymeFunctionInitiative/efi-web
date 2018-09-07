@@ -113,12 +113,17 @@ show_jobs($training_jobs);
                     <a class="question" title="If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a minimum sequence length, in order to eliminate fragments that may be included in UniRef90 clusters.">?</a>
                 </p>
     
+                <p>
+                    Maximum sequence length: <input name="ssn_max_seq_len" id="ssn_max_seq_len" type="text" /> (Optional)
+                    <a class="question" title="If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a maximum sequence length, in order to eliminate certain sequences that may be included in UniRef90 clusters.">?</a>
+                </p>
+
 <?php if (settings::get_diamond_enabled()) { ?>
                 <p>
                     Sequence search type: <select name="ssn_search_type" id="ssn_search_type"><option>BLAST</option><option>DIAMOND</option><option>V2-BLAST</option></select> (Optional)
                     <a class="question" title="This is the search engine that will be used to remove false positives and identify unique markers.">?</a>
                 </p>
-<?php } ?>
+
                 <p>
                     Reference database: <select name="ssn_ref_db" id="ssn_ref_db"><option value="uniprot">Full UniProt</option><option value="uniref90">UniRef 90</option><option value="uniref50">UniRef 50</option></select> (Optional)
                     <a class="question" title="Defaults to UniProt.">?</a>
@@ -128,7 +133,13 @@ show_jobs($training_jobs);
                     CD-HIT sequence identity: <input type="text" name="ssn_cdhit_sid" id="ssn_cdhit_sid" value=""> (Optional)
                     <a class="question" title="This is the sequence identity parameter that will be used for determining the ShortBRED consensus sequence families.">?</a>
                 </p>
-    
+
+                <p>
+                    DIAMOND sensitivity: <select name="ssn_diamond_sens" id="ssn_diamond_sens"><option>sensitive</option><option>more-sensitive</option><option>normal</option></select> (Optional)
+                    <a class="question" title="This is the sentivitiy parameter that DIAMOND will use in it's computations.  It defaults to sensitive in ShortBRED.">?</a>
+                </p>
+<?php } ?>
+
                 <p>
                     E-mail address: 
                     <input name="ssn_email" id="ssn_email" type="text" value="<?php echo $user_email; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
@@ -226,7 +237,7 @@ function show_jobs($jobs) {
                 $link_end = "</span>";
             }
             $name_style = "style=\"padding-left: 50px;\"";
-            $name = "[Quantify] " . $name;
+            $name = "[Quantify $quantify_id] " . $name;
             $id_field = "";
         } else {
             $link_start = $is_active ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";

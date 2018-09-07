@@ -14,10 +14,12 @@ class identify extends job_shared {
     private $db;
     private $error_message = "";
     private $min_seq_len = "";
+    private $max_seq_len = "";
     //$search_type is defined in job_shared
     private $cdhit_sid = "";
     private $ref_db = "";
     private $cons_thresh = "";
+    private $diamond_sens = "";
 
 
     public function get_filename() {
@@ -25,6 +27,9 @@ class identify extends job_shared {
     }
     public function get_min_seq_len() {
         return $this->min_seq_len;
+    }
+    public function get_max_seq_len() {
+        return $this->max_seq_len;
     }
     public function get_cdhit_sid() {
         return $this->cdhit_sid;
@@ -34,6 +39,9 @@ class identify extends job_shared {
     }
     public function get_consensus_threshold() {
         return $this->cons_thresh;
+    }
+    public function get_diamond_sensitivity() {
+        return $this->diamond_sens;
     }
 
 
@@ -83,6 +91,12 @@ class identify extends job_shared {
                 $parms_array['identify_min_seq_len'] = $create_params['min_seq_len'];
         }
 
+        if (isset($create_params['max_seq_len'])) {
+            $max_seq_len = $create_params['max_seq_len'];
+            if (is_numeric($max_seq_len) && $max_seq_len >= 0 && $max_seq_len < 1000000000)
+                $parms_array['identify_max_seq_len'] = $create_params['max_seq_len'];
+        }
+
         if (isset($create_params['search_type'])) {
             $search_type = strtolower($create_params['search_type']);
             if ($search_type == "diamond" || $search_type == "blast" || $search_type == "v2-blast")
@@ -105,6 +119,12 @@ class identify extends job_shared {
             $cons_thresh = $create_params['cons_thresh'];
             if (is_numeric($cons_thresh) && $cons_thresh >= 10 && $cons_thresh <= 100)
                 $parms_array['identify_cons_thresh'] = $cons_thresh;
+        }
+
+        if (isset($create_params['diamond_sens'])) {
+            $diamond_sens = $create_params['diamond_sens'];
+            if ($diamond_sens == "normal" || $diamond_sens == "sensitive" || $diamond_sens == "more-sensitive")
+                $parms_array['identify_diamond_sens'] = $diamond_sens;
         }
 
         $insert_array['identify_params'] = global_functions::encode_object($parms_array);
@@ -238,12 +258,16 @@ class identify extends job_shared {
             $exec .= " -parent-job-id $parent_id";
         if ($this->min_seq_len)
             $exec .= " -min-seq-len " . $this->min_seq_len;
+        if ($this->max_seq_len)
+            $exec .= " -max-seq-len " . $this->max_seq_len;
         if ($this->ref_db)
             $exec .= " -ref-db " . $this->ref_db;
         if ($this->cdhit_sid)
             $exec .= " -cdhit-sid " . $this->cdhit_sid;
         if ($this->cons_thresh)
             $exec .= " -cons-thresh " . $this->cons_thresh;
+        if ($this->diamond_sens)
+            $exec .= " -diamond-sens " . $this->diamond_sens;
 
         if ($this->is_debug) {
             print("Job ID: $id\n");
@@ -297,9 +321,11 @@ class identify extends job_shared {
         $this->set_key($result['identify_key']);
         $this->filename = $params['identify_filename'];
         $this->min_seq_len = isset($params['identify_min_seq_len']) ? $params['identify_min_seq_len'] : "";
+        $this->max_seq_len = isset($params['identify_max_seq_len']) ? $params['identify_max_seq_len'] : "";
         $this->ref_db = isset($params['identify_ref_db']) ? $params['identify_ref_db'] : "";
         $this->cdhit_sid = isset($params['identify_cdhit_sid']) ? $params['identify_cdhit_sid'] : "";
         $this->cons_thresh = isset($params['identify_cons_thresh']) ? $params['identify_cons_thresh'] : "";
+        $this->diamond_sens = isset($params['identify_diamond_sens']) ? $params['identify_diamond_sens'] : "";
 
         $this->loaded = true;
         return true;

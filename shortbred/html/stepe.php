@@ -50,6 +50,7 @@ $filename = $job_obj->get_filename();
 $search_type = $job_obj->get_search_type();
 $ref_db = $job_obj->get_ref_db();
 $id_search_type = $job_obj->get_identify_search_type();
+$diamond_sens = $job_obj->get_diamond_sensitivity();
 
 $ssnFileSize = global_functions::bytes_to_megabytes($job_obj->get_ssn_file_size());
 $protFileSize = $ssnFileSize ? "<1" : 0; // files are small
@@ -109,6 +110,9 @@ if (settings::get_diamond_enabled()) {
     }
     if ($ref_db) {
         echo "<p>Reference database: $ref_db</p>\n";
+    }
+    if ($diamond_sens) {
+        echo "<p>DIAMOND sensitivity: $diamond_sens</p>\n";
     }
 }
 ?>
