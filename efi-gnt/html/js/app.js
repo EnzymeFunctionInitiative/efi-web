@@ -167,6 +167,7 @@ ArrowApp.prototype.doSearch = function(idList) {
 }
 
 ArrowApp.prototype.uiFilterUpdate = function(fam, doRemove) {
+    console.log(fam + " " + doRemove);
     if (fam in this.filterRevMap) {
         var data = this.filterRevMap[fam];
         var i = data[0];
