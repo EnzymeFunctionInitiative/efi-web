@@ -135,6 +135,8 @@ function submitOptionEForm() {
     addParam(fd, "fraction", "pfam-plus-fraction");
     addCbParam(fd, "pfam_domain", "pfam-plus-domain");
     addParam(fd, "pfam_seqid", "pfam-plus-seqid");
+    addParam(fd, "pfam_min_seq_len", "pfam-plus-min-seq-len");
+    addParam(fd, "pfam_max_seq_len", "pfam-plus-max-seq-len");
     addParam(fd, "pfam_length_overlap", "pfam-plus-length-overlap");
     addCbParam(fd, "pfam_demux", "pfam-plus-demux");
     var fileHandler = function(xhr) {};
