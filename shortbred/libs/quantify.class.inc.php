@@ -18,6 +18,7 @@ class quantify extends job_shared {
     private $filename;
     private $ref_db = "";
     private $identify_search_type = "";
+    private $identify_diamond_sens = "";
 
 
     
@@ -35,6 +36,9 @@ class quantify extends job_shared {
     }
     public function get_identify_search_type() {
         return $this->identify_search_type;
+    }
+    public function get_diamond_sensitivity() {
+        return $this->identify_diamond_sens;
     }
 
 
@@ -251,18 +255,22 @@ class quantify extends job_shared {
         $mg_ids = $qparams['quantify_metagenome_ids'];
         $this->metagenome_ids = explode(",", $mg_ids);
 
-        if ($this->search_type != "diamond" && settings::get_diamond_enabled())
-            $this->search_type = "usearch";
-        else
-            $this->search_type = "";
         if (isset($iparams['identify_ref_db']))
             $this->ref_db = $iparams['identify_ref_db'];
         else
             $this->ref_db = "";
-        if (settings::get_diamond_enabled() && isset($iparams['identify_search_type']))
-            $this->identify_search_type = $iparams['identify_search_type'];
-        else
-            $this->identify_search_type = "";
+
+        $this->identify_search_type = "";
+        $this->search_type = "";
+        $this->identify_diamond_sens = "";
+        if (settings::get_diamond_enabled()) {
+            if (isset($iparams['identify_search_type']))
+                $this->identify_search_type = $iparams['identify_search_type'];
+            if ($this->search_type != "diamond")
+                $this->search_type = "usearch";
+            if (isset($iparams['identify_diamond_sens']))
+                $this->identify_diamond_sens = $iparams['identify_diamond_sens'];
+        }
 
         $this->loaded = true;
         return true;

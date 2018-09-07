@@ -58,11 +58,13 @@ if ($status == __FAILED__) {
 
 
 $filename = $job->get_filename();
-$msl = $job->get_min_seq_len();
+$min_seq_len = $job->get_min_seq_len();
+$max_seq_len = $job->get_max_seq_len();
 $search_type = $job->get_search_type();
 $ref_db = $job->get_ref_db();
 $cdhit_sid = $job->get_cdhit_sid();
 $cons_thresh = $job->get_consensus_threshold();
+$diamond_sens = $job->get_diamond_sensitivity();
 
 $hmp_list = array();
 if ($is_finished) {
@@ -100,8 +102,11 @@ require_once "inc/header.inc.php";
 
 <p>Input filename: <?php echo $filename; ?></>
 <?php
-if ($msl) {
-    echo "<p>Minimum sequence length: $msl</p>\n";
+if ($min_seq_len) {
+    echo "<p>Minimum sequence length: $min_seq_len</p>\n";
+}
+if ($max_seq_len) {
+    echo "<p>Maximum sequence length: $max_seq_len</p>\n";
 }
 if ($search_type && settings::get_diamond_enabled()) {
     echo "<p>Search type: $search_type</p>\n";
@@ -114,6 +119,9 @@ if ($cdhit_sid) {
 }
 if ($cons_thresh) {
     echo "<p>Consensus threshold: $cons_thresh</p>\n";
+}
+if ($diamond_sens) {
+    echo "<p>DIAMOND sensitivity: $diamond_sens</p>\n";
 }
 ?>
 

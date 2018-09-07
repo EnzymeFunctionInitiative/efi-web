@@ -347,8 +347,8 @@ class job_manager {
     // Candidate for refacotring to centralize
     private static function get_completed_date_label($comp, $status) {
         $isCompleted = false;
-        if ($status == "FAILED") {
-            $comp = "FAILED";
+        if ($status == "FAILED" || $status == "RUNNING") {
+            $comp = $status;
         } elseif (!$comp || substr($comp, 0, 4) == "0000") {
             $comp = $status;
             if ($comp == "NEW")

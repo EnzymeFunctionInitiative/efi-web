@@ -44,9 +44,11 @@ function uploadInitialSSNFile() {
     addParam(fd, "email", "ssn_email");
     addParam(fd, "submit", "ssn_submit");
     addParam(fd, "min-seq-len", "ssn_min_seq_len");
+    addParam(fd, "max-seq-len", "ssn_max_seq_len");
     addParam(fd, "search-type", "ssn_search_type");
     addParam(fd, "ref-db", "ssn_ref_db");
     addParam(fd, "cdhit-sid", "ssn_cdhit_sid");
+    addParam(fd, "diamond-sens", "ssn_diamond_sens");
 
     var files = document.getElementById(fileInputId).files;
     var completionHandler = function(jsonObj) {
