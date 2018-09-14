@@ -222,10 +222,11 @@ ArrowDiagram.prototype.drawLegendLine = function(canvas, index, data, drawingWid
     var legendScale = data["legend_scale"]; // This comes in base-pair units, whereas the GUI displays things in terms of AA position.
     var l1 = Math.log10(legendScale);
     var l2 = Math.ceil(l1) - 2;
-    var legendLength = Math.pow(10, l2);
+    var legendLength = Math.pow(10, l2); // In AA
     var legendBp = legendLength * 3;
     var legendScaleFactor = drawingWidth / legendScale;
     var lineLength = legendBp * legendScaleFactor;
+    var legendText = legendLength * 3 / 1000;
 
     //var minBp = data["min_pct"];
     //var maxBp = data["max_pct"];
@@ -254,7 +255,7 @@ ArrowDiagram.prototype.drawLegendLine = function(canvas, index, data, drawingWid
     textObj.attr({'style':'diagram-title'});
     
     var textYpos = index * this.diagramHeight + this.fontHeight * 2;
-    textObj = group.text(this.padding + lineLength + 10, textYpos, legendLength + " amino acids");
+    textObj = group.text(this.padding + lineLength + 10, textYpos, legendText + " kbp");
     textObj.attr({'style':'diagram-title'});
     
     this.legendGroup = group;
@@ -770,7 +771,7 @@ ArrowDiagram.prototype.doPopup = function(xPos, yPos, doShow, data) {
         $("#" + this.popupIds.FamilyId + " span").text(family);
         $("#" + this.popupIds.FamilyDescId + " span").text(familyDesc);
         $("#" + this.popupIds.SpTrId + " span").text(data.attr("anno_status"));
-        $("#" + this.popupIds.SeqLenId + " span").text(data.attr("seq_len"));
+        $("#" + this.popupIds.SeqLenId + " span").text(data.attr("seq_len") + " AA");
         //this.popupElement.show();
         this.popupElement.removeClass("hidden");
     } else {
