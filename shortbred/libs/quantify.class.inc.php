@@ -19,6 +19,7 @@ class quantify extends job_shared {
     private $ref_db = "";
     private $identify_search_type = "";
     private $identify_diamond_sens = "";
+    private $identify_cdhit_sid = "";
 
 
     
@@ -39,6 +40,9 @@ class quantify extends job_shared {
     }
     public function get_diamond_sensitivity() {
         return $this->identify_diamond_sens;
+    }
+    public function get_identify_cdhit_sid() {
+        return $this->identify_cdhit_sid;
     }
 
 
@@ -258,11 +262,12 @@ class quantify extends job_shared {
         if (isset($iparams['identify_ref_db']))
             $this->ref_db = $iparams['identify_ref_db'];
         else
-            $this->ref_db = "";
+            $this->ref_db = job_shared::DEFAULT_REFDB;
 
         $this->identify_search_type = "";
         $this->search_type = "";
         $this->identify_diamond_sens = "";
+        $this->identify_cdhit_sid = "";
         if (settings::get_diamond_enabled()) {
             if (isset($iparams['identify_search_type']))
                 $this->identify_search_type = $iparams['identify_search_type'];
@@ -271,6 +276,16 @@ class quantify extends job_shared {
             if (isset($iparams['identify_diamond_sens']))
                 $this->identify_diamond_sens = $iparams['identify_diamond_sens'];
         }
+        
+        if ($this->identify_search_type != "diamond")
+            $this->identify_diamond_sens = "";
+        elseif (!$this->identify_diamond_sens)
+            $this->identify_diamond_sens = job_shared::DEFAULT_DIAMOND_SENSITIVITY;
+
+        if (isset($iparams['identify_cdhit_sid']))
+            $this->identify_cdhit_sid = $iparams['identify_cdhit_sid'];
+        else
+            $this->identify_cdhit_sid = job_shared::DEFAULT_CDHIT_SID;
 
         $this->loaded = true;
         return true;

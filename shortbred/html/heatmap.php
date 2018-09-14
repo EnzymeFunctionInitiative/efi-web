@@ -31,7 +31,8 @@ label {
 <div id="plot"></div>
 
 <div style="margin-top: 20px;">
-Show specific cluster numbers: <input type="text" id="cluster-filter" />
+Show specific cluster numbers: <input type="text" id="cluster-filter" /><br>
+Minimum abundance to display: <input type="text" id="lower-thresh" /><br>
 <button type="button" id="filter-btn" onclick='doFormPost()'>Apply Filter</button>
 <button type="button" id="filter-btn" onclick='resetFilter()'>Reset Filter</button>
 </div>
@@ -287,6 +288,9 @@ function resetFilter() {
     var clusterField = document.getElementById("cluster-filter");
     clusterField.value = "";
 
+    var lowerThreshField = document.getElementById("lower-thresh");
+    lowerThreshField.value = "";
+
     doFormPost();
 }
 
@@ -303,10 +307,13 @@ function doFormPost() {
         parms.append("quantify-id", QuantifyId);
 
     var clusterList = document.getElementById("cluster-filter").value;
-    if (clusterList) {
-        console.log("Clusters: " + clusterList);
+    if (clusterList)
         parms.append("clusters", clusterList);
-    }
+
+    var lowerThresh = document.getElementById("lower-thresh").value;
+    if (lowerThresh)
+        parms.append("lower_thresh", lowerThresh);
+
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", formAction, true);

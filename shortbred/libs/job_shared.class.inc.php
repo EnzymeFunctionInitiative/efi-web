@@ -6,6 +6,13 @@ require_once("Mail/mime.php");
 
 abstract class job_shared {
 
+    const DEFAULT_DIAMOND_SENSITIVITY = "sensitive";
+    const DEFAULT_CDHIT_SID = "85";
+    const REFDB_UNIPROT = "uniprot";
+    const REFDB_UNIREF90 = "uniref90";
+    const REFDB_UNIREF50 = "uniref50";
+    const DEFAULT_REFDB = "uniprot";
+
     private $id;
     private $pbs_number;
     private $key;
