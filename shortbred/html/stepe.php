@@ -48,9 +48,10 @@ $job_obj = new quantify($db, $qid);
 
 $filename = $job_obj->get_filename();
 $search_type = $job_obj->get_search_type();
-$ref_db = $job_obj->get_ref_db();
-$id_search_type = $job_obj->get_identify_search_type();
+$ref_db = strtoupper($job_obj->get_ref_db());
+$id_search_type = strtoupper($job_obj->get_identify_search_type());
 $diamond_sens = $job_obj->get_diamond_sensitivity();
+$cdhit_sid = $job_obj->get_identify_cdhit_sid();
 
 $ssnFileSize = global_functions::bytes_to_megabytes($job_obj->get_ssn_file_size());
 $protFileSize = $ssnFileSize ? "<1" : 0; // files are small
@@ -105,14 +106,17 @@ if (settings::get_diamond_enabled()) {
     if ($id_search_type) {
         echo "<p>Identify search type: $id_search_type</p>\n";
     }
-    if ($search_type) {
-        echo "<p>Quantify search type: $search_type</p>\n";
-    }
     if ($ref_db) {
         echo "<p>Reference database: $ref_db</p>\n";
     }
+    if ($cdhit_sid) {
+        echo "<p>CD-HIT sequence identity: $cdhit_sid</p>\n";
+    }
     if ($diamond_sens) {
         echo "<p>DIAMOND sensitivity: $diamond_sens</p>\n";
+    }
+    if ($search_type) {
+        echo "<p>Quantify search type: $search_type</p>\n";
     }
 }
 ?>
@@ -129,17 +133,17 @@ HTML;
 
 <br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Clusters</button>
 <div id="heatmap-clusters" style="display: none;">
-<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=c&g=q" width="970" height="780" style="border: none"></iframe>
+<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=c&g=q" width="970" height="800" style="border: none"></iframe>
 </div>
 
 <br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Singletons</button>
 <div id="heatmap-singletons" style="display: none;">
-<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=s&g=q" width="970" height="780" style="border: none"></iframe>
+<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=s&g=q" width="970" height="800" style="border: none"></iframe>
 </div>
 
 <br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Clusters and Singltetons</button>
 <div id="heatmap-merged" style="display: none;">
-<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=m&g=q" width="970" height="780" style="border: none"></iframe>
+<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=m&g=q" width="970" height="800" style="border: none"></iframe>
 </div>
 
 <br><br>

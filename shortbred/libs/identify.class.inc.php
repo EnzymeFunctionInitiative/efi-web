@@ -32,7 +32,11 @@ class identify extends job_shared {
         return $this->max_seq_len;
     }
     public function get_cdhit_sid() {
-        return $this->cdhit_sid;
+        $sid = $this->cdhit_sid;
+        if ($sid)
+            return $sid;
+        else
+            return job_shared::DEFAULT_CDHIT_SID;
     }
     public function get_ref_db() {
         return $this->ref_db;
@@ -41,7 +45,11 @@ class identify extends job_shared {
         return $this->cons_thresh;
     }
     public function get_diamond_sensitivity() {
-        return $this->diamond_sens;
+        $sens = $this->diamond_sens;
+        if ($sens)
+            return $sens;
+        else
+            return ""; //job_shared::DEFAULT_DIAMOND_SENSITIVITY;
     }
 
 
@@ -105,7 +113,7 @@ class identify extends job_shared {
 
         if (isset($create_params['ref_db'])) {
             $ref_db = $create_params['ref_db'];
-            if ($ref_db == "uniprot" || $ref_db == "uniref50" || $ref_db = "uniref90")
+            if ($ref_db == job_shared::REFDB_UNIPROT || $ref_db == job_shared::REFDB_UNIREF50 || $ref_db == job_shared::REFDB_UNIREF90) 
                 $parms_array['identify_ref_db'] = $create_params['ref_db'];
         }
 
@@ -235,8 +243,6 @@ class identify extends job_shared {
         $sb_module = settings::get_shortbred_blast_module();
         if ($this->search_type == "diamond" || $this->search_type == "v2-blast")
             $sb_module = settings::get_shortbred_diamond_module();
-//        elseif ($this->search_type == "v2-blast")
-//            $sb_module = __SHORTBRED_V2_MODULE__; //TODO:
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
@@ -325,7 +331,7 @@ class identify extends job_shared {
         $this->ref_db = isset($params['identify_ref_db']) ? $params['identify_ref_db'] : "";
         $this->cdhit_sid = isset($params['identify_cdhit_sid']) ? $params['identify_cdhit_sid'] : "";
         $this->cons_thresh = isset($params['identify_cons_thresh']) ? $params['identify_cons_thresh'] : "";
-        $this->diamond_sens = isset($params['identify_diamond_sens']) ? $params['identify_diamond_sens'] : "";
+        $this->diamond_sens = ($this->search_type == "diamond" && isset($params['identify_diamond_sens'])) ? $params['identify_diamond_sens'] : "";
 
         $this->loaded = true;
         return true;

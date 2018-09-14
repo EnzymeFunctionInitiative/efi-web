@@ -77,6 +77,10 @@ if (isset($_POST["clusters"])) {
     $req_clusters = parse_clusters($_POST["clusters"]);
 }
 
+$lower_thresh = 0;
+if (isset($_POST["lower_thresh"]) && is_numeric($_POST["lower_thresh"]))
+    $lower_thresh = $_POST["lower_thresh"];
+
 
 $fh = fopen($clust_file, "r");
 
@@ -147,12 +151,19 @@ if ($fh) {
         for ($i = 0; $i < count($metagenomes); $i++) {
             $mg_idx = $mg_lookup[$i];
             $val = $parts[$start_idx + $i];
-            $info["abundance"][$mg_idx] = $val;
+            
             if ($val > $max)
                 $max = $val;
             if ($val < $min)
                 $min = $val;
-            $sum += $parts[$start_idx + $i];
+
+            // Skip the value if it's lower than the input threshold.
+            if ($val < $lower_thresh)
+                $val = 0;
+            
+            $sum += $val;
+
+            $info["abundance"][$mg_idx] = $val;
         }
 
         // We do these checks after getting the values in order to obtain the min/max extents of the
@@ -237,7 +248,7 @@ function get_mg_db_info() {
         if ($fh === false)
             continue;
 
-        $colors = get_color_scheme($mg_db);
+        $meta = get_mg_metadata($mg_db);
 
         while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
             if (isset($data[0]) && $data[0] && $data[0][0] == "#")
@@ -250,8 +261,8 @@ function get_mg_db_info() {
             $site = str_replace("_", " ", $site);
             $info["site"][$mg_id] = $site;
             $info["gender"][$mg_id] = $data[2];
-            $info["color"][$mg_id] = isset($colors[$site]) ? $colors[$site]["color"] : "";
-            $info["order"][$mg_id] = isset($colors[$site]) ? $colors[$site]["order"] : "";
+            $info["color"][$mg_id] = isset($meta[$site]) ? $meta[$site]["color"] : "";
+            $info["order"][$mg_id] = isset($meta[$site]) ? $meta[$site]["order"] : "";
         }
 
         fclose($fh);
@@ -260,11 +271,11 @@ function get_mg_db_info() {
     return $info;
 }
 
-function get_color_scheme($mg_db) {
+function get_mg_metadata($mg_db) {
 
     $info = array(); # map site to color
 
-    $scheme_file = "$mg_db.color";
+    $scheme_file = "$mg_db.metadata";
     if (file_exists($scheme_file)) {
         $fh = fopen($scheme_file, "r");
         if ($fh === false)

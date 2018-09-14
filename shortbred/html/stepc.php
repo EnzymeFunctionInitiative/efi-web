@@ -60,8 +60,8 @@ if ($status == __FAILED__) {
 $filename = $job->get_filename();
 $min_seq_len = $job->get_min_seq_len();
 $max_seq_len = $job->get_max_seq_len();
-$search_type = $job->get_search_type();
-$ref_db = $job->get_ref_db();
+$search_type = strtoupper($job->get_search_type());
+$ref_db = strtoupper($job->get_ref_db());
 $cdhit_sid = $job->get_cdhit_sid();
 $cons_thresh = $job->get_consensus_threshold();
 $diamond_sens = $job->get_diamond_sensitivity();
