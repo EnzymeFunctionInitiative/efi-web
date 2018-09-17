@@ -11,22 +11,10 @@ form {
   top: 10px;
 }
 
-label {
-  display: block;
-}
-
 </style>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-<!--
-<form>
-  <label><input type="radio" name="mode" value="grouped"> Grouped</label>
-  <label><input type="radio" name="mode" value="stacked" checked> Stacked</label>
-</form>
--->
-<!--<svg width="960" height="500"></svg>-->
-<!--<script src="https://d3js.org/d3.v4.min.js"></script>-->
 
 <div id="plot"></div>
 
@@ -35,6 +23,7 @@ Show specific cluster numbers: <input type="text" id="cluster-filter" /><br>
 Minimum abundance to display: <input type="text" id="lower-thresh" /><br>
 <button type="button" id="filter-btn" onclick='doFormPost()'>Apply Filter</button>
 <button type="button" id="filter-btn" onclick='resetFilter()'>Reset Filter</button>
+<input type="checkbox" name="mean-cb" value="1" id="mean-cb" onclick='doFormPost()'><label for="mean-cb">Use mean</label>
 </div>
 
 
@@ -299,12 +288,19 @@ function doFormPost() {
     var formAction = "get_sbq_data.php";
     var completionHandler = processData;
 
+    var useMean = false;
+    var meanCbElem = document.getElementById("mean-cb");
+    if (meanCbElem && meanCbElem.checked)
+        useMean = true;
+
     var parms = new FormData;
     parms.append("id", Id);
     parms.append("key", Key);
     parms.append("res", ResType);
     if (QuantifyId)
         parms.append("quantify-id", QuantifyId);
+    if (useMean)
+        parms.append("use-mean", 1);
 
     var clusterList = document.getElementById("cluster-filter").value;
     if (clusterList)
