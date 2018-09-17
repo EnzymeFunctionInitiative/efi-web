@@ -405,19 +405,24 @@ class quantify extends job_shared {
         return $path;
     }
 
-    public function get_protein_file_path() {
+    public function get_protein_file_path($use_mean = false) {
         $path = $this->get_identify_output_path() . "/" .
             $this->get_quantify_res_dir() . "/" .
             self::get_protein_file_name();
+        if ($use_mean)
+            $path .= ".mean";
         return $path;
     }
-    public function get_cluster_file_path() {
+    public function get_cluster_file_path($use_mean = false) {
         $path = $this->get_identify_output_path() . "/" .
             $this->get_quantify_res_dir() . "/" .
             self::get_cluster_file_name();
+        if ($use_mean)
+            $path .= ".mean";
         return $path;
     }
 
+    /* DEPRECATED
     public function get_merged_protein_file_path() {
         $path = $this->get_identify_output_path() . "/" .
             self::get_protein_file_name();
@@ -448,28 +453,38 @@ class quantify extends job_shared {
             self::get_genome_normalized_cluster_file_name();
         return $path;
     }
-    public function get_normalized_protein_file_path() {
+     */
+
+    public function get_normalized_protein_file_path($use_mean = false) {
         $path = $this->get_identify_output_path() . "/" .
             $this->get_quantify_res_dir() . "/" .
             self::get_normalized_protein_file_name();
+        if ($use_mean)
+            $path .= ".mean";
         return $path;
     }
-    public function get_normalized_cluster_file_path() {
+    public function get_normalized_cluster_file_path($use_mean = false) {
         $path = $this->get_identify_output_path() . "/" .
             $this->get_quantify_res_dir() . "/" .
             self::get_normalized_cluster_file_name();
+        if ($use_mean)
+            $path .= ".mean";
         return $path;
     }
-    public function get_genome_normalized_protein_file_path() {
+    public function get_genome_normalized_protein_file_path($use_mean = false) {
         $path = $this->get_identify_output_path() . "/" .
             $this->get_quantify_res_dir() . "/" .
             self::get_genome_normalized_protein_file_name();
+        if ($use_mean)
+            $path .= ".mean";
         return $path;
     }
-    public function get_genome_normalized_cluster_file_path() {
+    public function get_genome_normalized_cluster_file_path($use_mean = false) {
         $path = $this->get_identify_output_path() . "/" .
             $this->get_quantify_res_dir() . "/" .
             self::get_genome_normalized_cluster_file_name();
+        if ($use_mean)
+            $path .= ".mean";
         return $path;
     }
 
@@ -519,27 +534,28 @@ class quantify extends job_shared {
         return "${id}_$name";
     }
 
-    // MERGED    
-    public function get_merged_ssn_zip_file_path() {
-        $path = $this->get_ssn_file_path_shared() . ".zip";
-        return $path;
-    }
-    public function get_merged_ssn_file_size() {
-        $file = $this->get_ssn_file_path_shared();
-        if (file_exists($file))
-            return filesize($file);
-        else
-            return 0;
-    }
-    public function get_merged_ssn_zip_file_size() {
-        $file = $this->get_merged_ssn_zip_file_path();
-        if (file_exists($file))
-            return filesize($file);
-        else
-            return 0;
-    }
+// DEPRECATED
+//    // MERGED    
+//    public function get_merged_ssn_zip_file_path() {
+//        $path = $this->get_ssn_file_path_shared() . ".zip";
+//        return $path;
+//    }
+//    public function get_merged_ssn_file_size() {
+//        $file = $this->get_ssn_file_path_shared();
+//        if (file_exists($file))
+//            return filesize($file);
+//        else
+//            return 0;
+//    }
+//    public function get_merged_ssn_zip_file_size() {
+//        $file = $this->get_merged_ssn_zip_file_path();
+//        if (file_exists($file))
+//            return filesize($file);
+//        else
+//            return 0;
+//    }
 
-    // LOCAL
+    // LOCAL TO JOB
     private function get_ssn_file_path_shared() {
         $path = $this->get_identify_output_path();
         $q_dir = $this->get_quantify_res_dir();

@@ -51,21 +51,25 @@ if (isset($_POST["res"])) {
     }
 }
 
+$use_mean = false;
+if (isset($_POST["use-mean"])) {
+    $use_mean = true;
+}
+
 
 $result = array("valid" => false);
 
-if ($is_error) {
+if ($is_error || !$q_id) {
     echo json_encode($result);
     exit(0);
 }
 
-if ($q_id) {
-    $id_dir = $job_obj->get_identify_output_path();
-    $clust_file = $job_obj->get_genome_normalized_cluster_file_path();
-} else {
-    $id_dir = $job_obj->get_results_path();
-    $clust_file = $id_dir . "/" . quantify::get_genome_normalized_cluster_file_name();
-}
+$id_dir = $job_obj->get_identify_output_path();
+$clust_file = $job_obj->get_genome_normalized_cluster_file_path($use_mean);
+// DEPRECATED
+//    $id_dir = $job_obj->get_results_path();
+//    $clust_file = $id_dir . "/" . quantify::get_genome_normalized_cluster_file_name($use_mean);
+
 
 if (!file_exists($clust_file)) {
     echo json_encode($result);

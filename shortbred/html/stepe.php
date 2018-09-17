@@ -53,6 +53,10 @@ $id_search_type = strtoupper($job_obj->get_identify_search_type());
 $diamond_sens = $job_obj->get_diamond_sensitivity();
 $cdhit_sid = $job_obj->get_identify_cdhit_sid();
 
+$use_mean = true;
+$mean_cluster_file = $job_obj->get_cluster_file_path($use_mean);
+$mean_gn_file = $job_obj->get_genome_normalized_cluster_file_path($use_mean);
+
 $ssnFileSize = global_functions::bytes_to_megabytes($job_obj->get_ssn_file_size());
 $protFileSize = $ssnFileSize ? "<1" : 0; // files are small
 $clustFileSize = $ssnFileSize ? "<1" : 0; // files are small
@@ -64,6 +68,8 @@ $genomeNormClustFileSize = $ssnFileSize ? "<1" : 0; // files are small
 $zipFilePath = $job_obj->get_ssn_zip_file_path();
 $zipFileExists = file_exists($zipFilePath);
 $ssnZipFileSize = $zipFileExists ? global_functions::bytes_to_megabytes($job_obj->get_ssn_zip_file_size()) : "0";
+
+//TODO: fix file sizes
 
 $size_data = array(
     "ssn" => $ssnFileSize,
@@ -80,6 +86,16 @@ if (file_exists($gn_file)) {
     $size_data["cluster_genome_norm"] = $genomeNormClustFileSize;
 }
 
+if (file_exists($mean_cluster_file)) {
+    $size_data["protein_mean"] = $protFileSize;
+    $size_data["cluster_mean"] = $clustFileSize;
+    $size_data["protein_norm_mean"] = $normProtFileSize;
+    $size_data["cluster_norm_mean"] = $normClustFileSize;
+    if (file_exists($mean_gn_file)) {
+        $size_data["protein_genome_norm_mean"] = $genomeNormProtFileSize;
+        $size_data["cluster_genome_norm_mean"] = $genomeNormClustFileSize;
+    }
+}
 
 require_once "inc/header.inc.php"; 
 
@@ -265,14 +281,26 @@ HTML;
         "cluster_norm" => "q-clust$arg_suffix-n",
         "protein_genome_norm" => "q-prot$arg_suffix-gn",
         "cluster_genome_norm" => "q-clust$arg_suffix-gn",
+        "protein_mean" => "q-prot$arg_suffix-mean",
+        "cluster_mean" => "q-clust$arg_suffix-mean",
+        "protein_norm_mean" => "q-prot$arg_suffix-n-mean",
+        "cluster_norm_mean" => "q-clust$arg_suffix-n-mean",
+        "protein_genome_norm_mean" => "q-prot$arg_suffix-gn-mean",
+        "cluster_genome_norm_mean" => "q-clust$arg_suffix-gn-mean",
     );
     $html_label = array(
-        "protein" => "Protein abundance data $run_suffix",
-        "cluster" => "Cluster abundance data $run_suffix",
-        "protein_norm" => "Normalized protein abundance data $run_suffix",
-        "cluster_norm" => "Normalized cluster abundance data $run_suffix",
-        "protein_genome_norm" => "Average genome size (AGS) normalized protein abundance data $run_suffix",
-        "cluster_genome_norm" => "Average genome size (AGS) normalized cluster abundance data $run_suffix",
+        "protein" => "Protein abundance data $run_suffix (median)",
+        "cluster" => "Cluster abundance data $run_suffix (median)",
+        "protein_norm" => "Normalized protein abundance data $run_suffix (median)",
+        "cluster_norm" => "Normalized cluster abundance data $run_suffix (median)",
+        "protein_genome_norm" => "Average genome size (AGS) normalized protein abundance data $run_suffix (median)",
+        "cluster_genome_norm" => "Average genome size (AGS) normalized cluster abundance data $run_suffix (median)",
+        "protein_mean" => "Protein abundance data $run_suffix (mean)",
+        "cluster_mean" => "Cluster abundance data $run_suffix (mean)",
+        "protein_norm_mean" => "Normalized protein abundance data $run_suffix (mean)",
+        "cluster_norm_mean" => "Normalized cluster abundance data $run_suffix (mean)",
+        "protein_genome_norm_mean" => "Average genome size (AGS) normalized protein abundance data $run_suffix (mean)",
+        "cluster_genome_norm_mean" => "Average genome size (AGS) normalized cluster abundance data $run_suffix (mean)",
     );
 
     foreach ($file_type as $type => $arg) {
