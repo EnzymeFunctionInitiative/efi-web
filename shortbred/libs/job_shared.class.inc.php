@@ -49,7 +49,7 @@ abstract class job_shared {
         $this->key = $newKey;
     }
 
-    protected function get_pbs_number() {
+    public function get_pbs_number() {
         return $this->pbs_number;
     }
     protected function set_pbs_number($theNumber) {
@@ -83,6 +83,11 @@ abstract class job_shared {
         return strtoupper($this->search_type);
     }
 
+
+    public function mark_job_as_failed() {
+        $this->set_status(__FAILED__);
+        $this->set_time_completed();
+    }
 
     public function get_child_jobs() {
         $table = $this->get_table_name();

@@ -93,6 +93,20 @@ function uploadAlignmentScoreUpdateSSN(fileInputId, formId, progressNumId, progr
     doFormPost(script, fd, messageId, fileHandler, completionHandler);
 }
 
+function requestCancellation(identifyId, jobKey, quantifyId = "") {
+    var fd = new FormData();
+    fd.append("id", identifyId);
+    fd.append("key", jobKey);
+    if (quantifyId)
+        fd.append("quantify-id", quantifyId);
+
+    var fileHandler = function(xhr) { };
+    var completionHandler = function(jsonObj) { window.location.href = "index.php"; };
+
+    var script = "cancel_job.php";
+    doFormPost(script, fd, "", fileHandler, completionHandler);
+}
+
 function addUploadStuff(xhr, progressNumId, progressBarId) {
     xhr.upload.addEventListener("progress", function(evt) { uploadProgress(evt, progressNumId, progressBarId);}, false);
     xhr.addEventListener("load", uploadComplete, false);
@@ -158,10 +172,12 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
                     document.cookie = jsonObj.cookieInfo;
             }
             if (jsonObj.message) {
-                document.getElementById(messageId).innerHTML = jsonObj.message;
+                if (messageId)
+                    document.getElementById(messageId).innerHTML = jsonObj.message;
             } else if (jsonObj.valid) {
                 completionHandler(jsonObj);
-                document.getElementById(messageId).innerHTML = "";
+                if (messageId)
+                    document.getElementById(messageId).innerHTML = "";
             }
         }
     }
