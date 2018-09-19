@@ -21,6 +21,10 @@ echo "STARTING ANY NEW QUANTIFY JOBS"
 sleep 1
 php $DIR/quantify.php
 
+echo "CANCELLING REQUESTED JOBS"
+sleep 1
+php $DIR/check_cancels.php
+
 DATE=$(date +"%Y-%m-%d %H:%M:%S")
 echo "$DATE: Finish EFI-ShortBRED Master script"
 

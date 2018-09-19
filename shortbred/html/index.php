@@ -166,6 +166,12 @@ show_jobs($training_jobs);
     </div> <!-- tab-content -->
 </div> <!-- tabs -->
 
+<div id="cancel-confirm" title="Cancel the job?" style="display: none">
+<p>
+<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+All progress will be lost.
+</p>    
+</div>
 
 <div align="center">
     <?php if (settings::is_beta_release()) { ?>
@@ -202,6 +208,33 @@ show_jobs($training_jobs);
             });
         
         });
+
+        $(".cancel-btn").click(function() {
+            var id = $(this).data("id");
+            var key = $(this).data("key");
+            var qid = $(this).data("quantify-id");
+            if (!qid)
+                qid = "";
+
+            $("#cancel-confirm").dialog({
+                resizable: false,
+                height: "auto",
+                width: 400,
+                modal: true,
+                buttons: {
+                    "Stop Job": function() {
+                        requestCancellation(id, key, qid);
+                        $( this ).dialog("close");
+                    },
+                    Cancel: function() {
+                        $( this ).dialog("close");
+                    }
+                }
+            });
+
+//            $(this).appendTo('<div id="cancel-menu" class="speech-bubble cancel-bubble">Cancel</div>');
+        });
+
     });
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
@@ -225,6 +258,7 @@ function show_jobs($jobs) {
         $link_end = "";
         $name_style = "";
         $id_field = $id;
+        $quantify_id = "";
     
         if ($jobs[$i]["is_quantify"]) {
             $quantify_id = $jobs[$i]["quantify_id"];
@@ -251,12 +285,20 @@ function show_jobs($jobs) {
             $name .= " /$search_type/";
         if ($ref_db)
             $name .= " &lt;$ref_db&gt;";
-    
+
+        $job_action_code = "";
+        if ($is_active) {
+            $job_action_code = '<i class="fas fa-stop-circle cancel-btn" title="Cancel Job" data-id="' . $id . '" data-key="' . $key . '"';
+            if ($quantify_id)
+                $job_action_code .= ' data-quantify-id="' . $quantify_id . '"';
+            $job_action_code .= '></i>';
+        }
+
         echo <<<HTML
                     <tr style="background-color: $last_bg_color">
                         <td>$link_start${id_field}$link_end</td>
                         <td $name_style>$link_start${name}$link_end</td>
-                        <td>$date_completed</td>
+                        <td>$date_completed $job_action_code</td>
                     </tr>
 HTML;
     }

@@ -17,7 +17,7 @@ class job_manager {
         $this->db = $db;
         $this->get_jobs();
     }
-
+    
     public function validate_job($id, $key) {
         return isset($this->jobs_by_id[$id]) && $this->jobs_by_id[$id]["key"] == $key;
     }
@@ -110,10 +110,11 @@ class job_manager {
             $job["email"] = $this->jobs_by_id[$job_id]["email"];
             $job["filename"] = $this->jobs_by_id[$job_id]["filename"];
             $tco = $this->jobs_by_id[$job_id]["time_completed"];
-            if ($tco && $tco != "FAILED")
+            $status = $this->jobs_by_id[$job_id]["status"];
+            if ($tco && $status != __FAILED__)
                 $job["time_completed"] = self::format_short_date($tco);
             else
-                $job["time_completed"] = $this->jobs_by_id[$job_id]["status"];
+                $job["time_completed"] = $status;
             $ts = $this->jobs_by_id[$job_id]["time_started"];
             if ($ts)
                 $job["time_started"] = self::format_short_date($ts);
