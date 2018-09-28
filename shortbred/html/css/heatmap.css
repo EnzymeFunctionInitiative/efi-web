@@ -1,0 +1,22 @@
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+form {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    position: absolute;
+    left: 10px;
+    top: 10px;
+}
+
+.hidden-placeholder {
+    visibility: hidden;
+}
+
+.form-input {
+}
+
+.form-cb {
+}
+
