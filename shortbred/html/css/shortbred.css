@@ -301,6 +301,10 @@ textarea.options
     min-height: 500px;
 }
 
+.tab-content-normal {
+    min-height: 270px;
+}
+
 .create-job-options div {
     margin-bottom: 10px;
 }

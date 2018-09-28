@@ -53,6 +53,8 @@ $id_search_type = strtoupper($job_obj->get_identify_search_type());
 $diamond_sens = $job_obj->get_diamond_sensitivity();
 $cdhit_sid = $job_obj->get_identify_cdhit_sid();
 
+$hm_parm_string = "filename=$filename&search-type=$search_type&ref-db=$ref_db&d-sens=$diamond_sens&cdhit-sid=$cdhit_sid";
+
 $use_mean = true;
 $mean_cluster_file = $job_obj->get_cluster_file_path($use_mean);
 $mean_gn_file = $job_obj->get_genome_normalized_cluster_file_path($use_mean);
@@ -97,6 +99,46 @@ if (file_exists($mean_cluster_file)) {
     }
 }
 
+
+$arg_suffix = "";
+$run_suffix = "";
+$file_types = array(
+    "protein" => "q-prot$arg_suffix",
+    "cluster" => "q-clust$arg_suffix",
+    "protein_norm" => "q-prot$arg_suffix-n",
+    "cluster_norm" => "q-clust$arg_suffix-n",
+    "protein_genome_norm" => "q-prot$arg_suffix-gn",
+    "cluster_genome_norm" => "q-clust$arg_suffix-gn",
+    "protein_mean" => "q-prot$arg_suffix-mean",
+    "cluster_mean" => "q-clust$arg_suffix-mean",
+    "protein_norm_mean" => "q-prot$arg_suffix-n-mean",
+    "cluster_norm_mean" => "q-clust$arg_suffix-n-mean",
+    "protein_genome_norm_mean" => "q-prot$arg_suffix-gn-mean",
+    "cluster_genome_norm_mean" => "q-clust$arg_suffix-gn-mean",
+    "ssn" => "ssn-q",
+    "ssn_zip" => "ssn-q-zip",
+);
+$html_labels = array(
+    "protein" => "Protein abundance data $run_suffix (median)",
+    "cluster" => "Cluster abundance data $run_suffix (median)",
+    "protein_norm" => "Normalized protein abundance data $run_suffix (median)",
+    "cluster_norm" => "Normalized cluster abundance data $run_suffix (median)",
+    "protein_genome_norm" => "Average genome size (AGS) normalized protein abundance data $run_suffix (median)",
+    "cluster_genome_norm" => "Average genome size (AGS) normalized cluster abundance data $run_suffix (median)",
+    "protein_mean" => "Protein abundance data $run_suffix (mean)",
+    "cluster_mean" => "Cluster abundance data $run_suffix (mean)",
+    "protein_norm_mean" => "Normalized protein abundance data $run_suffix (mean)",
+    "cluster_norm_mean" => "Normalized cluster abundance data $run_suffix (mean)",
+    "protein_genome_norm_mean" => "Average genome size (AGS) normalized protein abundance data $run_suffix (mean)",
+    "cluster_genome_norm_mean" => "Average genome size (AGS) normalized cluster abundance data $run_suffix (mean)",
+    "ssn" => "SSN with quantify results",
+    "ssn_zip" => "SSN with quantify results (ZIP)",
+);
+
+$dl_ssn_items = array("ssn", "ssn_zip");
+$dl_median_items = array("protein", "cluster", "protein_norm", "cluster_norm", "protein_genome_norm", "cluster_genome_norm");
+$dl_mean_items = array("protein_mean", "cluster_mean", "protein_norm_mean", "cluster_norm_mean", "protein_genome_norm_mean", "cluster_genome_norm_mean");
+
 require_once "inc/header.inc.php"; 
 
 ?>
@@ -116,50 +158,104 @@ require_once "inc/header.inc.php";
 
 <p><a href="stepc.php?<?php echo $id_query_string; ?>"><button class="mini" type="button">Return to Identify Results</button></a></p>
 
-<p>Input filename: <?php echo $filename; ?></>
-<?php
-if (settings::get_diamond_enabled()) {
-    if ($id_search_type) {
-        echo "<p>Identify search type: $id_search_type</p>\n";
-    }
-    if ($ref_db) {
-        echo "<p>Reference database: $ref_db</p>\n";
-    }
-    if ($cdhit_sid) {
-        echo "<p>CD-HIT sequence identity: $cdhit_sid</p>\n";
-    }
-    if ($diamond_sens) {
-        echo "<p>DIAMOND sensitivity: $diamond_sens</p>\n";
-    }
-    if ($search_type) {
-        echo "<p>Quantify search type: $search_type</p>\n";
-    }
-}
-?>
+<h3>Job Information</h3>
 
-<?php $addl_html = <<<HTML
+<table class="pretty" style="border-top: 1px solid #aaa;">
+    <tbody>
         <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=cdhit&id=$identify_id&key=$key"><button class="mini">Download</button></a></td>
-            <td>CD-HIT mapping file (as table)</td>
-            <td style='text-align:center;'>1 MB</td>
+            <td>Input filename</td>
+            <td><?php echo $filename; ?></td>
         </tr>
-HTML;
-?>
-<?php outputResultsTable(false, $id_query_string, $size_data, $addl_html); ?>
+<?php if (settings::get_diamond_enabled()) { ?>
+        <tr>
+            <td>Identify search type</td>
+            <td><?php echo $id_search_type; ?></td>
+        </tr>
+        <tr>
+            <td>Reference database</td>
+            <td><?php echo $ref_db; ?></td>
+        </tr>
+        <tr>
+            <td>CD-HIT sequence identity</td>
+            <td><?php echo $cdhit_sid; ?></td>
+        </tr>
+        <tr>
+            <td>DIAMOND sensitivity</td>
+            <td><?php echo $diamond_sens; ?></td>
+        </tr>
+        <tr>
+            <td>Quantify search type</td>
+            <td><?php echo $search_type; ?></td>
+        </tr>
+<?php } ?>
+    </tbody>
+</table>
 
-<br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Clusters</button>
-<div id="heatmap-clusters" style="display: none;">
-<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=c&g=q" width="970" height="800" style="border: none"></iframe>
+<h3>Downloadable Data</h3>
+
+<div class="tabs" id="download-tabs">
+    <ul class="tab-headers">
+        <li class="active"><a href="#download-ssn">SSN and CD-HIT Files</a></li>
+        <li><a href="#download-median">CGFP Output (using median method)</a></li>
+        <li><a href="#download-mean">CGFP Output (using mean method)</a></li>
+    </ul>
+
+    <div class="tab-content tab-content-normal">
+        <div id="download-ssn" class="tab active">
+            <table class="pretty">
+                <thead><th></th><th>File</th><th>Size</th></thead>
+                <tbody>
+<?php outputResultsTable($dl_ssn_items, $id_query_string, $size_data, $file_types, $html_labels); ?>
+                    <tr>
+                        <td style='text-align:center;'><a href="download_files.php?type=cdhit&id=<?php echo "$identify_id&key=$key"; ?>"><button class="mini">Download</button></a></td>
+                        <td>CD-HIT mapping file (as table)</td>
+                        <td style='text-align:center;'>1 MB</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="download-median" class="tab">
+            <table class="pretty">
+                <thead><th></th><th>File</th><th>Size</th></thead>
+                <tbody>
+<?php outputResultsTable($dl_median_items, $id_query_string, $size_data, $file_types, $html_labels); ?>
+                </tbody>
+            </table>
+        </div>
+        <div id="download-mean" class="tab">
+            <table class="pretty">
+                <thead><th></th><th>File</th><th>Size</th></thead>
+                <tbody>
+<?php outputResultsTable($dl_mean_items, $id_query_string, $size_data, $file_types, $html_labels); ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Singletons</button>
-<div id="heatmap-singletons" style="display: none;">
-<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=s&g=q" width="970" height="800" style="border: none"></iframe>
-</div>
 
-<br><button class="heatmap-button mini" type="button" style="margin-top: 20px">View Heatmap for Clusters and Singltetons</button>
-<div id="heatmap-merged" style="display: none;">
-<iframe src="heatmap.php?<?php echo $id_query_string; ?>&res=m&g=q" width="970" height="800" style="border: none"></iframe>
+<h3>Heatmaps</h3>
+
+<div class="tabs" id="heatmap-tabs">
+    <ul class="tab-headers">
+        <li class="active"><a href="#heatmap-clusters">Cluster Heatmap</a></li>
+        <li><a href="#heatmap-singletons">Singleton Heatmap</a></li>
+        <li><a href="#heatmap-combined">Combined Heatmap</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="heatmap-clusters" class="tab active">
+           <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=c&g=q" width="970" height="800" style="border: none"></iframe>
+        </div>
+
+        <div id="heatmap-singletons" class="tab">
+            <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=s&g=q" width="970" height="800" style="border: none"></iframe>
+        </div>
+
+        <div id="heatmap-combined" class="tab">
+            <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=m&g=q" width="970" height="800" style="border: none"></iframe>
+        </div>
+    </div>
 </div>
 
 <br><br>
@@ -193,30 +289,59 @@ Metagenomes:
 <script>
 $(document).ready(function() {
     var iframes = $('iframe');
-    
-    $('.heatmap-button').click(function() {
-        $header = $(this);
-        //getting the next element
-        $content = $header.next();
-        //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
-        $content.slideToggle(100, function () {
-            if ($content.is(":visible")) {
-                $header.find("i.fas").addClass("fa-minus-square");
-                $header.find("i.fas").removeClass("fa-plus-square");
-            } else {
-                $header.find("i.fas").removeClass("fa-minus-square");
-                $header.find("i.fas").addClass("fa-plus-square");
-            }
-        });
-        $content.children().attr('src', function() {
-            return $(this).data('src');
-        });
-    });
-    
     iframes.each(function() {
         var src = $(this).attr('src');
         $(this).data('src', src).attr('src', '');
     });
+
+    var handleTabPress = function(masterId, elemObj) {
+        var curAttrValue = elemObj.attr("href");
+        var tabPage = $(masterId + " " + curAttrValue);
+        tabPage.show().siblings().hide();
+        //tabPage.fadeIn(300).show().siblings().hide();
+        elemObj.parent("li").addClass("active").siblings().removeClass("active");
+        var theFrame = tabPage.children().first();
+        if (!theFrame.data("shown")) {
+            console.log("Showing again");
+            theFrame.attr("src", function() {
+                return $(this).data("src");
+            });
+            theFrame.data("shown", true);
+        }
+    };
+
+    $("#heatmap-tabs .tab-headers a").on("click", function(e) {
+        e.preventDefault();
+        handleTabPress("#heatmap-tabs", $(this));
+    });
+    handleTabPress("#heatmap-tabs", $("#heatmap-tabs .tab-headers .active a").first());
+    
+    $("#download-tabs .tab-headers a").on("click", function(e) {
+        e.preventDefault();
+        handleTabPress("#download-tabs", $(this));
+    });
+    handleTabPress("#download-tabs", $("#download-tabs .tab-headers .active a").first());
+
+    
+//    $('.heatmap-button').click(function() {
+//        $header = $(this);
+//        //getting the next element
+//        $content = $header.next();
+//        //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+//        $content.slideToggle(100, function () {
+//            if ($content.is(":visible")) {
+//                $header.find("i.fas").addClass("fa-minus-square");
+//                $header.find("i.fas").removeClass("fa-plus-square");
+//            } else {
+//                $header.find("i.fas").removeClass("fa-minus-square");
+//                $header.find("i.fas").addClass("fa-plus-square");
+//            }
+//        });
+//        $content.children().attr('src', function() {
+//            return $(this).data('src');
+//        });
+//    });
+    
 });
 </script>
 
@@ -224,97 +349,22 @@ $(document).ready(function() {
 
 <?php
 
-function outputResultsTable($is_global, $id_query_string, $size_data, $addl_html = "") {
+function outputResultsTable($items, $id_query_string, $size_data, $file_types, $html_labels) {
 
-    $arg_suffix = $is_global ? "-m" : "";
-    $run_suffix = $is_global ? "for all runs" : "";
-
-    echo <<<HTML
-<table width="100%" border="1">
-    <thead>
-        <th></th>
-        <th>File</th>
-        <th>Size</th>
-    </thead>
-    <tbody>
-HTML;
-
-#    if ($is_global) {
-        $file_type = array(
-            "ssn" => "ssn-q",
-            "ssn_zip" => "ssn-q-zip",
-        );
-        $html_label = array(
-            "ssn" => "SSN with quantify results",
-            "ssn_zip" => "SSN with quantify results (ZIP)",
-        );
-
-        foreach ($file_type as $type => $arg) {
-            echo <<<HTML
-        <tr>
-            <td style='text-align:center;'>
-HTML;
-
-            $label = $html_label[$type];
-            $size_label = "--";
-            if (isset($size_data[$type]) && $size_data[$type]) {
-                echo "                <a href='download_files.php?type=$arg&$id_query_string'><button class='mini'>Download</button></a>\n";
-                $size_label = $size_data[$type] . " MB";
-            } else {
-                echo "";
-            }
-
-            echo <<<HTML
-            </td>
-            <td>$label</td>
-            <td style='text-align:center;'>$size_label</td>
-        </tr>
-HTML;
-        }
-#    }
-
-
-    $file_type = array(
-        "protein" => "q-prot$arg_suffix",
-        "cluster" => "q-clust$arg_suffix",
-        "protein_norm" => "q-prot$arg_suffix-n",
-        "cluster_norm" => "q-clust$arg_suffix-n",
-        "protein_genome_norm" => "q-prot$arg_suffix-gn",
-        "cluster_genome_norm" => "q-clust$arg_suffix-gn",
-        "protein_mean" => "q-prot$arg_suffix-mean",
-        "cluster_mean" => "q-clust$arg_suffix-mean",
-        "protein_norm_mean" => "q-prot$arg_suffix-n-mean",
-        "cluster_norm_mean" => "q-clust$arg_suffix-n-mean",
-        "protein_genome_norm_mean" => "q-prot$arg_suffix-gn-mean",
-        "cluster_genome_norm_mean" => "q-clust$arg_suffix-gn-mean",
-    );
-    $html_label = array(
-        "protein" => "Protein abundance data $run_suffix (median)",
-        "cluster" => "Cluster abundance data $run_suffix (median)",
-        "protein_norm" => "Normalized protein abundance data $run_suffix (median)",
-        "cluster_norm" => "Normalized cluster abundance data $run_suffix (median)",
-        "protein_genome_norm" => "Average genome size (AGS) normalized protein abundance data $run_suffix (median)",
-        "cluster_genome_norm" => "Average genome size (AGS) normalized cluster abundance data $run_suffix (median)",
-        "protein_mean" => "Protein abundance data $run_suffix (mean)",
-        "cluster_mean" => "Cluster abundance data $run_suffix (mean)",
-        "protein_norm_mean" => "Normalized protein abundance data $run_suffix (mean)",
-        "cluster_norm_mean" => "Normalized cluster abundance data $run_suffix (mean)",
-        "protein_genome_norm_mean" => "Average genome size (AGS) normalized protein abundance data $run_suffix (mean)",
-        "cluster_genome_norm_mean" => "Average genome size (AGS) normalized cluster abundance data $run_suffix (mean)",
-    );
-
-    foreach ($file_type as $type => $arg) {
+    foreach ($items as $type) {
+        $arg = $file_types[$type];
+        
         if (!isset($size_data[$type]))
             continue;
 
-        $label = $html_label[$type];
+        $label = $html_labels[$type];
         echo <<<HTML
         <tr>
             <td style='text-align:center;'>
 HTML;
 
         $size_label = "--";
-        $label = $html_label[$type];
+        $label = $html_labels[$type];
         if (isset($size_data[$type]) && $size_data[$type]) {
             echo "                <a href='download_files.php?type=$arg&$id_query_string'><button class='mini'>Download</button></a>\n";
             $size_label = $size_data[$type] . " MB";
@@ -329,12 +379,6 @@ HTML;
         </tr>
 HTML;
     }
-
-    echo <<<HTML
-$addl_html
-    </tbody>
-</table>
-HTML;
 }
 
 ?>
