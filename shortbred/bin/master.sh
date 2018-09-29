@@ -21,7 +21,7 @@ echo "STARTING ANY NEW QUANTIFY JOBS"
 sleep 1
 php $DIR/quantify.php
 
-echo "CANCELLING REQUESTED JOBS"
+echo "CHECKING FOR JOB CANCELLATION REQUESTS"
 sleep 1
 php $DIR/check_cancels.php
 

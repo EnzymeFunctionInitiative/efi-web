@@ -32,7 +32,7 @@ if (!$is_error) {
     if ($pbs_num) { 
         job_cancels::request_job_cancellation($db, $pbs_num);
     }
-    $job_obj->mark_job_as_failed();
+    $job_obj->mark_job_as_cancelled();
     $result["valid"] = true;
 }
 
