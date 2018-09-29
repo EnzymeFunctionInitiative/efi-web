@@ -89,6 +89,12 @@ abstract class job_shared {
         $this->set_time_completed();
     }
 
+    public function mark_job_as_cancelled() {
+        $this->set_status(__CANCELLED__);
+        $this->set_time_completed();
+        $this->email_cancelled();
+    }
+
     public function get_child_jobs() {
         $table = $this->get_table_name();
         $jobs = array();
@@ -158,6 +164,8 @@ abstract class job_shared {
     protected abstract function get_email_started_message();
     protected abstract function get_email_failure_subject();
     protected abstract function get_email_failure_message($result);
+    protected abstract function get_email_cancelled_subject();
+    protected abstract function get_email_cancelled_message();
     protected abstract function get_email_completed_subject();
     protected abstract function get_email_completed_message();
     protected abstract function get_completed_url();
@@ -182,6 +190,18 @@ abstract class job_shared {
 
         $plain_email = "";
         $plain_email .= $this->get_email_failure_message($result);
+        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
+        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
+        $plain_email .= settings::get_email_footer();
+
+        $this->send_email($subject, $plain_email);
+    }
+
+    protected function email_cancelled() {
+        $subject = $this->beta . $this->get_email_cancelled_subject();
+
+        $plain_email = "";
+        $plain_email .= $this->get_email_cancelled_message();
         $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
         $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
         $plain_email .= settings::get_email_footer();

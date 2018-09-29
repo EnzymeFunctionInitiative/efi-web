@@ -339,6 +339,7 @@ class identify extends job_shared {
 
 
     public function check_if_job_is_done() {
+
         $id = $this->get_id();
         $out_dir = settings::get_output_dir() . "/" . $id;
         $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
@@ -420,6 +421,17 @@ class identify extends job_shared {
         $plain_email = "";
         $plain_email .= "The SSN that is the input needed to run ShortBRED has been received and is ";
         $plain_email .= "being processed." . $this->eol . $this->eol;
+        return $plain_email;
+    }
+
+    protected function get_email_cancelled_subject() {
+        $subject = "EFI/ShortBRED - Job cancelled";
+        return $subject;
+    }
+
+    protected function get_email_cancelled_message() {
+        $plain_email = "";
+        $plain_email .= "The ShortBRED-Identify job was cancelled." . $this->eol . $this->eol;
         return $plain_email;
     }
 

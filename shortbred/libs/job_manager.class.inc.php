@@ -111,7 +111,7 @@ class job_manager {
             $job["filename"] = $this->jobs_by_id[$job_id]["filename"];
             $tco = $this->jobs_by_id[$job_id]["time_completed"];
             $status = $this->jobs_by_id[$job_id]["status"];
-            if ($tco && $status != __FAILED__)
+            if ($tco && $status == __FINISH__)
                 $job["time_completed"] = self::format_short_date($tco);
             else
                 $job["time_completed"] = $status;
@@ -120,7 +120,11 @@ class job_manager {
                 $job["time_started"] = self::format_short_date($ts);
             else
                 $job["time_started"] = "";
-            $job["time_created"] = $this->jobs_by_id[$job_id]["time_created"];
+            $tcr = $this->jobs_by_id[$job_id]["time_created"];
+            if ($tcr)
+                $job["time_created"] = self::format_short_date($tcr);
+            else
+                $job["time_created"] = "";
 
             if ($this->table_name == job_types::Quantify) {
                 $mg_ids = explode(",", $this->jobs_by_id[$job_id]["metagenomes"]);
@@ -348,11 +352,11 @@ class job_manager {
     // Candidate for refacotring to centralize
     private static function get_completed_date_label($comp, $status) {
         $isCompleted = false;
-        if ($status == "FAILED" || $status == "RUNNING") {
+        if ($status == __FAILED__ || $status == __RUNNING__ || $status == __CANCELLED__) {
             $comp = $status;
         } elseif (!$comp || substr($comp, 0, 4) == "0000") {
             $comp = $status;
-            if ($comp == "NEW")
+            if ($comp == __NEW__)
                 $comp = "PENDING";
         } else {
             $comp = self::format_short_date($comp);

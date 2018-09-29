@@ -341,6 +341,17 @@ class quantify extends job_shared {
         return $plain_email;
     }
 
+    protected function get_email_cancelled_subject() {
+        $subject = "EFI/ShortBRED - Job cancelled";
+        return $subject;
+    }
+
+    protected function get_email_cancelled_message() {
+        $plain_email = "";
+        $plain_email .= "The ShortBRED-Quantify job was cancelled." . $this->eol . $this->eol;
+        return $plain_email;
+    }
+
     protected function get_email_failure_subject() {
         $subject = "EFI/ShortBRED - Quantify marker computation failed";
         return $subject;
