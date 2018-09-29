@@ -55,6 +55,11 @@ $use_mean = false;
 if (isset($_POST["use-mean"])) {
     $use_mean = true;
 }
+$hits_only = false; // Return 1 for cells that have a value of any kind, 0 otherwise
+if (isset($_POST["hits-only"])) {
+    $hits_only = true;
+    //$use_mean = true;
+}
 
 
 $result = array("valid" => false);
@@ -162,7 +167,9 @@ if ($fh) {
                 $min = $val;
 
             // Skip the value if it's lower than the input threshold.
-            if ($val < $lower_thresh)
+            if ($hits_only && $val > 0)
+                $val = 1;
+            elseif ($val < $lower_thresh)
                 $val = 0;
             
             $sum += $val;

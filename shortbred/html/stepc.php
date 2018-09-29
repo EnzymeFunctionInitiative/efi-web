@@ -51,6 +51,9 @@ if ($status == __FAILED__) {
 } elseif ($status == __RUNNING__) {
     $ExtraTitle = "Computation Still Running";
     $is_running = true;
+} elseif ($status == __CANCELLED__) {
+    $ExtraTitle = "Computation Cancelled";
+    $is_failed = true;
 } else {
     $ExtraTitle = "Markers Computation Results for ID $id";
     $is_finished = true;
@@ -100,39 +103,46 @@ require_once "inc/header.inc.php";
 <p>The computation is still running.</p>
 <?php } else { ?>
 
-<p>Input filename: <?php echo $filename; ?></>
-<?php
-if ($min_seq_len) {
-    echo "<p>Minimum sequence length: $min_seq_len</p>\n";
-}
-if ($max_seq_len) {
-    echo "<p>Maximum sequence length: $max_seq_len</p>\n";
-}
-if ($search_type && settings::get_diamond_enabled()) {
-    echo "<p>Search type: $search_type</p>\n";
-}
-if ($ref_db) {
-    echo "<p>Reference database: $ref_db</p>\n";
-}
-if ($cdhit_sid) {
-    echo "<p>CD-HIT sequence identity: $cdhit_sid</p>\n";
-}
-if ($cons_thresh) {
-    echo "<p>Consensus threshold: $cons_thresh</p>\n";
-}
-if ($diamond_sens) {
-    echo "<p>DIAMOND sensitivity: $diamond_sens</p>\n";
-}
-?>
-
 <?php if ($parent_id) { ?>
 <p>Parent Job is
     <a href="stepc.php?id=<?php echo "$parent_id&key=$parent_key"; ?>"><button type="button" class="mini"># <?php echo $parent_id; ?></button></a></p>
-<?php } else { ?>
-<p>The markers have been computed.</p>
 <?php } ?>
 
-<table width="100%" border="1">
+<h3>Job Information</h3>
+
+<table class="pretty" style="border-top: 1px solid #aaa">
+    <tbody>
+        <tr><td>Input filename</td><td><?php echo $filename; ?></td></tr>
+<?php
+if ($min_seq_len) {
+    echo "<tr><td>Minimum sequence length</td><td>$min_seq_len</td></tr>\n";
+}
+if ($max_seq_len) {
+    echo "<tr><td>Maximum sequence length</td><td>$max_seq_len</td></tr>\n";
+}
+if ($search_type && settings::get_diamond_enabled()) {
+    echo "<tr><td>Search type</td><td>$search_type</td></tr>\n";
+}
+if ($ref_db) {
+    echo "<tr><td>Reference database</td><td>$ref_db</td></tr>\n";
+}
+if ($cdhit_sid) {
+    echo "<tr><td>CD-HIT sequence identity</td><td>$cdhit_sid</td></tr>\n";
+}
+if ($cons_thresh) {
+    echo "<tr><td>Consensus threshold</td><td>$cons_thresh</td></tr>\n";
+}
+if ($diamond_sens) {
+    echo "<tr><td>DIAMOND sensitivity</td><td>$diamond_sens</td></tr>\n";
+}
+?>
+    </tbody>
+</table>
+
+
+<h3>Downloadable Data</h3>
+
+<table class="pretty">
     <thead>
         <th></th>
         <th>File</th>

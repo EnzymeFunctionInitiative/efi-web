@@ -1,4 +1,5 @@
 
+
 function HeatmapApp(paramData, progLoaderId) {
 
     this.progLoaderObj = $(progLoaderId);
@@ -15,6 +16,10 @@ function HeatmapApp(paramData, progLoaderId) {
         "LightSteelBlue",
     ];
 
+    this.colorsBinary = [
+        'rgb(255, 255, 255)',
+        'rgb(0, 0, 0)',
+    ];
     this.colors6 = [
         'rgb(68, 1, 84)',
         'rgb(65, 68, 135)',
@@ -68,6 +73,7 @@ HeatmapApp.prototype.doFormPost = function() {
     var formAction = "get_sbq_data.php";
 
     var useMean = $("#mean-cb").prop("checked");
+    var hitsOnly = $("#hits-only-cb").prop("checked");
 
     var parms = new FormData;
     parms.append("id", this.parms.Id);
@@ -77,6 +83,8 @@ HeatmapApp.prototype.doFormPost = function() {
         parms.append("quantify-id", this.parms.QuantifyId);
     if (useMean)
         parms.append("use-mean", 1);
+    if (hitsOnly)
+        parms.append("hits-only", 1);
 
     var clusterList = $("#cluster-filter").val();
     if (clusterList)
@@ -114,7 +122,10 @@ HeatmapApp.prototype.hideProgressLoader = function() {
 
 HeatmapApp.prototype.processData = function(data) {
 
-    var logScale = true;
+    var hitsOnly = $("#hits-only-cb").prop("checked");
+    var useMean = $("#mean-cb").prop("checked"); 
+    var logScale = !hitsOnly;
+
 
     var convertRawValue = function(rawVal) {
         if (!logScale) {
@@ -190,6 +201,12 @@ HeatmapApp.prototype.processData = function(data) {
         }
     }
 
+    var colorScale = "Jet";
+    if (hitsOnly) {
+        colorScale = [];
+        colorScale.push([0, this.colorsBinary[0]]);
+        colorScale.push([1, this.colorsBinary[1]]);
+    }
     //var colors = this.colors6;
     //var colorScale = [];
     //for (var i in colors) {
@@ -202,9 +219,8 @@ HeatmapApp.prototype.processData = function(data) {
             x: x,
             y: y,
             z: z,
-            type: 'heatmap',
-            colorscale: 'Jet',
-            //colorscale: colorScale,
+            type: "heatmap",
+            colorscale: colorScale,
             text: label,
             hoverinfo: "text",
             legend: {
@@ -312,7 +328,6 @@ HeatmapApp.prototype.processData = function(data) {
         if (hasNewLine) title += "; "; hasNewLine = true;
         title += "CD-HIT " + this.parms.CdHitSid + "%";
     }
-    var useMean = $("#mean-cb").prop("checked"); 
     if (hasNewLine) title += "; "; hasNewLine = true;
     if (useMean)
         title += "Mean Method";

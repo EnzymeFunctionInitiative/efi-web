@@ -17,6 +17,7 @@ Minimum abundance to display: <input type="text" class="form-input" id="lower-th
 <button type="button" id="filter-btn">Apply Filter</button>
 <button type="button" id="reset-btn">Reset Filter</button>
 <input type="checkbox" name="mean-cb" value="1" class="form-cb" id="mean-cb"><label for="mean-cb">Use mean</label>
+<input type="checkbox" name="hits-only-cb" value="1" class="form-cb" id="hits-only-cb"><label for="hits-only-cb">Display hits only</label>
 </div>
 
 <div style="margin-top:50px;width:100%;position:fixed;bottom:0;height:50px;margin-bottom:100px">

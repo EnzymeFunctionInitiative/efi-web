@@ -39,11 +39,11 @@ require_once "inc/header.inc.php";
 <p>
 </p>
 
+<?php if ($update_message) { ?>
 <div id="update-message" class="update_message initial-hidden">
-<?php if (isset($update_message)) echo $update_message; ?>
+<?php echo $update_message; ?>
 </div>
-
-<!--A listing of new features and other information pertaining to GNT is available on the <a href="notes.php">release notes page</a>. -->
+<?php } ?>
 
 <div class="tabs">
     <ul class="tab-headers">
@@ -96,7 +96,7 @@ show_jobs($training_jobs);
 
         <div id="create" class="tab">
             <p>
-            <strong class="blue">Upload the Sequence Similarity Network (SSN) for which you want to run ShortBRED.</strong>
+            <strong class="blue">Upload the Sequence Similarity Network (SSN) for which you want to run CGFP/ShortBRED.</strong>
             </p>
     
             <p>
@@ -108,37 +108,37 @@ show_jobs($training_jobs);
                 <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", $SiteUrlPrefix); ?>
                 </p>
 
-                <p>
-                    Minimum sequence length: <input name="ssn_min_seq_len" id="ssn_min_seq_len" type="text" /> (Optional)
-                    <a class="question" title="If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a minimum sequence length, in order to eliminate fragments that may be included in UniRef90 clusters.">?</a>
-                </p>
-    
-                <p>
-                    Maximum sequence length: <input name="ssn_max_seq_len" id="ssn_max_seq_len" type="text" /> (Optional)
-                    <a class="question" title="If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a maximum sequence length, in order to eliminate certain sequences that may be included in UniRef90 clusters.">?</a>
-                </p>
+                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
+                <div style="display:none;" class="advanced-options">
+                    <div>
+                        Minimum sequence length (default none): <input name="ssn_min_seq_len" id="ssn_min_seq_len" type="text" />
+                        <a class="question" title="If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a minimum sequence length, in order to eliminate fragments that may be included in UniRef90 clusters.">?</a>
+                    </div>
+                    <div>
+                        Maximum sequence length (default none): <input name="ssn_max_seq_len" id="ssn_max_seq_len" type="text" />
+                        <a class="question" title="If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a maximum sequence length, in order to eliminate certain sequences that may be included in UniRef90 clusters.">?</a>
+                    </div>
+                    <div>
+                        Reference database: <select name="ssn_ref_db" id="ssn_ref_db"><option value="uniprot">Full UniProt</option><option value="uniref90" selected>UniRef 90</option><option value="uniref50">UniRef 50</option></select>
+                        <a class="question" title="ShortBRED can use the full UniProt database or UniRef90 or UniRef50 to determine markers. The default is UniRef90.">?</a>
+                    </div>
+                    <div>
+                        CD-HIT sequence identity (default 85%): <input type="text" name="ssn_cdhit_sid" id="ssn_cdhit_sid" value="">
+                        <a class="question" title="This is the sequence identity parameter that will be used for determining the ShortBRED consensus sequence families.">?</a>
+                    </div>
 
 <?php if (settings::get_diamond_enabled()) { ?>
-                <p>
-                    Sequence search type: <select name="ssn_search_type" id="ssn_search_type"><option>BLAST</option><option>DIAMOND</option><option>V2-BLAST</option></select> (Optional)
-                    <a class="question" title="This is the search engine that will be used to remove false positives and identify unique markers.">?</a>
-                </p>
-
-                <p>
-                    Reference database: <select name="ssn_ref_db" id="ssn_ref_db"><option value="uniprot">Full UniProt</option><option value="uniref90">UniRef 90</option><option value="uniref50">UniRef 50</option></select> (Optional)
-                    <a class="question" title="Defaults to UniProt.">?</a>
-                </p>
-
-                <p>
-                    CD-HIT sequence identity: <input type="text" name="ssn_cdhit_sid" id="ssn_cdhit_sid" value=""> (Optional)
-                    <a class="question" title="This is the sequence identity parameter that will be used for determining the ShortBRED consensus sequence families.">?</a>
-                </p>
-
-                <p>
-                    DIAMOND sensitivity: <select name="ssn_diamond_sens" id="ssn_diamond_sens"><option>sensitive</option><option>more-sensitive</option><option>normal</option></select> (Optional)
-                    <a class="question" title="This is the sentivitiy parameter that DIAMOND will use in it's computations.  It defaults to sensitive in ShortBRED.">?</a>
-                </p>
+                    <div>
+                        Sequence search type: <select name="ssn_search_type" id="ssn_search_type"><option>BLAST</option><option selected>DIAMOND</option></select>
+                        <a class="question" title="This is the search engine that will be used to remove false positives and identify unique markers.">?</a>
+                    </div>
+    
+                    <div>
+                        DIAMOND sensitivity: <select name="ssn_diamond_sens" id="ssn_diamond_sens"><option>sensitive</option><option>more-sensitive</option><option selected>normal</option></select>
+                        <a class="question" title="This is the sentivitiy parameter that DIAMOND will use in its computations.  It defaults to sensitive in ShortBRED.">?</a>
+                    </div>
 <?php } ?>
+                </div>
 
                 <p>
                     E-mail address: 
