@@ -31,7 +31,7 @@ High-specificity targeted functional profiling in microbial communities with Sho
 </div>
 </p>
 
-<p>These programs use data computed by <a href="https://github.com/snayfach/MicrobeCensus">MicrobeCenus</a>.
+<p>These programs use data computed by <a href="https://github.com/snayfach/MicrobeCensus">MicrobeCensus</a>.
 <div style="margin-left: 20px;">
 Nayfach, S. and Pollard, K.S.
 Average genome size estimation improves comparative metagenomics and sheds light on the functional ecology of the human microbiome.
