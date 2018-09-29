@@ -322,6 +322,7 @@ else {
 
 <h2 class="darkbg">Data set Completed</h2>
 <p>&nbsp;</p>
+    <p style="color:red"><?php if (isset($result['MESSAGE'])) { echo $result['MESSAGE']; } ?></p>
 
 <h3>Network Information</h3>
 
@@ -480,7 +481,6 @@ This name will be displayed in Cytoscape.
 
 <center>
     <button type="submit" name="analyze_data" class="dark">Create SSN</button>
-    <p style="color:red"><?php if (isset($result['MESSAGE'])) { echo $result['MESSAGE']; } ?></p>
 
 <?php if (functions::is_beta_release()) { ?>
 <h4><b><span style="color: blue">BETA</span></b></h4>
