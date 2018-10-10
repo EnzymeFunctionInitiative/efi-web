@@ -1,7 +1,7 @@
 
 
 // Private
-function getFamilyCountsRaw(family, fraction, useUniref, countOutputId, handler) {
+function getFamilyCountsRaw(family, fraction, useUniref, unirefVer, countOutputId, dbVer, handler) {
 
     if ((family.toLowerCase().startsWith("cl") && family.length == 6) || family.length >= 7) {
         var xmlhttp = new XMLHttpRequest();
@@ -14,7 +14,9 @@ function getFamilyCountsRaw(family, fraction, useUniref, countOutputId, handler)
         family_query = family.replace(/\n/g, " ").replace(/\r/g, " ");
         var fractionParam = fraction ? "&fraction=" + fraction : "";
         var unirefParam = useUniref ? "&uniref=1" : "";
-        xmlhttp.open("GET", "get_family_counts.php?families=" + family_query + fractionParam + unirefParam, true);
+        var dbVerParam = dbVer ? "&db-ver=" + dbVer : "";
+        var unirefVerParam = (useUniref && unirefVer) ? "&uniref-ver=" + unirefVer : "";
+        xmlhttp.open("GET", "get_family_counts.php?families=" + family_query + fractionParam + unirefParam + unirefVerParam + dbVerParam, true);
         xmlhttp.send();
     }
 }
@@ -61,6 +63,11 @@ function getFamilyCountsTableHandler(data, countOutputId) {
             sumCounts.uniref50 += parseInt(countVal);
         }
     }
+
+    if (data.use_uniref50)
+        document.getElementById(countOutputId + "-ur-hdr").innerHTML = "UniRef 50 Size";
+    else if (data.use_uniref90)
+        document.getElementById(countOutputId + "-ur-hdr").innerHTML = "UniRef 90 Size";
 
     // Insert individual totals
     var cellIdx = 0;
@@ -125,22 +132,30 @@ function commaFormatted(num) {
 
 function getFamilyCounts(familyInputId, countOutputId) {
     var family = document.getElementById(familyInputId).value;
-    var uniref90 = false;
-    getFamilyCountsRaw(family, fraction, uniref90, countOutputId, getFamilyCountsTableHandler);
+    var useUniref = false;
+    var dbVer = "";
+    var unirefVer = "";
+    getFamilyCountsRaw(family, fraction, useUniref, unirefVer, countOutputId, dbVer, getFamilyCountsTableHandler);
 }
 
-function checkFamilyInput(familyInputId, containerOutputId, countOutputId, warningId, uniref90Id, fractionId) {
+function checkFamilyInput(familyInputId, containerOutputId, countOutputId, warningId, unirefCbId, unirefVerId, fractionId, dbVerId) {
     var input = document.getElementById(familyInputId).value;
     var container = document.getElementById(containerOutputId);
     var warning = document.getElementById(warningId);
-    var uniref90Cb = document.getElementById(uniref90Id);
+    var unirefCb = document.getElementById(unirefCbId);
     var family = document.getElementById(familyInputId).value;
-    var uniref90 = false;
-    if (uniref90Cb)
-        uniref90 = uniref90Cb.checked;
+    var useUniref = false;
+    if (unirefCb)
+        useUniref = unirefCb.checked;
     var fraction = "";
     if (fractionId)
         fraction = document.getElementById(fractionId).value;
+    var dbVer = "";
+    if (dbVerId)
+        dbVer = document.getElementById(dbVerId).value;
+    var unirefVer = "";
+    if (unirefVerId)
+        unirefVer = document.getElementById(unirefVerId).value;
 
     var thresholdNum = 7;
     if (input.toLowerCase().startsWith("cl"))
@@ -161,15 +176,16 @@ function checkFamilyInput(familyInputId, containerOutputId, countOutputId, warni
         
         if (!data.is_too_large && data.is_uniref90_required) {
             warning.style.color = "orange";
-            if (uniref90Cb)
-                uniref90Cb.checked = true;
+            console.log(unirefCb);
+            if (unirefCb)
+                unirefCb.checked = true;
             AutoCheckedUniRef = true;
         }
 
         container.style.display = "block";
     };
 
-    getFamilyCountsRaw(family, fraction, uniref90, countOutputId, handleResponse);
+    getFamilyCountsRaw(family, fraction, useUniref, unirefVer, countOutputId, dbVer, handleResponse);
 }
 
 // Public

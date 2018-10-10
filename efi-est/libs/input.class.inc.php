@@ -9,6 +9,7 @@ class input_data {
     public $fraction;
     public $max_seqs;
     public $random_fraction;
+    public $db_mod;
 
     // For option A, C, D
     public $field_input;
