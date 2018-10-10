@@ -45,6 +45,11 @@ $job_obj = new quantify($db, $qid);
 #    $is_finished = true;
 #}
 
+$table_format = "html";
+if (isset($_GET["as-table"])) {
+    $table_format = "tab";
+}
+$table = new table_builder($table_format);
 
 $filename = $job_obj->get_filename();
 $search_type = $job_obj->get_search_type();
@@ -53,7 +58,18 @@ $id_search_type = strtoupper($job_obj->get_identify_search_type());
 $diamond_sens = $job_obj->get_diamond_sensitivity();
 $cdhit_sid = $job_obj->get_identify_cdhit_sid();
 
-$hm_parm_string = "filename=$filename&search-type=$search_type&ref-db=$ref_db&d-sens=$diamond_sens&cdhit-sid=$cdhit_sid";
+$table->add_row("Input filename", $filename);
+if (settings::get_diamond_enabled()) {
+    $table->add_row("Identify search type", $id_search_type);
+    $table->add_row("Reference database", $ref_db);
+    $table->add_row("CD-HIT sequence identity", $cdhit_sid);
+    if ($diamond_sens != "normal") //TODO: fix hardcoded constant
+        $table->add_row("DIAMOND sensitivity", $diamond_sens);
+    $table->add_row("Quantify search type", $search_type);
+}
+
+
+$hm_parm_string = "filename=$filename&search-type=$id_search_type&ref-db=$ref_db&d-sens=$diamond_sens&cdhit-sid=$cdhit_sid";
 
 $use_mean = true;
 $mean_cluster_file = $job_obj->get_cluster_file_path($use_mean);
@@ -139,6 +155,16 @@ $dl_ssn_items = array("ssn", "ssn_zip");
 $dl_median_items = array("protein", "cluster", "protein_norm", "cluster_norm", "protein_genome_norm", "cluster_genome_norm");
 $dl_mean_items = array("protein_mean", "cluster_mean", "protein_norm_mean", "cluster_norm_mean", "protein_genome_norm_mean", "cluster_genome_norm_mean");
 
+
+$table_string = $table->as_string();
+
+if (isset($_GET["as-table"])) {
+    $table_filename = "${identify_id}_q${qid}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_settings.txt";
+    functions::send_table($table_filename, $table_string);
+    exit(0);
+}
+
+
 require_once "inc/header.inc.php"; 
 
 ?>
@@ -162,34 +188,10 @@ require_once "inc/header.inc.php";
 
 <table class="pretty" style="border-top: 1px solid #aaa;">
     <tbody>
-        <tr>
-            <td>Input filename</td>
-            <td><?php echo $filename; ?></td>
-        </tr>
-<?php if (settings::get_diamond_enabled()) { ?>
-        <tr>
-            <td>Identify search type</td>
-            <td><?php echo $id_search_type; ?></td>
-        </tr>
-        <tr>
-            <td>Reference database</td>
-            <td><?php echo $ref_db; ?></td>
-        </tr>
-        <tr>
-            <td>CD-HIT sequence identity</td>
-            <td><?php echo $cdhit_sid; ?></td>
-        </tr>
-        <tr>
-            <td>DIAMOND sensitivity</td>
-            <td><?php echo $diamond_sens; ?></td>
-        </tr>
-        <tr>
-            <td>Quantify search type</td>
-            <td><?php echo $search_type; ?></td>
-        </tr>
-<?php } ?>
+        <?php echo $table_string; ?>
     </tbody>
 </table>
+<div style="display: flex; justify-content: flex-end"><a href="stepe.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Info</button></a></div>
 
 <h3>Downloadable Data</h3>
 
@@ -207,8 +209,13 @@ require_once "inc/header.inc.php";
                 <tbody>
 <?php outputResultsTable($dl_ssn_items, $id_query_string, $size_data, $file_types, $html_labels); ?>
                     <tr>
-                        <td style='text-align:center;'><a href="download_files.php?type=cdhit&id=<?php echo "$identify_id&key=$key"; ?>"><button class="mini">Download</button></a></td>
+                        <td style='text-align:center;'><a href="download_files.php?type=cdhit&<?php echo "id=$identify_id&key=$key"; ?>"><button class="mini">Download</button></a></td>
                         <td>CD-HIT mapping file (as table)</td>
+                        <td style='text-align:center;'>1 MB</td>
+                    </tr>
+                    <tr>
+                        <td style='text-align:center;'><a href="download_files.php?type=markers&<?php echo "id=$identify_id&key=$key"; ?>"><button class="mini">Download</button></a></td>
+                        <td>Marker data</td>
                         <td style='text-align:center;'>1 MB</td>
                     </tr>
                 </tbody>

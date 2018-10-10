@@ -265,7 +265,6 @@ class quantify extends job_shared {
             $this->ref_db = job_shared::DEFAULT_REFDB;
 
         $this->identify_search_type = "";
-        $this->search_type = "";
         $this->identify_diamond_sens = "";
         $this->identify_cdhit_sid = "";
         if (settings::get_diamond_enabled()) {

@@ -69,6 +69,37 @@ $cdhit_sid = $job->get_cdhit_sid();
 $cons_thresh = $job->get_consensus_threshold();
 $diamond_sens = $job->get_diamond_sensitivity();
 
+$table_format = "html";
+if (isset($_GET["as-table"])) {
+    $table_format = "tab";
+}
+$table = new table_builder($table_format);
+
+$table->add_row("Input filename", $filename);
+if ($min_seq_len) {
+    $table->add_row("Minimum sequence length", $min_seq_len);
+}
+if ($max_seq_len) {
+    $table->add_row("Maximum sequence length", $max_seq_len);
+}
+if ($search_type && settings::get_diamond_enabled()) {
+    $table->add_row("Search type", $search_type);
+}
+if ($ref_db) {
+    $table->add_row("Reference database", $ref_db);
+}
+if ($cdhit_sid) {
+    $table->add_row("CD-HIT sequence identity", $cdhit_sid);
+}
+if ($cons_thresh) {
+    $table->add_row("Consensus threshold", $cons_thresh);
+}
+if ($diamond_sens && $diamond_sens != "normal") { //TODO: fix hardcoded constant
+    $table->add_row("DIAMOND sensitivity", $diamond_sens);
+}
+
+
+
 $hmp_list = array();
 if ($is_finished) {
     $hmp_id = new metagenome_db();
@@ -87,6 +118,15 @@ $ExtraCssLinks = array("$SiteUrlPrefix/chosen/chosen.min.css");
 $zipFileExists = file_exists($job->get_output_ssn_zip_file_path());
 $ssnZipFileSize = $zipFileExists ? global_functions::bytes_to_megabytes($job->get_output_ssn_zip_file_size()) : "";
 $ssnFileSize = global_functions::bytes_to_megabytes($job->get_output_ssn_file_size());
+
+$table_string = $table->as_string();
+
+if (isset($_GET["as-table"])) {
+    $table_filename = "${identify_id}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_identify_settings.txt";
+    functions::send_table($table_filename, $table_string);
+    exit(0);
+}
+
 
 require_once "inc/header.inc.php"; 
 
@@ -112,32 +152,10 @@ require_once "inc/header.inc.php";
 
 <table class="pretty" style="border-top: 1px solid #aaa">
     <tbody>
-        <tr><td>Input filename</td><td><?php echo $filename; ?></td></tr>
-<?php
-if ($min_seq_len) {
-    echo "<tr><td>Minimum sequence length</td><td>$min_seq_len</td></tr>\n";
-}
-if ($max_seq_len) {
-    echo "<tr><td>Maximum sequence length</td><td>$max_seq_len</td></tr>\n";
-}
-if ($search_type && settings::get_diamond_enabled()) {
-    echo "<tr><td>Search type</td><td>$search_type</td></tr>\n";
-}
-if ($ref_db) {
-    echo "<tr><td>Reference database</td><td>$ref_db</td></tr>\n";
-}
-if ($cdhit_sid) {
-    echo "<tr><td>CD-HIT sequence identity</td><td>$cdhit_sid</td></tr>\n";
-}
-if ($cons_thresh) {
-    echo "<tr><td>Consensus threshold</td><td>$cons_thresh</td></tr>\n";
-}
-if ($diamond_sens) {
-    echo "<tr><td>DIAMOND sensitivity</td><td>$diamond_sens</td></tr>\n";
-}
-?>
+<?php echo $table_string; ?>
     </tbody>
 </table>
+<div style="display: flex; justify-content: flex-end"><a href="stepc.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Info</button></a></div>
 
 
 <h3>Downloadable Data</h3>

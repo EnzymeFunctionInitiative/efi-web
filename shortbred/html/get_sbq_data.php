@@ -231,8 +231,20 @@ function parse_clusters($params) {
     $parts = explode(",", $params);
     $nums = array();
     foreach ($parts as $part) {
+        $part = strtoupper($part);
         if (is_numeric($part)) {
             $nums[$part] = true;
+        } elseif (strpos($part, "S") !== false) { // Singletons
+            $range_parts = explode("-", $part);
+            if (count($range_parts) == 2) {
+                $start = substr($range_parts[0], 1);
+                $end = substr($range_parts[1], 1);
+                $the_range = range($start, $end);
+                foreach ($the_range as $range_val)
+                    $nums["S$range_val"] = true;
+            } else {
+                $nums[$part] = true;
+            }
         } else {
             $range_parts = explode("-", $part);
             if (count($range_parts) == 2) {

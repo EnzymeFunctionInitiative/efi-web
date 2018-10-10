@@ -49,6 +49,7 @@ function uploadInitialSSNFile() {
     addParam(fd, "ref-db", "ssn_ref_db");
     addParam(fd, "cdhit-sid", "ssn_cdhit_sid");
     addParam(fd, "diamond-sens", "ssn_diamond_sens");
+    addParam(fd, "db-mod", "ssn_db_mod");
 
     var files = document.getElementById(fileInputId).files;
     var completionHandler = function(jsonObj) {

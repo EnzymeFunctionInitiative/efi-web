@@ -288,12 +288,6 @@ HeatmapApp.prototype.processData = function(data) {
         }
     }
 
-    var cleanupRe1 = /\.xgmml/i;
-    var cleanupRe2 = /\.zip/i;
-    var cleanupRe3 = /_coloredssn/i;
-    var cleanupRe4 = /_full_ssn/i;
-    var cleanupRe5 = /_repnode-1?\.\d\d_ssn/i;
-    
     var title = "Abundances for Identify " + this.parms.Id + ", Quantify " + this.parms.QuantifyId;
 
     if (this.parms.FileName || this.parms.SearchType || this.parms.RefDb || this.parms.CdHitSid || this.parms.DiamondSens)
@@ -312,19 +306,19 @@ HeatmapApp.prototype.processData = function(data) {
         title += titleFileName;
         hasNewLine = true;
     }
-    if (this.parms.RefDb) {
+    if (this.parms.RefDb && this.parms.RefDb != "UNIREF90") { //TODO: fix hardcoded constant
         if (hasNewLine) title += "; "; hasNewLine = true;
         title += this.parms.RefDb;
     }
-    if (this.parms.SearchType) {
+    if (this.parms.SearchType && this.parms.SearchType != "DIAMOND") { //TODO: fix hardcoded constant
         if (hasNewLine) title += "; "; hasNewLine = true;
         title += this.parms.SearchType;
     }
-    if (this.parms.DiamondSens) {
+    if (this.parms.DiamondSens && this.parms.DiamondSens != "normal") { //TODO: fix hardcoded constant
         if (hasNewLine) title += "; "; hasNewLine = true;
         title += this.parms.DiamondSens;
     }
-    if (this.parms.CdHitSid) {
+    if (this.parms.CdHitSid && this.parms.CdHitSid != "85") { //TODO: fix hardcoded constant
         if (hasNewLine) title += "; "; hasNewLine = true;
         title += "CD-HIT " + this.parms.CdHitSid + "%";
     }
@@ -335,7 +329,9 @@ HeatmapApp.prototype.processData = function(data) {
         title += "Median Method";
 
 
-    var exportFileName = title.replace("<br>", "_").replace(/ /g, "_").replace(/[^A-Za-z0-9_\-]/g, "");
+    var exportFileName = "abundance_I" + this.parms.Id + "_Q" + this.parms.QuantifyId;
+    if (titleFileName)
+        exportFileName += "_" + titleFileName.replace(/[^A-Za-z0-9_\-]+/g, "_");
 
     var layout = {
         title: title,

@@ -80,6 +80,10 @@ class global_functions {
         return $result;
     }
 
+    public static function safe_filename($filename) {
+        return preg_replace("([^A-Za-z0-9_\-\.])", "_", $filename);
+    }
+
 }
 
 ?>

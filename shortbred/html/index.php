@@ -26,6 +26,8 @@ if (settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
         $IsLoggedIn = $user_email;
 }
 
+$db_modules = global_settings::get_database_modules();
+
 $showJobGroups = $IsAdminUser && global_settings::get_job_groups_enabled();
 
 $update_message = functions::get_update_message();
@@ -68,7 +70,8 @@ require_once "inc/header.inc.php";
                 </thead>
                 <tbody>
 <?php
-show_jobs($jobs);
+$allow_cancel = true;
+show_jobs($jobs, $allow_cancel);
 ?>
                 </tbody>
             </table>
@@ -84,7 +87,8 @@ show_jobs($jobs);
                 </thead>
                 <tbody>
 <?php
-show_jobs($training_jobs);
+$allow_cancel = false;
+show_jobs($training_jobs, $allow_cancel);
 ?>
                 </tbody>
             </table>
@@ -132,12 +136,26 @@ show_jobs($training_jobs);
                         Sequence search type: <select name="ssn_search_type" id="ssn_search_type"><option>BLAST</option><option selected>DIAMOND</option></select>
                         <a class="question" title="This is the search engine that will be used to remove false positives and identify unique markers.">?</a>
                     </div>
-    
-                    <div>
+
+                    <input type="hidden" name="ssn_diamond_sens" id="ssn_diamond_sens" value="normal" />
+                    <!--<div>
                         DIAMOND sensitivity: <select name="ssn_diamond_sens" id="ssn_diamond_sens"><option>sensitive</option><option>more-sensitive</option><option selected>normal</option></select>
                         <a class="question" title="This is the sentivitiy parameter that DIAMOND will use in its computations.  It defaults to sensitive in ShortBRED.">?</a>
-                    </div>
+                    </div>-->
 <?php } ?>
+<?php
+if (count($db_modules) > 1) {
+    echo <<<HTML
+                    <div>
+                        Database version: 
+                        <select name="ssn_db_mod" id="ssn_db_mod">
+HTML;
+    foreach ($db_modules as $mod_info) {
+        $mod_name = $mod_info[1];
+        echo "                            <option value=\"$mod_name\">$mod_name</option>\n";
+    }
+    echo "                        </select>";
+} ?>
                 </div>
 
                 <p>
@@ -242,7 +260,7 @@ All progress will be lost.
 
 <?php
 
-function show_jobs($jobs) {
+function show_jobs($jobs, $allow_cancel) {
     $last_bg_color = "#eee";
     for ($i = 0; $i < count($jobs); $i++) {
         $key = $jobs[$i]["key"];
@@ -287,7 +305,7 @@ function show_jobs($jobs) {
             $name .= " &lt;$ref_db&gt;";
 
         $job_action_code = "";
-        if ($is_active) {
+        if ($is_active && $allow_cancel) {
             $job_action_code = '<i class="fas fa-stop-circle cancel-btn" title="Cancel Job" data-id="' . $id . '" data-key="' . $key . '"';
             if ($quantify_id)
                 $job_action_code .= ' data-quantify-id="' . $quantify_id . '"';
