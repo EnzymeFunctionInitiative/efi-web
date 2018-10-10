@@ -20,6 +20,7 @@ class identify extends job_shared {
     private $ref_db = "";
     private $cons_thresh = "";
     private $diamond_sens = "";
+    private $db_mod = "";
 
 
     public function get_filename() {
@@ -135,6 +136,12 @@ class identify extends job_shared {
                 $parms_array['identify_diamond_sens'] = $diamond_sens;
         }
 
+        if (isset($create_params['db_mod'])) {
+            $db_mod = $create_params['db_mod'];
+            if (preg_match("/^[A-Z0-9]{4}/", $db_mod))
+                $parms_array['identify_db_mod'] = $db_mod;
+        }
+
         $insert_array['identify_params'] = global_functions::encode_object($parms_array);
 
         $new_id = $db->build_insert('identify', $insert_array);
@@ -245,7 +252,10 @@ class identify extends job_shared {
             $sb_module = settings::get_shortbred_diamond_module();
 
         $exec = "source /etc/profile\n";
-        $exec .= "module load " . settings::get_efidb_module() . "\n";
+        if ($this->db_mod)
+            $exec .= "module load " . $this->db_mod . "\n";
+        else
+            $exec .= "module load " . settings::get_efidb_module() . "\n";
         $exec .= "module load $sb_module\n";
         $exec .= "$script";
         $exec .= " -ssn-in $target_ssn_path";
@@ -332,6 +342,18 @@ class identify extends job_shared {
         $this->cdhit_sid = isset($params['identify_cdhit_sid']) ? $params['identify_cdhit_sid'] : "";
         $this->cons_thresh = isset($params['identify_cons_thresh']) ? $params['identify_cons_thresh'] : "";
         $this->diamond_sens = ($this->search_type == "diamond" && isset($params['identify_diamond_sens'])) ? $params['identify_diamond_sens'] : "";
+        
+        $db_mod = isset($params['identify_db_mod']) ? $params['identify_db_mod'] : "";
+        if ($db_mod) {
+            // Get the actual module not the alias.
+            $mod_info = global_settings::get_database_modules();
+            foreach ($mod_info as $mod) {
+                if ($mod[1] == $db_mod) {
+                    $db_mod = $mod[0];
+                }
+            }
+        }
+        $this->db_mod = $db_mod;
 
         $this->loaded = true;
         return true;

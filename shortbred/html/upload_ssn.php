@@ -49,6 +49,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     $ref_db         = isset($_POST['ref-db']) ? $_POST['ref-db'] : "";
     $cdhit_sid      = isset($_POST['cdhit-sid']) ? $_POST['cdhit-sid'] : "";
     $diamond_sens   = isset($_POST['diamond-sens']) ? $_POST['diamond-sens'] : "";
+    $db_mod         = isset($_POST['db-mod']) ? $_POST['db-mod'] : "";
 
     if ($valid) {
         if ($update_id && $update_key) {
@@ -61,6 +62,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
                 'ref_db' => $ref_db,
                 'cdhit_sid' => $cdhit_sid,
                 'diamond_sens' => $diamond_sens,
+                'db_mod' => $db_mod,
             );
             $new_info = identify::create($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $create_params);
         }
