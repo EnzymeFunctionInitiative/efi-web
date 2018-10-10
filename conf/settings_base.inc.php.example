@@ -46,5 +46,6 @@ define("__CANCELLED__","CANCELLED");
 // DEFAULTS
 define("__MAX_TIMEOUT__","3600");
 define("__RETENTION_DAYS__","30");
+define("__NUM_JOB_LIMIT__","6");
 
 ?>

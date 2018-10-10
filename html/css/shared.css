@@ -85,6 +85,12 @@ table.tutorial {
     text-align: center;
 }
 
+.error-message, .error_message {
+    margin-top: 10px;
+    font-weight: bold;
+    color: red;
+}
+
 .new_feature {
     color: red;
     font-size: 1.8em;

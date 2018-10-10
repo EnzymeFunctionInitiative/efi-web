@@ -48,6 +48,27 @@ class user_jobs extends user_auth {
         return $jobs;
     }
 
+    // Returns true if the user has exceeded their 24-hr limit
+    public static function check_for_job_limit($db, $email) {
+        $is_admin = self::get_user_admin($db, $email);
+        if ($is_admin)
+            return false;
+
+        $limit_period = 24; // hours
+        $dt = new DateTime();
+        $past_dt = $dt->sub(new DateInterval("PT${limit_period}H"));
+        $mysql_date = $past_dt->format("Y-m-d H:i:s");
+        
+        $sql = "SELECT COUNT(*) AS count FROM generate WHERE generate_time_created >= '$mysql_date' AND generate_email = '$email'";
+        $results = $db->query($sql);
+
+        $num_job_limit = global_settings::get_num_job_limit();
+        if (count($results) && $results[0]["count"] >= $num_job_limit)
+            return true;
+        else
+            return false;
+    }
+
     private static function get_select_statement() {
         $sql = "SELECT generate.generate_id, generate_key, generate_time_completed, generate_status, generate_type, generate_params FROM generate ";
         return $sql;
