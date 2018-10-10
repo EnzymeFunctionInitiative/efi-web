@@ -20,8 +20,8 @@ HTML;
     }
 
     public static function make_pfam_size_box($parentId, $tableId, $showUniref90, $showUniref50) {
-        $uniref90 = $showUniref90 ? "<th>UniRef90 Size</th>" : "";
-        $uniref50 = $showUniref50 ? "<th>UniRef50 Size</th>" : "";
+        $uniref90 = $showUniref90 ? "<th id=\"$tableId-ur-hdr\">UniRef 90 Size</th>" : "";
+        $uniref50 = $showUniref50 ? "<th id=\"$tableId-ur-hdr\">UniRef 50 Size</th>" : "";
         return <<<HTML
                 <center>
                         <div style="width:85%;display:none" id="$parentId">

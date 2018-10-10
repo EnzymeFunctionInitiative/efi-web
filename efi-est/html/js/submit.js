@@ -26,7 +26,9 @@ function submitOptionAForm() {
     addParam(fd, "fraction", "blast-fraction");
     addParam(fd, "families_input", "families-input-opta");
     addParam(fd, "evalue", "families-evalue-opta");
+    addParam(fd, "db-mod", "option-a-db-mod");
     addCbParam(fd, "families_use_uniref", "opta-use-uniref");
+    addParam(fd, "families_uniref_ver", "option-a-uniref-ver");
     var fileHandler = function(xhr) {};
     var completionHandler = getDefaultCompletionHandler();
 
@@ -49,7 +51,9 @@ function submitOptionBForm() {
     addCbParam(fd, "pfam_domain", "pfam-domain");
     addParam(fd, "pfam_seqid", "pfam-seqid");
     addParam(fd, "pfam_length_overlap", "pfam-length-overlap");
+    addParam(fd, "db-mod", "option-b-db-mod");
     addCbParam(fd, "families_use_uniref", "pfam-use-uniref");
+    addParam(fd, "families_uniref_ver", "option-b-uniref-ver");
     var fileHandler = function(xhr) {};
     var completionHandler = getDefaultCompletionHandler();
 
@@ -71,8 +75,10 @@ function submitOptionCForm() {
     addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
     addParam(fd, "families_input", "families-input-optc");
     addCbParam(fd, "families_use_uniref", "optc-use-uniref");
+    addParam(fd, "families_uniref_ver", "option-c-uniref-ver");
     addParam(fd, "evalue", "fasta-evalue");
     addParam(fd, "fraction", "fasta-fraction");
+    addParam(fd, "db-mod", "option-c-db-mod");
 
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
@@ -101,10 +107,12 @@ function submitOptionDForm() {
     addParam(fd, "accession_input", "accession-input");
     addParam(fd, "families_input", "families-input-optd");
     addCbParam(fd, "families_use_uniref", "optd-use-uniref");
+    addParam(fd, "families_uniref_ver", "option-d-uniref-ver");
     addCbParam(fd, "accession_use_uniref", "accession-use-uniref");
     addParam(fd, "accession_uniref_version", "accession-uniref-version");
     addParam(fd, "evalue", "accession-evalue");
     addParam(fd, "fraction", "accession-fraction");
+    addParam(fd, "db-mod", "option-d-db-mod");
 
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
@@ -139,6 +147,8 @@ function submitOptionEForm() {
     addParam(fd, "pfam_max_seq_len", "pfam-plus-max-seq-len");
     addParam(fd, "pfam_length_overlap", "pfam-plus-length-overlap");
     addCbParam(fd, "pfam_demux", "pfam-plus-demux");
+    addParam(fd, "db-mod", "option-e-db-mod");
+
     var fileHandler = function(xhr) {};
     var completionHandler = getDefaultCompletionHandler();
 
