@@ -90,5 +90,21 @@ class global_settings {
     public static function is_beta_release() {
         return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? true : false;
     }
+
+    public static function get_database_modules() {
+        $mod_info = array();
+        if (defined("__EFIDB_MODULES__")) {
+            $mods = explode(",", __EFIDB_MODULES__);
+            foreach ($mods as $mod) {
+                $parts = explode("|", $mod);
+                array_push($mod_info, $parts);
+            }
+        }
+        return $mod_info;
+    }
+
+    public static function get_num_job_limit() { // The maximum number of jobs a user can submit in a 24-hour time period.
+        return (defined("__NUM_JOB_LIMIT__") && __NUM_JOB_LIMIT__) ? __NUM_JOB_LIMIT__ : 6;
+    }
 }
 ?>
