@@ -46,7 +46,7 @@ define("__IDENTIFY_SCRIPT__","");
 define("__QUANTIFY_SCRIPT__","");
 define("__SHORTBRED_BLAST_MODULE__","shortbred/devlocal");
 define("__SHORTBRED_DIAMOND_MODULE__","shortbred/diamond/devlocal");
-define("__EFIDB_MODULE__","");
+define("__EFI_DB_MODULE__","");
 define("__ENABLE_LOG__",true);
 define("__NUM_PROCESSORS__",24);
 
