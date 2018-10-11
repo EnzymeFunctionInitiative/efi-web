@@ -247,6 +247,13 @@ HeatmapApp.prototype.processData = function(data) {
             tickvals: tickVals,
             ticktext: ["<1:10K", "1:1K", "1:100", "1:10", "1:1"],
         };
+    } else if (hitsOnly) {
+        traces[0].showscale = false;
+//        traces[0].colorbar = {
+//            title: "hits only",
+//            titleside: "right",
+//            tick0: 0,
+//        };
     }
 
     var shapes = [];
@@ -349,6 +356,9 @@ HeatmapApp.prototype.processData = function(data) {
         shapes: shapes,
         annotations: labels,
     };
+
+    if (hitsOnly)
+        layout.margin = {r: 135};
 
     Plotly.newPlot('plot', traces, layout, {toImageButtonOptions: {filename: exportFileName, width: 1425, height: 1050}});
 
