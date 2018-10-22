@@ -271,6 +271,84 @@ class functions {
         return defined("__EFI_DB_MODULE__") ? __EFI_DB_MODULE__ : __EFIDB_MODULE__;
     }
 
+    public static function get_efi_database() {
+        $db_mod = self::get_efidb_module();
+        
+        $exec = "source /etc/profile\nmodule avail $db_mod";
+        $output_array = array();
+        $exit_status = 1;
+
+        $output = exec($exec, $output_array, $exit_status);
+        $base_mod_path = "";
+        foreach ($output_array as $line) {
+            if (preg_match("/^-----+/", $line)) {
+                $line = preg_replace("/^--+/", "", $line);
+                $line = preg_replace("/--+$/", "", $line);
+                $line = preg_replace("/\s/", "", $line);
+                $base_mod_path = $line;
+                break;
+            }
+        }
+
+        $mod_file = "$base_mod_path/$db_mod";
+        if (!file_exists($mod_file))
+            return "";
+
+        $db_name = "";
+
+        $fh = fopen($mod_file, "r");
+        while (($line = fgets($fh)) !== false) {
+            $parts = preg_split("/\s+/", $line);
+            if (count($parts) >= 3 && $parts[0] == "setenv" && $parts[1] == "EFI_DB") {
+                $db_name = $parts[2];
+                break;
+            }
+        }
+        fclose($fh);
+
+        return $db_name;
+    }
+
+    public static function get_efi_database_config() {
+        if (!defined("__EFI_DB_CONFIG__") || !file_exists(__EFI_DB_CONFIG__))
+            return false;
+
+        $config = parse_ini_file(__EFI_DB_CONFIG__, true);
+        if (isset($config["database"])) {
+            return $config["database"];
+        } else {
+            return false;
+        }
+    }
+
+    public static function get_lengths_for_family($db_name, $db_config, $fam, $uniref_ver = "") {
+        $anno_table = "annotations2";
+        $fam_field = preg_match("/^PF/", $fam) ? "PFAM" : "IPRO";
+
+        $sql = "";
+        if ($uniref_ver) {
+            $seed_field = "uniref${uniref_ver}_seed";
+            $sql = "SELECT " .
+                "$anno_table.Sequence_Length AS length, " .
+                "COUNT($anno_table.Sequence_Length) AS count, " .
+                "$seed_field AS uniref_seed " . 
+                "FROM uniref LEFT JOIN $anno_table ON uniref.$seed_field = $anno_table.accession " .
+                "WHERE $anno_table.$fam_field = '$fam'";
+        } else {
+            //$sql = "SELECT Sequence_Length FROM $anno_table WHERE $fam_field = '$fam'";
+            $sql = "SELECT Sequence_Length AS length, COUNT(Sequence_Length) AS count FROM $anno_table WHERE $fam_field = '$fam'";
+        }
+
+//        die($sql . "\n");
+
+        $db = new db($db_config["host"], $db_name, $db_config["user"], $db_config["password"], $db_config["port"]);
+        $rows = $db->query($sql);
+
+        foreach ($rows as $row) {
+            print $rows[0] . "\t" . $rows[1] . "\n";
+        }
+    }
+
     public static function get_efignn_module() {
         return __EFI_GNN_MODULE__;
     }
@@ -313,11 +391,27 @@ class functions {
         return __CLUSTER_PROCS__;
     }
 
-    public static function get_interpro_version() {
-        return __INTERPRO_VERSION__;
+    public static function get_interpro_version($db_mod_index = -1) {
+        if ($db_mod_index < 0 || !defined("__INTERPRO_VERSIONS__")) {
+            return __INTERPRO_VERSION__;
+        } else {
+            $vers = explode(",", __INTERPRO_VERSIONS__);
+            if (isset($vers[$db_mod_index]))
+                return $vers[$db_mod_index];
+            else
+                return __INTERPRO_VERSION__;
+        }
     }
-    public static function get_uniprot_version() {
-        return __UNIPROT_VERSION__;
+    public static function get_uniprot_version($db_mod_index = -1) {
+        if ($db_mod_index < 0 || !defined("__UNIPROT_VERSIONS__")) {
+            return __UNIPROT_VERSION__;
+        } else {
+            $vers = explode(",", __UNIPROT_VERSIONS__);
+            if (isset($vers[$db_mod_index]))
+                return $vers[$db_mod_index];
+            else
+                return __UNIPROT_VERSION__;
+        }
     }
     public static function get_est_version() {
         return __EST_VERSION__;
@@ -373,9 +467,20 @@ class functions {
         return $db->query($sql);
     }
 
-    public static function get_encoded_db_version() {
-        $ver = ((int)str_replace("_", "", functions::get_uniprot_version())) * 10000;
-        $ver += (int)functions::get_interpro_version();
+    public static function get_encoded_db_version($db_mod = "") {
+        $db_mod_index = -1;
+        if ($db_mod) {
+            $mods = global_settings::get_database_modules();
+            for ($i = 0; $i < count($mods); $i++) {
+                if (strtoupper($mods[$i][1]) == strtoupper($db_mod)) {
+                    $db_mod_index = $i;
+                    break;
+                }
+            }
+        }
+
+        $ver = ((int)str_replace("_", "", functions::get_uniprot_version($db_mod_index))) * 10000;
+        $ver += (int)functions::get_interpro_version($db_mod_index);
         return $ver;
     }
 

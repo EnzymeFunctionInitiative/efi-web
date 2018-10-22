@@ -21,6 +21,7 @@ function uploadFileShared(fileInputId, formId, progressNumId, progressBarId, mes
     if (isSsn) {
         addParam(fd, "neighbor_size", "neighbor_size");
         addParam(fd, "cooccurrence", "cooccurrence");
+        addParam(fd, "db_mod", "db_mod");
     }
 
     var completionHandler = function() { enableForm(formId); };
@@ -108,6 +109,7 @@ function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, max
     addParam(fd, "max-seqs", maxSeqId);
     addParam(fd, "nb-size", nbSizeId);
     addParam(fd, "email", emailId);
+    addParam(fd, "db-mod", dbModId);
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
 
@@ -115,22 +117,23 @@ function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, max
 }
 
 
-function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId) {
-    submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId);
+function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
+    submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId);
 }
 
 
-function submitOptionCForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId) {
-    submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId);
+function submitOptionCForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
+    submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId);
 }
 
-function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId) {
+function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
     var fd = new FormData();
     addParam(fd, "option", optionId);
     addParam(fd, "title", titleId);
     addParam(fd, inputField, inputId);
     addParam(fd, "nb-size", nbSizeId);
     addParam(fd, "email", emailId);
+    addParam(fd, "db-mod", dbModId);
     var files = document.getElementById(fileId).files;
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
