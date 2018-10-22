@@ -68,6 +68,13 @@ if (settings::get_diamond_enabled()) {
     $table->add_row("Quantify search type", $search_type);
 }
 
+$metadata = $job_obj->get_metadata();
+ksort($metadata, SORT_NUMERIC);
+foreach ($metadata as $order => $row) {
+    $val = is_numeric($row[1]) ? number_format($row[1]) : $row[1];
+    $table->add_row($row[0], $val);
+}
+
 
 $hm_parm_string = "filename=$filename&search-type=$id_search_type&ref-db=$ref_db&d-sens=$diamond_sens&cdhit-sid=$cdhit_sid";
 
@@ -252,15 +259,15 @@ require_once "inc/header.inc.php";
 
     <div class="tab-content">
         <div id="heatmap-clusters" class="tab active">
-           <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=c&g=q" width="970" height="800" style="border: none"></iframe>
+           <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=c&g=q" width="970" height="750" style="border: none"></iframe>
         </div>
 
         <div id="heatmap-singletons" class="tab">
-            <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=s&g=q" width="970" height="800" style="border: none"></iframe>
+            <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=s&g=q" width="970" height="750" style="border: none"></iframe>
         </div>
 
         <div id="heatmap-combined" class="tab">
-            <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=m&g=q" width="970" height="800" style="border: none"></iframe>
+            <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=m&g=q" width="970" height="750" style="border: none"></iframe>
         </div>
     </div>
 </div>

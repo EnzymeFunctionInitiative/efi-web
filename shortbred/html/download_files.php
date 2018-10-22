@@ -27,7 +27,6 @@ if (isset($_GET["id"]) && is_numeric($_GET["id"]) && isset($_GET["key"])) {
     }
 }
 
-
 if ($is_error) {
     error404();
 }
@@ -40,6 +39,9 @@ if (isset($_GET["type"])) {
         $file_info = array(
             "markers"       => array("file_path" => $job_obj->get_marker_file_path(), "suffix" => ".faa"),
             "cdhit"         => array("file_path" => $job_obj->get_cdhit_file_path(), "suffix" => "_cdhit.txt"),
+            "meta-cl-size"  => array("file_path" => $job_obj->get_metadata_cluster_sizes_file_path(), "suffix" => "_cluster_sizes.txt"),
+            "meta-sp-cl"    => array("file_path" => $job_obj->get_metadata_swissprot_clusters_file_path(), "suffix" => "_swissprot_clusters.txt"),
+            "meta-sp-si"    => array("file_path" => $job_obj->get_metadata_swissprot_singles_file_path(), "suffix" => "_swissprot_singletons.txt"),
         );
     } else {
         $want_mean = true;

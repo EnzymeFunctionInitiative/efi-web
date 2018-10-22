@@ -7,8 +7,6 @@ require_once("job_shared.class.inc.php");
 // ShortBRED-Identify
 class identify extends job_shared {
 
-    private $filename;
-
     private $is_debug = false;
     private $loaded = false;
     private $db;
@@ -23,9 +21,6 @@ class identify extends job_shared {
     private $db_mod = "";
 
 
-    public function get_filename() {
-        return $this->filename;
-    }
     public function get_min_seq_len() {
         return $this->min_seq_len;
     }
@@ -335,7 +330,6 @@ class identify extends job_shared {
 
         $this->set_email($result['identify_email']);
         $this->set_key($result['identify_key']);
-        $this->filename = $params['identify_filename'];
         $this->min_seq_len = isset($params['identify_min_seq_len']) ? $params['identify_min_seq_len'] : "";
         $this->max_seq_len = isset($params['identify_max_seq_len']) ? $params['identify_max_seq_len'] : "";
         $this->ref_db = isset($params['identify_ref_db']) ? $params['identify_ref_db'] : "";
@@ -491,7 +485,7 @@ class identify extends job_shared {
 
     protected function get_job_info() {
         $info = parent::get_job_info();
-        $message = "Uploaded Filename: " . $this->filename . $this->eol;
+        $message = "Uploaded Filename: " . $this->get_filename() . $this->eol;
         return $info;
     }
 
@@ -538,7 +532,7 @@ class identify extends job_shared {
     }
 
     private function get_ssn_name() {
-        return self::make_ssn_name($this->get_id(), $this->filename);
+        return self::make_ssn_name($this->get_id(), $this->get_filename());
     }
 
     public static function make_ssn_name($id, $filename) {
@@ -554,7 +548,7 @@ class identify extends job_shared {
 
     public function get_full_ssn_path() {
         $uploads_dir = settings::get_uploads_dir();
-        return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->filename, PATHINFO_EXTENSION);
+        return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->get_filename(), PATHINFO_EXTENSION);
     }
 
     public function get_output_ssn_file_size() {
@@ -580,6 +574,33 @@ class identify extends job_shared {
 
     protected function get_table_name() {
         return job_types::Identify;
+    }
+    
+    public function get_metadata() {
+        $meta = array();
+
+        $res_dir = $this->get_results_path();
+        $meta_file = "$res_dir/metadata.tab";
+
+        if (!file_exists($meta_file))
+            return array();
+
+        return $this->get_metadata_shared($meta_file);
+    }
+
+    public function get_metadata_swissprot_singles_file_path() {
+        $res_dir = $this->get_results_path();
+        return $this->get_metadata_swissprot_singles_file_shared($res_dir);
+    }
+
+    public function get_metadata_swissprot_clusters_file_path() {
+        $res_dir = $this->get_results_path();
+        return $this->get_metadata_swissprot_clusters_file_shared($res_dir);
+    }
+
+    public function get_metadata_cluster_sizes_file_path() {
+        $res_dir = $this->get_results_path();
+        return $this->get_metadata_cluster_sizes_file_shared($res_dir);
     }
 }
 
