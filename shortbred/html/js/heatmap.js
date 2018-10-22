@@ -37,8 +37,14 @@ function HeatmapApp(paramData, progLoaderId) {
     ];
 
     this.parms = paramData;
+    
+    this.bodySites = [];
 }
 
+
+HeatmapApp.prototype.getBodySites = function() {
+    return this.bodySites;
+}
 
 HeatmapApp.prototype.getColor = function(site_info, lastBodysiteIndex, mg) {
     var color = "";
@@ -64,16 +70,19 @@ HeatmapApp.prototype.linspace = function (a,b,n) {
 HeatmapApp.prototype.resetFilter = function() {
     $(".form-input").val("");
     $(".form-cb").prop("checked", false);
+    $(".filter-bs-item").prop("checked", false);
     this.doFormPost();
 }
 
 
-HeatmapApp.prototype.doFormPost = function() {
-
+HeatmapApp.prototype.doFormPost = function(finishFn) {
     var formAction = "get_sbq_data.php";
 
     var useMean = $("#mean-cb").prop("checked");
     var hitsOnly = $("#hits-only-cb").prop("checked");
+
+    if (typeof finishFn === "undefined")
+        finishFn = function() {};
 
     var parms = new FormData;
     parms.append("id", this.parms.Id);
@@ -94,6 +103,19 @@ HeatmapApp.prototype.doFormPost = function() {
     if (lowerThresh)
         parms.append("lower_thresh", lowerThresh);
 
+    var upperThresh = $("#upper-thresh").val();
+    if (upperThresh)
+        parms.append("upper_thresh", upperThresh);
+
+    var bodysites = [];
+    $(".filter-bs-item").each(function(i) {
+        if ($(this).prop("checked"))
+            bodysites.push($(this).val());
+    });
+    var bodysitesStr = bodysites.join("|");
+    if (bodysitesStr)
+        parms.append("bodysites", bodysitesStr);
+
     this.showProgressLoader();
 
     var that = this;
@@ -107,6 +129,7 @@ HeatmapApp.prototype.doFormPost = function() {
                 that.processData(jsonObj);
             }
             that.hideProgressLoader();
+            finishFn();
         }
     }
 }
@@ -187,6 +210,14 @@ HeatmapApp.prototype.processData = function(data) {
     }
 
     regions.push([lastBodysiteIndex, numMetagenomes-1, bodysiteMgLabels[numMetagenomes-1], lastColor]);
+
+    bodySites = {};
+    for (var i = 0; i < bodysiteMgLabels.length; i++) {
+        if (!(bodysiteMgLabels[i] in bodySites)) {
+            this.bodySites.push(bodysiteMgLabels[i]);
+            bodySites[bodysiteMgLabels[i]] = 1;
+        }
+    }
 
     for (var i = 0; i < numClusters; i++) {
         z.push([]);
