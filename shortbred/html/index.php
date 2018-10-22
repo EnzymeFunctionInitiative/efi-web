@@ -154,7 +154,7 @@ HTML;
         $mod_name = $mod_info[1];
         echo "                            <option value=\"$mod_name\">$mod_name</option>\n";
     }
-    echo "                        </select>";
+    echo "                        </select></div>";
 } ?>
                 </div>
 
