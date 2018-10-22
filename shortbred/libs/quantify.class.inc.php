@@ -15,7 +15,6 @@ class quantify extends job_shared {
     private $error_message = "";
     private $identify_id;
     private $metagenome_ids;
-    private $filename;
     private $ref_db = "";
     private $identify_search_type = "";
     private $identify_diamond_sens = "";
@@ -25,10 +24,6 @@ class quantify extends job_shared {
     
     
     
-    public function get_filename() {
-        return $this->filename;
-    }
-
     public function get_metagenome_ids() {
         return $this->metagenome_ids;
     }
@@ -254,8 +249,6 @@ class quantify extends job_shared {
         $this->set_email($result['identify_email']);
         $this->set_key($result['identify_key']);
         
-        $this->filename = $iparams['identify_filename'];
-
         $mg_ids = $qparams['quantify_metagenome_ids'];
         $this->metagenome_ids = explode(",", $mg_ids);
 
@@ -539,7 +532,7 @@ class quantify extends job_shared {
 
     private function get_ssn_name() {
         $id = $this->identify_id;
-        $name = preg_replace("/.zip$/", ".xgmml", $this->filename);
+        $name = preg_replace("/.zip$/", ".xgmml", $this->get_filename());
         $name = preg_replace("/.xgmml$/", "_quantify.xgmml", $name);
         return "${id}_$name";
     }
@@ -597,7 +590,7 @@ class quantify extends job_shared {
     }
 
     private function get_input_identify_ssn_path() {
-        $id_ssn_name = identify::make_ssn_name($this->identify_id, $this->filename);
+        $id_ssn_name = identify::make_ssn_name($this->identify_id, $this->get_filename());
         $path = $this->get_identify_output_path() . "/" .
             $id_ssn_name;
         return $path;
@@ -605,6 +598,45 @@ class quantify extends job_shared {
 
     protected function get_table_name() {
         return job_types::Quantify;
+    }
+
+    public function get_metadata() {
+
+        $res_dir = $this->get_identify_output_path();
+        $meta_file = "$res_dir/metadata.tab";
+
+        if (!file_exists($meta_file))
+            return array();
+
+        $id_metadata = $this->get_metadata_shared($meta_file);
+
+        $q_res_dir = $this->get_quantify_res_dir();
+        $q_meta_file = "$res_dir/$q_res_dir/metadata.tab";
+        if (file_exists($q_meta_file)) {
+            $q_metadata = $this->get_metadata_shared($q_meta_file);
+            foreach ($q_metadata as $key => $value) {
+                $id_metadata[$key] = $value;
+            }
+        }
+
+        #TODO: add quantify metadata
+
+        return $id_metadata;
+    }
+
+    public function get_metadata_swissprot_singles_file() {
+        $res_dir = $this->get_identify_output_path();
+        return $this->get_metadata_swissprot_singles_file_shared($res_dir);
+    }
+
+    public function get_metadata_swissprot_clusters_file() {
+        $res_dir = $this->get_identify_output_path();
+        return $this->get_metadata_swissprot_clusters_file_shared($res_dir);
+    }
+
+    public function get_metadata_cluster_sizes_file() {
+        $res_dir = $this->get_identify_output_path();
+        return $this->get_metadata_cluster_sizes_file_shared($res_dir);
     }
 }
 

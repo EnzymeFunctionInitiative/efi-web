@@ -98,6 +98,14 @@ if ($diamond_sens && $diamond_sens != "normal") { //TODO: fix hardcoded constant
     $table->add_row("DIAMOND sensitivity", $diamond_sens);
 }
 
+$metadata = $job->get_metadata();
+ksort($metadata, SORT_NUMERIC);
+foreach ($metadata as $order => $row) {
+    if ($row[0] == "Number of consensus sequences with hits") //TODO: remove this hack
+        continue;
+    $val = is_numeric($row[1]) ? number_format($row[1]) : $row[1];
+    $table->add_row($row[0], $val);
+}
 
 
 $hmp_list = array();
@@ -118,6 +126,22 @@ $ExtraCssLinks = array("$SiteUrlPrefix/chosen/chosen.min.css");
 $zipFileExists = file_exists($job->get_output_ssn_zip_file_path());
 $ssnZipFileSize = $zipFileExists ? global_functions::bytes_to_megabytes($job->get_output_ssn_zip_file_size()) : "";
 $ssnFileSize = global_functions::bytes_to_megabytes($job->get_output_ssn_file_size());
+$clusterSizesFileExists = file_exists($job->get_metadata_cluster_sizes_file_path());
+$swissProtClustersFileExists = file_exists($job->get_metadata_swissprot_clusters_file_path());
+$swissProtSinglesFileExists = file_exists($job->get_metadata_swissprot_singles_file_path());
+
+$dl_data = array();
+array_push($dl_data, array('ssn-c', "SSN with marker results", $ssnFileSize));
+if ($zipFileExists)
+    array_push($dl_data, array('ssn-c-zip', "SSN with marker results (ZIP)", $ssnZipFileSize));
+array_push($dl_data, array('markers', "Marker data", 1));
+array_push($dl_data, array('cdhit', "CD-HIT mapping file (as table)", 2));
+if ($clusterSizesFileExists)
+    array_push($dl_data, array('meta-cl-size', "Cluster sizes", 1));
+if ($swissProtClustersFileExists)
+    array_push($dl_data, array('meta-sp-cl', "SwissProt annotations by cluster", 1));
+if ($swissProtSinglesFileExists)
+    array_push($dl_data, array('meta-sp-si', "SwissProt annotations by singletons", 1));
 
 $table_string = $table->as_string();
 
@@ -167,28 +191,20 @@ require_once "inc/header.inc.php";
         <th>Size</th>
     </thead>
     <tbody>
+<?php
+foreach ($dl_data as $dl_row) {
+    $type = $dl_row[0];
+    $desc = $dl_row[1];
+    $size = $dl_row[2] ? $dl_row[2] . " MB" : "--";
+    echo <<<HTML
         <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=ssn-c&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
-            <td>SSN with marker results</td>
-            <td style='text-align:center;'><?php echo $ssnFileSize; ?> MB</td>
+            <td style='text-align:center;'><a href="download_files.php?type=$type&$id_query_string"><button class="mini">Download</button></a></td>
+            <td>$desc</td>
+            <td style='text-align:center;'>$size</td>
         </tr>
-<?php if ($zipFileExists) { ?>
-        <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=ssn-c-zip&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
-            <td>SSN with marker results (ZIP)</td>
-            <td style='text-align:center;'><?php echo $ssnZipFileSize; ?> MB</td>
-        </tr>
-<?php } ?>
-        <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=markers&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
-            <td>Marker data</td>
-            <td style='text-align:center;'>1 MB</td>
-        </tr>
-        <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=cdhit&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
-            <td>CD-HIT mapping file (as table)</td>
-            <td style='text-align:center;'>1 MB</td>
-        </tr>
+HTML;
+}
+?>
     </tbody>
 </table>
 

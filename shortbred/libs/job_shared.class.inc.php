@@ -23,6 +23,7 @@ abstract class job_shared {
     private $time_completed;
     private $parent_id = 0;
     protected $search_type = "";
+    protected $filename = "";
 
     private $db;
     private $beta;
@@ -82,6 +83,10 @@ abstract class job_shared {
     public function get_search_type() {
         return strtoupper($this->search_type);
     }
+    
+    public function get_filename() {
+        return $this->filename;
+    }
 
 
     public function mark_job_as_failed() {
@@ -121,6 +126,11 @@ abstract class job_shared {
             $this->search_type = $params["${table}_search_type"];
         else
             $this->search_type = "";
+        
+        if ($table == "quantify" || isset($result["identify_params"])) {
+            $iparams = global_functions::decode_object($result["identify_params"]);
+            $this->filename = $iparams["identify_filename"];
+        }
     }
 
 
@@ -335,6 +345,107 @@ abstract class job_shared {
         $sql .= "WHERE ${tableName}_id='" . $this->id . "'";
         $this->db->non_select_query($sql);
     }
+
+
+
+    protected function get_metadata_shared($meta_file) {
+
+        $tab_data = self::read_kv_tab_file($meta_file);
+
+        $table_data = array();
+
+        //HACK:
+        $table = $this->get_table_name();
+        $sql = "SELECT identify_params FROM identify WHERE identify_id = " . $this->id;
+        if ($table == "quantify")
+            $sql = "SELECT quantify_id, identify_params FROM quantify JOIN identify ON quantify_identify_id = identify_id WHERE quantify_identify_id = " . $this->id;
+        $result = $this->db->query($sql);
+        if ($result && isset($result[0]["identify_params"])) {
+            $iparams = global_functions::decode_object($result[0]["identify_params"]);
+            if (isset($iparams["identify_min_seq_len"]))
+                $tab_data["min_seq_len"] = $iparams["identify_min_seq_len"];
+            if (isset($iparams["identify_max_seq_len"]))
+                $tab_data["max_seq_len"] = $iparams["identify_max_seq_len"];
+        }
+
+        foreach ($tab_data as $key => $value) {
+            $attr = "";
+            $pos = 0;
+            if ($key == "num_ssn_clusters") {
+                $attr = "Number of SSN clusters";
+                $pos = 0;
+            } elseif ($key == "num_ssn_singletons") {
+                $attr = "Number of SSN singletons";
+                $pos = 1;
+            } elseif ($key == "is_uniref") {
+                $attr = "Network Source";
+                $value = $value ? "UniRef $value" : "UniProt";
+                $pos = 2;
+            } elseif ($key == "num_metanodes") {
+                $attr = "Number of SSN (meta)nodes";
+                $pos = 3;
+            } elseif ($key == "num_raw_accessions") {
+                $attr = "Number of accession IDs in SSN";
+                $pos = 4;
+            } elseif ($key == "num_unique_seq") {
+                $attr = "Number of unique sequences in SSN";
+                $pos = 6;
+            } elseif ($key == "num_filtered_seq" && ($tab_data["min_seq_len"] != "none" || $tab_data["max_seq_len"] != "none")) {
+                $attr = "Number of sequences after length filter";
+                $pos = 5;
+            # These are included elsewhere
+            #} elseif ($key == "min_seq_len" && $value != "none") {
+            #    $attr = "Minimum sequence length filter";
+            #    $pos = 7;
+            #} elseif ($key == "max_seq_len" && $value != "none") {
+            #    $attr = "Maximum sequence length filter";
+            #    $pos = 8;
+            } elseif ($key == "num_cdhit_clusters") {
+                $attr = "Number of ShortBRED CD-HIT seed sequences (ShortBRED families)";
+                $pos = 9;
+            } elseif ($key == "num_markers") {
+                $attr = "Number of markers";
+                $pos = 10;
+            } elseif ($key == "num_cons_seq_with_hits") {
+                $attr = "Number of consensus sequences with hits";
+                $pos = 100;
+            }
+
+            if ($attr)
+                $table_data[$pos] = array($attr, $value);
+        }
+
+        return $table_data;
+    }
+
+    private static function read_kv_tab_file($file) {
+        $delim = "\t";
+        $fh = fopen($file, "r");
+        $data = array();
+        while (!feof($fh)) {
+            $line = trim(fgets($fh, 1000));
+            if (!$line)
+                continue;
+
+            $row = str_getcsv($line, $delim);
+            $data[$row[0]] = $row[1];
+        }
+        fclose($fh);
+        return $data;
+    }
+
+    protected function get_metadata_swissprot_singles_file_shared($results_dir) {
+        return "$results_dir/swissprot_singletons.tab";
+    }
+
+    protected function get_metadata_swissprot_clusters_file_shared($results_dir) {
+        return "$results_dir/swissprot_clusters.tab";
+    }
+
+    protected function get_metadata_cluster_sizes_file_shared($results_dir) {
+        return "$results_dir/cluster_sizes.tab";
+    }
+
 }
 
 ?>
