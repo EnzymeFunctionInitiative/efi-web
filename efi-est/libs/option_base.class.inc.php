@@ -19,6 +19,15 @@ abstract class option_base extends stepa {
     public function __destruct() {
     }
 
+//    protected function get_db_version() {
+//        $db_mod = $this->db_mod;
+//        if (!$db_mod)
+//            $db_mod = functions::get_efidb_module();
+//        $db_mod = preg_replace("/^.*\//", "", $db_mod);
+//        return strtoupper($db_mod);
+//    }
+
+
     public function get_sequence_max() { return $this->sequence_max; }
 
     public function get_max_blast_failed_file() {
@@ -130,12 +139,13 @@ abstract class option_base extends stepa {
     // This is creates the actual array that is inserted into the database.
     protected function get_generate_insert_array($data) {
         $key = $this->generate_key();
+        $db_version = functions::get_encoded_db_version($data->db_mod);
         $insert_array = array(
             'generate_key' => $key,
             'generate_email' => $data->email,
             'generate_type' => $this->get_create_type(),
             'generate_program' => $data->program,
-            'generate_db_version' => functions::get_encoded_db_version(),
+            'generate_db_version' => $db_version,
         );
 
         return $insert_array;

@@ -33,6 +33,7 @@ class gnn extends gnn_shared {
     protected $beta;
     protected $is_legacy = false;
     protected $est_id = 0; // gnn_source_id, we use the EST job with this analysis ID
+    protected $db_mod = "";
 
     private $is_sync = false;
 
@@ -212,7 +213,10 @@ class gnn extends gnn_shared {
         $sync_binary = settings::get_sync_gnn_script();
 
         $exec = "source /etc/profile\n";
-        $exec .= "module load " . settings::get_efidb_module() . "\n";
+        if ($this->db_mod)
+            $exec .= "module load " . $this->db_mod . "\n";
+        else
+            $exec .= "module load " . settings::get_efidb_module() . "\n";
         $exec .= "module load " . settings::get_gnn_module() . "\n";
 
         if ($this->is_sync) {
@@ -675,6 +679,17 @@ class gnn extends gnn_shared {
             $this->is_legacy = is_null($this->status);
             if (isset($result['gnn_source_id']))
                 $this->est_id = $result['gnn_source_id'];
+            $db_mod = "";
+            if (isset($result["gnn_db_mod"])) {
+                // Get the actual module not the alias.
+                $mod_info = global_settings::get_database_modules();
+                foreach ($mod_info as $mod) {
+                    if ($mod[1] == $result["gnn_db_mod"]) {
+                        $db_mod = $mod[0];
+                    }
+                }
+            }
+            $this->db_mod = $db_mod;
 
             $basefilename = $this->filename;
             if ($this->est_id) {
@@ -900,8 +915,9 @@ class gnn extends gnn_shared {
     }
 
     public function get_job_info($eol = "\r\n") {
+        $filename = pathinfo($this->get_filename(), PATHINFO_BASENAME);
         $message = "EFI-GNT Job ID: " . $this->get_id() . $eol;
-        $message .= "Uploaded Filename: " . $this->get_filename() . $this->eol;
+        $message .= "Uploaded Filename: " . $filename . $this->eol;
         $message .= "Neighborhood Size: " . $this->get_size() . $this->eol;
         $message .= "% Co-Occurrence Lower Limit (Default: " . settings::get_default_cooccurrence() . "%): " . $this->get_cooccurrence() . "%" . $this->eol;
         $message .= "Time Submitted: " . $this->get_time_created() . $this->eol;
