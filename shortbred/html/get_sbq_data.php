@@ -71,9 +71,6 @@ if ($is_error || !$q_id) {
 
 $id_dir = $job_obj->get_identify_output_path();
 $clust_file = $job_obj->get_genome_normalized_cluster_file_path($use_mean);
-// DEPRECATED
-//    $id_dir = $job_obj->get_results_path();
-//    $clust_file = $id_dir . "/" . quantify::get_genome_normalized_cluster_file_name($use_mean);
 
 
 if (!file_exists($clust_file)) {
@@ -90,6 +87,13 @@ $lower_thresh = 0;
 if (isset($_POST["lower_thresh"]) && is_numeric($_POST["lower_thresh"]))
     $lower_thresh = $_POST["lower_thresh"];
 
+$upper_thresh = 1000000;
+if (isset($_POST["upper_thresh"]) && is_numeric($_POST["upper_thresh"]))
+    $upper_thresh = $_POST["upper_thresh"];
+
+$bodysites = array();
+if (isset($_POST["bodysites"]))
+    $bodysites = explode("|", $_POST["bodysites"]);
 
 $fh = fopen($clust_file, "r");
 
@@ -100,14 +104,19 @@ if ($fh) {
     if (in_array("Cluster Size", $headers))
         $start_idx = 2;
 
-    $metagenomes = array_slice($headers, $start_idx);
+    $site_info = get_mg_db_info($bodysites);
+    $metagenomes_hdr = array_slice($headers, $start_idx);
+    $metagenomes = array();
+    foreach ($metagenomes_hdr as $mg_id) {
+        if (isset($site_info["order"][$mg_id]))
+            array_push($metagenomes, $mg_id);
+    }
 
     // SORT AND MAP METAGENOMES SO THAT THEY CAN BE GROUPED BY BODY SITE
-    $mg_lookup_temp = array();
-    for ($i = 0; $i < count($metagenomes); $i++) {
-        $mg_lookup_temp[$metagenomes[$i]] = $i;
+    $file_col_map = array();
+    for ($i = 0; $i < count($metagenomes_hdr); $i++) {
+        $file_col_map[$metagenomes_hdr[$i]] = $i;
     }
-    $site_info = get_mg_db_info();
     $sort_fn = function($a, $b) use ($site_info) {
         if (!isset($site_info["site"][$a])) return 0;
         elseif (!isset($site_info["site"][$b])) return 0;
@@ -121,14 +130,11 @@ if ($fh) {
         return $cmp;
     };
     usort($metagenomes, $sort_fn);
-    $mg_lookup = array();
+    $mg_order_map = array();
     $site_color = array();
     for ($i = 0; $i < count($metagenomes); $i++) {
-        $mg_lookup[$mg_lookup_temp[$metagenomes[$i]]] = $i;
+        $mg_order_map[$metagenomes[$i]] = $i;
     }
-
-    //TODO: this is only needed until legacy jobs (prior to 8/4/2018) are eased out of the system.
-    $cluster_sizes = get_cluster_sizes("$id_dir/cluster.sizes");
 
     $clusters = array();
     $singles = array();
@@ -158,8 +164,10 @@ if ($fh) {
         $info = array("number" => $cluster_number, "abundance" => array_fill(0, count($metagenomes), 0));
         $sum = 0;
         for ($i = 0; $i < count($metagenomes); $i++) {
-            $mg_idx = $mg_lookup[$i];
-            $val = $parts[$start_idx + $i];
+            $mg_id = $metagenomes[$i];
+            $mg_idx = $mg_order_map[$mg_id];
+            $col_idx = $start_idx + $file_col_map[$mg_id];
+            $val = $parts[$col_idx];
             
             if ($val > $max)
                 $max = $val;
@@ -170,6 +178,8 @@ if ($fh) {
             if ($hits_only && $val > 0)
                 $val = 1;
             elseif ($val < $lower_thresh)
+                $val = 0;
+            elseif ($val > $upper_thresh)
                 $val = 0;
             
             $sum += $val;
@@ -259,7 +269,7 @@ function parse_clusters($params) {
 
 
 
-function get_mg_db_info() {
+function get_mg_db_info($bodysites) {
     $mg_dbs = settings::get_metagenome_db_list();
 
     $mg_db_list = explode(",", $mg_dbs);
@@ -282,10 +292,13 @@ function get_mg_db_info() {
             $pos = strpos($data[1], "-");
             $site = trim(substr($data[1], $pos+1));
             $site = str_replace("_", " ", $site);
-            $info["site"][$mg_id] = $site;
-            $info["gender"][$mg_id] = $data[2];
-            $info["color"][$mg_id] = isset($meta[$site]) ? $meta[$site]["color"] : "";
-            $info["order"][$mg_id] = isset($meta[$site]) ? $meta[$site]["order"] : "";
+
+            if (count($bodysites) == 0 || in_array($site, $bodysites)) {
+                $info["site"][$mg_id] = $site;
+                $info["gender"][$mg_id] = $data[2];
+                $info["color"][$mg_id] = isset($meta[$site]) ? $meta[$site]["color"] : "";
+                $info["order"][$mg_id] = isset($meta[$site]) ? $meta[$site]["order"] : "";
+            }
         }
 
         fclose($fh);
@@ -322,19 +335,5 @@ function get_mg_metadata($mg_db) {
     return $info;
 }
 
-function get_cluster_sizes($file) {
-    $sizes = array();
-
-    if (!file_exists($file))
-        return $sizes;
-
-    $fh = fopen($file, "r");
-    while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
-        $sizes[$data[0]] = $data[1];
-    }
-    fclose($fh);
-
-    return $sizes;
-}
 
 ?>

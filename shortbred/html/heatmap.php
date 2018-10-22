@@ -4,6 +4,7 @@
 <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="../font-awesome/css/fontawesome-all.min.css">
     <link rel="stylesheet" type="text/css" href="css/heatmap.css">
+    <link rel="stylesheet" type="text/css" href="../css/buttons.css">
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
@@ -11,14 +12,22 @@
 
 <div id="plot"></div>
 
-<div style="margin-top: 20px;">
-Show specific cluster numbers: <input type="text" class="form-input" id="cluster-filter" /><br>
-Minimum abundance to display: <input type="text" class="form-input" id="lower-thresh" /><br>
-<button type="button" id="filter-btn">Apply Filter</button>
-<button type="button" id="reset-btn">Reset Filter</button>
-<input type="checkbox" name="mean-cb" value="1" class="form-cb" id="mean-cb"><label for="mean-cb">Use mean</label>
-<input type="checkbox" name="hits-only-cb" value="1" class="form-cb" id="hits-only-cb"><label for="hits-only-cb">Display hits only</label>
+<div id="filter-box">
+<div>Show specific cluster numbers: <input type="text" class="form-input" id="cluster-filter" /></div>
+<div>Minimum abundance to display: <input type="text" class="form-input" id="lower-thresh" /></div>
+<div>Maximum abundance to display: <input type="text" class="form-input" id="upper-thresh" /></div>
+<div><input type="checkbox" name="mean-cb" value="1" class="form-cb" id="mean-cb"><label for="mean-cb">Use mean</label></div>
+<div><input type="checkbox" name="hits-only-cb" value="1" class="form-cb" id="hits-only-cb"><label for="hits-only-cb">Display hits only</label></div>
+<div class="filter-bs-group" id="filter-bs-group">
+    <div><b>Body Sites:</b></div>
 </div>
+<div>
+    <button type="button" class="small dark" id="filter-btn">Apply Filter</button>
+    <button type="button" class="small dark" id="reset-btn">Reset Filter</button>
+</div>
+<div id="filter-hide"><button class="small light" type="button">Hide Filters</button></div>
+</div>
+<div id="filter-show"><button class="small dark" type="button">Show Filters</button></div>
 
 <div style="margin-top:50px;width:100%;position:fixed;bottom:0;height:50px;margin-bottom:100px">
     <i id="progress-loader" class="fas fa-sync black fa-spin fa-4x fa-fw hidden-placeholder"></i>
@@ -46,7 +55,24 @@ $(document).ready(function() {
 
     var app = new HeatmapApp(data, "#progress-loader");
 
-    app.doFormPost();
+    var bodySiteFn = function() {
+        var bs = app.getBodySites();
+        var group = $("#filter-bs-group");
+        for (var i = 0; i < bs.length; i++) {
+            var lbl = group.append('<label>' +
+                '<input type="checkbox" id="filter-bs-' + i + '" value="' + bs[i] + '" class="filter-bs-item"> ' + bs[i] +
+                '</label>');
+            $("#filter-bs-" + i).click(function() { app.doFormPost(); });
+        }
+    };
+
+    app.doFormPost(bodySiteFn);
+
+    $("body").keyup(function(e) {
+        if (e.which == 27) {
+            $("#filter-box").fadeOut();
+        }
+    });
     $(".form-input").keyup(function(e) {
         if (e.which == 13) { // Enter key
             app.doFormPost();
@@ -61,6 +87,14 @@ $(document).ready(function() {
     });
     $("#reset-btn").click(function() {
         app.resetFilter();
+    });
+
+    $("#filter-show").click(function() {
+        $("#filter-box").fadeIn();
+    });
+
+    $("#filter-hide").click(function() {
+        $("#filter-box").fadeOut();
     });
 
 });
