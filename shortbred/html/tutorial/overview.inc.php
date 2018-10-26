@@ -26,16 +26,20 @@ sequences in SSN clusters.
 
 <p>
 EFI-CGFP uses the ShortBRED algorithm described by Huttenhower and colleagues 
-in two successive steps: 1) <b>identify</b> markers that are unique to members of 
-clusters in the input SSN that share 85% sequence identity using the CD-HIT 
+in two successive steps: 1) <b>identify</b> sequence markers that are unique to
+members of families in the input SSN that are identified by ShortBRED and
+share 85% sequence identity using the CD-HIT 
 algorithm (CD-HIT 85 clusters) and 2) <b>quantify</b> the marker abundances in 
-metagenome datasets.
+metagenome datasets and then map these to the SSN clusters.
+</p>
+
+<p>
 EFI-CGFP provides heat maps that allow easy identification of the clusters that 
 have metagenome hits as well as measures of metagenome abundance (hits per 
 microbial genome in the metagenome sample).  EFI-CGFP also outputs several 
-additional files, such as tab-delimited text files (can be opened in Excel) 
+additional files, including tab-delimited text files (can be opened in Excel) 
 that provide actual and normalized values of both protein and cluster 
-abundances, and an enriched SSN that provides a visual summary of the markers 
+abundances and an enriched SSN that provides a visual summary of the markers 
 that were identified (in the CD-HIT 85 clusters) and the abundance mapping 
 results.
 </p>

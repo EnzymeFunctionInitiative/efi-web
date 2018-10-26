@@ -72,7 +72,7 @@ if (settings::get_diamond_enabled()) {
     $table->add_row("Identify search type", $id_search_type);
     $table->add_row("Reference database", $ref_db);
     $table->add_row("CD-HIT identity for ShortBRED family definition", $cdhit_sid);
-    if ($diamond_sens != "normal") //TODO: fix hardcoded constant
+    if ($diamond_sens && $diamond_sens != "normal") //TODO: fix hardcoded constant
         $table->add_row("DIAMOND sensitivity", $diamond_sens);
     $table->add_row("Quantify search type", $search_type);
 }
