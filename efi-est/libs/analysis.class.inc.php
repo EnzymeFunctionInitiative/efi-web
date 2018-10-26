@@ -167,7 +167,7 @@ class analysis {
                 $message = "Unknown database error";
             }
         }
-        return array('RESULT'=>false,'MESSAGE'=>$message);
+        return array('RESULT'=>!$errors,'MESSAGE'=>$message);
     }
 
     public function set_pbs_number($pbs_number) {
@@ -612,11 +612,9 @@ class analysis {
         $result = true;
         if ($name == "") {
             $result = false;
+        } else {
+            $result = preg_replace('/[^A-Za-z0-9_-]/', '_', $name);
         }
-        $result = preg_replace('/[^A-Za-z0-9_-]/', '_', $name);
-        //if (!preg_match('/^[A-Za-z0-9_-]+$/',$name)) {
-        //    $result = false;
-        //}
         return $result;
     }
 

@@ -3,13 +3,22 @@
 
 
 <div class="tutorial_figure">
-<img src="tutorial/quantify.png" width="100%" alt="Image of the identify results page." />
+<img src="tutorial/step_c.png" width="100%" alt="Image of the identify results page." />
 </div>
 
 <p>
 When the marker identification step is completed, EFI-CGFP sends an e-mail to 
 the user.  In the "Previous Jobs" tab, the job name will be changed to a link 
-to the "Markers Computation Results" page.  This page provides four downloads:  
+to the "Markers Computation Results" page.
+</p>
+
+<p>
+A table summarizing the Job Information is provided at the top of the page.   
+This information can be downloaded as a text file.
+</p>
+
+<p>
+This page provides four downloads:  
 1) the input Colored SSN to which node attributes have been added containing 
 the type and number of markers that were generated ("SSN with marker results"); 
 2) the zipped file for the same SSN; 3) a tab-delimited text file ("Marker 
@@ -43,9 +52,9 @@ be selected using the "Search" boxes.
 After the datasets are selected (red arrow; transferred from the left panel to 
 the right panel), metagenome abundance is initiated with the "Quantify Marker" 
 button (blue arrow).  On the "Previous Jobs" tab, the quantify job will appear 
-with a list of the selected metagenomes.  (For the GRE family and the complete 
-set of HMP metagenome datasets, quantitation of protein abundance takes ~15 
-hrs.)
+with a list of the selected metagenomes.
+Irrespective of the number of sequences in the input SSN, the approximate
+execution time for quantitation of protein abundance takes is 48 hrs.) 
 </p>
 
 <p>
@@ -54,7 +63,7 @@ metagenome quantification jobs/results generated with the markers.
 </p>
 
 <div class="tutorial_figure">
-<img src="tutorial/quantify_upload.png" width="100%" alt="Image of the button for uploading new SSNs for the same identify results." />
+<img src="tutorial/step_c_upload.png" width="100%" alt="Image of the button for uploading new SSNs for the same identify results." />
 </div>
 
 <p>

@@ -15,18 +15,29 @@ class quantify extends job_shared {
     private $error_message = "";
     private $identify_id;
     private $metagenome_ids;
-    private $filename;
-
+    private $ref_db = "";
+    private $identify_search_type = "";
+    private $identify_diamond_sens = "";
+    private $identify_cdhit_sid = "";
+    private $identify_parent_id = 0;
 
     
     
     
-    public function get_filename() {
-        return $this->filename;
-    }
-
     public function get_metagenome_ids() {
         return $this->metagenome_ids;
+    }
+    public function get_ref_db() {
+        return $this->ref_db;
+    }
+    public function get_identify_search_type() {
+        return $this->identify_search_type;
+    }
+    public function get_diamond_sensitivity() {
+        return $this->identify_diamond_sens;
+    }
+    public function get_identify_cdhit_sid() {
+        return $this->identify_cdhit_sid;
     }
 
 
@@ -141,7 +152,8 @@ class quantify extends job_shared {
         $queue = settings::get_normal_queue();
         $memQueue = settings::get_memory_queue();
         $sb_module = settings::get_shortbred_blast_module();
-        if ($this->search_type == "diamond")
+        $search_type = $this->get_search_type();
+        if ($search_type == "diamond")
             $sb_module = settings::get_shortbred_diamond_module();
         $parent_quantify_id = $this->get_parent_id();
         $parent_identify_id = "";
@@ -179,8 +191,8 @@ class quantify extends job_shared {
             $exec .= " -parent-quantify-id $parent_quantify_id";
             $exec .= " -parent-identify-id $parent_identify_id";
         }
-        if ($this->search_type == "diamond")
-            $exec .= " -search-type " . $this->search_type;
+        if ($search_type == "diamond")
+            $exec .= " -search-type " . $search_type;
 
         if ($this->is_debug) {
             print("Identify Job ID: $id\n");
@@ -219,7 +231,7 @@ class quantify extends job_shared {
     }
 
     private function load_job() {
-        $sql = "SELECT quantify.*, identify_email, identify_key, identify_params FROM quantify ";
+        $sql = "SELECT quantify.*, identify_email, identify_key, identify_params, identify_parent_id FROM quantify ";
         $sql .= "JOIN identify ON quantify.quantify_identify_id = identify.identify_id WHERE quantify_id='" . $this->get_id() . "'";
         $result = $this->db->query($sql);
 
@@ -229,24 +241,53 @@ class quantify extends job_shared {
 
         $result = $result[0];
 
-        $this->load_job_shared($result);
-
         $qparams = global_functions::decode_object($result['quantify_params']);
         $iparams = global_functions::decode_object($result['identify_params']);
+        $params = array_merge($qparams, $iparams);
+
+        if (isset($result['identify_parent_id']) && $result['identify_parent_id']) {
+            $this->identify_parent_id = $result['identify_parent_id'];
+            $sql = "SELECT identify_params FROM identify WHERE identify_id='" . $result['identify_parent_id'] . "'";
+            $parent_result = $this->db->query($sql);
+            $iparams2 = global_functions::decode_object($parent_result[0]['identify_params']);
+            $params = array_merge($qparams, $iparams2, $iparams);
+        }
+
+        $this->load_job_shared($result, $params);
 
         $this->identify_id = $result['quantify_identify_id'];
         $this->set_email($result['identify_email']);
         $this->set_key($result['identify_key']);
         
-        $this->filename = $iparams['identify_filename'];
-
         $mg_ids = $qparams['quantify_metagenome_ids'];
         $this->metagenome_ids = explode(",", $mg_ids);
 
-        if ($this->search_type != "diamond" && settings::get_diamond_enabled())
-            $this->search_type = "usearch";
+        if (isset($params['identify_ref_db']))
+            $this->ref_db = $params['identify_ref_db'];
         else
-            $this->search_type = "";
+            $this->ref_db = job_shared::DEFAULT_REFDB;
+
+        $this->identify_search_type = "";
+        $this->identify_diamond_sens = "";
+        $this->identify_cdhit_sid = "";
+        if (settings::get_diamond_enabled()) {
+            if (isset($params['identify_search_type']))
+                $this->identify_search_type = $params['identify_search_type'];
+            if ($this->get_search_type() != "diamond")
+                $this->set_search_type("usearch");
+            if (isset($params['identify_diamond_sens']))
+                $this->identify_diamond_sens = $params['identify_diamond_sens'];
+        }
+        
+        if ($this->identify_search_type != "diamond")
+            $this->identify_diamond_sens = "";
+        elseif (!$this->identify_diamond_sens)
+            $this->identify_diamond_sens = job_shared::DEFAULT_DIAMOND_SENSITIVITY;
+
+        if (isset($params['identify_cdhit_sid']))
+            $this->identify_cdhit_sid = $params['identify_cdhit_sid'];
+        else
+            $this->identify_cdhit_sid = job_shared::DEFAULT_CDHIT_SID;
 
         $this->loaded = true;
         return true;
@@ -258,6 +299,9 @@ class quantify extends job_shared {
         $id = $this->identify_id;
         $out_dir = settings::get_output_dir() . "/" . $id;
         $id_dir = $out_dir . "/" . settings::get_rel_output_dir();
+        //TODO: remove for production
+        if (!file_exists($id_dir))
+            $id_dir = $out_dir . "/" . settings::get_rel_output_dir_legacy();
         $res_dir = $id_dir . "/" . settings::get_quantify_rel_output_dir() . "-$qid";
 
         $finish_file = "$res_dir/job.completed";
@@ -299,6 +343,17 @@ class quantify extends job_shared {
         $plain_email = "";
         $plain_email .= "The markers are being quantified against the selected metagenome(s).";
         $plain_email .= $this->eol . $this->eol;
+        return $plain_email;
+    }
+
+    protected function get_email_cancelled_subject() {
+        $subject = "EFI/ShortBRED - Job cancelled";
+        return $subject;
+    }
+
+    protected function get_email_cancelled_message() {
+        $plain_email = "";
+        $plain_email .= "The ShortBRED-Quantify job was cancelled." . $this->eol . $this->eol;
         return $plain_email;
     }
 
@@ -356,8 +411,13 @@ class quantify extends job_shared {
         $res_dir = settings::get_quantify_rel_output_dir();
         return "$res_dir-$id";
     }
-    public function get_identify_output_path() {
-        $path = settings::get_output_dir() . "/" . $this->identify_id . "/" . settings::get_rel_output_dir();
+    public function get_identify_output_path($parent_id = 0) {
+        $id = $parent_id ? $parent_id : $this->identify_id;
+        $base_path = settings::get_output_dir() . "/" . $id;
+        $path = $base_path . "/" . settings::get_rel_output_dir();
+        //TODO: remove for production
+        if (!file_exists($path))
+            $path = $base_path . "/" . settings::get_rel_output_dir_legacy();
         return $path;
     }
     private function get_quantify_output_path() {
@@ -366,72 +426,66 @@ class quantify extends job_shared {
         return $path;
     }
 
-    public function get_protein_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            $this->get_quantify_res_dir() . "/" .
-            self::get_protein_file_name();
+    public function get_protein_file_path($use_mean = false) {
+        $path = $this->get_identify_output_path() . "/" . $this->get_quantify_res_dir() . "/" . self::get_protein_file_name();
+        if ($use_mean)
+            $path .= ".mean";
         return $path;
     }
-    public function get_cluster_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            $this->get_quantify_res_dir() . "/" .
-            self::get_cluster_file_name();
+    public function get_cluster_file_path($use_mean = false) {
+        $path = $this->get_identify_output_path() . "/" . $this->get_quantify_res_dir() . "/" . self::get_cluster_file_name();
+        if ($use_mean)
+            $path .= ".mean";
+        return $path;
+    }
+    public function get_normalized_protein_file_path($use_mean = false) {
+        $path = $this->get_identify_output_path() . "/" . $this->get_quantify_res_dir() . "/" . self::get_normalized_protein_file_name();
+        if ($use_mean)
+            $path .= ".mean";
+        return $path;
+    }
+    public function get_normalized_cluster_file_path($use_mean = false) {
+        $path = $this->get_identify_output_path() . "/" . $this->get_quantify_res_dir() . "/" . self::get_normalized_cluster_file_name();
+        if ($use_mean)
+            $path .= ".mean";
+        return $path;
+    }
+    public function get_genome_normalized_protein_file_path($use_mean = false) {
+        $path = $this->get_identify_output_path() . "/" . $this->get_quantify_res_dir() . "/" . self::get_genome_normalized_protein_file_name();
+        if ($use_mean)
+            $path .= ".mean";
+        return $path;
+    }
+    public function get_genome_normalized_cluster_file_path($use_mean = false) {
+        $path = $this->get_identify_output_path() . "/" . $this->get_quantify_res_dir() . "/" . self::get_genome_normalized_cluster_file_name();
+        if ($use_mean)
+            $path .= ".mean";
         return $path;
     }
 
-    public function get_merged_protein_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            self::get_protein_file_name();
-        return $path;
+    public function get_protein_file_size($use_mean = false) {
+        $path = $this->get_protein_file_path($use_mean);
+        return self::get_web_filesize($path);
     }
-    public function get_merged_cluster_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            self::get_cluster_file_name();
-        return $path;
+    public function get_cluster_file_size($use_mean = false) {
+        $path = $this->get_cluster_file_path($use_mean);
+        return self::get_web_filesize($path);
     }
-    public function get_merged_normalized_protein_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            self::get_normalized_protein_file_name();
-        return $path;
+    public function get_normalized_protein_file_size($use_mean = false) {
+        $path = $this->get_normalized_protein_file_path($use_mean);
+        return self::get_web_filesize($path);
     }
-    public function get_merged_normalized_cluster_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            self::get_normalized_cluster_file_name();
-        return $path;
+    public function get_normalized_cluster_file_size($use_mean = false) {
+        $path = $this->get_normalized_cluster_file_path($use_mean);
+        return self::get_web_filesize($path);
     }
-    public function get_merged_genome_normalized_protein_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            self::get_genome_normalized_protein_file_name();
-        return $path;
+    public function get_genome_normalized_protein_file_size($use_mean = false) {
+        $path = $this->get_genome_normalized_protein_file_path($use_mean);
+        return self::get_web_filesize($path);
     }
-    public function get_merged_genome_normalized_cluster_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            self::get_genome_normalized_cluster_file_name();
-        return $path;
-    }
-    public function get_normalized_protein_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            $this->get_quantify_res_dir() . "/" .
-            self::get_normalized_protein_file_name();
-        return $path;
-    }
-    public function get_normalized_cluster_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            $this->get_quantify_res_dir() . "/" .
-            self::get_normalized_cluster_file_name();
-        return $path;
-    }
-    public function get_genome_normalized_protein_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            $this->get_quantify_res_dir() . "/" .
-            self::get_genome_normalized_protein_file_name();
-        return $path;
-    }
-    public function get_genome_normalized_cluster_file_path() {
-        $path = $this->get_identify_output_path() . "/" .
-            $this->get_quantify_res_dir() . "/" .
-            self::get_genome_normalized_cluster_file_name();
-        return $path;
+    public function get_genome_normalized_cluster_file_size($use_mean = false) {
+        $path = $this->get_genome_normalized_cluster_file_path($use_mean);
+        return self::get_web_filesize($path);
     }
 
     public static function get_protein_file_name() {
@@ -454,9 +508,13 @@ class quantify extends job_shared {
     }
 
     public function get_ssn_http_path() {
-        $path = 
-            $this->identify_id . "/" .
-            settings::get_rel_output_dir() . "/";
+        $test_path = settings::get_output_dir() . "/" . $this->identify_id . "/" . settings::get_rel_output_dir();
+        $rel_dir = settings::get_rel_output_dir();
+        //TODO: remove for production
+        if (!file_exists($test_path))
+            $rel_dir = settings::get_rel_output_dir_legacy();
+
+        $path = $this->identify_id . "/" . $rel_dir . "/";
         $q_dir = $this->get_quantify_res_dir();
 
         $ssn = $this->get_ssn_name();
@@ -475,39 +533,41 @@ class quantify extends job_shared {
 
     private function get_ssn_name() {
         $id = $this->identify_id;
-        $name = preg_replace("/.zip$/", ".xgmml", $this->filename);
+        $name = preg_replace("/.zip$/", ".xgmml", $this->get_filename());
         $name = preg_replace("/.xgmml$/", "_quantify.xgmml", $name);
         return "${id}_$name";
     }
 
-    // MERGED    
-    public function get_merged_ssn_zip_file_path() {
-        $path = $this->get_ssn_file_path_shared() . ".zip";
-        return $path;
-    }
-    public function get_merged_ssn_file_size() {
-        $file = $this->get_ssn_file_path_shared();
-        if (file_exists($file))
-            return filesize($file);
-        else
-            return 0;
-    }
-    public function get_merged_ssn_zip_file_size() {
-        $file = $this->get_merged_ssn_zip_file_path();
-        if (file_exists($file))
-            return filesize($file);
-        else
-            return 0;
-    }
+// DEPRECATED
+//    // MERGED    
+//    public function get_merged_ssn_zip_file_path() {
+//        $path = $this->get_ssn_file_path_shared() . ".zip";
+//        return $path;
+//    }
+//    public function get_merged_ssn_file_size() {
+//        $file = $this->get_ssn_file_path_shared();
+//        if (file_exists($file))
+//            return filesize($file);
+//        else
+//            return 0;
+//    }
+//    public function get_merged_ssn_zip_file_size() {
+//        $file = $this->get_merged_ssn_zip_file_path();
+//        if (file_exists($file))
+//            return filesize($file);
+//        else
+//            return 0;
+//    }
 
-    // LOCAL
+    // LOCAL TO JOB
     private function get_ssn_file_path_shared() {
         $path = $this->get_identify_output_path();
         $q_dir = $this->get_quantify_res_dir();
         $ssn = $this->get_ssn_name();
 
-        if (file_exists("$path/$q_dir/$ssn"))
-            return "$path/$q_dir/$ssn";
+        $ssn_path = "$path/$q_dir/$ssn";
+        if (file_exists($ssn_path))
+            return $ssn_path;
         else
             return "$path/$ssn";
     }
@@ -518,21 +578,15 @@ class quantify extends job_shared {
     }
     public function get_ssn_file_size() {
         $file = $this->get_ssn_file_path_shared();
-        if (file_exists($file))
-            return filesize($file);
-        else
-            return 0;
+        return self::get_web_filesize($file);
     }
     public function get_ssn_zip_file_size() {
         $file = $this->get_ssn_zip_file_path();
-        if (file_exists($file))
-            return filesize($file);
-        else
-            return 0;
+        return self::get_web_filesize($file);
     }
 
     private function get_input_identify_ssn_path() {
-        $id_ssn_name = identify::make_ssn_name($this->identify_id, $this->filename);
+        $id_ssn_name = identify::make_ssn_name($this->identify_id, $this->get_filename());
         $path = $this->get_identify_output_path() . "/" .
             $id_ssn_name;
         return $path;
@@ -540,6 +594,114 @@ class quantify extends job_shared {
 
     protected function get_table_name() {
         return job_types::Quantify;
+    }
+
+    public function get_metadata() {
+
+        $metadata = array();
+        if ($this->identify_parent_id) {
+            $res_dir = $this->get_identify_output_path($this->identify_parent_id);
+            $meta_file = "$res_dir/metadata.tab";
+            if (file_exists($meta_file))
+                $metadata = $this->get_metadata_shared($meta_file, $this->identify_parent_id);
+        }
+
+        $res_dir = $this->get_identify_output_path();
+        $meta_file = "$res_dir/metadata.tab";
+        $id_metadata = array();
+        if (file_exists($meta_file))
+            $id_metadata = $this->get_metadata_shared($meta_file, $this->identify_id);
+
+        foreach ($id_metadata as $idx => $data) {
+            $metadata[$idx] = $data;
+        }
+
+        $q_res_dir = $this->get_quantify_res_dir();
+        $q_meta_file = "$res_dir/$q_res_dir/metadata.tab";
+        if (file_exists($q_meta_file)) {
+            $q_metadata = $this->get_metadata_shared($q_meta_file);
+            foreach ($q_metadata as $key => $value) {
+                $metadata[$key] = $value;
+            }
+        }
+
+        #TODO: add quantify metadata
+
+        return $metadata;
+    }
+
+    public function get_metadata_swissprot_singles_file_path() {
+        $res_dir = $this->get_identify_output_path();
+        return $this->get_metadata_swissprot_singles_file_shared($res_dir);
+    }
+
+    public function get_metadata_swissprot_clusters_file_path() {
+        $res_dir = $this->get_identify_output_path();
+        return $this->get_metadata_swissprot_clusters_file_shared($res_dir);
+    }
+
+    public function get_metadata_cluster_sizes_file_path() {
+        $res_dir = $this->get_identify_output_path();
+        return $this->get_metadata_cluster_sizes_file_shared($res_dir);
+    }
+    
+    public function get_cdhit_file_path() {
+        $res_dir = $this->get_identify_output_path();
+        return $this->get_cdhit_file_shared($res_dir);
+    }
+
+    public function get_marker_file_path() {
+        $res_dir = $this->get_identify_output_path($this->identify_parent_id);
+        return $this->get_marker_file_shared($res_dir);
+    }
+
+
+    public function get_metagenome_data() {
+    
+        $mg_data = array();
+    
+        $clust_file = $this->get_genome_normalized_cluster_file_path();
+    
+        if (!file_exists($clust_file)) {
+            $mgs = $this->get_metagenome_ids();
+            foreach ($mgs as $mg_id) {
+                array_push($mg_data, array($mg_id, ""));
+            }
+            return $mg_data;
+        }
+    
+        $fh = fopen($clust_file, "r");
+    
+        if ($fh) {
+            $header_line = trim(fgets($fh));
+            $headers = explode("\t", $header_line);
+            $start_idx = 1;
+            if (in_array("Cluster Size", $headers))
+                $start_idx = 2;
+        
+            $site_info = functions::get_mg_db_info();
+            $metagenomes_hdr = array_slice($headers, $start_idx);
+            foreach ($metagenomes_hdr as $mg_id) {
+                $info = array($mg_id, "");
+                if (isset($site_info["site"][$mg_id]))
+                    $info[1] = $site_info["site"][$mg_id];
+                array_push($mg_data, $info);
+            }
+        }
+        fclose($fh);
+    
+        return $mg_data;
+    }
+
+    public function get_metagenome_info_as_text() {
+        $text_data = "Metagenome ID\tBody Site\n";
+        $mg_data = $this->get_metagenome_data();
+        foreach ($mg_data as $row) {
+            $mg_id = $row[0];
+            $bodysite = $row[1];
+            $text_data .= "$mg_id\t$bodysite\n";
+        }
+        return $text_data;
     }
 }
 

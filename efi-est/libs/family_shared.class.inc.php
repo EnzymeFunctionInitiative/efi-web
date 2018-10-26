@@ -15,6 +15,8 @@ abstract class family_shared extends option_base {
     protected $uniref_version = "";
     protected $no_demux = 0;
     protected $random_fraction = false;
+    protected $min_seq_len = 0;
+    protected $max_seq_len = 0;
 
     ///////////////Public Functions///////////
 
@@ -102,6 +104,10 @@ abstract class family_shared extends option_base {
             $insert_array['generate_no_demux'] = $data->no_demux;
         if (isset($data->random_fraction))
             $insert_array['generate_random_fraction'] = $data->random_fraction;
+        if (isset($data->min_seq_len))
+            $insert_array['generate_min_seq_len'] = $data->min_seq_len;
+        if (isset($data->max_seq_len))
+            $insert_array['generate_max_seq_len'] = $data->max_seq_len;
         return $insert_array;
     }
 
@@ -151,6 +157,11 @@ abstract class family_shared extends option_base {
                 $parms["-random-fraction"] = "";
         }
 
+        if ($this->min_seq_len)
+            $parms["-min-seq-len"] = $this->min_seq_len;
+        if ($this->max_seq_len)
+            $parms["-max-seq-len"] = $this->max_seq_len;
+
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
         $parms["-conv-ratio-file"] = functions::get_convergence_ratio_filename();
 
@@ -184,6 +195,10 @@ abstract class family_shared extends option_base {
             $this->random_fraction = 1;
         else
             $this->random_fraction = 0;
+        if (array_key_exists('generate_min_seq_len', $result))
+            $this->min_seq_len = $result['generate_min_seq_len'];
+        if (array_key_exists('generate_max_seq_len', $result))
+            $this->max_seq_len = $result['generate_max_seq_len'];
 
         return $result;
     }

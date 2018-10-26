@@ -1,12 +1,12 @@
 
-<h3>"Run ShortBRED" tab:  EFI-CGFP Input SSNs</h3>
+<h3>"Run CGFP/ShortBRED" tab:  EFI-CGFP Input SSNs</h3>
 
 <div class="tutorial_figure">
-<img src="tutorial/input_tab.png" width="100%" alt="Image of the input form." />
+<img src="tutorial/step_a.png" width="100%" alt="Image of the input form." />
 </div>
 
 <p>
-In the "Run ShortBRED" tab, the user uploads the colored SSN xgmml file for 
+In the "Run CGFP/ShortBRED" tab, the user uploads the colored SSN xgmml file for 
 which the markers are to be identified (red arrow; either compressed/zipped or 
 uncompressed). The SSN should have been segregated into isofunctional clusters 
 so that EFI-CGFP will allow orthologues of the members of these clusters to be 
@@ -41,20 +41,24 @@ database; however, these node attributes are not used by EFI-CGFP.
 </p>
 
 <p>
-For the latter type of SSNs, the sequences provided in the FASTA file are used 
-to generate the CD-HIT 85 clusters in the EFI-CGFP pipeline; the SSNs also may 
+For SSNs generated with Option C, the sequences provided in the FASTA file are
+used by EFI-CGFP; the SSNs also may 
 include nodes/sequences for a user-specified UniProt or InterPro family (using 
-the Advanced Options of Option C).  EFI-CGFP only uses the sequences to 
-generate the CD-HIT 85 clusters from which the markers are identified and used 
+the Advanced Options of Option C).  EFI-CGFP uses only the sequences to 
+identify the markers that are used
 to interrogate the metagenome datasets in the Quantify step; it does not use 
 any of the node attributes.
 </p>
 
 <p>
-Either type of SSN can be a full SSN with a node for each sequence/accession ID 
+The input SSN can be a full SSN with a node for each sequence/accession ID 
 or a representative node (rep node) SSN in which the sequences/accession IDs 
 are grouped in metanodes that share specified levels of sequence identity by 
-EFI-EST. Depending on the RAM available on the user’s computer, the user may 
+EFI-EST.
+The SSN can be generated using either the complete set of family sequences 
+(families with &le;25,000 sequences) or UniRef90 seed sequences (families
+with &gt;25,000 sequences, as required by EFI-EST).
+Depending on the RAM available on the user’s computer, the user may 
 not be able to view a full SSN, but the user will be able to view a rep node 
 SSN. We recommend the highest resolution rep node SSN that can be manipulated 
 with Cytoscape on the user’s computer (largest possible sequence identity) so 
@@ -64,17 +68,19 @@ include all of the sequences in the identification of markers
 </p>
 
 <p>
-We also recommend that users apply a minimum length filter to ensure that the 
+We recommend that users apply a minimum length filter to ensure that the 
 sequences are "full length" when the input SSN is generated with EFI-EST.  An 
 appropriate minimum length can be selected by examining the length histogram 
 provided by EFI-EST.  Rep node SSNs are generated after the minimum length 
 filter is applied; therefore, all of the sequences in rep node SSNs will be 
 "full length". The 
 marker identification step in ShortBRED involves initial clustering of proteins 
-into groups of sequences that share &ge;85% sequence identity (CD-HIT 85 
-clusters); these sequences then are aligned (multiple sequence alignment using 
+into groups of sequences that share a specified level of sequence identity
+(default is 85%; CD-HIT 85 cluster);
+these sequences then are aligned (multiple sequence alignment using 
 MUSCLE) to generate a consensus sequence.  Finally, the consensus sequence is 
-used to identify unique markers for each CD-HIT 85 cluster.  The presence of 
+used by the ShortBRED scripts
+to identify unique markers for each CD-HIT 85 cluster.  The presence of 
 sequence "fragments" may bias the multiple sequence alignment/identification of 
 the consensus sequence so they should be avoided in/absent from the input SSN.   
 EFI-CGFP maps the abundance of metagenome hits to the markers and then to the 
@@ -82,30 +88,95 @@ SSN clusters that contain the CD-HIT 85 sequences with the markers.
 </p>
 
 <p>
-EFI-EST uses UniRef90 clusters when a user-specified family contains ≥25,000 
+If the input SSN was generated using UniRef90 clusters, the minimum/maximum 
+length filters in EFI-EST apply to the seed sequences for the clusters (used in 
+the EFI-EST BLAST) and not the sequences in the clusters.   [The seed sequence 
+is the longest sequence; shorter sequences that share 90% sequence identity 
+with the seed sequence are located within the cluster.]   The "Run 
+CGFP/ShortBRED" page has an Advanced Option section that provides minimum and 
+maximum length filters that can be applied so that sequences of desired minimum 
+and maximum lengths can be selected from the UniRef90 clusters.   
+</p>
+
+<p>
+EFI-CGFP identifies and uses only unique sequences (100% sequence identity over 
+100% of the length of each sequence) in the input SSN so that the consensus 
+sequence is not biased by multiple occurrences of the same sequence; both 
+metanodes in rep node SSNs and UniRef90 clusters are expanded so that all 
+sequences included in the metanodes are used in the identification of unique 
+sequences. 
+</p>
+
+<p>
+Sequence markers specific to the CD-HIT 85 consensus sequences are identified 
+by subjecting the consensus sequences to pairwise alignment among themselves 
+and then to pairwise alignment with the sequences in a reference database.  
+</p>
+
+<!--
+<p>
+EFI-EST uses UniRef90 clusters when a user-specified family contains &ge;25,000 
 sequences (Options B, C, and D).  EFI-CGFP "expands" UniRef90 clusters to 
 include all of the sequences in the identification of markers; however, the 
 clusters can include fragments.  Because the minimum length filter in EFI-EST 
 is applied only to the UniRef90 seed sequence, the same minimum length filter 
 should be specified in the "minimum sequence length" window to remove 
-fragments.  </p>
+fragments.
+</p>
+-->
 
 <p>
-EFI-CGFP identifies and uses only unique sequences (100% sequence identity over 
-100% of the length of each sequence) in the input SSN so that the consensus 
-sequence is not biased by multiple occurrences of the same sequence; metanodes 
-in rep node SSNs are expanded so that all sequences included in the metanodes 
-are used in the identification of unique sequences.
+The default parameters for marker identification are 1) those used for 
+clustering the unique sequences into clusters that share 85% sequence identify 
+(CD-HIT 85 clusters), 2) DIAMOND (normal mode) for the pairwise comparisons of 
+the consensus sequences for the CD-HIT 85 clusters with one another and a 
+reference sequence database, and 3) the UniRef90 seed sequences for the 
+reference sequence database.
+</p>
+
+<p>
+The Advanced Options section allows the user to change these default parameters:
+</p>
+
+<ol>
+<li>
+The user can specify an alternate value for clustering the sequences with 
+CD-HIT, e.g., to ensure that different functions are represented by sequences 
+in different CD-HIT clusters.   Proteins that share &gt;60% sequence identity 
+usually have the same functions, but exceptions to this “rule” are known.
+</li>
+<li>
+The user can specify BLAST instead of DIAMOND as the algorithm for the pairwise 
+comparison.   BLAST is more “accurate” than DIAMOND but DIAMOND is ~50x faster 
+than BLAST.   For large protein families, we recommend the initial use of the 
+DIAMOND default followed, if desired, by more “accurate” analyses of selected 
+SSN clusters using BLAST.
+</li>
+<li>
+As an alternative to UniRef90, tThe user can select either the full UniProt 
+database or the UniRef50 seed sequences for the reference sequence dataset.   
+UniProt will produce fewer false positive metagenome hits than the default 
+UniRef90 database with a 2-fold longer execution time; UniRef50 will produce 
+more false positive metagenome hits than the default UniRef90 database with a 
+2-fold shorter execution time.   
+</li>
+</ol>
+
+<p>
+EFI-CGFP then maps the abundance of metagenome hits to the markers and then to 
+the SSN clusters that contain the CD-HIT 85 sequences with the markers.
 </p>
 
 <p>
 After the colored input SSN is uploaded, marker identification is initiated 
-(with the "Upload SSN" button"’; blue arrow).  Because marker identification 
-involves large-scale BLAST analyses, it is time consuming, e.g., ~24 hrs for 
-the GRE superfamily (InterPro family IPR004184 with a minimum length filter of 
-500 residues; average length ~700 residues; ~9000 unique sequences).  Marker 
-identification for SSNs with larger numbers of sequences and/or longer 
-sequences takes longer.
+(with the "Upload SSN" button; blue arrow).
+The execution time depends on the number of unique sequences.   Using DIAMOND 
+the execution time ranges from ~40 minutes for for the GRE superfamily 
+(InterPro family IPR004184 with a minimum length filter of 500 residues; ~9000 
+unique sequences) to ~5 hours for the radical SAM superfamily (InterPro 
+families IPR007197 and IPR006638 without a minimum length filter; ~320K unique 
+sequences).   Using BLAST the times are ~24 hrs for the GRE superfamily and 10 
+days for the radical SAM superfamily.
 </p>
 
 <p>

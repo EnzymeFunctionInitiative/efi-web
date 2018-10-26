@@ -106,8 +106,12 @@ class job_manager {
             $key = $result["${table}_key"];
             $id = $result["${table}_id"];
             $info = "";
-            if ($table == "gnn" || $table == "identify") {
+            //TODO: fix this hard coded schema stuff
+            if ($table == "gnn") {
                 $info = substr($result["${table}_filename"], 0, 40);
+            } elseif ($table == "identify") {
+                $parms = global_functions::decode_object($result["${table}_params"]);
+                $info = substr($parms["${table}_filename"], 0, 40);
             } else {
                 $type = $result["generate_type"];
                 $parms = global_functions::decode_object($result["generate_params"]);
@@ -184,10 +188,10 @@ class job_manager {
         $col_time_created = "$dbn.identify.identify_time_created";
         $col_time_started = "$dbn.identify.identify_time_started";
         $col_time_completed = "$dbn.identify.identify_time_completed";
-        $col_filename = "$dbn.identify.identify_filename";
+        $col_params = "$dbn.identify.identify_params";
 
         $cols = implode(",", array($col_id, $col_key, $col_email, $col_status, $col_time_created,
-            $col_time_started, $col_time_completed, $col_filename));
+            $col_time_started, $col_time_completed, $col_params));
 
         $sql = "SELECT $cols FROM $dbn.identify " . 
             "JOIN $auth_db.user_token ON $dbn.identify.identify_email = $auth_db.user_token.user_email " .

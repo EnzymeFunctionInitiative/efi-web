@@ -17,7 +17,7 @@ class job_manager {
         $this->db = $db;
         $this->get_jobs();
     }
-
+    
     public function validate_job($id, $key) {
         return isset($this->jobs_by_id[$id]) && $this->jobs_by_id[$id]["key"] == $key;
     }
@@ -110,16 +110,21 @@ class job_manager {
             $job["email"] = $this->jobs_by_id[$job_id]["email"];
             $job["filename"] = $this->jobs_by_id[$job_id]["filename"];
             $tco = $this->jobs_by_id[$job_id]["time_completed"];
-            if ($tco && $tco != "FAILED")
+            $status = $this->jobs_by_id[$job_id]["status"];
+            if ($tco && $status == __FINISH__)
                 $job["time_completed"] = self::format_short_date($tco);
             else
-                $job["time_completed"] = $this->jobs_by_id[$job_id]["status"];
+                $job["time_completed"] = $status;
             $ts = $this->jobs_by_id[$job_id]["time_started"];
             if ($ts)
                 $job["time_started"] = self::format_short_date($ts);
             else
                 $job["time_started"] = "";
-            $job["time_created"] = $this->jobs_by_id[$job_id]["time_created"];
+            $tcr = $this->jobs_by_id[$job_id]["time_created"];
+            if ($tcr)
+                $job["time_created"] = self::format_short_date($tcr);
+            else
+                $job["time_created"] = "";
 
             if ($this->table_name == job_types::Quantify) {
                 $mg_ids = explode(",", $this->jobs_by_id[$job_id]["metagenomes"]);
@@ -270,10 +275,17 @@ class job_manager {
 
             $i_job_info = array("id" => $id_id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed,
                 "is_quantify" => false, "date_completed" => $comp);
+            
             if (isset($iparams["identify_search_type"]) && $iparams["identify_search_type"])
                 $i_job_info["search_type"] = $iparams["identify_search_type"];
             else
                 $i_job_info["search_type"] = "";
+            
+            if (isset($iparams["identify_ref_db"]) && $iparams["identify_ref_db"])
+                $i_job_info["ref_db"] = $iparams["identify_ref_db"];
+            else
+                $i_job_info["ref_db"] = "";
+
             array_push($jobs, $i_job_info);
             
             if ($is_completed) {
@@ -305,6 +317,7 @@ class job_manager {
                         $q_job_info["search_type"] = $qparams["quantify_search_type"];
                     else
                         $q_job_info["search_type"] = "";
+                    $q_job_info["ref_db"] = "";
                     array_push($jobs, $q_job_info);
                 }
             }
@@ -339,11 +352,11 @@ class job_manager {
     // Candidate for refacotring to centralize
     private static function get_completed_date_label($comp, $status) {
         $isCompleted = false;
-        if ($status == "FAILED") {
-            $comp = "FAILED";
+        if ($status == __FAILED__ || $status == __RUNNING__ || $status == __CANCELLED__) {
+            $comp = $status;
         } elseif (!$comp || substr($comp, 0, 4) == "0000") {
             $comp = $status;
-            if ($comp == "NEW")
+            if ($comp == __NEW__)
                 $comp = "PENDING";
         } else {
             $comp = self::format_short_date($comp);

@@ -11,9 +11,23 @@ class table_builder {
         $this->is_html = $format != "tab";
     }
 
-    public function add_row($col1, $col2, $col3 = false, $col4 = false) {
+    public function add_row_with_class($col1, $col2, $css_row_class) {
+        $this->add_row($col1, $col2, false, false, $css_row_class);
+    }
+
+    public function add_row_with_html($col1, $col2, $css_row_class = "") { // Strips the HTML tags when in text mode
+        if (!$this->is_html) {
+            $col1 = preg_replace('/<[^>]+>/', "", $col1);
+            $col2 = preg_replace('/<[^>]+>/', "", $col2);
+        }
+        $this->add_row($col1, $col2, false, false, $css_row_class);
+    }
+
+    public function add_row($col1, $col2, $col3 = false, $col4 = false, $css_row_class = "") {
         if ($this->is_html) {
-            $this->buffer .= "<tr><td>$col1</td><td>$col2</td>";
+            if ($css_row_class)
+                $css_row_class = "class=\"$css_row_class\"";
+            $this->buffer .= "<tr $css_row_class><td>$col1</td><td>$col2</td>";
             if ($col3 !== false)
                 $this->buffer .= "<td>$col3</td>";
             if ($col4 !== false)

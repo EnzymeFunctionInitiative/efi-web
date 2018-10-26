@@ -108,7 +108,7 @@ class settings extends global_settings {
         return __GNN_MODULE__;
     }
     public static function get_efidb_module() {
-        return __EFIDB_MODULE__;
+        return defined("__EFI_DB_MODULE__") ? __EFI_DB_MODULE__ : __EFIDB_MODULE__;
     }
 
     public static function get_uniprot_version() {

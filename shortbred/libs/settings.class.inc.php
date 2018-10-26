@@ -4,6 +4,10 @@ require_once("../../libs/global_settings.class.inc.php");
 
 class settings extends global_settings {
 
+    public static function get_rel_output_dir_legacy() {
+        return __LEGACY_RELATIVE_OUTPUT_DIR__;
+    }
+
     public static function get_identify_script() {
         return __IDENTIFY_SCRIPT__;
     }
@@ -50,7 +54,7 @@ class settings extends global_settings {
     }
 
     public static function get_efidb_module() {
-        return __EFIDB_MODULE__;
+        return defined("__EFI_DB_MODULE__") ? __EFI_DB_MODULE__ : __EFIDB_MODULE__;
     }
 
     public static function get_uniprot_version() {

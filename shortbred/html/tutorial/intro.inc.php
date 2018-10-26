@@ -12,7 +12,7 @@ diverse with many uncharacterized members. CGFP was developed to focus
 experimental studies for assigning novel functions to uncharacterized members 
 of the glycyl radical enzyme (GRE) superfamily that are detected in the human 
 gut microbiome [<a href="https://dx.doi.org/10.1126/science.aai8386">B. J. Levin*,
-Y. Y. Huang* et al. Science 355, eaai8386  (2017)</a>].
+Y. Y. Huang* et al. Science <b>355</b>, eaai8386  (2017)</a>].
 CGFP provides a powerful approach to prioritizing uncharacterized 
 members for functional assignment within protein families based on their 
 abundance in metagenomes.
@@ -21,6 +21,9 @@ abundance in metagenomes.
 <p>
 From the CGFP Tutorial on the Balskus laboratory website 
 (<a href="https://www.microbialchemist.com/metagenomic-profiling/">https://www.microbialchemist.com/metagenomic-profiling/</a>):
+</p>
+
+<p style="margin-left: 25px">
 "The human gut contains trillions of microbial inhabitants, making it one of 
 the most densely populated environments on the planet. The symbiosis between 
 these organisms and the human host is extremely complex, and we are only 
@@ -33,7 +36,7 @@ capabilities of this microbial community. However, the activities of the vast
 majority of enzymes found in microbiomes are unknown.
 </p>
 
-<p>
+<p style="margin-left: 25px">
 We have developed a bioinformatics workflow to guide studies of genes and 
 enzymes in microbiomes, including enzymes of unknown function. Our approach, 
 which we call "chemically guided functional profiling", uses a molecular 
@@ -62,7 +65,7 @@ In its original form, the CGFP pipeline described by Balskus and Huttenhower
 requires both knowledge of Unix 
 command line scripts and access to a computer cluster. <b>The EFI-CGFP web tool 
 was developed to democratize the use of CGFP by experimentalists by making it 
-"user friendly".</b>
+both accessible and "user friendly".</b>
 </p>
 
 

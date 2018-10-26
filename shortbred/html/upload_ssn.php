@@ -6,7 +6,7 @@ $id = 0;
 $key = 0;
 $message = "";
 $valid = 0;
-$cookieInfo = "";
+$cookie_info = "";
 
 if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     $valid = 0;
@@ -40,24 +40,38 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         $message .= "<br><b>Please verify your e-mail address</b>";
     }
 
-    $email = $_POST['email'];
-    $updateId = isset($_POST['update-id']) ? $_POST['update-id'] : "";
-    $updateKey = isset($_POST['update-key']) ? $_POST['update-key'] : "";
-    $minSeqLen = isset($_POST['min-seq-len']) ? $_POST['min-seq-len'] : "";
-    $searchType = isset($_POST['search-type']) ? $_POST['search-type'] : "";
+    $email          = $_POST['email'];
+    $update_id      = isset($_POST['update-id']) ? $_POST['update-id'] : "";
+    $update_key     = isset($_POST['update-key']) ? $_POST['update-key'] : "";
+    $min_seq_len    = isset($_POST['min-seq-len']) ? $_POST['min-seq-len'] : "";
+    $max_seq_len    = isset($_POST['max-seq-len']) ? $_POST['max-seq-len'] : "";
+    $search_type    = isset($_POST['search-type']) ? $_POST['search-type'] : "";
+    $ref_db         = isset($_POST['ref-db']) ? $_POST['ref-db'] : "";
+    $cdhit_sid      = isset($_POST['cdhit-sid']) ? $_POST['cdhit-sid'] : "";
+    $diamond_sens   = isset($_POST['diamond-sens']) ? $_POST['diamond-sens'] : "";
+    $db_mod         = isset($_POST['db-mod']) ? $_POST['db-mod'] : "";
 
     if ($valid) {
-        if ($updateId && $updateKey) {
-            $newInfo = identify::create_update_ssn($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $updateId, $updateKey);
+        if ($update_id && $update_key) {
+            $new_info = identify::create_update_ssn($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $update_id, $update_key);
         } else {
-            $newInfo = identify::create($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $minSeqLen, $searchType);
+            $create_params = array(
+                'min_seq_len' => $min_seq_len,
+                'max_seq_len' => $max_seq_len,
+                'search_type' => $search_type,
+                'ref_db' => $ref_db,
+                'cdhit_sid' => $cdhit_sid,
+                'diamond_sens' => $diamond_sens,
+                'db_mod' => $db_mod,
+            );
+            $new_info = identify::create($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $create_params);
         }
 
-        if ($newInfo === false) {
+        if ($new_info === false) {
             $valid = false;
         } else {
-            $id = $newInfo['id'];
-            $key = $newInfo['key'];
+            $id = $new_info['id'];
+            $key = $new_info['key'];
         }
     }
 }
@@ -65,8 +79,8 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
 // This resets the expiration date of the cookie so that frequent users don't have to login in every X days as long
 // as they keep using the app.
 if ($valid && global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
-    $cookieInfo = user_auth::get_cookie_shared(user_auth::get_user_token());
-    $returnData["cookieInfo"] = $cookieInfo;
+    $cookie_info = user_auth::get_cookie_shared(user_auth::get_user_token());
+    $return_data["cookie_info"] = $cookie_info;
 }
 
 $output = array(
@@ -74,7 +88,7 @@ $output = array(
     'id' => $id,
     'key' => $key,
     'message' => $message,
-    'cookieInfo' => $cookieInfo
+    'cookie_info' => $cookie_info
 );
 
 error_log(print_r($output, true));

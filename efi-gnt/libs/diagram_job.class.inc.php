@@ -19,6 +19,7 @@ class diagram_job {
     private $message = "";
     private $title = "";
     private $eol = PHP_EOL;
+    private $db_mod = "";
 
     public function __construct($db, $id) {
         $this->db = $db;
@@ -38,6 +39,8 @@ class diagram_job {
         $this->title = $result["diagram_title"];
         $this->params = functions::decode_object($result["diagram_params"]);
         $this->pbs_number = $result["diagram_pbs_number"];
+        if (isset($this->params["db_mod"]) && $this->params["db_mod"])
+            $this->db_mod = $this->params["db_mod"];
     }
 
     public function process() {
@@ -156,7 +159,10 @@ class diagram_job {
         $binary = settings::get_process_diagram_script();
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_gnn_module() . "\n";
-        $exec .= "module load " . settings::get_efidb_module() . "\n";
+        if ($this->db_mod)
+            $exec .= "module load " . $this->db_mod . "\n";
+        else
+            $exec .= "module load " . settings::get_efidb_module() . "\n";
         $exec .= $binary . " ";
         $exec .= $commandLine;
         $exec .= " -output \"$target\"";
