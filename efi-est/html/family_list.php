@@ -2,8 +2,6 @@
 require_once "../includes/main.inc.php";
 require_once("../../includes/login_check.inc.php");
 
-require_once "inc/header.inc.php";
-
 $defaultFilterKey = "pfam";
 $defaultFilter = "PF%";
 $defaultTitle = "Pfam Families";
@@ -58,6 +56,33 @@ function get_tab_style($filter, $category, $defaultTab = false) {
     else
         echo "";
 }
+
+if (isset($_GET["as-table"])) {
+    $table_filename = preg_replace("/\s/", "_", $pageTitle) . "_info.txt";
+
+    $hdr = "Family";
+    if ($isClan)
+        $hdr = "Clan";
+
+    $headers = array("$hdr ID", "$hdr Short Name", "$hdr Size", "UniRef90 Size", "UniRef50 Size");
+
+    $table_string = implode("\t", $headers) . "\n";
+    
+    foreach ($dbResult as $row) {
+        $line = implode("\t", array($row["family"], $row["short_name"], 
+                                    number_format($row["num_members"]),
+                                    number_format($row["num_uniref90_members"]),
+                                    number_format($row["num_uniref50_members"])));
+        $table_string .= $line . "\n";
+    }
+
+    send_table($table_filename, $table_string);
+    exit(0);
+}
+
+
+
+require_once "inc/header.inc.php";
 
 ?>
 
@@ -143,6 +168,7 @@ if ($isPfamClanMap) { ?>
         $hdr = "Clan";
 
 ?>
+            <a href="?<?php echo $_SERVER["QUERY_STRING"] . "&as-table=1"; ?>">Download as tab-separated text file.</a>
             <table class="family" width="100%" border="0">
                 <thead>
                     <th><?php echo $hdr; ?> ID</th>
@@ -184,6 +210,23 @@ if ($isPfamClanMap) { ?>
 <p class="center"><a href="index.php"><button class="dark">Run EST</button></a></p>
 
 
-<?php require_once("inc/footer.inc.php"); ?>
+<?php
+
+require_once("inc/footer.inc.php");
+
+
+function send_table($table_filename, $table_string) {
+    header('Pragma: public');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="' . $table_filename . '"');
+    header('Content-Length: ' . strlen($table_string));
+    ob_clean();
+    echo $table_string;
+}
+
+
+?>
 
 
