@@ -86,7 +86,7 @@ require_once('inc/header.inc.php');
     <h2>Results</h2>
 
     <h3>Network Information</h3>
-    <table width="100%" border="1" style="margin-top: 10px" class="pretty">
+    <table width="100%" style="margin-top: 10px" class="pretty">
         <tbody>
             <tr class="deeper">
                 <td>Job Number:</td><td><?php echo $gnnId; ?></td>
@@ -106,7 +106,7 @@ require_once('inc/header.inc.php');
     <h3>Colored Sequence Similarity Network (SSN)</h3>
     <p>The nodes in the input SSN are assigned unique cluster numbers and colors.</p>
 
-    <table width="100%" border="1" class="pretty">
+    <table width="100%" class="pretty">
         <thead>
             <th></th>
             <th># Nodes</th>
@@ -131,7 +131,7 @@ require_once('inc/header.inc.php');
     <h3>SSN Cluster Hub-Nodes: Genome Neighborhood Network (GNN)</h3>
     <p>Each hub-node in the network represents an SSN cluster that identified neighbors, with spoke-nodes for Pfam family with neighbors.</p>
 
-    <table width="100%" border="1" class="pretty">
+    <table width="100%" class="pretty">
         <thead>
             <th></th>
             <th>File Size (MB)</th>
@@ -152,7 +152,7 @@ require_once('inc/header.inc.php');
     <h3>Pfam Family Hub-Nodes Genome Neighborhood Network (GNN)</h3>
     <p>Each hub-node in the network represents a Pfam family of neighbors, with spoke-nodes for each SSN cluster that identified the Pfam family.</p>
 
-    <table width="100%" border="1" class="pretty">
+    <table width="100%" class="pretty">
         <thead>
             <th></th>
             <th>File Size (Unzipped/Zipped MB)</th>
@@ -180,7 +180,7 @@ require_once('inc/header.inc.php');
 <!--        <div class="new_feature"></div>-->
         Genome neighboorhoods can be visualized in an arrow digram format in a new window.
     
-        <table width="100%" border="1" class="pretty">
+        <table width="100%" class="pretty">
             <thead>
                 <th>Action</th>
                 <th></th>
@@ -222,7 +222,7 @@ require_once('inc/header.inc.php');
 <?php } ?>
 
     <h3>Other Files</h3>
-    <table width="100%" border="1" class="pretty">
+    <table width="100%" class="pretty">
         <thead>
             <th></th>
             <th>File</th>

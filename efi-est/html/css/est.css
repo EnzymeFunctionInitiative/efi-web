@@ -375,53 +375,12 @@ textarea.options
     display: none;
 }
 
-/* TABLE *************************************************************************************************************/
-
-table.pretty {
+table.family {
     border-collapse: collapse;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #aaa;
-    border-right: 1px solid #aaa;
-    width: 100%;
 }
-
-table.pretty td, th {
-    border-left: 1px solid #aaa;
-    margin: 0;
-    padding: 7px;
-}
-
-table.pretty th {
-    background-color: #bbb;
-}
-
-table.pretty tr:nth-of-type(even) td {
-    background-color: #eee;
-}
-
-/* Same as pretty but without the alternating row colors since we will handle that manually. */
-table.pretty_nested {
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #aaa;
-    border-right: 1px solid #aaa;
-    width: 100%;
-}
-
-table.pretty_nested td, th {
-    border-left: 1px solid #aaa;
-    margin: 0;
-    padding: 7px;
-}
-
-table.pretty_nested th {
-    background-color: #bbb;
-}
-
 
 table.family th {
-    background: #333;
-    color: #eee;
+    background: #bbb;
     padding: 5px;
 }
 

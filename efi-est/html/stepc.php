@@ -326,17 +326,15 @@ else {
 
 <h3>Network Information</h3>
 
-<p>
-Generation Summary Table
-<a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1" ?>'><button class="normal">Download</button></a>
-</p>
+<h4>Generation Summary Table</h4>
 
-<table width="100%" border="1">
+<table width="100%" class="pretty">
     <?php echo $table_string; ?>
 </table>
+<div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1" ?>'><button class="normal">Download</button></a></div>
+<div style="clear: both"></div>
 <?php echo $extra_nodes_string; ?>
 <?php echo $convergence_ratio_string; ?>
-<p>&nbsp;</p>
 
 <hr>
 
@@ -346,7 +344,7 @@ Generation Summary Table
 
 <h4>CD-HIT Counts</h4>
 
-<table border="0">
+<table class="pretty">
 <thead><th>Sequence % ID</th><th>Sequence Length</th><th>Number of Nodes</th></thead>
 <tbody>
 <?php
