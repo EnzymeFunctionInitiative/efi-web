@@ -19,6 +19,7 @@ $identify_id = $_GET["id"];
 $key = $_GET["key"];
 $qid = $_GET["quantify-id"];
 $id_query_string = "id=$identify_id&key=$key&quantify-id=$qid";
+$identify_only_id_query_string = "id=$identify_id&key=$key";
 
 
 #$q_jobs = job_manager::get_quantify_jobs($db, $identify_id);
@@ -52,17 +53,25 @@ if (isset($_GET["as-table"])) {
 $table = new table_builder($table_format);
 
 $filename = $job_obj->get_filename();
-$search_type = $job_obj->get_search_type();
+$id_tbl_val = "<a href=\"stepc.php?$id_query_string\"><u>$identify_id</u></a>/$qid";
+$min_seq_len = $job_obj->get_min_seq_len();
+$max_seq_len = $job_obj->get_max_seq_len();
+$search_type = strtoupper($job_obj->get_search_type());
 $ref_db = strtoupper($job_obj->get_ref_db());
 $id_search_type = strtoupper($job_obj->get_identify_search_type());
 $diamond_sens = $job_obj->get_diamond_sensitivity();
 $cdhit_sid = $job_obj->get_identify_cdhit_sid();
 
 $table->add_row("Input filename", $filename);
+$table->add_row_with_html("Identify/Quantify ID", $id_tbl_val);
+if ($min_seq_len)
+    $table->add_row("Minimum sequence length", $min_seq_len);
+if ($max_seq_len)
+    $table->add_row("Maximum sequence length", $max_seq_len);
 if (settings::get_diamond_enabled()) {
     $table->add_row("Identify search type", $id_search_type);
     $table->add_row("Reference database", $ref_db);
-    $table->add_row("CD-HIT sequence identity", $cdhit_sid);
+    $table->add_row("CD-HIT identity for ShortBRED family definition", $cdhit_sid);
     if ($diamond_sens != "normal") //TODO: fix hardcoded constant
         $table->add_row("DIAMOND sensitivity", $diamond_sens);
     $table->add_row("Quantify search type", $search_type);
@@ -72,7 +81,7 @@ $metadata = $job_obj->get_metadata();
 ksort($metadata, SORT_NUMERIC);
 foreach ($metadata as $order => $row) {
     $val = is_numeric($row[1]) ? number_format($row[1]) : $row[1];
-    $table->add_row($row[0], $val);
+    $table->add_row_with_class($row[0], $val, "stats-row");
 }
 
 
@@ -82,45 +91,44 @@ $use_mean = true;
 $mean_cluster_file = $job_obj->get_cluster_file_path($use_mean);
 $mean_gn_file = $job_obj->get_genome_normalized_cluster_file_path($use_mean);
 
-$ssnFileSize = global_functions::bytes_to_megabytes($job_obj->get_ssn_file_size());
-$protFileSize = $ssnFileSize ? "<1" : 0; // files are small
-$clustFileSize = $ssnFileSize ? "<1" : 0; // files are small
-$normProtFileSize = $ssnFileSize ? "<1" : 0; // files are small
-$normClustFileSize = $ssnFileSize ? "<1" : 0; // files are small
-$genomeNormProtFileSize = $ssnFileSize ? "<1" : 0; // files are small
-$genomeNormClustFileSize = $ssnFileSize ? "<1" : 0; // files are small
-
-$zipFilePath = $job_obj->get_ssn_zip_file_path();
-$zipFileExists = file_exists($zipFilePath);
-$ssnZipFileSize = $zipFileExists ? global_functions::bytes_to_megabytes($job_obj->get_ssn_zip_file_size()) : "0";
-
-//TODO: fix file sizes
-
 $size_data = array(
-    "ssn" => $ssnFileSize,
-    "ssn_zip" => $ssnZipFileSize,
-    "protein" => $protFileSize,
-    "cluster" => $clustFileSize,
-    "protein_norm" => $normProtFileSize,
-    "cluster_norm" => $normClustFileSize,
+    "ssn" => $job_obj->get_ssn_file_size(),
+    "ssn_zip" => $job_obj->get_ssn_zip_file_size(),
+    "protein" => $job_obj->get_protein_file_size(false),
+    "cluster" => $job_obj->get_cluster_file_size(false),
+    "protein_norm" => $job_obj->get_normalized_protein_file_size(false),
+    "cluster_norm" => $job_obj->get_normalized_cluster_file_size(false),
+    "cdhit" => $job_obj->get_cdhit_file_size(),
+    "markers" => $job_obj->get_marker_file_size(),
 );
 
 $gn_file = $job_obj->get_genome_normalized_cluster_file_path();
 if (file_exists($gn_file)) {
-    $size_data["protein_genome_norm"] = $genomeNormProtFileSize;
-    $size_data["cluster_genome_norm"] = $genomeNormClustFileSize;
+    $size_data["protein_genome_norm"] = $job_obj->get_genome_normalized_protein_file_size(false);
+    $size_data["cluster_genome_norm"] = $job_obj->get_genome_normalized_cluster_file_size(false);
 }
 
 if (file_exists($mean_cluster_file)) {
-    $size_data["protein_mean"] = $protFileSize;
-    $size_data["cluster_mean"] = $clustFileSize;
-    $size_data["protein_norm_mean"] = $normProtFileSize;
-    $size_data["cluster_norm_mean"] = $normClustFileSize;
+    $size_data["protein_mean"] = $job_obj->get_protein_file_size(true);
+    $size_data["cluster_mean"] = $job_obj->get_cluster_file_size(true);
+    $size_data["protein_norm_mean"] = $job_obj->get_normalized_protein_file_size(true);
+    $size_data["cluster_norm_mean"] = $job_obj->get_normalized_cluster_file_size(true);
     if (file_exists($mean_gn_file)) {
-        $size_data["protein_genome_norm_mean"] = $genomeNormProtFileSize;
-        $size_data["cluster_genome_norm_mean"] = $genomeNormClustFileSize;
+        $size_data["protein_genome_norm_mean"] = $job_obj->get_genome_normalized_protein_file_size(true);
+        $size_data["cluster_genome_norm_mean"] = $job_obj->get_genome_normalized_cluster_file_size(true);
     }
 }
+
+$clusterSizesFileSize = $job_obj->get_metadata_cluster_sizes_file_size();
+$swissProtClustersFileSize = $job_obj->get_metadata_swissprot_clusters_file_size();
+$swissProtSinglesFileSize = $job_obj->get_metadata_swissprot_singles_file_size();
+if ($clusterSizesFileSize)
+    $size_data["meta-cl-size"] = $clusterSizesFileSize;
+if ($swissProtClustersFileSize)
+    $size_data["meta-sp-cl"] = $swissProtClustersFileSize;
+if ($swissProtSinglesFileSize)
+    $size_data["meta-sp-si"] = $swissProtSinglesFileSize;
+$size_data["mg-info"] = "<1";
 
 
 $arg_suffix = "";
@@ -140,6 +148,12 @@ $file_types = array(
     "cluster_genome_norm_mean" => "q-clust$arg_suffix-gn-mean",
     "ssn" => "ssn-q",
     "ssn_zip" => "ssn-q-zip",
+    "cdhit" => "cdhit",
+    "markers" => "markers",
+    "meta-cl-size" => "meta-cl-size",
+    "meta-sp-cl" => "meta-sp-cl",
+    "meta-sp-si" => "meta-sp-si",
+    "mg-info" => "q-mg-info",
 );
 $html_labels = array(
     "protein" => "Protein abundance data $run_suffix (median)",
@@ -156,9 +170,16 @@ $html_labels = array(
     "cluster_genome_norm_mean" => "Average genome size (AGS) normalized cluster abundance data $run_suffix (mean)",
     "ssn" => "SSN with quantify results",
     "ssn_zip" => "SSN with quantify results (ZIP)",
+    "cdhit" => "CD-HIT ShortBRED families by cluster",
+    "markers" => "ShortBRED marker data",
+    "meta-cl-size" => "Cluster sizes",
+    "meta-sp-cl" => "SwissProt annotations by cluster",
+    "meta-sp-si" => "SwissProt annotations by singletons",
+    "mg-info" => "Description of selected metagenomes",
 );
 
-$dl_ssn_items = array("ssn", "ssn_zip");
+$dl_ssn_items = array("ssn", "ssn_zip", "mg-info");
+$dl_misc_items = array("cdhit", "markers", "meta-cl-size", "meta-sp-cl", "meta-sp-si");
 $dl_median_items = array("protein", "cluster", "protein_norm", "cluster_norm", "protein_genome_norm", "cluster_genome_norm");
 $dl_mean_items = array("protein_mean", "cluster_mean", "protein_norm_mean", "cluster_norm_mean", "protein_genome_norm_mean", "cluster_genome_norm_mean");
 
@@ -189,7 +210,7 @@ require_once "inc/header.inc.php";
 -->
 <!--<p>ShortBRED-Quantify has finished.</p>-->
 
-<p><a href="stepc.php?<?php echo $id_query_string; ?>"><button class="mini" type="button">Return to Identify Results</button></a></p>
+<!--<p><a href="stepc.php?<?php echo $id_query_string; ?>"><button class="mini" type="button">Return to Identify Results</button></a></p>-->
 
 <h3>Job Information</h3>
 
@@ -198,7 +219,9 @@ require_once "inc/header.inc.php";
         <?php echo $table_string; ?>
     </tbody>
 </table>
-<div style="display: flex; justify-content: flex-end"><a href="stepe.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Info</button></a></div>
+<div style="float:left"><button type="button" class="mini" id="job-stats-btn">Show Job Statistics</button></div>
+<div style="float:right"><a href="stepe.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Info</button></a></div>
+<div style="clear:both"></div>
 
 <h3>Downloadable Data</h3>
 
@@ -215,16 +238,7 @@ require_once "inc/header.inc.php";
                 <thead><th></th><th>File</th><th>Size</th></thead>
                 <tbody>
 <?php outputResultsTable($dl_ssn_items, $id_query_string, $size_data, $file_types, $html_labels); ?>
-                    <tr>
-                        <td style='text-align:center;'><a href="download_files.php?type=cdhit&<?php echo "id=$identify_id&key=$key"; ?>"><button class="mini">Download</button></a></td>
-                        <td>CD-HIT mapping file (as table)</td>
-                        <td style='text-align:center;'>1 MB</td>
-                    </tr>
-                    <tr>
-                        <td style='text-align:center;'><a href="download_files.php?type=markers&<?php echo "id=$identify_id&key=$key"; ?>"><button class="mini">Download</button></a></td>
-                        <td>Marker data</td>
-                        <td style='text-align:center;'>1 MB</td>
-                    </tr>
+<?php outputResultsTable($dl_misc_items, $identify_only_id_query_string, $size_data, $file_types, $html_labels); ?>
                 </tbody>
             </table>
         </div>
@@ -259,15 +273,15 @@ require_once "inc/header.inc.php";
 
     <div class="tab-content">
         <div id="heatmap-clusters" class="tab active">
-           <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=c&g=q" width="970" height="750" style="border: none"></iframe>
+           <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=c&g=q" width="970" height="840" style="border: none"></iframe>
         </div>
 
         <div id="heatmap-singletons" class="tab">
-            <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=s&g=q" width="970" height="750" style="border: none"></iframe>
+            <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=s&g=q" width="970" height="840" style="border: none"></iframe>
         </div>
 
         <div id="heatmap-combined" class="tab">
-            <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=m&g=q" width="970" height="750" style="border: none"></iframe>
+            <iframe src="heatmap.php?<?php echo "$id_query_string&$hm_parm_string"; ?>&res=m&g=q" width="970" height="840" style="border: none"></iframe>
         </div>
     </div>
 </div>
@@ -276,17 +290,20 @@ require_once "inc/header.inc.php";
 Metagenomes:
 <div style='margin-left: 40px; max-height: 300px; overflow-y: auto'>
 <?php
-    $mgs = $job_obj->get_metagenome_ids();
-    foreach ($mgs as $mg_id) {
-        $mg_info = $mg_db->get_metagenome_data($mg_id);
-        $info = "$mg_id";
-        if ($mg_info["name"]) {
-            $info .= ": " . $mg_info["name"];
-        }
-        if ($mg_info["desc"]) {
-            $info .= " (" . $mg_info["desc"] . ")";
-        }
-        $info .= "<br>";
+    $mg_data = $job_obj->get_metagenome_data();
+    foreach ($mg_data as $row) {
+        $mg_id = $row[0];
+        $bodysite = $row[1];
+        $info = "$mg_id: $bodysite<br>";
+//        $mg_info = $mg_db->get_metagenome_data($mg_id);
+//        $info = "$mg_id";
+//        if ($mg_info["name"]) {
+//            $info .= ": " . $mg_info["name"];
+//        }
+//        if ($mg_info["desc"]) {
+//            $info .= " (" . $mg_info["desc"] . ")";
+//        }
+//        $info .= "<br>";
         echo $info;
     }
 ?>
@@ -336,25 +353,14 @@ $(document).ready(function() {
     });
     handleTabPress("#download-tabs", $("#download-tabs .tab-headers .active a").first());
 
-    
-//    $('.heatmap-button').click(function() {
-//        $header = $(this);
-//        //getting the next element
-//        $content = $header.next();
-//        //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
-//        $content.slideToggle(100, function () {
-//            if ($content.is(":visible")) {
-//                $header.find("i.fas").addClass("fa-minus-square");
-//                $header.find("i.fas").removeClass("fa-plus-square");
-//            } else {
-//                $header.find("i.fas").removeClass("fa-minus-square");
-//                $header.find("i.fas").addClass("fa-plus-square");
-//            }
-//        });
-//        $content.children().attr('src', function() {
-//            return $(this).data('src');
-//        });
-//    });
+    $("#job-stats-btn").click(function() {
+        $(".stats-row").toggle();
+        if ($(this).text() == "Show Job Statistics")
+            $(this).text("Hide Job Statistics");
+        else
+            $(this).text("Show Job Statistics");
+    });
+    $(".stats-row").hide();
     
 });
 </script>
@@ -394,6 +400,8 @@ HTML;
 HTML;
     }
 }
+
+
 
 ?>
 

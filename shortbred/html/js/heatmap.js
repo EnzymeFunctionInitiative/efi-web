@@ -68,9 +68,6 @@ HeatmapApp.prototype.linspace = function (a,b,n) {
 
 
 HeatmapApp.prototype.resetFilter = function() {
-    $(".form-input").val("");
-    $(".form-cb").prop("checked", false);
-    $(".filter-bs-item").prop("checked", false);
     this.doFormPost();
 }
 
@@ -99,12 +96,12 @@ HeatmapApp.prototype.doFormPost = function(finishFn) {
     if (clusterList)
         parms.append("clusters", clusterList);
 
-    var lowerThresh = $("#lower-thresh").val();
-    if (lowerThresh)
+    var lowerThresh = $("#min").val();
+    if (lowerThresh && !isNaN(lowerThresh))
         parms.append("lower_thresh", lowerThresh);
 
-    var upperThresh = $("#upper-thresh").val();
-    if (upperThresh)
+    var upperThresh = $("#max").val();
+    if (upperThresh && !isNaN(upperThresh))
         parms.append("upper_thresh", upperThresh);
 
     var bodysites = [];

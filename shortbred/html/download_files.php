@@ -93,6 +93,11 @@ if (isset($_GET["type"])) {
         $ssn_file = $job_obj->get_output_ssn_zip_http_path();
         $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
         header("Location: $url");
+    } elseif ($type == "q-mg-info") {
+        $suffix = "_metagenome_desc.txt";
+        $file_name = $job_obj->get_filename();
+        $text_data = $job_obj->get_metagenome_info_as_text();
+        $is_error = ! send_text_data($the_id, $q_id, $text_data, $file_name, $suffix);
     } else {
         $is_error = true;
     }
@@ -117,6 +122,13 @@ function send_text_file($the_id, $q_id, $file_path, $download_name, $download_su
     }
 }
 
+function send_text_data($the_id, $q_id, $text_data, $download_name, $download_suffix) {
+    $download_filename = "${the_id}_q${q_id}_" . pathinfo($download_name, PATHINFO_FILENAME) . $download_suffix;
+    $content_size = strlen($text_data);
+    sendHeaders($download_filename, $content_size);
+    echo $text_data;
+    return true;
+}
 
 
 function sendHeaders($download_filename, $content_size) {
