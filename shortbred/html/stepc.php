@@ -85,7 +85,7 @@ if ($min_seq_len)
 if ($max_seq_len)
     $table->add_row("Maximum sequence length", $max_seq_len);
 if ($search_type && settings::get_diamond_enabled())
-    $table->add_row("Search type", $search_type);
+    $table->add_row("Identify search type", $search_type);
 if ($ref_db)
     $table->add_row("Reference database", $ref_db);
 if ($cdhit_sid)
@@ -129,7 +129,7 @@ $dl_data = array();
 array_push($dl_data, array('ssn-c', "SSN with marker results", $job->get_output_ssn_file_size()));
 if ($ssnZipFileSize)
     array_push($dl_data, array('ssn-c-zip', "SSN with marker results (ZIP)", $ssnZipFileSize));
-array_push($dl_data, array('markers', "Marker data", $job->get_marker_file_size()));
+array_push($dl_data, array('markers', "ShortBRED marker data", $job->get_marker_file_size()));
 array_push($dl_data, array('cdhit', "CD-HIT ShortBRED families by cluster", $job->get_cdhit_file_size()));
 if ($clusterSizesFileSize)
     array_push($dl_data, array('meta-cl-size', "Cluster sizes", $clusterSizesFileSize));
