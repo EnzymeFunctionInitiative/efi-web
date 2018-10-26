@@ -92,7 +92,8 @@ class user_jobs extends user_auth {
             } else {
                 $comp = date_format(date_create($comp), "n/j h:i A");
             }
-            $jobName = "N=" . $row["gnn_size"] . " Cooc=" . $row["gnn_cooccurrence"] . " Submission=<i>" . $row["gnn_filename"] . "</i>";
+            $filename = pathinfo($row["gnn_filename"], PATHINFO_BASENAME);
+            $jobName = "N=" . $row["gnn_size"] . " Cooc=" . $row["gnn_cooccurrence"] . " Submission=<i>" . $filename . "</i>";
             array_push($jobs, array("id" => $row["gnn_id"], "key" => $row["gnn_key"], "filename" => $jobName,
                                           "completed" => $comp));
         }

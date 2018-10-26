@@ -1,4 +1,5 @@
 <?php
+
 require_once '../includes/main.inc.php';
 require_once '../libs/input.class.inc.php';
 require_once '../libs/user_jobs.class.inc.php';
@@ -26,24 +27,27 @@ if ($input->is_debug) {
     }
 }
 
-
-$test = "";
-foreach($_POST as $var) {
-    $test .= " " . $var;
-}
+#$test = "";
+#foreach($_POST as $var) {
+#    $test .= " " . $var;
+#}
 
 $input->email = $_POST['email'];
+$num_job_limit = global_settings::get_num_job_limit();
+$is_job_limited = user_jobs::check_for_job_limit($db, $input->email);
 
 if (!isset($_POST['submit'])) {
     $result["MESSAGE"] = "Form is invalid.";
 } elseif (!$input->email) {
     $result["MESSAGE"] = "Please enter an e-mail address.";
+} elseif ($is_job_limited) {
+    $result["MESSAGE"] = "Due to finite computational resource constraints, you can only submit $num_job_limit jobs within a 24 hour period.  Please try again in 24 hours.";
 } else {
     $result['RESULT'] = true;
 
-    foreach ($_POST as &$var) {
-        $var = trim(rtrim($var));
-    }
+    #foreach ($_POST as &$var) {
+    #    $var = trim(rtrim($var));
+    #}
     $message = "";
     $option = $_POST['option_selected'];
     
@@ -57,7 +61,9 @@ if (!isset($_POST['submit'])) {
         $input->job_group = $_POST['job-group'];
     if (array_key_exists('job-name', $_POST))
         $input->job_name = $_POST['job-name'];
-    
+    if (array_key_exists('db-mod', $_POST))
+        $input->db_mod = $_POST['db-mod'];
+
     switch($option) {
         //Option A - Blast Input
         case 'A':
@@ -68,8 +74,12 @@ if (!isset($_POST['submit'])) {
             $input->blast_evalue = $_POST['blast_evalue'];
             $input->field_input = $_POST['blast_input'];
             $input->max_seqs = $_POST['blast_max_seqs'];
-            if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true")
-                $input->uniref_version = "90";
+            if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
+                if (isset($_POST['families_uniref_ver']) && $_POST['families_uniref_ver'])
+                    $input->uniref_version = $_POST['families_uniref_ver'];
+                else
+                    $input->uniref_version = "90";
+            }
 
             if (!isset($_POST['evalue']))
                 $input->evalue = $input->blast_evalue; // in case we don't have family code enabled
@@ -94,9 +104,17 @@ if (!isset($_POST['submit'])) {
                 $input->no_demux = $_POST['pfam_demux'] == "true" ? true : false;
             if (isset($_POST['pfam_random_fraction']))
                 $input->random_fraction = $_POST['pfam_random_fraction'] == "true" ? true : false;
-            if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true")
-                $input->uniref_version = "90";
-    
+            if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
+                if (isset($_POST['families_uniref_ver']) && $_POST['families_uniref_ver'])
+                    $input->uniref_version = $_POST['families_uniref_ver'];
+                else
+                    $input->uniref_version = "90";
+            }
+            if (isset($_POST['pfam_min_seq_len']) && is_numeric($_POST['pfam_min_seq_len']))
+                $input->min_seq_len = $_POST['pfam_min_seq_len'];
+            if (isset($_POST['pfam_max_seq_len']) && is_numeric($_POST['pfam_max_seq_len']))
+                $input->max_seq_len = $_POST['pfam_max_seq_len'];
+            
             $result = $generate->create($input);
             break;
     
@@ -116,8 +134,12 @@ if (!isset($_POST['submit'])) {
                 $result['RESULT'] = false;
             }
             else {
-                if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true")
-                    $input->uniref_version = "90";
+                if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
+                    if (isset($_POST['families_uniref_ver']) && $_POST['families_uniref_ver'])
+                        $input->uniref_version = $_POST['families_uniref_ver'];
+                    else
+                        $input->uniref_version = "90";
+                }
 
                 if ($option == "C" || $option == "E") {
                     $useFastaHeaders = $_POST['fasta_use_headers'];

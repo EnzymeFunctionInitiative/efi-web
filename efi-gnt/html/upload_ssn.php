@@ -71,6 +71,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
 
     $email = $_POST['email'];
     $job_name = isset($_POST['job_name']) ? $_POST['job_name'] : "";
+    $db_mod = isset($_POST['db_mod']) ? $_POST['db_mod'] : "";
 
     $is_sync = false;
     if ($valid && isset($_POST["sync_key"]) && functions::check_sync_key($_POST["sync_key"])) {
@@ -81,11 +82,22 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         if ($est_analysis_id) {
             $gnnInfo = gnn::create_from_est_job($db, $email, $_POST['neighbor_size'], $cooccurrence, $est_file_path, $est_analysis_id);
         } else {
-            $gnnInfo = gnn::create3(
-                $db, $email, $_POST['neighbor_size'], $cooccurrence,
-                $_FILES['file']['tmp_name'], $_FILES['file']['name'],
-                $job_name, $is_sync
+            $parms = array(
+                'email' => $email,
+                'size' => $_POST['neighbor_size'],
+                'cooccurrence' => $cooccurrence,
+                'tmp_filename' => $_FILES['file']['tmp_name'],
+                'filename' => $_FILES['file']['name'],
+                'job_name' => $job_name,
+                'is_sync' => $is_sync,
+                'db_mod' => $db_mod,
             );
+            $gnnInfo = gnn::create4($db, $parms);
+            //$gnnInfo = gnn::create3(
+            //    $db, $email, $_POST['neighbor_size'], $cooccurrence,
+            //    $_FILES['file']['tmp_name'], $_FILES['file']['name'],
+            //    $job_name, $is_sync
+            //);
         }
         if ($gnnInfo === false) {
             $valid = false;

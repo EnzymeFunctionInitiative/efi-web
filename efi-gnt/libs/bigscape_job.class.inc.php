@@ -27,6 +27,7 @@ class bigscape_job {
     private $eol = PHP_EOL;
     private $email;
     private $pbs_number;
+    private $db_mod = "";
 
     public function __construct($db, $diagram_id, $job_type) {
         if ($diagram_id && $job_type !== NULL) {
@@ -185,7 +186,10 @@ class bigscape_job {
         $binary = settings::get_process_bigscape_script();
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_gnn_module() . "\n";
-        $exec .= "module load " . settings::get_efidb_module() . "\n";
+        if ($this->db_mod)
+            $exec .= "module load " . $this->db_mod . "\n";
+        else
+            $exec .= "module load " . settings::get_efidb_module() . "\n";
         $exec .= $binary;
         $exec .= " -diagram-file \"$diagram_file\"";
         $exec .= " -updated-diagram-file \"$updated_diagram_file\"";

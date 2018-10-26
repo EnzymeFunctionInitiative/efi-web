@@ -91,6 +91,11 @@ if (array_key_exists("query", $_GET)) {
     $output["eod"] = $arrowData["eod"];
     $output["counts"] = $arrowData["counts"];
     $output["data"] = $arrowData["data"];
+    $output["min_bp"] = $arrowData["min_bp"];
+    $output["max_bp"] = $arrowData["max_bp"];
+    $output["min_pct"] = $arrowData["min_pct"];
+    $output["max_pct"] = $arrowData["max_pct"];
+    $output["legend_scale"] = $arrowData["legend_scale"]; // the base unit for the legend. the client can draw however many units they want for the legend.
 }
 else if (array_key_exists("fams", $_GET)) {
     $output["families"] = getFamilies($dbFile);
@@ -256,7 +261,14 @@ function computeRelativeCoordinates($output, $minBp, $maxBp, $maxQueryWidth) {
     $maxWidth = $maxSide * 2 + $maxQueryWidth;
     $minBp = -$maxSide;
     $maxBp = $maxSide + $maxQueryWidth;
-    
+
+    $legendScale = $maxWidth; //100 / ($maxBp - $minBp);
+//    $legendScale = ($maxBp - $minBp) / 100;
+//    die("$maxBp $minBp $maxSide $maxQueryWidth $maxWidth");
+//    die($legendScale);
+
+    $minPct = 2;
+    $maxPct = -2;
     for ($i = 0; $i < count($output["data"]); $i++) {
         $start = $output["data"][$i]["attributes"]["rel_start_coord"];
         $stop = $output["data"][$i]["attributes"]["rel_stop_coord"];
@@ -265,14 +277,34 @@ function computeRelativeCoordinates($output, $minBp, $maxBp, $maxQueryWidth) {
         $offset = 0.5 - ($start - $minBp) / $maxWidth;
         $output["data"][$i]["attributes"]["rel_start"] = $acStart;
         $output["data"][$i]["attributes"]["rel_width"] = $acWidth;
+        $acEnd = $acStart + $acWidth;
+        if ($acEnd > $maxPct)
+            $maxPct = $acEnd;
+        if ($acStart < $minPct)
+            $minPct = $acStart;
     
         foreach ($output["data"][$i]["neighbors"] as $idx => $data2) {
-            $nbStart = ($output["data"][$i]["neighbors"][$idx]["rel_start_coord"] - $minBp) / $maxWidth;
-            $nbWidth = ($output["data"][$i]["neighbors"][$idx]["rel_stop_coord"] - $output["data"][$i]["neighbors"][$idx]["rel_start_coord"]) / $maxWidth;
-            $output["data"][$i]["neighbors"][$idx]["rel_start"] = $nbStart + $offset;
+            $nbStartBp = $output["data"][$i]["neighbors"][$idx]["rel_start_coord"];
+            $nbWidthBp = $output["data"][$i]["neighbors"][$idx]["rel_stop_coord"] - $output["data"][$i]["neighbors"][$idx]["rel_start_coord"];
+            $nbStart = ($nbStartBp - $minBp) / $maxWidth;
+            $nbWidth = $nbWidthBp / $maxWidth;
+            $nbStart += $offset;
+            $nbEnd = $nbStart + $nbWidth;
+            $output["data"][$i]["neighbors"][$idx]["rel_start"] = $nbStart;
             $output["data"][$i]["neighbors"][$idx]["rel_width"] = $nbWidth;
+            if ($nbEnd > $maxPct)
+                $maxPct = $nbEnd;
+            if ($nbStart < $minPct)
+                $minPct = $nbStart;
         }
     }
+
+    $output["legend_scale"] = ($maxBp - $minBp);
+    //$output["legend_scale"] = (($maxBp - $minBp) * ($maxPct - $minPct)) / 2 - $maxQueryWidth;// / 2 - $maxQueryWidth;
+    $output["min_pct"] = $minPct;
+    $output["max_pct"] = $maxPct;
+    $output["min_bp"] = $minBp;
+    $output["max_bp"] = $maxBp;
 
     return $output;
 }
@@ -359,7 +391,10 @@ function getQueryAttributes($row, $orderData, $isDirectJob) {
 
     $familyCount = count($attr['family']);
 
-    $attr['family_desc'] = explode("-", $row['family_desc']);
+    $familyDesc = explode(";", $row['family_desc']);
+    if (count($familyDesc) == 1)
+        $familyDesc = explode("-", $row['family_desc']);
+    $attr['family_desc'] = $familyDesc;
     if (count($attr['family_desc']) < $familyCount) {
         if (count($attr['family_desc']) > 0)
             $attr['family_desc'] = array_fill(0, $familyCount, $attr['family_desc'][0]);
@@ -414,7 +449,10 @@ function getNeighborAttributes($row) {
 
     $familyCount = count($nb['family']);
 
-    $nb['family_desc'] = explode("-", $row['family_desc']);
+    $familyDesc = explode(";", $row['family_desc']);
+    if (count($familyDesc) == 1)
+        $familyDesc = explode("-", $row['family_desc']);
+    $nb['family_desc'] = $familyDesc;
     if (count($nb['family_desc']) < $familyCount) {
         if (count($nb['family_desc']) > 0)
             $nb['family_desc'] = array_fill(0, $familyCount, $nb['family_desc'][0]);

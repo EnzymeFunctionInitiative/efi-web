@@ -37,11 +37,13 @@ if (isset($_GET["filter"])) {
 
 if ($isPfamClanMap) {
     $sql = "
-        SELECT C.clan_id, C.pfam_id, P.short_name, P.num_members AS pfam_count, P.num_uniref90_members as pfam_uniref90_count,
-            PC.short_name AS clan_short_name, PC.num_members AS clan_count, PC.num_uniref90_members AS clan_uniref90_count
+        SELECT C.clan_id, C.pfam_id, P.short_name, P.num_members AS pfam_count,
+            P.num_uniref90_members as pfam_uniref90_count, P.num_uniref50_members as pfam_uniref50_count,
+            PC.short_name AS clan_short_name, PC.num_members AS clan_count,
+            PC.num_uniref90_members AS clan_uniref90_count, PC.num_uniref50_members AS clan_uniref50_count
         FROM PFAM_clans AS C
             JOIN family_info AS P ON C.pfam_id = P.family 
-            JOIN family_info as PC on C.clan_id = PC.family
+            JOIN family_info AS PC ON C.clan_id = PC.family
         WHERE C.clan_id <> '' ORDER BY C.clan_id, C.pfam_id
         ";
     $dbResult = $db->query($sql);
@@ -136,29 +138,21 @@ if ($isPfamClanMap) { ?>
     }
 
 } else {
-    if ($isClan) { ?>
+    $hdr = "Family";
+    if ($isClan)
+        $hdr = "Clan";
 
+?>
             <table class="family" width="100%" border="0">
                 <thead>
-                    <th>Clan ID</th>
-                    <th>Clan Short Name</th>
-                    <th>Clan Size</th>
-                    <th>UniRef90 Size</th>
-                </thead>
-                <tbody>
-
-<?php     } else { ?>
-
-            <table class="family" width="100%" border="0">
-                <thead>
-                    <th>Family ID</th>
-                    <th>Family Short Name</th>
-                    <th>Family Size</th>
-                    <th>UniRef90 Size</th>
+                    <th><?php echo $hdr; ?> ID</th>
+                    <th><?php echo $hdr; ?> Short Name</th>
+                    <th><?php echo $hdr; ?> Size</th>
+                    <th>UniRef 90 Size</th>
+                    <th>UniRef 50 Size</th>
                 </thead>
                 <tbody>
 <?php
-    } 
     
     $hasLink = array_key_exists($filter, $LinkTemplate);
     $template = $hasLink ? $LinkTemplate[$filter] : "";
@@ -171,6 +165,7 @@ if ($isPfamClanMap) { ?>
         echo "                        <td>" . $row["short_name"] . "</td>\n";
         echo "                        <td class=\"right-align\">" . number_format($row["num_members"]) . "</td>\n";
         echo "                        <td class=\"right-align\">" . number_format($row["num_uniref90_members"]) . "</td>\n";
+        echo "                        <td class=\"right-align\">" . number_format($row["num_uniref50_members"]) . "</td>\n";
         echo "                    </tr>\n";
     }
 

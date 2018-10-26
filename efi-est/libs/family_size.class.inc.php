@@ -1,16 +1,39 @@
 <?php
 
+require_once("../../libs/global_settings.class.inc.php");
 require_once("functions.class.inc.php");
 
 class family_size {
 
-    public static function compute_family_size($db, $families, $fraction, $is_uniref) {
+    public static function compute_family_size($db, $families, $fraction, $is_uniref, $uniref_ver = "", $db_version = "") {
         if ($fraction < 1)
             $fraction = 1;
 
+        $table = "family_info";
+        if ($db_version) {
+            // Get the actual module not the alias.
+            $mod_info = global_settings::get_database_modules();
+            $default_mod = functions::get_efidb_module();
+            $found_it = false;
+            foreach ($mod_info as $mod) {
+                if ($mod[1] == $db_version && $mod[0] != $default_mod)
+                    $found_it = true;
+            }
+            if ($found_it) {
+                $table .= "_" . strtolower($db_version);
+            }
+        }
+
+        $use_uniref90 = true;
+        $use_uniref50 = false;
+        if ($is_uniref && $uniref_ver == "50") {
+            $use_uniref90 = false;
+            $use_uniref50 = true;
+        }
+
         $totalFull = 0;
         $totalUniref = 0;
-        $results = array("use_uniref90" => true, "use_uniref50" => false, "is_uniref90_required" => false,
+        $results = array("use_uniref90" => $use_uniref90, "use_uniref50" => $use_uniref50, "is_uniref90_required" => false,
             "is_too_large" => false, "families" => array());
         
         foreach ($families as $family) {
@@ -22,7 +45,7 @@ class family_size {
             if (!$familyType)
                 continue;
         
-            $sql = "SELECT * FROM family_info WHERE family='$family'";
+            $sql = "SELECT * FROM $table WHERE family='$family'";
             $dbResult = $db->query($sql);
             if ($dbResult) {
                 $results["families"][strtoupper($family)] = array(
@@ -31,7 +54,10 @@ class family_size {
                     "uniref90" => $dbResult[0]["num_uniref90_members"],
                     "uniref50" => $dbResult[0]["num_uniref50_members"]);
                 $totalFull += $dbResult[0]["num_members"];
-                $totalUniref += $dbResult[0]["num_uniref90_members"];
+                if ($use_uniref90)
+                    $totalUniref += $dbResult[0]["num_uniref90_members"];
+                elseif ($use_uniref50)
+                    $totalUniref += $dbResult[0]["num_uniref50_members"];
             }
         }
         
@@ -53,6 +79,7 @@ class family_size {
         $results["max_full"] = $maxFull;
         $results["total"] = $totalFull;
         $results["total_compute"] = $totalCompute;
+        $results["a"] = $table;
 
         return $results;
     }

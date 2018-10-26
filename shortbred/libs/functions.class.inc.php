@@ -118,8 +118,86 @@ class functions extends global_functions {
             return false;
     }
     
+    public static function send_table($table_filename, $table_string) {
+        header('Pragma: public');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . $table_filename . '"');
+        header('Content-Length: ' . strlen($table_string));
+        ob_clean();
+        echo $table_string;
+    }
 
+    public static function get_mg_db_info() {
+        return self::get_mg_db_info_filtered(array());
+    }
 
+    public static function get_mg_db_info_filtered($bodysites) { // Array to filter for specific body sites
+        $mg_dbs = settings::get_metagenome_db_list();
+    
+        $mg_db_list = explode(",", $mg_dbs);
+    
+        $info = array("site" => array(), "gender" => array());
+    
+        foreach ($mg_db_list as $mg_db) {
+            $fh = fopen($mg_db, "r");
+            if ($fh === false)
+                continue;
+    
+            $meta = self::get_mg_metadata($mg_db);
+    
+            while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
+                if (isset($data[0]) && $data[0] && $data[0][0] == "#")
+                    continue; // skip comments
+    
+                $mg_id = $data[0];
+    
+                $pos = strpos($data[1], "-");
+                $site = trim(substr($data[1], $pos+1));
+                $site = str_replace("_", " ", $site);
+    
+                if (count($bodysites) == 0 || in_array($site, $bodysites)) {
+                    $info["site"][$mg_id] = $site;
+                    $info["gender"][$mg_id] = $data[2];
+                    $info["color"][$mg_id] = isset($meta[$site]) ? $meta[$site]["color"] : "";
+                    $info["order"][$mg_id] = isset($meta[$site]) ? $meta[$site]["order"] : "";
+                }
+            }
+    
+            fclose($fh);
+        }
+    
+        return $info;
+    }
+    
+    public static function get_mg_metadata($mg_db) {
+    
+        $info = array(); # map site to color
+    
+        $scheme_file = "$mg_db.metadata";
+        if (file_exists($scheme_file)) {
+            $fh = fopen($scheme_file, "r");
+            if ($fh === false)
+                return false;
+        } else {
+            return false;
+        }
+    
+        while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
+            if (isset($data[0]) && $data[0] && $data[0][0] == "#")
+                continue; // skip comments
+    
+            $site = str_replace("_", " ", $data[0]);
+            $color = $data[1];
+            $order = isset($data[2]) ? $data[2] : 0;
+            $info[$site] = array('color' => $color, 'order' => $order);
+        }
+    
+        fclose($fh);
+    
+        return $info;
+    }
 
 }
 ?>

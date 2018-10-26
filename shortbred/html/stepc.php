@@ -51,15 +51,59 @@ if ($status == __FAILED__) {
 } elseif ($status == __RUNNING__) {
     $ExtraTitle = "Computation Still Running";
     $is_running = true;
+} elseif ($status == __CANCELLED__) {
+    $ExtraTitle = "Computation Cancelled";
+    $is_failed = true;
 } else {
     $ExtraTitle = "Markers Computation Results for ID $id";
     $is_finished = true;
 }
 
-
 $filename = $job->get_filename();
-$msl = $job->get_min_seq_len();
-$search_type = $job->get_search_type();
+$min_seq_len = $job->get_min_seq_len();
+$max_seq_len = $job->get_max_seq_len();
+$search_type = strtoupper($job->get_search_type());
+$ref_db = strtoupper($job->get_ref_db());
+$cdhit_sid = $job->get_cdhit_sid();
+$cons_thresh = $job->get_consensus_threshold();
+$diamond_sens = $job->get_diamond_sensitivity();
+
+$table_format = "html";
+if (isset($_GET["as-table"])) {
+    $table_format = "tab";
+}
+$table = new table_builder($table_format);
+
+$table->add_row("Input filename", $filename);
+if ($parent_id)
+    $table->add_row_with_html("Identify ID", $id . " (child of <a href=\"stepc.php?id=$parent_id&key=$parent_key\"><u>$parent_id</u></a>)");
+else
+    $table->add_row("Identify ID", $id);
+
+if ($min_seq_len)
+    $table->add_row("Minimum sequence length", $min_seq_len);
+if ($max_seq_len)
+    $table->add_row("Maximum sequence length", $max_seq_len);
+if ($search_type && settings::get_diamond_enabled())
+    $table->add_row("Search type", $search_type);
+if ($ref_db)
+    $table->add_row("Reference database", $ref_db);
+if ($cdhit_sid)
+    $table->add_row("CD-HIT identity for ShortBRED family definition", $cdhit_sid);
+if ($cons_thresh)
+    $table->add_row("Consensus threshold", $cons_thresh);
+if ($diamond_sens && $diamond_sens != "normal") //TODO: fix hardcoded constant
+    $table->add_row("DIAMOND sensitivity", $diamond_sens);
+
+$metadata = $job->get_metadata();
+ksort($metadata, SORT_NUMERIC);
+foreach ($metadata as $order => $row) {
+    if ($row[0] == "Number of consensus sequences with hits") //TODO: remove this hack
+        continue;
+    $val = is_numeric($row[1]) ? number_format($row[1]) : $row[1];
+    $table->add_row_with_class($row[0], $val, "stats-row");
+}
+
 
 $hmp_list = array();
 if ($is_finished) {
@@ -76,9 +120,32 @@ $q_jobs = job_manager::get_quantify_jobs($db, $id);
 
 $ExtraCssLinks = array("$SiteUrlPrefix/chosen/chosen.min.css");
 
-$zipFileExists = file_exists($job->get_output_ssn_zip_file_path());
-$ssnZipFileSize = $zipFileExists ? global_functions::bytes_to_megabytes($job->get_output_ssn_zip_file_size()) : "";
-$ssnFileSize = global_functions::bytes_to_megabytes($job->get_output_ssn_file_size());
+$ssnZipFileSize = $job->get_output_ssn_zip_file_size();
+$clusterSizesFileSize = $job->get_metadata_cluster_sizes_file_size();
+$swissProtClustersFileSize = $job->get_metadata_swissprot_clusters_file_size();
+$swissProtSinglesFileSize = $job->get_metadata_swissprot_singles_file_size();
+
+$dl_data = array();
+array_push($dl_data, array('ssn-c', "SSN with marker results", $job->get_output_ssn_file_size()));
+if ($ssnZipFileSize)
+    array_push($dl_data, array('ssn-c-zip', "SSN with marker results (ZIP)", $ssnZipFileSize));
+array_push($dl_data, array('markers', "Marker data", $job->get_marker_file_size()));
+array_push($dl_data, array('cdhit', "CD-HIT ShortBRED families by cluster", $job->get_cdhit_file_size()));
+if ($clusterSizesFileSize)
+    array_push($dl_data, array('meta-cl-size', "Cluster sizes", $clusterSizesFileSize));
+if ($swissProtClustersFileSize)
+    array_push($dl_data, array('meta-sp-cl', "SwissProt annotations by cluster", $swissProtClustersFileSize));
+if ($swissProtSinglesFileSize)
+    array_push($dl_data, array('meta-sp-si', "SwissProt annotations by singletons", $swissProtSinglesFileSize));
+
+$table_string = $table->as_string();
+
+if (isset($_GET["as-table"])) {
+    $table_filename = "${identify_id}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_identify_settings.txt";
+    functions::send_table($table_filename, $table_string);
+    exit(0);
+}
+
 
 require_once "inc/header.inc.php"; 
 
@@ -95,66 +162,45 @@ require_once "inc/header.inc.php";
 <p>The computation is still running.</p>
 <?php } else { ?>
 
-<p>Input filename: <?php echo $filename; ?></>
-<?php
-if ($msl) {
-    echo "<p>Minimum sequence length: $msl</p>\n";
-}
-if ($search_type && settings::get_diamond_enabled()) {
-    echo "<p>Search type: $search_type</p>\n";
-}
-?>
 
-<?php if ($parent_id) { ?>
-<p>Parent Job is
-    <a href="stepc.php?id=<?php echo "$parent_id&key=$parent_key"; ?>"><button type="button" class="mini"># <?php echo $parent_id; ?></button></a></p>
-<?php } else { ?>
-<p>The markers have been computed.</p>
-<?php } ?>
+<h3>Job Information</h3>
 
-<table width="100%" border="1">
+<table class="pretty" style="border-top: 1px solid #aaa">
+    <tbody>
+<?php echo $table_string; ?>
+    </tbody>
+</table>
+<!--<div style="display: flex; justify-content: flex-end"><a href="stepc.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Info</button></a></div>-->
+<div style="float:left"><button type="button" class="mini" id="job-stats-btn">Show Job Statistics</button></div>
+<div style="float:right"><a href="stepc.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Info</button></a></div>
+<div style="clear:both"></div>
+
+<h3>Downloadable Data</h3>
+
+<table class="pretty">
     <thead>
         <th></th>
         <th>File</th>
         <th>Size</th>
     </thead>
     <tbody>
+<?php
+foreach ($dl_data as $dl_row) {
+    $type = $dl_row[0];
+    $desc = $dl_row[1];
+    $size = $dl_row[2] ? $dl_row[2] . " MB" : "--";
+    echo <<<HTML
         <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=ssn-c&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
-            <td>SSN with marker results</td>
-            <td style='text-align:center;'><?php echo $ssnFileSize; ?> MB</td>
+            <td style='text-align:center;'><a href="download_files.php?type=$type&$id_query_string"><button class="mini">Download</button></a></td>
+            <td>$desc</td>
+            <td style='text-align:center;'>$size</td>
         </tr>
-<?php if ($zipFileExists) { ?>
-        <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=ssn-c-zip&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
-            <td>SSN with marker results (ZIP)</td>
-            <td style='text-align:center;'><?php echo $ssnZipFileSize; ?> MB</td>
-        </tr>
-<?php } ?>
-        <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=markers&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
-            <td>Marker data</td>
-            <td style='text-align:center;'>1 MB</td>
-        </tr>
-        <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=cdhit&<?php echo $id_query_string; ?>"><button class="mini">Download</button></a></td>
-            <td>CD-HIT mapping file (as table)</td>
-            <td style='text-align:center;'>1 MB</td>
-        </tr>
+HTML;
+}
+?>
     </tbody>
 </table>
 
-<?php /*
-<p><a href="download_files.php?type=ssn-c&<?php echo $id_query_string; ?>">Download SSN with markers identified.</a></p>
-
-<?php if ($zipFileExists) { ?>
-<p><a href="download_files.php?type=ssn-c&<?php echo $id_query_string; ?>">Download SSN with markers identified.</a></p>a
-<?php } ?>
-
-<p><a href="download_files.php?type=markers&<?php echo $id_query_string; ?>">Download marker file.</a></p>
-
-<p><a href="download_files.php?type=cdhit&<?php echo $id_query_string; ?>">Download CD-HIT mapping file (formatted as a table).</a></p>
- */ ?>
 
 <h3>Select Metagenomes from the Human Microbiome Project</h3>
 
@@ -302,7 +348,14 @@ $(document).ready(function() {
             return value.length > 3;
         }
     });
-//    $("#hmp-id").chosen({width: "35%", placeholder_text_multiple: "Click to Select Metagenomes"});
+    $("#job-stats-btn").click(function() {
+        $(".stats-row").toggle();
+        if ($(this).text() == "Show Job Statistics")
+            $(this).text("Hide Job Statistics");
+        else
+            $(this).text("Show Job Statistics");
+    });
+    $(".stats-row").hide();
 });
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>

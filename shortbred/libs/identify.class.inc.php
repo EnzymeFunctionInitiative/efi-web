@@ -7,20 +7,37 @@ require_once("job_shared.class.inc.php");
 // ShortBRED-Identify
 class identify extends job_shared {
 
-    private $filename;
-
     private $is_debug = false;
     private $loaded = false;
     private $db;
     private $error_message = "";
-    private $min_seq_len = "";
+    //$search_type is defined in job_shared
+    private $cdhit_sid = "";
+    private $ref_db = "";
+    private $cons_thresh = "";
+    private $diamond_sens = "";
+    private $db_mod = "";
 
 
-    public function get_filename() {
-        return $this->filename;
+    public function get_cdhit_sid() {
+        $sid = $this->cdhit_sid;
+        if ($sid)
+            return $sid;
+        else
+            return job_shared::DEFAULT_CDHIT_SID;
     }
-    public function get_min_seq_len() {
-        return $this->min_seq_len;
+    public function get_ref_db() {
+        return $this->ref_db;
+    }
+    public function get_consensus_threshold() {
+        return $this->cons_thresh;
+    }
+    public function get_diamond_sensitivity() {
+        $sens = $this->diamond_sens;
+        if ($sens)
+            return $sens;
+        else
+            return ""; //job_shared::DEFAULT_DIAMOND_SENSITIVITY;
     }
 
 
@@ -33,8 +50,8 @@ class identify extends job_shared {
         $this->load_job();
     }
 
-    public static function create($db, $email, $tmp_filename, $filename, $min_seq_len, $search_type) {
-        $info = self::create_shared($db, $email, $tmp_filename, $filename, "", false, $min_seq_len, $search_type);
+    public static function create($db, $email, $tmp_filename, $filename, $create_params) {
+        $info = self::create_shared($db, $email, $tmp_filename, $filename, "", false, $create_params);
         return $info;
     }
 
@@ -43,7 +60,7 @@ class identify extends job_shared {
     //
     // $parent_id > 0 and $true_copy = false creates a new job based
     // on the parent job, but re-runs parts of the identify step with the new SSN. 
-    private static function create_shared($db, $email, $tmp_filename, $filename, $parent_id, $true_copy, $min_seq_len, $search_type) {
+    private static function create_shared($db, $email, $tmp_filename, $filename, $parent_id, $true_copy, $create_params) {
 
         // Sanitize filename
         $filename = preg_replace("([^a-zA-Z0-9\-_\.])", '', $filename);
@@ -63,12 +80,53 @@ class identify extends job_shared {
             $insert_array['identify_parent_id'] = $parent_id;
 
         $parms_array = array('identify_filename' => $filename);
-        if ($min_seq_len)
-            $parms_array['identify_min_seq_len'] = $min_seq_len;
-        if ($search_type) {
-            $search_type = strtolower($search_type);
-            if ($search_type == "diamond" || $search_type == "blast")
+
+        if (isset($create_params['min_seq_len'])) {
+            $min_seq_len = $create_params['min_seq_len'];
+            if (is_numeric($min_seq_len) && $min_seq_len >= 0 && $min_seq_len < 1000000000)
+                $parms_array['identify_min_seq_len'] = $create_params['min_seq_len'];
+        }
+
+        if (isset($create_params['max_seq_len'])) {
+            $max_seq_len = $create_params['max_seq_len'];
+            if (is_numeric($max_seq_len) && $max_seq_len >= 0 && $max_seq_len < 1000000000)
+                $parms_array['identify_max_seq_len'] = $create_params['max_seq_len'];
+        }
+
+        if (isset($create_params['search_type'])) {
+            $search_type = strtolower($create_params['search_type']);
+            if ($search_type == "diamond" || $search_type == "blast" || $search_type == "v2-blast")
                 $parms_array['identify_search_type'] = $search_type;
+        }
+
+        if (isset($create_params['ref_db'])) {
+            $ref_db = $create_params['ref_db'];
+            if ($ref_db == job_shared::REFDB_UNIPROT || $ref_db == job_shared::REFDB_UNIREF50 || $ref_db == job_shared::REFDB_UNIREF90) 
+                $parms_array['identify_ref_db'] = $create_params['ref_db'];
+        }
+
+        if (isset($create_params['cdhit_sid'])) {
+            $cdhit_sid = $create_params['cdhit_sid'];
+            if (is_numeric($cdhit_sid) && $cdhit_sid >= 10 && $cdhit_sid <= 100)
+                $parms_array['identify_cdhit_sid'] = $cdhit_sid;
+        }
+
+        if (isset($create_params['cons_thresh'])) {
+            $cons_thresh = $create_params['cons_thresh'];
+            if (is_numeric($cons_thresh) && $cons_thresh >= 10 && $cons_thresh <= 100)
+                $parms_array['identify_cons_thresh'] = $cons_thresh;
+        }
+
+        if (isset($create_params['diamond_sens'])) {
+            $diamond_sens = $create_params['diamond_sens'];
+            if ($diamond_sens == "normal" || $diamond_sens == "sensitive" || $diamond_sens == "more-sensitive")
+                $parms_array['identify_diamond_sens'] = $diamond_sens;
+        }
+
+        if (isset($create_params['db_mod'])) {
+            $db_mod = $create_params['db_mod'];
+            if (preg_match("/^[A-Z0-9]{4}/", $db_mod))
+                $parms_array['identify_db_mod'] = $db_mod;
         }
 
         $insert_array['identify_params'] = global_functions::encode_object($parms_array);
@@ -177,11 +235,17 @@ class identify extends job_shared {
         $queue = settings::get_normal_queue();
         $memQueue = settings::get_memory_queue();
         $sb_module = settings::get_shortbred_blast_module();
-        if ($this->search_type == "diamond")
+        $search_type = $this->get_search_type();
+        $min_seq_len = $this->get_min_seq_len();
+        $max_seq_len = $this->get_max_seq_len();
+        if ($search_type == "diamond" || $search_type == "v2-blast")
             $sb_module = settings::get_shortbred_diamond_module();
 
         $exec = "source /etc/profile\n";
-        $exec .= "module load " . settings::get_efidb_module() . "\n";
+        if ($this->db_mod)
+            $exec .= "module load " . $this->db_mod . "\n";
+        else
+            $exec .= "module load " . settings::get_efidb_module() . "\n";
         $exec .= "module load $sb_module\n";
         $exec .= "$script";
         $exec .= " -ssn-in $target_ssn_path";
@@ -192,14 +256,24 @@ class identify extends job_shared {
         $exec .= " -np " . settings::get_num_processors();
         $exec .= " -queue $queue";
         $exec .= " -mem-queue $memQueue";
-        if ($this->search_type == "diamond")
-            $exec .= " -search-type " . $this->search_type;
+        if ($search_type == "diamond")
+            $exec .= " -search-type " . $search_type;
         if ($sched)
             $exec .= " -scheduler $sched";
         if ($parent_id)
             $exec .= " -parent-job-id $parent_id";
-        if ($this->min_seq_len)
-            $exec .= " -min-seq-len " . $this->min_seq_len;
+        if ($min_seq_len)
+            $exec .= " -min-seq-len " . $min_seq_len;
+        if ($max_seq_len)
+            $exec .= " -max-seq-len " . $max_seq_len;
+        if ($this->ref_db)
+            $exec .= " -ref-db " . $this->ref_db;
+        if ($this->cdhit_sid)
+            $exec .= " -cdhit-sid " . $this->cdhit_sid;
+        if ($this->cons_thresh)
+            $exec .= " -cons-thresh " . $this->cons_thresh;
+        if ($this->diamond_sens)
+            $exec .= " -diamond-sens " . $this->diamond_sens;
 
         if ($this->is_debug) {
             print("Job ID: $id\n");
@@ -245,14 +319,36 @@ class identify extends job_shared {
         }
 
         $result = $result[0];
-
-        $this->load_job_shared($result);
+        
         $params = global_functions::decode_object($result['identify_params']);
+
+        if (isset($result['identify_parent_id'])) {
+            $sql = "SELECT identify_params FROM identify WHERE identify_id='" . $result['identify_parent_id'] . "'";
+            $parent_result = $this->db->query($sql);
+            $params2 = global_functions::decode_object($parent_result[0]['identify_params']);
+            $params = array_merge($params2, $params);
+        }
+
+        $this->load_job_shared($result, $params);
 
         $this->set_email($result['identify_email']);
         $this->set_key($result['identify_key']);
-        $this->filename = $params['identify_filename'];
-        $this->min_seq_len = isset($params['identify_min_seq_len']) ? $params['identify_min_seq_len'] : "";
+        $this->ref_db = isset($params['identify_ref_db']) ? $params['identify_ref_db'] : "";
+        $this->cdhit_sid = isset($params['identify_cdhit_sid']) ? $params['identify_cdhit_sid'] : "";
+        $this->cons_thresh = isset($params['identify_cons_thresh']) ? $params['identify_cons_thresh'] : "";
+        $this->diamond_sens = ($this->get_search_type() == "diamond" && isset($params['identify_diamond_sens'])) ? $params['identify_diamond_sens'] : "";
+        
+        $db_mod = isset($params['identify_db_mod']) ? $params['identify_db_mod'] : "";
+        if ($db_mod) {
+            // Get the actual module not the alias.
+            $mod_info = global_settings::get_database_modules();
+            foreach ($mod_info as $mod) {
+                if ($mod[1] == $db_mod) {
+                    $db_mod = $mod[0];
+                }
+            }
+        }
+        $this->db_mod = $db_mod;
 
         $this->loaded = true;
         return true;
@@ -260,6 +356,7 @@ class identify extends job_shared {
 
 
     public function check_if_job_is_done() {
+
         $id = $this->get_id();
         $out_dir = settings::get_output_dir() . "/" . $id;
         $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
@@ -344,6 +441,17 @@ class identify extends job_shared {
         return $plain_email;
     }
 
+    protected function get_email_cancelled_subject() {
+        $subject = "EFI/ShortBRED - Job cancelled";
+        return $subject;
+    }
+
+    protected function get_email_cancelled_message() {
+        $plain_email = "";
+        $plain_email .= "The ShortBRED-Identify job was cancelled." . $this->eol . $this->eol;
+        return $plain_email;
+    }
+
     protected function get_email_failure_subject() {
         $subject = "EFI/ShortBRED - Computation failed";
         return $subject;
@@ -378,7 +486,7 @@ class identify extends job_shared {
 
     protected function get_job_info() {
         $info = parent::get_job_info();
-        $message = "Uploaded Filename: " . $this->filename . $this->eol;
+        $message = "Uploaded Filename: " . $this->get_filename() . $this->eol;
         return $info;
     }
 
@@ -389,26 +497,23 @@ class identify extends job_shared {
 
 
 
-    public function get_marker_file_path() {
-        $id = $this->get_id();
-        $parent_id = $this->get_parent_id();
-        if ($parent_id)
-            $id = $parent_id;
+    public function get_results_path($parent_id = 0) {
+        $id = $parent_id > 0 ? $parent_id : $this->get_id();
         $out_dir = settings::get_output_dir() . "/" . $id;
         $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
-        return "$res_dir/markers.faa";
-    }
-
-    public function get_results_path() {
-        $id = $this->get_id();
-        $out_dir = settings::get_output_dir() . "/" . $id;
-        $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
+        //TODO: get rid of this test in production
+        if (!file_exists($res_dir))
+            $res_dir = $out_dir . "/" . settings::get_rel_output_dir_legacy();
         return $res_dir;
     }
 
     public function get_ssn_http_path() {
-        $id = $this->get_id();
+        $test_path = settings::get_output_dir() . "/" . $this->identify_id . "/" . settings::get_rel_output_dir();
         $res_dir = settings::get_rel_output_dir();
+        //TODO: remove for production
+        if (!file_exists($test_path))
+            $res_dir = settings::get_rel_output_dir_legacy();
+        $id = $this->get_id();
         return "$id/$res_dir/" . $this->get_ssn_name();
     }
     
@@ -417,15 +522,8 @@ class identify extends job_shared {
         return $path;
     }
 
-    public function get_cdhit_file_path() {
-        $id = $this->get_id();
-        $out_dir = settings::get_output_dir() . "/" . $id;
-        $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
-        return "$res_dir/cdhit.txt";
-    }
-
     private function get_ssn_name() {
-        return self::make_ssn_name($this->get_id(), $this->filename);
+        return self::make_ssn_name($this->get_id(), $this->get_filename());
     }
 
     public static function make_ssn_name($id, $filename) {
@@ -441,23 +539,17 @@ class identify extends job_shared {
 
     public function get_full_ssn_path() {
         $uploads_dir = settings::get_uploads_dir();
-        return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->filename, PATHINFO_EXTENSION);
+        return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->get_filename(), PATHINFO_EXTENSION);
     }
 
     public function get_output_ssn_file_size() {
         $path = $this->get_output_ssn_path();
-        if (file_exists($path))
-            return filesize($path);
-        else
-            return 0;
+        return self::get_web_filesize($path);
     }
 
     public function get_output_ssn_zip_file_size() {
         $path = $this->get_output_ssn_zip_file_path();
-        if (file_exists($path))
-            return filesize($path);
-        else
-            return 0;
+        return self::get_web_filesize($path);
     }
 
     public function get_output_ssn_zip_file_path() {
@@ -468,6 +560,68 @@ class identify extends job_shared {
     protected function get_table_name() {
         return job_types::Identify;
     }
+    
+    public function get_metadata() {
+
+        $parent_metadata = array();
+
+        $parent_id = $this->get_parent_id();
+        if ($parent_id) {
+            $res_dir = $this->get_results_path($parent_id);
+            $meta_file = "$res_dir/metadata.tab";
+            if (file_exists($meta_file))
+                $parent_metadata = $this->get_metadata_shared($meta_file);
+        }
+
+        $job_metadata = array();
+
+        $res_dir = $this->get_results_path();
+        $meta_file = "$res_dir/metadata.tab";
+        if (file_exists($meta_file))
+            $job_metadata = $this->get_metadata_shared($meta_file);
+
+        foreach ($job_metadata as $idx => $data) {
+            $parent_metadata[$idx] = $data;
+        }
+
+        return $parent_metadata;
+    }
+
+    public function get_metadata_swissprot_singles_file_path() {
+        $res_dir = $this->get_results_path();
+        return $this->get_metadata_swissprot_singles_file_shared($res_dir);
+    }
+
+    public function get_metadata_swissprot_clusters_file_path() {
+        $res_dir = $this->get_results_path();
+        return $this->get_metadata_swissprot_clusters_file_shared($res_dir);
+    }
+
+    public function get_metadata_cluster_sizes_file_path() {
+        $res_dir = $this->get_results_path();
+        return $this->get_metadata_cluster_sizes_file_shared($res_dir);
+    }
+    
+    public function get_cdhit_file_path() {
+        $res_dir = $this->get_results_path();
+        return $this->get_cdhit_file_shared($res_dir);
+    }
+
+    public function get_marker_file_path() {
+        $id = $this->get_id();
+        $parent_id = $this->get_parent_id();
+        if ($parent_id)
+            $id = $parent_id;
+
+        $out_dir = settings::get_output_dir() . "/" . $id;
+        $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
+        //TODO: get rid of this test in production
+        if (!file_exists($res_dir))
+            $res_dir = $out_dir . "/" . settings::get_rel_output_dir_legacy();
+
+        return $this->get_marker_file_shared($res_dir);
+    }
+
 }
 
 ?>

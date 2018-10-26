@@ -24,8 +24,8 @@ class db {
 
 	////////////////Public Functions///////////
 
-	public function __construct($host,$database,$username,$password) {
-		$this->open($host,$database,$username,$password);
+	public function __construct($host,$database,$username,$password,$port=-1) {
+		$this->open($host,$database,$username,$password,$port);
 
 
 	}
@@ -42,7 +42,9 @@ class db {
 	//$password - password of the username
 	//$port - mysql port, defaults to 3306
 	//opens a connect to the database
-	public function open($host,$database,$username,$password,$port = 3306) {
+    public function open($host,$database,$username,$password,$port=-1) {
+        if ($port < 0)
+            $port = 3306;
 		//Connects to database.
 		$this->link = mysql_connect($host .":" . $port,$username,$password);
 		if ($this->link) {
