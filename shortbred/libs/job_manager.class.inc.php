@@ -354,10 +354,8 @@ class job_manager {
         $isCompleted = false;
         if ($status == __FAILED__ || $status == __RUNNING__ || $status == __CANCELLED__) {
             $comp = $status;
-        } elseif (!$comp || substr($comp, 0, 4) == "0000") {
-            $comp = $status;
-            if ($comp == __NEW__)
-                $comp = "PENDING";
+        } elseif (!$comp || substr($comp, 0, 4) == "0000" || $status == __NEW__) {
+            $comp = "PENDING";
         } else {
             $comp = self::format_short_date($comp);
             $isCompleted = true;
