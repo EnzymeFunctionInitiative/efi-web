@@ -265,6 +265,10 @@ div.beta h4 {
 //    background-color:#333333;
 //}
 
+.link-cursor {
+    cursor: pointer;
+}
+
 td.button-col {
     width: 25%;
 }

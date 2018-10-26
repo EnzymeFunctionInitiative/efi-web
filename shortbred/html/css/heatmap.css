@@ -21,15 +21,14 @@ form {
 }
 
 #filter-box {
-    overflow: hidden;
-    display: none;
-    position: fixed;
-    bottom: 0px;
-    left: 0px;
+//    overflow: hidden;
+//    display: none;
+//    position: fixed;
+//    bottom: 0px;
+//    left: 0px;
     margin: 0;
-    width: 100%;
+    width: calc(100% - 20px);
     padding-left: 9px;
-    padding-right: 0;
     padding-top: 10px;
     padding-bottom: 10px;
     background-color: white;
@@ -45,6 +44,15 @@ form {
 #filter-bs-group div {
     margin-bottom: 5px;
     margin-top: 10px;
+}
+
+input.min-max {
+    width: 50px;
+}
+
+input.min-max-default {
+    color: #999;
+    font-style: italic;
 }
 
 

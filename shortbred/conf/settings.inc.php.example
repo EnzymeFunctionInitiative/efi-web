@@ -23,6 +23,7 @@ define("__METAGENOME_DB_LIST__","");
 //
 // FILE INFO
 define("__RELATIVE_OUTPUT_DIR__","");
+define("__LEGACY_RELATIVE_OUTPUT_DIR__","");
 define("__QUANTIFY_REL_OUTPUT_DIR__","");
 define("__VALID_FILE_TYPE__","xgmml zip");
 define("__HTTP_OUTPUT_DIR__","results");

@@ -12,24 +12,28 @@
 
 <div id="plot"></div>
 
-<div id="filter-box">
-<div>Show specific cluster numbers: <input type="text" class="form-input" id="cluster-filter" /></div>
-<div>Minimum abundance to display: <input type="text" class="form-input" id="lower-thresh" /></div>
-<div>Maximum abundance to display: <input type="text" class="form-input" id="upper-thresh" /></div>
-<div><input type="checkbox" name="mean-cb" value="1" class="form-cb" id="mean-cb"><label for="mean-cb">Use mean</label></div>
-<div><input type="checkbox" name="hits-only-cb" value="1" class="form-cb" id="hits-only-cb"><label for="hits-only-cb">Display hits only</label></div>
-<div class="filter-bs-group" id="filter-bs-group">
-    <div><b>Body Sites:</b></div>
+<div id="filter-box" style="display: none">
+<div style="float: left">Show specific clusters: <input type="text" class="form-input" id="cluster-filter" /></div>
+<div style="float: left; margin-left: 25px">
+    Abundance to display: <input type="text" class="form-input min-max min-max-default" id="min" value="min" /> to
+    <input type="text" class="form-input min-max min-max-default" id="max" value="max" />
+</div>
+<div style="float: left; margin-left: 25px">
+    <input type="checkbox" name="mean-cb" value="1" class="form-cb" id="mean-cb"><label for="mean-cb">Use mean</label>
+    <input type="checkbox" name="hits-only-cb" value="1" class="form-cb" id="hits-only-cb"><label for="hits-only-cb">Display hits only</label>
+</div>
+<div style="clear: both" class="filter-bs-group" id="filter-bs-group">
+    <b>Body Sites:</b>
 </div>
 <div>
     <button type="button" class="small dark" id="filter-btn">Apply Filter</button>
     <button type="button" class="small dark" id="reset-btn">Reset Filter</button>
 </div>
-<div id="filter-hide"><button class="small light" type="button">Hide Filters</button></div>
+<!--<div id="filter-hide"><button class="small light" type="button">Hide Filters</button></div>-->
 </div>
-<div id="filter-show"><button class="small dark" type="button">Show Filters</button></div>
+<!--<div id="filter-show"><button class="small dark" type="button">Show Filters</button></div>-->
 
-<div style="margin-top:50px;width:100%;position:fixed;bottom:0;height:50px;margin-bottom:100px">
+<div style="margin-top:50px;width:100%;position:fixed;bottom:0;height:50px;margin-bottom:150px">
     <i id="progress-loader" class="fas fa-sync black fa-spin fa-4x fa-fw hidden-placeholder"></i>
 </div>
 
@@ -64,6 +68,7 @@ $(document).ready(function() {
                 '</label>');
             $("#filter-bs-" + i).click(function() { app.doFormPost(); });
         }
+        $("#filter-box").show();
     };
 
     app.doFormPost(bodySiteFn);
@@ -86,9 +91,27 @@ $(document).ready(function() {
         app.doFormPost();
     });
     $("#reset-btn").click(function() {
+        $("#cluster-filter").val("");
+        $("#min").val("min").addClass("min-max-default");
+        $("#max").val("max").addClass("min-max-default");
+        $(".form-cb").prop("checked", false);
+        $(".filter-bs-item").prop("checked", false);
         app.resetFilter();
     });
 
+    $(".min-max").focus(function() {
+        if (this.value == "min" || this.value == "max")
+            this.value = "";
+        $(this).removeClass("min-max-default");
+    }).focusout(function() {
+        if (this.value == "") {
+            this.value = this.id == "min" ? "min" : "max";
+            $(this).addClass("min-max-default");
+        } else {
+        }
+    });
+
+    /*
     $("#filter-show").click(function() {
         $("#filter-box").fadeIn();
     });
@@ -96,7 +119,7 @@ $(document).ready(function() {
     $("#filter-hide").click(function() {
         $("#filter-box").fadeOut();
     });
-
+     */
 });
 </script>
 

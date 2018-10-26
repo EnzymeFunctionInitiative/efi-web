@@ -4,6 +4,10 @@ require_once("../../libs/global_settings.class.inc.php");
 
 class settings extends global_settings {
 
+    public static function get_rel_output_dir_legacy() {
+        return __LEGACY_RELATIVE_OUTPUT_DIR__;
+    }
+
     public static function get_identify_script() {
         return __IDENTIFY_SCRIPT__;
     }
