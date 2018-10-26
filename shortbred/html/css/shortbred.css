@@ -336,30 +336,6 @@ textarea.options
     width: 150px;
 }
 
-/* TABLE *************************************************************************************************************/
-
-table.pretty {
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #aaa;
-    border-right: 1px solid #aaa;
-    width: 100%;
-}
-
-table.pretty td, th {
-    border-left: 1px solid #aaa;
-    margin: 0;
-    padding: 7px;
-}
-
-table.pretty th {
-    background-color: #bbb;
-}
-
-table.pretty tr:nth-of-type(even) td {
-    background-color: #eee;
-}
-
 
 /* FORM INPUT */
 

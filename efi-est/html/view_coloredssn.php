@@ -84,7 +84,7 @@ else {
     Generation Summary Table
     <a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=" . $_GET['key'] . "&as-table=1" ?>'><button class='mini'>Download</button></a>
 </p>
-<table width="100%" border="1">
+<table width="100%" class="pretty">
 <?php echo $table_string ?>
 </table>
 
@@ -93,7 +93,7 @@ else {
 <hr>
 
 <h3>Data File Download</h3>
-<table width="100%" border="1">
+<table width="100%" class="pretty">
 <tr>
     <td>Colored SSN</td>
     <td>
