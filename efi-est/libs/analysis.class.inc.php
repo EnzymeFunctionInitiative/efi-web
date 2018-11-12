@@ -483,6 +483,7 @@ class analysis {
                 $exec .= "-filter " . $this->get_filter() . " ";
                 $exec .= "-title " . $this->get_name() . " ";
                 $exec .= "-minval " . $this->get_evalue() . " ";
+                $exec .= "-maxfull " . functions::get_maximum_number_ssn_nodes() . " ";
                 $exec .= "-tmp " . $relative_output_dir . " ";
                 $exec .= "-job-id " . $this->get_generate_id() . " ";
                 $exec .= "-queue " . functions::get_analyse_queue() . " ";
