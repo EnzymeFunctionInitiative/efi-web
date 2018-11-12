@@ -58,6 +58,8 @@ define("__DEFAULT_BLAST_SEQ__",5000);
 
 define("__MAX_FULL_FAMILY_COUNT__",30000);
 
+define("__MAX_NUM_SNN_NODES__",10000000);
+
 define("__ENABLE_A__",true);
 define("__ENABLE_B__",true);
 define("__ENABLE_C__",true);
