@@ -50,6 +50,7 @@ include("global_nav.inc.php");
         <div class="header">
             <div class="header_logo">
                 <a href="<?php echo $TopLevelUrl; ?>"><img src="<?php echo $SiteUrlPrefix; ?>/images/efi_logo.png" width="255" height="77" alt="Enzyme Function Initiative Logo"></a>
+                <a href="http://enzymefunction.org"><img src="<?php echo $SiteUrlPrefix; ?>/images/illinois_igb_sm.png" class="i_logo_small" height="75" alt="Institute for Genomic Biology at University of Illinois at Urbana-Champaign logo"></a>
             </div>
         </div>
 
