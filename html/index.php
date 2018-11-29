@@ -7,42 +7,86 @@ require_once("inc/header.inc.php");
 
 ?>
 
+
 <p style="margin-top: 30px">
-This website contains a collection of tools for creating and interacting with sequence similarity
+This website contains a collection of webtools for creating and interacting with sequence similarity
 networks (SSNs) and genome neighborhood networks (GNNs).
 These tools originated in the Enzyme Function Initiative, a NIH-funded research
 project to develop a sequence / structure-based strategy for facilitating discovery of <i>in vitro</i>
 enzymatic and <i>in vivo</i> metabolic / physiological functions of unknown enzymes discovered in
-genome projects.  From the initial sequence- or PFam-family-based SSN creation tool, this website has
-grown to include the following capabilities:
+genome projects.
 </p>
 
-<ul>
-    <li>SSN creation from <a href="/efi-est/#optionAtab">sequence BLAST</a>, 
-        <a href="/efi-est/#optionBtab">PFam or InterPro famil(ies)</a>,
-        <a href="/efi-est/#optionCtab">FASTA sequences</a>, and
-        <a href="/efi-est/#optionDtab">UniProt and/or NCBI protein accession IDs</a>.
-    </li>
-    <li><a href="/efi-est/#colorssntab">Existing SSN coloring</a>.</li>
-    <li>GNN creation from <a href="/efi-gnt/#create">uploaded SSNs</a>.</li>
-    <li>Genome neighborhood diagrams from
-        <a href="/efi-gnt/#diagrams">sequence BLAST, protein sequence ID lookup, or
-        FASTA sequence lookup</a>.
-</ul>
+<p>
+The Enzyme Function Initiative tools are hosted at the <a href="http://igb.illinois.edu">Carl R.
+Woese Institute for Genomic Biology (IGB)</a>, at the <a href="http://illinois.edu">University of
+Illinois at Urbana-Champaign</a>.
+The development of these tools is headed by John A. Gerlt (PI), aided by scientist R&eacute;mi Zallot
+and software engineers Nils Oberg, Dan Davidson and David Slater.  The computational infrastracture
+is supported by the <a href="https://www.igb.illinois.edu/facilities-services/computer-network">Computer
+and Network Resource Group</a> at IGB.
+</p>
 
-<p></p>
+<div style="margin:auto; with:100%; text-align: center;">
+<img src="images/jg.jpg" height="165">
+<img src="images/rz.jpg" height="165">
+<img src="images/no.jpg" height="165">
+<img src="images/dd.jpg" height="165">
+</div>
 
+<p style="margin-top: 30px">
+<table border="0" class="nav-blocks">
+<tr>
+    <td>
+        <a href="efi-est/">
+            <span class="block-hdr">SSN Creation</span>
+            <img src="images/about_ssn.png" width="450">
+            SSN creation from sequences, PFam or InterPro famil(ies), and
+            UniProt and/or NCBI protein accession IDs.
+        </a>
+<!--        SSN creation from sequence BLAST, PFam or InterPro famil(ies), FASTA sequences, and
+        UniProt and/or NCBI protein accession IDs.</a>-->
+    </td>
+    <td>
+        <a href="efi-gnt/">
+            <span class="block-hdr">GNN Creation</span>
+            <img src="images/about_gnn.png" width="450">
+            GNN creation from sequence similarity networks.
+        </a>
+    </td>
+</tr>
+<tr>
+    <td>
+        <a href="efi-gnt/">
+            <span class="block-hdr">Genome neighborhood diagrams</span>
+            <img src="images/about_gnd.png" width="450">
+            Genome neighborhood diagrams from sequences, sequence IDs, or GNNs.</a>
+    </td>
 <?php if (isset($IncludeShortBred) && $IncludeShortBred) { ?>
-<p style="margin-bottom: 60px">
-In addition to the EFI utilities, this website also includes
-<a href="/shortbred">high-level access to the ShortBRED program</a> developed by
-<a href="https://huttenhower.sph.harvard.edu/shortbred">the Huttenhower Lab at the Harvard T.H.
-Chan School of Public Health</a>.
-The version of ShortBRED available at this website accepts a SSN as input and develops peptide
-markers. The markers can be utilized in additional computations (also available on this website)
-to quantify relative abundances of functional gene families in human metagenomes.
-</p>
+    <td>
+        <a href="shortbred/">
+            <span class="block-hdr">Functional Profiling</span>
+            <img src="images/about_heatmap.png" width="450">
+            Computationally-guided functional profiling using ShortBRED and the CGFP tools from
+            the Balskis and Huttenhower Labs at Harvard University.
+        </a>
+    </td>
 <?php } ?>
+</tr>
+</table>
+
+
+<p style="margin-bottom: 60px">
+These webtools use <a href="https://blast.ncbi.nlm.nih.gov/Blast.cgi">NCBI BLAST</a> and
+<a href="http://weizhongli-lab.org/cd-hit/">CD-HIT</a> to create SSNs and GNNs.  The computationally-guided
+functional profiling tool uses the CGFP programs from the Balskis Lab
+(<a href="https://bitbucket.org/biobakery/cgfp/src">https://bitbucket.org/biobakery/cgfp/src</a>)
+and ShortBRED from the Huttenhower Lab
+(<a href="http://huttenhower.sph.harvard.edu/shortbred">http://huttenhower.sph.harvard.edu/shortbred</a>).
+The data used originate from the <a href="https://www.uniprot.org/">UniProt</a> database and the
+<a href="https://www.ebi.ac.uk/interpro/">InterPro</a> and <a href="https://www.ebi.ac.uk/ena">ENA</a>
+databases from EMBL-EBI.
+</p>
 
 
 <?php require_once("inc/footer.inc.php"); ?>
