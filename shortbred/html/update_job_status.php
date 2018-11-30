@@ -6,6 +6,7 @@ require_once("../libs/job_cancels.class.inc.php");
 $is_error = false;
 $the_id = "";
 $q_id = "";
+$job_obj = false;
 
 if (isset($_POST["id"]) && is_numeric($_POST["id"]) && isset($_POST["key"])) {
     $the_id = $_POST["id"];
@@ -23,20 +24,24 @@ if (isset($_POST["id"]) && is_numeric($_POST["id"]) && isset($_POST["key"])) {
     }
 }
 
+$request_type = isset($_POST["rt"]) ? $_POST["rt"] : false;
 
 $result = array("valid" => false);
 
-if (!$is_error) {
-    $pbs_num = $job_obj->get_pbs_number();
-    $status = $job_obj->get_status();
-    if ($pbs_num) { 
-        job_cancels::request_job_cancellation($db, $pbs_num);
+if (!$is_error && $request_type !== false && $job_obj !== false) {
+    if ($request_type == "c") { // cancel
+        $pbs_num = $job_obj->get_pbs_number();
+        $status = $job_obj->get_status();
+        if ($pbs_num) { 
+            job_cancels::request_job_cancellation($db, $pbs_num);
+        }
+        $job_obj->mark_job_as_cancelled();
+    } elseif ($request_type == "a") { // archive
+        $job_obj->mark_job_as_archived();
     }
-    $job_obj->mark_job_as_cancelled();
     $result["valid"] = true;
 }
 
 echo json_encode($result);
-
 
 ?>

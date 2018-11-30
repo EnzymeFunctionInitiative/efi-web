@@ -183,17 +183,40 @@ class functions extends global_functions {
         }
     }
 
-    public static function get_est_job_info($db, $gnn_id) {
-
-        $sql = "SELECT gnn_source_id FROM gnn WHERE gnn_id = $gnn_id";
+    public static function verify_gnt_job($db, $gnn_id, $gnn_key) {
+        $sql = "SELECT gnn_filename, gnn_email FROM gnn WHERE gnn_id = $gnn_id AND gnn_key = '$gnn_key'";
         $result = $db->query($sql);
         if ($result)
-            $analysis_id = $result[0]["gnn_source_id"];
+            return array('filename' => $result[0]['gnn_filename'], 'email' => $result[0]['gnn_email']);
+        else
+            return false;
+    }
+
+    public static function get_gnn_key($db, $gnn_id) {
+        $sql = "SELECT gnn_key FROM gnn WHERE gnn_id = $gnn_id";
+        $result = $db->query($sql);
+        if ($result)
+            return $result[0]['gnn_key'];
+        else
+            return false;
+    }
+
+    public static function get_est_job_info_from_gnn_id($db, $gnn_id) {
+
+        $sql = "SELECT gnn_est_source_id FROM gnn WHERE gnn_id = $gnn_id";
+        $result = $db->query($sql);
+        if ($result)
+            $analysis_id = $result[0]["gnn_est_source_id"];
         else
             return false;
 
         if (!$analysis_id)
             return false;
+
+        return self::get_est_job_info_from_est_id($db, $analysis_id);
+    }
+
+    public static function get_est_job_info_from_est_id($db, $analysis_id) {
 
         $est_db = settings::get_est_database();
         $sql = "SELECT analysis.*, generate_key FROM $est_db.analysis " .

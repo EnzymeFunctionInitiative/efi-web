@@ -139,7 +139,8 @@ the <a href="family_list.php">Family Information page</a>.
             <!--<a href="precompute.php"><button type="button" class="mini">Precomputed Option B Jobs</button></a>-->
             <h3>User Jobs</h3>
 <?php 
-    outputJobList($jobs);
+    $allowStatusUpdate = true;
+    outputJobList($jobs, $allowStatusUpdate);
 
     if (count($tjobs)) {
         echo "            <h3>Training Jobs</h3>\n";
@@ -345,7 +346,7 @@ the <a href="family_list.php">Family Information page</a>.
                         When selected, recognized UniProt or Genbank identifiers from FASTA headers are used to retrieve
                         corresponding node attributes from the UniProt database.
                     </div>
-<?php echo ui::make_upload_box("FASTA File", "fasta-file", "progress-bar-fasta", "progress-num-fasta"); ?>
+<?php echo ui::make_upload_box("FASTA File:", "fasta-file", "progress-bar-fasta", "progress-num-fasta"); ?>
                 </div>
 
                     <div>
@@ -422,7 +423,16 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="primary-input">
                     <textarea id="accession-input" name="accession-input"></textarea>
                     <div>
-<?php echo ui::make_upload_box("Accession ID File", "accession-file", "progress-bar-accession", "progress-num-accession"); ?>
+<?php echo ui::make_upload_box("Accession ID File:", "accession-file", "progress-bar-accession", "progress-num-accession"); ?>
+                    </div>
+                    <div id="accession-seq-type-container">
+                        Treat UniProt accession IDs as:
+                        <select id="accession-seq-type">
+                            <option value="uniprot" selected>UniProt IDs</option>
+                            <option value="uniref90">UniRef90 seed sequence IDs</option>
+                            <option value="uniref50">UniRef50 seed sequence IDs</option>
+                        </select>
+                        <a class="question" title="If a list of UniProt accession IDs is provided, this option can be used to specify if the accession IDs are to be treated as UniRef50, UniRef90, or UniProt sequences.">?</a>
                     </div>
                 </div>
 
@@ -610,7 +620,7 @@ the <a href="family_list.php">Family Information page</a>.
 
             <form name="colorSsnForm" id="colorSsnform" method="post" action="">
                 <div class="primary-input">
-<?php echo ui::make_upload_box("SNN to color and analyze (uncompressed or zipped XGMML file)", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
+<?php echo ui::make_upload_box("SNN to color and analyze (uncompressed or zipped XGMML file):", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
                 </div>
 
                 <div>
@@ -789,6 +799,42 @@ the <a href="family_list.php">Family Information page</a>.
                 $(".cb-use-uniref").prop("checked", false);
             }
         });
+        
+        $(".archive-btn").click(function() {
+            var id = $(this).data("id");
+            var key = $(this).data("key");
+            var requestType = "archive";
+            var jobType = "generate";
+
+            $("#archive-confirm").dialog({
+                resizable: false,
+                height: "auto",
+                width: 400,
+                modal: true,
+                buttons: {
+                    "Archive Job": function() {
+                        requestJobUpdate(id, key, requestType, jobType);
+                        $( this ).dialog("close");
+                    },
+                    Cancel: function() {
+                        $( this ).dialog("close");
+                    }
+                }
+            });
+        });
+
+        $("#accession-file").on("change", function(e) {
+            var fileName = '';
+            fileName = e.target.value.split( '\\' ).pop();
+            if (fileName) {
+                if (fileName.includes("UniRef50"))
+                    $("#accession-seq-type").val("uniref50");
+                else if (fileName.includes("UniRef90"))
+                    $("#accession-seq-type").val("uniref90");
+                else if (fileName.includes("UniProt"))
+                    $("#accession-seq-type").val("uniprot");
+            }
+        });
 
     }).tooltip();
 </script>
@@ -822,6 +868,13 @@ SSN utility as well as the EFI-GNT tool.
 <?php */ ?>
 </div>
 
+<div id="archive-confirm" title="Archive the job?" style="display: none">
+<p>
+<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+This job will be permanently removed from your list of jobs.
+</p>    
+</div>
+
 <?php require_once('inc/footer.inc.php'); ?>
 
 <?php
@@ -847,7 +900,7 @@ $ws</select>
 HTML;
 }
 
-function outputJobList($jobs) {
+function outputJobList($jobs, $allowStatusUpdate = false) {
     echo <<<HTML
             <table class="pretty_nested">
                 <thead>
@@ -892,12 +945,16 @@ HTML;
             else
                 $lastBgColor = "#fff";
         }
+
+        $statusUpdateHtml = "";
+        if ($allowStatusUpdate && !$jobs[$i]["is_analysis"])
+            $statusUpdateHtml = "<div style=\"float:right\" class=\"archive-btn\" data-type=\"gnn\" data-id=\"$id\" data-key=\"$key\" title=\"Archive Job\"><i class=\"fas fa-trash-alt\"></i></div>";
         
         echo <<<HTML
                     <tr style="background-color: $lastBgColor">
                         <td>$idText</td>
                         <td $nameStyle>$linkStart${name}$linkEnd</td>
-                        <td>$dateCompleted</td>
+                        <td>$dateCompleted $statusUpdateHtml</td>
                     </tr>
 HTML;
     }

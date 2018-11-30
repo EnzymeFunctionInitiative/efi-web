@@ -114,7 +114,7 @@ class diagram_jobs {
         return $info;
     }
 
-    private static function do_database_create($db, $email, $title, $jobType, $paramsArray, $dbMod) {
+    private static function do_database_create($db, $email, $title, $jobType, $paramsArray) {
         $key = functions::generate_key();
 
         $paramsJson = functions::encode_object($paramsArray);

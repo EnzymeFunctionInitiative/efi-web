@@ -331,7 +331,7 @@ else {
 <table width="100%" class="pretty">
     <?php echo $table_string; ?>
 </table>
-<div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1" ?>'><button class="normal">Download</button></a></div>
+<div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
 <div style="clear: both"></div>
 <?php echo $extra_nodes_string; ?>
 <?php echo $convergence_ratio_string; ?>

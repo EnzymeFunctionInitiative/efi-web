@@ -1,5 +1,7 @@
 <?php 
-require_once '../includes/main.inc.php';
+require_once("../includes/main.inc.php");
+require_once("../../libs/table_builder.class.inc.php");
+require_once("../../libs/ui.class.inc.php");
 
 $message = "";
 if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
@@ -15,14 +17,11 @@ else {
     prettyError404();
 }
 
-
-$isLegacy = is_null($gnn->get_pbs_number());
-
-$baseUrl = settings::get_web_address();
 $gnnId = $gnn->get_id();
 $gnnKey = $gnn->get_key();
+$baseUrl = settings::get_web_address();
 $isMigrated = false;
-$migInfo = functions::get_est_job_info($db, $gnnId);
+$migInfo = functions::get_est_job_info_from_gnn_id($db, $gnnId);
 if ($migInfo !== false) {
     $isMigrated = true;
     $generateId = $migInfo["generate_id"];
@@ -31,22 +30,67 @@ if ($migInfo !== false) {
     $estParams = "id=$generateId&key=$generateKey&analysis_id=$analysisId";
 }
 
+
+
+$tableFormat = "html";
+if (isset($_GET["as-table"])) {
+    $tableFormat = "tab";
+}
+$table = new table_builder($tableFormat);
+
+$metadata = $gnn->get_metadata();
+foreach ($metadata as $row) {
+    if (strpos($row[1], "<a") !== false)
+        $table->add_row_with_html($row[0], $row[1]);
+    else
+        $table->add_row($row[0], $row[1]);
+}
+
+
+$tableString = $table->as_string();
+
+if (isset($_GET["as-table"])) {
+    $tableFilename = functions::safe_filename($gnn->get_filename()) . "_settings.txt";
+    header('Pragma: public');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="' . $tableFilename . '"');
+    header('Content-Length: ' . strlen($tableString));
+    ob_clean();
+    echo $tableString;
+    exit(0);
+}
+
+
+
+
 $ssnFile = $gnn->get_relative_color_ssn();
 $ssnZipFile = $gnn->get_relative_color_ssn_zip_file();
-$ssnFilesize = $gnn->get_color_ssn_filesize();
+$ssnFilesize = format_file_size($gnn->get_color_ssn_filesize());
 $gnnFile = $gnn->get_relative_gnn();
 $gnnZipFile = $gnn->get_relative_gnn_zip_file();
-$gnnFilesize = $gnn->get_gnn_filesize();
+$gnnFilesize = format_file_size($gnn->get_gnn_filesize());
 $pfamFile = $gnn->get_relative_pfam_hub();
 $pfamZipFile = $gnn->get_relative_pfam_hub_zip_file();
-$pfamFilesize = $gnn->get_pfam_hub_filesize();
-$pfamZipFilesize = $gnn->get_pfam_hub_zip_filesize();
-$idDataZip = $gnn->get_relative_cluster_data_zip_file();
-$idDataZipFilesize = $gnn->get_cluster_data_zip_filesize();
+$pfamFilesize = format_file_size($gnn->get_pfam_hub_filesize());
+$pfamZipFilesize = format_file_size($gnn->get_pfam_hub_zip_filesize());
+
+$uniprotIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIPROT);
+$uniprotIdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIPROT));
+$uniref50IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIREF50);
+$uniref50IdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIREF50));
+$uniref90IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIREF90);
+$uniref90IdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIREF90));
+
 $pfamDataZip = $gnn->get_relative_pfam_data_zip_file();
 $pfamDataZipFilesize = $gnn->get_pfam_data_zip_filesize();
 $allPfamDataZip = $gnn->get_relative_all_pfam_data_zip_file();
 $allPfamDataZipFilesize = $gnn->get_all_pfam_data_zip_filesize();
+$splitPfamDataZip = $gnn->get_relative_split_pfam_data_zip_file();
+$splitPfamDataZipFilesize = $gnn->get_split_pfam_data_zip_filesize();
+$allSplitPfamDataZip = $gnn->get_relative_all_split_pfam_data_zip_file();
+$allSplitPfamDataZipFilesize = $gnn->get_all_split_pfam_data_zip_filesize();
 $warningFile = $gnn->get_relative_warning_file();
 $warningFilesize = $gnn->get_warning_filesize();
 $idTableFile = $gnn->get_relative_id_table_file();
@@ -62,15 +106,57 @@ $hubCountFilesize = $gnn->get_hub_count_filesize();
 $hasDiagrams = $gnn->does_job_have_arrows();
 $diagramFile = $gnn->get_relative_diagram_data_file();
 $diagramZipFile = $gnn->get_relative_diagram_zip_file();
-$diagramFileSize = $gnn->get_diagram_data_filesize();
-$diagramZipFileSize = $gnn->get_diagram_zip_filesize();
+$diagramFileSize = format_file_size($gnn->get_diagram_data_filesize());
+$diagramZipFileSize = format_file_size($gnn->get_diagram_zip_filesize());
+$clusterSizesFile = $gnn->get_relative_cluster_sizes_file();
+$clusterSizesFileSize = $gnn->get_cluster_sizes_filesize();
+$swissprotClustersDescFile = $gnn->get_relative_swissprot_desc_file(true);
+$swissprotClustersDescFileSize = $gnn->get_swissprot_desc_filesize(true);
+$swissprotSinglesDescFile = $gnn->get_relative_swissprot_desc_file(false);
+$swissprotSinglesDescFileSize = $gnn->get_swissprot_desc_filesize(false);
 
-// Legacy jobs
-$noMatchesFile = $gnn->get_relative_no_matches_file();
-$noMatchesFilesize = $gnn->get_no_matches_filesize();
-$noNeighborsFile = $gnn->get_relative_no_neighbors_file();
-$noNeighborsFilesize = $gnn->get_no_neighbors_filesize();
+$otherFiles = array();
 
+if ($idTableFile or $pfamDataZip or $splitPfamDataZip or $allPfamDataZip or $allSplitPfamDataZip)
+    array_push($otherFiles, array("Mapping Tables"));
+if ($idTableFile)
+    array_push($otherFiles, array($idTableFile, format_file_size($idTableFilesize), "UniProt ID-Color-Cluster Number"));
+if ($pfamDataZip)
+    array_push($otherFiles, array($pfamDataZip, format_file_size($pfamDataZipFilesize), "Neighbor Pfam domain fusions at specified minimal cooccurrence frequency"));
+if ($splitPfamDataZip)
+    array_push($otherFiles, array($splitPfamDataZip, format_file_size($splitPfamDataZipFilesize), "Neighbor Pfam domains at specified minimal cooccurrence frequency"));
+if ($allPfamDataZip)
+    array_push($otherFiles, array($allPfamDataZip, format_file_size($allPfamDataZipFilesize), "Neighbor Pfam domain fusions at 0% minimal cooccurrence frequencey"));
+if ($allSplitPfamDataZip)
+    array_push($otherFiles, array($allSplitPfamDataZip, format_file_size($allSplitPfamDataZipFilesize), "Neighbor Pfam domains at 0% minimal cooccurrence frequencey"));
+
+if ($uniprotIdDataZip or $uniref50IdDataZip or $uniref90IdDataZip or $fastaZip or $pfamNoneZip)
+    array_push($otherFiles, array("Data Files by Cluster"));
+if ($uniprotIdDataZip)
+    array_push($otherFiles, array($uniprotIdDataZip, format_file_size($uniprotIdDataZipFilesize), "UniProt ID Lists"));
+if ($uniref50IdDataZip)
+    array_push($otherFiles, array($uniref50IdDataZip, format_file_size($uniref50IdDataZipFilesize), "UniRef50 ID Lists"));
+if ($uniref90IdDataZip)
+    array_push($otherFiles, array($uniref90IdDataZip, format_file_size($uniref90IdDataZipFilesize), "UniRef90 ID Lists"));
+if ($fastaZip)
+    array_push($otherFiles, array($fastaZip, format_file_size($fastaZipFilesize), "FASTA Files"));
+if ($pfamNoneZip)
+    array_push($otherFiles, array($pfamNoneZip, format_file_size($pfamNoneZipFilesize), "Neighbors without PFAM assigned"));
+
+if ($warningFile or $coocTableFile or $hubCountFile or $clusterSizesFileSize !== false or $swissprotClustersDescFileSize !== false or $swissprotSinglesDescFileSize !== false)
+    array_push($otherFiles, array("Miscellaneous Files"));
+if ($warningFile)
+    array_push($otherFiles, array($warningFile, format_file_size($warningFilesize), "No Matches/No Neighbors File"));
+if ($coocTableFile)
+    array_push($otherFiles, array($coocTableFile, format_file_size($coocTableFilesize), "Pfam Family/Cluster Cooccurrence Table File"));
+if ($hubCountFile)
+    array_push($otherFiles, array($hubCountFile, format_file_size($hubCountFilesize), "GNN Hub Cluster Sequence Count File"));
+if ($clusterSizesFileSize !== false)
+    array_push($otherFiles, array($clusterSizesFile, format_file_size($clusterSizesFileSize), "Cluster Size File"));
+if ($swissprotClustersDescFileSize !== false)
+    array_push($otherFiles, array($swissprotClustersDescFile, format_file_size($swissprotClustersDescFileSize), "SwissProt Annotations by Cluster"));
+if ($swissprotSinglesDescFileSize !== false)
+    array_push($otherFiles, array($swissprotSinglesDescFile, format_file_size($swissprotSinglesDescFileSize), "SwissProt Annotations by Singleton"));
 
 $updateMessage = functions::get_update_message();
 
@@ -88,20 +174,11 @@ require_once('inc/header.inc.php');
     <h3>Network Information</h3>
     <table width="100%" style="margin-top: 10px" class="pretty">
         <tbody>
-            <tr class="deeper">
-                <td>Job Number:</td><td><?php echo $gnnId; ?></td>
-            </tr>
-            <tr class="deeper">
-                <td>Uploaded Filename:</td><td><?php echo $gnn->get_filename(); ?></td>
-            </tr>
-            <tr class="deeper">
-                 <td>Neighborhood Size</td><td><?php echo $gnn->get_size(); ?></td>
-            </tr>
-            <tr class="deeper">
-                <td>Input % Co-Occurrence</td><td><?php echo $gnn->get_cooccurrence(); ?>%</td>
-            </tr>
+<?php echo $tableString; ?>
         </tbody>
     </table>
+    <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$gnnId&key=$gnnKey&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
+    <div style="clear: both"></div>
 
     <h3>Colored Sequence Similarity Network (SSN)</h3>
     <p>The nodes in the input SSN are assigned unique cluster numbers and colors.</p>
@@ -229,121 +306,147 @@ require_once('inc/header.inc.php');
             <th>File Size (MB)</th>
         </thead>
         <tbody>
-<?php if ($idTableFile) { ?>
-            <tr style='text-align:center;'>
-                <td class="button-col">
-                    <a href="<?php echo "$baseUrl/$idTableFile"; ?>"><button class="light small">Download</button></a>
+<?php
+foreach ($otherFiles as $info) {
+    if (count($info) == 1) {
+        echo <<<HTML
+            <tr style="text-align:center;">
+                <td colspan="3" style="font-weight:bold">
+                    $info[0]
                 </td>
-                <td>UniProt ID-Color-Cluster Number Mapping Table</td>
-                <td><?php echo $idTableFilesize; ?> MB</td>
             </tr>
-<?php } ?>
-<?php if ($idDataZip) { ?>
-            <tr style='text-align:center;'>
+HTML;
+    } else {
+        $btnText = strpos($info[0], ".zip") > 0 ? "Download All (ZIP)" : "Download";
+        echo <<<HTML
+            <tr style="text-align:center;">
                 <td>
-                    <a href="<?php echo "$baseUrl/$idDataZip"; ?>"><button class="light small">Download All (ZIP)</button></a>
+                    <a href="$baseUrl/$info[0]"><button class="light small">$btnText</button></a>
                 </td>
-                <td>UniProt ID Lists per Cluster</td>
-                <td><?php echo $idDataZipFilesize; ?> MB</td>
+                <td>$info[2]</td>
+                <td>$info[1] MB</td>
             </tr>
-<?php } ?>
-<?php if ($fastaZip) { ?>
-            <tr style='text-align:center;'>
-                <td>
-                    <a href="<?php echo "$baseUrl/$fastaZip"; ?>"><button class="light small">Download All (ZIP)</button></a>
-                </td>
-                <td>FASTA Files per Cluster</td>
-                <td><?php echo $fastaZipFilesize; ?> MB</td>
-            </tr>
-<?php } ?>
-<?php if ($pfamDataZip) { ?>
-            <tr style='text-align:center;'>
-                <td>
-                    <a href="<?php echo "$baseUrl/$pfamDataZip"; ?>"><button class="light small">Download All (ZIP)</button></a>
-                </td>
-                <td>PFAM Neighbor Mapping Tables</td>
-                <td><?php echo $pfamDataZipFilesize; ?> MB</td>
-            </tr>
-<?php } ?>
-<?php if ($allPfamDataZip) { ?>
-            <tr style='text-align:center;'>
-                <td>
-                    <a href="<?php echo "$baseUrl/$allPfamDataZip"; ?>"><button class="light small">Download All (ZIP)</button></a>
-                </td>
-                <td>PFAM Neighbor Mapping Tables (all cooccurrences)</td>
-                <td><?php echo $allPfamDataZipFilesize; ?> MB</td>
-            </tr>
-<?php } ?>
-<?php if ($pfamNoneZip) { ?>
-            <tr style='text-align:center;'>
-                <td>
-                    <a href="<?php echo "$baseUrl/$pfamNoneZip"; ?>"><button class="light small">Download All (ZIP)</button></a>
-                </td>
-                <td>Neighbors without PFAM assigned per Cluster</td>
-                <td><?php echo $pfamNoneZipFilesize; ?> MB</td>
-            </tr>
-<?php } ?>
-<?php if ($warningFile) { ?>
-            <tr style='text-align:center;'>
-                <td>
-                    <a href="<?php echo "$baseUrl/$warningFile"; ?>"><button class="light small">Download</button></a>
-                </td>
-                <td>No Matches/No Neighbors File</td>
-                <td><?php echo $warningFilesize; ?> MB</td>
-            </tr>
-<?php } ?>
-<?php if ($noMatchesFile) { ?>
-            <tr style='text-align:center;'>
-                <td>
-                    <a href="<?php echo "$baseUrl/$noMatchesFile"; ?>"><button class="light small">Download</button></a>
-                </td>
-                <td>No Matches</td>
-                <td><?php echo $noMatchesFilesize; ?> MB</td>
-            </tr>
-<?php } ?>
-<?php if ($noNeighborsFile) { ?>
-            <tr style='text-align:center;'>
-                <td>
-                    <a href="<?php echo "$baseUrl/$noNeighborsFile"; ?>"><button class="light small">Download</button></a>
-                </td>
-                <td>No Neighbors File</td>
-                <td><?php echo $noNeighborsFilesize; ?> MB</td>
-            </tr>
-<?php } ?>
-<?php if ($coocTableFilesize) { ?>
-            <tr style='text-align:center;'>
-                <td>
-                    <a href="<?php echo "$baseUrl/$coocTableFile"; ?>"><button class="light small">Download</button></a>
-                </td>
-                <td>Pfam Family/Cluster Cooccurrence Table File</td>
-                <td><?php echo $coocTableFilesize; ?> MB</td>
-            </tr>
-<?php } ?>
-<?php if ($hubCountFilesize) { ?>
-            <tr style='text-align:center;'>
-                <td>
-                    <a href="<?php echo "$baseUrl/$hubCountFile"; ?>"><button class="light small">Download</button></a>
-                </td>
-                <td>GNN Hub Cluster Sequence Count File</td>
-                <td><?php echo $hubCountFilesize; ?> MB</td>
-            </tr>
-<?php } ?>
+HTML;
+    }
+}
+?>
         </tbody>
     </table>
+
+<?php
+// Regen stuff
+
+if (!$gnn->has_parent()) {
+    $neighbor_size_html = "";
+    $default_neighbor_size = $gnn->get_size();
+    for ($i=3;$i<=20;$i++) {
+        if ($i == $default_neighbor_size)
+            $neighbor_size_html .= "<option value='" . $i . "' selected='selected'>" . $i . "</option>";
+        else
+            $neighbor_size_html .= "<option value='" . $i . "'>" . $i . "</option>";
+    }
+
+?>
+
+<div id="regenerate">
+<h3>Regenerate GNN</h3>
+
+<form id="upload_form" action="">
+<input type="hidden" id="parent_id" value="<?php echo $gnnId; ?>">
+<input type="hidden" id="parent_key" value="<?php echo $gnnKey; ?>">
+
+Recreate an SSN with a different cooccurrence frequence and/or neighborhood size from this job.
+
+<p>
+<b>Co-occurrence percentage lower limit:</b> <input type="text" id="cooccurrence" maxlength="3" value="<?php echo $gnn->get_cooccurrence(); ?>">
+</p>
+
+<p>
+<b>Neighborhood Size:</b> 
+<select name="neighbor_size" id="neighbor_size">
+    <?php echo $neighbor_size_html; ?>
+</select>
+</p>
+
+<p>
+<?php echo ui::make_upload_box("<b>(OPTIONALLY) Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", "", ""); ?>
+</p>
+    
+<p>
+<button type="button" id="filter-btn" class="small light"
+    onclick="uploadSsn('ssn_file','upload_form','progress_number','progress_bar','ssn_message','','filter-btn')"
+>Filter/Regenerate GNN</button>
+</p>
+</form>
+
+<center>
+    <div><progress id='progress_bar' max='100' value='0'></progress></div>
+    <div id="progress_number"></div>
+</center>
+</div>
+<?php
+}
+?>
 
     <hr>
 
 <?php if ($isMigrated) { ?>
-    <a href="../efi-est/stepe.php?<?php echo $estParams; ?>"><button type="button" class="small light">Go back to original SSN</button></a>
+    <p><a href="../efi-est/stepe.php?<?php echo $estParams; ?>"><button type="button" class="small light">Go back to original SSN</button></a></p>
 <?php } ?>
     
 
-    <?php if (isset($message)) { echo "<h3 class='center'>" . $message . "</h3>"; } ?>  
+<div id="ssn_message">
+<?php if (isset($message)) { echo "<h3 class='center'>" . $message . "</h3>"; } ?>  
+</div>
 
+<!--
+<div id="filter-confirm" title="" style="display: none">
+<p>
+<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+This job will be permanently removed from your list of jobs.
+</p>    
+</div>
+-->
 
 <?php if (settings::is_beta_release()) { ?>
     <div><center><h4><b><span style="color: red">BETA</span></b></h4></center></div>
 <?php } ?>
+
+<script>
+    $(document).ready(function() {
+//        $("#filter-btn").click(function() {
+//            var id = <?php echo $gnnId; ?>;
+//            var key = "<?php echo $gnnKey; ?>";
+//
+//            alert("Hi John and Remi.");
+//            $("#filter-confirm").dialog({
+//                resizable: false,
+//                height: "auto",
+//                width: 400,
+//                modal: true,
+//                buttons: {
+//                    "Archive Job": function() {
+//                        requestJobUpdate(id, key, requestType, jobType);
+//                        $( this ).dialog("close");
+//                    },
+//                    Cancel: function() {
+//                        $( this ).dialog("close");
+//                    }
+//                }
+//            });
+//        });
+    });
+</script>
+<script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
+
+<?php
+function format_file_size($size) {
+    $mb = round($size, 0);
+    if ($mb == 0)
+        return ">1";
+    return $mb;
+}
+?>
 
 <?php require_once('inc/footer.inc.php'); ?>
 

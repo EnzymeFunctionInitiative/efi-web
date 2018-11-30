@@ -18,9 +18,13 @@ if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPag
         <div class="footer_container">
             <div class="footer">
                 <div class="address inline">
-                    Enzyme Function Initiative |
-                    1206 W. Gregory Drive Urbana, IL 61801
-                    &nbsp;|&nbsp; <a href="mailto:efi@enzymefunction.org">efi@enzymefunction.org</a>
+                    Carl R. Woese Institute for Genomic Biology<br>
+                    University of Illinois at Urbana-Champaign<br>
+                    1206 W. Gregory Drive Urbana, IL 61801<br>
+                    <a href="mailto:efi@enzymefunction.org">efi@enzymefunction.org</a>
+                </div>
+                <div class="footer_logo inline">
+                    <img alt="Enzyme Function Initiative logo" src="images/efi_logo.png" height="38"></a>
                 </div>
                 <div class="footer_logo inline">
                     <a href="http://www.nigms.nih.gov/" target="_blank"><img alt="NIGMS" src="images/nighnew.png" style="width: 201px; height: 30px;"></a>

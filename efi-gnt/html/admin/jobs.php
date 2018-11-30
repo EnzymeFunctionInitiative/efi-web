@@ -24,7 +24,10 @@ foreach ($jobs as $job) {
 	}
 	else {
 		$gnn_html .= "<td><a href='" . $url ."'><span class='glyphicon glyphicon-share'></span></a></td>";
-	}
+    }
+    $tco = $job['Time Completed'];
+    if (strpos($tco, "0000") !== FALSE)
+        $tco = "<span title=\"" . $job['PBS Number'] . "\">" . $job['Status'] . "</span>";
 	$gnn_html .= "<td>" . $job['GNT ID'] . "</td>\n";
 	$gnn_html .= "<td>" . $job['Email'] . "</td>\n";
 	$gnn_html .= "<td>" . $job['Filename'] . "</td>\n";
@@ -32,7 +35,7 @@ foreach ($jobs as $job) {
 	$gnn_html .= "<td>" . $job['Input Cooccurrance'] . "</td>\n";
 	$gnn_html .= "<td>" . $job['Time Created'] . "</td>\n";
 	$gnn_html .= "<td>" . $job['Time Started'] . "</td>\n";
-	$gnn_html .= "<td>" . $job['Time Completed'] . "</td>\n";
+	$gnn_html .= "<td>" . $tco . "</td>\n";
 	$gnn_html .= "</tr>";
 
 }
