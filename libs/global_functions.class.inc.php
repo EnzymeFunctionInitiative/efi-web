@@ -84,6 +84,10 @@ class global_functions {
         return preg_replace("([^A-Za-z0-9_\-\.])", "_", $filename);
     }
 
+    public static function format_short_date($comp) {
+        return date_format(date_create($comp), "n/j h:i A");
+    }
+
 }
 
 ?>
