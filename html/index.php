@@ -62,16 +62,16 @@ and Network Resource Group</a> at IGB.
             <img src="images/about_gnd.png" width="450">
             Genome neighborhood diagrams from sequences, sequence IDs, or GNNs.</a>
     </td>
-<?php if (isset($IncludeShortBred) && $IncludeShortBred) { ?>
     <td>
+<?php if (isset($IncludeShortBred) && $IncludeShortBred) { ?>
         <a href="shortbred/">
             <span class="block-hdr">Functional Profiling</span>
             <img src="images/about_heatmap.png" width="450">
             Computationally-guided functional profiling using ShortBRED and the CGFP tools from
             the Balskus and Huttenhower Labs at Harvard University.
         </a>
-    </td>
 <?php } ?>
+    </td>
 </tr>
 </table>
 
