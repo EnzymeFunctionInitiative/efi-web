@@ -54,7 +54,7 @@ class user_jobs extends user_auth {
 
         $sql = self::get_select_statement();
         $sql .=
-            "WHERE gnn_email='$email' AND " .
+            "WHERE gnn_email='$email' AND gnn_status != 'ARCHIVED' AND " .
             "(gnn_time_completed >= '$expDate' OR gnn_status = 'RUNNING' OR gnn_status = 'NEW' OR gnn_status = 'FAILED') " .
             "ORDER BY gnn_status, gnn_time_completed DESC";
         $rows = $db->query($sql);

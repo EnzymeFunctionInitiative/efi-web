@@ -127,7 +127,7 @@ for ($i = 0; $i < count($gnnJobs); $i++) {
                     <tr>
                         <td>$linkStart${id}$linkEnd</td>
                         <td>$linkStart${name}$linkEnd</td>
-                        <td>$dateCompleted</td>
+                        <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="gnn" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
                     </tr>
 HTML;
 }
@@ -165,7 +165,7 @@ for ($i = 0; $i < count($diagramJobs); $i++) {
                         <td>$linkStart${id}$linkEnd</td>
                         <td>$linkStart${name}$linkEnd</td>
                         <td>$linkStart${jobType}$linkEnd</td>
-                        <td>$dateCompleted</td>
+                        <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="diagram" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
                     </tr>
 HTML;
 }
@@ -708,6 +708,13 @@ HTML;
     </p>
 </div>
 
+<div id="archive-confirm" title="Archive the job?" style="display: none">
+<p>
+<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+This job will be permanently removed from your list of jobs.
+</p>    
+</div>
+
 <script>
     $(document).ready(function() {
         $(".tabs .tab-headers a").on("click", function(e) {
@@ -737,6 +744,31 @@ HTML;
         $("#create-accordion" ).accordion({
             icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" },
             heightStyle: "content"
+        });
+        
+        $(".archive-btn").click(function() {
+            var id = $(this).data("id");
+            var key = $(this).data("key");
+            var jobType = $(this).data("type");
+            var requestType = "archive";
+
+            $("#archive-confirm").dialog({
+                resizable: false,
+                height: "auto",
+                width: 400,
+                modal: true,
+                buttons: {
+                    "Archive Job": function() {
+                        requestJobUpdate(id, key, requestType, jobType);
+                        $( this ).dialog("close");
+                    },
+                    Cancel: function() {
+                        $( this ).dialog("close");
+                    }
+                }
+            });
+
+//            $(this).appendTo('<div id="archive-menu" class="speech-bubble archive-bubble">Cancel</div>');
         });
     });
 </script>

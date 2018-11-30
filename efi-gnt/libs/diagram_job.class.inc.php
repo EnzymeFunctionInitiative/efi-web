@@ -5,25 +5,25 @@ require_once "functions.class.inc.php";
 require_once "Mail.php";
 require_once "Mail/mime.php";
 require_once "const.class.inc.php";
+require_once "job_shared.class.inc.php";
 
-class diagram_job {
+class diagram_job extends job_shared {
 
-    private $id;
-    private $db;
     private $beta;
-    private $status;
     private $key;
     private $type;
     private $params;
-    private $pbs_number;
     private $message = "";
     private $title = "";
     private $eol = PHP_EOL;
     private $db_mod = "";
 
+
+    public function get_key() { return $this->key; }
+
     public function __construct($db, $id) {
+        parent::__construct($db, $id, "diagram");
         $this->db = $db;
-        $this->id = $id;
         $this->beta = settings::get_release_status();
         $this->load_job();
     }
@@ -39,8 +39,16 @@ class diagram_job {
         $this->title = $result["diagram_title"];
         $this->params = functions::decode_object($result["diagram_params"]);
         $this->pbs_number = $result["diagram_pbs_number"];
-        if (isset($this->params["db_mod"]) && $this->params["db_mod"])
-            $this->db_mod = $this->params["db_mod"];
+        if (isset($this->params["db_mod"]) && $this->params["db_mod"]) {
+            // Get the actual module not the alias.
+            $mod_info = global_settings::get_database_modules();
+            foreach ($mod_info as $mod) {
+                if ($mod[1] == $this->params["db_mod"]) {
+                    $db_mod = $mod[0];
+                }
+            }
+            $this->db_mod = $db_mod;
+        }
     }
 
     public function process() {
@@ -231,25 +239,6 @@ class diagram_job {
                 $this->email_failed();
             else
                 $this->email_complete();
-        }
-    }
-
-    private function check_pbs_running() {
-        $sched = strtolower(settings::get_cluster_scheduler());
-        $jobNum = $this->pbs_number;
-        $output = "";
-        $exit_status = "";
-        $exec = "";
-        if ($sched == "slurm")
-            $exec = "squeue --job $jobNum 2> /dev/null | grep $jobNum";
-        else
-            $exec = "qstat $jobNum 2> /dev/null | grep $jobNum";
-        exec($exec,$output,$exit_status);
-        if (count($output) == 1) {
-            return true;
-        }
-        else {
-            return false;
         }
     }
 

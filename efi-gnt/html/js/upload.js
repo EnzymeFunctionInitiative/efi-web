@@ -1,6 +1,7 @@
 
 var DIAGRAM_UPLOAD = 0;
 var SSN_UPLOAD = 1;
+var ARCHIVE = 2;
 
 function submitEstJob(formId, messageId, emailId, submitId, estId, estKey, estSsn) {
     uploadFileShared("", formId, "", "", messageId, emailId, submitId, true, estId, estKey, estSsn);
@@ -22,6 +23,8 @@ function uploadFileShared(fileInputId, formId, progressNumId, progressBarId, mes
         addParam(fd, "neighbor_size", "neighbor_size");
         addParam(fd, "cooccurrence", "cooccurrence");
         addParam(fd, "db_mod", "db_mod");
+        addParam(fd, "parent_id", "parent_id");
+        addParam(fd, "parent_key", "parent_key");
     }
 
     var completionHandler = function() { enableForm(formId); };
@@ -94,9 +97,12 @@ function enableForm(formId) {
 }
 
 function addParam(fd, param, id) {
+    if (!id)
+        return;
     var elem = document.getElementById(id);
-    if (elem)
+    if (elem) {
         fd.append(param, elem.value);
+    }
 }
 
 function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId) {
@@ -126,6 +132,7 @@ function submitOptionCForm(formAction, optionId, inputId, titleId, emailId, nbSi
     submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId);
 }
 
+
 function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
     var fd = new FormData();
     addParam(fd, "option", optionId);
@@ -148,7 +155,28 @@ function submitOptionForm(formAction, optionId, inputField, inputId, titleId, em
 }
 
 
-function doFormPost(formAction, formData, messageId, fileHandler, uploadType, completionHandler) {
+function requestJobUpdate(identifyId, jobKey, requestType, jobType) {
+    var fd = new FormData();
+    fd.append("id", identifyId);
+    fd.append("key", jobKey);
+    if (requestType == "cancel")
+        fd.append("rt", "c");
+    else if (requestType == "archive")
+        fd.append("rt", "a");
+    if (jobType == "gnn")
+        fd.append("jt", "g");
+    else if (jobType == "diagram")
+        fd.append("jt", "d");
+
+    var fileHandler = function(xhr) { };
+    var completionHandler = function(jsonObj) { window.location.href = "index.php"; };
+
+    var script = "update_job_status.php";
+    doFormPost(script, fd, "", fileHandler, ARCHIVE, completionHandler);
+}
+
+
+function doFormPost(formAction, formData, messageId, fileHandler, requestType, completionHandler) {
     var xhr = new XMLHttpRequest();
     if (typeof fileHandler === "function")
         fileHandler(xhr);
@@ -162,9 +190,9 @@ function doFormPost(formAction, formData, messageId, fileHandler, uploadType, co
 
             // jsonObj variable now contains the data structure and can
             // be accessed as jsonObj.name and jsonObj.country.
-            if (jsonObj.valid) {
+            if (jsonObj.valid && requestType != ARCHIVE) {
                 var nextStepScript = "stepb.php";
-                var diagUpload = uploadType == SSN_UPLOAD ? "" : "&diagram=1";
+                var diagUpload = requestType == SSN_UPLOAD ? "" : "&diagram=1";
                 if (jsonObj.cookieInfo)
                     document.cookie = jsonObj.cookieInfo;
                 window.location.href = nextStepScript + "?id=" + jsonObj.id + "&key=" + jsonObj.key + diagUpload;
@@ -173,7 +201,8 @@ function doFormPost(formAction, formData, messageId, fileHandler, uploadType, co
                 document.getElementById(messageId).innerHTML = jsonObj.message;
             } else {
                 completionHandler();
-                document.getElementById(messageId).innerHTML = "";
+                if (messageId)
+                    document.getElementById(messageId).innerHTML = "";
             }
         }
     }
