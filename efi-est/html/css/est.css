@@ -57,52 +57,6 @@ a:link, a:visited {
     text-decoration: none;
 }
 
-button {
-    font-size:16px;
-    font-family:Arial;
-    font-weight:normal;
-    -moz-border-radius:8px;
-    -webkit-border-radius:8px;
-    border-radius:8px;
-    padding:10px 10%;
-    text-decoration:none;
-    display:inline-block;
-    margin: 5px 0px;
-}
-
-button.small {
-    font-size: 100%;
-    padding: 3px 7px;
-    margin: 0;
-}
-
-button.mini {
-    font-size: 90%;
-    padding: 2px 9px;
-    margin: 0;
-    border: 1px solid #bbb;
-    border-radius: 0px;
-    background-color: #ddd;
-}
-
-button.normal {
-    border: 1px solid #bbb;
-    background-color: #ddd;
-    display: inline-block;
-    padding: 6px 12px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    border-radius: 0px;
-}
-
-a button:hover {
-}
-
-a button:active {
-    position:relative;
-    top:1px;
-}
-
 h2.bold {
     background: #58585a;
     font-size: 175%;
@@ -185,19 +139,6 @@ form button {
 }
 
 /* ELEMENTS */
-
-.header_logo { 
-    position: relative;
-    width:990px;
-    margin-left:30px;
-    margin-top:6px;
-}
-
-.efi_logo_small {
-    position: absolute;
-    bottom: 5px;
-    right: 1px;
-}
 
 h1.ruled {
     margin: 0 0 4px 0;

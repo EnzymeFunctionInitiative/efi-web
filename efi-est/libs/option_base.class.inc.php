@@ -146,6 +146,7 @@ abstract class option_base extends stepa {
             'generate_type' => $this->get_create_type(),
             'generate_program' => $data->program,
             'generate_db_version' => $db_version,
+            'generate_status' => __NEW__,
         );
 
         return $insert_array;
