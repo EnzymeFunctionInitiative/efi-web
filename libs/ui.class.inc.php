@@ -16,8 +16,7 @@ class ui {
                     <input type='file' name='$file_id' id='$file_id' data-url='server/php/' class="input_file">
                     <label for="$file_id" class="file_upload"><img src="$site_url_prefix/images/upload.svg" /> <span>$default_file</span></label>
                 </div>
-                $other
-                Maximum size is $maxFileSize.
+                $other <a class="question" title="Maximum size is $maxFileSize">?</a>
 HTML;
     }
 }

@@ -3,6 +3,7 @@
 require_once("job_types.class.inc.php");
 require_once(__DIR__ . "/../../libs/user_auth.class.inc.php");
 require_once(__DIR__ . "/../../libs/global_functions.class.inc.php");
+require_once("functions.class.inc.php");
 
 
 class job_manager {
@@ -112,17 +113,17 @@ class job_manager {
             $tco = $this->jobs_by_id[$job_id]["time_completed"];
             $status = $this->jobs_by_id[$job_id]["status"];
             if ($tco && $status == __FINISH__)
-                $job["time_completed"] = self::format_short_date($tco);
+                $job["time_completed"] = functions::format_short_date($tco);
             else
                 $job["time_completed"] = $status;
             $ts = $this->jobs_by_id[$job_id]["time_started"];
             if ($ts)
-                $job["time_started"] = self::format_short_date($ts);
+                $job["time_started"] = functions::format_short_date($ts);
             else
                 $job["time_started"] = "";
             $tcr = $this->jobs_by_id[$job_id]["time_created"];
             if ($tcr)
-                $job["time_created"] = self::format_short_date($tcr);
+                $job["time_created"] = functions::format_short_date($tcr);
             else
                 $job["time_created"] = "";
 
@@ -214,8 +215,9 @@ class job_manager {
         $start_date = user_auth::get_start_date_window();
         $id_sql = self::get_user_jobs_sql();
         $id_sql .=
-            "WHERE identify_email='$email' AND (identify_time_completed >= '$start_date' " .
-            "OR (identify_time_created >= '$start_date' AND (identify_status = 'NEW' OR identify_status = 'RUNNING'))) " .
+            "WHERE identify_email='$email' AND identify_status != '" . __ARCHIVED__ . "' AND " .
+            "(identify_time_completed >= '$start_date' OR " .
+            "(identify_time_created >= '$start_date' AND (identify_status = 'NEW' OR identify_status = 'RUNNING'))) " .
             "ORDER BY identify_status, identify_time_completed DESC";
         $id_rows = $this->db->query($id_sql);
 
@@ -270,27 +272,32 @@ class job_manager {
             $id_id = $id_row["identify_id"];
             $key = $id_row["identify_key"];
             $parent_id = $id_row["identify_parent_id"];
-            if ($parent_id)
+            if ($parent_id) {
+                continue;
                 $job_name .= " [<b>Child of #$parent_id</b>]";
+            }
 
-            $i_job_info = array("id" => $id_id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed,
-                "is_quantify" => false, "date_completed" => $comp);
-            
-            if (isset($iparams["identify_search_type"]) && $iparams["identify_search_type"])
-                $i_job_info["search_type"] = $iparams["identify_search_type"];
-            else
-                $i_job_info["search_type"] = "";
-            
-            if (isset($iparams["identify_ref_db"]) && $iparams["identify_ref_db"])
-                $i_job_info["ref_db"] = $iparams["identify_ref_db"];
-            else
-                $i_job_info["ref_db"] = "";
-
-            array_push($jobs, $i_job_info);
+            if (!$parent_id) {
+                $i_job_info = array("id" => $id_id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed,
+                    "is_quantify" => false, "date_completed" => $comp);
+                
+                if (isset($iparams["identify_search_type"]) && $iparams["identify_search_type"])
+                    $i_job_info["search_type"] = $iparams["identify_search_type"];
+                else
+                    $i_job_info["search_type"] = "";
+                
+                if (isset($iparams["identify_ref_db"]) && $iparams["identify_ref_db"])
+                    $i_job_info["ref_db"] = $iparams["identify_ref_db"];
+                else
+                    $i_job_info["ref_db"] = "";
+    
+                array_push($jobs, $i_job_info);
+            }
             
             if ($is_completed) {
-                $q_sql = "SELECT quantify_id, quantify_time_completed, quantify_status, quantify_params " .
-                    "FROM quantify WHERE quantify_identify_id = $id_id";
+                $q_sql = "SELECT quantify_id, quantify_identify_id, quantify_time_completed, quantify_status, quantify_params, identify_parent_id, identify_params, identify_key " .
+                    "FROM quantify JOIN identify ON quantify_identify_id = identify_id " .
+                    "WHERE (quantify_identify_id = $id_id OR identify_parent_id = $id_id) AND quantify_status != '" . __ARCHIVED__ . "'";
                 $q_rows = $this->db->query($q_sql);
 
                 foreach ($q_rows as $q_row) {
@@ -302,14 +309,24 @@ class job_manager {
                     $q_id = $q_row["quantify_id"];
 
                     $mg_ids = explode(",", $qparams["quantify_metagenome_ids"]);
-                    $q_full_job_name = implode(", ", $mg_ids);
-                    if (count($mg_ids) > 6) {
-                        $q_job_name = implode(", ", array_slice($mg_ids, 0, 5)) . " ...";
-                    } else {
+                    if ($q_row["identify_parent_id"]) {
+                        $iparams = global_functions::decode_object($q_row["identify_params"]);
+                        $q_full_job_name = $iparams["identify_filename"] . " [Child of #" . $q_row["identify_parent_id"] . "]";
                         $q_job_name = $q_full_job_name;
+                        $the_id_id = $q_row["quantify_identify_id"];
+                        $the_key = $q_row["identify_key"];
+                    } else {
+                        $the_id_id = $id_id;
+                        $the_key = $key;
+                        $q_full_job_name = implode(", ", $mg_ids);
+                        if (count($mg_ids) > 6) {
+                            $q_job_name = implode(", ", array_slice($mg_ids, 0, 5)) . " ...";
+                        } else {
+                            $q_job_name = $q_full_job_name;
+                        }
                     }
 
-                    $q_job_info = array("id" => $id_id, "key" => $key, "quantify_id" => $q_id, "job_name" => $q_job_name,
+                    $q_job_info = array("id" => $the_id_id, "key" => $the_key, "quantify_id" => $q_id, "job_name" => $q_job_name,
                         "is_completed" => $q_is_completed, "is_quantify" => true, "date_completed" => $q_comp,
                         "full_job_name" => $q_full_job_name);
 
@@ -330,7 +347,7 @@ class job_manager {
         $jobs = array();
 
         $q_sql = "SELECT quantify_id, quantify_time_completed, quantify_status, quantify_params " .
-            "FROM quantify WHERE quantify_identify_id = $identify_id";
+            "FROM quantify WHERE quantify_identify_id = $identify_id AND quantify_status != '" . __ARCHIVED__ . "'";
         $q_rows = $db->query($q_sql);
 
         foreach ($q_rows as $q_row) {
@@ -357,14 +374,10 @@ class job_manager {
         } elseif (!$comp || substr($comp, 0, 4) == "0000" || $status == __NEW__) {
             $comp = "PENDING";
         } else {
-            $comp = self::format_short_date($comp);
+            $comp = functions::format_short_date($comp);
             $isCompleted = true;
         }
         return array($isCompleted, $comp);
-    }
-
-    private static function format_short_date($comp) {
-        return date_format(date_create($comp), "n/j h:i A");
     }
 }
 

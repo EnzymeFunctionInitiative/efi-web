@@ -94,17 +94,21 @@ function uploadAlignmentScoreUpdateSSN(fileInputId, formId, progressNumId, progr
     doFormPost(script, fd, messageId, fileHandler, completionHandler);
 }
 
-function requestCancellation(identifyId, jobKey, quantifyId = "") {
+function requestJobUpdate(generateId, jobKey, quantifyId, requestType, jobType) {
     var fd = new FormData();
-    fd.append("id", identifyId);
+    fd.append("id", generateId);
     fd.append("key", jobKey);
+    if (requestType == "cancel")
+        fd.append("rt", "c");
+    else if (requestType == "archive")
+        fd.append("rt", "a");
     if (quantifyId)
         fd.append("quantify-id", quantifyId);
 
     var fileHandler = function(xhr) { };
     var completionHandler = function(jsonObj) { window.location.href = "index.php"; };
 
-    var script = "cancel_job.php";
+    var script = "update_job_status.php";
     doFormPost(script, fd, "", fileHandler, completionHandler);
 }
 

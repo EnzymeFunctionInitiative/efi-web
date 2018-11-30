@@ -41,6 +41,7 @@ define("__RUNNING__","RUNNING");
 define("__FINISH__","FINISH");
 define("__FAILED__","FAILED");
 define("__CANCELLED__","CANCELLED");
+define("__ARCHIVED__","ARCHIVED");
 
 //
 // DEFAULTS

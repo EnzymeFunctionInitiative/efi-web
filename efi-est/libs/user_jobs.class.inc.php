@@ -88,7 +88,7 @@ class user_jobs extends user_auth {
         $expDate = self::get_start_date_window();
 
         $sql = self::get_select_statement() .
-            "WHERE (generate_email = '$email') AND " .
+            "WHERE (generate_email = '$email') AND generate_status != 'ARCHIVED' AND " .
             "(generate_time_completed >= '$expDate' OR (generate_time_created >= '$expDate' AND (generate_status = 'NEW' OR generate_status = 'RUNNING'))) " .
             "ORDER BY generate_status, generate_time_completed DESC";
         $rows = $db->query($sql);

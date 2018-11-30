@@ -1,12 +1,14 @@
 <?php
+require("job_shared.class.inc.php");
 
 
-abstract class arrow_api {
+abstract class arrow_api extends job_shared {
 
     private $db_file = "";
     private $gnn_name = "";
 
-    public function __construct() {
+    public function __construct($db, $id, $db_field_prefix) {
+        parent::__construct($db, $id, $db_field_prefix);
     }
 
     protected function set_diagram_data_file($dbFile) {

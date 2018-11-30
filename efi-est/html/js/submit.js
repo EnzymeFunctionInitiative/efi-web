@@ -1,6 +1,7 @@
 
 var FORM_ACTION = "create.php";
 var DEBUG = 0;
+var ARCHIVE = 2;
 
 
 function getDefaultCompletionHandler() {
@@ -113,6 +114,7 @@ function submitOptionDForm() {
     addParam(fd, "evalue", "accession-evalue");
     addParam(fd, "fraction", "accession-fraction");
     addParam(fd, "db-mod", "option-d-db-mod");
+    addParam(fd, "accession_seq_type", "accession-seq-type");
 
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
@@ -211,6 +213,24 @@ function submitMigrate(generateId, analysisId, key, completionHandler) {
 }
 
 
+function requestJobUpdate(generateId, jobKey, requestType, jobType) {
+    var fd = new FormData();
+    fd.append("id", generateId);
+    fd.append("key", jobKey);
+    if (requestType == "cancel")
+        fd.append("rt", "c");
+    else if (requestType == "archive")
+        fd.append("rt", "a");
+
+    var fileHandler = function(xhr) { };
+    var completionHandler = function(jsonObj) { window.location.href = "index.php"; };
+
+    var script = "update_job_status.php";
+    doFormPost(script, fd, "", fileHandler, completionHandler);
+}
+
+
+
 
 
 
@@ -280,7 +300,8 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
                 if (!jsonObj.valid && jsonObj.message) {
                     document.getElementById(messageId).innerHTML = jsonObj.message;
                 } else {
-                    document.getElementById(messageId).innerHTML = "";
+                    if (messageId)
+                        document.getElementById(messageId).innerHTML = "";
                 }
             }
         }

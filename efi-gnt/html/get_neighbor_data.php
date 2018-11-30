@@ -389,11 +389,16 @@ function getQueryAttributes($row, $orderData, $isDirectJob) {
     elseif (! $isDirectJob && array_key_exists('cluster_num', $row))
         $attr['cluster_num'] = $row['cluster_num'];
 
+    if (count($attr['family']) > 0 && $attr['family'][0] == "")
+        $attr['family'][0] = "none-query";
     $familyCount = count($attr['family']);
 
     $familyDesc = explode(";", $row['family_desc']);
-    if (count($familyDesc) == 1)
+    if (count($familyDesc) == 1) {
         $familyDesc = explode("-", $row['family_desc']);
+        if ($familyDesc[0] == "")
+            $familyDesc[0] = "Query without family";
+    }
     $attr['family_desc'] = $familyDesc;
     if (count($attr['family_desc']) < $familyCount) {
         if (count($attr['family_desc']) > 0)

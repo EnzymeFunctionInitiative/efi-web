@@ -155,7 +155,7 @@ class functions {
         if (!$db_name)
             return false;
 
-        $sql = "SELECT gnn_id, gnn_key FROM $db_name.gnn WHERE gnn_source_id = $analysis_id";
+        $sql = "SELECT gnn_id, gnn_key FROM $db_name.gnn WHERE gnn_est_source_id = $analysis_id";
         $result = $db->query($sql);
         if ($result) {
             $info = array();
@@ -572,7 +572,7 @@ class functions {
     public static function get_colorssn_map_dir_name() {
         return __COLORSSN_MAP_DIR_NAME__;
     }
-    public static function get_colorssn_map_file_name() {
+    public static function get_colorssn_map_filename() {
         return __COLORSSN_MAP_FILE_NAME__;
     }
 
@@ -674,6 +674,10 @@ class functions {
 
     public static function get_maximum_full_family_count() {
         return defined("__MAX_FULL_FAMILY_COUNT__") ? __MAX_FULL_FAMILY_COUNT__ : 0;
+    }
+
+    public static function get_maximum_number_ssn_nodes() {
+        return defined("__MAX_NUM_SNN_NODES__") ? __MAX_NUM_SNN_NODES__ : 10000000;
     }
 
     public static function get_default_uniref_version() {
