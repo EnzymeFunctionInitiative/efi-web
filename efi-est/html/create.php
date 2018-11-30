@@ -140,6 +140,12 @@ if (!isset($_POST['submit'])) {
                     else
                         $input->uniref_version = "90";
                 }
+                if (isset($_POST['accession_seq_type']) && $_POST['accession_seq_type'] != "uniprot") {
+                    if ($_POST['accession_seq_type'] == "uniref50")
+                        $input->uniref_version = "50";
+                    else
+                        $input->uniref_version = "90";
+                }
 
                 if ($option == "C" || $option == "E") {
                     $useFastaHeaders = $_POST['fasta_use_headers'];
