@@ -1,0 +1,5 @@
+
+The family_info table corresponds to the latest version of the database.  When new databases are released,
+they are renamed to family_info_ipXX where XX corresponds to the InterPro release number that the database
+is build on.
+
