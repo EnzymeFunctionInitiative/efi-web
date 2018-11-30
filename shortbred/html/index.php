@@ -191,6 +191,13 @@ All progress will be lost.
 </p>    
 </div>
 
+<div id="archive-confirm" title="Archive the job?" style="display: none">
+<p>
+<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+This job will be permanently removed from your list of jobs.
+</p>    
+</div>
+
 <div align="center">
     <?php if (settings::is_beta_release()) { ?>
     <h4><b><span style="color: red">BETA</span></b></h4>
@@ -233,6 +240,8 @@ All progress will be lost.
             var qid = $(this).data("quantify-id");
             if (!qid)
                 qid = "";
+            var requestType = "cancel";
+            var jobType = "";
 
             $("#cancel-confirm").dialog({
                 resizable: false,
@@ -241,7 +250,7 @@ All progress will be lost.
                 modal: true,
                 buttons: {
                     "Stop Job": function() {
-                        requestCancellation(id, key, qid);
+                        requestJobUpdate(id, key, qid, requestType, jobType);
                         $( this ).dialog("close");
                     },
                     Cancel: function() {
@@ -249,8 +258,32 @@ All progress will be lost.
                     }
                 }
             });
+        });
+        
+        $(".archive-btn").click(function() {
+            var id = $(this).data("id");
+            var key = $(this).data("key");
+            var requestType = "archive";
+            var qid = $(this).data("quantify-id");
+            if (!qid)
+                qid = "";
+            var jobType = "";
 
-//            $(this).appendTo('<div id="cancel-menu" class="speech-bubble cancel-bubble">Cancel</div>');
+            $("#archive-confirm").dialog({
+                resizable: false,
+                height: "auto",
+                width: 400,
+                modal: true,
+                buttons: {
+                    "Archive Job": function() {
+                        requestJobUpdate(id, key, qid, requestType, jobType);
+                        $( this ).dialog("close");
+                    },
+                    Cancel: function() {
+                        $( this ).dialog("close");
+                    }
+                }
+            });
         });
 
     });
@@ -305,12 +338,20 @@ function show_jobs($jobs, $allow_cancel) {
             $name .= " &lt;$ref_db&gt;";
 
         $job_action_code = "";
-        if ($is_active && $allow_cancel) {
-            $job_action_code = '<i class="fas fa-stop-circle cancel-btn" title="Cancel Job" data-id="' . $id . '" data-key="' . $key . '"';
-            if ($quantify_id)
-                $job_action_code .= ' data-quantify-id="' . $quantify_id . '"';
-            $job_action_code .= '></i>';
+        if ($allow_cancel) {
+            if ($is_active) {
+                $job_action_code = "<div style=\"float:right\" class=\"cancel-btn\" data-type=\"gnn\" title=\"Cancel Job\" data-id=\"$id\" data-key=\"$key\"";
+                if ($quantify_id)
+                    $job_action_code .= " data-quantify-id=\"$quantify_id\"";
+                $job_action_code .= "><i class=\"fas fa-stop-circle cancel-btn\"></i></div>";
+            } else {
+                $job_action_code = "<div style=\"float:right\" class=\"archive-btn\" data-type=\"gnn\" data-id=\"$id\" data-key=\"$key\"";
+                if ($quantify_id)
+                    $job_action_code .= ' data-quantify-id="' . $quantify_id . '"';
+                $job_action_code .= "title=\"Archive Job\"><i class=\"fas fa-trash-alt\"></i></div>";
+            }
         }
+        
 
         echo <<<HTML
                     <tr style="background-color: $last_bg_color">

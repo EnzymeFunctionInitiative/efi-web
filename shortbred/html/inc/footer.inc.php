@@ -12,7 +12,7 @@ if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPag
 
 <p>
 This site uses the CGFP-ShortBRED programs (<a href="https://bitbucket.org/biobakery/cgfp/src">https://bitbucket.org/biobakery/cgfp/src</a>
-and <a href="https://huttenhower.sph.harvard.edu/shortbred">https://huttenhower.sph.harvard.edu/shortbred</a>).
+and <a href="http://huttenhower.sph.harvard.edu/shortbred">http://huttenhower.sph.harvard.edu/shortbred</a>).
 </p>
 <p>For more information on CGFP-ShortBRED, see
 <div style="margin-left: 20px;">

@@ -220,7 +220,7 @@ require_once "inc/header.inc.php";
     </tbody>
 </table>
 <div style="float:left"><button type="button" class="mini" id="job-stats-btn">Show Job Statistics</button></div>
-<div style="float:right"><a href="stepe.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Info</button></a></div>
+<div style="float:right"><a href="stepe.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Information</button></a></div>
 <div style="clear:both"></div>
 
 <h3>Downloadable Data</h3>
