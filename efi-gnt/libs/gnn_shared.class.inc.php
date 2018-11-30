@@ -5,6 +5,10 @@ require_once(__DIR__.'/../../libs/global_functions.class.inc.php');
 
 class gnn_shared extends arrow_api {
 
+    public function __construct($db, $id, $db_field_prefix) {
+        parent::__construct($db, $id, $db_field_prefix);
+    }
+
     public static function create2($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $job_name) {
         $parms = array(
             'email' => $email,
@@ -12,12 +16,9 @@ class gnn_shared extends arrow_api {
             'cooccurrence' => $cooccurrence,
             'tmp_filename' => $tmp_filename,
             'filename' => $filename,
-            'est_id' => 0,
             'job_name' => $job_name,
-            'is_sync' => false,
-            'db_mod' => "",
         );
-        return self::create_shared($db, $parms);
+        return self::create4($db, $parms);
     }
 
     public static function create3($db, $email, $size, $cooccurrence, $tmp_filename, $filename, $job_name, $is_sync) {
@@ -27,12 +28,10 @@ class gnn_shared extends arrow_api {
             'cooccurrence' => $cooccurrence,
             'tmp_filename' => $tmp_filename,
             'filename' => $filename,
-            'est_id' => 0,
             'job_name' => $job_name,
             'is_sync' => $is_sync,
-            'db_mod' => "",
         );
-        return self::create_shared($db, $parms);
+        return self::create4($db, $parms);
     }
 
     public static function create_from_est_job($db, $email, $size, $cooccurrence, $ssn_file_path, $est_id) {
@@ -40,14 +39,10 @@ class gnn_shared extends arrow_api {
             'email' => $email,
             'size' => $size,
             'cooccurrence' => $cooccurrence,
-            'tmp_filename' => "",
             'filename' => $ssn_file_path,
             'est_id' => $est_id,
-            'job_name' => "",
-            'is_sync' => false,
-            'db_mod' => "",
         );
-        return self::create_shared($db, $parms);
+        return self::create4($db, $parms); // create4 adds default parameters
     }
 
     public static function create4($db, $parms) {
@@ -70,6 +65,10 @@ class gnn_shared extends arrow_api {
             $parms['is_sync'] = false;
         if (!isset($parms['db_mod']))
             $parms['db_mod'] = "";
+        if (!isset($parms['parent_id']))
+            $parms['parent_id'] = 0;
+        if (!isset($parms['child_type']))
+            $parms['child_type'] = "";
 
         return self::create_shared($db, $parms);
     }
@@ -98,14 +97,22 @@ class gnn_shared extends arrow_api {
             'gnn_cooccurrence' => $parms['cooccurrence'],
             'gnn_status' => $gnn_status);
         if ($est_job_id)
-            $insert_array['gnn_source_id'] = $est_job_id;
+            $insert_array['gnn_est_source_id'] = $est_job_id;
         if ($parms['job_name'])
             $insert_array['gnn_job_name'] = $parms['job_name'];
         if ($parms['db_mod'] && preg_match('/^[A-Z0-9]{4}$/', $parms['db_mod']))
             $insert_array['gnn_db_mod'] = $parms['db_mod'];
 
+        // Handle option parameters - eventually most of the above will go into this structure
+        $params_array = array();
+        if ($parms['parent_id'] && $parms['child_type']) {
+            $params_array['gnn_parent_id'] = $parms['parent_id'];
+            $params_array['gnn_child_type'] = $parms['child_type'];
+        }
+        $insert_array['gnn_params'] = global_functions::encode_object($params_array);
+
         $result = $db->build_insert('gnn',$insert_array);
-        if (!$est_job_id) {
+        if (!$est_job_id && (!$parms['child_type'] || $parms['child_type'] != 'filter')) {
             if ($result) {	
                 functions::copy_to_uploads_dir($parms['tmp_filename'], $filename, $result);
             } else {
@@ -124,12 +131,8 @@ class gnn_shared extends arrow_api {
             'coocurrence' => $cooccurrence,
             'tmp_filename' => $tmp_filename,
             'filename' => $filename,
-            'est_id' => 0,
-            'job_name' => "",
-            'is_sync' => false,
-            'db_mod' => "",
         );
-        $info = self::create_shared($db, $parms);
+        $info = self::create4($db, $parms);
         if ($info === false)
             return 0;
         else

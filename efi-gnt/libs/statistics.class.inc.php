@@ -44,7 +44,9 @@ class statistics
         $sql .= "gnn.gnn_time_completed as 'Time Completed', ";
         $sql .= "gnn.gnn_size as 'Neighborhood Size', ";
         $sql .= "gnn.gnn_cooccurrence as 'Input Cooccurrance', ";
-        $sql .= "gnn.gnn_filename as 'Filename' ";
+        $sql .= "gnn.gnn_filename as 'Filename', ";
+        $sql .= "gnn.gnn_status as 'Status', ";
+        $sql .= "gnn.gnn_pbs_number as 'PBS Number' ";
         $sql .= "FROM gnn ";
         $sql .= "WHERE MONTH(gnn.gnn_time_created)='" . $month . "' ";
         $sql .= "AND YEAR(gnn.gnn_time_created)='" . $year . "' ";
