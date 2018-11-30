@@ -1,6 +1,6 @@
 <?php
 
-require_once("../../libs/global_functions.class.inc.php");
+require_once(__DIR__ . "/../../libs/global_functions.class.inc.php");
 
 class functions extends global_functions {
 
