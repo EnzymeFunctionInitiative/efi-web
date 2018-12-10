@@ -23,6 +23,7 @@ $blastSequence = "";
 $jobTypeText = "";
 
 $isBigscapeEnabled = settings::get_bigscape_enabled();
+$isInterproEnabled = settings::get_interpro_enabled();
 $isUploadedDiagram = false;
 $supportsDownload = true;
 $supportsExport = true;
@@ -522,14 +523,15 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
             } 
         </script>
 
+<?php $hideInterpro = $isInterproEnabled ? "" : 'style="display:none"'; ?>
         <div id="info-popup" class="info-popup hidden">
             <div id="info-popup-id">UniProt ID: <span class="popup-id"></span></div>
             <div id="info-popup-desc">Description: <span class="popup-pfam"></span></div>
             <div id="info-popup-sptr">Annotation Status: <span class="popup-pfam"></span></div>
             <div id="info-popup-fam">Pfam: <span class="popup-pfam"></span></div>
             <div id="info-popup-fam-desc">Pfam Desc: <span class="popup-pfam"></span></div>
-            <div id="info-popup-ipro-fam">InterPro: <span class="popup-pfam"></span></div>
-            <div id="info-popup-ipro-fam-desc">InterPro Desc: <span class="popup-pfam"></span></div>
+            <div id="info-popup-ipro-fam" <?php echo $hideInterpro; ?>>InterPro: <span class="popup-pfam"></span></div>
+            <div id="info-popup-ipro-fam-desc" <?php echo $hideInterpro; ?>>InterPro Desc: <span class="popup-pfam"></span></div>
             <!--    <div id="info-popup-coords">Coordinates: <span class="popup-pfam"></span></div>-->
             <div id="info-popup-seqlen">Sequence Length: <span class="popup-pfam"></span></div>
             <!--    <div id="info-popup-dir">Direction: <span class="popup-pfam"></span></div>-->
