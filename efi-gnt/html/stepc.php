@@ -126,9 +126,9 @@ if ($pfamDataZip)
 if ($splitPfamDataZip)
     array_push($otherFiles, array($splitPfamDataZip, format_file_size($splitPfamDataZipFilesize), "Neighbor Pfam domains at specified minimal cooccurrence frequency"));
 if ($allPfamDataZip)
-    array_push($otherFiles, array($allPfamDataZip, format_file_size($allPfamDataZipFilesize), "Neighbor Pfam domain fusions at 0% minimal cooccurrence frequencey"));
+    array_push($otherFiles, array($allPfamDataZip, format_file_size($allPfamDataZipFilesize), "Neighbor Pfam domain fusions at 0% minimal cooccurrence frequency"));
 if ($allSplitPfamDataZip)
-    array_push($otherFiles, array($allSplitPfamDataZip, format_file_size($allSplitPfamDataZipFilesize), "Neighbor Pfam domains at 0% minimal cooccurrence frequencey"));
+    array_push($otherFiles, array($allSplitPfamDataZip, format_file_size($allSplitPfamDataZipFilesize), "Neighbor Pfam domains at 0% minimal cooccurrence frequency"));
 
 if ($uniprotIdDataZip or $uniref50IdDataZip or $uniref90IdDataZip or $fastaZip or $pfamNoneZip)
     array_push($otherFiles, array("Data Files by Cluster"));
@@ -355,7 +355,7 @@ if (!$gnn->has_parent()) {
 <input type="hidden" id="parent_id" value="<?php echo $gnnId; ?>">
 <input type="hidden" id="parent_key" value="<?php echo $gnnKey; ?>">
 
-Recreate an SSN with a different cooccurrence frequence and/or neighborhood size from this job.
+Recreate an SSN with a different cooccurrence frequency and/or neighborhood size from this job.
 
 <p>
 <b>Co-occurrence percentage lower limit:</b> <input type="text" id="cooccurrence" maxlength="3" value="<?php echo $gnn->get_cooccurrence(); ?>">
