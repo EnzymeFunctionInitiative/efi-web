@@ -347,3 +347,16 @@ a.ui-button:active,
     padding-bottom: 50px;
 }
 
+
+.image-bar {
+    margin: auto;
+    width: 100%;
+    text-align: center;
+}
+
+.image-bar div {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+
