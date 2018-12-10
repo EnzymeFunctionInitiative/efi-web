@@ -190,5 +190,9 @@ class settings extends global_settings {
         }
         return false;
     }
+
+    public static function get_interpro_enabled() {
+        return defined("__ENABLE_INTERPRO__") ? __ENABLE_INTERPRO__ : false;
+    }
 }
 ?>
