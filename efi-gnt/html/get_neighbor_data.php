@@ -90,6 +90,7 @@ if (array_key_exists("query", $_GET)) {
     $arrowData = getArrowData($items, $dbFile, $orderData, $window, $isDirectJob, $pageSize);
     $output["eod"] = $arrowData["eod"];
     $output["counts"] = $arrowData["counts"];
+    $output["IDS"] = $arrowData["IDS"];
     $output["data"] = $arrowData["data"];
     $output["min_bp"] = $arrowData["min_bp"];
     $output["max_bp"] = $arrowData["max_bp"];
@@ -98,7 +99,9 @@ if (array_key_exists("query", $_GET)) {
     $output["legend_scale"] = $arrowData["legend_scale"]; // the base unit for the legend. the client can draw however many units they want for the legend.
 }
 else if (array_key_exists("fams", $_GET)) {
-    $output["families"] = getFamilies($dbFile);
+    $famData = getFamilies($dbFile);
+    $output["families"] = $famData["pfam"];
+    $output["ipro_families"] = $famData["ipro"];
 }
 else {
     $output["error"] = true;
@@ -121,7 +124,7 @@ function getBlastId() {
 }
 
 function getFamilies($dbFile) {
-    $output = array();
+    $output = array("pfam" => array(), "ipro" => array());
 
     $resultsDb = new SQLite3($dbFile);
 
@@ -132,8 +135,12 @@ function getFamilies($dbFile) {
         $famSql = "SELECT * FROM families";
         $dbQuery = $resultsDb->query($famSql);
         while ($row = $dbQuery->fetchArray()) {
-            if (strlen($row["family"]) > 0)
-                array_push($output, array("id" => $row["family"], "name" => "a name"));
+            if (strlen($row["family"]) > 0) {
+                if (substr($row["family"], 0, 2) == "PF")
+                    array_push($output["pfam"], array("id" => $row["family"], "name" => "a name"));
+                if (substr($row["family"], 0, 3) == "IPRO")
+                    array_push($output["ipro"], array("id" => $row["ipro_family"], "name" => "a name"));
+            }
         }
     }
 
@@ -151,6 +158,7 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $isDirectJob, 
     $orderByClause = getOrderByClause($resultsDb);
 
     $ids = parseIds($items, $orderDataStruct, $resultsDb, $orderByClause);
+    $output["IDS"] = $ids;
 
     $pageBounds = getPageLimits($pageSize);
     $startCount = $pageBounds['start'];
@@ -372,6 +380,10 @@ function getQueryAttributes($row, $orderData, $isDirectJob) {
     $attr['id'] = $row['id'];
     $attr['num'] = $row['num'];
     $attr['family'] = explode("-", $row['family']);
+    if (isset($row['ipro_family']))
+        $attr['ipro_family'] = explode("-", $row['ipro_family']);
+    else
+        $attr['ipro_family'] = array();
     $attr['start'] = $row['start'];
     $attr['stop'] = $row['stop'];
     $attr['rel_start_coord'] = $row['rel_start'];
@@ -391,6 +403,8 @@ function getQueryAttributes($row, $orderData, $isDirectJob) {
 
     if (count($attr['family']) > 0 && $attr['family'][0] == "")
         $attr['family'][0] = "none-query";
+    if (count($attr['ipro_family']) > 0 && $attr['ipro_family'][0] == "")
+        $attr['ipro_family'][0] = "none-query";
     $familyCount = count($attr['family']);
 
     $familyDesc = explode(";", $row['family_desc']);
@@ -405,6 +419,21 @@ function getQueryAttributes($row, $orderData, $isDirectJob) {
             $attr['family_desc'] = array_fill(0, $familyCount, $attr['family_desc'][0]);
         else
             $attr['family_desc'] = array_fill(0, $familyCount, "none");
+    }
+    
+    $iproFamilyCount = isset($attr['ipro_family']) ? count($attr['ipro_family']) : 0;
+    $iproFamilyDesc = isset($row['ipro_family_desc']) ? explode(";", $row['ipro_family_desc']) : array();
+    if (count($iproFamilyDesc) == 1) {
+        $iproFamilyDesc = explode("-", $row['ipro_family_desc']);
+        if ($iproFamilyDesc[0] == "")
+            $iproFamilyDesc[0] = "Query without family";
+    }
+    $attr['ipro_family_desc'] = $iproFamilyDesc;
+    if (count($attr['ipro_family_desc']) < $iproFamilyCount) {
+        if (count($attr['ipro_family_desc']) > 0)
+            $attr['ipro_family_desc'] = array_fill(0, $iproFamilyCount, $attr['ipro_family_desc'][0]);
+        else
+            $attr['ipro_family_desc'] = array_fill(0, $iproFamilyCount, "none");
     }
     
     if (array_key_exists("color", $row))
@@ -442,6 +471,10 @@ function getNeighborAttributes($row) {
     $nb['id'] = $row['id'];
     $nb['num'] = $row['num'];
     $nb['family'] = explode("-", $row['family']);
+    if (isset($row['ipro_family']))
+        $nb['ipro_family'] = explode("-", $row['ipro_family']);
+    else
+        $nb['ipro_family'] = array();
     $nb['start'] = $row['start'];
     $nb['stop'] = $row['stop'];
     $nb['rel_start_coord'] = $row['rel_start'];
@@ -463,6 +496,18 @@ function getNeighborAttributes($row) {
             $nb['family_desc'] = array_fill(0, $familyCount, $nb['family_desc'][0]);
         else
             $nb['family_desc'] = array_fill(0, $familyCount, "none");
+    }
+    
+    $iproFamilyCount = count($nb['ipro_family']);
+    $iproFamilyDesc = isset($row['ipro_family_desc']) ? explode(";", $row['ipro_family_desc']) : array();
+    if (count($iproFamilyDesc) == 1)
+        $iproFamilyDesc = explode("-", $row['ipro_family_desc']);
+    $nb['ipro_family_desc'] = $iproFamilyDesc;
+    if (count($nb['ipro_family_desc']) < $iproFamilyCount) {
+        if (count($nb['ipro_family_desc']) > 0)
+            $nb['ipro_family_desc'] = array_fill(0, $iproFamilyCount, $nb['ipro_family_desc'][0]);
+        else
+            $nb['ipro_family_desc'] = array_fill(0, $iproFamilyCount, "none");
     }
     
     if (array_key_exists("color", $row))

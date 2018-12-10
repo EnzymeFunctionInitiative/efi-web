@@ -27,11 +27,12 @@ is supported by the <a href="https://www.igb.illinois.edu/facilities-services/co
 and Network Resource Group</a> at IGB.
 </p>
 
-<div style="margin:auto; with:100%; text-align: center;">
-<img src="images/jg2.jpg" height="165">
-<img src="images/rz.jpg" height="165">
-<img src="images/no.jpg" height="165">
-<img src="images/dd.jpg" height="165">
+<div class="image-bar">
+<div><img src="images/jg2.jpg" height="165"><br>John Gerlt</div>
+<div><img src="images/rz.jpg" height="165"><br>R&eacute;mi Zallot</div>
+<div><img src="images/dd.jpg" height="165"><br>Dan Davidson</div>
+<div><img src="images/ds.jpg" height="165"><br>David Slater</div>
+<div><img src="images/no.jpg" height="165"><br>Nils Oberg</div>
 </div>
 
 <p style="margin-top: 30px">
