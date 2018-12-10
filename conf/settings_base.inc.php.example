@@ -40,10 +40,13 @@ define("__NEW__","NEW");
 define("__RUNNING__","RUNNING");
 define("__FINISH__","FINISH");
 define("__FAILED__","FAILED");
+define("__CANCELLED__","CANCELLED");
+define("__ARCHIVED__","ARCHIVED");
 
 //
 // DEFAULTS
 define("__MAX_TIMEOUT__","3600");
 define("__RETENTION_DAYS__","30");
+define("__NUM_JOB_LIMIT__","6");
 
 ?>

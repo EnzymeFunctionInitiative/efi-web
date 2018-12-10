@@ -5,11 +5,20 @@ require_once "inc/header.inc.php";
 ?>
 
 
-<h2>Version 2.0 Release Notes</h2>
+<h2>Version 2.2 Release Notes</h2>
 
 Several new features have been added to the GNT:
 
 <ul>
+    <li>
+        Users now have the ability to regenerate GNNs from an existing GNT job (only applicable to
+        GNT jobs started after 12/10/2018).  This allows the user to use a different neighborhood
+        size or cooccurrence to generate a GNN from an existing job, saving computation time.
+    </li>
+    <li>The genomic neighborhood diagram viewer has the capability to graphically filter diagrams
+        by Pfam. The users can press the Ctrl button on the keyboard and click on an arrow and all
+        arrows with that particular family will be highlighted.</li>
+    <li>Users can now submit GNT jobs directly from the EST download page.</li>
     <li>To improve usability of the GNT, the various tools have been separated into separate tabs.</li>
 <?php if (settings::is_recent_jobs_enabled()) { ?>
     <li>Recently-ran jobs are now listed on the first tab of the GNT. This feature is enabled

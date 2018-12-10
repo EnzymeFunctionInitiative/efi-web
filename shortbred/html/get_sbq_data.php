@@ -4,6 +4,14 @@ require_once("../includes/main.inc.php");
 require_once("../libs/identify.class.inc.php");
 require_once("../libs/quantify.class.inc.php");
 
+const MERGED = 1;       // Both clusters and singletons
+const SINGLETONS = 2;   // Only singletons in the SSN
+const CLUSTERS = 3;     // Only SSN clusters >= 2 in size
+
+const GROUP_ALL = 1;
+const GROUP_JOB = 2;
+
+
 $is_error = false;
 $the_id = "";
 $q_id = "";
@@ -11,12 +19,12 @@ $job_obj = NULL;
 
 if (isset($_POST["id"]) && is_numeric($_POST["id"]) && isset($_POST["key"])) {
     $the_id = $_POST["id"];
-#    if (isset($_POST["quantify-id"]) && is_numeric($_POST["quantify-id"])) {
-#        $q_id = $_POST["quantify-id"];
-#        $job_obj = new quantify($db, $q_id);
-#    } else {
+    if (isset($_POST["quantify-id"]) && is_numeric($_POST["quantify-id"])) {
+        $q_id = $_POST["quantify-id"];
+        $job_obj = new quantify($db, $q_id);
+    } else {
         $job_obj = new identify($db, $the_id);
-#    }
+    }
 
     if ($job_obj->get_key() != $_POST["key"]) {
         $is_error = true;
@@ -27,15 +35,43 @@ if (isset($_POST["id"]) && is_numeric($_POST["id"]) && isset($_POST["key"])) {
     }
 }
 
+$get_results = MERGED;
+if (isset($_POST["res"])) {
+    switch ($_POST["res"]) {
+        case "s":
+            $get_results = SINGLETONS;
+            break;
+        case "c":
+            $get_results = CLUSTERS;
+            break;
+        case "m":
+        default:
+            $get_results = MERGED;
+            break;
+    }
+}
+
+$use_mean = false;
+if (isset($_POST["use-mean"])) {
+    $use_mean = true;
+}
+$hits_only = false; // Return 1 for cells that have a value of any kind, 0 otherwise
+if (isset($_POST["hits-only"])) {
+    $hits_only = true;
+    //$use_mean = true;
+}
+
+
 $result = array("valid" => false);
 
-if ($is_error) {
+if ($is_error || !$q_id) {
     echo json_encode($result);
     exit(0);
 }
 
-$id_dir = $job_obj->get_results_path();
-$clust_file = $id_dir . "/" . quantify::get_normalized_cluster_file_name();
+$id_dir = $job_obj->get_identify_output_path();
+$clust_file = $job_obj->get_genome_normalized_cluster_file_path($use_mean);
+
 
 if (!file_exists($clust_file)) {
     echo json_encode($result);
@@ -47,6 +83,17 @@ if (isset($_POST["clusters"])) {
     $req_clusters = parse_clusters($_POST["clusters"]);
 }
 
+$lower_thresh = 0;
+if (isset($_POST["lower_thresh"]) && is_numeric($_POST["lower_thresh"]))
+    $lower_thresh = $_POST["lower_thresh"];
+
+$upper_thresh = 1000000;
+if (isset($_POST["upper_thresh"]) && is_numeric($_POST["upper_thresh"]))
+    $upper_thresh = $_POST["upper_thresh"];
+
+$bodysites = array();
+if (isset($_POST["bodysites"]))
+    $bodysites = explode("|", $_POST["bodysites"]);
 
 $fh = fopen($clust_file, "r");
 
@@ -57,17 +104,24 @@ if ($fh) {
     if (in_array("Cluster Size", $headers))
         $start_idx = 2;
 
-    $metagenomes = array_slice($headers, $start_idx);
+    $site_info = functions::get_mg_db_info_filtered($bodysites);
+    $metagenomes_hdr = array_slice($headers, $start_idx);
+    $metagenomes = array();
+    foreach ($metagenomes_hdr as $mg_id) {
+        if (isset($site_info["order"][$mg_id]))
+            array_push($metagenomes, $mg_id);
+    }
 
     // SORT AND MAP METAGENOMES SO THAT THEY CAN BE GROUPED BY BODY SITE
-    $mg_lookup_temp = array();
-    for ($i = 0; $i < count($metagenomes); $i++) {
-        $mg_lookup_temp[$metagenomes[$i]] = $i;
+    $file_col_map = array();
+    for ($i = 0; $i < count($metagenomes_hdr); $i++) {
+        $file_col_map[$metagenomes_hdr[$i]] = $i;
     }
-    $site_info = get_mg_db_info();
     $sort_fn = function($a, $b) use ($site_info) {
         if (!isset($site_info["site"][$a])) return 0;
         elseif (!isset($site_info["site"][$b])) return 0;
+        $cmp = strcmp($site_info["order"][$a], $site_info["order"][$b]);
+        if ($cmp != 0) return $cmp;
         $cmp = strcmp($site_info["site"][$a], $site_info["site"][$b]);
         if ($cmp != 0) return $cmp;
         $cmp = strcmp($site_info["gender"][$a], $site_info["gender"][$b]);
@@ -76,48 +130,90 @@ if ($fh) {
         return $cmp;
     };
     usort($metagenomes, $sort_fn);
-    $mg_lookup = array();
+    $mg_order_map = array();
+    $site_color = array();
     for ($i = 0; $i < count($metagenomes); $i++) {
-        $mg_lookup[$mg_lookup_temp[$metagenomes[$i]]] = $i;
+        $mg_order_map[$metagenomes[$i]] = $i;
     }
-#    var_dump($mg_lookup);
-#    die();
 
     $clusters = array();
+    $singles = array();
+
+    $min = 1000000;
+    $max = -1000000;
 
     while (($line = fgets($fh)) !== false) {
         $line = trim($line);
         $parts = explode("\t", $line);
         $cluster = $parts[0];
+        $size = $start_idx == 2 ? $parts[1] : 2;
+        if (substr($cluster, 0, 1) == "S")
+            $size = 1;
+        
+        //TODO: this is only needed until legacy jobs (prior to 8/4/2018) are eased out of the system.
+        if (isset($cluster_sizes[$cluster]))
+            $size = $cluster_sizes[$cluster];
+        //TODO: this is only needed until legacy jobs (prior to 8/4/2018) are eased out of the system.
+        if ($size == 1 && $cluster[0] != "S")
+            $cluster = "S$cluster";
 
         if ($cluster == "#N/A")
             continue;
+
+        $cluster_number = $cluster; // $size == 1 ? "S$cluster" : $cluster;
+        $info = array("number" => $cluster_number, "abundance" => array_fill(0, count($metagenomes), 0));
+        $sum = 0;
+        for ($i = 0; $i < count($metagenomes); $i++) {
+            $mg_id = $metagenomes[$i];
+            $mg_idx = $mg_order_map[$mg_id];
+            $col_idx = $start_idx + $file_col_map[$mg_id];
+            $val = $parts[$col_idx];
+            
+            if ($val > $max)
+                $max = $val;
+            if ($val < $min)
+                $min = $val;
+
+            // Skip the value if it's lower than the input threshold.
+            if ($hits_only && $val > 0)
+                $val = 1;
+            elseif ($val < $lower_thresh)
+                $val = 0;
+            elseif ($val > $upper_thresh)
+                $val = 0;
+            
+            $sum += $val;
+
+            $info["abundance"][$mg_idx] = $val;
+        }
+
+        // We do these checks after getting the values in order to obtain the min/max extents of the
+        // data.  This is to allow consistent scaling between different plot types.
+        //
         // If the user requested specific clusters, only return results for those clusters.
         if (count($req_clusters) && !isset($req_clusters[$cluster]))
             continue;
+        if ($get_results == SINGLETONS && $size > 1 && !isset($req_clusters[$cluster]))
+            continue;
+        elseif ($get_results == CLUSTERS && $size < 2 && !isset($req_clusters[$cluster]))
+            continue;
 
-        $info = array("number" => $cluster, "abundance" => array_fill(0, count($metagenomes), 0));
-        $sum = 0;
-        for ($i = 0; $i < count($metagenomes); $i++) {
-            $mg_idx = $mg_lookup[$i];
-#            print $metagenomes[$i] . " $mg_idx\n";
-            $info["abundance"][$mg_idx] = $parts[$start_idx + $i];
-            $sum += $parts[1 + $i];
-#            var_dump($info);
-#           die();
+        if ($sum >= 1e-6) {
+            if ($size == 1)
+                array_push($singles, $info);
+            else
+                array_push($clusters, $info);
         }
-#        var_dump($info);
-#        die();
-
-        if ($sum >= 1e-6)
-            array_push($clusters, $info);
     }
 
+    usort($singles, "cmp_singles");
+    $clusters = array_merge($clusters, $singles);
 
     $result["clusters"] = $clusters;
     $result["metagenomes"] = $metagenomes;
     $result["site_info"] = $site_info;
     $result["valid"] = true;
+    $result["extent"] = array("min" => $min, "max" => $max);
     
     fclose($fh);
 } else {
@@ -129,14 +225,36 @@ echo json_encode($result);
 
 
 
+function cmp_singles($a, $b) {
+    $aa = $a["number"];
+    $bb = $b["number"];
+    if (substr($aa, 0, 1) == "S")
+        $aa = substr($aa, 1);
+    if (substr($bb, 0, 1) == "S")
+        $bb = substr($bb, 1);
+    return $aa - $bb;
+}
+
 
 function parse_clusters($params) {
     $params = str_replace(" ", "", $params);
     $parts = explode(",", $params);
     $nums = array();
     foreach ($parts as $part) {
+        $part = strtoupper($part);
         if (is_numeric($part)) {
             $nums[$part] = true;
+        } elseif (strpos($part, "S") !== false) { // Singletons
+            $range_parts = explode("-", $part);
+            if (count($range_parts) == 2) {
+                $start = substr($range_parts[0], 1);
+                $end = substr($range_parts[1], 1);
+                $the_range = range($start, $end);
+                foreach ($the_range as $range_val)
+                    $nums["S$range_val"] = true;
+            } else {
+                $nums[$part] = true;
+            }
         } else {
             $range_parts = explode("-", $part);
             if (count($range_parts) == 2) {
@@ -151,32 +269,71 @@ function parse_clusters($params) {
 
 
 
-function get_mg_db_info() {
-    $mg_dbs = settings::get_metagenome_db_list();
+//function get_mg_db_info($bodysites) {
+//    $mg_dbs = settings::get_metagenome_db_list();
+//
+//    $mg_db_list = explode(",", $mg_dbs);
+//
+//    $info = array("site" => array(), "gender" => array());
+//
+//    foreach ($mg_db_list as $mg_db) {
+//        $fh = fopen($mg_db, "r");
+//        if ($fh === false)
+//            continue;
+//
+//        $meta = get_mg_metadata($mg_db);
+//
+//        while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
+//            if (isset($data[0]) && $data[0] && $data[0][0] == "#")
+//                continue; // skip comments
+//
+//            $mg_id = $data[0];
+//
+//            $pos = strpos($data[1], "-");
+//            $site = trim(substr($data[1], $pos+1));
+//            $site = str_replace("_", " ", $site);
+//
+//            if (count($bodysites) == 0 || in_array($site, $bodysites)) {
+//                $info["site"][$mg_id] = $site;
+//                $info["gender"][$mg_id] = $data[2];
+//                $info["color"][$mg_id] = isset($meta[$site]) ? $meta[$site]["color"] : "";
+//                $info["order"][$mg_id] = isset($meta[$site]) ? $meta[$site]["order"] : "";
+//            }
+//        }
+//
+//        fclose($fh);
+//    }
+//
+//    return $info;
+//}
+//
+//function get_mg_metadata($mg_db) {
+//
+//    $info = array(); # map site to color
+//
+//    $scheme_file = "$mg_db.metadata";
+//    if (file_exists($scheme_file)) {
+//        $fh = fopen($scheme_file, "r");
+//        if ($fh === false)
+//            return false;
+//    } else {
+//        return false;
+//    }
+//
+//    while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
+//        if (isset($data[0]) && $data[0] && $data[0][0] == "#")
+//            continue; // skip comments
+//
+//        $site = str_replace("_", " ", $data[0]);
+//        $color = $data[1];
+//        $order = isset($data[2]) ? $data[2] : 0;
+//        $info[$site] = array('color' => $color, 'order' => $order);
+//    }
+//
+//    fclose($fh);
+//
+//    return $info;
+//}
 
-    $mg_db_list = explode(",", $mg_dbs);
-
-    $info = array("site" => array(), "gender" => array());
-
-    foreach ($mg_db_list as $mg_db) {
-        $fh = fopen($mg_db, "r");
-        if ($fh === false)
-            continue;
-
-        while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
-            if (isset($data[0]) && $data[0] && $data[0][0] == "#")
-                continue; // skip comments
-
-            $pos = strpos($data[1], "-");
-            $site = trim(substr($data[1], $pos+1));
-            $info["site"][$data[0]] = $site;
-            $info["gender"][$data[0]] = $data[2];
-        }
-
-        fclose($fh);
-    }
-
-    return $info;
-}
 
 ?>

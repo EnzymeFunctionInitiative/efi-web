@@ -37,6 +37,7 @@ class stepa {
     protected $beta;
     protected $evalue_data_file = "evalue.tab";
     protected $is_sticky = false;
+    protected $job_name = "";
 
     //private $alignment_length = "r_quartile_align.png";
     //private $length_histogram = "r_hist_length.png";
@@ -106,6 +107,7 @@ class stepa {
     public function get_blast_input() { return ""; }
     public function get_families() { return array(); }
     public function get_db_version() { return $this->db_version; }
+    public function get_job_name() { return $this->job_name; }
     public function is_cd_hit_job() { return FALSE; } //HACK: this is a temporary hack for research purposes
 
 
@@ -126,8 +128,9 @@ class stepa {
         $this->time_started = $current_time;
     }
 
-    public function set_time_completed() {
-        $current_time = self::get_current_datetime();
+    public function set_time_completed($current_time = false) {
+        if ($current_time === false)
+            $current_time = self::get_current_datetime();
         $sql = "UPDATE generate SET generate_time_completed='" . $current_time . "' ";
         $sql .= "WHERE generate_id='" . $this->get_id() . "' LIMIT 1";
         $this->db->non_select_query($sql);
@@ -195,7 +198,6 @@ class stepa {
     }
 
     public function set_status($status) {
-
         $sql = "UPDATE generate ";
         $sql .= "SET generate_status='" . $status . "' ";
         $sql .= "WHERE generate_id='" . $this->get_id() . "' LIMIT 1";
@@ -203,7 +205,14 @@ class stepa {
         if ($result) {
             $this->status = $status;
         }
+    }
 
+    public function mark_job_as_archived() {
+        // This marks the job as archived-failed. If the job is archived but the
+        // time completed is non-zero, then the job successfully completed.
+        if ($this->get_status() == __FAILED__)
+            $this->set_time_completed("0000-00-00 00:00:00");
+        $this->set_status(__ARCHIVED__);
     }
 
     public function get_num_sequence_from_file() {
@@ -771,6 +780,7 @@ class stepa {
             $params_obj = $this->decode_object($result['generate_params']);
             $this->evalue = $params_obj['generate_evalue'];
             $this->fraction = $params_obj['generate_fraction'];
+            $this->job_name = isset($params_obj['generate_job_name']) ? $params_obj['generate_job_name'] : "";
             
             $results_obj = $this->decode_object($result['generate_results']);
             if (array_key_exists('generate_num_seq', $results_obj))
@@ -856,6 +866,22 @@ class stepa {
         return $hash;
 
     }
+
+//    public function shared_get_full_file_path($infix_type, $ext) {
+//        $filename = $this->get_file_prefix() . $infix_type . $ext;
+//        $output_dir = $this->get_output_dir();
+//        $full_path = $output_dir . "/" . $filename;
+//        return $full_path;
+//    }
+//
+//    public function shared_get_relative_file_path($infix_type, $ext) {
+//        $filename = $this->get_file_prefix() . $infix_type . "_co" . $this->get_cooccurrence() . "_ns" . $this->get_size() . $ext;
+//        $output_dir = $this->get_output_dir();
+//        $full_path = $output_dir . "/" . $this->get_id() . "/".  $filename;
+//        return $full_path;
+//    }
+//    protected function get_shared_name() {
+//    }
 
     //	private function available_pbs_slots() {
     //                $queue = new queue(functions::get_generate_queue());

@@ -5,8 +5,10 @@ var DM_INDEX = 2;
 var ARROW_ADD_PAGE = 0;
 var ARROW_RESET_REFRESH = 1;
 var ARROW_REFRESH = 2;
+var DEFAULT_PAGE_SIZE = 50;
 
 
+// filterUpdateCb is the callback for updating the UI filter checkboxes, when we CTRL+click to add a family filter.
 function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
 
     this.canvasId = canvasId;
@@ -39,6 +41,8 @@ function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
     this.arrowMap = {};
     this.pfamFilter = {};
     this.pfamList = {};
+    this.groupList = [];
+    this.legendGroup = undefined;
 
     this.idKeyQueryString = ""; 
 
@@ -48,20 +52,24 @@ function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
     this.S.attr({viewBox: "0 0 " + this.initialWidth + " " + this.diagramHeight});
 }
 
-ArrowDiagram.prototype.nextPage = function(callback) {
+ArrowDiagram.prototype.setUiFilterUpdateCb = function(callback) {
+    this.filterUpdateCb = callback;
+}
+
+ArrowDiagram.prototype.nextPage = function(callback, pageSize = 20) {
     this.diagramPage++;
-    this.retrieveArrowData(this.idList, true, ARROW_ADD_PAGE, callback);
+    this.retrieveArrowData(this.idList, true, ARROW_ADD_PAGE, callback, pageSize);
 }
 
 ArrowDiagram.prototype.refreshCanvas = function(usePaging, callback) {
-    this.retrieveArrowData(this.idList, usePaging, ARROW_REFRESH, callback);
+    this.retrieveArrowData(this.idList, usePaging, ARROW_REFRESH, callback, DEFAULT_PAGE_SIZE);
 }
 
 ArrowDiagram.prototype.searchArrows = function(usePaging, callback) {
-    this.retrieveArrowData(this.idList, usePaging, ARROW_RESET_REFRESH, callback);
+    this.retrieveArrowData(this.idList, usePaging, ARROW_RESET_REFRESH, callback, DEFAULT_PAGE_SIZE);
 }
 
-ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAction, callback) {
+ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAction, callback, pageSize) {
     if (typeof idList !== 'undefined')
         this.idList = idList;
 
@@ -80,18 +88,32 @@ ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAct
                 pageString = "&page=0-" + this.diagramPage;
             else 
                 pageString = "&page=" + this.diagramPage;
+            pageString += "&pagesize=" + pageSize;
         }
         var nbSizeString = "&window=" + this.nbSize;
+
 
         var theUrl = "get_neighbor_data.php?" + this.idKeyQueryString + "&query=" + idListQuery + pageString + nbSizeString;
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", theUrl, true);
         xmlhttp.onload = function() {
             if (this.readyState == 4 && this.status == 200) {
-                var data = JSON.parse(this.responseText);
-                that.makeArrowDiagram(data, usePaging, resetCanvas);
-                that.data = data;
-                typeof callback === 'function' && callback(data.eod);
+                var data = null;
+                var isError = false;
+                try {
+                    data = JSON.parse(this.responseText);
+                } catch (e) {
+                    isError = true;
+                }
+                var eod = false;
+                if (data !== null) {
+                    that.makeArrowDiagram(data, usePaging, resetCanvas);
+                    that.data = data;
+                    eod = data.eod;
+                } else {
+                    that.data = {'data': []};
+                }
+                typeof callback === 'function' && callback(eod, isError);
             }
         };
         xmlhttp.send(null);
@@ -125,11 +147,14 @@ ArrowDiagram.prototype.getFamilies = function(sortById) {
     var keys = Object.keys(this.pfamList);
     for (var fi = 0; fi < keys.length; fi++) {
         var famId = keys[fi];
+        var famName = "";
         if (famId == "none")
-            continue;
+            famName = "None";
+        else
+            famName = this.pfamList[famId];
 
         var isChecked = typeof this.pfamFilter[famId] !== 'undefined';
-        fams.push({'id': famId, 'name': this.pfamList[famId], 'checked': isChecked});
+        fams.push({'id': famId, 'name': famName, 'checked': isChecked});
     }
 
     if (sortById)
@@ -167,18 +192,73 @@ ArrowDiagram.prototype.makeArrowDiagram = function(data, usePaging, resetCanvas)
 
     var i = usePaging && !resetCanvas ? this.diagramCount : 0;
 
+    var maxDiagramWidthBp = 1;
     //for (seqId in data.data) {
     for (var oi = 0; oi < data.data.length; oi++) {
         this.drawDiagram(canvas, i, data.data[oi], drawingWidth);
+        //var diagramWidthBp = this.drawDiagram(canvas, i, data.data[oi], drawingWidth);
+        //if (diagramWidthBp > maxDiagramWidthBp)
+        //    maxDiagramWidthBp = diagramWidthBp;
         i++;
     }
     this.diagramCount = i;
+
+    this.drawLegendLine(canvas, i, data, drawingWidth);
+    //this.drawLegendLine(canvas, i, maxDiagramWidthBp, drawingWidth);
     
     //var canvasHeight = canvas.getBoundingClientRect().height;
     var extraPadding = 60; // for popup for last one
     var ypos = this.diagramCount * this.diagramHeight + this.padding * 2 + this.fontHeight;
     this.S.attr({viewBox: "0 0 " + this.initialWidth + " " + ypos});
     document.getElementById(this.canvasId).setAttribute("style","height:" + (ypos + this.diagramHeight + this.padding + extraPadding) + "px");
+}
+
+ArrowDiagram.prototype.drawLegendLine = function(canvas, index, data, drawingWidth) {
+    if (this.legendGroup)
+        this.legendGroup.remove();
+
+    var ypos = index * this.diagramHeight + this.padding + this.fontHeight;
+
+    var legendScale = data["legend_scale"]; // This comes in base-pair units, whereas the GUI displays things in terms of AA position.
+    var l1 = Math.log10(legendScale);
+    var l2 = Math.ceil(l1) - 2;
+    var legendLength = Math.pow(10, l2); // In AA
+    var legendBp = legendLength * 3;
+    var legendScaleFactor = drawingWidth / legendScale;
+    var lineLength = legendBp * legendScaleFactor;
+    var legendText = legendLength * 3 / 1000;
+
+    //var minBp = data["min_pct"];
+    //var maxBp = data["max_pct"];
+    //var legendScale = drawingWidth / (maxBp - minBp); //drawingWidth / data["legend_scale"];
+    //var legendBp = 1; //0.20; //1400 * legendScale;
+
+//  //  var legendBp = (maxBp - minBp) / 100;
+    ////var legendBp = drawingWidth / (maxBp - minBp);
+//  //  var legendScale = data["legend_scale"];
+    //var lineLength = legendScale * legendBp; //legendBp * legendBp * 100; //legendScale * 100;
+    //console.log(lineLength);
+    //var bpWidth = data["max_bp"] - data["min_bp"];
+    //var legendScale = Math.abs(Math.floor(bpWidth * legendBp));
+
+    var group = this.S.paper.group();
+
+    group.line(this.padding, ypos, this.padding + lineLength, ypos)
+        .attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness });
+    group.line(this.padding, ypos - 5, this.padding, ypos + 5)
+        .attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness });
+    group.line(this.padding + lineLength, ypos - 5, this.padding + lineLength, ypos + 5)
+        .attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness });
+
+    var textYpos = index * this.diagramHeight + this.fontHeight;
+    var textObj = group.text(this.padding, textYpos, "Scale:");
+    textObj.attr({'style':'diagram-title'});
+    
+    var textYpos = index * this.diagramHeight + this.fontHeight * 2;
+    textObj = group.text(this.padding + lineLength + 10, textYpos, legendText + " kbp");
+    textObj.attr({'style':'diagram-title'});
+    
+    this.legendGroup = group;
 }
 
 // Draw a diagram for a single arrow
@@ -253,6 +333,10 @@ ArrowDiagram.prototype.drawDiagram = function(canvas, index, data, drawingWidth)
         var attrData = makeStruct(N);
         this.assignColor(attrData, false);
 
+//        if (neighborXpos < minBp)
+//            minBp = neighborXpos;
+//        if (neighborXpos + neighborWidth > maxBp)
+//            maxBp = neighborXpos + neighborWidth;
         arrow = this.drawArrow(group, neighborXpos, ypos, neighborWidth, nIsComplement, drawingWidth, attrData);
 
         for (var famIdx in attrData.family) {
@@ -275,6 +359,8 @@ ArrowDiagram.prototype.drawDiagram = function(canvas, index, data, drawingWidth)
     data.attributes.max_start = max_start;
     //data.attributes.max_stop = max_stop;
     this.drawTitle(group, index * this.diagramHeight + this.fontHeight - 2, data.attributes);
+
+    this.groupList.push(group);
 }
 
 function getDefaultOrder(start, numElements) {
@@ -289,6 +375,7 @@ function makeStruct(data) {
     struct = {
         "accession": data.accession,
         "family": data.family,
+        "ipro_family": data.ipro_family,
         "id": data.id,
         "gene_direction": data.direction,
         "seq_len": data.seq_len,
@@ -297,6 +384,7 @@ function makeStruct(data) {
         "num": data.num,
         "anno_status": data.anno_status,
         "family_desc": data.family_desc,
+        "ipro_family_desc": data.ipro_family_desc,
         "desc": data.desc,
     };
 
@@ -471,13 +559,30 @@ ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isC
     attrData.class = "an-arrow";
     attrData.family = attrData.family.join("-"); // Shown on popup
     attrData.family_desc = attrData.family_desc.join("-"); // Shown on popup
+    attrData.ipro_family = attrData.ipro_family.join("-"); // Shown on popup
+    attrData.ipro_family_desc = attrData.ipro_family_desc.join("-"); // Shown on popup
     attrData.base_family = famParts.length ? famParts[famParts.length-1] : "";
     var arrow = svgContainer.polygon(coords).attr(attrData);
 
     var that = this;
     var pos = $("#" + this.canvasId).offset();
-    var clickEvt = function(event) {
-        window.open("http://uniprot.org/uniprot/" + this.attr("accession"));
+    var clickEvt = function(ev) {
+        if (ev.ctrlKey || ev.altKey) {
+            var fams = this.attr("family").split("-");
+            console.log(ev.target.className.baseVal);
+            console.log(fams);
+            var isActive = ev.target.className.baseVal.includes("an-arrow-selected");
+            fams.forEach((fam, idx) => {
+                if (isActive)
+                    that.removePfamFilter(fam);
+                else
+                    that.addPfamFilter(fam);
+                that.filterUpdateCb(fam, isActive);
+            });
+            console.log(ev);
+        } else {
+            window.open("http://uniprot.org/uniprot/" + this.attr("accession"));
+        }
     };
     var overEvt = function(e) {
         var boxX, boxY;
@@ -638,6 +743,12 @@ ArrowDiagram.prototype.removePfamFilter = function(pfam) {
     }
 }
 
+ArrowDiagram.prototype.showHiddenDiagrams = function() {
+    for (var i = 0; i < this.groupList.length; i++) {
+        this.groupList.attr({visibility: "visible"});
+    }
+}
+
 ArrowDiagram.prototype.clearPfamFilters = function() {
     var pfams = Object.keys(this.pfamFilter);
     for (var i = 0; i < pfams.length; i++) {
@@ -658,13 +769,22 @@ ArrowDiagram.prototype.doPopup = function(xPos, yPos, doShow, data) {
         if (!familyDesc || familyDesc.length == 0)
             familyDesc = "none";
 
+        var iproFamily = data.attr("ipro_family");
+        if (!iproFamily || iproFamily.length == 0)
+            iproFamily = "none";
+        var iproFamilyDesc = data.attr("ipro_family_desc");
+        if (!iproFamilyDesc || iproFamilyDesc.length == 0)
+            iproFamilyDesc = "none";
+
         //    family = family.join("-");
         $("#" + this.popupIds.IdId + " span").text(data.attr("accession"));
         $("#" + this.popupIds.DescId + " span").text(data.attr("desc"));
         $("#" + this.popupIds.FamilyId + " span").text(family);
         $("#" + this.popupIds.FamilyDescId + " span").text(familyDesc);
+        $("#" + this.popupIds.IproFamilyId + " span").text(iproFamily);
+        $("#" + this.popupIds.IproFamilyDescId + " span").text(iproFamilyDesc);
         $("#" + this.popupIds.SpTrId + " span").text(data.attr("anno_status"));
-        $("#" + this.popupIds.SeqLenId + " span").text(data.attr("seq_len"));
+        $("#" + this.popupIds.SeqLenId + " span").text(data.attr("seq_len") + " AA");
         //this.popupElement.show();
         this.popupElement.removeClass("hidden");
     } else {

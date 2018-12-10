@@ -1,0 +1,3 @@
+
+ALTER TABLE gnn CHANGE COLUMN gnn_status gnn_status enum('NEW','RUNNING','FINISH','FAILED','CANCELLED','ARCHIVED');
+

@@ -8,20 +8,19 @@ class ui {
             $maxFileSize = ini_get('post_max_size');
 
         return <<<HTML
-                <div>
-                    $title
+                <div style="margin-top: 10px">
+                    <b>$title</b><br>
                     <input type='file' name='$fileId' id='$fileId' data-url='server/php/' class="input_file">
                     <label for="$fileId" class="file_upload"><img src="images/upload.svg" /> <span>Choose a file&hellip;</span></label>
-                    <progress id='$progressBarId' max='100' value='0'></progress>
+                    <progress id='$progressBarId' max='100' value='0'></progress> <a class="question" title="Maximum size is $maxFileSize">?</a>
                 </div>
                 <br><div id="$progressNumId"></div>
-                Maximum size is $maxFileSize.
 HTML;
     }
 
     public static function make_pfam_size_box($parentId, $tableId, $showUniref90, $showUniref50) {
-        $uniref90 = $showUniref90 ? "<th>UniRef90 Size</th>" : "";
-        $uniref50 = $showUniref50 ? "<th>UniRef50 Size</th>" : "";
+        $uniref90 = $showUniref90 ? "<th id=\"$tableId-ur-hdr\">UniRef 90 Size</th>" : "";
+        $uniref50 = $showUniref50 ? "<th id=\"$tableId-ur-hdr\">UniRef 50 Size</th>" : "";
         return <<<HTML
                 <center>
                         <div style="width:85%;display:none" id="$parentId">

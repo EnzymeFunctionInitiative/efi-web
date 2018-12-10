@@ -5,7 +5,6 @@ require_once('arrow_api.class.inc.php');
 
 class diagram_data_file extends arrow_api {
 
-    private $id;
 //    private $gnn_name;
 //    private $db_file;
     private $loaded;
@@ -17,7 +16,7 @@ class diagram_data_file extends arrow_api {
     private $message = "";
 
     public function __construct($id) {
-        $this->id = $id;
+        parent::__construct(NULL, $id, "diagram");
         if ($id) {
             $this->loaded = $this->load_data();
         } else {

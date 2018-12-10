@@ -1,8 +1,9 @@
 
-function submitQuantify(formId, selectId, messageId, sbId, sbKey) {
+function submitQuantify(formId, selectId, searchTypeId, messageId, sbId, sbKey) {
     var fd = new FormData();
     fd.append("id", sbId);
     fd.append("key", sbKey);
+    addParam(fd, "search-type", searchTypeId);
     
     //hmpIdList = $("#" + selectId).val();
     //hmpIds = hmpIdList.join();
@@ -32,11 +33,23 @@ function submitQuantify(formId, selectId, messageId, sbId, sbKey) {
     doFormPost(script, fd, messageId, fileHandler, completionHandler);
 }
 
-function uploadFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, jobGroupId, isSsn) {
+function uploadInitialSSNFile() {
+    fileInputId = "ssn_file";
+    formId = "upload_form";
+    progressNumId = "progress_number";
+    progressBarId = "progress_bar";
+    messageId = "ssn_message";
+
     var fd = new FormData();
-    addParam(fd, "email", emailId);
-    addParam(fd, "submit", submitId);
-    addParam(fd, "job-group", jobGroupId);
+    addParam(fd, "email", "ssn_email");
+    addParam(fd, "submit", "ssn_submit");
+    addParam(fd, "min-seq-len", "ssn_min_seq_len");
+    addParam(fd, "max-seq-len", "ssn_max_seq_len");
+    addParam(fd, "search-type", "ssn_search_type");
+    addParam(fd, "ref-db", "ssn_ref_db");
+    addParam(fd, "cdhit-sid", "ssn_cdhit_sid");
+    addParam(fd, "diamond-sens", "ssn_diamond_sens");
+    addParam(fd, "db-mod", "ssn_db_mod");
 
     var files = document.getElementById(fileInputId).files;
     var completionHandler = function(jsonObj) {
@@ -79,6 +92,24 @@ function uploadAlignmentScoreUpdateSSN(fileInputId, formId, progressNumId, progr
 
     var script = "upload_ssn.php";
     doFormPost(script, fd, messageId, fileHandler, completionHandler);
+}
+
+function requestJobUpdate(generateId, jobKey, quantifyId, requestType, jobType) {
+    var fd = new FormData();
+    fd.append("id", generateId);
+    fd.append("key", jobKey);
+    if (requestType == "cancel")
+        fd.append("rt", "c");
+    else if (requestType == "archive")
+        fd.append("rt", "a");
+    if (quantifyId)
+        fd.append("quantify-id", quantifyId);
+
+    var fileHandler = function(xhr) { };
+    var completionHandler = function(jsonObj) { window.location.href = "index.php"; };
+
+    var script = "update_job_status.php";
+    doFormPost(script, fd, "", fileHandler, completionHandler);
 }
 
 function addUploadStuff(xhr, progressNumId, progressBarId) {
@@ -146,10 +177,12 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
                     document.cookie = jsonObj.cookieInfo;
             }
             if (jsonObj.message) {
-                document.getElementById(messageId).innerHTML = jsonObj.message;
+                if (messageId)
+                    document.getElementById(messageId).innerHTML = jsonObj.message;
             } else if (jsonObj.valid) {
                 completionHandler(jsonObj);
-                document.getElementById(messageId).innerHTML = "";
+                if (messageId)
+                    document.getElementById(messageId).innerHTML = "";
             }
         }
     }

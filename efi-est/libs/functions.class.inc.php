@@ -119,7 +119,7 @@ class functions {
         $sql = "SELECT job_group.generate_id, generate.generate_email FROM job_group " .
             "JOIN generate ON job_group.generate_id = generate.generate_id " .
             //"WHERE job_group.generate_id = $generate_id AND generate.generate_email != '$user_email'";
-            "WHERE job_group.generate_id = $generate_id AND (generate.generate_email != '$user_email' OR job_group.user_group = '$pre_group')";
+            "WHERE job_group.generate_id = $generate_id AND (generate.generate_email != '$user_email' OR job_group.user_group != '')";
         // users can't create copies of sticky jobs that they own.
         $result = $db->query($sql);
         if ($result)
@@ -155,7 +155,7 @@ class functions {
         if (!$db_name)
             return false;
 
-        $sql = "SELECT gnn_id, gnn_key FROM $db_name.gnn WHERE gnn_source_id = $analysis_id";
+        $sql = "SELECT gnn_id, gnn_key FROM $db_name.gnn WHERE gnn_est_source_id = $analysis_id";
         $result = $db->query($sql);
         if ($result) {
             $info = array();
@@ -268,7 +268,85 @@ class functions {
     }
 
     public static function get_efidb_module() {
-        return __EFIDB_MODULE__;
+        return defined("__EFI_DB_MODULE__") ? __EFI_DB_MODULE__ : __EFIDB_MODULE__;
+    }
+
+    public static function get_efi_database() {
+        $db_mod = self::get_efidb_module();
+        
+        $exec = "source /etc/profile\nmodule avail $db_mod";
+        $output_array = array();
+        $exit_status = 1;
+
+        $output = exec($exec, $output_array, $exit_status);
+        $base_mod_path = "";
+        foreach ($output_array as $line) {
+            if (preg_match("/^-----+/", $line)) {
+                $line = preg_replace("/^--+/", "", $line);
+                $line = preg_replace("/--+$/", "", $line);
+                $line = preg_replace("/\s/", "", $line);
+                $base_mod_path = $line;
+                break;
+            }
+        }
+
+        $mod_file = "$base_mod_path/$db_mod";
+        if (!file_exists($mod_file))
+            return "";
+
+        $db_name = "";
+
+        $fh = fopen($mod_file, "r");
+        while (($line = fgets($fh)) !== false) {
+            $parts = preg_split("/\s+/", $line);
+            if (count($parts) >= 3 && $parts[0] == "setenv" && $parts[1] == "EFI_DB") {
+                $db_name = $parts[2];
+                break;
+            }
+        }
+        fclose($fh);
+
+        return $db_name;
+    }
+
+    public static function get_efi_database_config() {
+        if (!defined("__EFI_DB_CONFIG__") || !file_exists(__EFI_DB_CONFIG__))
+            return false;
+
+        $config = parse_ini_file(__EFI_DB_CONFIG__, true);
+        if (isset($config["database"])) {
+            return $config["database"];
+        } else {
+            return false;
+        }
+    }
+
+    public static function get_lengths_for_family($db_name, $db_config, $fam, $uniref_ver = "") {
+        $anno_table = "annotations2";
+        $fam_field = preg_match("/^PF/", $fam) ? "PFAM" : "IPRO";
+
+        $sql = "";
+        if ($uniref_ver) {
+            $seed_field = "uniref${uniref_ver}_seed";
+            $sql = "SELECT " .
+                "$anno_table.Sequence_Length AS length, " .
+                "COUNT($anno_table.Sequence_Length) AS count, " .
+                "$seed_field AS uniref_seed " . 
+                "FROM uniref LEFT JOIN $anno_table ON uniref.$seed_field = $anno_table.accession " .
+                "WHERE $anno_table.$fam_field = '$fam'";
+        } else {
+            //$sql = "SELECT Sequence_Length FROM $anno_table WHERE $fam_field = '$fam'";
+            $sql = "SELECT Sequence_Length AS length, COUNT(Sequence_Length) AS count FROM $anno_table WHERE $fam_field = '$fam'";
+        }
+
+//        die($sql . "\n");
+
+        $db = new db($db_config["host"], $db_name, $db_config["user"], $db_config["password"], $db_config["port"]);
+        $rows = $db->query($sql);
+
+        foreach ($rows as $row) {
+            print $rows[0] . "\t" . $rows[1] . "\n";
+        }
     }
 
     public static function get_efignn_module() {
@@ -313,11 +391,27 @@ class functions {
         return __CLUSTER_PROCS__;
     }
 
-    public static function get_interpro_version() {
-        return __INTERPRO_VERSION__;
+    public static function get_interpro_version($db_mod_index = -1) {
+        if ($db_mod_index < 0 || !defined("__INTERPRO_VERSIONS__")) {
+            return __INTERPRO_VERSION__;
+        } else {
+            $vers = explode(",", __INTERPRO_VERSIONS__);
+            if (isset($vers[$db_mod_index]))
+                return $vers[$db_mod_index];
+            else
+                return __INTERPRO_VERSION__;
+        }
     }
-    public static function get_uniprot_version() {
-        return __UNIPROT_VERSION__;
+    public static function get_uniprot_version($db_mod_index = -1) {
+        if ($db_mod_index < 0 || !defined("__UNIPROT_VERSIONS__")) {
+            return __UNIPROT_VERSION__;
+        } else {
+            $vers = explode(",", __UNIPROT_VERSIONS__);
+            if (isset($vers[$db_mod_index]))
+                return $vers[$db_mod_index];
+            else
+                return __UNIPROT_VERSION__;
+        }
     }
     public static function get_est_version() {
         return __EST_VERSION__;
@@ -373,9 +467,20 @@ class functions {
         return $db->query($sql);
     }
 
-    public static function get_encoded_db_version() {
-        $ver = ((int)str_replace("_", "", functions::get_uniprot_version())) * 10000;
-        $ver += (int)functions::get_interpro_version();
+    public static function get_encoded_db_version($db_mod = "") {
+        $db_mod_index = -1;
+        if ($db_mod) {
+            $mods = global_settings::get_database_modules();
+            for ($i = 0; $i < count($mods); $i++) {
+                if (strtoupper($mods[$i][1]) == strtoupper($db_mod)) {
+                    $db_mod_index = $i;
+                    break;
+                }
+            }
+        }
+
+        $ver = ((int)str_replace("_", "", functions::get_uniprot_version($db_mod_index))) * 10000;
+        $ver += (int)functions::get_interpro_version($db_mod_index);
         return $ver;
     }
 
@@ -467,7 +572,7 @@ class functions {
     public static function get_colorssn_map_dir_name() {
         return __COLORSSN_MAP_DIR_NAME__;
     }
-    public static function get_colorssn_map_file_name() {
+    public static function get_colorssn_map_filename() {
         return __COLORSSN_MAP_FILE_NAME__;
     }
 
@@ -571,6 +676,10 @@ class functions {
         return defined("__MAX_FULL_FAMILY_COUNT__") ? __MAX_FULL_FAMILY_COUNT__ : 0;
     }
 
+    public static function get_maximum_number_ssn_nodes() {
+        return defined("__MAX_NUM_SNN_NODES__") ? __MAX_NUM_SNN_NODES__ : 10000000;
+    }
+
     public static function get_default_uniref_version() {
         return defined("__DEFAULT_UNIREF_VERSION__") ? __DEFAULT_UNIREF_VERSION__ : "90";
     }
@@ -586,6 +695,66 @@ class functions {
     public static function get_gnt_database() {
         return defined("__MYSQL_GNT_DATABASE__") ? __MYSQL_GNT_DATABASE__ : "";
     }
+
+    public static function get_analysis_job_info($db, $analysis_id) {
+        $sql = "SELECT * FROM analysis WHERE analysis_id = $analysis_id";
+        $result = $db->query($sql);
+
+        $info = array();
+
+        if ($result) {
+            $result = $result[0];
+            $info["generate_id"] = $result["analysis_generate_id"];
+            $info["analysis_id"] = $analysis_id;
+            $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
+                                    $result["analysis_evalue"] . "-" .
+                                    $result["analysis_min_length"] . "-" .
+                                    $result["analysis_max_length"];
+            return $info;
+        } else {
+            return false;
+        }
+    }
+
+    public static function get_ssn_file_info($info, $ssn_idx) {
+
+        $est_gid = $info["generate_id"];
+        $a_dir = $info["analysis_dir"];
+
+        $base_est_results = functions::get_results_dir();
+        $est_results_name = "output";
+        $est_results_dir = "$base_est_results/$est_gid/$est_results_name/$a_dir";
+
+        if (!is_dir($est_results_dir)) {
+            return false;
+        }
+
+        $filename = "";
+
+        $stats_file = "$est_results_dir/stats.tab";
+        $fh = fopen($stats_file, "r");
+
+        $c = -1; # header
+        while (($line = fgets($fh)) !== false) {
+            if ($c++ == $ssn_idx) {
+                $parts = explode("\t", $line);
+                $filename = $parts[0];
+                break;
+            }
+        }
+
+        fclose($fh);
+
+        $info = array();
+        if ($filename) {
+            $info["filename"] = $filename;
+            $info["full_ssn_path"] = "$est_results_dir/$filename";
+            return $info;
+        } else {
+            return false;
+        }
+    }
+
 }
 
 ?>

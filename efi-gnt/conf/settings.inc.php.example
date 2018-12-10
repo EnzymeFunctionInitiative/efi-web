@@ -14,6 +14,7 @@ require_once("../../conf/settings_base.inc.php");
 // PATHS
 define("__OUTPUT_DIR__","");
 define("__EST_OUTPUT_DIR__","");
+define("__SYNC_OUTPUT_DIR__","");
 define("__DIAGRAM_OUTPUT_DIR__","");
 define("__LEGACY_OUTPUT_DIR__","");
 define("__UPLOAD_DIR__","");
@@ -24,6 +25,7 @@ define("__WEB_ROOT__","");
 //
 // FILE INFO
 define("__RELATIVE_OUTPUT_DIR__","");
+define("__RELATIVE_SYNC_OUTPUT_DIR__","");
 define("__LEGACY_RELATIVE_OUTPUT_DIR__","");
 define("__VALID_FILE_TYPE__","xgmml zip");
 define("__VALID_DIAGRAM_FILE_TYPE__","sqlite");
@@ -42,14 +44,16 @@ define("__MYSQL_AUTH_DATABASE__","");
 // UI PARAMETERS
 define("__TITLE__","EFI GNT");
 define("__ENABLE_BIGSCAPE__",false);
+define("__ENABLE_INTERPRO__",false);
 
 //
 // JOB SCHEDULING PARAMETERS
 define("__GNN_SCRIPT__","");
+define("__SYNC_GNN_SCRIPT__","");
 define("__PROCESS_DIAGRAM_SCRIPT__","");
 define("__PROCESS_BIGSCAPE_SCRIPT__","");
 define("__GNN_MODULE__","");
-define("__EFIDB_MODULE__","");
+define("__EFI_DB_MODULE__","");
 define("__BLAST_MODULE__","");
 define("__ENABLE_LOG__",false);
 define("__ENABLE_LEGACY__",false);

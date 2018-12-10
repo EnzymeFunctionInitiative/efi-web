@@ -35,6 +35,8 @@ $useUniref50 = false;
 $useAdvancedFamilyInputs = functions::option_e_enabled();
 $maxFullFamily = number_format(functions::get_maximum_full_family_count(), 0);
 
+$db_modules = global_settings::get_database_modules();
+
 $updateMessage = functions::get_update_message() .
     "<br>For users with a login, a selected set of results is available for generating family SSNs.";
 
@@ -137,7 +139,8 @@ the <a href="family_list.php">Family Information page</a>.
             <!--<a href="precompute.php"><button type="button" class="mini">Precomputed Option B Jobs</button></a>-->
             <h3>User Jobs</h3>
 <?php 
-    outputJobList($jobs);
+    $allowStatusUpdate = true;
+    outputJobList($jobs, $allowStatusUpdate);
 
     if (count($tjobs)) {
         echo "            <h3>Training Jobs</h3>\n";
@@ -192,7 +195,7 @@ the <a href="family_list.php">Family Information page</a>.
                     <div>
                         <input type="text" id="families-input-opta" name="families-input-opta">
                         <input type="checkbox" id="opta-use-uniref" class="cb-use-uniref" value="1">
-                        <label for="opta-use-uniref">Use UniRef 90 seed sequences instead of the full family</label>
+                        <label for="opta-use-uniref">Use <select id="option-a-uniref-ver" name="option-a-uniref-ver"><option value="90">UniRef 90</option><option value="50">UniRef 50</option></select> seed sequences instead of the full family</label>
                         <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box("family-size-container-opta", "family-count-table-opta", $useUniref90, $useUniref50); ?> 
                         </div>
@@ -212,9 +215,11 @@ the <a href="family_list.php">Family Information page</a>.
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
                         <?php echo functions::get_fraction(); ?>)
                     </div>
+<?php make_db_mod_option($db_modules, "a"); ?>
                 </div>
 <?php } ?>
 
+                <div>Optional job name: <input type="text" class="small" name="option-a-job-name" id="option-a-job-name" value=""></div>
                 <div>
                     E-mail address:
                     <input name="email" id="option-a-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -223,7 +228,7 @@ the <a href="family_list.php">Family Information page</a>.
                     to analyze the data.
                 </div>
     
-                <div id="option-a-message" style="color: red" class="error-message">
+                <div id="option-a-message" style="color: red" class="error_message">
                 </div>
                 <center>
                     <div><button type="button" class="dark" onclick="submitOptionAForm()">Submit Analysis</button></div>
@@ -255,7 +260,7 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="primary-input">
                     <input type="text" id="families-input" name="families-input">
                     <input type="checkbox" id="pfam-use-uniref" class="cb-use-uniref" value="1">
-                    <label for="pfam-use-uniref">Use UniRef 90 seed sequences instead of the full family</label>
+                    <label for="pfam-use-uniref">Use <select id="option-b-uniref-ver" name="option-b-uniref-ver"><option value="90">UniRef 90</option><option value="50">UniRef 50</option></select> seed sequences instead of the full family</label>
                     <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box('family-size-container', 'family-count-table', $useUniref90, $useUniref50); ?> 
                     </div>
@@ -306,8 +311,10 @@ the <a href="family_list.php">Family Information page</a>.
                         </select>
                     </div>
 <?php    } ?>
+<?php    make_db_mod_option($db_modules, "b"); ?>
                 </div>
-    
+
+                <div>Optional job name: <input type="text" class="small" name="option-b-job-name" id="option-b-job-name" value=""></div>
                 <div>
                     E-mail address:
                     <input name="email" id="option-b-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -316,7 +323,7 @@ the <a href="family_list.php">Family Information page</a>.
                     to analyze the data.
                 </div>
     
-                <div id="option-b-message" style="color: red" class="error-message">
+                <div id="option-b-message" style="color: red" class="error_message">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
@@ -339,7 +346,7 @@ the <a href="family_list.php">Family Information page</a>.
                         When selected, recognized UniProt or Genbank identifiers from FASTA headers are used to retrieve
                         corresponding node attributes from the UniProt database.
                     </div>
-<?php echo ui::make_upload_box("FASTA File", "fasta-file", "progress-bar-fasta", "progress-num-fasta"); ?>
+<?php echo ui::make_upload_box("FASTA File:", "fasta-file", "progress-bar-fasta", "progress-num-fasta"); ?>
                 </div>
 
                     <div>
@@ -353,7 +360,7 @@ the <a href="family_list.php">Family Information page</a>.
                     <div>
                         <input type="text" id="families-input-optc" name="families-input-optc">
                         <input type="checkbox" id="optc-use-uniref" class="cb-use-uniref" value="1">
-                        <label for="optc-use-uniref">Use UniRef 90 seed sequences instead of the full family</label>
+                        <label for="optc-use-uniref">Use <select id="option-c-uniref-ver" name="option-c-uniref-ver"><option value="90">UniRef 90</option><option value="50">UniRef 50</option></select> seed sequences instead of the full family</label>
                         <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box("family-size-container-optc", "family-count-table-optc", $useUniref90, $useUniref50); ?> 
                         </div>
@@ -385,8 +392,10 @@ the <a href="family_list.php">Family Information page</a>.
                         </select>
                     </div>
 <?php    } ?>
+<?php    make_db_mod_option($db_modules, "c"); ?>
                 </div>
 
+                <div>Optional job name: <input type="text" class="small" name="option-c-job-name" id="option-c-job-name" value=""></div>
                 <div>
                     E-mail address:
                     <input name="email" id="option-c-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -395,7 +404,7 @@ the <a href="family_list.php">Family Information page</a>.
                     to analyze the data.
                 </div>
     
-                <div id="option-c-message" style="color: red" class="error-message">
+                <div id="option-c-message" style="color: red" class="error_message">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
@@ -414,7 +423,16 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="primary-input">
                     <textarea id="accession-input" name="accession-input"></textarea>
                     <div>
-<?php echo ui::make_upload_box("Accession ID File", "accession-file", "progress-bar-accession", "progress-num-accession"); ?>
+<?php echo ui::make_upload_box("Accession ID File:", "accession-file", "progress-bar-accession", "progress-num-accession"); ?>
+                    </div>
+                    <div id="accession-seq-type-container">
+                        Treat UniProt accession IDs as:
+                        <select id="accession-seq-type">
+                            <option value="uniprot" selected>UniProt IDs</option>
+                            <option value="uniref90">UniRef90 seed sequence IDs</option>
+                            <option value="uniref50">UniRef50 seed sequence IDs</option>
+                        </select>
+                        <a class="question" title="If a list of UniProt accession IDs is provided, this option can be used to specify if the accession IDs are to be treated as UniRef50, UniRef90, or UniProt sequences.">?</a>
                     </div>
                 </div>
 
@@ -429,7 +447,7 @@ the <a href="family_list.php">Family Information page</a>.
                     <div>
                         <input type="text" id="families-input-optd" name="families-input-optd">
                         <input type="checkbox" id="optd-use-uniref" class="cb-use-uniref" value="1">
-                        <label for="optd-use-uniref">Use UniRef 90 seed sequences instead of the full family</label>
+                        <label for="optd-use-uniref">Use <select id="option-d-uniref-ver" name="option-d-uniref-ver"><option value="90">UniRef 90</option><option value="50">UniRef 50</option></select> seed sequences instead of the full family</label>
                         <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box("family-size-container-optd", "family-count-table-optd", $useUniref90, $useUniref50); ?> 
                         </div>
@@ -479,8 +497,10 @@ the <a href="family_list.php">Family Information page</a>.
                         </select>
                     </div>
 <?php    } ?>
+<?php    make_db_mod_option($db_modules, "d"); ?>
                 </div>
 
+                <div>Optional job name: <input type="text" class="small" name="option-d-job-name" id="option-d-job-name" value=""></div>
                 <div>
                     E-mail address:
                     <input name="email" id="option-d-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -489,7 +509,7 @@ the <a href="family_list.php">Family Information page</a>.
                     to analyze the data.
                 </div>
     
-                <div id="option-d-message" style="color: red" class="error-message">
+                <div id="option-d-message" style="color: red" class="error_message">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
@@ -542,6 +562,12 @@ the <a href="family_list.php">Family Information page</a>.
                         Sequence identity (&le; 1; default: 1)
                     </div>
                     <div>
+                        Minimum Sequence Length: <input type="text" class="small" id="pfam-plus-min-seq-len" name="pfam-min-seq-len" value="">
+                    </div>
+                    <div>
+                        Maximum Sequence Length: <input type="text" class="small" id="pfam-plus-max-seq-len" name="pfam-max-seq-len" value="">
+                    </div>
+                    <div>
                         Sequence Length Overlap:
                         <input type="text" class="small" id="pfam-plus-length-overlap" name="pfam-length-overlap" value="1">
                         Sequence length overlap (&le; 1; default: 1)
@@ -562,8 +588,10 @@ the <a href="family_list.php">Family Information page</a>.
                         </select>
                     </div>
 <?php    } ?>
+<?php    make_db_mod_option($db_modules, "e"); ?>
                 </div>
     
+                <div>Optional job name: <input type="text" class="small" name="option-e-job-name" id="option-e-job-name" value=""></div>
                 <div>
                     E-mail address:
                     <input name="email" id="option-e-email" type="text" value="<?php echo $userEmail; ?>" class="email"
@@ -572,7 +600,7 @@ the <a href="family_list.php">Family Information page</a>.
                     to analyze the data.
                 </div>
     
-                <div id="option-e-message" style="color: red" class="error-message">
+                <div id="option-e-message" style="color: red" class="error_message">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
@@ -592,7 +620,7 @@ the <a href="family_list.php">Family Information page</a>.
 
             <form name="colorSsnForm" id="colorSsnform" method="post" action="">
                 <div class="primary-input">
-<?php echo ui::make_upload_box("SNN to color and analyze (uncompressed or zipped XGMML file)", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
+<?php echo ui::make_upload_box("SNN to color and analyze (uncompressed or zipped XGMML file):", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
                 </div>
 
                 <div>
@@ -603,7 +631,7 @@ the <a href="family_list.php">Family Information page</a>.
                     to analyze the data.
                 </div>
     
-                <div id="colorssn-message" style="color: red" class="error-message">
+                <div id="colorssn-message" style="color: red" class="error_message">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
@@ -736,23 +764,29 @@ the <a href="family_list.php">Family Information page</a>.
             heightStyle: "content"
         });
 
-        var setupFamilyInput = function (familyInputId, containerOutputId, countOutputId, uniref90Id, fractionId) {
+        var setupFamilyInput = function (familyInputId, containerOutputId, countOutputId, unirefCbId, unirefVerId, fractionId, dbVerId) {
             $("#" + familyInputId).on("input", function() {
-                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, uniref90Id, fractionId);
+                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, unirefCbId, unirefVerId, fractionId, dbVerId);
             });
-            $("#" + uniref90Id).change(function() {
-                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, uniref90Id, fractionId);
+            $("#" + unirefCbId).change(function() {
+                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, unirefCbId, unirefVerId, fractionId, dbVerId);
+            });
+            $("#" + unirefVerId).change(function() {
+                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, unirefCbId, unirefVerId, fractionId, dbVerId);
             });
             $("#" + fractionId).on("input", function() {
-                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, uniref90Id, fractionId);
+                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, unirefCbId, unirefVerId, fractionId, dbVerId);
+            });
+            $("#" + dbVerId).on("input", function() {
+                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, unirefCbId, unirefVerId, fractionId, dbVerId);
             });
         };
 
-        setupFamilyInput("families-input-opta", "family-size-container-opta", "family-count-table-opta", "opta-use-uniref", "blast-fraction");
-        setupFamilyInput("families-input", "family-size-container", "family-count-table", "pfam-use-uniref", "pfam-fraction");
-        setupFamilyInput("option-e-input", "option-e-size-container", "option-e-count-table", "opte-use-uniref90", "pfam-plus-fraction");
-        setupFamilyInput("families-input-optd", "family-size-container-optd", "family-count-table-optd", "optd-use-uniref", "accession-fraction");
-        setupFamilyInput("families-input-optc", "family-size-container-optc", "family-count-table-optc", "optc-use-uniref", "fasta-fraction");
+        setupFamilyInput("families-input-opta", "family-size-container-opta", "family-count-table-opta", "opta-use-uniref", "option-a-uniref-ver", "blast-fraction", "option-a-db-mod");
+        setupFamilyInput("families-input", "family-size-container", "family-count-table", "pfam-use-uniref", "option-b-uniref-ver", "pfam-fraction", "option-b-db-mod");
+        setupFamilyInput("option-e-input", "option-e-size-container", "option-e-count-table", "opte-use-uniref90", "option-e-uniref-ver", "pfam-plus-fraction", "option-e-db-mod");
+        setupFamilyInput("families-input-optd", "family-size-container-optd", "family-count-table-optd", "optd-use-uniref", "option-d-uniref-ver", "accession-fraction", "option-d-db-mod");
+        setupFamilyInput("families-input-optc", "family-size-container-optc", "family-count-table-optc", "optc-use-uniref", "option-c-uniref-ver", "fasta-fraction", "option-c-db-mod");
 
         $(".cb-use-uniref").click(function() {
             if (this.checked) {
@@ -763,6 +797,42 @@ the <a href="family_list.php">Family Information page</a>.
         $(".fraction").on("input", function() {
             if (this.value != "1") {
                 $(".cb-use-uniref").prop("checked", false);
+            }
+        });
+        
+        $(".archive-btn").click(function() {
+            var id = $(this).data("id");
+            var key = $(this).data("key");
+            var requestType = "archive";
+            var jobType = "generate";
+
+            $("#archive-confirm").dialog({
+                resizable: false,
+                height: "auto",
+                width: 400,
+                modal: true,
+                buttons: {
+                    "Archive Job": function() {
+                        requestJobUpdate(id, key, requestType, jobType);
+                        $( this ).dialog("close");
+                    },
+                    Cancel: function() {
+                        $( this ).dialog("close");
+                    }
+                }
+            });
+        });
+
+        $("#accession-file").on("change", function(e) {
+            var fileName = '';
+            fileName = e.target.value.split( '\\' ).pop();
+            if (fileName) {
+                if (fileName.includes("UniRef50"))
+                    $("#accession-seq-type").val("uniref50");
+                else if (fileName.includes("UniRef90"))
+                    $("#accession-seq-type").val("uniref90");
+                else if (fileName.includes("UniProt"))
+                    $("#accession-seq-type").val("uniprot");
             }
         });
 
@@ -798,11 +868,39 @@ SSN utility as well as the EFI-GNT tool.
 <?php */ ?>
 </div>
 
+<div id="archive-confirm" title="Archive the job?" style="display: none">
+<p>
+<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+This job will be permanently removed from your list of jobs.
+</p>    
+</div>
+
 <?php require_once('inc/footer.inc.php'); ?>
 
 <?php
 
-function outputJobList($jobs) {
+function make_db_mod_option($db_modules, $form) {
+    if (count($db_modules) < 2)
+        return "";
+
+    $id = "option-$form-db-mod";
+    $ws = "                    ";
+    echo <<<HTML
+$ws Database version:
+$ws<select name="$id" id="$id">
+HTML;
+
+    foreach ($db_modules as $mod) {
+        $mod_name = $mod[1];
+        echo "$ws    <option value=\"$mod_name\">$mod_name</option>\n";
+    }
+
+    echo <<<HTML
+$ws</select>
+HTML;
+}
+
+function outputJobList($jobs, $allowStatusUpdate = false) {
     echo <<<HTML
             <table class="pretty_nested">
                 <thead>
@@ -847,12 +945,16 @@ HTML;
             else
                 $lastBgColor = "#fff";
         }
+
+        $statusUpdateHtml = "";
+        if ($allowStatusUpdate && !$jobs[$i]["is_analysis"])
+            $statusUpdateHtml = "<div style=\"float:right\" class=\"archive-btn\" data-type=\"gnn\" data-id=\"$id\" data-key=\"$key\" title=\"Archive Job\"><i class=\"fas fa-trash-alt\"></i></div>";
         
         echo <<<HTML
                     <tr style="background-color: $lastBgColor">
                         <td>$idText</td>
                         <td $nameStyle>$linkStart${name}$linkEnd</td>
-                        <td>$dateCompleted</td>
+                        <td>$dateCompleted $statusUpdateHtml</td>
                     </tr>
 HTML;
     }

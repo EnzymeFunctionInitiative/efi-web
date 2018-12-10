@@ -10,6 +10,7 @@ $showPreviousJobs = false;
 $gnnJobs = array();
 $diagramJobs = array();
 $IsAdminUser = false;
+$trainingJobs = array();
 
 if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $userJobs = new user_jobs();
@@ -62,6 +63,7 @@ if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])
     }
 }
 
+$db_modules = global_settings::get_database_modules();
 
 $updateMessage = functions::get_update_message();
 
@@ -125,7 +127,7 @@ for ($i = 0; $i < count($gnnJobs); $i++) {
                     <tr>
                         <td>$linkStart${id}$linkEnd</td>
                         <td>$linkStart${name}$linkEnd</td>
-                        <td>$dateCompleted</td>
+                        <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="gnn" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
                     </tr>
 HTML;
 }
@@ -163,7 +165,7 @@ for ($i = 0; $i < count($diagramJobs); $i++) {
                         <td>$linkStart${id}$linkEnd</td>
                         <td>$linkStart${name}$linkEnd</td>
                         <td>$linkStart${jobType}$linkEnd</td>
-                        <td>$dateCompleted</td>
+                        <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="diagram" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
                     </tr>
 HTML;
 }
@@ -244,6 +246,11 @@ HTML;
                 genes located upstream and for <?php echo $default_neighbor_size; ?> genes <br>
                 located downstream of sequences in the SNN will be collected and displayed.<br>
                 The default value is  <?php echo $default_neighbor_size; ?>.
+                </p>
+
+                <p>
+                Database version:
+<?php    make_db_mod_option($db_modules, "db_mod"); ?>
                 </p>
     
                 <p>
@@ -403,6 +410,14 @@ HTML;
                                         <?php echo settings::get_default_evalue(); ?>)
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>Database version:</td>
+                                    <td>
+<?php    make_db_mod_option($db_modules, "option-a-db-mod"); ?>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
                             </table>
 
                             <div>
@@ -423,7 +438,8 @@ HTML;
                             <button type="button" class="dark"
                                             onclick="submitOptionAForm('create_diagram.php', 'option-a-option', 'option-a-input',
                                                                        'option-a-title', 'option-a-evalue', 'option-a-max-seqs',
-                                                                       'option-a-email', 'option-a-nb-size', 'option-a-message');"
+                                                                       'option-a-email', 'option-a-nb-size', 'option-a-message',
+                                                                       'option-a-db-mod');"
                                 >Submit</button>
                         </center>
                     </form>
@@ -479,6 +495,14 @@ HTML;
                                         (default: <?php echo settings::get_default_neighborhood_size(); ?>)
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>Database version:</td>
+                                    <td>
+<?php    make_db_mod_option($db_modules, "option-d-db-mod"); ?>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
                             </table>
 
                             <div>
@@ -499,7 +523,8 @@ HTML;
                             <button type="button" class="dark"
                                             onclick="submitOptionDForm('create_diagram.php', 'option-d-option', 'option-d-input',
                                                 'option-d-title', 'option-d-email', 'option-d-nb-size', 'option-d-file',
-                                                'option-d-progress-number', 'option-d-progress-bar', 'option-d-message');"
+                                                'option-d-progress-number', 'option-d-progress-bar', 'option-d-message',
+                                                'option-d-db-mod');"
                                 >Submit</button>
                             <div><progress id="option-d-progress-bar" max="100" value="0"></progress></div>
                             <div id="option-d-progress-number"></div>
@@ -557,6 +582,14 @@ HTML;
                                         (default: <?php echo settings::get_default_neighborhood_size(); ?>)
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>Database version:</td>
+                                    <td>
+<?php    make_db_mod_option($db_modules, "option-c-db-mod"); ?>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
                             </table>
 
                             <div>
@@ -577,7 +610,8 @@ HTML;
                             <button type="button" class="dark"
                                             onclick="submitOptionCForm('create_diagram.php', 'option-c-option', 'option-c-input',
                                                 'option-c-title', 'option-c-email', 'option-c-nb-size', 'option-c-file',
-                                                'option-c-progress-number', 'option-c-progress-bar', 'option-c-message');"
+                                                'option-c-progress-number', 'option-c-progress-bar', 'option-c-message',
+                                                'option-c-db-mod');"
                                 >Submit</button>
                             <div><progress id="option-c-progress-bar" max="100" value="0"></progress></div>
                             <div id="option-c-progress-number"></div>
@@ -674,6 +708,13 @@ HTML;
     </p>
 </div>
 
+<div id="archive-confirm" title="Archive the job?" style="display: none">
+<p>
+<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+This job will be permanently removed from your list of jobs.
+</p>    
+</div>
+
 <script>
     $(document).ready(function() {
         $(".tabs .tab-headers a").on("click", function(e) {
@@ -704,9 +745,60 @@ HTML;
             icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" },
             heightStyle: "content"
         });
+        
+        $(".archive-btn").click(function() {
+            var id = $(this).data("id");
+            var key = $(this).data("key");
+            var jobType = $(this).data("type");
+            var requestType = "archive";
+
+            $("#archive-confirm").dialog({
+                resizable: false,
+                height: "auto",
+                width: 400,
+                modal: true,
+                buttons: {
+                    "Archive Job": function() {
+                        requestJobUpdate(id, key, requestType, jobType);
+                        $( this ).dialog("close");
+                    },
+                    Cancel: function() {
+                        $( this ).dialog("close");
+                    }
+                }
+            });
+
+//            $(this).appendTo('<div id="archive-menu" class="speech-bubble archive-bubble">Cancel</div>');
+        });
     });
 </script>
 <script src="js/custom-file-input.js" type="text/javascript"></script>
+
+<?php
+
+function make_db_mod_option($db_modules, $form_id) {
+    if (count($db_modules) < 2)
+        return "";
+
+    $id = $form_id;
+    $ws = "                    ";
+    echo <<<HTML
+$ws<select name="$id" id="$id">
+HTML;
+
+    foreach ($db_modules as $mod) {
+        $mod_name = $mod[1];
+        echo "$ws    <option value=\"$mod_name\">$mod_name</option>\n";
+    }
+
+    echo <<<HTML
+$ws</select>
+HTML;
+}
+
+
+
+?>
 
 <?php require_once('inc/footer.inc.php'); ?>
 

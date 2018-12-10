@@ -2,8 +2,6 @@
 require_once "../includes/main.inc.php";
 require_once("../../includes/login_check.inc.php");
 
-require_once "inc/header.inc.php";
-
 $defaultFilterKey = "pfam";
 $defaultFilter = "PF%";
 $defaultTitle = "Pfam Families";
@@ -37,11 +35,13 @@ if (isset($_GET["filter"])) {
 
 if ($isPfamClanMap) {
     $sql = "
-        SELECT C.clan_id, C.pfam_id, P.short_name, P.num_members AS pfam_count, P.num_uniref90_members as pfam_uniref90_count,
-            PC.short_name AS clan_short_name, PC.num_members AS clan_count, PC.num_uniref90_members AS clan_uniref90_count
+        SELECT C.clan_id, C.pfam_id, P.short_name, P.num_members AS pfam_count,
+            P.num_uniref90_members as pfam_uniref90_count, P.num_uniref50_members as pfam_uniref50_count,
+            PC.short_name AS clan_short_name, PC.num_members AS clan_count,
+            PC.num_uniref90_members AS clan_uniref90_count, PC.num_uniref50_members AS clan_uniref50_count
         FROM PFAM_clans AS C
             JOIN family_info AS P ON C.pfam_id = P.family 
-            JOIN family_info as PC on C.clan_id = PC.family
+            JOIN family_info AS PC ON C.clan_id = PC.family
         WHERE C.clan_id <> '' ORDER BY C.clan_id, C.pfam_id
         ";
     $dbResult = $db->query($sql);
@@ -56,6 +56,33 @@ function get_tab_style($filter, $category, $defaultTab = false) {
     else
         echo "";
 }
+
+if (isset($_GET["as-table"])) {
+    $table_filename = preg_replace("/\s/", "_", $pageTitle) . "_info.txt";
+
+    $hdr = "Family";
+    if ($isClan)
+        $hdr = "Clan";
+
+    $headers = array("$hdr ID", "$hdr Short Name", "$hdr Size", "UniRef90 Size", "UniRef50 Size");
+
+    $table_string = implode("\t", $headers) . "\n";
+    
+    foreach ($dbResult as $row) {
+        $line = implode("\t", array($row["family"], $row["short_name"], 
+                                    number_format($row["num_members"]),
+                                    number_format($row["num_uniref90_members"]),
+                                    number_format($row["num_uniref50_members"])));
+        $table_string .= $line . "\n";
+    }
+
+    send_table($table_filename, $table_string);
+    exit(0);
+}
+
+
+
+require_once "inc/header.inc.php";
 
 ?>
 
@@ -136,29 +163,22 @@ if ($isPfamClanMap) { ?>
     }
 
 } else {
-    if ($isClan) { ?>
+    $hdr = "Family";
+    if ($isClan)
+        $hdr = "Clan";
 
+?>
+            <a href="?<?php echo $_SERVER["QUERY_STRING"] . "&as-table=1"; ?>">Download as tab-separated text file.</a>
             <table class="family" width="100%" border="0">
                 <thead>
-                    <th>Clan ID</th>
-                    <th>Clan Short Name</th>
-                    <th>Clan Size</th>
-                    <th>UniRef90 Size</th>
-                </thead>
-                <tbody>
-
-<?php     } else { ?>
-
-            <table class="family" width="100%" border="0">
-                <thead>
-                    <th>Family ID</th>
-                    <th>Family Short Name</th>
-                    <th>Family Size</th>
-                    <th>UniRef90 Size</th>
+                    <th><?php echo $hdr; ?> ID</th>
+                    <th><?php echo $hdr; ?> Short Name</th>
+                    <th><?php echo $hdr; ?> Size</th>
+                    <th>UniRef 90 Size</th>
+                    <th>UniRef 50 Size</th>
                 </thead>
                 <tbody>
 <?php
-    } 
     
     $hasLink = array_key_exists($filter, $LinkTemplate);
     $template = $hasLink ? $LinkTemplate[$filter] : "";
@@ -171,6 +191,7 @@ if ($isPfamClanMap) { ?>
         echo "                        <td>" . $row["short_name"] . "</td>\n";
         echo "                        <td class=\"right-align\">" . number_format($row["num_members"]) . "</td>\n";
         echo "                        <td class=\"right-align\">" . number_format($row["num_uniref90_members"]) . "</td>\n";
+        echo "                        <td class=\"right-align\">" . number_format($row["num_uniref50_members"]) . "</td>\n";
         echo "                    </tr>\n";
     }
 
@@ -189,6 +210,23 @@ if ($isPfamClanMap) { ?>
 <p class="center"><a href="index.php"><button class="dark">Run EST</button></a></p>
 
 
-<?php require_once("inc/footer.inc.php"); ?>
+<?php
+
+require_once("inc/footer.inc.php");
+
+
+function send_table($table_filename, $table_string) {
+    header('Pragma: public');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="' . $table_filename . '"');
+    header('Content-Length: ' . strlen($table_string));
+    ob_clean();
+    echo $table_string;
+}
+
+
+?>
 
 

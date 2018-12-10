@@ -6,6 +6,13 @@ require_once("Mail/mime.php");
 
 abstract class job_shared {
 
+    const DEFAULT_DIAMOND_SENSITIVITY = "sensitive";
+    const DEFAULT_CDHIT_SID = "85";
+    const REFDB_UNIPROT = "uniprot";
+    const REFDB_UNIREF90 = "uniref90";
+    const REFDB_UNIREF50 = "uniref50";
+    const DEFAULT_REFDB = "uniprot";
+
     private $id;
     private $pbs_number;
     private $key;
@@ -15,6 +22,10 @@ abstract class job_shared {
     private $time_started;
     private $time_completed;
     private $parent_id = 0;
+    private $search_type = "";
+    private $filename = "";
+    private $min_seq_len = "";
+    private $max_seq_len = "";
 
     private $db;
     private $beta;
@@ -41,7 +52,7 @@ abstract class job_shared {
         $this->key = $newKey;
     }
 
-    protected function get_pbs_number() {
+    public function get_pbs_number() {
         return $this->pbs_number;
     }
     protected function set_pbs_number($theNumber) {
@@ -71,7 +82,43 @@ abstract class job_shared {
         return $this->parent_id;
     }
 
+    public function get_search_type() {
+        return $this->search_type;
+    }
+    public function set_search_type($search_type) {
+        return $this->search_type = $search_type;
+    }
+    
+    public function get_filename() {
+        return $this->filename;
+    }
+    
+    public function get_min_seq_len() {
+        return $this->min_seq_len;
+    }
+    public function get_max_seq_len() {
+        return $this->max_seq_len;
+    }
 
+
+    public function mark_job_as_failed() {
+        $this->set_status(__FAILED__);
+        $this->set_time_completed();
+    }
+
+    public function mark_job_as_cancelled() {
+        $this->set_status(__CANCELLED__);
+        $this->set_time_completed();
+        $this->email_cancelled();
+    }
+
+    public function mark_job_as_archived() {
+        // This marks the job as archived-failed. If the job is archived but the
+        // time completed is non-zero, then the job successfully completed.
+        if ($this->status == __FAILED__)
+            $this->set_time_completed("0000-00-00 00:00:00");
+        $this->set_status(__ARCHIVED__);
+    }
 
     public function get_child_jobs() {
         $table = $this->get_table_name();
@@ -80,7 +127,7 @@ abstract class job_shared {
     }
 
 
-    protected function load_job_shared($result) {
+    protected function load_job_shared($result, $params) {
         $table = $this->get_table_name();
         $this->status = $result["${table}_status"];
         $this->time_created = $result["${table}_time_created"];
@@ -90,6 +137,15 @@ abstract class job_shared {
         $parent_field = "${table}_parent_id";
         if (isset($result[$parent_field]) && $result[$parent_field])
             $this->parent_id = $result[$parent_field];
+
+        if (isset($params["${table}_search_type"]) && settings::get_diamond_enabled())
+            $this->search_type = $params["${table}_search_type"];
+        else
+            $this->search_type = "";
+
+        $this->filename = $params["identify_filename"];
+        $this->min_seq_len = isset($params['identify_min_seq_len']) ? $params['identify_min_seq_len'] : "";
+        $this->max_seq_len = isset($params['identify_max_seq_len']) ? $params['identify_max_seq_len'] : "";
     }
 
 
@@ -133,6 +189,8 @@ abstract class job_shared {
     protected abstract function get_email_started_message();
     protected abstract function get_email_failure_subject();
     protected abstract function get_email_failure_message($result);
+    protected abstract function get_email_cancelled_subject();
+    protected abstract function get_email_cancelled_message();
     protected abstract function get_email_completed_subject();
     protected abstract function get_email_completed_message();
     protected abstract function get_completed_url();
@@ -157,6 +215,18 @@ abstract class job_shared {
 
         $plain_email = "";
         $plain_email .= $this->get_email_failure_message($result);
+        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
+        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
+        $plain_email .= settings::get_email_footer();
+
+        $this->send_email($subject, $plain_email);
+    }
+
+    protected function email_cancelled() {
+        $subject = $this->beta . $this->get_email_cancelled_subject();
+
+        $plain_email = "";
+        $plain_email .= $this->get_email_cancelled_message();
         $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
         $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
         $plain_email .= settings::get_email_footer();
@@ -256,9 +326,10 @@ abstract class job_shared {
         $this->time_started = $current_time;
     }
     
-    protected function set_time_completed() {
+    protected function set_time_completed($current_time = false) {
         $tableName = $this->get_table_name();
-        $current_time = self::get_current_time();
+        if ($current_time === false)
+            $current_time = self::get_current_time();
         $sql = "UPDATE ${tableName} SET ${tableName}_time_completed='" . $current_time . "' ";
         $sql .= "WHERE ${tableName}_id='" . $this->get_id() . "' LIMIT 1";
         $result = $this->db->non_select_query($sql);
@@ -290,6 +361,168 @@ abstract class job_shared {
         $sql .= "WHERE ${tableName}_id='" . $this->id . "'";
         $this->db->non_select_query($sql);
     }
+
+
+
+    protected function get_metadata_shared($meta_file, $id = 0) { // for quantify jobs, pass in the identify_id
+
+        if (!$id)
+            $id = $this->id;
+
+        $tab_data = self::read_kv_tab_file($meta_file);
+
+        $table_data = array();
+
+        //HACK: to get the num_unique_seq text right and show/hide the num_filtered_seq line
+        $table = $this->get_table_name();
+        $sql = "SELECT identify_params, identify_time_created, identify_time_started AS time_started, identify_time_completed AS time_completed FROM identify WHERE identify_id = $id";
+        if ($table == "quantify")
+            $sql = "SELECT quantify_id, quantify_time_created, quantify_time_started AS time_started, quantify_time_completed AS time_completed, identify_params FROM quantify JOIN identify ON quantify_identify_id = identify_id WHERE quantify_identify_id = $id";
+        $result = $this->db->query($sql);
+
+        if ($result && isset($result[0]["identify_params"])) {
+            $iparams = global_functions::decode_object($result[0]["identify_params"]);
+            if (isset($iparams["identify_min_seq_len"]))
+                $tab_data["min_seq_len"] = $iparams["identify_min_seq_len"];
+            if (isset($iparams["identify_max_seq_len"]))
+                $tab_data["max_seq_len"] = $iparams["identify_max_seq_len"];
+
+            $table_data[0] = array("Time Started/Finished", functions::format_short_date($result[0]["time_started"]) . " -- " .
+                                                            functions::format_short_date($result[0]["time_completed"]));
+        }
+
+        $pos_start = 1;
+        foreach ($tab_data as $key => $value) {
+            $attr = "";
+            $pos = $pos_start;
+            if ($key == "num_ssn_clusters") {
+                $attr = "Number of SSN clusters";
+                $pos = $pos_start + 0;
+            } elseif ($key == "num_ssn_singletons") {
+                $attr = "Number of SSN singletons";
+                $pos = $pos_start + 1;
+            } elseif ($key == "is_uniref") {
+                $attr = "SSN sequence source";
+                $value = $value ? "UniRef $value" : "UniProt";
+                $pos = $pos_start + 2;
+            } elseif ($key == "num_metanodes") {
+                $attr = "Number of SSN (meta)nodes";
+                $pos = $pos_start + 3;
+            } elseif ($key == "num_raw_accessions") {
+                $attr = "Number of accession IDs in SSN";
+                $pos = $pos_start + 4;
+            # These are included elsewhere
+            #} elseif ($key == "min_seq_len" && $value != "none") {
+            #    $attr = "Minimum sequence length filter";
+            #    $pos = $pos_start + 7;
+            #} elseif ($key == "max_seq_len" && $value != "none") {
+            #    $attr = "Maximum sequence length filter";
+            #    $pos = $pos_start + 8;
+            } elseif ($key == "num_cdhit_clusters") {
+                $attr = "Number of CD-HIT ShortBRED families";
+                if ($this->parent_id)
+                    $attr .= " (from parent)";
+                $pos = $pos_start + 9;
+            } elseif ($key == "num_markers") {
+                $attr = "Number of markers";
+                if ($this->parent_id)
+                    $attr .= " (from parent)";
+                $pos = $pos_start + 10;
+            } elseif ($key == "num_cons_seq_with_hits") {
+                $attr = "Number of consensus sequences with hits";
+                $pos = $pos_start + 100;
+            } elseif (!$this->parent_id) {
+                if ($key == "num_unique_seq") {
+                    $attr = "Number of unique sequences in SSN";
+                    if ($tab_data["min_seq_len"] != "none" || $tab_data["max_seq_len"] != "none")
+                        $attr .= " after length filter";
+                    $pos = $pos_start + 6;
+                } elseif ($key == "num_filtered_seq" && ($tab_data["min_seq_len"] != "none" || $tab_data["max_seq_len"] != "none")) {
+                    $attr = "Number of sequences after length filter";
+                    $pos = $pos_start + 5;
+                }
+            }
+
+            if ($attr)
+                $table_data[$pos] = array($attr, $value);
+        }
+
+        return $table_data;
+    }
+
+    private static function read_kv_tab_file($file) {
+        $delim = "\t";
+        $fh = fopen($file, "r");
+        $data = array();
+        while (!feof($fh)) {
+            $line = trim(fgets($fh, 1000));
+            if (!$line)
+                continue;
+
+            $row = str_getcsv($line, $delim);
+            $data[$row[0]] = $row[1];
+        }
+        fclose($fh);
+        return $data;
+    }
+
+    public function get_metadata_swissprot_singles_file_size() {
+        $file_path = $this->get_metadata_swissprot_singles_file_path();
+        return self::get_web_filesize($file_path);
+    }
+    public function get_metadata_swissprot_clusters_file_size() {
+        $file_path = $this->get_metadata_swissprot_clusters_file_path();
+        return self::get_web_filesize($file_path);
+    }
+    public function get_metadata_cluster_sizes_file_size() {
+        $file_path = $this->get_metadata_cluster_sizes_file_path();
+        return self::get_web_filesize($file_path);
+    }
+    public function get_marker_file_size() {
+        $file_path = $this->get_marker_file_path();
+        return self::get_web_filesize($file_path);
+    }
+    public function get_cdhit_file_size() {
+        $file_path = $this->get_cdhit_file_path();
+        return self::get_web_filesize($file_path);
+    }
+
+    protected static function get_web_filesize($file_path) {
+        if (!file_exists($file_path))
+            return 0;
+
+        $size = filesize($file_path);
+        $mb_size = global_functions::bytes_to_megabytes(filesize($file_path));
+
+        if ($mb_size)
+            return $mb_size;
+        else
+            return "<1";
+    }
+
+
+    public abstract function get_metadata_swissprot_singles_file_path();
+    public abstract function get_metadata_swissprot_clusters_file_path();
+    public abstract function get_metadata_cluster_sizes_file_path();
+    public abstract function get_marker_file_path();
+    public abstract function get_cdhit_file_path();
+
+    protected function get_metadata_swissprot_singles_file_shared($results_dir) {
+        return "$results_dir/swissprot_singletons.tab";
+    }
+    protected function get_metadata_swissprot_clusters_file_shared($results_dir) {
+        return "$results_dir/swissprot_clusters.tab";
+    }
+    protected function get_metadata_cluster_sizes_file_shared($results_dir) {
+        return "$results_dir/cluster_sizes.tab";
+    }
+    protected function get_marker_file_shared($results_dir) {
+        return "$results_dir/markers.faa";
+    }
+    protected function get_cdhit_file_shared($results_dir) {
+        return "$results_dir/cdhit.txt";
+    }
+
 }
 
 ?>

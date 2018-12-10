@@ -1,4 +1,6 @@
 
+var DEFAULT_PAGE_SIZE = 50;
+
 function ArrowApp(arrows, popupIds) {
 
     this.arrows = arrows;
@@ -7,6 +9,7 @@ function ArrowApp(arrows, popupIds) {
     this.advancedInputObj = document.getElementById("advanced-search-input");
     this.progressObj = $("#progress-loader");
     this.showMoreObj = $("#show-more-arrows-button");
+    this.showMore100Obj = $("#show-more-arrows-button-100");
     this.showAllObj = $("#show-all-arrows-button");
     this.filterListObj = $("#filter-container");
     this.filterContainerToggleObj = $("#filter-container-toggle");
@@ -20,6 +23,8 @@ function ArrowApp(arrows, popupIds) {
     this.showAll = false;
     this.useBigscape = true; // Default to bigscape if it's available
     this.bigscapeRunning = false;
+
+    this.filterRevMap = {};
 
     var that = this;
     this.filterLegendObj.empty();
@@ -43,12 +48,22 @@ function ArrowApp(arrows, popupIds) {
 
     this.showMoreObj.click(function() {
         that.startProgressBar();
-        that.arrows.nextPage(function(isEod) {
+        that.arrows.nextPage(function(isEod, isError) {
             that.nextPageCallback(isEod);
             that.populateFilterList();
             that.stopProgressBar();
             that.updateCountFields();
-        });
+        }, DEFAULT_PAGE_SIZE);
+    });
+
+    this.showMore100Obj.click(function() {
+        that.startProgressBar();
+        that.arrows.nextPage(function(isEod, isError) {
+            that.nextPageCallback(isEod);
+            that.populateFilterList();
+            that.stopProgressBar();
+            that.updateCountFields();
+        }, 100);
     });
 
     $("#refresh-window").click(function(e) {
@@ -61,11 +76,15 @@ function ArrowApp(arrows, popupIds) {
         that.startProgressBar();
         that.showAll = true;
         
-        var finishCb = function(isEod) {
-            that.updateMoreButtonStatus(isEod);
-            that.populateFilterList();
+        var finishCb = function(isEod, isError) {
             that.stopProgressBar();
-            that.updateCountFields();
+            if (!isError) {
+                that.updateMoreButtonStatus(isEod);
+                that.populateFilterList();
+                that.updateCountFields();
+            } else {
+                showAlertMsg();
+            }
         };
 
         that.arrows.searchArrows(!that.showAll, finishCb);
@@ -90,7 +109,7 @@ function ArrowApp(arrows, popupIds) {
 ArrowApp.prototype.refreshAll = function() {
     var that = this;
     that.startProgressBar();
-    that.refreshCanvas(!that.showAll, function(isEod) {
+    that.refreshCanvas(!that.showAll, function(isEod, isError) {
         that.stopProgressBar();
     });
 }
@@ -126,7 +145,7 @@ ArrowApp.prototype.doSearch = function(idList) {
     this.clearFilter();
     
     var that = this;
-    var finishCb = function(isEod ) {
+    var finishCb = function(isEod, isError) {
         that.populateFilterList();
         that.updateMoreButtonStatus(isEod);
         that.stopProgressBar();
@@ -147,10 +166,29 @@ ArrowApp.prototype.doSearch = function(idList) {
 //    });
 }
 
+ArrowApp.prototype.uiFilterUpdate = function(fam, doRemove) {
+    console.log(fam + " " + doRemove);
+    if (fam in this.filterRevMap) {
+        var data = this.filterRevMap[fam];
+        var i = data[0];
+        var text = data[1];
+
+        var checkbox = $("#filter-cb-" + i);
+        checkbox.prop('checked', !checkbox.prop('checked'));
+
+        if (doRemove)
+            $("#legend-" + i).remove();
+        else
+            this.addLegendItem(i, fam, data[1]);
+
+    }
+}
+
 ArrowApp.prototype.populateFilterList = function() {
     this.fams = this.arrows.getFamilies(this.showFamsById);
     this.filterListObj.empty();
     this.filterLegendObj.empty();
+    this.filterRevMap = {};
 
     var that = this;
     $.each(this.fams, function(i, fam) {
@@ -163,23 +201,20 @@ ArrowApp.prototype.populateFilterList = function() {
         $("<input id='filter-cb-" + i + "' class='filter-cb' type='checkbox' value='" + i + "' " + isChecked + "/>")
             .appendTo(entry)
             .click(function(e) {
+                console.log("cb clicked");
                 if (this.checked) {
                     that.arrows.addPfamFilter(fam.id);
                     that.addLegendItem(i, fam.id, famText);
-//    var color = that.arrows.getPfamColor(id);
-//                    var activeFilter = $("<div id='legend-" + this.value + "'>" +
-//                            "<span class='active-filter-icon' style='background-color:" + color + "'> </span> " + famText + "</div>")
-//                        .appendTo("#active-filter-list");
                 } else {
                     that.arrows.removePfamFilter(fam.id);
                     $("#legend-" + i).remove();
                 }
             });
-         //$(" <span id='filter-cb-text-" + i + "' class='filter-cb-name'>" + fam.name + "</span>").
-         //   appendTo(entry);
          $("<span id='filter-cb-text-" + i + "' class='filter-cb-number'><label for='filter-cb-" + i + "'>" + famText + "</label></span>").
             appendTo(entry);
          
+         that.filterRevMap[fam.id] = [i, famText];
+
          if (fam.checked)
              that.addLegendItem(i, fam.id, famText);
     });
@@ -206,6 +241,67 @@ ArrowApp.prototype.clearFilter = function() {
     this.arrows.clearPfamFilters();
 }
 
+ArrowApp.prototype.getLegendSvg = function() {
+
+    var selLegendItems = $("#active-filter-list div");
+    var allLegendItems = []; //TODO: get the list of all families
+
+    var width = 300;
+    var rowHeight = 25;
+    var xOffsetAll = 1000;
+    var xOffsetSel = allLegendItems.length > 0 ? 1300 : 1000;
+    var selHeight = rowHeight*selLegendItems.length;
+    var allHeight = rowHeight*allLegendItems.length;
+
+    var code = '<div style="background-color: white; width: 500px; height: 500px; position: absolute; left: 400px; top: 200px; display: none">' +
+        '<svg width="' + width + 'px" height="' + selHeight + 'px" viewBox="0 0 ' + width + ' ' + selHeight + '" id="legend-export-selected"></svg>' +
+        '<svg width="' + width + 'px" height="' + allHeight + 'px" viewBox="0 0 ' + width + ' ' + allHeight + '" id="legend-export-all"></svg>' +
+        '</div>';
+    var newCanvas = $("body").append(code);
+    $("#legend-export-selected").empty();
+    $("#legend-export-all").empty();
+
+//    var that = this;
+//    var allSvg = Snap("#legend-export-all");
+//    G = allSvg.paper.group();
+//    allLegendItems.each(function(i, elem) {
+//        var span = elem.childNodes[0];
+//        if (span !== undefined) {
+//            var color = that.arrows.getPfamColor(id);
+//            var text = elem.childNodes[1];
+//            if (text !== undefined) {
+//                var g = G.group();
+//                g.text(28+xOffsetAll, rowHeight*i+22, text.data).attr({'font-size': "15px"});
+//                var c = g.rect(5+xOffsetAll, rowHeight*i+5, 20, 20);
+//                c.attr({fill: color});
+//            }
+//        }
+//    });
+//
+//    var allSvgMarkup = allSvg.outerSVG();
+    var allSvgMarkup = "";
+
+    var svg = Snap("#legend-export-selected");
+    var G = svg.paper.group();
+    selLegendItems.each(function(i, elem) {
+        var span = elem.childNodes[0];
+        if (span !== undefined) {
+            var color = span.style.backgroundColor;
+            var text = elem.childNodes[1];
+            if (text !== undefined) {
+                var g = G.group();
+                g.text(28+xOffsetSel, rowHeight*i+22, text.data).attr({'font-size': "15px"});
+                var c = g.rect(5+xOffsetSel, rowHeight*i+5, 20, 20);
+                c.attr({fill: color});
+            }
+        }
+    });
+
+    var selSvgMarkup = svg.outerSVG();
+
+    return [allSvgMarkup, selSvgMarkup, allHeight, selHeight];
+}
+
 ArrowApp.prototype.togglePfamNamesNumbers = function(isChecked) {
     this.showFamsById = isChecked; // true == sort by ID
     this.populateFilterList();
@@ -229,9 +325,11 @@ ArrowApp.prototype.getIdList = function(inputObj) {
 ArrowApp.prototype.updateMoreButtonStatus = function (isEod) {
     if (isEod) {
         this.showMoreObj.prop('disabled', true).addClass("disabled");
+        this.showMore100Obj.prop('disabled', true).addClass("disabled");
         this.showAllObj.prop('disabled', true).addClass("disabled");
     } else {
         this.showMoreObj.prop('disabled', false).removeClass("disabled");
+        this.showMore100Obj.prop('disabled', false).removeClass("disabled");
         this.showAllObj.prop('disabled', false).removeClass("disabled");
     }
 }
@@ -300,12 +398,17 @@ ArrowApp.prototype.updateCountFields = function() {
 }
 
 ArrowApp.prototype.downloadSvg = function(svg, gnnName) {
+
+    var data = this.getLegendSvg();
+    legendSvgMarkup = escape(data[1]);
+
     var dlForm = $("<form></form>");
     dlForm.attr("method", "POST");
     dlForm.attr("action", "download_diagram_image.php");
     dlForm.append('<input type="hidden" name="type" value="svg">');
     dlForm.append('<input type="hidden" name="name" value="' + gnnName + '">');
     dlForm.append('<input type="hidden" name="svg" value="' + svg + '">');
+    dlForm.append('<input type="hidden" name="legend1-svg" value="' + legendSvgMarkup + '">');
     $("#download-forms").append(dlForm);
     dlForm.submit();
 }
@@ -360,6 +463,8 @@ function PopupIds() {
     this.IdId = "info-popup-id";
     this.FamilyId = "info-popup-fam";
     this.FamilyDescId = "info-popup-fam-desc";
+    this.IproFamilyId = "info-popup-ipro-fam";
+    this.IproFamilyDescId = "info-popup-ipro-fam-desc";
     this.SpTrId = "info-popup-sptr";
     this.SeqLenId = "info-popup-seqlen";
     this.DescId = "info-popup-desc";
