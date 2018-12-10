@@ -88,6 +88,23 @@ class global_functions {
         return date_format(date_create($comp), "n/j h:i A");
     }
 
+    public static function get_file_retention_start_date() {
+        $numDays = global_settings::get_file_retention_days();
+        return self::get_prior_date($numDays);
+    }
+
+    // This is for cleaning up failed jobs, after the specified number of days.
+    public static function get_failed_retention_start_date() {
+        $numDays = 14;
+        return self::get_prior_date($numDays);
+    }
+
+    private static function get_prior_date($numDaysInPast) {
+        $dt = new DateTime();
+        $pastDt = $dt->sub(new DateInterval("P${numDaysInPast}D"));
+        $mysqlDate = $pastDt->format("Y-m-d");
+        return $mysqlDate;
+    }
 }
 
 ?>
