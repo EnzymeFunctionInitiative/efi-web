@@ -37,6 +37,10 @@ class global_settings {
         return __RETENTION_DAYS__;
     }
 
+    public static function get_file_retention_days() {
+        return __FILE_RETENTION_DAYS__;
+    }
+
     public static function get_shortbred_enabled() {
         if (defined("__ENABLE_SHORTBRED__"))
             return __ENABLE_SHORTBRED__ == true;
