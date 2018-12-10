@@ -95,6 +95,13 @@ class gnn extends gnn_shared {
             return functions::get_est_job_info_from_est_id($this->db, $this->est_id);
     }
 
+    public function get_gnn_parent_id() {
+        if ($this->gnn_parent_id)
+            return $this->gnn_parent_id;
+        else
+            return false;
+    }
+
     public function unzip_file() { 
         $file = $this->get_full_input_ssn_path();
         $parts = pathinfo($file);

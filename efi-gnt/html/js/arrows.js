@@ -375,6 +375,7 @@ function makeStruct(data) {
     struct = {
         "accession": data.accession,
         "family": data.family,
+        "ipro_family": data.ipro_family,
         "id": data.id,
         "gene_direction": data.direction,
         "seq_len": data.seq_len,
@@ -383,6 +384,7 @@ function makeStruct(data) {
         "num": data.num,
         "anno_status": data.anno_status,
         "family_desc": data.family_desc,
+        "ipro_family_desc": data.ipro_family_desc,
         "desc": data.desc,
     };
 
@@ -557,6 +559,8 @@ ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isC
     attrData.class = "an-arrow";
     attrData.family = attrData.family.join("-"); // Shown on popup
     attrData.family_desc = attrData.family_desc.join("-"); // Shown on popup
+    attrData.ipro_family = attrData.ipro_family.join("-"); // Shown on popup
+    attrData.ipro_family_desc = attrData.ipro_family_desc.join("-"); // Shown on popup
     attrData.base_family = famParts.length ? famParts[famParts.length-1] : "";
     var arrow = svgContainer.polygon(coords).attr(attrData);
 
@@ -765,11 +769,20 @@ ArrowDiagram.prototype.doPopup = function(xPos, yPos, doShow, data) {
         if (!familyDesc || familyDesc.length == 0)
             familyDesc = "none";
 
+        var iproFamily = data.attr("ipro_family");
+        if (!iproFamily || iproFamily.length == 0)
+            iproFamily = "none";
+        var iproFamilyDesc = data.attr("ipro_family_desc");
+        if (!iproFamilyDesc || iproFamilyDesc.length == 0)
+            iproFamilyDesc = "none";
+
         //    family = family.join("-");
         $("#" + this.popupIds.IdId + " span").text(data.attr("accession"));
         $("#" + this.popupIds.DescId + " span").text(data.attr("desc"));
         $("#" + this.popupIds.FamilyId + " span").text(family);
         $("#" + this.popupIds.FamilyDescId + " span").text(familyDesc);
+        $("#" + this.popupIds.IproFamilyId + " span").text(iproFamily);
+        $("#" + this.popupIds.IproFamilyDescId + " span").text(iproFamilyDesc);
         $("#" + this.popupIds.SpTrId + " span").text(data.attr("anno_status"));
         $("#" + this.popupIds.SeqLenId + " span").text(data.attr("seq_len") + " AA");
         //this.popupElement.show();

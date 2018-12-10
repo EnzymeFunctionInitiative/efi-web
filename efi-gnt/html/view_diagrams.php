@@ -11,6 +11,7 @@ $gnnId = "";
 $gnnKey = "";
 $cooccurrence = "";
 $nbSize = "";
+$maxNbSize = 20;
 $gnnName = "";
 $idKeyQueryString = "";
 $windowTitle = "";
@@ -37,6 +38,7 @@ if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
     $gnn = new gnn($db, $gnnId);
     $cooccurrence = $gnn->get_cooccurrence();
     $nbSize = $gnn->get_size();
+    $maxNbSize = $gnn->get_max_neighborhood_size();
     $gnnName = $gnn->get_filename();
     $dotPos = strpos($gnnName, ".");
     $gnnName = substr($gnnName, 0, $dotPos);
@@ -72,6 +74,7 @@ else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GE
     $gnnName = $arrows->get_gnn_name();
     $cooccurrence = $arrows->get_cooccurrence();
     $nbSize = $arrows->get_neighborhood_size();
+    $maxNbSize = $arrows->get_max_neighborhood_size();
     $isDirectJob = $arrows->is_direct_job();
 
     if ($isBigscapeEnabled)
@@ -105,6 +108,7 @@ else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GE
     $blastSequence = $arrows->get_blast_sequence();
     $jobTypeText = $arrows->get_verbose_job_type();;
     $nbSize = $arrows->get_neighborhood_size();
+    $maxNbSize = $arrows->get_max_neighborhood_size();
 
     if ($isBigscapeEnabled)
         $bigscapeType = DiagramJob::Uploaded;
@@ -270,7 +274,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                             <div>
                                 <select id="window-size" class="light">
 <?php
-    for ($i = 1; $i <= $nbSize; $i++) {
+    for ($i = 1; $i <= $maxNbSize; $i++) {
         $sel = $i == $nbSize ? "selected" : "";
         echo "                                    <option value=\"$i\" $sel>$i</option>\n";
     }
@@ -522,8 +526,10 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
             <div id="info-popup-id">UniProt ID: <span class="popup-id"></span></div>
             <div id="info-popup-desc">Description: <span class="popup-pfam"></span></div>
             <div id="info-popup-sptr">Annotation Status: <span class="popup-pfam"></span></div>
-            <div id="info-popup-fam">Family: <span class="popup-pfam"></span></div>
+            <div id="info-popup-fam">Pfam: <span class="popup-pfam"></span></div>
             <div id="info-popup-fam-desc">Pfam Desc: <span class="popup-pfam"></span></div>
+            <div id="info-popup-ipro-fam">InterPro: <span class="popup-pfam"></span></div>
+            <div id="info-popup-ipro-fam-desc">InterPro Desc: <span class="popup-pfam"></span></div>
             <!--    <div id="info-popup-coords">Coordinates: <span class="popup-pfam"></span></div>-->
             <div id="info-popup-seqlen">Sequence Length: <span class="popup-pfam"></span></div>
             <!--    <div id="info-popup-dir">Direction: <span class="popup-pfam"></span></div>-->
