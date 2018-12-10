@@ -35,7 +35,7 @@ class user_jobs extends user_auth {
     }
 
     private static function get_select_statement() {
-        $sql = "SELECT gnn.gnn_id, gnn_key, gnn_filename, gnn_time_completed, gnn_status, gnn_size, gnn_cooccurrence FROM gnn ";
+        $sql = "SELECT gnn.gnn_id, gnn_key, gnn_filename, gnn_time_completed, gnn_status, gnn_size, gnn_cooccurrence, gnn_params FROM gnn ";
         return $sql;
     }
 
@@ -93,7 +93,10 @@ class user_jobs extends user_auth {
                 $comp = date_format(date_create($comp), "n/j h:i A");
             }
             $filename = pathinfo($row["gnn_filename"], PATHINFO_BASENAME);
+            $params = global_functions::decode_object($row["gnn_params"]);
             $jobName = "N=" . $row["gnn_size"] . " Cooc=" . $row["gnn_cooccurrence"] . " Submission=<i>" . $filename . "</i>";
+            if (isset($params["gnn_parent_id"]) && $params["gnn_parent_id"])
+                $jobName .= " [Child of #" . $params['gnn_parent_id'] . "]";
             array_push($jobs, array("id" => $row["gnn_id"], "key" => $row["gnn_key"], "filename" => $jobName,
                                           "completed" => $comp));
         }
