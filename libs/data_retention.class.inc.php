@@ -18,11 +18,17 @@ class data_retention {
         $tname = $table_name;
         $idfield = "${tname}_id";
         $timefield = "${tname}_time_completed";
-        $exp_date = user_auth::get_start_date_window();
+        $timefield_started = "${tname}_time_started";
+        $statusfield = "${tname}_status";
+        $exp_date = global_functions::get_file_retention_start_date();
+        $failed_exp_date = global_functions::get_failed_retention_start_date();
         $sql = "SELECT $tname.$idfield, $timefield FROM $tname " .
             "LEFT JOIN job_group ON job_group.$idfield = $tname.$idfield " .
-            "WHERE $timefield < '$exp_date' AND job_group.user_group IS NULL " .
-            "AND $timefield != '0000-00-00 00:00:00'";
+            "WHERE job_group.user_group IS NULL AND (" . 
+            "($timefield < '$exp_date' AND $timefield != '0000-00-00 00:00:00') OR " .
+            "($timefield IS NULL AND $timefield_started < '$exp_date') OR " .
+            "($tname.$statusfield = '" . __FAILED__ . "' AND $timefield_started < '$failed_exp_date')" .
+            ")";# OR
 
         $results = $this->db->query($sql);
 
