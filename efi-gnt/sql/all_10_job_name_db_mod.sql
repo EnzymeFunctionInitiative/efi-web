@@ -1,0 +1,4 @@
+
+ALTER TABLE gnn ADD COLUMN gnn_job_name VARCHAR(255);
+ALTER TABLE gnn ADD COLUMN gnn_db_mod VARCHAR(4);
+

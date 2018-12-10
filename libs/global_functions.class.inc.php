@@ -58,6 +58,36 @@ class global_functions {
         return json_encode($obj);
     }
 
+    public static function update_results_object_tmpl($db, $prefix, $table, $column, $id, $data) {
+        $theCol = "${prefix}_${column}";
+
+        $sql = "SELECT $theCol FROM $table WHERE ${prefix}_id='$id'";
+        $result = $db->query($sql);
+        if (!$result)
+            return NULL;
+        $result = $result[0];
+        $results_obj = self::decode_object($result[$theCol]);
+
+        foreach ($data as $key => $value)
+            $results_obj[$key] = $value;
+
+        $json = self::encode_object($results_obj);
+
+        $sql = "UPDATE $table SET $theCol = '" . $db->escape_string($json) . "'";
+        $sql .= " WHERE ${prefix}_id='$id' LIMIT 1";
+        $result = $db->non_select_query($sql);
+
+        return $result;
+    }
+
+    public static function safe_filename($filename) {
+        return preg_replace("([^A-Za-z0-9_\-\.])", "_", $filename);
+    }
+
+    public static function format_short_date($comp) {
+        return date_format(date_create($comp), "n/j h:i A");
+    }
+
 }
 
 ?>

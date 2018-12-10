@@ -3,7 +3,7 @@
 if (!isset($TopLevelUrl))
     $TopLevelUrl = "http://efi.igb.illinois.edu/$SiteUrlPrefix/shortbred/";
 
-$title = "ShortBRED Utility";
+$title = "EFI-CGFP";
 if (isset($ExtraTitle) && $ExtraTitle)
     $title = "$title: $ExtraTitle";
 
@@ -30,8 +30,11 @@ include_once("../../html/inc/global_login_button.inc.php");
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/shared.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/tabs.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/buttons.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/table.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/fontawesome-all.css">
     <link rel="stylesheet" type="text/css" href="css/shortbred.css">
+    <link rel="stylesheet" type="text/css" href="css/popup.css">
     <link rel="shortcut icon" href="<?php echo $SiteUrlPrefix; ?>/images/favicon_efi.ico" type="image/x-icon">
 <?php echo $extraCssLinkText; ?>
 
@@ -74,12 +77,17 @@ include("../../html/inc/global_nav.inc.php");
     <div id="container">
         <div class="header">
             <div class="header_logo">
-                <a href="<?php echo $TopLevelUrl; ?>"><img src="<?php echo $SiteUrlPrefix; ?>/shortbred/images/shortbred_efi_logo.png" alt="ShortBRED-EFI Logo" width="980" height="73"></a>
+                <div class="logo_left"><a href="<?php echo $TopLevelUrl; ?>"><img src="<?php echo $SiteUrlPrefix; ?>/shortbred/images/efi_cgfp_logo.png" alt="EFI-CGFP Logo" height="75"></a></div>
+                <div class="logo_right" style="padding-left: 10px"><a href="http://igb.illinois.edu"><img src="<?php echo $SiteUrlPrefix; ?>/images/illinois_igb_full.png" height="75" alt="Institute for Genomic Biology at University of Illinois at Urbana-Champaign logo"></a></div>
+                <div class="logo_right">
+                    <a href="https://www.microbialchemist.com/metagenomic-profiling/"><img src="<?php echo $SiteUrlPrefix; ?>/shortbred/images/harvard1.png" height="32" alt="Harvard University logo"></a><br>
+                    <a href="http://huttenhower.sph.harvard.edu/shortbred"><img src="<?php echo $SiteUrlPrefix; ?>/shortbred/images/harvard2.png" height="32" alt="Harvard University T.H. Chan School of Public Health logo"></a>
+                </div>
             </div>
         </div>
 
         <div class="content_holder">
-            <h1 class="ruled">ShortBRED</h1>
+            <h1 class="ruled">EFI-CGFP/ShortBRED</h1>
 <?php if (settings::is_beta_release()) { ?>
             <div class="beta"><h4>BETA</h4></div>
 <?php } ?>

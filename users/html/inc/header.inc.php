@@ -30,7 +30,6 @@ $cur_page_title = isset($pages[$cur_page]) ? "<h2>" . $pages[$cur_page] . "</h2>
 
 ?>
 
-
 <!doctype html>
 <head>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.css">

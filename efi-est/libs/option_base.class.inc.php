@@ -9,6 +9,7 @@ abstract class option_base extends stepa {
     protected $sequence_max;
     protected $max_blast_failed = "accession.txt.failed";
     protected $bad_import_format = "blast.failed";
+    protected $db_mod = "";
 
 
     public function __construct($db, $id = 0) {
@@ -17,6 +18,15 @@ abstract class option_base extends stepa {
 
     public function __destruct() {
     }
+
+//    protected function get_db_version() {
+//        $db_mod = $this->db_mod;
+//        if (!$db_mod)
+//            $db_mod = functions::get_efidb_module();
+//        $db_mod = preg_replace("/^.*\//", "", $db_mod);
+//        return strtoupper($db_mod);
+//    }
+
 
     public function get_sequence_max() { return $this->sequence_max; }
 
@@ -55,19 +65,19 @@ abstract class option_base extends stepa {
     public function create($data) { //$email, $evalue, $families, $tmp_file, $uploaded_filename, $fraction, $program) {
         $type = $this->get_create_type();
 
-        $is_uniref90 = (isset($data->uniref_version) && $data->uniref_version) ? true : false;
+        $use_uniref = (isset($data->uniref_version) && $data->uniref_version) ? true : false;
         $families = explode(",", $data->families);
-        $sizes = family_size::compute_family_size($this->db, $families, $data->fraction, $is_uniref90);
+        $sizes = family_size::compute_family_size($this->db, $families, $data->fraction, $use_uniref, $data->uniref_version);
 
         $result = $this->validate($data);
 
         if ($sizes["is_too_large"]) {
             $result->errors = true;
             $result->message .= " The selected family(is) is too large to process.";
-        } elseif ($sizes["is_uniref90_required"] && !$is_uniref90) {
+        } elseif ($sizes["is_uniref90_required"] && !$use_uniref) {
             $data->uniref_version = functions::get_default_uniref_version();
         }
-        
+
         if (!$result->errors) {
             $table_name = "generate";
             $params_array = $this->get_insert_array($data);
@@ -101,6 +111,27 @@ abstract class option_base extends stepa {
     // OVERLOADABLE FUNCTIONS
     // These functions can (some must) be overloaded to alter functionality.  If a child needs to add a new
     // validation, it should override validate but call the parent before doing any internal validation.
+    
+    protected function load_generate($id) {
+        $result = parent::load_generate($id);
+        if (! $result) {
+            return;
+        }
+        
+        $db_mod = isset($result["generate_db_mod"]) ? $result["generate_db_mod"] : "";
+        if ($db_mod) {
+            // Get the actual module not the alias.
+            $mod_info = global_settings::get_database_modules();
+            foreach ($mod_info as $mod) {
+                if ($mod[1] == $db_mod) {
+                    $db_mod = $mod[0];
+                }
+            }
+        }
+        $this->db_mod = $db_mod;
+
+        return $result;
+    }
 
     // This is stored into the generate database so that it can be picked up by run_job below later.
     abstract protected function get_create_type();
@@ -108,13 +139,16 @@ abstract class option_base extends stepa {
     // This is creates the actual array that is inserted into the database.
     protected function get_generate_insert_array($data) {
         $key = $this->generate_key();
+        $db_version = functions::get_encoded_db_version($data->db_mod);
         $insert_array = array(
             'generate_key' => $key,
             'generate_email' => $data->email,
             'generate_type' => $this->get_create_type(),
             'generate_program' => $data->program,
-            'generate_db_version' => functions::get_encoded_db_version(),
+            'generate_db_version' => $db_version,
+            'generate_status' => __NEW__,
         );
+
         return $insert_array;
     }
 
@@ -124,6 +158,10 @@ abstract class option_base extends stepa {
             'generate_evalue' => $data->evalue,
             'generate_fraction' => $data->fraction,
         );
+        if (isset($data->job_name))
+            $insert_array['generate_job_name'] = $data->job_name;
+        if (isset($data->db_mod) && preg_match("/^[A-Z0-9]{4}/", $data->db_mod))
+            $insert_array['generate_db_mod'] = $data->db_mod;
         return $insert_array;
     }
 
@@ -148,6 +186,7 @@ abstract class option_base extends stepa {
             $result->errors = true;
             $result->message .= "<br><b>Please enter a valid E-Value</b></br>";
         }
+        $data->job_name = preg_replace('/[^A-Za-z0-9 \-_?!#\$%&*()\[\],\.<>:;{}]/', "_", $data->job_name);
 
         return $result;
     }
@@ -208,7 +247,10 @@ abstract class option_base extends stepa {
 
         $exec = "source /etc/profile\n";
         $exec .= "module load " . functions::get_efi_module() . "\n";
-        $exec .= "module load " . functions::get_efidb_module() . "\n";
+        if ($this->db_mod)
+            $exec .= "module load " . $this->db_mod . "\n";
+        else
+            $exec .= "module load " . functions::get_efidb_module() . "\n";
         $exec .= $this->additional_exec_modules();
         $exec .= $this->get_run_script();
         if ($sched)

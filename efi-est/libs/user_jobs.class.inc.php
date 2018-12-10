@@ -48,6 +48,27 @@ class user_jobs extends user_auth {
         return $jobs;
     }
 
+    // Returns true if the user has exceeded their 24-hr limit
+    public static function check_for_job_limit($db, $email) {
+        $is_admin = self::get_user_admin($db, $email);
+        if ($is_admin)
+            return false;
+
+        $limit_period = 24; // hours
+        $dt = new DateTime();
+        $past_dt = $dt->sub(new DateInterval("PT${limit_period}H"));
+        $mysql_date = $past_dt->format("Y-m-d H:i:s");
+        
+        $sql = "SELECT COUNT(*) AS count FROM generate WHERE generate_time_created >= '$mysql_date' AND generate_email = '$email'";
+        $results = $db->query($sql);
+
+        $num_job_limit = global_settings::get_num_job_limit();
+        if (count($results) && $results[0]["count"] >= $num_job_limit)
+            return true;
+        else
+            return false;
+    }
+
     private static function get_select_statement() {
         $sql = "SELECT generate.generate_id, generate_key, generate_time_completed, generate_status, generate_type, generate_params FROM generate ";
         return $sql;
@@ -67,7 +88,7 @@ class user_jobs extends user_auth {
         $expDate = self::get_start_date_window();
 
         $sql = self::get_select_statement() .
-            "WHERE (generate_email = '$email') AND " .
+            "WHERE (generate_email = '$email') AND generate_status != 'ARCHIVED' AND " .
             "(generate_time_completed >= '$expDate' OR (generate_time_created >= '$expDate' AND (generate_status = 'NEW' OR generate_status = 'RUNNING'))) " .
             "ORDER BY generate_status, generate_time_completed DESC";
         $rows = $db->query($sql);
@@ -273,6 +294,7 @@ class user_jobs extends user_auth {
         $sequence = self::get_sequence($data);
         $blastEvalue = self::get_blast_evalue($data);
         $maxHits = self::get_max_blast_hits($data);
+        $jobNameField = isset($data["generate_job_name"]) ? $data["generate_job_name"] : "";
 
         $info = array();
         if ($fileName) array_push($info, $fileName);
@@ -286,12 +308,18 @@ class user_jobs extends user_auth {
         if ($maxHits) array_push($info, $maxHits);
         
         $jobName = self::get_job_label($type);
-        
-        $jobInfo = implode("; ", $info);
+
+        $jobInfo = "";
+        if ($jobNameField) {
+            $jobInfo = $jobNameField;
+        } else {
+            $jobInfo = implode("; ", $info);
+        }
 
         if ($jobInfo) {
             $jobName .= " ($jobInfo)";
         }
+
         return $jobName;
     }
 
@@ -309,7 +337,7 @@ class user_jobs extends user_auth {
         $isCompleted = false;
         if ($status == "FAILED") {
             $comp = "FAILED";
-        } elseif (!$comp || substr($comp, 0, 4) == "0000") {
+        } elseif (!$comp || substr($comp, 0, 4) == "0000" || $status == "RUNNING") {
             $comp = $status;
             if ($comp == "NEW")
                 $comp = "PENDING";

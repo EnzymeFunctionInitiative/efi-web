@@ -9,6 +9,22 @@ require_once "inc/header.inc.php";
 
 <h2>Release Notes</h2>
 
+<h3>December 7, 2018</h3>
+
+<p>
+The EST database now uses UniProt release 2018_10 and InterPro 71.  UniProt release 2018_10 includes
+a total of 134,066,044 entries: 133,507,323 in TrEMBL and 558,681 in SwissProt.
+</p>
+
+<p>
+Users of the EST can now create GNNs and color SSNs directly from the EST network files download page.
+UniRef90 and UniRef50 sequences can be used instead of an entire family to speed computation.
+For examploe, the full set of sequences in PF05544 is a total of 10,914 sequences, but contains
+4,198 UniRef90 and 552 UniRef50 seed sequences.
+The <a href="https://www.uniprot.org/uniref/">UniRef page at UniProt</a> further
+discusses UniRef50 and UniRef90.
+</p>
+
 <h3>July 11, 2018</h3>
 
 <p>

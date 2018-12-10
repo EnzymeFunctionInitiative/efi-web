@@ -31,6 +31,7 @@ include("global_login_button.inc.php");
     <link rel="stylesheet" type="text/css" href="css/tutorial.css">
 <?php } ?>
     <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/buttons.css">
     <link rel="shortcut icon" href="<?php echo $SiteUrlPrefix; ?>/images/favicon_efi.ico" type="image/x-icon">
     <title><?php echo $title; ?></title>
 
@@ -49,7 +50,8 @@ include("global_nav.inc.php");
     <div id="container">
         <div class="header">
             <div class="header_logo">
-                <a href="<?php echo $TopLevelUrl; ?>"><img src="<?php echo $SiteUrlPrefix; ?>/images/efi_logo.png" width="255" height="77" alt="Enzyme Function Initiative Logo"></a>
+                <div class="logo_left"><a href="<?php echo $TopLevelUrl; ?>"><img src="<?php echo $SiteUrlPrefix; ?>/images/efi_logo.png" width="255" height="77" alt="Enzyme Function Initiative Logo"></a></div>
+                <div class="logo_right"><a href="http://igb.illinois.edu"><img src="<?php echo $SiteUrlPrefix; ?>/images/illinois_igb_full.png" height="75" alt="Institute for Genomic Biology at University of Illinois at Urbana-Champaign logo"></a></div>
             </div>
         </div>
 

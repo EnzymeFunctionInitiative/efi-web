@@ -25,6 +25,8 @@ include_once("../../html/inc/global_login_button.inc.php");
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/shared.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/tabs.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/table.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/buttons.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/fontawesome-all.min.css">
 <?php if (isset($TUTORIAL) && $TUTORIAL) { ?>
     <link rel="stylesheet" type="text/css" href="css/tutorial.css">
@@ -47,8 +49,8 @@ include("../../html/inc/global_nav.inc.php");
     <div id="container">
         <div class="header">
             <div class="header_logo">
-                <a href="<?php echo $SiteUrlPrefix; ?>/efi-gnt/"><img src="images/efi-gnn_logo.png" width="250" height="75" alt="Enzyme Function Initiative Logo"></a>
-                <a href="http://enzymefunction.org"><img src="<?php echo $SiteUrlPrefix; ?>/images/efi_logo.png" class="efi_logo_small" width="80" height="24" alt="Enzyme Function Initiative Logo"></a>
+                <div class="logo_left"><a href="<?php echo $SiteUrlPrefix; ?>/efi-gnt/"><img src="images/efi-gnn_logo.png" width="250" height="75" alt="Enzyme Function Initiative Logo"></a></div>
+                <div class="logo_right"><a href="http://igb.illinois.edu"><img src="<?php echo $SiteUrlPrefix; ?>/images/illinois_igb_full.png" height="75" alt="Institute for Genomic Biology at University of Illinois at Urbana-Champaign logo"></a></div>
             </div>
         </div>
 

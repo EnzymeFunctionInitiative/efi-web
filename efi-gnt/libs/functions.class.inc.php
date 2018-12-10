@@ -183,17 +183,40 @@ class functions extends global_functions {
         }
     }
 
-    public static function get_est_job_info($db, $gnn_id) {
-
-        $sql = "SELECT gnn_source_id FROM gnn WHERE gnn_id = $gnn_id";
+    public static function verify_gnt_job($db, $gnn_id, $gnn_key) {
+        $sql = "SELECT gnn_filename, gnn_email FROM gnn WHERE gnn_id = $gnn_id AND gnn_key = '$gnn_key'";
         $result = $db->query($sql);
         if ($result)
-            $analysis_id = $result[0]["gnn_source_id"];
+            return array('filename' => $result[0]['gnn_filename'], 'email' => $result[0]['gnn_email']);
+        else
+            return false;
+    }
+
+    public static function get_gnn_key($db, $gnn_id) {
+        $sql = "SELECT gnn_key FROM gnn WHERE gnn_id = $gnn_id";
+        $result = $db->query($sql);
+        if ($result)
+            return $result[0]['gnn_key'];
+        else
+            return false;
+    }
+
+    public static function get_est_job_info_from_gnn_id($db, $gnn_id) {
+
+        $sql = "SELECT gnn_est_source_id FROM gnn WHERE gnn_id = $gnn_id";
+        $result = $db->query($sql);
+        if ($result)
+            $analysis_id = $result[0]["gnn_est_source_id"];
         else
             return false;
 
         if (!$analysis_id)
             return false;
+
+        return self::get_est_job_info_from_est_id($db, $analysis_id);
+    }
+
+    public static function get_est_job_info_from_est_id($db, $analysis_id) {
 
         $est_db = settings::get_est_database();
         $sql = "SELECT analysis.*, generate_key FROM $est_db.analysis " .
@@ -338,5 +361,58 @@ class functions extends global_functions {
         return $msg;
     }
 
+    public static function check_sync_key($key) {
+        $keys = array();
+        if (defined("__SYNC_KEYS__")) {
+            $keys = explode(",", __SYNC_KEYS__);
+        }
+
+        return in_array($key, $keys);
+    }
+
+    public static function dump_gnn_info($gnn, $is_sync = false) {
+        $baseUrl = settings::get_web_address();
+        
+        $ssnFile = $gnn->get_relative_color_ssn();
+        $ssnZipFile = $gnn->get_relative_color_ssn_zip_file();
+        $gnnFile = $gnn->get_relative_gnn();
+        $gnnZipFile = $gnn->get_relative_gnn_zip_file();
+        $pfamFile = $gnn->get_relative_pfam_hub();
+        $pfamZipFile = $gnn->get_relative_pfam_hub_zip_file();
+        $idDataZip = $gnn->get_relative_cluster_data_zip_file();
+        $pfamDataZip = $gnn->get_relative_pfam_data_zip_file();
+        $allPfamDataZip = $gnn->get_relative_all_pfam_data_zip_file();
+        $warningFile = $gnn->get_relative_warning_file();
+        $idTableFile = $gnn->get_relative_id_table_file();
+        $pfamNoneZip = $gnn->get_relative_pfam_none_zip_file();
+        $fastaZip = $gnn->get_relative_fasta_zip_file();
+        $coocTableFile = $gnn->get_relative_cooc_table_file();
+        $hubCountFile = $gnn->get_relative_hub_count_file();
+        $diagramFile = $gnn->get_relative_diagram_data_file();
+        $diagramZipFile = $gnn->get_relative_diagram_zip_file();
+
+        $files["ssn"] = $baseUrl . "/" . $ssnFile;
+        $files["gnnFile"] = $baseUrl . "/" . $gnnFile;
+        $files["pfamFile"] = $baseUrl . "/" . $pfamFile;
+        $files["warningFile"] = $baseUrl . "/" . $warningFile;
+
+        if (!$is_sync) {
+            $files["ssnZip"] = $baseUrl . "/" . $ssnZipFile;
+            $files["gnnZipFile"] = $baseUrl . "/" . $gnnZipFile;
+            $files["pfamZipFile"] = $baseUrl . "/" . $pfamZipFile;
+            $files["allPfamZipFile"] = $baseUrl . "/" . $allPfamZipFile;
+            $files["idDataZip"] = $baseUrl . "/" . $idDataZip;
+            $files["pfamDataZip"] = $baseUrl . "/" . $pfamDataZip;
+            $files["idTableFile"] = $baseUrl . "/" . $idTableFile;
+            $files["pfamNoneZip"] = $baseUrl . "/" . $pfamNoneZip;
+            $files["fastaZip"] = $baseUrl . "/" . $fastaZip;
+            $files["coocTableFile"] = $baseUrl . "/" . $coocTableFile;
+            $files["hubCountFile"] = $baseUrl . "/" . $hubCountFile;
+            $files["diagramFile"] = $baseUrl . "/" . $diagramFile;
+            $files["diagramZipFile"] = $baseUrl . "/" . $diagramZipFile;
+        }
+
+        return $files;
+    }
 }
 ?>

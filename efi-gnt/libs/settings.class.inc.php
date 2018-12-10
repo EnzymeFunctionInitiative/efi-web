@@ -11,6 +11,10 @@ class settings extends global_settings {
     public static function get_gnn_script() {
         return __GNN_SCRIPT__;
     }
+    
+    public static function get_sync_gnn_script() {
+        return __SYNC_GNN_SCRIPT__;
+    }
 
     public static function get_process_diagram_script() {
         return __PROCESS_DIAGRAM_SCRIPT__;
@@ -42,6 +46,20 @@ class settings extends global_settings {
             return __OUTPUT_DIR__;
         }
         return false;
+    }
+
+    public static function get_sync_output_dir() {
+        if (defined("__SYNC_OUTPUT_DIR__") && is_dir(__SYNC_OUTPUT_DIR__))
+            return __SYNC_OUTPUT_DIR__;
+        else
+            return false;
+    }
+
+    public static function get_rel_sync_output_dir() {
+        if (defined("__RELATIVE_SYNC_OUTPUT_DIR__"))
+            return __RELATIVE_SYNC_OUTPUT_DIR__;
+        else
+            return false;
     }
 
     public static function get_diagram_output_dir() {
@@ -90,7 +108,7 @@ class settings extends global_settings {
         return __GNN_MODULE__;
     }
     public static function get_efidb_module() {
-        return __EFIDB_MODULE__;
+        return defined("__EFI_DB_MODULE__") ? __EFI_DB_MODULE__ : __EFIDB_MODULE__;
     }
 
     public static function get_uniprot_version() {
@@ -171,6 +189,10 @@ class settings extends global_settings {
             return __EST_OUTPUT_DIR__;
         }
         return false;
+    }
+
+    public static function get_interpro_enabled() {
+        return defined("__ENABLE_INTERPRO__") ? __ENABLE_INTERPRO__ : false;
     }
 }
 ?>

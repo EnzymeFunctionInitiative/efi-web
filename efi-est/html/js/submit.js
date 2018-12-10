@@ -1,6 +1,7 @@
 
 var FORM_ACTION = "create.php";
 var DEBUG = 0;
+var ARCHIVE = 2;
 
 
 function getDefaultCompletionHandler() {
@@ -18,6 +19,7 @@ function submitOptionAForm() {
     var fd = new FormData();
     fd.append("option_selected", "A");
     addParam(fd, "email", "option-a-email");
+    addParam(fd, "job-name", "option-a-job-name");
     addParam(fd, "job-group", "option-a-job-group");
     addParam(fd, "blast_input", "blast-input");
     addParam(fd, "blast_evalue", "blast-evalue");
@@ -25,7 +27,9 @@ function submitOptionAForm() {
     addParam(fd, "fraction", "blast-fraction");
     addParam(fd, "families_input", "families-input-opta");
     addParam(fd, "evalue", "families-evalue-opta");
+    addParam(fd, "db-mod", "option-a-db-mod");
     addCbParam(fd, "families_use_uniref", "opta-use-uniref");
+    addParam(fd, "families_uniref_ver", "option-a-uniref-ver");
     var fileHandler = function(xhr) {};
     var completionHandler = getDefaultCompletionHandler();
 
@@ -40,6 +44,7 @@ function submitOptionBForm() {
     var fd = new FormData();
     fd.append("option_selected", "B");
     addParam(fd, "email", "option-b-email");
+    addParam(fd, "job-name", "option-b-job-name");
     addParam(fd, "job-group", "option-b-job-group");
     addParam(fd, "families_input", "families-input");
     addParam(fd, "evalue", "pfam-evalue");
@@ -47,7 +52,9 @@ function submitOptionBForm() {
     addCbParam(fd, "pfam_domain", "pfam-domain");
     addParam(fd, "pfam_seqid", "pfam-seqid");
     addParam(fd, "pfam_length_overlap", "pfam-length-overlap");
+    addParam(fd, "db-mod", "option-b-db-mod");
     addCbParam(fd, "families_use_uniref", "pfam-use-uniref");
+    addParam(fd, "families_uniref_ver", "option-b-uniref-ver");
     var fileHandler = function(xhr) {};
     var completionHandler = getDefaultCompletionHandler();
 
@@ -63,13 +70,16 @@ function submitOptionCForm() {
     var fd = new FormData();
     fd.append("option_selected", "C");
     addParam(fd, "email", "option-c-email");
+    addParam(fd, "job-name", "option-c-job-name");
     addParam(fd, "job-group", "option-c-job-group");
     addParam(fd, "fasta_input", "fasta-input");
     addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
     addParam(fd, "families_input", "families-input-optc");
     addCbParam(fd, "families_use_uniref", "optc-use-uniref");
+    addParam(fd, "families_uniref_ver", "option-c-uniref-ver");
     addParam(fd, "evalue", "fasta-evalue");
     addParam(fd, "fraction", "fasta-fraction");
+    addParam(fd, "db-mod", "option-c-db-mod");
 
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
@@ -93,14 +103,18 @@ function submitOptionDForm() {
     var fd = new FormData();
     fd.append("option_selected", "D");
     addParam(fd, "email", "option-d-email");
+    addParam(fd, "job-name", "option-d-job-name");
     addParam(fd, "job-group", "option-d-job-group");
     addParam(fd, "accession_input", "accession-input");
     addParam(fd, "families_input", "families-input-optd");
     addCbParam(fd, "families_use_uniref", "optd-use-uniref");
+    addParam(fd, "families_uniref_ver", "option-d-uniref-ver");
     addCbParam(fd, "accession_use_uniref", "accession-use-uniref");
     addParam(fd, "accession_uniref_version", "accession-uniref-version");
     addParam(fd, "evalue", "accession-evalue");
     addParam(fd, "fraction", "accession-fraction");
+    addParam(fd, "db-mod", "option-d-db-mod");
+    addParam(fd, "accession_seq_type", "accession-seq-type");
 
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
@@ -124,14 +138,19 @@ function submitOptionEForm() {
     var fd = new FormData();
     fd.append("option_selected", "E");
     addParam(fd, "email", "option-e-email");
+    addParam(fd, "job-name", "option-e-job-name");
     addParam(fd, "job-group", "option-e-job-group");
     addParam(fd, "families_input", "option-e-input");
     addParam(fd, "evalue", "pfam-plus-evalue");
     addParam(fd, "fraction", "pfam-plus-fraction");
     addCbParam(fd, "pfam_domain", "pfam-plus-domain");
     addParam(fd, "pfam_seqid", "pfam-plus-seqid");
+    addParam(fd, "pfam_min_seq_len", "pfam-plus-min-seq-len");
+    addParam(fd, "pfam_max_seq_len", "pfam-plus-max-seq-len");
     addParam(fd, "pfam_length_overlap", "pfam-plus-length-overlap");
     addCbParam(fd, "pfam_demux", "pfam-plus-demux");
+    addParam(fd, "db-mod", "option-e-db-mod");
+
     var fileHandler = function(xhr) {};
     var completionHandler = getDefaultCompletionHandler();
 
@@ -161,6 +180,20 @@ function submitColorSsnForm() {
     doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
 }
 
+function submitStepEColorSsnForm(email, analysisId, ssnIndex) {
+
+    var fd = new FormData();
+    fd.append("option_selected", "colorssn");
+    fd.append("email", email);
+    fd.append("ssn-source-id", analysisId);
+    fd.append("ssn-source-idx", ssnIndex);
+
+    var completionHandler = getDefaultCompletionHandler();
+    var fileHandler = function(xhr) {};
+
+    doFormPost(FORM_ACTION, fd, "", fileHandler, completionHandler);
+}
+
 function submitMigrate(generateId, analysisId, key, completionHandler) {
 
     var messageId = "migrate-error";
@@ -178,6 +211,24 @@ function submitMigrate(generateId, analysisId, key, completionHandler) {
 
     doFormPost("migrate.php", fd, messageId, fileHandler, completionHandler);
 }
+
+
+function requestJobUpdate(generateId, jobKey, requestType, jobType) {
+    var fd = new FormData();
+    fd.append("id", generateId);
+    fd.append("key", jobKey);
+    if (requestType == "cancel")
+        fd.append("rt", "c");
+    else if (requestType == "archive")
+        fd.append("rt", "a");
+
+    var fileHandler = function(xhr) { };
+    var completionHandler = function(jsonObj) { window.location.href = "index.php"; };
+
+    var script = "update_job_status.php";
+    doFormPost(script, fd, "", fileHandler, completionHandler);
+}
+
 
 
 
@@ -249,7 +300,8 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
                 if (!jsonObj.valid && jsonObj.message) {
                     document.getElementById(messageId).innerHTML = jsonObj.message;
                 } else {
-                    document.getElementById(messageId).innerHTML = "";
+                    if (messageId)
+                        document.getElementById(messageId).innerHTML = "";
                 }
             }
         }

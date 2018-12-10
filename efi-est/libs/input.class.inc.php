@@ -4,11 +4,12 @@ class input_data {
 
     public $email;
     public $job_group;
-    public $name;
+    public $job_name;
     public $evalue;
     public $fraction;
     public $max_seqs;
     public $random_fraction;
+    public $db_mod;
 
     // For option A, C, D
     public $field_input;
@@ -36,8 +37,16 @@ class input_data {
     public $minimum;
     public $maximum;
 
+    // For Option E
+    public $min_seq_len;
+    public $max_seq_len;
+
     // This flag is set to true if the script is called from the command line.
     public $is_debug;
+
+    // For Color SSN option
+    public $color_ssn_source_id;  // analysis ID
+    public $color_ssn_source_idx; // SSN index
 
     //public $cooccurrence;
     //public $neighborhood_size;

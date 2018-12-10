@@ -11,6 +11,7 @@ $gnnId = "";
 $gnnKey = "";
 $cooccurrence = "";
 $nbSize = "";
+$maxNbSize = 20;
 $gnnName = "";
 $idKeyQueryString = "";
 $windowTitle = "";
@@ -22,6 +23,7 @@ $blastSequence = "";
 $jobTypeText = "";
 
 $isBigscapeEnabled = settings::get_bigscape_enabled();
+$isInterproEnabled = settings::get_interpro_enabled();
 $isUploadedDiagram = false;
 $supportsDownload = true;
 $supportsExport = true;
@@ -37,6 +39,7 @@ if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
     $gnn = new gnn($db, $gnnId);
     $cooccurrence = $gnn->get_cooccurrence();
     $nbSize = $gnn->get_size();
+    $maxNbSize = $gnn->get_max_neighborhood_size();
     $gnnName = $gnn->get_filename();
     $dotPos = strpos($gnnName, ".");
     $gnnName = substr($gnnName, 0, $dotPos);
@@ -72,6 +75,7 @@ else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GE
     $gnnName = $arrows->get_gnn_name();
     $cooccurrence = $arrows->get_cooccurrence();
     $nbSize = $arrows->get_neighborhood_size();
+    $maxNbSize = $arrows->get_max_neighborhood_size();
     $isDirectJob = $arrows->is_direct_job();
 
     if ($isBigscapeEnabled)
@@ -105,6 +109,7 @@ else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GE
     $blastSequence = $arrows->get_blast_sequence();
     $jobTypeText = $arrows->get_verbose_job_type();;
     $nbSize = $arrows->get_neighborhood_size();
+    $maxNbSize = $arrows->get_max_neighborhood_size();
 
     if ($isBigscapeEnabled)
         $bigscapeType = DiagramJob::Uploaded;
@@ -178,6 +183,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 
         <!-- Custom styles for this template -->
         <link href="css/diagrams.css" rel="stylesheet">
+        <link href="css/alert.css" rel="stylesheet">
 
         <script src="js/app.js" type="application/javascript"></script>
         <script src="js/arrows.js" type="application/javascript"></script>
@@ -269,7 +275,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                             <div>
                                 <select id="window-size" class="light">
 <?php
-    for ($i = 1; $i <= $nbSize; $i++) {
+    for ($i = 1; $i <= $maxNbSize; $i++) {
         $sel = $i == $nbSize ? "selected" : "";
         echo "                                    <option value=\"$i\" $sel>$i</option>\n";
     }
@@ -394,12 +400,15 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     <div class="col-md-4">
                         <div class="button-wrapper pull-right">
                             <button type="button" class="btn btn-default" id="show-all-arrows-button">Show All</button>
-                            <button type="button" class="btn btn-default" id="show-more-arrows-button">Show 20 More</button>
+                            <button type="button" class="btn btn-default" id="show-more-arrows-button">Show 50 More</button>
+<!--                            <button type="button" class="btn btn-default" id="show-more-arrows-button-100">Show 100 More</button>-->
                         </div>
                     </div>
                 </div>
             </div>
         </footer>
+
+        <div id="alert-msg">Unable to show reqeuested diagrams.</div> 
 
 
         <!-- Bootstrap core JavaScript
@@ -418,9 +427,16 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
         <script type="application/javascript">
             $(document).ready(function() {
                 var popupIds = new PopupIds();
+
                 var arrowDiagrams = new ArrowDiagram("arrow-canvas", "", "arrow-container", popupIds);
-                //arrowDiagrams.setJobInfo("<?php echo $idKeyQueryString; ?>");
                 var arrowApp = new ArrowApp(arrowDiagrams);
+
+                var filterUpdateCb = function(fam, doRemove) {
+                    arrowApp.uiFilterUpdate(fam, doRemove);
+                };
+                arrowDiagrams.setUiFilterUpdateCb(filterUpdateCb);
+
+                //arrowDiagrams.setJobInfo("<?php echo $idKeyQueryString; ?>");
                 arrowApp.setQueryString("<?php echo $idKeyQueryString; ?>");
 
                 $("#menu-toggle").click(function(e) {
@@ -439,7 +455,6 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         var svg = escape($("#arrow-canvas")[0].outerHTML);
                         arrowApp.downloadSvg(svg, "<?php echo $gnnName ?>");
                     });
-
 <?php if ($isDirectJob) { ?>
                 arrowApp.showDefaultDiagrams();
                 $("#advanced-search-reset-button").click(function(e) {
@@ -493,14 +508,30 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 <?php } ?>
                 arrowApp.setNeighborhoodWindow(<?php echo $nbSize; ?>);
             });
+
+            function showAlertMsg() {
+                // Get the snackbar DIV
+                var x = document.getElementById("alert-msg");
+            
+                // Add the "show" class to DIV
+                x.className = "show";
+            
+                // After 3 seconds, remove the show class from DIV
+                setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+
+                alert("Unable to retrieve the selected diagrams: probably because too many were selected.");
+            } 
         </script>
 
+<?php $hideInterpro = $isInterproEnabled ? "" : 'style="display:none"'; ?>
         <div id="info-popup" class="info-popup hidden">
             <div id="info-popup-id">UniProt ID: <span class="popup-id"></span></div>
             <div id="info-popup-desc">Description: <span class="popup-pfam"></span></div>
             <div id="info-popup-sptr">Annotation Status: <span class="popup-pfam"></span></div>
-            <div id="info-popup-fam">Family: <span class="popup-pfam"></span></div>
+            <div id="info-popup-fam">Pfam: <span class="popup-pfam"></span></div>
             <div id="info-popup-fam-desc">Pfam Desc: <span class="popup-pfam"></span></div>
+            <div id="info-popup-ipro-fam" <?php echo $hideInterpro; ?>>InterPro: <span class="popup-pfam"></span></div>
+            <div id="info-popup-ipro-fam-desc" <?php echo $hideInterpro; ?>>InterPro Desc: <span class="popup-pfam"></span></div>
             <!--    <div id="info-popup-coords">Coordinates: <span class="popup-pfam"></span></div>-->
             <div id="info-popup-seqlen">Sequence Length: <span class="popup-pfam"></span></div>
             <!--    <div id="info-popup-dir">Direction: <span class="popup-pfam"></span></div>-->

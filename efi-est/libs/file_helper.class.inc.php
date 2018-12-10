@@ -7,10 +7,15 @@ class file_helper {
     private $uploaded_filename;
     private $file_extension;
     private $id;
+    private $file_source; // if this is set, it is used/copied instead of the file in the uploads directory.
 
     public function __construct($file_extension, $id = 0) {
         $this->id = $id;
         $this->file_extension = $file_extension;
+    }
+
+    public function set_file_source($file_path) {
+        $this->file_source = $file_path;
     }
 
     public function get_file_extension() { return $this->file_extension; }
@@ -22,13 +27,15 @@ class file_helper {
         }
         return functions::get_results_dir() . "/" . $id . "/" . $id . $this->file_extension;
     }
-    
+
+    // Called from the web app when creating a job and inserting it into the database.
     public function on_append_insert_array($data, $insert_array) {
         $data->uploaded_filename = preg_replace("([^A-Za-z0-9_\-\.])", "_", $data->uploaded_filename);
         $insert_array['generate_fasta_file'] = $data->uploaded_filename;
         return $insert_array;
     }
 
+    // Called from the command line app when loading the job from the database.
     public function on_load_generate($id, $result) {
         // This field is used for any file that is uploaded (e.g. Option C, D, and E), not just FASTA files.
         $this->uploaded_filename = $result['generate_fasta_file'];
@@ -52,8 +59,11 @@ class file_helper {
     // This must happen after the output structure has been created.
     public function copy_file_to_results_dir() {
         $ext = $this->get_file_extension();
-        $start_path = functions::get_uploads_dir() . "/" . $this->id . $ext;
-        //$end_path = functions::get_results_dir() . "/" . $this->id . "/" . $this->id . $ext;
+        if (isset($this->file_source) && file_exists($this->file_source)) {
+            $start_path = $this->file_source;
+        } else {
+            $start_path = functions::get_uploads_dir() . "/" . $this->id . $ext;
+        }
         $end_path = $this->get_results_input_file($this->id);
         error_log("Copying $start_path to $end_path");
         return copy($start_path, $end_path);
