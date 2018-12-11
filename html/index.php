@@ -5,6 +5,8 @@ require_once("../includes/login_check.inc.php");
 
 require_once("inc/header.inc.php");
 
+$useShortbred = global_settings::get_shortbred_enabled();
+
 ?>
 
 
@@ -79,11 +81,14 @@ and Network Resource Group</a> at IGB.
 
 <p style="margin-bottom: 60px">
 These webtools use <a href="https://blast.ncbi.nlm.nih.gov/Blast.cgi">NCBI BLAST</a> and
-<a href="http://weizhongli-lab.org/cd-hit/">CD-HIT</a> to create SSNs and GNNs.  The computationally-guided
+<a href="http://weizhongli-lab.org/cd-hit/">CD-HIT</a> to create SSNs and GNNs.
+<?php if ($useShortbred) { ?>
+The computationally-guided
 functional profiling tool uses the CGFP programs from the Balskus Lab
 (<a href="https://bitbucket.org/biobakery/cgfp/src">https://bitbucket.org/biobakery/cgfp/src</a>)
 and ShortBRED from the Huttenhower Lab
 (<a href="http://huttenhower.sph.harvard.edu/shortbred">http://huttenhower.sph.harvard.edu/shortbred</a>).
+<?php } ?>
 The data used originate from the <a href="https://www.uniprot.org/">UniProt Consortium</a> databases and the
 <a href="https://www.ebi.ac.uk/interpro/">InterPro</a> and <a href="https://www.ebi.ac.uk/ena">ENA</a>
 databases from EMBL-EBI.

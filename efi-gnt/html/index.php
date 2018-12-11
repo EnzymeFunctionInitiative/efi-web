@@ -248,10 +248,12 @@ HTML;
                 The default value is  <?php echo $default_neighbor_size; ?>.
                 </p>
 
+<?php    if (count($db_modules) > 1) { ?>
                 <p>
                 Database version:
 <?php    make_db_mod_option($db_modules, "db_mod"); ?>
                 </p>
+<?php    } ?>
     
                 <p>
                     <label for='cooccurrence_input'><b>Co-occurrence percentage lower limit:</b></label>
@@ -410,6 +412,7 @@ HTML;
                                         <?php echo settings::get_default_evalue(); ?>)
                                     </td>
                                 </tr>
+<?php    if (count($db_modules) > 1) { ?>
                                 <tr>
                                     <td>Database version:</td>
                                     <td>
@@ -418,6 +421,7 @@ HTML;
                                     <td>
                                     </td>
                                 </tr>
+<?php    } ?>
                             </table>
 
                             <div>
@@ -495,6 +499,7 @@ HTML;
                                         (default: <?php echo settings::get_default_neighborhood_size(); ?>)
                                     </td>
                                 </tr>
+<?php    if (count($db_modules) > 1) { ?>
                                 <tr>
                                     <td>Database version:</td>
                                     <td>
@@ -503,6 +508,7 @@ HTML;
                                     <td>
                                     </td>
                                 </tr>
+<?php    } ?>
                             </table>
 
                             <div>
@@ -582,6 +588,7 @@ HTML;
                                         (default: <?php echo settings::get_default_neighborhood_size(); ?>)
                                     </td>
                                 </tr>
+<?php    if (count($db_modules) > 1) { ?>
                                 <tr>
                                     <td>Database version:</td>
                                     <td>
@@ -590,6 +597,7 @@ HTML;
                                     <td>
                                     </td>
                                 </tr>
+<?php    } ?>
                             </table>
 
                             <div>
