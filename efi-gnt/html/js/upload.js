@@ -105,7 +105,7 @@ function addParam(fd, param, id) {
     }
 }
 
-function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId) {
+function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId, dbModId) {
 
     var fd = new FormData();
     addParam(fd, "option", optionId);
