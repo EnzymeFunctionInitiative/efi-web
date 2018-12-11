@@ -151,8 +151,11 @@ function checkFamilyInput(familyInputId, containerOutputId, countOutputId, warni
     if (fractionId)
         fraction = document.getElementById(fractionId).value;
     var dbVer = "";
-    if (dbVerId)
-        dbVer = document.getElementById(dbVerId).value;
+    if (dbVerId) {
+        dbVer = document.getElementById(dbVerId);
+        if (dbVer)
+            dbVer = dbVer.value;
+    }
     var unirefVer = "";
     if (unirefVerId)
         unirefVer = document.getElementById(unirefVerId).value;
