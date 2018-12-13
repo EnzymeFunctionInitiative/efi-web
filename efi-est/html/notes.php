@@ -18,9 +18,25 @@ a total of 134,066,044 entries: 133,507,323 in TrEMBL and 558,681 in SwissProt.
 
 <p>
 Users of the EST can now create GNNs and color SSNs directly from the EST network files download page.
-UniRef90 and UniRef50 sequences can be used instead of an entire family to speed computation.
-For examploe, the full set of sequences in PF05544 is a total of 10,914 sequences, but contains
-4,198 UniRef90 and 552 UniRef50 seed sequences.
+</p>
+
+<p>
+In order to speed up computation for large families, UniRef50 or UniRef90 can be used to reduce the
+number of sequences that are used to generate the SSNs.
+
+As an example, the full set of sequences in family PF05544 is 10,914 sequences, but if the user
+instructs the tool to use UniRef90, 4,198 UniRef90 seed sequences representing the entire set of
+sequences with a 90% sequence identity<sup>&dagger;</sup> will be used isntead.  Likewise, if
+UniRef50 is used, 552 seed sequences that represent the set of UniRef90 seed sequences with a 50%
+sequence identity<sup>&dagger;</sup> will
+be used in the computations.  The sequences that are represented by a seed sequence are listed
+as a node attribute in the SSN.  To use UniRef, the user must select the "Use UniRef 50/UniRef 90
+seed sequences instead of the full family" option.
+</p>
+
+<p>
+<sup>&dagger;</sup> In addition to sharing a specific percent sequence identity to the longest
+sequence in a cluster of sequences, UniRef seed sequences must also share 80% overlap.
 The <a href="https://www.uniprot.org/uniref/">UniRef page at UniProt</a> further
 discusses UniRef50 and UniRef90.
 </p>

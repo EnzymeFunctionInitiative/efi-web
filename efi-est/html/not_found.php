@@ -59,8 +59,11 @@ if (!isset($IsPretty)) {
 
 <div style="font: 2em bold">Not found!</div>
 <div style="font-size: 1.5em; margin-top: 20px;">We're having a hard time finding what you requested.</div>
-<div style="font-size: 1.2em; margin-top: 20px;"><img src="/images/404.png" alt="Picture of scientists looking into microscope."></div>
+<div style="font-size: 1.2em; margin-top: 20px;"><img src="/images/404.jpg" alt="Picture of scientists looking into microscope."></div>
+
+<!-- Here's a dumb joke for you:
 <div style="font-size: 0.7em; margin-top: 30px;"><?php echo $joke; ?></div>
+-->
 
 <!--
         <div id="error-message" style="margin-bottom: 50px">
