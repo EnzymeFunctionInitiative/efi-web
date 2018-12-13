@@ -147,3 +147,11 @@ input[type="text"] {
     padding: 6px;
 }
 
+select.bigger {
+    font-size: 1.1em;
+}
+
+input[type=checkbox].bigger {
+    transform: scale(1.5);
+}
+

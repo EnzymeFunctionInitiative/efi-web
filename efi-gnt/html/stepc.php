@@ -363,7 +363,7 @@ Recreate an SSN with a different cooccurrence frequency and/or neighborhood size
 
 <p>
 <b>Neighborhood Size:</b> 
-<select name="neighbor_size" id="neighbor_size">
+<select name="neighbor_size" id="neighbor_size" class="bigger">
     <?php echo $neighbor_size_html; ?>
 </select>
 </p>
