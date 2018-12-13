@@ -107,7 +107,6 @@ class user_jobs extends user_auth {
                 $parentId = $params["gnn_parent_id"];
                 $jobInfo["is_child"] = true;
                 $jobInfo["parent_id"] = $parentId;
-                $jobInfo["filename"] .= " [Child of #$parentId]";
                 if (isset($childJobs[$parentId]))
                     array_push($childJobs[$parentId], $jobInfo);
                 else

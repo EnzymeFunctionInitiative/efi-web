@@ -254,7 +254,6 @@ require_once('inc/header.inc.php');
 <!--    <div style="color:red">-->
 <!--        <h3 style="color:red">Genome Neighborhood Diagrams</h3> -->
         <h3>Genome Neighborhood Diagrams</h3> 
-<!--        <div class="new_feature"></div>-->
         Genome neighboorhoods can be visualized in an arrow digram format in a new window.
     
         <table width="100%" class="pretty">
@@ -299,6 +298,7 @@ require_once('inc/header.inc.php');
 <?php } ?>
 
     <h3>Other Files</h3>
+<div class="new_feature"></div>
     <table width="100%" class="pretty">
         <thead>
             <th></th>
@@ -355,6 +355,7 @@ if (!$gnn->has_parent()) {
 <input type="hidden" id="parent_id" value="<?php echo $gnnId; ?>">
 <input type="hidden" id="parent_key" value="<?php echo $gnnKey; ?>">
 
+<div class="new_feature"></div>
 Recreate an SSN with a different cooccurrence frequency and/or neighborhood size from this job.
 
 <p>
