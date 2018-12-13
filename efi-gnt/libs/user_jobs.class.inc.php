@@ -82,7 +82,11 @@ class user_jobs extends user_auth {
  
     private static function process_load_rows($db, $rows, $includeFailedJobs) {
         $jobs = array();
+        $indexMap = array();
 
+        $childJobs = array();
+
+        $idx = 0;
         foreach ($rows as $row) {
             $comp = $row["gnn_time_completed"];
             if (substr($comp, 0, 4) == "0000") {
@@ -95,10 +99,39 @@ class user_jobs extends user_auth {
             $filename = pathinfo($row["gnn_filename"], PATHINFO_BASENAME);
             $params = global_functions::decode_object($row["gnn_params"]);
             $jobName = "N=" . $row["gnn_size"] . " Cooc=" . $row["gnn_cooccurrence"] . " Submission=<i>" . $filename . "</i>";
-            if (isset($params["gnn_parent_id"]) && $params["gnn_parent_id"])
-                $jobName .= " [Child of #" . $params['gnn_parent_id'] . "]";
-            array_push($jobs, array("id" => $row["gnn_id"], "key" => $row["gnn_key"], "filename" => $jobName,
-                                          "completed" => $comp));
+
+            $id = $row["gnn_id"];
+            $jobInfo = array("id" => $id, "key" => $row["gnn_key"], "filename" => $jobName, "completed" => $comp, "is_child" => false);
+
+            if (isset($params["gnn_parent_id"]) && $params["gnn_parent_id"]) {
+                $parentId = $params["gnn_parent_id"];
+                $jobInfo["is_child"] = true;
+                $jobInfo["parent_id"] = $parentId;
+                if (isset($childJobs[$parentId]))
+                    array_push($childJobs[$parentId], $jobInfo);
+                else
+                    $childJobs[$parentId] = array($jobInfo);
+#                if (isset($indexMap[$parentId])) {
+#                    var_dump($jobs);
+#                    array_splice($jobs, $indexMap[$parentId], 0, $jobInfo);
+#                    var_dump($jobs);
+#                    die();
+#                } else {
+#                    die("$parentId doesn't exist");
+#                    array_push($jobs, $jobInfo);
+#                }
+            } else {
+                array_push($jobs, $jobInfo);
+                $indexMap[$id] = $idx;
+                $idx++;
+            }
+        }
+
+        for ($i = 0; $i < count($jobs); $i++) {
+            $id = $jobs[$i]["id"];
+            if (isset($childJobs[$id])) {
+                array_splice($jobs, $i+1, 0, $childJobs[$id]);
+            }
         }
 
         return $jobs;
