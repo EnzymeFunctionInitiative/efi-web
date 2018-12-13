@@ -55,7 +55,8 @@ function getFamilyCountsTableHandler(data, countOutputId) {
             }
         }
         
-        if (data.use_uniref50 && typeof data.families[famId].uniref50 !== 'undefined') {
+        //if (data.use_uniref50 && typeof data.families[famId].uniref50 !== 'undefined') {
+        if (typeof data.families[famId].uniref50 !== 'undefined') {
             countVal = data.families[famId].uniref50;
             countCell = row.insertCell(cellIdx++);
             countCell.innerHTML = commaFormatted(countVal.toString());
@@ -64,10 +65,10 @@ function getFamilyCountsTableHandler(data, countOutputId) {
         }
     }
 
-    if (data.use_uniref50)
-        document.getElementById(countOutputId + "-ur-hdr").innerHTML = "UniRef 50 Size";
-    else if (data.use_uniref90)
-        document.getElementById(countOutputId + "-ur-hdr").innerHTML = "UniRef 90 Size";
+//    if (data.use_uniref50)
+//        document.getElementById(countOutputId + "-ur-hdr").innerHTML = "UniRef 50 Size";
+//    else if (data.use_uniref90)
+//        document.getElementById(countOutputId + "-ur-hdr").innerHTML = "UniRef 90 Size";
 
     // Insert individual totals
     var cellIdx = 0;
@@ -79,16 +80,16 @@ function getFamilyCountsTableHandler(data, countOutputId) {
     var total2 = row.insertCell(cellIdx++);
     total2.innerHTML = commaFormatted(sumCounts.all.toString());
     total2.style.textAlign = "right";
-    if (data.use_uniref90) {
+//    if (data.use_uniref90) {
         var total3 = row.insertCell(cellIdx++);
         total3.innerHTML = commaFormatted(sumCounts.uniref90.toString());
         total3.style.textAlign = "right";
-    }
-    if (data.use_uniref50) {
+//    }
+//    if (data.use_uniref50) {
         var total4 = row.insertCell(cellIdx++);
         total4.innerHTML = commaFormatted(sumCounts.uniref50.toString());
         total4.style.textAlign = "right";
-    }
+//    }
 
     // Insert computed totals (accounting for auto uniref90 and fraction)
     cellIdx = 0;
@@ -102,6 +103,7 @@ function getFamilyCountsTableHandler(data, countOutputId) {
     total2.innerHTML = commaFormatted(data.total_compute.toString());
     total2.style.textAlign = "right";
     total2.style.fontWeight = "bold";
+    empty = row.insertCell(cellIdx++);
     empty = row.insertCell(cellIdx++);
 
     table.parentNode.replaceChild(newBody, table);
