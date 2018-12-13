@@ -38,7 +38,7 @@ $maxFullFamily = number_format(functions::get_maximum_full_family_count(), 0);
 $db_modules = global_settings::get_database_modules();
 
 $updateMessage = functions::get_update_message() .
-    "<br>SSNs can now be generated using UniRef50 seed sequences.";
+    "<br>SSNs can now be generated using UniRef90 and UniRef50 databases.";
 
 
 require_once "inc/header.inc.php";

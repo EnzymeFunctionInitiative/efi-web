@@ -122,8 +122,10 @@ for ($i = 0; $i < count($gnnJobs); $i++) {
     $linkEnd = $isActive ? "" : "</a>";
     $idText = "$linkStart${id}$linkEnd";
 
+    $nameStyle = "";
     if ($gnnJobs[$i]["is_child"]) {
         $idText = "";
+        $nameStyle = "style=\"padding-left: 50px;\"";
     } else {
         if ($lastBgColor == "#eee")
             $lastBgColor = "#fff";
@@ -134,7 +136,7 @@ for ($i = 0; $i < count($gnnJobs); $i++) {
     echo <<<HTML
                     <tr style="background-color: $lastBgColor">
                         <td>$idText</td>
-                        <td>$linkStart${name}$linkEnd</td>
+                        <td $nameStyle>$linkStart${name}$linkEnd</td>
                         <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="gnn" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
                     </tr>
 HTML;

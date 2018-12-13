@@ -8,6 +8,7 @@ table.pretty {
     border-bottom: 1px solid #aaa;
     border-right: 1px solid #aaa;
     width: 100%;
+    table-layout: fixed;
 }
 
 table.pretty td, th {
@@ -31,6 +32,7 @@ table.pretty_nested {
     border-bottom: 1px solid #aaa;
     border-right: 1px solid #aaa;
     width: 100%;
+    table-layout: fixed;
 }
 
 table.pretty_nested td, th {
@@ -41,5 +43,9 @@ table.pretty_nested td, th {
 
 table.pretty_nested th {
     background-color: #bbb;
+}
+
+td {
+    overflow-wrap: break-word;
 }
 
