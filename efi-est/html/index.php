@@ -31,14 +31,14 @@ $maxSeqNum = functions::get_max_seq();
 $maxSeqFormatted = number_format($maxSeqNum, 0);
 
 $useUniref90 = true;
-$useUniref50 = false;
+$useUniref50 = true;
 $useAdvancedFamilyInputs = functions::option_e_enabled();
 $maxFullFamily = number_format(functions::get_maximum_full_family_count(), 0);
 
 $db_modules = global_settings::get_database_modules();
 
 $updateMessage = functions::get_update_message() .
-    "<br>For users with a login, a selected set of results is available for generating family SSNs.";
+    "<br>SSNs can now be generated using UniRef50 seed sequences.";
 
 
 require_once "inc/header.inc.php";

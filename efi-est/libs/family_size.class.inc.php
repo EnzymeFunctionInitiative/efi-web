@@ -25,14 +25,16 @@ class family_size {
         }
 
         $use_uniref90 = true;
-        $use_uniref50 = false;
-        if ($is_uniref && $uniref_ver == "50") {
-            $use_uniref90 = false;
-            $use_uniref50 = true;
-        }
+        $use_uniref50 = true;
+//        $use_uniref50 = false;
+//        if ($is_uniref && $uniref_ver == "50") {
+//            $use_uniref90 = false;
+//            $use_uniref50 = true;
+//        }
 
         $totalFull = 0;
-        $totalUniref = 0;
+        $totalUniref90 = 0;
+        $totalUniref50 = 0;
         $results = array("use_uniref90" => $use_uniref90, "use_uniref50" => $use_uniref50, "is_uniref90_required" => false,
             "is_too_large" => false, "families" => array());
         
@@ -55,9 +57,9 @@ class family_size {
                     "uniref50" => $dbResult[0]["num_uniref50_members"]);
                 $totalFull += $dbResult[0]["num_members"];
                 if ($use_uniref90)
-                    $totalUniref += $dbResult[0]["num_uniref90_members"];
-                elseif ($use_uniref50)
-                    $totalUniref += $dbResult[0]["num_uniref50_members"];
+                    $totalUniref90 += $dbResult[0]["num_uniref90_members"];
+                if ($use_uniref50)
+                    $totalUniref50 += $dbResult[0]["num_uniref50_members"];
             }
         }
         
@@ -65,8 +67,9 @@ class family_size {
         $maxSeq = functions::get_max_seq();
         
         $totalFraction = floor($totalFull / $fraction);
-        
-        $totalUnirefFraction = floor($totalUniref / $fraction);
+
+        $totalUnirefFraction = ($is_uniref && $uniref_ver == "50") ? $totalUniref50 : $totalUniref90; // reuse the var
+        $totalUnirefFraction = floor($totalUnirefFraction / $fraction);
         $isTooLarge = $totalUnirefFraction > $maxSeq;
         
         $totalCompute = $is_uniref ? $totalUnirefFraction : $totalFraction;
