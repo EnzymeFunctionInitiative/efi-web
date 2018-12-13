@@ -102,7 +102,7 @@ A listing of new features and other information pertaining to GNT is available o
 <?php } ?>
 <?php if (count($gnnJobs) > 0) { ?>
             <h4>GNN Jobs</h4>
-            <table class="pretty">
+            <table class="pretty_nested">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>
@@ -110,6 +110,7 @@ A listing of new features and other information pertaining to GNT is available o
                 </thead>
                 <tbody>
 <?php
+$lastBgColor = "#eee";
 for ($i = 0; $i < count($gnnJobs); $i++) {
     $key = $gnnJobs[$i]["key"];
     $id = $gnnJobs[$i]["id"];
@@ -119,14 +120,23 @@ for ($i = 0; $i < count($gnnJobs); $i++) {
 
     $linkStart = $isActive ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
     $linkEnd = $isActive ? "" : "</a>";
+    $idText = "$linkStart${id}$linkEnd";
 
-    if (array_key_exists("diagram", $gnnJobs[$i]))
-        $linkStart = "<a href=\"view_diagrams.php?upload-id=$id&key=$key\">";
+    $nameStyle = "";
+    if ($gnnJobs[$i]["is_child"]) {
+        $idText = "";
+        $nameStyle = "style=\"padding-left: 50px;\"";
+    } else {
+        if ($lastBgColor == "#eee")
+            $lastBgColor = "#fff";
+        else
+            $lastBgColor = "#eee";
+    }
 
     echo <<<HTML
-                    <tr>
-                        <td>$linkStart${id}$linkEnd</td>
-                        <td>$linkStart${name}$linkEnd</td>
+                    <tr style="background-color: $lastBgColor">
+                        <td>$idText</td>
+                        <td $nameStyle>$linkStart${name}$linkEnd</td>
                         <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="gnn" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
                     </tr>
 HTML;
@@ -230,7 +240,7 @@ HTML;
             <br>The SSNs generated with these Options can be modified in Cytoscape.
             </p>
 
-            <form name="upload_form" id='upload_form' method="post" action="" enctype="multipart/form-data">
+            <form name="upload_form" id="upload_form" method="post" action="" enctype="multipart/form-data">
     
                 <p>
                 <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", "", $est_file_name); ?>
@@ -238,7 +248,7 @@ HTML;
     
                 <p>
                 <b>Neighborhood Size:</b>
-                <select name='neighbor_size' id='neighbor_size'>
+                <select name="neighbor_size" id="neighbor_size" class="bigger">
                     <?php echo $neighbor_size_html; ?>
                 </select>
                 <br>
@@ -256,23 +266,23 @@ HTML;
 <?php    } ?>
     
                 <p>
-                    <label for='cooccurrence_input'><b>Co-occurrence percentage lower limit:</b></label>
-                    <input type='text' id='cooccurrence' name='cooccurrence' maxlength='3'><br>
+                    <label for="cooccurrence_input"><b>Co-occurrence percentage lower limit:</b></label>
+                    <input type="text" id="cooccurrence" name="cooccurrence" maxlength="3"><br>
                     This option allows to filter the neighboring pFAMs with a co-occurrence <br>percentage lower than the set value. <br>
                     The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 1-100.
                 </p>
                 <p>
                     E-mail address: 
-                    <input name='ssn_email' id='ssn_email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
+                    <input name="ssn_email" id="ssn_email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
                     When the file has been uploaded and processed, you will receive an e-mail containing a link
                     to download the data.
                 </p>
     
-                <div id='ssn_message' style="color: red">
+                <div id="ssn_message" style="color: red">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
-                    <div><button type="button" id='ssn_submit' name="ssn_submit" class="dark"
+                    <div><button type="button" id="ssn_submit" name="ssn_submit" class="dark"
 <?php if ($est_id) {?>
                             onclick="submitEstJob('upload_form','ssn_message','ssn_email','ssn_submit',<?php echo $submit_est_args; ?>)"
 <?php } else { ?>
@@ -281,7 +291,7 @@ HTML;
                             >
                                 Generate GNN
                         </button></div>
-                    <div><progress id='progress_bar' max='100' value='0'></progress></div>
+                    <div><progress id="progress_bar" max="100" value="0"></progress></div>
                     <div id="progress_number"></div>
                 </center>
 
@@ -295,19 +305,19 @@ HTML;
         </div>
 
         <div id="diagrams" class="tab">
-            <form name="upload_diagram_form" id='upload_diagram_form' method="post" action="" enctype="multipart/form-data">
+            <form name="upload_diagram_form" id="upload_diagram_form" method="post" action="" enctype="multipart/form-data">
                 <p>
                     <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "diagram_file", "progress_bar_diagram", "progress_number_diagram", "The acceptable format is sqlite."); ?>
                 </p>
     
                 <p>
                     E-mail address: 
-                    <input name='email' id='diagram_email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
+                    <input name="email" id="diagram_email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
                     When the file has been uploaded and processed, you will receive an e-mail containing a link
                     to view the diagrams.
                 </p>
     
-                <div id='diagram_message' style="color: red">
+                <div id="diagram_message" style="color: red">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
@@ -341,7 +351,7 @@ HTML;
                     <form name="create_diagrams" id="create_diagram_form" method="post" action="">
                         <input type="hidden" id="option-a-option" name="option" value="a">
                         <textarea class="options" id="option-a-input" name="option-a-input"><?php
-                            if (isset($_POST['option-a-input'])) { echo $_POST['option-a-input']; }
+                            if (isset($_POST["option-a-input"])) { echo $_POST["option-a-input"]; }
                             ?></textarea>
 
                         <div class="create-job-options">
@@ -349,12 +359,12 @@ HTML;
                                 <tr>
                                     <td>Optional job title:</td>
                                     <td>
-                                        <input type="text" class="small" id="option-a-title" name="title" value='<?php
+                                        <input type="text" class="small" id="option-a-title" name="title" value="<?php
                                                     if (isset($_POST["title"]))
                                                         echo $_POST["title"];
                                                     else
                                                         echo "";
-                                            ?>'>
+                                            ?>">
                                     </td>
                                     <td></td>
                                 </tr>
@@ -370,12 +380,12 @@ HTML;
                                 <tr>
                                     <td><label for="max-seqs">Maximum Blast Sequences:</label></td>
                                     <td>
-                                        <input type="text" id="option-a-max-seqs" class="small" name="max-seqs" value='<?php
+                                        <input type="text" id="option-a-max-seqs" class="small" name="max-seqs" value="<?php
                                                 if (isset($_POST["max-seqs"])) {
                                                     echo $_POST["max-seqs"];
                                                 } else {
                                                     echo settings::get_default_blast_seq(); }
-                                                    ?>'>
+                                                    ?>">
                                    </td>
                                    <td>
                                         Maximum number of sequences retrieved (&le; <?php echo settings::get_max_blast_seq(); ?>;
@@ -385,12 +395,12 @@ HTML;
                                 <tr>
                                     <td>Neighborhood window size:</td>
                                     <td>
-                                        <input type="text" id="option-a-nb-size" class="small" name="nb-size" value='<?php
+                                        <input type="text" id="option-a-nb-size" class="small" name="nb-size" value="<?php
                                                 if (isset($_POST["nb-size"])) {
                                                     echo $_POST["nb-size"];
                                                 } else {
                                                     echo settings::get_default_neighborhood_size(); }
-                                            ?>'>
+                                            ?>">
                                     </td>
                                     <td>
                                         Number of neighbors to retrieve on either side of the query sequence for each BLAST result
@@ -400,12 +410,12 @@ HTML;
                                 <tr>
                                     <td>E-Value:</td>
                                     <td>
-                                        <input type="text" class="small" id="option-a-evalue" name="evalue" value='<?php
+                                        <input type="text" class="small" id="option-a-evalue" name="evalue" value="<?php
                                                 if (isset($_POST["evalue"])) {
                                                     echo $_POST["evalue"];
                                                 } else {
                                                     echo settings::get_default_evalue(); }
-                                            ?>'>
+                                            ?>">
                                     </td>
                                     <td>
                                         Negative log of e-value for all-by-all BLAST (&ge; 1; default:
@@ -426,7 +436,7 @@ HTML;
 
                             <div>
                                 E-mail address:
-                                <input name='email' id='option-a-email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
+                                <input name="email" id="option-a-email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
                             </div>
                             <div>
                                 When the file has been uploaded and processed, you will receive an e-mail containing a link
@@ -434,7 +444,7 @@ HTML;
                             </div>
                         </div>
     
-                        <div id='option-a-message' style="color: red">
+                        <div id="option-a-message" style="color: red">
                             <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                         </div>
 
@@ -460,7 +470,7 @@ HTML;
                     <form name="create_diagrams" id="create_diagram_form" method="post" action="create_diagram.php">
                         <input type="hidden" id="option-d-option" name="option" value="d">
                         <textarea class="options" id="option-d-input" name="input"><?php
-                            if (isset($_POST['input'])) { echo $_POST['input']; }
+                            if (isset($_POST["input"])) { echo $_POST["input"]; }
                             ?></textarea>
 
                         <div style="margin-bottom: 20px">
@@ -475,24 +485,24 @@ HTML;
                                 <tr>
                                     <td>Optional job title:</td>
                                     <td>
-                                        <input type="text" class="small" id="option-d-title" name="title" value='<?php
+                                        <input type="text" class="small" id="option-d-title" name="title" value="<?php
                                                     if (isset($_POST["title"]))
                                                         echo $_POST["title"];
                                                     else
                                                         echo "";
-                                            ?>'>
+                                            ?>">
                                     </td>
                                     <td></td>
                                 </tr>
                                 <tr>
                                     <td>Neighborhood window size:</td>
                                     <td>
-                                        <input type="text" id="option-d-nb-size" class="small" name="nb-size" value='<?php
+                                        <input type="text" id="option-d-nb-size" class="small" name="nb-size" value="<?php
                                                 if (isset($_POST["nb-size"])) {
                                                     echo $_POST["nb-size"];
                                                 } else {
                                                     echo settings::get_default_neighborhood_size(); }
-                                            ?>'>
+                                            ?>">
                                     </td>
                                     <td>
                                         Number of neighbors to retrieve on either side of the query sequence for each BLAST result
@@ -513,7 +523,7 @@ HTML;
 
                             <div>
                                 E-mail address:
-                                <input name='email' id='option-d-email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
+                                <input name="email" id="option-d-email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
                             </div>
                             <div>
                                 When the file has been uploaded and processed, you will receive an e-mail containing a link
@@ -549,7 +559,7 @@ HTML;
                     <form name="create_diagrams" id="create_diagram_form" method="post" action="create_diagram.php">
                         <input type="hidden" id="option-c-option" name="option" value="c">
                         <textarea class="options" id="option-c-input" name="input"><?php
-                            if (isset($_POST['input'])) { echo $_POST['input']; }
+                            if (isset($_POST["input"])) { echo $_POST["input"]; }
                             ?></textarea>
 
                         <div style="margin-bottom: 20px">
@@ -564,24 +574,24 @@ HTML;
                                 <tr>
                                     <td>Optional job title:</td>
                                     <td>
-                                        <input type="text" class="small" id="option-c-title" name="title" value='<?php
+                                        <input type="text" class="small" id="option-c-title" name="title" value="<?php
                                                     if (isset($_POST["title"]))
                                                         echo $_POST["title"];
                                                     else
                                                         echo "";
-                                            ?>'>
+                                            ?>">
                                     </td>
                                     <td></td>
                                 </tr>
                                 <tr>
                                     <td>Neighborhood window size:</td>
                                     <td>
-                                        <input type="text" id="option-c-nb-size" class="small" name="nb-size" value='<?php
+                                        <input type="text" id="option-c-nb-size" class="small" name="nb-size" value="<?php
                                                 if (isset($_POST["nb-size"])) {
                                                     echo $_POST["nb-size"];
                                                 } else {
                                                     echo settings::get_default_neighborhood_size(); }
-                                            ?>'>
+                                            ?>">
                                     </td>
                                     <td>
                                         Number of neighbors to retrieve on either side of the query sequence for each BLAST result
@@ -602,7 +612,7 @@ HTML;
 
                             <div>
                                 E-mail address:
-                                <input name='email' id='option-c-email' type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
+                                <input name="email" id="option-c-email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
                             </div>
                             <div>
                                 When the file has been uploaded and processed, you will receive an e-mail containing a link
@@ -691,13 +701,13 @@ HTML;
             </p>
     
             <center>
-                <p><img src='images/tutorial/intro_figure_1.jpg'></p>
+                <p><img src="images/tutorial/intro_figure_1.jpg"></p>
                 <p><i>Figure 1:</i> Examples of colored SSN (left) and a hub-and-spoke cluster from a GNN (right).</p>
             </center>
     
     
     
-            <p class="center"><a href='tutorial.php'><button class="light">Continue Tutorial</button></a></p>
+            <p class="center"><a href="tutorial.php"><button class="light">Continue Tutorial</button></a></p>
     
         </div>
     </div> <!-- tab-content -->
@@ -791,7 +801,7 @@ function make_db_mod_option($db_modules, $form_id) {
     $id = $form_id;
     $ws = "                    ";
     echo <<<HTML
-$ws<select name="$id" id="$id">
+$ws<select name="$id" id="$id" class="bigger">
 HTML;
 
     foreach ($db_modules as $mod) {
@@ -808,6 +818,6 @@ HTML;
 
 ?>
 
-<?php require_once('inc/footer.inc.php'); ?>
+<?php require_once("inc/footer.inc.php"); ?>
 
 
