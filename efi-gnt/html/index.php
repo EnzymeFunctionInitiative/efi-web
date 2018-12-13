@@ -102,7 +102,7 @@ A listing of new features and other information pertaining to GNT is available o
 <?php } ?>
 <?php if (count($gnnJobs) > 0) { ?>
             <h4>GNN Jobs</h4>
-            <table class="pretty">
+            <table class="pretty_nested">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>
@@ -110,6 +110,7 @@ A listing of new features and other information pertaining to GNT is available o
                 </thead>
                 <tbody>
 <?php
+$lastBgColor = "#eee";
 for ($i = 0; $i < count($gnnJobs); $i++) {
     $key = $gnnJobs[$i]["key"];
     $id = $gnnJobs[$i]["id"];
@@ -119,13 +120,20 @@ for ($i = 0; $i < count($gnnJobs); $i++) {
 
     $linkStart = $isActive ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
     $linkEnd = $isActive ? "" : "</a>";
+    $idText = "$linkStart${id}$linkEnd";
 
-    if (array_key_exists("diagram", $gnnJobs[$i]))
-        $linkStart = "<a href=\"view_diagrams.php?upload-id=$id&key=$key\">";
+    if ($gnnJobs[$i]["is_child"]) {
+        $idText = "";
+    } else {
+        if ($lastBgColor == "#eee")
+            $lastBgColor = "#fff";
+        else
+            $lastBgColor = "#eee";
+    }
 
     echo <<<HTML
-                    <tr>
-                        <td>$linkStart${id}$linkEnd</td>
+                    <tr style="background-color: $lastBgColor">
+                        <td>$idText</td>
                         <td>$linkStart${name}$linkEnd</td>
                         <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="gnn" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
                     </tr>
