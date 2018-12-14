@@ -8,11 +8,11 @@ require_once "../../libs/table_builder.class.inc.php";
 
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"])) {
-    error404();
+    error500("Unable to find the requested job.");
 } else {
     $job_mgr = new job_manager($db, job_types::Identify);
     if ($job_mgr->get_job_key($_GET["id"]) != $_GET["key"]) {
-        error404();
+        error500("Unable to find the requested job.");
     }
 }
 

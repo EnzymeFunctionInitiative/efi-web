@@ -54,6 +54,7 @@ require_once "inc/header.inc.php";
 <?php } ?>
         <li><a href="#create">Run CGFP/ShortBRED</a></li>
         <li <?php if (! $show_previous_jobs) echo "class=\"active\""; ?>><a href="#tutorial">Tutorial</a></li>
+        <li><a href="#example">Example</a></li>
     </ul>
 
     <div class="tab-content">
@@ -181,6 +182,10 @@ HTML;
         <div id="tutorial" class="tab <?php if (!$show_previous_jobs) echo "active"; ?>">
 <?php include("tutorial.inc.php"); ?>
         </div>
+
+        <div id="example" class="tab">
+<?php include("stepe_example.php"); ?>
+        </div>
     </div> <!-- tab-content -->
 </div> <!-- tabs -->
 
@@ -210,11 +215,17 @@ This job will be permanently removed from your list of jobs.
 
 <script>
     $(document).ready(function() {
+
+<?php include("inc/stepe_script.inc.php"); ?>
+
+
         $(".tabs .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");
             $(".tabs " + curAttrValue).fadeIn(300).show().siblings().hide();
             $(this).parent("li").addClass("active").siblings().removeClass("active");
             e.preventDefault();
+            if (curAttrValue == "#example")
+                handleTabPress("#heatmap-tabs", $("#heatmap-tabs .tab-headers .active a").first());
         });
 
         $(".advanced-toggle").click(function () {
