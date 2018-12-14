@@ -274,7 +274,6 @@ class job_manager {
             $parent_id = $id_row["identify_parent_id"];
             if ($parent_id) {
                 continue;
-                $job_name .= " [<b>Child of #$parent_id</b>]";
             }
 
             if (!$parent_id) {
@@ -311,7 +310,7 @@ class job_manager {
                     $mg_ids = explode(",", $qparams["quantify_metagenome_ids"]);
                     if ($q_row["identify_parent_id"]) {
                         $iparams = global_functions::decode_object($q_row["identify_params"]);
-                        $q_full_job_name = $iparams["identify_filename"] . " [Child of #" . $q_row["identify_parent_id"] . "]";
+                        $q_full_job_name = $iparams["identify_filename"];
                         $q_job_name = $q_full_job_name;
                         $the_id_id = $q_row["quantify_identify_id"];
                         $the_key = $q_row["identify_key"];

@@ -82,11 +82,15 @@ HeatmapApp.prototype.doFormPost = function(finishFn) {
         finishFn = function() {};
 
     var parms = new FormData;
-    parms.append("id", this.parms.Id);
-    parms.append("key", this.parms.Key);
+    if (this.parms.Example) {
+        parms.append("example", 1);
+    } else {
+        parms.append("id", this.parms.Id);
+        parms.append("key", this.parms.Key);
+        if (this.parms.QuantifyId)
+            parms.append("quantify-id", this.parms.QuantifyId);
+    }
     parms.append("res", this.parms.ResType);
-    if (this.parms.QuantifyId)
-        parms.append("quantify-id", this.parms.QuantifyId);
     if (useMean)
         parms.append("use-mean", 1);
     if (hitsOnly)
@@ -323,7 +327,9 @@ HeatmapApp.prototype.processData = function(data) {
         }
     }
 
-    var title = "Abundances for Identify " + this.parms.Id + ", Quantify " + this.parms.QuantifyId;
+    var title = "Abundances";
+    if (!this.parms.Example)
+        title += " for Identify " + this.parms.Id + ", Quantify " + this.parms.QuantifyId;
 
     if (this.parms.FileName || this.parms.SearchType || this.parms.RefDb || this.parms.CdHitSid || this.parms.DiamondSens)
         title += "<br>";

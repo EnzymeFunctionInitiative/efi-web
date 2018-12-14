@@ -9,7 +9,15 @@ $the_id = "";
 $q_id = "";
 $job_obj = NULL;
 
-if (isset($_GET["id"]) && is_numeric($_GET["id"]) && isset($_GET["key"])) {
+if (isset($_GET["example"])) {
+    $example_dir = settings::get_example_dir();
+    $example_web_path = settings::get_example_web_path();
+    if (file_exists($example_dir) && $example_web_path) {
+        $job_obj = new quantify_example($db, $example_dir, $example_web_path);
+        $is_error = false;
+    }
+    $q_id = isset($_GET["identify"]) ? 0 : 1;
+} elseif (isset($_GET["id"]) && is_numeric($_GET["id"]) && isset($_GET["key"])) {
     $the_id = $_GET["id"];
     if (isset($_GET["quantify-id"]) && is_numeric($_GET["quantify-id"])) {
         $q_id = $_GET["quantify-id"];
@@ -61,22 +69,18 @@ if (isset($_GET["type"])) {
             "q-clust-n-mean"    => array("file_path" => $job_obj->get_normalized_cluster_file_path($want_mean), "suffix" => "_cluster_abundance_norm_mean.txt"),
             "q-prot-gn-mean"    => array("file_path" => $job_obj->get_genome_normalized_protein_file_path($want_mean), "suffix" => "_protein_abundance_genome_norm_mean.txt"),
             "q-clust-gn-mean"   => array("file_path" => $job_obj->get_genome_normalized_cluster_file_path($want_mean), "suffix" => "_cluster_abundance_genome_norm_mean.txt"),
-
-// DEPRECATED
-//            "q-prot-m"      => array("file_path" => $job_obj->get_merged_protein_file_path(), "suffix" => "_merged_protein_abundance.txt"),
-//            "q-clust-m"     => array("file_path" => $job_obj->get_merged_cluster_file_path(), "suffix" => "_merged_cluster_abundance.txt"),
-//            "q-prot-m-n"    => array("file_path" => $job_obj->get_merged_normalized_protein_file_path(), "suffix" => "_merged_protein_abundance_norm.txt"),
-//            "q-clust-m-n"   => array("file_path" => $job_obj->get_merged_normalized_cluster_file_path(), "suffix" => "_merged_cluster_abundance_norm.txt"),
-//            "q-prot-m-gn"   => array("file_path" => $job_obj->get_merged_genome_normalized_protein_file_path(), "suffix" => "_merged_protein_abundance_genome_norm.txt"),
-//            "q-clust-m-gn"  => array("file_path" => $job_obj->get_merged_genome_normalized_cluster_file_path(), "suffix" => "_merged_cluster_abundance_genome_norm.txt"),
         );
     }
+
+    $prefix = "${the_id}_${q_id}_";
+    if (isset($_GET["example"]))
+        $prefix = "";
 
     if (isset($file_info[$type])) {
         $file_path = $file_info[$type]["file_path"];
         $suffix = $file_info[$type]["suffix"];
         $file_name = $job_obj->get_filename();
-        $is_error = ! send_text_file($the_id, $q_id, $file_path, $file_name, $suffix);
+        $is_error = ! send_text_file($prefix, $file_path, $file_name, $suffix);
     } elseif ($type == "ssn-q") {
         $ssn_file = $job_obj->get_ssn_http_path();
         $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
@@ -97,7 +101,7 @@ if (isset($_GET["type"])) {
         $suffix = "_metagenome_desc.txt";
         $file_name = $job_obj->get_filename();
         $text_data = $job_obj->get_metagenome_info_as_text();
-        $is_error = ! send_text_data($the_id, $q_id, $text_data, $file_name, $suffix);
+        $is_error = ! send_text_data($prefix, $text_data, $file_name, $suffix);
     } else {
         $is_error = true;
     }
@@ -110,9 +114,9 @@ if ($is_error) {
 
 
 
-function send_text_file($the_id, $q_id, $file_path, $download_name, $download_suffix) {
+function send_text_file($download_prefix, $file_path, $download_name, $download_suffix) {
     if (file_exists($file_path)) {
-        $download_filename = "${the_id}_q${q_id}_" . pathinfo($download_name, PATHINFO_FILENAME) . $download_suffix;
+        $download_filename = $download_prefix . pathinfo($download_name, PATHINFO_FILENAME) . $download_suffix;
         $content_size = filesize($file_path);
         sendHeaders($download_filename, $content_size);
         readfile($file_path);
@@ -122,8 +126,8 @@ function send_text_file($the_id, $q_id, $file_path, $download_name, $download_su
     }
 }
 
-function send_text_data($the_id, $q_id, $text_data, $download_name, $download_suffix) {
-    $download_filename = "${the_id}_q${q_id}_" . pathinfo($download_name, PATHINFO_FILENAME) . $download_suffix;
+function send_text_data($download_prefix, $text_data, $download_name, $download_suffix) {
+    $download_filename = $download_prefix . pathinfo($download_name, PATHINFO_FILENAME) . $download_suffix;
     $content_size = strlen($text_data);
     sendHeaders($download_filename, $content_size);
     echo $text_data;

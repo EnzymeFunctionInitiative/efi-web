@@ -17,7 +17,16 @@ $the_id = "";
 $q_id = "";
 $job_obj = NULL;
 
-if (isset($_POST["id"]) && is_numeric($_POST["id"]) && isset($_POST["key"])) {
+if (isset($_POST["example"])) {
+    $ex_dir = settings::get_example_dir();
+    if (file_exists($ex_dir)) {
+        $web_path = settings::get_example_web_path();
+        $job_obj = new quantify_example($db, $ex_dir, $web_path);
+        $q_id = 1;
+    } else {
+        $is_error = true;
+    }
+} elseif (isset($_POST["id"]) && is_numeric($_POST["id"]) && isset($_POST["key"])) {
     $the_id = $_POST["id"];
     if (isset($_POST["quantify-id"]) && is_numeric($_POST["quantify-id"])) {
         $q_id = $_POST["quantify-id"];
