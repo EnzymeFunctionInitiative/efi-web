@@ -1,7 +1,7 @@
 <?php
 
 if (!isset($TopLevelUrl))
-    $TopLevelUrl = "http://efi.igb.illinois.edu/$SiteUrlPrefix/shortbred/";
+    $TopLevelUrl = "http://efi.igb.illinois.edu/$SiteUrlPrefix/efi-cgfp/";
 
 $title = "EFI-CGFP";
 if (isset($ExtraTitle) && $ExtraTitle)
@@ -77,11 +77,11 @@ include("../../html/inc/global_nav.inc.php");
     <div id="container">
         <div class="header">
             <div class="header_logo">
-                <div class="logo_left"><a href="<?php echo $TopLevelUrl; ?>"><img src="<?php echo $SiteUrlPrefix; ?>/shortbred/images/efi_cgfp_logo.png" alt="EFI-CGFP Logo" height="75"></a></div>
+                <div class="logo_left"><a href="<?php echo $TopLevelUrl; ?>"><img src="<?php echo $SiteUrlPrefix; ?>/efi-cgfp/images/efi_cgfp_logo.png" alt="EFI-CGFP Logo" height="75"></a></div>
                 <div class="logo_right" style="padding-left: 10px"><a href="http://igb.illinois.edu"><img src="<?php echo $SiteUrlPrefix; ?>/images/illinois_igb_full.png" height="75" alt="Institute for Genomic Biology at University of Illinois at Urbana-Champaign logo"></a></div>
                 <div class="logo_right">
-                    <a href="https://www.microbialchemist.com/metagenomic-profiling/"><img src="<?php echo $SiteUrlPrefix; ?>/shortbred/images/harvard1.png" height="32" alt="Harvard University logo"></a><br>
-                    <a href="http://huttenhower.sph.harvard.edu/shortbred"><img src="<?php echo $SiteUrlPrefix; ?>/shortbred/images/harvard2.png" height="32" alt="Harvard University T.H. Chan School of Public Health logo"></a>
+                    <a href="https://www.microbialchemist.com/metagenomic-profiling/"><img src="<?php echo $SiteUrlPrefix; ?>/efi-cgfp/images/harvard1.png" height="32" alt="Harvard University logo"></a><br>
+                    <a href="http://huttenhower.sph.harvard.edu/efi-cgfp"><img src="<?php echo $SiteUrlPrefix; ?>/efi-cgfp/images/harvard2.png" height="32" alt="Harvard University T.H. Chan School of Public Health logo"></a>
                 </div>
             </div>
         </div>
