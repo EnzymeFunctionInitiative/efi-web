@@ -102,7 +102,7 @@ A listing of new features and other information pertaining to GNT is available o
 <?php } ?>
 <?php if (count($gnnJobs) > 0) { ?>
             <h4>GNN Jobs</h4>
-            <table class="pretty_nested">
+            <table class="pretty_nested" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>
@@ -148,7 +148,7 @@ HTML;
             
 <?php if (count($diagramJobs) > 0) { ?>
             <h4>Diagram Jobs</h4>
-            <table class="pretty">
+            <table class="pretty" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th class="name-col">Job Name</th>
@@ -188,7 +188,7 @@ HTML;
 
 <?php if (count($trainingJobs) > 0) { ?>
             <h4>Training Jobs</h4>
-            <table class="pretty">
+            <table class="pretty" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>

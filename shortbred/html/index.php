@@ -63,7 +63,7 @@ require_once "inc/header.inc.php";
 <?php } ?>
 <?php if (count($jobs) > 0) { ?>
             <h4>ShortBRED Jobs</h4>
-            <table class="pretty_nested">
+            <table class="pretty_nested" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>
@@ -80,7 +80,7 @@ show_jobs($jobs, $allow_cancel);
             
 <?php if (count($training_jobs) > 0) { ?>
             <h4>Training Jobs</h4>
-            <table class="pretty_nested">
+            <table class="pretty_nested" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>
