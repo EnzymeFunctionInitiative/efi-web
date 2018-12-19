@@ -70,27 +70,23 @@ class settings extends global_settings {
     }
 
     public static function get_metagenome_db_list() {
-        if (defined("__METAGENOME_DB_LIST__")) {
-            return __METAGENOME_DB_LIST__;
-        } else {
-            return "";
-        }
+        return defined("__METAGENOME_DB_LIST__") ? __METAGENOME_DB_LIST__ : "";
     }
 
     public static function get_quantify_rel_output_dir() {
-        if (defined("__QUANTIFY_REL_OUTPUT_DIR__")) {
-            return __QUANTIFY_REL_OUTPUT_DIR__;
-        } else {
-            return "";
-        }
+        return defined("__QUANTIFY_REL_OUTPUT_DIR__") ? __QUANTIFY_REL_OUTPUT_DIR__ : "";
     }
 
     public static function get_rel_http_output_dir() {
-        if (defined("__HTTP_OUTPUT_DIR__")) {
-            return __HTTP_OUTPUT_DIR__;
-        } else {
-            return "";
-        }
+        return defined("__HTTP_OUTPUT_DIR__") ? __HTTP_OUTPUT_DIR__ : "";
+    }
+
+    public static function get_example_dir() {
+        return defined("__EXAMPLE_SRC_DIR__") ? __EXAMPLE_SRC_DIR__ : "";
+    }
+
+    public static function get_example_web_path() {
+        return defined("__EXAMPLE_WEB_PATH__") ? __EXAMPLE_WEB_PATH__ : "";
     }
 }
 ?>
