@@ -88,5 +88,9 @@ class settings extends global_settings {
     public static function get_example_web_path() {
         return defined("__EXAMPLE_WEB_PATH__") ? __EXAMPLE_WEB_PATH__ : "";
     }
+
+    public static function get_shortbred_group() {
+        return defined("__SHORTBRED_USER_GROUP__") ? __SHORTBRED_USER_GROUP__ : "";
+    }
 }
 ?>

@@ -1,38 +1,50 @@
 <?php
 
 require_once "../../libs/ui.class.inc.php";
+require_once "../../libs/global_settings.class.inc.php";
 require_once "../includes/main.inc.php";
 require_once "../../libs/user_auth.class.inc.php";
 
 $user_email = "Enter your e-mail address";
 
-$IsLoggedIn = false;
+$IsLoggedIn = false; // contains the email address if the user is logged in. for the UI.
 $show_previous_jobs = false;
 $jobs = array();
 $training_jobs = array();
 $IsAdminUser = false;
+$IsExample = true;
+$user_token = "";
+$is_enabled = false;
 
-if (settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
+if (user_auth::has_token_cookie()) {
     $user_token = user_auth::get_user_token();
     $user_email = user_auth::get_email_from_token($db, $user_token);
     $IsAdminUser = user_auth::get_user_admin($db, $user_email);
-
-    $job_manager = new job_manager($db, job_types::Identify);
-    $jobs = $job_manager->get_jobs_by_user($user_token);
-    $training_jobs = $job_manager->get_training_jobs($user_token);
-    $show_previous_jobs = count($jobs) > 0 || count($training_jobs) > 0;
-
     if ($user_email)
         $IsLoggedIn = $user_email;
+
+    $is_sb_enabled = true; //global_settings::get_shortbred_enabled();
+    if ($is_sb_enabled) {
+        $job_manager = new job_manager($db, job_types::Identify);
+        $is_enabled = $IsAdminUser || functions::is_shortbred_authorized($db, $user_token);
+
+        if (settings::is_recent_jobs_enabled()) {
+            $jobs = $job_manager->get_jobs_by_user($user_token);
+            $training_jobs = $job_manager->get_training_jobs($user_token);
+            $show_previous_jobs = count($jobs) > 0 || count($training_jobs) > 0;
+        }
+    }
 }
 
 $db_modules = global_settings::get_database_modules();
 
-$showJobGroups = $IsAdminUser && global_settings::get_job_groups_enabled();
-
 $update_message = functions::get_update_message();
 
-require_once "inc/header.inc.php";
+if (!global_settings::get_shortbred_enabled()) {
+    error404();
+}
+
+include("inc/header.inc.php");
 
 ?>
 
@@ -100,6 +112,7 @@ show_jobs($training_jobs, $allow_cancel);
 <?php } ?>
 
         <div id="create" class="tab">
+<?php if ($is_enabled) { ?>
             <p>
             <strong class="blue">Upload the Sequence Similarity Network (SSN) for which you want to run CGFP/ShortBRED.</strong>
             </p>
@@ -177,6 +190,57 @@ HTML;
                     <div id="progress_number"></div>
                 </center>
             </form>
+<?php } elseif ($IsLoggedIn) { ?>
+            <div style="margin-top: 30px;"></div>
+            <p>
+                Due to the computationally-heavy nature of CGFP, we are granting
+                access to the EFI-CGFP tool on a request basis.
+            </p>
+            <p>
+                Please provide the information that 
+                is requested below.  We will consider your application to become a member of 
+                the EFI-CGFP user group based a description on your intended usage and our 
+                assessment of whether it can be accommodated with the available computational 
+                resources.  After consideration of your request, we will notify you of our 
+                decision.
+            </p>
+            <form name="app_form" id="app_form" method="post" action="cgfp_apply.php" enctype="multipart/form-data">
+                <table border="0" class="app">
+                    <tbody>
+                        <tr>
+                            <td>Your name</td>
+                            <td><input type="text" name="app_name" id="app_name" required /></td>
+                        </tr>
+                        <tr>
+                            <td>Your institution</td>
+                            <td><input type="text" name="app_institution" id="app_institution" required /></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                Description of your intended use:<br>
+                                <textarea name="app_desc" id="app_desc" cols="80" rows="20" required></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="submit" class="light">Submit Application</button>
+            </form>
+<?php } else { ?>
+            <div style="margin-top: 30px;"></div>
+            <p>
+                Due to the computationally-heavy nature of CGFP, we are granting access to the
+                EFI-CGFP tool on a request basis.
+            </p>
+            <p>
+                If you wish to use EFI-CGFP, you will need a user account and also be an
+                approved member of the EFI-CGFP user group.  If you do not have a user
+                account, please
+                <a href="<?php echo $SiteUrlPrefix; ?>/user_account.php?action=create">create a user account</a>,
+                login, and return to this page. If you have an account and are not logged
+                in, please login and return to this page to submit an application to
+                become a member of the EFI-CGFP user group.
+            </p>
+<?php } ?>
         </div>
 
         <div id="tutorial" class="tab <?php if (!$show_previous_jobs) echo "active"; ?>">
