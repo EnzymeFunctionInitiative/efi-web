@@ -92,5 +92,9 @@ class settings extends global_settings {
     public static function get_shortbred_group() {
         return defined("__SHORTBRED_USER_GROUP__") ? __SHORTBRED_USER_GROUP__ : "";
     }
+
+    public static function get_app_email() { // email for sending CGFP applications to
+        return defined("__CGFP_APP_EMAIL__") ? __CGFP_APP_EMAIL__ : "";
+    }
 }
 ?>
