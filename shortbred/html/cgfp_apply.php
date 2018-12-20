@@ -40,7 +40,9 @@ $desc
 MSG;
 
 $subject = "EFI-CGFP User Application";
-$to = "noberg@illinois.edu";
+$to = settings::get_app_email();
+if (!$to)
+    $to = global_settings::get_admin_email();
 
 send_email($subject, $message, $to);
 
