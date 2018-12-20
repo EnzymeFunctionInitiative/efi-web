@@ -59,13 +59,14 @@ easily generate SSNs that can be visualized in
 <?php if (isset($updateMessage)) echo $updateMessage; ?>
 </div>
 
+<div class="new_feature"></div>
 <p>
-In order to support large families, the EST allows the usage of the UniRef90 and
-UniRef50 databases when using Pfam and/or InterPro families. For families that contain 
+The EST provides access to the UniRef90 and UniRef50 databases to allow the creation
+of SSNs for very large Pfam and/or InterPro families. For families that contain 
 more than <?php echo $maxFullFamily; ?> sequences, the SSN <b>will be</b> generated 
 using the UniRef90 database. In UniRef90, sequences that share &ge;90% sequence identity 
 over 80% of the sequence length are grouped together and represented by a single seed 
-sequence (the longest sequence in the group). UniRef50 is identical except that the
+sequence (the longest sequence in the group). UniRef50 is similar except that the
 sequence identity is &ge;50%. If one of the UniRef databases is used,
 the output SSN is equivalent to a 90% (for UniRef90) or 50% (for UniRef50)
 Representative Node Network with each node corresponding to a seed sequence; in this
@@ -913,7 +914,7 @@ HTML;
 
 function outputJobList($jobs, $allowStatusUpdate = false) {
     echo <<<HTML
-            <table class="pretty_nested">
+            <table class="pretty_nested" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Job Name</th>

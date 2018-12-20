@@ -46,10 +46,18 @@
 $(document).ready(function() {
 
     var data = {
+<?php if (isset($_GET["example"])) { ?>
+        Example: true,
+        Id: 0,
+        Key: 0,
+        QuantifyId: 0,
+<?php } else { ?>
+        Example: false,
         Id: "<?php echo $_GET["id"]; ?>",
         Key: "<?php echo $_GET["key"]; ?>",
-        ResType: "<?php echo $_GET["res"]; ?>",
         QuantifyId: <?php echo(isset($_GET["quantify-id"]) ? $_GET["quantify-id"] : 0); ?>,
+<?php } ?>
+        ResType: "<?php echo $_GET["res"]; ?>",
         RefDb: "<?php echo (isset($_GET["ref-db"]) ? $_GET["ref-db"] : ""); ?>",
         SearchType: "<?php echo (isset($_GET["search-type"]) ? $_GET["search-type"] : ""); ?>",
         FileName: "<?php echo (isset($_GET["filename"]) ? $_GET["filename"] : ""); ?>",
