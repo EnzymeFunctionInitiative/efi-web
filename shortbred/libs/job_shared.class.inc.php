@@ -92,6 +92,9 @@ abstract class job_shared {
     public function get_filename() {
         return $this->filename;
     }
+    protected function set_filename($filename) {
+        $this->filename = $filename;
+    }
     
     public function get_min_seq_len() {
         return $this->min_seq_len;
@@ -99,7 +102,12 @@ abstract class job_shared {
     public function get_max_seq_len() {
         return $this->max_seq_len;
     }
-
+    protected function set_min_seq_len($min_seq_len) {
+        $this->min_seq_len = $min_seq_len;
+    }
+    protected function set_max_seq_len($max_seq_len) {
+        $this->max_seq_len = $max_seq_len;
+    }
 
     public function mark_job_as_failed() {
         $this->set_status(__FAILED__);
@@ -364,14 +372,10 @@ abstract class job_shared {
 
 
 
-    protected function get_metadata_shared($meta_file, $id = 0) { // for quantify jobs, pass in the identify_id
-
+    // Returns Time Started/Finished
+    protected function get_extra_metadata($id, $tab_data) {
         if (!$id)
             $id = $this->id;
-
-        $tab_data = self::read_kv_tab_file($meta_file);
-
-        $table_data = array();
 
         //HACK: to get the num_unique_seq text right and show/hide the num_filtered_seq line
         $table = $this->get_table_name();
@@ -380,6 +384,8 @@ abstract class job_shared {
             $sql = "SELECT quantify_id, quantify_time_created, quantify_time_started AS time_started, quantify_time_completed AS time_completed, identify_params FROM quantify JOIN identify ON quantify_identify_id = identify_id WHERE quantify_identify_id = $id";
         $result = $this->db->query($sql);
 
+        $time_data = array();
+
         if ($result && isset($result[0]["identify_params"])) {
             $iparams = global_functions::decode_object($result[0]["identify_params"]);
             if (isset($iparams["identify_min_seq_len"]))
@@ -387,15 +393,30 @@ abstract class job_shared {
             if (isset($iparams["identify_max_seq_len"]))
                 $tab_data["max_seq_len"] = $iparams["identify_max_seq_len"];
 
-            $table_data[0] = array("Time Started/Finished", functions::format_short_date($result[0]["time_started"]) . " -- " .
-                                                            functions::format_short_date($result[0]["time_completed"]));
+            $time_data = array("Time Started/Finished", functions::format_short_date($result[0]["time_started"]) . " -- " .
+                                                        functions::format_short_date($result[0]["time_completed"]));
         }
+
+        return $time_data;
+    }
+
+    protected function get_metadata_shared($meta_file, $id = 0) { // for quantify jobs, pass in the identify_id
+
+        $tab_data = self::read_kv_tab_file($meta_file);
+        $table_data = array();
+
+        $time_data = $this->get_extra_metadata($id, $tab_data);
+        if (count($time_data) > 0)
+            $table_data[0] = $time_data;
 
         $pos_start = 1;
         foreach ($tab_data as $key => $value) {
             $attr = "";
             $pos = $pos_start;
-            if ($key == "num_ssn_clusters") {
+            if ($key == "time_period") {
+                $attr = "Time Started/Finished";
+                $pos = max(0, $pos_start - 1);
+            } elseif ($key == "num_ssn_clusters") {
                 $attr = "Number of SSN clusters";
                 $pos = $pos_start + 0;
             } elseif ($key == "num_ssn_singletons") {

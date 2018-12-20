@@ -3,7 +3,6 @@ require_once("../includes/main.inc.php");
 require_once("../../libs/user_auth.class.inc.php");
 require_once("../../includes/login_check.inc.php");
 
-
 $user_mgr = new user_manager($db);
 $user_ids = $user_mgr->get_user_ids();
 $all_groups = $user_mgr->get_group_names();

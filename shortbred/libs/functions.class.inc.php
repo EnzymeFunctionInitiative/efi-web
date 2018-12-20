@@ -1,6 +1,7 @@
 <?php
 
 require_once(__DIR__ . "/../../libs/global_functions.class.inc.php");
+require_once(__DIR__ . "/../../libs/user_auth.class.inc.php");
 
 class functions extends global_functions {
 
@@ -199,5 +200,13 @@ class functions extends global_functions {
         return $info;
     }
 
+    public static function is_shortbred_authorized($db, $user_id) {
+        $sb_group = settings::get_shortbred_group();
+        if (!$sb_group)
+            return false;
+
+        $groups = user_auth::get_user_groups($db, $user_id);
+        return in_array($sb_group, $groups);
+    }
 }
 ?>

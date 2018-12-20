@@ -147,6 +147,15 @@ if (isset($_GET["as-table"])) {
 }
 
 
+$is_enabled = false;
+if ($user_token) {
+    $IsAdminUser = user_auth::get_user_admin($db, $user_email);
+    $is_sb_enabled = global_settings::get_shortbred_enabled();
+    if ($is_sb_enabled)
+        $is_enabled = $IsAdminUser || functions::is_shortbred_authorized($db, $user_token);
+}
+
+
 require_once "inc/header.inc.php"; 
 
 ?>
@@ -201,6 +210,9 @@ HTML;
     </tbody>
 </table>
 
+<?php
+if ($is_enabled) {
+?>
 
 <h3>Select Metagenomes from the Human Microbiome Project</h3>
 
@@ -266,6 +278,8 @@ TX and Washington University in St. Louis, MO. More information about the Sample
 
 </form>
 
+
+<?php } ?>
 
 <?php
 if (count($q_jobs)) {
