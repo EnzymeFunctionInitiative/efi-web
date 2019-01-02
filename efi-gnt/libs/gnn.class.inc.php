@@ -882,6 +882,8 @@ class gnn extends gnn_shared {
         $from = "EFI GNT <" . settings::get_admin_email() . ">";
         $url = settings::get_web_root() . "/stepc.php";
         $full_url = $url . "?" . http_build_query(array('id'=>$this->get_id(), 'key'=>$this->get_key()));
+        $cgfp_url = settings::get_cgfp_web_root();
+        $gnt_doi_url = "https://doi.org/10.1016/j.cbpa.2018.09.009";
 
         $plain_email = "";
 
@@ -892,13 +894,29 @@ class gnn extends gnn_shared {
         $plain_email .= "To view results, go to THE_URL" . $this->eol . $this->eol;
         $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
         $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
+
+        if ($cgfp_url) {
+            $plain_email .= "A new tool for Computationally-Guided Functional Profiling (EFI-CGFP) has been added! ";
+            $plain_email .= "Go to CGFP_URL to use it." . $this->eol . $this->eol;
+        }
+
+        $plain_email .= "Cite us:" . $this->eol . $this->eol;
+        $plain_email .= "R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, ";
+        $plain_email .= "\"Democratized\" genomic enzymology web tools for functional assignment, ";
+        $plain_email .= "Current Opinion in Chemical Biology, Volume 47, 2018, Pages 77-85, GNT_DOI";
+        $plain_email .= $this->eol . $this->eol;
+
         $plain_email .= "These data will only be retained for " . settings::get_retention_days() . " days." . $this->eol . $this->eol;
         $plain_email .= settings::get_email_footer();
 
         $html_email = nl2br($plain_email, false);
 
         $plain_email = str_replace("THE_URL", $full_url, $plain_email);
+        $plain_email = str_replace("CGFP_URL", $cgfp_url, $plain_email);
+        $plain_email = str_replace("GNT_DOI", $gnt_doi_url, $plain_email);
         $html_email = str_replace("THE_URL", "<a href='" . htmlentities($full_url) . "'>" . $full_url . "</a>", $html_email);
+        $html_email = str_replace("CGFP_URL", "<a href=\"" . htmlentities($cgfp_url) . "\">" . $cgfp_url . "</a>", $html_email);
+        $html_email = str_replace("GNT_DOI", "<a href=\"" . htmlentities($gnt_doi_url) . "\">" . $gnt_doi_url. "</a>", $html_email);
 
         $message = new Mail_mime(array("eol"=>$this->eol));
         $message->setTXTBody($plain_email);

@@ -250,6 +250,9 @@ class functions {
     public static function get_gnt_web_root() {
         return __GNT_WEB_ROOT__;
     }
+    public static function get_cgfp_web_root() {
+        return __CGFP_WEB_ROOT__;
+    }
     public static function get_admin_email() {
         return __ADMIN_EMAIL__;
     }

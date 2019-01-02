@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang='en'>
-<header>
+<head>
 <title>EFI-GNT Statistics</title>
 <link rel="stylesheet" type="text/css" href="/bs/css/bootstrap.min.css">
-</header>
+<style>
+td.file_col { max-width: 450px; overflow-wrap: break-word; }
+</style>
+</head>
 
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -16,6 +19,7 @@
                         <ul class='nav navbar-nav'>
 				<li><a href='index.php'>Statistics</a></li>
                                 <li><a href='jobs.php'>Jobs</a></li>
+                                <li><a href='diagrams.php?diagrams=1'>Diagrams</a></li>
                         </ul>
 
                 </div>

@@ -1,7 +1,7 @@
 <?php
 
-require_once('Mail.php');
-require_once('Mail/mime.php');
+require_once("Mail.php");
+require_once("Mail/mime.php");
 
 class analysis {
 
@@ -306,6 +306,7 @@ class analysis {
         $full_url = $url . "?" . http_build_query(array('id'=>$this->get_generate_id(),
             'key'=>$stepa->get_key(),'analysis_id'=>$this->get_id()));
         $gnt_url = functions::get_gnt_web_root();
+        $cgfp_url = functions::get_cgfp_web_root();
 
         $plain_email = "";
         if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
@@ -323,27 +324,39 @@ class analysis {
         $plain_email .= "Have you tried exploring Genome Neighborhood Networks (GNTs) from your favorite SSNs? ";
         $plain_email .= "GNT_URL" . $this->eol . $this->eol;
 
+        $plain_email .= "A new tool for Computationally-Guided Functional Profiling (EFI-CGFP) has been added! ";
+        $plain_email .= "Go to CGFP_URL to use it." . $this->eol . $this->eol;
+
         $plain_email .= "Cite us:" . $this->eol . $this->eol;
         $plain_email .= "John A. Gerlt, Jason T. Bouvier, Daniel B. Davidson, Heidi J. Imker, Boris Sadkhin, David R. ";
         $plain_email .= "Slater, Katie L. Whalen, Enzyme Function Initiative-Enzyme Similarity Tool (EFI-EST): A web tool ";
         $plain_email .= "for generating protein sequence similarity networks, Biochimica et Biophysica Acta (BBA) - Proteins ";
-        $plain_email .= "and Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639, ";
-        $plain_email .= "DX_URL ";
-        $plain_email .= "(SCI_URL)" . $this->eol . $this->eol;
+        $plain_email .= "and Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639, EST_DOI ";
+        $plain_email .= $this->eol . $this->eol;
+
+        $plain_email .= "R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, ";
+        $plain_email .= "\"Democratized\" genomic enzymology web tools for functional assignment, ";
+        $plain_email .= "Current Opinion in Chemical Biology, Volume 47, 2018, Pages 77-85, GNT_DOI";
+        $plain_email .= $this->eol . $this->eol;
         $plain_email .= functions::get_email_footer() . $this->eol;
 
-        $dx_url = "http://dx.doi.org/10.1016/j.bbapap.2015.04.015";
-        $sci_url = "http://www.sciencedirect.com/science/article/pii/S1570963915001120";
+        $est_doi_url = "https://dx.doi.org/10.1016/j.bbapap.2015.04.015";
+        $gnt_doi_url = "https://doi.org/10.1016/j.cbpa.2018.09.009";
+//        $sci_url = "http://www.sciencedirect.com/science/article/pii/S1570963915001120";
 
         $html_email = nl2br($plain_email, false);
         $plain_email = str_replace("THE_URL", $full_url, $plain_email);
         $plain_email = str_replace("GNT_URL", $gnt_url, $plain_email);
-        $plain_email = str_replace("DX_URL", $dx_url, $plain_email);
-        $plain_email = str_replace("SCI_URL", $sci_url, $plain_email);
+        $plain_email = str_replace("EST_DOI", $est_doi_url, $plain_email);
+        $plain_email = str_replace("GNT_DOI", $gnt_doi_url, $plain_email);
+//        $plain_email = str_replace("SCI_URL", $sci_url, $plain_email);
+        $plain_email = str_replace("CGFP_URL", $cgfp_url, $plain_email);
         $html_email = str_replace("THE_URL", "<a href=\"" . htmlentities($full_url) . "\">" . $full_url . "</a>", $html_email);
         $html_email = str_replace("GNT_URL", "<a href=\"" . htmlentities($gnt_url) . "\">" . $gnt_url . "</a>", $html_email);
-        $html_email = str_replace("DX_URL", "<a href=\"" . htmlentities($dx_url) . "\">" . $dx_url. "</a>", $html_email);
-        $html_email = str_replace("SCI_URL", "<a href=\"" . htmlentities($sci_url) . "\">" . $sci_url. "</a>", $html_email);
+        $html_email = str_replace("EST_DOI", "<a href=\"" . htmlentities($est_doi_url) . "\">" . $est_doi_url. "</a>", $html_email);
+        $html_email = str_replace("GNT_DOI", "<a href=\"" . htmlentities($gnt_doi_url) . "\">" . $gnt_doi_url. "</a>", $html_email);
+//        $html_email = str_replace("SCI_URL", "<a href=\"" . htmlentities($sci_url) . "\">" . $sci_url. "</a>", $html_email);
+        $html_email = str_replace("CGFP_URL", "<a href=\"" . htmlentities($cgfp_url) . "\">" . $cgfp_url . "</a>", $html_email);
 
         $message = new Mail_mime(array("eol"=>$this->eol));
         $message->setTXTBody($plain_email);
