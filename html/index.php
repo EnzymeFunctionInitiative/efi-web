@@ -37,6 +37,27 @@ and Network Resource Group</a> at IGB.
 <div><img src="images/no.jpg" height="165"><br>Nils Oberg</div>
 </div>
 
+<p>
+<a name="citeus"></a>
+If you use the EFI web tools, please cite us:
+</p>
+
+<p>
+John A. Gerlt, Jason T. Bouvier, Daniel B. Davidson, Heidi J. Imker, Boris 
+Sadkhin, David R. Slater, Katie L. Whalen, <b>Enzyme Function Initiative-Enzyme 
+Similarity Tool (EFI-EST): A web tool for generating protein sequence 
+similarity networks</b>, Biochimica et Biophysica Acta (BBA) - Proteins and 
+Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639, 
+<a href="https://dx.doi.org/10.1016/j.bbapap.2015.04.015">https://dx.doi.org/10.1016/j.bbapap.2015.04.015</a>
+</p>
+
+<p>
+R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, <b>"Democratized" genomic enzymology web 
+tools for functional assignment</b>, Current Opinion in Chemical Biology, Volume 
+47, 2018, Pages 77-85,
+<a href="https://doi.org/10.1016/j.cbpa.2018.09.009">https://doi.org/10.1016/j.cbpa.2018.09.009</a>
+</p>
+
 <p style="margin-top: 30px">
 <table border="0" class="nav-blocks">
 <tr>
