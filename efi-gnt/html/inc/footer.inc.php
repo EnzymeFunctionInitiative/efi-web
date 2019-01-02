@@ -9,6 +9,8 @@ if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPag
 }
 
 ?>
+            
+            <p><center>If you use the EFI web tools, please <a href="../#citeus">cite us</a>.</center></p>
 
             <p class="suggestions">
                 <a href="http://enzymefunction.org/content/sequence-similarity-networks-tool-feedback" target="_blank"><?php echo $feedbackMessage; ?></a>

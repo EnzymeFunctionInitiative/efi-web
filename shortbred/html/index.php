@@ -15,6 +15,7 @@ $IsAdminUser = false;
 $IsExample = true;
 $user_token = "";
 $is_enabled = false;
+$is_sb_enabled = false;
 
 if (user_auth::has_token_cookie()) {
     $user_token = user_auth::get_user_token();
@@ -23,7 +24,7 @@ if (user_auth::has_token_cookie()) {
     if ($user_email)
         $IsLoggedIn = $user_email;
 
-    $is_sb_enabled = true; //global_settings::get_shortbred_enabled();
+    $is_sb_enabled = global_settings::get_shortbred_enabled();
     if ($is_sb_enabled) {
         $job_manager = new job_manager($db, job_types::Identify);
         $is_enabled = $IsAdminUser || functions::is_shortbred_authorized($db, $user_token);
@@ -38,7 +39,15 @@ if (user_auth::has_token_cookie()) {
 
 $db_modules = global_settings::get_database_modules();
 
+$login_banner_msg = "";
+if (!$IsLoggedIn) {
+    $login_banner_msg = "Use of EFI-CGFP requires a user account. Login or " .
+        "<a href=\"$SiteUrlPrefix/user_account.php?action=create\">create a user account</a>.";
+} elseif (!$is_enabled && $is_sb_enabled) {
+    $login_banner_msg = "To use EFI-CGFP, submit a request on the 'Run CGFP/ShortBRED' tab.";
+}
 $update_message = functions::get_update_message();
+$update_message = ($login_banner_msg ? "$login_banner_msg<br>" : "") . $update_message;
 
 if (!global_settings::get_shortbred_enabled()) {
     error404();
@@ -248,6 +257,18 @@ HTML;
         </div>
 
         <div id="example" class="tab">
+            <p>
+                This example recreates the CGFP analysis for the GRE family (IPR004184) as it was initially described by
+                Levin, et al (2017; full reference below).
+            </p>
+
+            <p>
+                The SSN was generated on EFI-EST with 
+                InterPro 71 and UniProt 2018_10, with UniRef90 seed sequences.
+                An alignment score of 300 and a minimum length filter of 500 AA was applied.
+                As required, the obtained SSN was colored using the EFI-EST Color SSN utility prior to submission
+                to EFI-CGFP for analysis.
+            </p>
 <?php include("stepe_example.php"); ?>
         </div>
     </div> <!-- tab-content -->

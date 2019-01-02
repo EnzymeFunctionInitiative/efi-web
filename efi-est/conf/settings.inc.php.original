@@ -19,6 +19,7 @@ define("__TITLE__","EFI-EST");
 define("__WEB_PATH__","");
 define("__WEB_ROOT__","");
 define("__GNT_WEB_ROOT__","");
+define("__CGFP_WEB_ROOT__","");
 define("__ENABLE_LOG__",true);
 define("__LOG_FILE__","");
 

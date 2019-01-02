@@ -58,7 +58,7 @@ if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
     $gnnNameText = "GNN <i>$gnnName</i>";
     $windowTitle = " for GNN $gnnName (#$gnnId)";
 }
-else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GET['upload-id'])) {
+elseif (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GET['upload-id'])) {
     $gnnId = $_GET['upload-id'];
     $gnnKey = $_GET['key'];
 
@@ -86,7 +86,7 @@ else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GE
     $gnnNameText = "filename <i>$gnnName</i>";
     $windowTitle = " for uploaded filename $gnnName";
 }
-else if (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GET['direct-id'])) {
+elseif (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GET['direct-id'])) {
     $gnnId = $_GET['direct-id'];
     $gnnKey = $_GET['key'];
 
