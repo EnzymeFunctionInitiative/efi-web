@@ -46,6 +46,10 @@ class quantify_example extends quantify_shared {
                 $this->identify_cdhit_sid = $val;
             } elseif ($key == "quantify_search_type") {
                 $this->set_search_type($val);
+            } elseif ($key == "max_seq_len") {
+                $this->set_max_seq_len($val);
+            } elseif ($key == "min_seq_len") {
+                $this->set_min_seq_len($val);
             }
         }
         fclose($fh);
