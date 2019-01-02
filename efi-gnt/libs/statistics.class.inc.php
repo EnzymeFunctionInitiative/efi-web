@@ -35,22 +35,43 @@ class statistics
         return $result[0]['count'];
     }
 
-    public static function get_jobs($db,$month,$year) {
-        $sql = "SELECT gnn.gnn_email as 'Email', ";
-        $sql .= "gnn.gnn_id as 'GNT ID', ";
-        $sql .= "gnn.gnn_key as 'Key', ";
-        $sql .= "gnn.gnn_time_created as 'Time Created', ";
-        $sql .= "gnn.gnn_time_started as 'Time Started', ";
-        $sql .= "gnn.gnn_time_completed as 'Time Completed', ";
-        $sql .= "gnn.gnn_size as 'Neighborhood Size', ";
-        $sql .= "gnn.gnn_cooccurrence as 'Input Cooccurrance', ";
-        $sql .= "gnn.gnn_filename as 'Filename', ";
-        $sql .= "gnn.gnn_status as 'Status', ";
-        $sql .= "gnn.gnn_pbs_number as 'PBS Number' ";
-        $sql .= "FROM gnn ";
-        $sql .= "WHERE MONTH(gnn.gnn_time_created)='" . $month . "' ";
-        $sql .= "AND YEAR(gnn.gnn_time_created)='" . $year . "' ";
-        $sql .= "ORDER BY gnn.gnn_id ASC";
+    public static function get_jobs($db, $month, $year, $job_type) {
+        $id_field = "GNT ID";
+        if ($job_type)
+            $id_field = "ID";
+        if ($job_type == "GND") {
+            $sql = "SELECT diagram.diagram_email as 'Email', ";
+            $sql .= "diagram.diagram_id as '$id_field', ";
+            $sql .= "diagram.diagram_key as 'Key', ";
+            $sql .= "diagram.diagram_time_created as 'Time Created', ";
+            $sql .= "diagram.diagram_time_started as 'Time Started', ";
+            $sql .= "diagram.diagram_time_completed as 'Time Completed', ";
+            $sql .= "diagram.diagram_params as params, ";
+            $sql .= "diagram.diagram_type as type, ";
+            $sql .= "diagram.diagram_title as 'Title', ";
+            $sql .= "diagram.diagram_status as 'Status', ";
+            $sql .= "diagram.diagram_pbs_number as 'PBS Number' ";
+            $sql .= "FROM diagram ";
+            $sql .= "WHERE MONTH(diagram.diagram_time_created)='" . $month . "' ";
+            $sql .= "AND YEAR(diagram.diagram_time_created)='" . $year . "' ";
+            $sql .= "ORDER BY diagram.diagram_id ASC";
+        } else {
+            $sql = "SELECT gnn.gnn_email as 'Email', ";
+            $sql .= "gnn.gnn_id as '$id_field', ";
+            $sql .= "gnn.gnn_key as 'Key', ";
+            $sql .= "gnn.gnn_time_created as 'Time Created', ";
+            $sql .= "gnn.gnn_time_started as 'Time Started', ";
+            $sql .= "gnn.gnn_time_completed as 'Time Completed', ";
+            $sql .= "gnn.gnn_size as 'Neighborhood Size', ";
+            $sql .= "gnn.gnn_cooccurrence as 'Input Cooccurrance', ";
+            $sql .= "gnn.gnn_filename as 'Filename', ";
+            $sql .= "gnn.gnn_status as 'Status', ";
+            $sql .= "gnn.gnn_pbs_number as 'PBS Number' ";
+            $sql .= "FROM gnn ";
+            $sql .= "WHERE MONTH(gnn.gnn_time_created)='" . $month . "' ";
+            $sql .= "AND YEAR(gnn.gnn_time_created)='" . $year . "' ";
+            $sql .= "ORDER BY gnn.gnn_id ASC";
+        }
         return $db->query($sql);
     }
 

@@ -87,6 +87,10 @@ class settings extends global_settings {
         return dirname($_SERVER['PHP_SELF']);
     }
 
+    public static function get_cgfp_web_root() {
+        return defined("__CGFP_WEB_ROOT__") ? __CGFP_WEB_ROOT__ : "";
+    }
+
     public static function get_timeout() {
         return __MAX_TIMEOUT__;
 

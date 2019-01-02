@@ -65,7 +65,10 @@ if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])
 
 $db_modules = global_settings::get_database_modules();
 
-$updateMessage = functions::get_update_message();
+$updateMessage = 
+//    '<div class="new_feature"></div>' .
+    "The <a href=\"../efi-cgfp/\">Computationally-Guided Functional Profiling tool (EFI-CGFP)</a> is now available.<br><br>" .
+    functions::get_update_message();
 
 require_once "inc/header.inc.php";
 
