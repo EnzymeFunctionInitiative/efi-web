@@ -21,6 +21,7 @@ define("__UPLOAD_DIR__","");
 define("__LOG_FILE__","");
 define("__WEB_PATH__","");
 define("__WEB_ROOT__","");
+define("__CGFP_WEB_PATH__","");
 
 //
 // FILE INFO
