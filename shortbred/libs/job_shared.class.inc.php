@@ -289,7 +289,7 @@ abstract class job_shared {
 
         if (!$to)
             $to = $this->get_email();
-        $from = "EFI-CGFP <" . settings::get_admin_email() . ">";
+        $from = "EFI CGFP <" . settings::get_admin_email() . ">";
 
         $html_email = nl2br($plain_email, false);
 
