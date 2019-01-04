@@ -73,6 +73,11 @@
 <h3>Heatmaps</h3>
 
 <div class="tabs" id="heatmap-tabs">
+    In Firefox version 64, the initial heatmap view doesn't show all of the data.  The missing data can be
+    exposed by moving the mouse over the heatmap, or by scrolling the page.  This problem does not
+    occur in earlier versions of Firefox, or in the Chrome, Safari, and Edge web browsers.  The URL
+    from Firefox can be copied and pasted into another browser for visualization.  We are working
+    on addressing the problem.
     <ul class="tab-headers">
         <li class="active"><a href="#heatmap-clusters">Cluster Heatmap</a></li>
         <li><a href="#heatmap-singletons">Singleton Heatmap</a></li>
