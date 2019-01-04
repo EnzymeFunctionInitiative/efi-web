@@ -191,6 +191,13 @@ HTML;
                 <div id="ssn_message" style="color: red">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
+<?php if (!$IsAdminUser) { ?>
+                <div>
+                    Multiple SSNs may be submitted, but due to resource constraints only one computation
+                    will run at any given time.  Submitted jobs will be queued and executed when any
+                    running job completes.
+                </div>
+<?php } ?>
                 <center>
                     <div><button type="button" id="ssn_submit" name="ssn_submit" class="dark" onclick="uploadInitialSSNFile()">
                                 Upload SSN
@@ -397,7 +404,7 @@ function show_jobs($jobs, $allow_cancel) {
         $name = $jobs[$i]["job_name"];
         $is_completed = $jobs[$i]["is_completed"];
         $date_completed = $jobs[$i]["date_completed"];
-        $is_active = $date_completed == "PENDING" || $date_completed == "RUNNING";
+        $is_finished = $date_completed && $date_completed != "PENDING" && $date_completed != "RUNNING";
         $search_type = $jobs[$i]["search_type"];
         $ref_db = $jobs[$i]["ref_db"];
     
@@ -418,15 +425,22 @@ function show_jobs($jobs, $allow_cancel) {
                 $link_end = "</span>";
             }
             $name_style = "style=\"padding-left: 50px;\"";
-            $name = "[Quantify $quantify_id] " . $name;
+            $par_text = "";
+            if ($jobs[$i]["identify_parent_id"])
+                $par_text = "Identify " . $jobs[$i]["id"] . "-";
+            $name = "[${par_text}Quantify $quantify_id] " . $name;
             $id_field = "";
         } else {
-            $link_start = $is_active ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
-            $link_end = $is_active ? "" : "</a>";
+            $link_start = $is_finished ? "<a href=\"stepc.php?id=$id&key=$key\">" : "";
+            $link_end = $is_finished ? "</a>" : "";
             if ($last_bg_color == "#fff")
                 $last_bg_color = "#eee";
             else
                 $last_bg_color = "#fff";
+            if ($jobs[$i]["identify_parent_id"]) {
+                $name = "Child job of Identify " . $jobs[$i]["identify_parent_id"];
+                $date_completed = "PENDING";
+            }
         }
         if ($search_type)
             $name .= " /$search_type/";
@@ -435,7 +449,7 @@ function show_jobs($jobs, $allow_cancel) {
 
         $job_action_code = "";
         if ($allow_cancel) {
-            if ($is_active) {
+            if (!$is_finished) {
                 $job_action_code = "<div style=\"float:right\" class=\"cancel-btn\" data-type=\"gnn\" title=\"Cancel Job\" data-id=\"$id\" data-key=\"$key\"";
                 if ($quantify_id)
                     $job_action_code .= " data-quantify-id=\"$quantify_id\"";

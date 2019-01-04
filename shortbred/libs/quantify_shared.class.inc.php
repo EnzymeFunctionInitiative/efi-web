@@ -45,7 +45,7 @@ abstract class quantify_shared extends job_shared {
     //
 
     protected function get_email_started_subject() {
-        $subject = "EFI/ShortBRED - Quantify marker submission received";
+        $subject = "EFI-CGFP - Quantify marker submission received";
         return $subject;
     }
 
@@ -57,7 +57,7 @@ abstract class quantify_shared extends job_shared {
     }
 
     protected function get_email_cancelled_subject() {
-        $subject = "EFI/ShortBRED - Job cancelled";
+        $subject = "EFI-CGFP - Job cancelled";
         return $subject;
     }
 
@@ -68,7 +68,7 @@ abstract class quantify_shared extends job_shared {
     }
 
     protected function get_email_failure_subject() {
-        $subject = "EFI/ShortBRED - Quantify marker computation failed";
+        $subject = "EFI-CGFP - Quantify marker computation failed";
         return $subject;
     }
 
@@ -83,7 +83,7 @@ abstract class quantify_shared extends job_shared {
     }
 
     protected function get_email_completed_subject() {
-        $subject = "EFI/ShortBRED - ShortBRED quantify marker computation completed";
+        $subject = "EFI-CGFP - ShortBRED quantify marker computation completed";
         return $subject;
     }
 
@@ -105,7 +105,7 @@ abstract class quantify_shared extends job_shared {
     }
 
     protected function get_job_info() {
-        $message = "EFI/ShortBRED Job ID: " . $this->identify_id . $this->eol;
+        $message = "EFI-CGFP Job ID: " . $this->identify_id . $this->eol;
         $message .= "Quantify ID: " . $this->get_id() . $this->eol;
         $message .= "Time Submitted: " . $this->get_time_created() . $this->eol;
         return $message;
