@@ -39,9 +39,10 @@ class job_manager {
         $col_qid = "${q_table}_${id_table}_id";
         $col_iparams = "${id_table}_params";
         $col_qparams = "${q_table}_params";
+        $col_parent_id = "${id_table}_parent_id";
 
         $cols = implode(",", array($col_id, $col_key, $col_email, $col_status, $col_time_created, $col_time_started,
-            $col_time_completed, $col_iparams));
+            $col_time_completed, $col_iparams, $col_parent_id));
         if ($table == job_types::Quantify) {
             $cols .= ", $col_qid, $col_qparams";
         }
@@ -82,13 +83,15 @@ class job_manager {
                                            "time_completed" => $result[$col_time_completed],
                                            "time_started" => $result[$col_time_started],
                                            "time_created" => $result[$col_time_created],
-                                           "status" => $status
+                                           "status" => $status,
                                        );
             if ($table == job_types::Quantify) {
                 $this->jobs_by_id[$id]["identify_id"] = $result[$col_qid];
                 $qparams = global_functions::decode_object($result[$col_qparams]);
                 $this->jobs_by_id[$id]["metagenomes"] = $qparams[$col_mg];
             }
+            if ($result[$col_parent_id])
+                $this->jobs_by_id[$id]["parent_id"] = $result[$col_parent_id];
         }  
         
         return true;
@@ -131,6 +134,8 @@ class job_manager {
                 $mg_ids = explode(",", $this->jobs_by_id[$job_id]["metagenomes"]);
                 $job["metagenomes"] = $mg_ids;
                 $job["identify_id"] = $this->jobs_by_id[$job_id]["identify_id"];
+                if (isset($this->jobs_by_id[$job_id]["parent_identify_id"]))
+                    $job["parent_identify_id"] = $this->jobs_by_id[$job_id]["parent_identify_id"];
             }
         }
         return $job;
@@ -272,13 +277,10 @@ class job_manager {
             $id_id = $id_row["identify_id"];
             $key = $id_row["identify_key"];
             $parent_id = $id_row["identify_parent_id"];
-            if ($parent_id) {
-                continue;
-            }
 
             if (!$parent_id) {
                 $i_job_info = array("id" => $id_id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed,
-                    "is_quantify" => false, "date_completed" => $comp);
+                    "is_quantify" => false, "date_completed" => $comp, "identify_parent_id" => "");
                 
                 if (isset($iparams["identify_search_type"]) && $iparams["identify_search_type"])
                     $i_job_info["search_type"] = $iparams["identify_search_type"];
@@ -292,7 +294,16 @@ class job_manager {
     
                 array_push($jobs, $i_job_info);
             }
-            
+
+            if ($parent_id && $id_row["identify_status"] == "NEW") {
+                $c_job_info = array("id" => $id_id, "key" => "", "job_name" => "", "is_completed" => false,
+                    "is_quantify" => false, "date_completed" => "", "search_type" => "", "ref_db" => "", "identify_parent_id" => $parent_id);
+                array_push($jobs, $c_job_info);
+                continue;
+            } elseif ($parent_id) {
+                continue;
+            }
+
             if ($is_completed) {
                 $q_sql = "SELECT quantify_id, quantify_identify_id, quantify_time_completed, quantify_status, quantify_params, identify_parent_id, identify_params, identify_key " .
                     "FROM quantify JOIN identify ON quantify_identify_id = identify_id " .
@@ -306,6 +317,7 @@ class job_manager {
                     $q_comp = $q_comp_result[1];
                     $q_is_completed = $q_comp_result[0];
                     $q_id = $q_row["quantify_id"];
+                    $par_id = "";
 
                     $mg_ids = explode(",", $qparams["quantify_metagenome_ids"]);
                     if ($q_row["identify_parent_id"]) {
@@ -314,6 +326,7 @@ class job_manager {
                         $q_job_name = $q_full_job_name;
                         $the_id_id = $q_row["quantify_identify_id"];
                         $the_key = $q_row["identify_key"];
+                        $par_id = $q_row["identify_parent_id"];
                     } else {
                         $the_id_id = $id_id;
                         $the_key = $key;
@@ -327,12 +340,13 @@ class job_manager {
 
                     $q_job_info = array("id" => $the_id_id, "key" => $the_key, "quantify_id" => $q_id, "job_name" => $q_job_name,
                         "is_completed" => $q_is_completed, "is_quantify" => true, "date_completed" => $q_comp,
-                        "full_job_name" => $q_full_job_name);
+                        "full_job_name" => $q_full_job_name, "identify_parent_id" => $par_id);
 
                     if (isset($qparams["quantify_search_type"]) && $qparams["quantify_search_type"])
                         $q_job_info["search_type"] = $qparams["quantify_search_type"];
                     else
                         $q_job_info["search_type"] = "";
+
                     $q_job_info["ref_db"] = "";
                     array_push($jobs, $q_job_info);
                 }

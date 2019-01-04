@@ -430,7 +430,7 @@ class identify extends job_shared {
     //
 
     protected function get_email_started_subject() {
-        $subject = "EFI/ShortBRED - SSN submission received";
+        $subject = "EFI-CGFP - SSN submission received";
         return $subject;
     }
 
@@ -442,7 +442,7 @@ class identify extends job_shared {
     }
 
     protected function get_email_cancelled_subject() {
-        $subject = "EFI/ShortBRED - Job cancelled";
+        $subject = "EFI-CGFP - Job cancelled";
         return $subject;
     }
 
@@ -453,7 +453,7 @@ class identify extends job_shared {
     }
 
     protected function get_email_failure_subject() {
-        $subject = "EFI/ShortBRED - Computation failed";
+        $subject = "EFI-CGFP - Computation failed";
         return $subject;
     }
 
@@ -468,7 +468,7 @@ class identify extends job_shared {
     }
 
     protected function get_email_completed_subject() {
-        $subject = "EFI/ShortBRED - ShortBRED computation completed";
+        $subject = "EFI-CGFP - ShortBRED computation completed";
         return $subject;
     }
 
