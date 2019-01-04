@@ -6,7 +6,8 @@
     <link rel="stylesheet" type="text/css" href="css/heatmap.css">
     <link rel="stylesheet" type="text/css" href="../css/buttons.css">
 
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!--<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>-->
+    <script src="js/plotly-1.42.5.min.js"></script>
 </head>
 <body>
 
