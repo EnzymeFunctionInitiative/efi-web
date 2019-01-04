@@ -188,7 +188,7 @@ abstract class job_shared {
     //
     
     protected function get_job_info() {
-        $message = "EFI/ShortBRED Job ID: " . $this->get_id() . $this->eol;
+        $message = "EFI-CGFP Job ID: " . $this->get_id() . $this->eol;
         $message .= "Time Submitted: " . $this->get_time_created() . $this->eol;
         return $message;
     }
@@ -285,11 +285,11 @@ abstract class job_shared {
 
     private function send_email($subject, $plain_email, $full_url = "", $to = "") {
         if ($this->beta)
-            $plain_email = "Thank you for using the beta site of EFI/ShortBRED." . $this->eol . $plain_email;
+            $plain_email = "Thank you for using the beta site of EFI-CGFP." . $this->eol . $plain_email;
 
         if (!$to)
             $to = $this->get_email();
-        $from = "EFI/ShortBRED <" . settings::get_admin_email() . ">";
+        $from = "EFI-CGFP <" . settings::get_admin_email() . ">";
 
         $html_email = nl2br($plain_email, false);
 
@@ -384,14 +384,17 @@ abstract class job_shared {
 
     // Returns Time Started/Finished
     protected function get_extra_metadata($id, $tab_data) {
-        if (!$id)
+        $qid_col = "quantify_identify_id";
+        if (!$id) {
             $id = $this->id;
+            $qid_col = "quantify_id";
+        }
 
         //HACK: to get the num_unique_seq text right and show/hide the num_filtered_seq line
         $table = $this->get_table_name();
         $sql = "SELECT identify_params, identify_time_created, identify_time_started AS time_started, identify_time_completed AS time_completed FROM identify WHERE identify_id = $id";
         if ($table == "quantify")
-            $sql = "SELECT quantify_id, quantify_time_created, quantify_time_started AS time_started, quantify_time_completed AS time_completed, identify_params FROM quantify JOIN identify ON quantify_identify_id = identify_id WHERE quantify_identify_id = $id";
+            $sql = "SELECT quantify_id, quantify_time_created, quantify_time_started AS time_started, quantify_time_completed AS time_completed, identify_params FROM quantify JOIN identify ON quantify_identify_id = identify_id WHERE $qid_col = $id";
         $result = $this->db->query($sql);
 
         $time_data = array();
