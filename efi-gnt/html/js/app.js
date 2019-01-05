@@ -468,6 +468,7 @@ function PopupIds() {
     this.SpTrId = "info-popup-sptr";
     this.SeqLenId = "info-popup-seqlen";
     this.DescId = "info-popup-desc";
+    this.CopyId = "copy-info";
 }
 
 
