@@ -50,6 +50,12 @@ function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
     this.initialWidth = container.getBoundingClientRect().width + this.padding * 2;
 
     this.S.attr({viewBox: "0 0 " + this.initialWidth + " " + this.diagramHeight});
+
+    var that = this;
+    $("#" + this.popupIds.CopyId).click(function(ev) {
+        if (typeof that.selInfoBoxArrow !== typeof undefined && that.selInfoBoxArrow !== false)
+            copyTextToClipboard(getInfoText(that.selInfoBoxArrow));
+    });
 }
 
 ArrowDiagram.prototype.setUiFilterUpdateCb = function(callback) {
@@ -569,8 +575,6 @@ ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isC
     var clickEvt = function(ev) {
         if (ev.ctrlKey || ev.altKey) {
             var fams = this.attr("family").split("-");
-            console.log(ev.target.className.baseVal);
-            console.log(fams);
             var isActive = ev.target.className.baseVal.includes("an-arrow-selected");
             fams.forEach((fam, idx) => {
                 if (isActive)
@@ -579,9 +583,11 @@ ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isC
                     that.addPfamFilter(fam);
                 that.filterUpdateCb(fam, isActive);
             });
-            console.log(ev);
         } else {
-            window.open("http://uniprot.org/uniprot/" + this.attr("accession"));
+            if (typeof that.selInfoBoxArrow !== typeof undefined && that.selInfoBoxArrow !== false)
+                that.selInfoBoxArrow.attr("keep_open", 0);
+            arrow.attr("keep_open", 1);
+            that.selInfoBoxArrow = arrow;
         }
     };
     var overEvt = function(e) {
@@ -592,9 +598,15 @@ ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isC
         boxX = matrix.x(bbox.cx, bbox.cy + yOffset) + pos.left;
         boxY = matrix.y(bbox.cx, bbox.cy + yOffset) + pos.top;
         that.doPopup(boxX, boxY, true, this);
+        if (typeof that.selInfoBoxArrow !== typeof undefined && that.selInfoBoxArrow !== false)
+            that.selInfoBoxArrow.attr("keep_open", 0);
     };
     var outEvt = function(e) {
-        that.doPopup(e.pageX, e.pageY, false, null);
+        var attr = arrow.attr("keep_open");
+        var attrExists = typeof attr !== typeof undefined && attr !== false;
+        if (!attrExists || attr == null || attr != 1) {
+            that.doPopup(e.pageX, e.pageY, false, null);
+        }
     };
 
     var subArrows = [];
@@ -778,6 +790,7 @@ ArrowDiagram.prototype.doPopup = function(xPos, yPos, doShow, data) {
 
         //    family = family.join("-");
         $("#" + this.popupIds.IdId + " span").text(data.attr("accession"));
+        $("#" + this.popupIds.IdId + " a").attr("href", "https://www.uniprot.org/uniprot/" + data.attr("accession"));
         $("#" + this.popupIds.DescId + " span").text(data.attr("desc"));
         $("#" + this.popupIds.FamilyId + " span").text(family);
         $("#" + this.popupIds.FamilyDescId + " span").text(familyDesc);
@@ -791,6 +804,39 @@ ArrowDiagram.prototype.doPopup = function(xPos, yPos, doShow, data) {
         //this.popupElement.hide();
         this.popupElement.addClass("hidden");
     }
+}
+
+function getInfoText(data) {
+    var family = data.attr("family");
+    if (!family || family.length == 0)
+        family = "none";
+    var familyDesc = data.attr("family_desc");
+    if (!familyDesc || familyDesc.length == 0)
+        familyDesc = "none";
+
+    var iproFamily = data.attr("ipro_family");
+    if (!iproFamily || iproFamily.length == 0)
+        iproFamily = "none";
+    var iproFamilyDesc = data.attr("ipro_family_desc");
+    if (!iproFamilyDesc || iproFamilyDesc.length == 0)
+        iproFamilyDesc = "none";
+
+    var acc = data.attr("accession");
+    var desc = data.attr("desc");
+    var annoStatus = data.attr("anno_status");
+    var seqLen = data.attr("seq_len") + " AA";
+
+    var text =
+        "UniProt ID\t" + acc + "\n" +
+        "Description\t" + desc + "\n" +
+        "Annotation Status\t" + annoStatus + "\n" +
+        "Pfam\t" + family + "\n" +
+        "Pfam Description\t" + familyDesc + "\n" +
+        "InterPro\t" + iproFamily + "\n" +
+        "InterPro Desc\t" + iproFamilyDesc + "\n" +
+        "Sequence Length\t" + seqLen + "\n";
+
+    return text;
 }
 
 function getColors() {
@@ -915,5 +961,20 @@ ArrowDiagram.prototype.setNeighborhoodWindow = function(nbSize) {
 ArrowDiagram.prototype.setIdList = function(idList) {
     if (typeof idList !== 'undefined')
         this.idList = idList;
+}
+
+function copyTextToClipboard(text) {
+    var temp = document.createElement('textarea');
+    temp.textContent = text;
+    temp.style.position = "fixed";
+    document.body.appendChild(temp);
+    temp.select();
+    try {
+        document.execCommand('copy');
+    } catch (ex) {
+        console.warn("Unable to copy to clipboard: ", ex);
+    } finally {
+        document.body.removeChild(temp);
+    }
 }
 

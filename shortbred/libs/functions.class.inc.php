@@ -69,6 +69,35 @@ class functions extends global_functions {
         return $result;
     }
 
+    public static function get_cgfp_applications($db) {
+        $sql = "SELECT * FROM applications";
+        $results = $db->query($sql);
+
+        $apps = array();
+        foreach ($results as $row) {
+            $info = array(
+                "email" => $row["app_email"],
+                "name" => $row["app_name"],
+                "institution" => $row["app_institution"],
+                "body" => $row["app_body"],
+            );
+            array_push($apps, $info);
+        }
+
+        return $apps;
+    }
+
+    public static function add_cgfp_application($db, $name, $email, $institution, $description) {
+        $data = array(
+            "app_name" => $name,
+            "app_email" => $email,
+            "app_institution" => $institution,
+            "app_body" => $description
+        );
+
+        $db->build_insert("applications", $data);
+    }
+
     public static function get_is_debug() {
         return getenv('EFI_DEBUG') ? true : false;
     }

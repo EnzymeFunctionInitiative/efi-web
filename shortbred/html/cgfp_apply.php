@@ -46,6 +46,7 @@ if (!$to)
 
 send_email($subject, $message, $to);
 
+functions::add_cgfp_application($db, $name, $user_email, $institution, $desc);
 
 function send_email($subject, $plain_email, $to = "") {
     $from = "EFI-CGFP User Application <" . settings::get_admin_email() . ">";
