@@ -266,4 +266,3 @@ class user_auth {
 }
 
 ?>
-
