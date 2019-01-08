@@ -32,6 +32,7 @@ $hasUnmatchedIds = false;
 $isBlast = false;
 $bigscapeStatus = 0; # 0 = no bigscape, 1 = running bigscape, 2 = bigscape completed
 $bigscapeType = "";
+$showNewFeatures = !isset($_COOKIE["newfeatures1"]);
 
 if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
     $gnnKey = $_GET['key'];
@@ -507,6 +508,11 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 <?php } ?>
 <?php } ?>
                 arrowApp.setNeighborhoodWindow(<?php echo $nbSize; ?>);
+
+                $(".new-features-alert .close").click(
+                    function() {
+                        document.cookie = "newfeatures1=1";
+                    });
             });
 
             function showAlertMsg() {
@@ -525,7 +531,8 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 
 <?php $hideInterpro = $isInterproEnabled ? "" : 'style="display:none"'; ?>
         <div id="info-popup" class="info-popup hidden">
-            <div id="info-popup-id">UniProt ID: <span class="popup-id"></span></div>
+            <div id="copy-info"><i class="far fa-copy"></i></div>
+            <div id="info-popup-id">UniProt ID: <a href="https://www.uniprot.org/uniprot" target="_blank"><span class="popup-id"></span></a></div>
             <div id="info-popup-desc">Description: <span class="popup-pfam"></span></div>
             <div id="info-popup-sptr">Annotation Status: <span class="popup-pfam"></span></div>
             <div id="info-popup-fam">Pfam: <span class="popup-pfam"></span></div>
@@ -666,6 +673,14 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
+        </div>
+<?php } ?>
+<?php if ($showNewFeatures) { ?>
+        <div class="new-features-alert alert alert-success">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            You can now click on an arrow to keep the info box open.  The info box has
+            a link to the UniProt page for the protein, as well as a button for copying the
+            information in the box onto the clipboard.
         </div>
 <?php } ?>
     </body>

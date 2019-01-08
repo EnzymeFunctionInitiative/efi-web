@@ -271,8 +271,21 @@ input.filter-cb {
 .info-popup {
     position: absolute;
     padding: 5px;
+    padding-right: 15px;
     background-color: #555;
     color: #fff;
+}
+
+.info-popup a {
+    color: SkyBlue;
+    text-decoration: underline;
+}
+
+#copy-info {
+    float: right;
+    padding-top: 5px;
+    font-size: 1.4em;
+    cursor: pointer;
 }
 
 
@@ -328,6 +341,17 @@ input.filter-cb {
 #unmatched-ids-modal .modal-body {
     max-height: 80vh;
     overflow-y: auto;
+}
+
+.alert {
+/*    display: none;*/
+}
+
+.new-features-alert {
+    position: fixed;
+    top: 100px; 
+    width: 600px;
+    left: 350px;
 }
 
 
