@@ -1,7 +1,7 @@
 
 <?php 
-require_once '../includes/main.inc.php';
-require_once '../libs/table_builder.class.inc.php';
+require_once("../includes/main.inc.php");
+require_once(__DIR__."/../../libs/table_builder.class.inc.php");
 require_once("../../includes/login_check.inc.php");
 
 
@@ -110,19 +110,19 @@ $table = new table_builder($table_format);
 
 
 $web_address = dirname($_SERVER['PHP_SELF']);
-$date_completed = $generate->get_time_completed_formatted();
+$time_window = $generate->get_time_period();
 $db_version = $generate->get_db_version();
 
 
 $gen_type = $generate->get_type();
 $formatted_gen_type = functions::format_job_type($gen_type);
 
-$table->add_row("Date Completed", $date_completed);
+$table->add_row("Job Number", $gen_id);
+$table->add_row("Time Started/Finished", $time_window);
 if (!empty($db_version)) {
     $table->add_row("Database Version", $db_version);
 }
 $table->add_row("Input Option", $formatted_gen_type);
-$table->add_row("Job Number", $gen_id);
 if ($generate->get_job_name())
     $table->add_row("Job Name", $generate->get_job_name());
 
@@ -137,6 +137,7 @@ if (empty($num_full_family_nodes))
 $total_num_nodes = $generate->get_num_sequences();
 $extra_nodes_string = "";
 $extra_nodes_ast = "";
+$uniref = "";
 
 if ($gen_type == "BLAST") {
     $generate = new blast($db,$_GET['id']);
@@ -292,8 +293,12 @@ else {
     $url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$generate->get_id(),
         'key'=>$generate->get_key()));
 
-    function make_plot_download($gen, $hdr, $type, $preview_img, $download_img) {
+    function make_plot_download($gen, $hdr, $type, $preview_img, $download_img, $plot_exists) {
         $html = "<span class='plot_header'>$hdr</span> \n";
+        if (!$plot_exists) {
+            $html .= "Unable to be generated";
+            return;
+        }
         $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "'><button class='file_download'>Download <img src='images/download.svg' /></button></a>\n";
         if ($preview_img) {
             $html .= "<button class='accordion'>Preview</button>\n";
@@ -302,7 +307,6 @@ else {
             $html .= "</div>\n";
         } else {
             $html .= "<a href='$download_img'><button class='file_download'>Preview</button></a>\n";
-            $html .= "<div></div>\n";
         }
 
         return $html;
@@ -372,13 +376,15 @@ should or should not be connected in a network is needed. This will determine th
 <h3>Analyze your data set<a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
 <p>View plots and histogram to determine the appropriate lengths and alignment score before continuing.</p>
 
-<?php echo make_plot_download($generate, "Number of Edges Histogram", "EDGES", $generate->get_number_edges_plot_sm(), $generate->get_number_edges_plot(1)); ?>
+<?php echo make_plot_download($generate, "Number of Edges Histogram", "EDGES", $generate->get_number_edges_plot_sm(), $generate->get_number_edges_plot(1), $generate->number_edges_plot_exists()); ?>
 
-<?php echo make_plot_download($generate, "Length Histogram", "HISTOGRAM", $generate->get_length_histogram_plot_sm(), $generate->get_length_histogram_plot(1)); ?>
+<?php echo make_plot_download($generate, "Length Histogram", "HISTOGRAM", $generate->get_length_histogram_plot_sm(), $generate->get_length_histogram_plot(1), $generate->length_histogram_plot_exists()); ?>
 
-<?php echo make_plot_download($generate, "Alignment Length Quartile Plot", "ALIGNMENT", $generate->get_alignment_plot_sm(), $generate->get_alignment_plot(1)); ?>
+<?php if ($uniref) { echo make_plot_download($generate, "Full UniProt Length Histogram", "HISTOGRAM_UNIPROT", $generate->get_uniprot_length_histogram_plot_sm(), $generate->get_uniprot_length_histogram_plot(1), $generate->uniprot_length_histogram_plot_exists()); } ?>
 
-<?php echo make_plot_download($generate, "Percent Identity Quartile Plot", "IDENTITY", $generate->get_percent_identity_plot_sm(), $generate->get_percent_identity_plot(1)); ?>
+<?php echo make_plot_download($generate, "Alignment Length Quartile Plot", "ALIGNMENT", $generate->get_alignment_plot_sm(), $generate->get_alignment_plot(1), $generate->alignment_plot_exists()); ?>
+
+<?php echo make_plot_download($generate, "Percent Identity Quartile Plot", "IDENTITY", $generate->get_percent_identity_plot_sm(), $generate->get_percent_identity_plot(1), $generate->percent_identity_plot_exists()); ?>
 
 
 <hr><p><br></p>
@@ -487,6 +493,41 @@ This name will be displayed in Cytoscape.
 
 </form>
 
+<?php
+        $ssn_jobs = $generate->get_analysis_jobs();
+
+        if (count($ssn_jobs) > 0) {
+?>
+
+<hr>
+<h3>SSNs Created from this Job</h3>
+
+<?php
+            foreach ($ssn_jobs as $job_id => $job_info) {
+                $ssn_name = $job_info["name"];
+                $ssn_ascore = $job_info["ascore"];
+                $ssn_min = $job_info["min_len"];
+                $ssn_max = $job_info["max_len"];
+                $min_text = $max_text = "";
+                if ($ssn_min)
+                    $min_text = "Min=$ssn_min";
+                if ($ssn_max)
+                    $max_text = "Max=$ssn_max";
+                $status = $job_info["status"];
+                echo "<p>";
+                if ($status == __FINISH__)
+                    echo "<a href=\"stepe.php?id=$gen_id&key=$key&analysis_id=$job_id\">";
+                echo "$ssn_name AS=$ssn_ascore $min_text $max_text (Analysis ID=$job_id)";
+                if ($status == __FINISH__)
+                    echo "</a>";
+                else
+                    echo " ($status)";
+                echo "</p>\n";
+            }
+
+            echo "<div style=\"margin-top:85px\"></div>\n";
+        }
+?>
 
 <center>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</center>
 

@@ -1,6 +1,6 @@
 <?php 
-require_once '../includes/main.inc.php';
-require_once '../libs/table_builder.class.inc.php';
+require_once("../includes/main.inc.php");
+require_once(__DIR__."/../../libs/table_builder.class.inc.php");
 require_once("../../includes/login_check.inc.php");
 
 
@@ -39,7 +39,7 @@ $table = new table_builder($table_format);
 
 
 $web_address = dirname($_SERVER['PHP_SELF']);
-$date_completed = $generate->get_time_completed_formatted();
+$time_window = $generate->get_time_period();
 $db_version = $generate->get_db_version();
 $legacy = empty($db_version); // Indicates if we are looking at old jobs.
 
@@ -47,12 +47,12 @@ $legacy = empty($db_version); // Indicates if we are looking at old jobs.
 $gen_type = $generate->get_type();
 $formatted_gen_type = functions::format_job_type($gen_type);
 
-$table->add_row("Date Completed", $date_completed);
+$table->add_row_with_html("EST Job Number", "<a href='stepc.php?id=$generate_id&key=$key'>$generate_id</a>");
+$table->add_row("Time Started/Finished", $time_window);
 if (!empty($db_version)) {
     $table->add_row("Database Version", $db_version);
 }
 $table->add_row("Input Option", $formatted_gen_type);
-$table->add_row("Job Number", $generate_id);
 if ($generate->get_job_name())
     $table->add_row("Job Name", $generate->get_job_name());
 
