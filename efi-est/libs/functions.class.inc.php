@@ -325,6 +325,7 @@ class functions {
     }
 
     public static function get_lengths_for_family($db_name, $db_config, $fam, $uniref_ver = "") {
+        $db_name = "efi_201809";
         $anno_table = "annotations2";
         $fam_field = preg_match("/^PF/", $fam) ? "PFAM" : "IPRO";
 
@@ -333,13 +334,13 @@ class functions {
             $seed_field = "uniref${uniref_ver}_seed";
             $sql = "SELECT " .
                 "$anno_table.Sequence_Length AS length, " .
-                "COUNT($anno_table.Sequence_Length) AS count, " .
+//                "COUNT($anno_table.Sequence_Length) AS count, " .
                 "$seed_field AS uniref_seed " . 
                 "FROM uniref LEFT JOIN $anno_table ON uniref.$seed_field = $anno_table.accession " .
                 "WHERE $anno_table.$fam_field = '$fam'";
         } else {
             //$sql = "SELECT Sequence_Length FROM $anno_table WHERE $fam_field = '$fam'";
-            $sql = "SELECT Sequence_Length AS length, COUNT(Sequence_Length) AS count FROM $anno_table WHERE $fam_field = '$fam'";
+            $sql = "SELECT Sequence_Length AS length FROM $anno_table WHERE $fam_field = '$fam' ORDER BY Sequence_Length";
         }
 
 //        die($sql . "\n");
@@ -348,7 +349,7 @@ class functions {
         $rows = $db->query($sql);
 
         foreach ($rows as $row) {
-            print $rows[0] . "\t" . $rows[1] . "\n";
+            print $row["length"] . "\n";
         }
     }
 

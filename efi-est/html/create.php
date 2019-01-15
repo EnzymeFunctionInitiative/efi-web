@@ -42,6 +42,8 @@ if (!isset($_POST['submit'])) {
     $result["MESSAGE"] = "Please enter an e-mail address.";
 } elseif ($is_job_limited) {
     $result["MESSAGE"] = "Due to finite computational resource constraints, you can only submit $num_job_limit jobs within a 24 hour period.  Please try again in 24 hours.";
+} elseif (isset($_POST['blast_input']) && !preg_match('/\S/', $_POST['blast_input'])) {
+    $result["MESSAGE"] = "Please enter a valid BLAST sequence.";
 } else {
     $result['RESULT'] = true;
 
