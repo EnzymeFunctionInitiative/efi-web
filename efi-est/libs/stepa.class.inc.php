@@ -3,6 +3,7 @@
 require_once("Mail.php");
 require_once("Mail/mime.php");
 require_once("../../libs/user_auth.class.inc.php");
+require_once(__DIR__."/../../libs/global_functions.class.inc.php");
 
 class stepa {
 
@@ -46,10 +47,12 @@ class stepa {
 
     private $alignment_length = "alignment_length.png";
     private $length_histogram = "length_histogram.png";
+    private $length_histogram_uniprot = "length_histogram_uniprot.png";
     private $percent_identity = "percent_identity.png";
     private $number_of_edges = "number_of_edges.png";
     private $alignment_length_sm = "alignment_length_sm.png";
     private $length_histogram_sm = "length_histogram_sm.png";
+    private $length_histogram_uniprot_sm = "length_histogram_uniprot_sm.png";
     private $percent_identity_sm = "percent_identity_sm.png";
     private $number_of_edges_sm = "number_of_edges_sm.png";
     ///////////////Public Functions///////////
@@ -79,6 +82,11 @@ class stepa {
     public function get_time_completed() { return $this->time_completed; }
     public function get_time_completed_formatted() {
         return functions::format_datetime(functions::parse_datetime($this->time_completed));
+    }
+    public function get_time_period() {
+        $window = global_functions::format_short_date($this->get_time_started()) . " -- " .
+            global_functions::format_short_date($this->get_time_completed());
+        return $window;
     }
     public function get_unixtime_completed() { return strtotime($this->time_completed); }
     public function get_num_sequences() { return $this->num_sequences; }
@@ -335,16 +343,34 @@ class stepa {
     }
 
     public function get_alignment_plot($for_web = 0) {
-        return ($for_web ? functions::get_results_dirname() . "/" : "") . $this->get_output_dir() . "/" . $this->alignment_length;
+        return ($for_web ? functions::get_results_dirname() : functions::get_results_dir()) . "/" . $this->get_output_dir() . "/" . $this->alignment_length;
+    }
+    public function alignment_plot_exists() {
+        return file_exists($this->get_alignment_plot(0));
     }
     public function get_length_histogram_plot($for_web = 0) {
-        return ($for_web ? functions::get_results_dirname() . "/" : "") . $this->get_output_dir() . "/" . $this->length_histogram;
+        return ($for_web ? functions::get_results_dirname() : functions::get_results_dir()) . "/" . $this->get_output_dir() . "/" . $this->length_histogram;
+    }
+    public function length_histogram_plot_exists() {
+        return file_exists($this->get_length_histogram_plot(0));
+    }
+    public function get_uniprot_length_histogram_plot($for_web = 0) {
+        return ($for_web ? functions::get_results_dirname() : functions::get_results_dir()) . "/" . $this->get_output_dir() . "/" . $this->length_histogram_uniprot;
+    }
+    public function uniprot_length_histogram_plot_exists() {
+        return file_exists($this->get_uniprot_length_histogram_plot(0));
     }
     public function get_percent_identity_plot($for_web = 0) {
-        return ($for_web ? functions::get_results_dirname() . "/" : "") . $this->get_output_dir() . "/" . $this->percent_identity;
+        return ($for_web ? functions::get_results_dirname() : functions::get_results_dir()) . "/" . $this->get_output_dir() . "/" . $this->percent_identity;
+    }
+    public function percent_identity_plot_exists() {
+        return file_exists($this->get_percent_identity_plot(0));
     }
     public function get_number_edges_plot($for_web = 0) {
-        return ($for_web ? functions::get_results_dirname() . "/" : "") . $this->get_output_dir() . "/" . $this->number_of_edges;
+        return ($for_web ? functions::get_results_dirname() : functions::get_results_dir()) . "/" . $this->get_output_dir() . "/" . $this->number_of_edges;
+    }
+    public function number_edges_plot_exists() {
+        return file_exists($this->get_number_edges_plot(0));
     }
     public function get_alignment_plot_sm() {
         $full_file = functions::get_results_dir() . "/" . $this->get_output_dir() . "/" . $this->alignment_length_sm;
@@ -358,6 +384,14 @@ class stepa {
         $full_file = functions::get_results_dir() . "/" . $this->get_output_dir() . "/" . $this->length_histogram_sm;
         if (file_exists($full_file)) {
             return functions::get_results_dirname() . "/" . $this->get_output_dir() . "/" . $this->length_histogram_sm;
+        } else {
+            return "";
+        }
+    }
+    public function get_uniprot_length_histogram_plot_sm() {
+        $full_file = functions::get_results_dir() . "/" . $this->get_output_dir() . "/" . $this->length_histogram_uniprot_sm;
+        if (file_exists($full_file)) {
+            return functions::get_results_dirname() . "/" . $this->get_output_dir() . "/" . $this->length_histogram_uniprot_sm;
         } else {
             return "";
         }
@@ -380,23 +414,25 @@ class stepa {
     }
 
     public function download_graph($type) {
-        $results_dir = functions::get_results_dir();
         $filename = "";
         if ($type == "ALIGNMENT") {
-            $full_path = $results_dir . "/" . $this->get_alignment_plot();
+            $full_path = $this->get_alignment_plot(0);
             $filename = $this->get_alignment_plot();
         }
-
         elseif ($type == "HISTOGRAM") {
-            $full_path = $results_dir . "/" . $this->get_length_histogram_plot();
+            $full_path = $this->get_length_histogram_plot(0);
             $filename = $this->get_length_histogram_plot();
         }
+        elseif ($type == "HISTOGRAM_UNIPROT") {
+            $full_path = $this->get_uniprot_length_histogram_plot(0);
+            $filename = $this->get_uniprot_length_histogram_plot();
+        }
         elseif ($type == "IDENTITY") {
-            $full_path = $results_dir . "/" . $this->get_percent_identity_plot();
+            $full_path = $this->get_percent_identity_plot(0);
             $filename = $this->get_percent_identity_plot();
         }
         elseif ($type == "EDGES") {
-            $full_path = $results_dir . "/".  $this->get_number_edges_plot();
+            $full_path = $this->get_number_edges_plot(0);
             $filename = $this->get_number_edges_plot();
         }
         if (file_exists($full_path)) {
@@ -415,8 +451,6 @@ class stepa {
         else {
             return false;
         }
-
-
     }
 
 
@@ -921,6 +955,29 @@ class stepa {
         } else {
             return false;
         }
+    }
+
+    public function get_analysis_jobs() {
+        $sql = "SELECT analysis_id, analysis_status, analysis_name, analysis_min_length, analysis_max_length, analysis_evalue FROM analysis WHERE analysis_generate_id = $this->id";
+        $rows = $this->db->query($sql);
+
+        if (!$rows)
+            return array();
+
+        $jobs = array();
+        foreach ($rows as $row) {
+            $max_val = $row["analysis_max_length"] != __MAXIMUM__ ? $row["analysis_max_length"] : 0;
+            $info = array(
+                "name" => $row["analysis_name"],
+                "ascore" => $row["analysis_evalue"],
+                "min_len" => $row["analysis_min_length"],
+                "max_len" => $max_val,
+                "status" => $row["analysis_status"],
+            );
+            $jobs[$row["analysis_id"]] = $info;
+        }
+
+        return $jobs;
     }
 }
 
