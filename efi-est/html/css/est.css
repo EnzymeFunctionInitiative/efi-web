@@ -408,3 +408,15 @@ a.ui-button:active,
     padding-left: 20px;
 }
 
+
+
+
+.input-error {
+    color: red;
+}
+
+.input-warning {
+    color: orange;
+}
+
+
