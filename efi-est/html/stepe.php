@@ -286,6 +286,7 @@ else {
         }
     }
 
+    $IncludeSubmitJs = true;
     require_once 'inc/header.inc.php'; 
 
 
