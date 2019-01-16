@@ -6,6 +6,9 @@ require_once("functions.class.inc.php");
 class family_size {
 
     public static function compute_family_size($db, $families, $fraction, $is_uniref, $uniref_ver = "", $db_version = "") {
+
+        $families = array_unique($families);
+
         if ($fraction < 1)
             $fraction = 1;
 
@@ -36,7 +39,7 @@ class family_size {
         $totalUniref90 = 0;
         $totalUniref50 = 0;
         $results = array("use_uniref90" => $use_uniref90, "use_uniref50" => $use_uniref50, "is_uniref90_required" => false,
-            "is_too_large" => false, "families" => array());
+            "is_uniref50_required" => false, "is_too_large" => false, "families" => array());
         
         foreach ($families as $family) {
             $family = functions::sanitize_family($family);
@@ -68,16 +71,20 @@ class family_size {
         
         $totalFraction = floor($totalFull / $fraction);
 
-        $totalUnirefFraction = ($is_uniref && $uniref_ver == "50") ? $totalUniref50 : $totalUniref90; // reuse the var
-        $totalUnirefFraction = floor($totalUnirefFraction / $fraction);
-        $isTooLarge = $totalUnirefFraction > $maxSeq;
+        $totalUniref50Fraction = floor($totalUniref50 / $fraction);
+        $totalUniref90Fraction = floor($totalUniref90 / $fraction);
+        $isTooLarge = $totalUniref90Fraction > $maxSeq && $totalUniref50Fraction > $maxSeq;
         
-        $totalCompute = $is_uniref ? $totalUnirefFraction : $totalFraction;
-        $useUnirefWarning = $maxFull > 0 && $totalCompute > $maxFull;
-        if ($useUnirefWarning)
-            $totalCompute = $totalUnirefFraction;
+        $totalCompute = $is_uniref ? ($uniref_ver == "50" ? $totalUniref50Fraction : $totalUniref90Fraction) : $totalFraction;
+        $useUniref90Warning = $maxFull > 0 && $totalFraction > $maxFull; //$totalUniref90Fraction > $maxFull;
+        $useUniref50Warning = $maxFull > 0 && $totalFraction > $maxFull && $totalUniref90Fraction > $maxFull;
+        if ($useUniref50Warning)
+            $totalCompute = $totalUniref50Fraction;
+        elseif ($useUniref90Warning && $uniref_ver != "50")
+            $totalCompute = $totalUniref90Fraction;
         
-        $results["is_uniref90_required"] = $useUnirefWarning;
+        $results["is_uniref90_required"] = $useUniref90Warning;
+        $results["is_uniref50_required"] = $useUniref50Warning;
         $results["is_too_large"] = $isTooLarge;
         $results["max_full"] = $maxFull;
         $results["total"] = $totalFull;

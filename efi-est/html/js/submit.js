@@ -3,6 +3,7 @@ var FORM_ACTION = "create.php";
 var DEBUG = 0;
 var ARCHIVE = 2;
 
+//TODO: switch everything over to jQuery (currently the file upload stuff is in vanilla JS)
 
 function getDefaultCompletionHandler() {
     var handler = function(jsonObj) {
@@ -12,151 +13,157 @@ function getDefaultCompletionHandler() {
     return handler;
 }
 
-function submitOptionAForm() {
+function addCommonFormData(opt, fd) {
+    var email = $("#email-" + opt).val();
+    var jobName = $("#job-name-" + opt).val();
+    var famInput = $("#families-input-" + opt).val();
+    var evalue = $("#evalue-" + opt).val();
+    var dbMod = $("#db-mod-" + opt).val();
+    var useUniref = $("#use-uniref-" + opt).prop("checked");
+    var unirefVer = $("#uniref-ver-" + opt).val();
+    var fraction = $("#fraction-" + opt).val();
 
-    var messageId = "option-a-message";
+    fd.append("email", email);
+    fd.append("job-name", jobName);
+    fd.append("families_input", famInput);
+    fd.append("families_use_uniref", useUniref);
+    fd.append("families_uniref_ver", unirefVer);
+    fd.append("evalue", evalue);
+    fd.append("fraction", fraction);
+    fd.append("db-mod", dbMod);
+}
+
+function submitOptionAForm(famHelper, outputIds) { // familySizeHelper
+
+    var optionId = "opta";
+
+    var submitFn = function() {
+        var fd = new FormData();
+        fd.append("option_selected", "A");
+        addCommonFormData(optionId, fd);
+        addParam(fd, "blast_input", "blast-input");
+        addParam(fd, "blast_evalue", "blast-evalue");
+        addParam(fd, "blast_max_seqs", "blast-max-seqs");
+        
+        var fileHandler = function(xhr) {};
+        var completionHandler = getDefaultCompletionHandler();
     
-    var fd = new FormData();
-    fd.append("option_selected", "A");
-    addParam(fd, "email", "option-a-email");
-    addParam(fd, "job-name", "option-a-job-name");
-    addParam(fd, "job-group", "option-a-job-group");
-    addParam(fd, "blast_input", "blast-input");
-    addParam(fd, "blast_evalue", "blast-evalue");
-    addParam(fd, "blast_max_seqs", "blast-max-seqs");
-    addParam(fd, "fraction", "blast-fraction");
-    addParam(fd, "families_input", "families-input-opta");
-    addParam(fd, "evalue", "families-evalue-opta");
-    addParam(fd, "db-mod", "option-a-db-mod");
-    addCbParam(fd, "families_use_uniref", "opta-use-uniref");
-    addParam(fd, "families_uniref_ver", "option-a-uniref-ver");
-    var fileHandler = function(xhr) {};
-    var completionHandler = getDefaultCompletionHandler();
+        doFormPost(FORM_ACTION, fd, outputIds.warningMsg, fileHandler, completionHandler);
+    };
 
-    var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
-    checkUniRef90Requirement("families-input-opta", "opta-use-uniref", "blast-fraction", submitFn);
-}
-
-function submitOptionBForm() {
-
-    var messageId = "option-b-message";
-
-    var fd = new FormData();
-    fd.append("option_selected", "B");
-    addParam(fd, "email", "option-b-email");
-    addParam(fd, "job-name", "option-b-job-name");
-    addParam(fd, "job-group", "option-b-job-group");
-    addParam(fd, "families_input", "families-input");
-    addParam(fd, "evalue", "pfam-evalue");
-    addParam(fd, "fraction", "pfam-fraction");
-    addCbParam(fd, "pfam_domain", "pfam-domain");
-    addParam(fd, "pfam_seqid", "pfam-seqid");
-    addParam(fd, "pfam_length_overlap", "pfam-length-overlap");
-    addParam(fd, "db-mod", "option-b-db-mod");
-    addCbParam(fd, "families_use_uniref", "pfam-use-uniref");
-    addParam(fd, "families_uniref_ver", "option-b-uniref-ver");
-    var fileHandler = function(xhr) {};
-    var completionHandler = getDefaultCompletionHandler();
-
-//    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
-    var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
-    checkUniRef90Requirement("families-input", "pfam-use-uniref", "pfam-fraction", submitFn);
-}
-
-function submitOptionCForm() {
-
-    var messageId = "option-c-message";
-
-    var fd = new FormData();
-    fd.append("option_selected", "C");
-    addParam(fd, "email", "option-c-email");
-    addParam(fd, "job-name", "option-c-job-name");
-    addParam(fd, "job-group", "option-c-job-group");
-    addParam(fd, "fasta_input", "fasta-input");
-    addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
-    addParam(fd, "families_input", "families-input-optc");
-    addCbParam(fd, "families_use_uniref", "optc-use-uniref");
-    addParam(fd, "families_uniref_ver", "option-c-uniref-ver");
-    addParam(fd, "evalue", "fasta-evalue");
-    addParam(fd, "fraction", "fasta-fraction");
-    addParam(fd, "db-mod", "option-c-db-mod");
-
-    var completionHandler = getDefaultCompletionHandler();
-    var fileHandler = function(xhr) {};
-    var files = document.getElementById("fasta-file").files;
-    if (files.length > 0) {
-        fd.append("file", files[0]);
-        fileHandler = function(xhr) {
-            addUploadStuff(xhr, "progress-num-fasta", "progress-bar-fasta");
-        };
+    if (!famHelper.checkUnirefRequirement(optionId, submitFn)) {
+        return false;
     }
+}
 
-//    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
-    var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
-    checkUniRef90Requirement("families-input-optc", "optc-use-uniref", "fasta-fraction", submitFn);
+function submitOptionBForm(famHelper, outputIds) {
+
+    var optionId = "optb";
+
+    var submitFn = function() {
+        var fd = new FormData();
+        fd.append("option_selected", "B");
+        addCommonFormData(optionId, fd);
+        addCbParam(fd, "pfam_domain", "domain-optb");
+        addParam(fd, "pfam_seqid", "pfam-seqid");
+        addParam(fd, "pfam_length_overlap", "pfam-length-overlap");
+        
+        var fileHandler = function(xhr) {};
+        var completionHandler = getDefaultCompletionHandler();
+    
+        doFormPost(FORM_ACTION, fd, outputIds.warningMsg, fileHandler, completionHandler);
+    };
+
+    if (!famHelper.checkUnirefRequirement(optionId, submitFn)) {
+        return false;
+    }
+}
+
+function submitOptionCForm(famHelper, outputIds) {
+
+    var optionId = "optc";
+
+    var submitFn = function() {
+        var fd = new FormData();
+        fd.append("option_selected", "C");
+        addCommonFormData(optionId, fd);
+        addParam(fd, "fasta_input", "fasta-input");
+        addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
+    
+        var completionHandler = getDefaultCompletionHandler();
+        var fileHandler = function(xhr) {};
+        var files = document.getElementById("fasta-file").files;
+        if (files.length > 0) {
+            fd.append("file", files[0]);
+            fileHandler = function(xhr) {
+                addUploadStuff(xhr, "progress-num-fasta", "progress-bar-fasta");
+            };
+        }
+    
+        doFormPost(FORM_ACTION, fd, outputIds.warningMsg, fileHandler, completionHandler);
+    };
+
+    if (!famHelper.checkUnirefRequirement(optionId, submitFn)) {
+        return false;
+    }
 }
 
 function submitOptionDForm() {
 
-    var messageId = "option-d-message";
+    var optionId = "optd";
 
-    var fd = new FormData();
-    fd.append("option_selected", "D");
-    addParam(fd, "email", "option-d-email");
-    addParam(fd, "job-name", "option-d-job-name");
-    addParam(fd, "job-group", "option-d-job-group");
-    addParam(fd, "accession_input", "accession-input");
-    addParam(fd, "families_input", "families-input-optd");
-    addCbParam(fd, "families_use_uniref", "optd-use-uniref");
-    addParam(fd, "families_uniref_ver", "option-d-uniref-ver");
-    addCbParam(fd, "accession_use_uniref", "accession-use-uniref");
-    addParam(fd, "accession_uniref_version", "accession-uniref-version");
-    addParam(fd, "evalue", "accession-evalue");
-    addParam(fd, "fraction", "accession-fraction");
-    addParam(fd, "db-mod", "option-d-db-mod");
-    addParam(fd, "accession_seq_type", "accession-seq-type");
+    var submitFn = function() {
+        var fd = new FormData();
+        fd.append("option_selected", "D");
+        addCommonFormData(optionId, fd);
+        addParam(fd, "accession_input", "accession-input");
+        addCbParam(fd, "accession_use_uniref", "accession-use-uniref");
+        addParam(fd, "accession_uniref_version", "accession-uniref-version");
+        addParam(fd, "accession_seq_type", "accession-seq-type");
+    
+        var completionHandler = getDefaultCompletionHandler();
+        var fileHandler = function(xhr) {};
+        var files = document.getElementById("accession-file").files;
+        if (files.length > 0) {
+            fd.append("file", files[0]);
+            fileHandler = function(xhr) {
+                addUploadStuff(xhr, "progress-num-accession", "progress-bar-accession");
+            };
+        }
+    
+        doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+    };
 
-    var completionHandler = getDefaultCompletionHandler();
-    var fileHandler = function(xhr) {};
-    var files = document.getElementById("accession-file").files;
-    if (files.length > 0) {
-        fd.append("file", files[0]);
-        fileHandler = function(xhr) {
-            addUploadStuff(xhr, "progress-num-accession", "progress-bar-accession");
-        };
+    if (!famHelper.checkUnirefRequirement(optionId, submitFn)) {
+        return false;
     }
-
-//    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
-    var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
-    checkUniRef90Requirement("families-input-optd", "optd-use-uniref", "accession-fraction", submitFn);
 }
 
 function submitOptionEForm() {
 
-    var messageId = "option-e-message";
+    var optionId = "opte";
 
+    var submitFn = function() {
     var fd = new FormData();
-    fd.append("option_selected", "E");
-    addParam(fd, "email", "option-e-email");
-    addParam(fd, "job-name", "option-e-job-name");
-    addParam(fd, "job-group", "option-e-job-group");
-    addParam(fd, "families_input", "option-e-input");
-    addParam(fd, "evalue", "pfam-plus-evalue");
-    addParam(fd, "fraction", "pfam-plus-fraction");
-    addCbParam(fd, "pfam_domain", "pfam-plus-domain");
-    addParam(fd, "pfam_seqid", "pfam-plus-seqid");
-    addParam(fd, "pfam_min_seq_len", "pfam-plus-min-seq-len");
-    addParam(fd, "pfam_max_seq_len", "pfam-plus-max-seq-len");
-    addParam(fd, "pfam_length_overlap", "pfam-plus-length-overlap");
-    addCbParam(fd, "pfam_demux", "pfam-plus-demux");
-    addParam(fd, "db-mod", "option-e-db-mod");
+        fd.append("option_selected", "E");
+        addCommonFormData(optionId, fd);
+        addCbParam(fd, "pfam_domain", "domain-opte");
+        addParam(fd, "pfam_seqid", "seqid-opte");
+        addParam(fd, "pfam_min_seq_len", "min-seq-len-opte");
+        addParam(fd, "pfam_max_seq_len", "max-seq-len-opte");
+        addParam(fd, "pfam_length_overlap", "length-overlap-opte");
+        addCbParam(fd, "pfam_demux", "demux-opte");
+    
+        var fileHandler = function(xhr) {};
+        var completionHandler = getDefaultCompletionHandler();
+        var unirefVer = getUnirefVersion(fd);
+    
+        doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+    };
 
-    var fileHandler = function(xhr) {};
-    var completionHandler = getDefaultCompletionHandler();
-
-//    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
-    var submitFn = function() { doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler); };
-    checkUniRef90Requirement("option-e-input", "nope", "nope", submitFn);
+    if (!famHelper.checkUnirefRequirement(optionId, submitFn)) {
+        return false;
+    }
 }
 
 function submitColorSsnForm() {
@@ -192,24 +199,6 @@ function submitStepEColorSsnForm(email, analysisId, ssnIndex) {
     var fileHandler = function(xhr) {};
 
     doFormPost(FORM_ACTION, fd, "", fileHandler, completionHandler);
-}
-
-function submitMigrate(generateId, analysisId, key, completionHandler) {
-
-    var messageId = "migrate-error";
-
-    var fd = new FormData();
-    fd.append("option-selected", "migrate-ssn");
-    fd.append("generate-id", generateId);
-    fd.append("analysis-id", analysisId);
-    fd.append("key", key);
-    addParam(fd, "size", "migrate-size");
-    addParam(fd, "cooccurrence", "migrate-cooccurrence");
-    addParam(fd, "network", "migrate-ssn");
-
-    var fileHandler = function(xhr) {};
-
-    doFormPost("migrate.php", fd, messageId, fileHandler, completionHandler);
 }
 
 
@@ -288,7 +277,6 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
             if (xhr.readyState == 4  ) {
                 // Javascript function JSON.parse to parse JSON data
                 var jsonObj = JSON.parse(xhr.responseText);
-                console.log(jsonObj);
     
                 // jsonObj variable now contains the data structure and can
                 // be accessed as jsonObj.name and jsonObj.country.
@@ -308,21 +296,17 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
     }
 }
 
-function addCbParam(fd, param, id, isCheckbox) {
-    if (typeof id === 'undefined')
-        id = param;
-    var elem = document.getElementById(id);
-    if (elem)
-        fd.append(param, elem.checked);
+function addCbParam(fd, param, id) {
+    var val = $("#" + id).prop("checked");;
+    if (typeof val !== "undefined")
+        fd.append(param, val);
 }
 
 
-function addParam(fd, param, id, isCheckbox) {
-    if (typeof id === 'undefined')
-        id = param;
-    var elem = document.getElementById(id);
-    if (elem)
-        fd.append(param, elem.value);
+function addParam(fd, param, id) {
+    var val = $("#" + id).val();
+    if (typeof val !== "undefined")
+        fd.append(param, val);
 }
 
 

@@ -44,6 +44,7 @@ $updateMessage =
     "<br>SSNs can now be generated using UniRef90 and UniRef50 databases.";
 
 
+$IncludeSubmitJs = true;
 require_once "inc/header.inc.php";
 
 ?>
@@ -206,8 +207,8 @@ the <a href="family_list.php">Family Information page</a>.
                     <div>
                         <input type="text" id="families-input-opta" name="families-input-opta">
 <div class="new_feature"></div>
-                        <input type="checkbox" id="opta-use-uniref" class="cb-use-uniref bigger" value="1">
-                        <label for="opta-use-uniref">Use <select id="option-a-uniref-ver" name="option-a-uniref-ver" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
+                        <input type="checkbox" id="use-uniref-opta" class="cb-use-uniref bigger" value="1">
+                        <label for="use-uniref-opta">Use <select id="uniref-ver-opta" name="uniref-ver-opta" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
                         <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box("family-size-container-opta", "family-count-table-opta", $useUniref90, $useUniref50); ?> 
                         </div>
@@ -231,19 +232,19 @@ the <a href="family_list.php">Family Information page</a>.
                 </div>
 <?php } ?>
 
-                <div>Optional job name: <input type="text" class="small" name="option-a-job-name" id="option-a-job-name" value=""></div>
+                <div>Optional job name: <input type="text" class="small" name="job-name-opta" id="job-name-opta" value=""></div>
                 <div>
                     E-mail address:
-                    <input name="email" id="option-a-email" type="text" value="<?php echo $userEmail; ?>" class="email"
+                    <input name="email" id="email-opta" type="text" value="<?php echo $userEmail; ?>" class="email"
                         onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;' value="asdf"><br>
                     When the sequence has been uploaded and processed, you will receive an e-mail containing a link
                     to analyze the data.
                 </div>
     
-                <div id="option-a-message" style="color: red" class="error_message">
+                <div id="message-opta" style="color: red" class="error_message">
                 </div>
                 <center>
-                    <div><button type="button" class="dark" onclick="submitOptionAForm()">Submit Analysis</button></div>
+                    <div><button type="button" class="dark" onclick="submitOptionAForm(familySizeHelper, optAoutputIds)">Submit Analysis</button></div>
                 </center>
             </form>
         </div>
@@ -270,12 +271,12 @@ the <a href="family_list.php">Family Information page</a>.
 
             <form name="optionBform" id="optionBform" method="post" action="">
                 <div class="primary-input">
-                    <input type="text" id="families-input" name="families-input">
+                    <input type="text" id="families-input-optb" name="families-input-optb">
 <div class="new_feature"></div>
-                    <input type="checkbox" id="pfam-use-uniref" class="cb-use-uniref bigger" value="1">
-                    <label for="pfam-use-uniref">Use <select id="option-b-uniref-ver" name="option-b-uniref-ver" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
+                    <input type="checkbox" id="use-uniref-optb" class="cb-use-uniref bigger" value="1">
+                    <label for="use-uniref-optb">Use <select id="uniref-ver-optb" name="uniref-ver-optb" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
                     <div style="margin-top: 10px">
-<?php echo ui::make_pfam_size_box('family-size-container', 'family-count-table', $useUniref90, $useUniref50); ?> 
+<?php echo ui::make_pfam_size_box('family-size-container-optb', 'family-count-table-optb', $useUniref90, $useUniref50); ?> 
                     </div>
                 </div>
                 
@@ -283,40 +284,40 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
                 <div style="display: none;" class="advanced-options">
                     <div>
-                        E-Value: <input type="text" class="small" id="pfam-evalue" name="pfam-evalue"
+                        E-Value: <input type="text" class="small" id="evalue-optb" name="evalue-optb"
                             value="<?php echo functions::get_evalue(); ?>">
                         Negative log of e-value for all-by-all BLAST (&ge;1; default <?php echo functions::get_evalue(); ?>)
                     </div>
                     <div>
-                        Fraction: <input type="text" class="small fraction" id="pfam-fraction" name="pfam-fraction"
+                        Fraction: <input type="text" class="small fraction" id="fraction-optb" name="fraction-optb"
                             value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
                         <?php echo functions::get_fraction(); ?>)
                     </div>
                     <div>
-                        Enable Domain: <input type="checkbox" id="pfam-domain" name="pfam-domain" value="1">
+                        Enable Domain: <input type="checkbox" id="domain-optb" name="domain-optb" value="1">
                         Check to generate SSN with Pfam-defined domains (default: off)
                     </div>
 <?php    if ($useAdvancedFamilyInputs) { ?>
                     <div>
-                        Sequence Identity: <input type="text" class="small" id="pfam-seqid" name="pfam-seqid" value="1">
+                        Sequence Identity: <input type="text" class="small" id="seqid-optb" name="seqid-optb" value="1">
                         Sequence identity (&le; 1; default: 1)
                     </div>
                     <div>
                         Sequence Length Overlap:
-                        <input type="text" class="small" id="pfam-length-overlap" name="pfam-length-overlap" value="1">
+                        <input type="text" class="small" id="length-overlap-optb" name="length-overlap-optb" value="1">
                         Sequence length overlap (&le; 1; default: 1)
                     </div>
 <?php    } else { ?>
                     <div>
-                        <input type="hidden" id="pfam-seqid" value="">
-                        <input type="hidden" id="pfam-length-overlap" value="">
+                        <input type="hidden" id="seqid-optb" value="">
+                        <input type="hidden" id="length-overlap-optb" value="">
                     </div>
 <?php    } ?>
 <?php    if (functions::get_program_selection_enabled()) { ?>
                     <div>
                         Select Program to use: 
-                        <select name="option-b-program" id="option-b-program">
+                        <select name="program-optb" id="program-optb">
                             <option value="BLAST">Blast</option>
                             <option value="BLAST+">Blast+</option>
                             <option selected="selected" value="DIAMOND">Diamond</option>
@@ -327,20 +328,20 @@ the <a href="family_list.php">Family Information page</a>.
 <?php    make_db_mod_option($db_modules, "b"); ?>
                 </div>
 
-                <div>Optional job name: <input type="text" class="small" name="option-b-job-name" id="option-b-job-name" value=""></div>
+                <div>Optional job name: <input type="text" class="small" name="job-name-optb" id="job-name-optb" value=""></div>
                 <div>
                     E-mail address:
-                    <input name="email" id="option-b-email" type="text" value="<?php echo $userEmail; ?>" class="email"
+                    <input name="email" id="email-optb" type="text" value="<?php echo $userEmail; ?>" class="email"
                         onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
                     When the sequence has been uploaded and processed, you will receive an e-mail containing a link
                     to analyze the data.
                 </div>
     
-                <div id="option-b-message" style="color: red" class="error_message">
+                <div id="message-optb" style="color: red" class="error_message">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
-                    <div><button type="button" class="dark" onclick="submitOptionBForm()">Submit Analysis</button></div>
+                    <div><button type="button" class="dark" onclick="submitOptionBForm(familySizeHelper, optBoutputIds)">Submit Analysis</button></div>
                 </center>
             </form>
         </div>
@@ -373,8 +374,8 @@ the <a href="family_list.php">Family Information page</a>.
                     <div>
                         <input type="text" id="families-input-optc" name="families-input-optc">
 <div class="new_feature"></div>
-                        <input type="checkbox" id="optc-use-uniref" class="cb-use-uniref bigger" value="1">
-                        <label for="optc-use-uniref">Use <select id="option-c-uniref-ver" name="option-c-uniref-ver" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
+                        <input type="checkbox" id="use-uniref-optc" class="cb-use-uniref bigger" value="1">
+                        <label for="use-uniref-optc">Use <select id="uniref-ver-optc" name="uniref-ver-optc" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
                         <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box("family-size-container-optc", "family-count-table-optc", $useUniref90, $useUniref50); ?> 
                         </div>
@@ -384,13 +385,13 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
                 <div style="display: none;" class="advanced-options">
                     <div>
-                        E-Value: <input type="text" class="small" id="fasta-evalue" name="fasta-evalue"
+                        E-Value: <input type="text" class="small" id="evalue-optc" name="evalue-optc"
                             value="<?php echo functions::get_evalue(); ?>">
                         Negative log of e-value for all-by-all BLAST (&ge;1; default: <?php echo functions::get_evalue(); ?>)
                     </div>
                     <div>
                         Fraction:
-                        <input type="text" class="small fraction" id="fasta-fraction" name="fasta-fraction"
+                        <input type="text" class="small fraction" id="fraction-optc" name="fraction-optd"
                             value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default: 
                         <?php echo functions::get_fraction(); ?>)
@@ -398,7 +399,7 @@ the <a href="family_list.php">Family Information page</a>.
 <?php    if (functions::get_program_selection_enabled()) { ?>
                     <div>
                         Select Program to use:
-                        <select name="option-c-program" id="option-c-program">
+                        <select name="program-optc" id="program-optc">
                             <option value="BLAST">Blast</option>
                             <option value="BLAST+">Blast+</option>
                             <option selected="selected" value="DIAMOND">Diamond</option>
@@ -409,20 +410,20 @@ the <a href="family_list.php">Family Information page</a>.
 <?php    make_db_mod_option($db_modules, "c"); ?>
                 </div>
 
-                <div>Optional job name: <input type="text" class="small" name="option-c-job-name" id="option-c-job-name" value=""></div>
+                <div>Optional job name: <input type="text" class="small" name="job-name-optc" id="job-name-optc" value=""></div>
                 <div>
                     E-mail address:
-                    <input name="email" id="option-c-email" type="text" value="<?php echo $userEmail; ?>" class="email"
+                    <input name="email" id="email-optc" type="text" value="<?php echo $userEmail; ?>" class="email"
                         onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
                     When the sequence has been uploaded and processed, you will receive an e-mail containing a link
                     to analyze the data.
                 </div>
     
-                <div id="option-c-message" style="color: red" class="error_message">
+                <div id="message-optc" style="color: red" class="error_message">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
-                    <div><button type="button" class="dark" onclick="submitOptionCForm()">Submit Analysis</button></div>
+                    <div><button type="button" class="dark" onclick="submitOptionCForm(familySizeHelper, optCoutputIds)">Submit Analysis</button></div>
                 </center>
             </form>
         </div>
@@ -461,8 +462,8 @@ the <a href="family_list.php">Family Information page</a>.
                     <div>
                         <input type="text" id="families-input-optd" name="families-input-optd">
 <div class="new_feature"></div>
-                        <input type="checkbox" id="optd-use-uniref" class="cb-use-uniref bigger" value="1">
-                        <label for="optd-use-uniref">Use <select id="option-d-uniref-ver" name="option-d-uniref-ver" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
+                        <input type="checkbox" id="use-uniref-optd" class="cb-use-uniref bigger" value="1">
+                        <label for="use-uniref-optd">Use <select id="uniref-ver-optd" name="uniref-ver-optd" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
                         <div style="margin-top: 10px">
 <?php echo ui::make_pfam_size_box("family-size-container-optd", "family-count-table-optd", $useUniref90, $useUniref50); ?> 
                         </div>
@@ -472,12 +473,12 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
                 <div style="display: none;" class="advanced-options">
                     <div>
-                        E-Value: <input type="text" class="small" id="accession-evalue" name="accession-evalue" 
+                        E-Value: <input type="text" class="small" id="evalue-optd" name="evalue-optd" 
                             value="<?php echo functions::get_evalue(); ?>">
                         Negative log of e-value for all-by-all BLAST (&ge;1; default: <?php echo functions::get_evalue(); ?>)
                     </div>
                     <div>
-                        Fraction: <input type="text" class="small fraction" id="accession-fraction" name="accession-fraction" 
+                        Fraction: <input type="text" class="small fraction" id="fraction-optd" name="fraction-optd" 
                             value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
                         <?php echo functions::get_fraction(); ?>)
@@ -515,20 +516,20 @@ the <a href="family_list.php">Family Information page</a>.
 <?php    make_db_mod_option($db_modules, "d"); ?>
                 </div>
 
-                <div>Optional job name: <input type="text" class="small" name="option-d-job-name" id="option-d-job-name" value=""></div>
+                <div>Optional job name: <input type="text" class="small" name="job-name-optd" id="job-name-optd" value=""></div>
                 <div>
                     E-mail address:
-                    <input name="email" id="option-d-email" type="text" value="<?php echo $userEmail; ?>" class="email"
+                    <input name="email" id="email-optd" type="text" value="<?php echo $userEmail; ?>" class="email"
                         onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
                     When the sequence has been uploaded and processed, you will receive an e-mail containing a link
                     to analyze the data.
                 </div>
     
-                <div id="option-d-message" style="color: red" class="error_message">
+                <div id="message-optd" style="color: red" class="error_message">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
-                    <div><button type="button" class="dark" onclick="submitOptionDForm()">Submit Analysis</button></div>
+                    <div><button type="button" class="dark" onclick="submitOptionDForm(familySizeHelper, optDoutputIds)">Submit Analysis</button></div>
                 </center>
             </form>
         </div>
@@ -548,9 +549,9 @@ the <a href="family_list.php">Family Information page</a>.
 
             <form name="optionEform" id="optionEform" method="post" action="">
                 <div class="primary-input">
-                    <input type="text" id="option-e-input" name="option-e-input">
+                    <input type="text" id="families-input-opte" name="families-input-opte">
                     <div style="margin-top: 10px">
-<?php echo ui::make_pfam_size_box('option-e-size-container', 'option-e-count-table', $useUniref90, $useUniref50); ?> 
+<?php echo ui::make_pfam_size_box('family-size-container-opte', 'family-count-table-opte', $useUniref90, $useUniref50); ?> 
                     </div>
                 </div>
                 
@@ -558,44 +559,44 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
                 <div style="display: none;" class="advanced-options">
                     <div>
-                        E-Value: <input type="text" class="small" id="pfam-plus-evalue" name="pfam-evalue"
+                        E-Value: <input type="text" class="small" id="evalue-opte" name="evalue-opte"
                             value="<?php echo functions::get_evalue(); ?>">
                         Negative log of e-value for all-by-all BLAST (&ge;1; default <?php echo functions::get_evalue(); ?>)
                     </div>
                     <div>
-                        Fraction: <input type="text" class="small fraction" id="pfam-plus-fraction" name="pfam-fraction"
+                        Fraction: <input type="text" class="small fraction" id="fraction-opte" name="fraction-opte"
                             value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
                         <?php echo functions::get_fraction(); ?>)
                     </div>
                     <div>
-                        Enable Domain: <input type="checkbox" id="pfam-plus-domain" name="pfam-domain" value="1">
+                        Enable Domain: <input type="checkbox" id="domain-opte" name="domain-opte" value="1">
                         Check to generate SSN with Pfam-defined domains (default: off)
                     </div>
                     <div>
-                        Sequence Identity: <input type="text" class="small" id="pfam-plus-seqid" name="pfam-seqid" value="1">
+                        Sequence Identity: <input type="text" class="small" id="seqid-opte" name="seqid-opte" value="1">
                         Sequence identity (&le; 1; default: 1)
                     </div>
                     <div>
-                        Minimum Sequence Length: <input type="text" class="small" id="pfam-plus-min-seq-len" name="pfam-min-seq-len" value="">
+                        Minimum Sequence Length: <input type="text" class="small" id="min-seq-len-opte" name="min-seq-len-opte" value="">
                     </div>
                     <div>
-                        Maximum Sequence Length: <input type="text" class="small" id="pfam-plus-max-seq-len" name="pfam-max-seq-len" value="">
+                        Maximum Sequence Length: <input type="text" class="small" id="max-seq-len-opte" name="max-seq-len-opte" value="">
                     </div>
                     <div>
                         Sequence Length Overlap:
-                        <input type="text" class="small" id="pfam-plus-length-overlap" name="pfam-length-overlap" value="1">
+                        <input type="text" class="small" id="length-overlap-opte" name="length-overlap-opte" value="1">
                         Sequence length overlap (&le; 1; default: 1)
                     </div>
                     <div>
                         Do not demultiplex:
-                        <input type="checkbox" id="pfam-plus-demux" name="pfam-plus-demux" value="1">
+                        <input type="checkbox" id="demux-opte" name="demux-opte" value="1">
                         Check to prevent a demultiplex to expand cd-hit clusters (default: demultiplex)
                     </div>
 <?php    if (functions::get_program_selection_enabled()) { ?>
                     <div>
                         Select Program to use: 
-                        <select name="option-e-program" id="option-e-program">
+                        <select name="program-opte" id="program-opte">
                             <option value="BLAST">Blast</option>
                             <option value="BLAST+">Blast+</option>
                             <option selected="selected" value="DIAMOND">Diamond</option>
@@ -606,20 +607,20 @@ the <a href="family_list.php">Family Information page</a>.
 <?php    make_db_mod_option($db_modules, "e"); ?>
                 </div>
     
-                <div>Optional job name: <input type="text" class="small" name="option-e-job-name" id="option-e-job-name" value=""></div>
+                <div>Optional job name: <input type="text" class="small" name="job-name-opte" id="job-name-opte" value=""></div>
                 <div>
                     E-mail address:
-                    <input name="email" id="option-e-email" type="text" value="<?php echo $userEmail; ?>" class="email"
+                    <input name="email" id="email-opte" type="text" value="<?php echo $userEmail; ?>" class="email"
                         onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
                     When the sequence has been uploaded and processed, you will receive an e-mail containing a link
                     to analyze the data.
                 </div>
     
-                <div id="option-e-message" style="color: red" class="error_message">
+                <div id="message-opte" style="color: red" class="error_message">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
                 <center>
-                    <div><button type="button" class="dark" onclick="submitOptionEForm()">Submit Analysis</button></div>
+                    <div><button type="button" class="dark" onclick="submitOptionEForm(familySizeHelper, optEoutputIds)">Submit Analysis</button></div>
                 </center>
             </form>
         </div>
@@ -748,6 +749,19 @@ the <a href="family_list.php">Family Information page</a>.
 
 <script>
     var AutoCheckedUniRef = false;
+    var FamilySizeOk = true;
+    var familySizeHelper = new FamilySizeHelper();
+
+    var optAinputIds = getInputIds("opta");
+    var optAoutputIds = getOutputIds("opta");
+    var optBinputIds = getInputIds("optb");
+    var optBoutputIds = getOutputIds("optb");
+    var optCinputIds = getInputIds("optc");
+    var optCoutputIds = getOutputIds("optc");
+    var optDinputIds = getInputIds("optd");
+    var optDoutputIds = getOutputIds("optd");
+    var optEinputIds = getInputIds("opte");
+    var optEoutputIds = getOutputIds("opte");
 
     $(document).ready(function() {
         $(".tabs .tab-headers a").on("click", function(e) {
@@ -779,29 +793,11 @@ the <a href="family_list.php">Family Information page</a>.
             heightStyle: "content"
         });
 
-        var setupFamilyInput = function (familyInputId, containerOutputId, countOutputId, unirefCbId, unirefVerId, fractionId, dbVerId) {
-            $("#" + familyInputId).on("input", function() {
-                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, unirefCbId, unirefVerId, fractionId, dbVerId);
-            });
-            $("#" + unirefCbId).change(function() {
-                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, unirefCbId, unirefVerId, fractionId, dbVerId);
-            });
-            $("#" + unirefVerId).change(function() {
-                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, unirefCbId, unirefVerId, fractionId, dbVerId);
-            });
-            $("#" + fractionId).on("input", function() {
-                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, unirefCbId, unirefVerId, fractionId, dbVerId);
-            });
-            $("#" + dbVerId).on("input", function() {
-                checkFamilyInput(familyInputId, containerOutputId, countOutputId, familyInputId, unirefCbId, unirefVerId, fractionId, dbVerId);
-            });
-        };
-
-        setupFamilyInput("families-input-opta", "family-size-container-opta", "family-count-table-opta", "opta-use-uniref", "option-a-uniref-ver", "blast-fraction", "option-a-db-mod");
-        setupFamilyInput("families-input", "family-size-container", "family-count-table", "pfam-use-uniref", "option-b-uniref-ver", "pfam-fraction", "option-b-db-mod");
-        setupFamilyInput("option-e-input", "option-e-size-container", "option-e-count-table", "opte-use-uniref90", "option-e-uniref-ver", "pfam-plus-fraction", "option-e-db-mod");
-        setupFamilyInput("families-input-optd", "family-size-container-optd", "family-count-table-optd", "optd-use-uniref", "option-d-uniref-ver", "accession-fraction", "option-d-db-mod");
-        setupFamilyInput("families-input-optc", "family-size-container-optc", "family-count-table-optc", "optc-use-uniref", "option-c-uniref-ver", "fasta-fraction", "option-c-db-mod");
+        familySizeHelper.setupFamilyInput("opta", optAinputIds, optAoutputIds);
+        familySizeHelper.setupFamilyInput("optb", optBinputIds, optBoutputIds);
+        familySizeHelper.setupFamilyInput("optc", optCinputIds, optCoutputIds);
+        familySizeHelper.setupFamilyInput("optd", optDinputIds, optDoutputIds);
+        familySizeHelper.setupFamilyInput("opte", optEinputIds, optEoutputIds);
 
         $(".cb-use-uniref").click(function() {
             if (this.checked) {
@@ -853,32 +849,32 @@ the <a href="family_list.php">Family Information page</a>.
 
     }).tooltip();
 </script>
-<script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
-<script src="js/family-counts.js" type="text/javascript"></script>
 
-<div id="family-warning" class="hidden" title="Family Size Warning">
-<div style="color:red;">
+<div id="family-warning" class="hidden" title="UniRef Family Warning">
+<div style="color:red;" id="family-warning-size-info">
 The family(ies) selected has <span id="family-warning-total-size"> </span> proteins&mdash;this is greater than
 the maximum allowed (<?php echo $maxFullFamily; ?>). To reduce computing time and the size of
-output SSN, UniRef90 seed sequences will automatically be used.
+output SSN, UniRef<span class="family-warning-uniref">90</span> seed sequences will automatically be used.
 </div>
 
-<p>In UniRef90, sequences that share &ge;90% sequence identity over 80% of the sequence 
+<p>In UniRef<span class="family-warning-uniref">90</span>, sequences that share
+&ge;<span class="family-warning-uniref">90</span>% sequence identity over 80% of the sequence 
 length are grouped together and represented by a single seed sequence. The output 
-SSN is equivalent a to 90% Representative Node Network with each node corresponding 
-to a seed sequence, and for which the node attribute "UniRef90 Cluster IDs" lists 
-all the sequences represented by a node. UniRef90 SSNs are compatible with the Color 
-SSN utility as well as the EFI-GNT tool.
+SSN is equivalent a to <span class="family-warning-uniref">90</span>% Representative Node
+Network with each node corresponding to a seed sequence, and for which the node attribute
+"UniRef<span class="family-warning-uniref">90</span> Cluster IDs" lists 
+all the sequences represented by a node. UniRef<span class="family-warning-uniref">90</span>
+SSNs are compatible with the Color SSN utility as well as the EFI-GNT tool.
 </p>
 
-<p>Press Ok to continue with UniRef90.</p>
+<p>Press Ok to continue with UniRef<span class="family-warning-uniref">90</span>.</p>
 
 <?php /* ?>
     The family(ies) selected has <span id="family-warning-total-size"> </span> 
     proteins<span id="family-warning-fraction-size"></span>, which is greater
     than the maximum allowed (<?php echo $maxFullFamily; ?>) for full family
-    inclusion.  UniRef90 seed sequences will automatically be 
-    used instead of the full number of proteins in the family(ies).  Press OK to continue with UniRef90
+    inclusion.  UniRef<span class="family-warning-uniref">90</span> seed sequences will automatically be 
+    used instead of the full number of proteins in the family(ies).  Press OK to continue with UniRef<span class="family-warning-uniref">90</span>
     or Cancel to enter a different family, or option.
 <?php */ ?>
 </div>
