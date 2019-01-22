@@ -5,11 +5,11 @@ var DM_INDEX = 2;
 var ARROW_ADD_PAGE = 0;
 var ARROW_RESET_REFRESH = 1;
 var ARROW_REFRESH = 2;
-var DEFAULT_PAGE_SIZE = 50;
+var DEFAULT_PAGE_SIZE = 200;
 
 
 // filterUpdateCb is the callback for updating the UI filter checkboxes, when we CTRL+click to add a family filter.
-function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
+function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds, numDiagramsPerPage) {
 
     this.canvasId = canvasId;
     this.canvasContainerId = canvasContainerId;
@@ -43,6 +43,7 @@ function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
     this.pfamList = {};
     this.groupList = [];
     this.legendGroup = undefined;
+    this.pageSize = typeof numDiagrams === 'undefined' ? DEFAULT_PAGE_SIZE : numDiagramsPerPage;
 
     this.idKeyQueryString = ""; 
 
@@ -53,7 +54,7 @@ function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds) {
 
     var that = this;
     $("#" + this.popupIds.CopyId).click(function(ev) {
-        if (typeof that.selInfoBoxArrow !== typeof undefined && that.selInfoBoxArrow !== false)
+        if (typeof that.selInfoBoxArrow !== 'undefined' && that.selInfoBoxArrow !== false)
             copyTextToClipboard(getInfoText(that.selInfoBoxArrow));
     });
 }
@@ -68,11 +69,11 @@ ArrowDiagram.prototype.nextPage = function(callback, pageSize = 20) {
 }
 
 ArrowDiagram.prototype.refreshCanvas = function(usePaging, callback) {
-    this.retrieveArrowData(this.idList, usePaging, ARROW_REFRESH, callback, DEFAULT_PAGE_SIZE);
+    this.retrieveArrowData(this.idList, usePaging, ARROW_REFRESH, callback, this.pageSize);
 }
 
 ArrowDiagram.prototype.searchArrows = function(usePaging, callback) {
-    this.retrieveArrowData(this.idList, usePaging, ARROW_RESET_REFRESH, callback, DEFAULT_PAGE_SIZE);
+    this.retrieveArrowData(this.idList, usePaging, ARROW_RESET_REFRESH, callback, this.pageSize);
 }
 
 ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAction, callback, pageSize) {

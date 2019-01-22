@@ -36,7 +36,7 @@
     border-right:1px solid #bbb;
 }
 
-.system-nav li:last-child {
+.system-nav li:last-child, li:nth-last-child(2) {
     border-right: none;
 }
 
@@ -57,6 +57,18 @@
 
 .system-nav a.user-mgmt {
     background-color: SaddleBrown;
+}
+
+.hl-gnt {
+    color: #005591;
+}
+
+.hl-est {
+    color: #7a0026;
+}
+
+.hl-cgfp, .hl-shortbred {
+    color: #317873;
 }
 
 //#login-form {

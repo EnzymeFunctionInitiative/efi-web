@@ -92,6 +92,12 @@ FamilySizeHelper.prototype.checkFamilyInput = function (optionName) {
         thresholdNum = 6;
     if (input.length < thresholdNum) {
         container.hide();
+        inputField.removeClass("input-error");
+        inputField.removeClass("input-warning");
+        unirefCbElem.prop("disabled", false);
+        unirefCbElem.prop("checked", false);
+        unirefVerElem.val("90");
+        $("#" + inputIds.unirefVer + " option").removeAttr("disabled");
         return;
     }
 
