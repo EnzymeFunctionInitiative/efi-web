@@ -3,6 +3,12 @@
 <head>
 <title>EFI/ShortBRED Statistics</title>
 <link rel="stylesheet" type="text/css" href="/bs/css/bootstrap.min.css">
+<style>
+.running { font-weight: bold; color: green; }
+.failed { font-weight: bold; color: red; }
+.cancelled { color: orange; }
+.completed { }
+</style>
 </head>
 
 <body>
