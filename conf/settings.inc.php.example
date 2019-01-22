@@ -12,7 +12,19 @@ require_once("settings_base.inc.php");
 
 //
 // PATHS
-define("__WEB_PATH__","");
-define("__BEB_ROOT__",__BASE_WEB_ROOT__."/".__WEB_PATH__);
+define("__WEB_PATH__",__BASE_WEB_PATH__."/");
+define("__WEB_ROOT__",__BASE_WEB_ROOT__."".__WEB_PATH__);
+
+//
+// DATABASE
+define("__MYSQL_HOST__","localhost");
+define("__MYSQL_USER__","efi_test");
+define("__MYSQL_PASSWORD__","dO2uXiZt4cc3skIsVn0i");
+define("__MYSQL_DATABASE__","efi_user_auth_dev");
+define("__MYSQL_AUTH_DATABASE__","efi_user_auth_dev");
+
+//
+// UI
+define("__USE_DASHBOARD__",true);
 
 ?>

@@ -5,11 +5,15 @@ if (!isset($LoginText))
     $LoginText = "";
 if (!isset($IsAdminUser))
     $IsAdminUser = false;
+$isLoggedIn = false;
+if (isset($IsLoggedIn))
+    $isLoggedIn = $IsLoggedIn;
 
 $UrlPrefix = "";
 if (isset($SiteUrlPrefix))
     $UrlPrefix = $SiteUrlPrefix;
 
+$useDashboard = defined("__USE_DASHBOARD__") && __USE_DASHBOARD__;
 $IncludeShortBred = global_settings::get_shortbred_enabled();
 
 ?>
@@ -23,11 +27,18 @@ $IncludeShortBred = global_settings::get_shortbred_enabled();
 <?php if (isset($IncludeShortBred) && $IncludeShortBred) { ?>
                 <li><a href="<?php echo $UrlPrefix; ?>/efi-cgfp/" class="shortbred">EFI-CGFP</a></li>
 <?php } ?>
-<?php if ($IsAdminUser) { ?>
-                <li><a href="admin/" class="about">Admin Page</a></li>
+<?php
+if ($IsAdminUser) { ?>
                 <li><a href="<?php echo $UrlPrefix; ?>/users/" class="user-mgmt">User Management</a></li>
+<?php
+    if (!isset($NoAdmin)) { ?>
+                <li><a href="admin/" class="about">Admin</a></li>
+<?php } ?>
 <?php } ?>
                 <li style="float:right"><?php echo $LoginText; ?></li>
+<?php if ($isLoggedIn && $useDashboard) { ?>
+                <li style="float:right"><a href="<?php echo $UrlPrefix; ?>/dashboard.php" class="about" title="Job Dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+<?php } ?>
             </ul>
         </div>
     </div>
