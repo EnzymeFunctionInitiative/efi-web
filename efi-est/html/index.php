@@ -764,6 +764,8 @@ the <a href="family_list.php">Family Information page</a>.
     var optEoutputIds = getOutputIds("opte");
 
     $(document).ready(function() {
+        resetForms();
+
         $(".tabs .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");
             $(".tabs " + curAttrValue).fadeIn(300).show().siblings().hide();
@@ -848,6 +850,12 @@ the <a href="family_list.php">Family Information page</a>.
         });
 
     }).tooltip();
+
+    function resetForms() {
+        for (i = 0; i < document.forms.length; i++) {
+            document.forms[i].reset();
+        }
+    }
 </script>
 
 <div id="family-warning" class="hidden" title="UniRef Family Warning">
