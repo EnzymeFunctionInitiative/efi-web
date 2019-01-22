@@ -1,7 +1,8 @@
 <?php
 
-require_once "global_settings.class.inc.php";
-require_once "PasswordHash.php";
+require_once("global_settings.class.inc.php");
+require_once("global_functions.class.inc.php");
+require_once("PasswordHash.php");
 
 class group_status {
     const Active = "ACTIVE";
@@ -198,10 +199,11 @@ class user_auth {
 
     public static function get_start_date_window() {
         $numDays = global_settings::get_retention_days();
-        $dt = new DateTime();
-        $pastDt = $dt->sub(new DateInterval("P${numDays}D"));
-        $mysqlDate = $pastDt->format("Y-m-d");
-        return $mysqlDate;
+        return global_functions::get_prior_date($numDays);
+//        $dt = new DateTime();
+//        $pastDt = $dt->sub(new DateInterval("P${numDays}D"));
+//        $mysqlDate = $pastDt->format("Y-m-d");
+//        return $mysqlDate;
     }
     
     public static function generate_key() {
