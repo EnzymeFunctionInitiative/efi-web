@@ -38,7 +38,16 @@ foreach ($job_ids as $job_id) {
 	$job_html .= "<td>" . $job['filename'] . "</td>\n";
 	$job_html .= "<td>" . $job['time_created'] . "</td>\n";
 	$job_html .= "<td>" . $job['time_started'] . "</td>\n";
-	$job_html .= "<td>" . $job['time_completed'] . "</td>\n";
+    $job_html .= "<td>";
+    if ($job['time_completed'] == __RUNNING__)
+        $job_html .= '<span class="running">';
+    elseif ($job['time_completed'] == __FAILED__)
+        $job_html .= '<span class="failed">';
+    elseif ($job['time_completed'] == __CANCELLED__)
+        $job_html .= '<span class="cancelled">';
+    else
+        $job_html .= '<span class="completed">';
+    $job_html .= $job['time_completed'] . "</span></td>\n";
 	$job_html .= "</tr>";
 }
 
