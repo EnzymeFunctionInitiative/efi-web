@@ -3,6 +3,7 @@ require_once("../includes/main.inc.php");
 require_once("../libs/user_auth.class.inc.php");
 require_once("../includes/login_check.inc.php");
 
+$NoAdmin = true;
 require_once("inc/header.inc.php");
 
 $useShortbred = global_settings::get_shortbred_enabled();
@@ -115,6 +116,10 @@ The data used originate from the <a href="https://www.uniprot.org/">UniProt Cons
 databases from EMBL-EBI.
 </p>
 
+<script>
+$(document).ready(function() {
+}).tooltip();
+</script>
 
 <?php require_once("inc/footer.inc.php"); ?>
 
