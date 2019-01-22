@@ -99,7 +99,7 @@ class global_functions {
         return self::get_prior_date($numDays);
     }
 
-    private static function get_prior_date($numDaysInPast) {
+    public static function get_prior_date($numDaysInPast) {
         $dt = new DateTime();
         $pastDt = $dt->sub(new DateInterval("P${numDaysInPast}D"));
         $mysqlDate = $pastDt->format("Y-m-d");
