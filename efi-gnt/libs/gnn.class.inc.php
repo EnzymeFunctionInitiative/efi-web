@@ -1014,7 +1014,7 @@ class gnn extends gnn_shared {
             if ($this->gnn_parent_id)
                 array_push($metadata, array("Original GNT Job Number", "<a href=\"stepc.php?id=$this->gnn_parent_id&key=$source_info\">$this->gnn_parent_id</a>"));
             else
-                array_push($metadata, array("Original EST Job Number", "<a href=\"../efi-est/stepe.php?id=" . $source_info['generate_id'] . "&key=" . $source_info['key'] . "&analysis_id=" . $source_info['analysis_id'] . "\">" . $source_info['generate_id'] . "/" . $source_info['analysis_id'] . "</a>"));
+                array_push($metadata, array("Original EST Job Number", "<a href=\"../efi-est/stepe.php?id=" . $source_info['generate_id'] . "&key=" . $source_info['key'] . "&analysis_id=" . $source_info['analysis_id'] . "\" class=\"hl-est\">" . $source_info['generate_id'] . "/" . $source_info['analysis_id'] . "</a>"));
         }
         array_push($metadata, array("Time Started/Finished", global_functions::format_short_date($this->time_started) . " -- " .
             global_functions::format_short_date($this->time_completed)));
