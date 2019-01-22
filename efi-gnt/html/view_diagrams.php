@@ -24,6 +24,7 @@ $jobTypeText = "";
 
 $isBigscapeEnabled = settings::get_bigscape_enabled();
 $isInterproEnabled = settings::get_interpro_enabled();
+$numDiagrams = settings::get_num_diagrams_per_page();
 $isUploadedDiagram = false;
 $supportsDownload = true;
 $supportsExport = true;
@@ -401,7 +402,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     <div class="col-md-4">
                         <div class="button-wrapper pull-right">
                             <button type="button" class="btn btn-default" id="show-all-arrows-button">Show All</button>
-                            <button type="button" class="btn btn-default" id="show-more-arrows-button">Show 50 More</button>
+                            <button type="button" class="btn btn-default" id="show-more-arrows-button">Show <?php echo $numDiagrams; ?> More</button>
 <!--                            <button type="button" class="btn btn-default" id="show-more-arrows-button-100">Show 100 More</button>-->
                         </div>
                     </div>
@@ -429,7 +430,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
             $(document).ready(function() {
                 var popupIds = new PopupIds();
 
-                var arrowDiagrams = new ArrowDiagram("arrow-canvas", "", "arrow-container", popupIds);
+                var arrowDiagrams = new ArrowDiagram("arrow-canvas", "", "arrow-container", popupIds, <?php echo $numDiagrams; ?>);
                 var arrowApp = new ArrowApp(arrowDiagrams);
 
                 var filterUpdateCb = function(fam, doRemove) {

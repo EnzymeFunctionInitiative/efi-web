@@ -198,5 +198,9 @@ class settings extends global_settings {
     public static function get_interpro_enabled() {
         return defined("__ENABLE_INTERPRO__") ? __ENABLE_INTERPRO__ : false;
     }
+
+    public static fuction get_num_diagrams_per_page() {
+        return defined("__NUM_DIAGRAMS_PER_PAGE__") ? __NUM_DIAGRAMS_PER_PAGE : 50;
+    }
 }
 ?>
