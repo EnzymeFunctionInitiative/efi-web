@@ -3,84 +3,225 @@
 require_once("settings.class.inc.php");
 
 class metagenome_db {
+    public $id = "";
+    public $name = "";
+    public $file = "";
+    public $description = "";
+    public $site_info = array();
+    public $metagenomes = array();
+}
+
+// A metagenome db is a collection of metagenome reads for a specifc dataset (e.g. HMP, HMP2).
+
+class metagenome_db_manager {
 
     private $mg_info = array();
+    private $mg_dbs = array();
 
     function __construct() {
+        $dbs = self::get_valid_dbs();
+
+        foreach ($dbs as $db_id => $db_file) {
+            $mg_meta = self::get_metagenome_db_metadata($db_file);
+            $mg_info = self::load_db($db_file);
+
+            //$db_info = array("file" => $db_file, "sites" => $mg_meta["sites"], "mgs" => $mg_info, "id" => $i, "name" => $mg_meta["db_name"]);
+            $db_info = new metagenome_db();
+            $db_info->file = $db_file;
+            $db_info->site_info = $mg_meta["sites"];
+            $db_info->metagenomes = $mg_info;
+            $db_info->id = $db_id;
+            $db_info->name = $mg_meta["db_name"];
+            $db_info->description = $mg_meta["db_desc"];
+
+            array_push($this->mg_dbs, $db_info);
+        }
     }
 
-    public function load_db() {
-        $file_list = settings::get_metagenome_db_list();
-        $files = explode(",", $file_list);
+    // Call this with care.
+    public static function get_valid_dbs() {
+        $db_list = settings::get_metagenome_db_list();
+        $db_files = explode(",", $db_list);
 
-        $this->mg_info = array();
-
-        foreach ($files as $list_file) {
-            $fh = fopen($list_file, "r") or next;
-
-            while (!feof($fh)) {
-                $line = fgets($fh);
-                if (substr($line, 0, 1) == "#") {
-                    continue;
-                }
-
-                $line = rtrim($line, "\r\n");
-                $parts = preg_split("/[\t,]/", $line);
-
-                $id = "";
-                $name = "";
-                $desc = "";
-                $file_name = "";
-
-                if (count($parts) > 0) {
-                    $id = $parts[0];
-                }
-                if (count($parts) > 1) {
-                    $name = $parts[1];
-                }
-                if (count($parts) > 2) {
-                    $desc = $parts[2];
-                }
-                if (count($parts) > 3) {
-                    $file_name = $parts[3];
-                }
-
-                if ($id) {
-                    $this->mg_info[$id] = array('name' => $name, 'desc' => $desc, 'file_name' => $file_name);
-                }
-            }
-
-            fclose($fh);
+        $dbs = array();
+        for ($i = 0; $i < count($db_files); $i++) {
+            $dbs[$i] = $db_files[$i];
         }
 
-        return true;
+        return $dbs;
     }
 
-    # Returns an associative array mapping metagenome ID to metagenome name.
-    public function get_name_list() {
+    public function get_metagenome_db_ids() {
+        $mg_db_list = array();
+        foreach ($this->mg_dbs as $db_id => $db_info) {
+            array_push($mg_db_list, $db_id);
+        }
+        return $mg_db_list;
+    }
+
+    public function get_metagenome_db_name($db_id) {
+        if (!self::is_valid_id($db_id) || isset($this->mg_dbs[$db_id]))
+            return $this->mg_dbs[$db_id]->name;
+        else
+            return "";
+    }
+
+    public function get_metagenome_db_description($db_id) {
+        if (!self::is_valid_id($db_id) || isset($this->mg_dbs[$db_id]))
+            return $this->mg_dbs[$db_id]->description;
+        else
+            return "";
+    }
+
+    public function get_metagenome_list_for_db($db_id) {
+        if (!self::is_valid_id($db_id) || !isset($this->mg_dbs[$db_id]))
+            return array();
+
+        return $this->get_name_list($db_id);
+    }
+
+    private static function is_valid_id($id) {
+        return is_numeric($id);
+    }
+
+    # Returns an associative array mapping metagenome ID to metagenome name for a specific metagenome database.
+    private function get_name_list($db_id) {
+        if (!self::is_valid_id($db_id) || !isset($this->mg_dbs[$db_id]))
+            return array();
+
         $result = array();
 
-        foreach ($this->mg_info as $id => $name) {
+        foreach ($this->mg_dbs[$db_id]->metagenomes as $id => $mg_info) {
             # Only include ones that have files
-            if (!$name['file_name'])
+            if (!$mg_info['file_name'])
                 continue;
 
-            $result[$id] = $name['name'];
-            if ($name['desc']) {
-                $result[$id] = $result[$id] . " (" . $name['desc'] . ")";
+            $result[$id] = $mg_info['name'];
+            if ($mg_info['desc']) {
+                $result[$id] = $result[$id] . " (" . $mg_info['desc'] . ")";
             }
         }
+
+        asort($result);
 
         return $result;
     }
 
-    public function get_metagenome_data($mg_name) {
-        if (isset($this->mg_info[$mg_name])) {
-            return $this->mg_info[$mg_name];
+    private static function get_metagenome_db_metadata($mg_db) {
+    
+        $info = array("sites" => array(), "db_name" => ""); # map site to color
+    
+        $scheme_file = "$mg_db.metadata";
+        if (file_exists($scheme_file)) {
+            $fh = fopen($scheme_file, "r");
+            if ($fh === false)
+                return false;
         } else {
-            return array('name' => "", 'desc' => "", 'file_name' => "");
+            return false;
         }
+    
+        while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
+            if (isset($data[0]) && $data[0] && $data[0][0] == "#")
+                continue; // skip comments
+
+            if ($data[0] == "DB_NAME") {
+                $info["db_name"] = $data[1];
+            } else {
+                $site = str_replace("_", " ", $data[0]);
+                $color = $data[1];
+                $order = isset($data[2]) ? $data[2] : 0;
+                $info["sites"][$site] = array('color' => $color, 'order' => $order);
+            }
+        }
+    
+        fclose($fh);
+    
+        $desc = "";
+        $desc_file = "$mg_db.description";
+        if (file_exists($desc_file)) {
+            $dfh = fopen($desc_file, "r");
+            while (!feof($dfh)) {
+                $line = fgets($dfh, 1000);
+                $desc .= $line;
+            }
+            fclose($dfh);
+        }
+        $info["db_desc"] = $desc;
+
+        return $info;
     }
+
+    // Load specific metagenome database
+    public static function get_metagenome_db_site_info($db_id, $bodysites = array()) { // Array to filter for specific body sites
+        $mg_dbs = self::get_valid_dbs();
+        if (!self::is_valid_id($db_id) || !isset($mg_dbs[$db_id]))
+            return false;
+
+        $mg_db = $mg_dbs[$db_id];
+        $meta = self::get_metagenome_db_metadata($mg_db);
+        $db_info = self::load_db($mg_db);
+
+        $info = array("site" => array(), "gender" => array());
+
+        foreach ($db_info as $mg_id => $data) {
+            $site = $data["name"];
+            if (count($bodysites) == 0 || in_array($site, $bodysites)) {
+                $info["site"][$mg_id] = $site;
+                $info["gender"][$mg_id] = $data["desc"];
+                $info["color"][$mg_id] = isset($meta["sites"][$site]) ? $meta["sites"][$site]["color"] : "";
+                $info["order"][$mg_id] = isset($meta["sites"][$site]) ? $meta["sites"][$site]["order"] : "";
+            }
+        }
+
+        return $info;
+    }
+
+    private static function load_db($mg_db) {
+        $fh = fopen($mg_db, "r");
+        if ($fh === false)
+            return array();
+
+        $info = array();
+
+        while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
+            if (isset($data[0]) && $data[0] && $data[0][0] == "#")
+                continue; // skip comments
+
+            $mg_id = "";
+            $name = "";
+            $desc = "";
+            $file_name = "";
+
+            if (count($data) > 0)
+                $mg_id = $data[0];
+            if (count($data) > 1)
+                $name = $data[1];
+            if (count($data) > 2)
+                $desc = $data[2];
+            if (count($data) > 3)
+                $file_name = $data[3];
+
+            $pos = strpos($name, " - ");
+            if ($pos !== false)
+                $name = substr($name, $pos+3);
+            $name = str_replace("_", " ", trim($name));
+
+            if ($mg_id)
+                $info[$mg_id] = array('name' => $name, 'desc' => $desc, 'file_name' => $file_name);
+        }
+
+        fclose($fh);
+
+        return $info;
+    }
+    
+//    public function get_metagenome_data($mg_name) {
+//        if (isset($this->mg_info[$mg_name])) {
+//            return $this->mg_info[$mg_name];
+//        } else {
+//            return array('name' => "", 'desc' => "", 'file_name' => "");
+//        }
+//    }
 }
 
 ?>

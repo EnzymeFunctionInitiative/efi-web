@@ -13,7 +13,8 @@ class quantify extends quantify_shared {
     private $loaded = false;
     private $db;
     private $error_message = "";
-    
+
+
     
     // job_id represents the analysis id, not the identify id.
     public function __construct($db, $job_id, $is_debug = false) {
@@ -24,12 +25,12 @@ class quantify extends quantify_shared {
         $this->load_job();
     }
 
-    public static function create($db, $identify_id, $metagenome_ids, $search_type) {
-        $info = self::create_shared($db, $identify_id, $metagenome_ids, "", $search_type);
+    public static function create($db, $identify_id, $metagenome_ids, $search_type, $mg_db_id = "") {
+        $info = self::create_shared($db, $identify_id, $metagenome_ids, "", $search_type, $mg_db_id);
         return $info;
     }
 
-    private static function create_shared($db, $identify_id, $metagenome_ids, $parent_id, $search_type) {
+    private static function create_shared($db, $identify_id, $metagenome_ids, $parent_id, $search_type, $mg_db_id) {
         $insert_array = array(
             'quantify_identify_id' => $identify_id,
             'quantify_status' => __NEW__,
@@ -44,6 +45,8 @@ class quantify extends quantify_shared {
             if ($search_type == "diamond" || $search_type == "usearch")
                 $params_array['quantify_search_type'] = $search_type;
         }
+        if ($mg_db_id)
+            $params_array['quantify_mg_db_id'] = $mg_db_id;
         $params = global_functions::encode_object($params_array);
 
         $insert_array['quantify_params'] = $params;
@@ -61,11 +64,12 @@ class quantify extends quantify_shared {
         $mg_id_array = $job->get_metagenome_ids();
         $mg_ids = implode(",", $mg_id_array);
         $search_type = $job->get_search_type();
+        $mg_db_id = $job->get_metagenome_db_id();
 
         if (!$mg_ids)
             return false;
 
-        $info = self::create_shared($db, $identify_id, $mg_ids, $parent_quantify_id, $search_type);
+        $info = self::create_shared($db, $identify_id, $mg_ids, $parent_quantify_id, $search_type, $mg_db_id);
         return $info;
     }
 
@@ -139,11 +143,15 @@ class quantify extends quantify_shared {
             }
         }
 
+        $mg_db_list = metagenome_db_manager::get_valid_dbs();
+        if (isset($mg_db_list[$this->mg_db_id]))
+            $mg_db = $mg_db_list[$this->mg_db_id];
+
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
         $exec .= "module load $sb_module\n";
         $exec .= "$script";
-        $exec .= " -metagenome-db " . settings::get_metagenome_db_list();
+        $exec .= " -metagenome-db " . $mg_db;
         $exec .= " -quantify-dir " . $q_dir;
         $exec .= " -id-dir " . settings::get_rel_output_dir();
         $exec .= " -metagenome-ids " . implode(",", $this->metagenome_ids);
@@ -235,6 +243,8 @@ class quantify extends quantify_shared {
         
         $mg_ids = $qparams['quantify_metagenome_ids'];
         $this->metagenome_ids = explode(",", $mg_ids);
+
+        $this->mg_db_id = isset($qparams['quantify_mg_db_id']) ? $qparams['quantify_mg_db_id'] : 0;
 
         if (isset($params['identify_ref_db']))
             $this->ref_db = $params['identify_ref_db'];
