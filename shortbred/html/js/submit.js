@@ -1,24 +1,34 @@
 
 function submitQuantify(formId, selectId, searchTypeId, messageId, sbId, sbKey) {
+
+    var datasetType = "";
+
+    if (!selectId) {
+        var selTab = $(".tabs .tab-headers li.active a").attr("href");
+        selTab = selTab.substr(4);
+        selectId = selTab + "_search_to";
+        datasetType = $("#" + selTab + "-dt").val();
+    }
+
     var fd = new FormData();
     fd.append("id", sbId);
     fd.append("key", sbKey);
     addParam(fd, "search-type", searchTypeId);
     
-    //hmpIdList = $("#" + selectId).val();
-    //hmpIds = hmpIdList.join();
-
     var hmpIds = [];
-    var selObj = document.getElementById(selectId); //$("#" + selectId);
+    var selObj = document.getElementById(selectId);
     for (var i = 0; i < selObj.options.length; i++) {
         hmpIds.push(selObj.options[i].value);
     }
 
     if (hmpIds.length == 0) {
         alert("You must select at least one metagenome.");
+        return;
     }
 
     fd.append("hmp-ids", hmpIds);
+    if (datasetType)
+        fd.append("dataset-type", datasetType);
 
     var completionHandler = function(jsonObj) {
         enableForm(formId);
