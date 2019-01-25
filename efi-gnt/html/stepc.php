@@ -374,9 +374,7 @@ Recreate an SSN with a different cooccurrence frequency and/or neighborhood size
 </p>
     
 <p>
-<button type="button" id="filter-btn" class="small light"
-    onclick="uploadSsn('ssn_file','upload_form','progress_number','progress_bar','ssn_message','','filter-btn')"
->Filter/Regenerate GNN</button>
+<button type="button" id="filter-btn" class="small light">Filter/Regenerate GNN</button>
 </p>
 </form>
 
@@ -400,14 +398,12 @@ Recreate an SSN with a different cooccurrence frequency and/or neighborhood size
 <?php if (isset($message)) { echo "<h3 class='center'>" . $message . "</h3>"; } ?>  
 </div>
 
-<!--
 <div id="filter-confirm" title="" style="display: none">
 <p>
 <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
-This job will be permanently removed from your list of jobs.
+Please change parameters or select a new file to upload before refiltering.
 </p>    
 </div>
--->
 
 <?php if (settings::is_beta_release()) { ?>
     <div><center><h4><b><span style="color: red">BETA</span></b></h4></center></div>
@@ -415,26 +411,35 @@ This job will be permanently removed from your list of jobs.
 
 <script>
     $(document).ready(function() {
+        $("#filter-btn").click(function() {
+            var origCooc = <?php echo $gnn->get_cooccurrence(); ?>;
+            var origNb = <?php echo $gnn->get_size(); ?>;
+            var newCooc = $("#cooccurrence").val();
+            var newNb = $("#neighbor_size").val();
+            var hasFile = $("#ssn_file").val().length > 0;
+
+            if (origCooc == newCooc && origNb == newNb && !hasFile) {
+                $("#filter-confirm").dialog({
+                    resizable: false,
+                    height: "auto",
+                    width: 400,
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                            $( this ).dialog("close");
+                        },
+                    }
+                });
+            } else {
+                uploadSsn('ssn_file','upload_form','progress_number','progress_bar','ssn_message','','filter-btn');
+            }
+        });
+
 //        $("#filter-btn").click(function() {
 //            var id = <?php echo $gnnId; ?>;
 //            var key = "<?php echo $gnnKey; ?>";
 //
 //            alert("Hi John and Remi.");
-//            $("#filter-confirm").dialog({
-//                resizable: false,
-//                height: "auto",
-//                width: 400,
-//                modal: true,
-//                buttons: {
-//                    "Archive Job": function() {
-//                        requestJobUpdate(id, key, requestType, jobType);
-//                        $( this ).dialog("close");
-//                    },
-//                    Cancel: function() {
-//                        $( this ).dialog("close");
-//                    }
-//                }
-//            });
 //        });
     });
 </script>
@@ -444,7 +449,7 @@ This job will be permanently removed from your list of jobs.
 function format_file_size($size) {
     $mb = round($size, 0);
     if ($mb == 0)
-        return ">1";
+        return "<1";
     return $mb;
 }
 ?>
