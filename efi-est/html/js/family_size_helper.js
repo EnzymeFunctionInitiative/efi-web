@@ -174,6 +174,12 @@ FamilySizeHelper.prototype.checkUnirefRequirement = function(option, continueSub
     var inputIds = opt.inputIds;
     var outputIds = opt.outputIds;
 
+    var famInput = $("#" + inputIds.family).val();
+    if (!famInput || famInput.length == 0) {
+        continueSubmissionFn();
+        return true;
+    }
+
     if (!opt.validated) {
         alert("Something went wrong.");
         return false;
