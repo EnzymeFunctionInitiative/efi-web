@@ -84,8 +84,9 @@ class global_functions {
         return preg_replace("([^A-Za-z0-9_\-\.])", "_", $filename);
     }
 
-    public static function format_short_date($comp) {
-        return date_format(date_create($comp), "n/j h:i A");
+    public static function format_short_date($comp, $date_only = false) {
+        $fmt_str = $date_only ? "n/j" : "n/j h:i A";
+        return date_format(date_create($comp), $fmt_str);
     }
 
     public static function get_file_retention_start_date() {
