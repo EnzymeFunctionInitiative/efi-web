@@ -77,7 +77,7 @@ class family_size {
         
         $totalCompute = $is_uniref ? ($uniref_ver == "50" ? $totalUniref50Fraction : $totalUniref90Fraction) : $totalFraction;
         $useUniref90Warning = $maxFull > 0 && $totalFraction > $maxFull; //$totalUniref90Fraction > $maxFull;
-        $useUniref50Warning = $maxFull > 0 && $totalFraction > $maxFull && $totalUniref90Fraction > $maxFull;
+        $useUniref50Warning = $maxFull > 0 && $totalFraction > $maxFull && $totalUniref90Fraction > $maxSeq;
         if ($useUniref50Warning)
             $totalCompute = $totalUniref50Fraction;
         elseif ($useUniref90Warning && $uniref_ver != "50")
