@@ -50,6 +50,12 @@ class efi_statistics
         return $result[0]['count'];
     }
 
+    public static function get_num_jobs($db, $status) {
+        $sql = "SELECT count(*) AS count FROM generate WHERE generate_status = '$status'";
+        $result = $db->query($sql);
+        return $result[0]['count'];
+    }
+
     public static function num_analysis_jobs($db) {
         $sql = "SELECT count(*) as count FROM analysis";
         $result = $db->query($sql);
