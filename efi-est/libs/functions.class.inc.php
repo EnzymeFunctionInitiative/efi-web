@@ -453,6 +453,9 @@ class functions {
     public static function colorssn_enabled() {
         return __ENABLE_COLORSSN__;
     }
+    public static function advanced_options_enabled() {
+        return defined("__ENABLE_ADVANCED_OPTIONS__") ? __ENABLE_ADVANCED_OPTIONS__ : false;
+    }
 
     public static function get_uploads_dir() {
         return __UPLOADS_DIR__;

@@ -40,8 +40,10 @@ foreach ($generate_per_month as $value) {
     $generate_per_month_html .= "<td>" . $value['num_failed_option_color'] . "</td>";
     $generate_per_month_html .= "<td>" . $value['total_time'] . "</td>";
     $generate_per_month_html .= "</tr>";
-
 }
+
+$num_waiting_jobs = efi_statistics::get_num_jobs($db, __NEW__);
+$num_running_jobs = efi_statistics::get_num_jobs($db, __RUNNING__);
 
 
 $month_html = "<select class='form-control' name='month'>";
@@ -106,6 +108,8 @@ $year_html .= "</select>";
 </form>
 
 <br>
+Number of <?php echo __NEW__ . " jobs: $num_waiting_jobs"; ?><br>
+Number of <?php echo __RUNNING__ . " jobs: $num_running_jobs"; ?><br>
 <br>
 <hr>
 <form class='form-inline' method='post' action='report.php'>
