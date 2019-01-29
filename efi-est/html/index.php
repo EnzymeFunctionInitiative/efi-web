@@ -32,7 +32,7 @@ $maxSeqFormatted = number_format($maxSeqNum, 0);
 
 $useUniref90 = true;
 $useUniref50 = true;
-$useAdvancedFamilyInputs = functions::option_e_enabled();
+$useAdvancedFamilyInputs = functions::advanced_options_enabled();
 $maxFullFamily = number_format(functions::get_maximum_full_family_count(), 0);
 
 $db_modules = global_settings::get_database_modules();
@@ -218,17 +218,17 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="advanced-toggle">Advanced Family Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
                 <div id="blast-advanced" class="advanced-options" style="display: none;">
                     <div>
-                        E-Value: <input type="text" class="small" id="families-evalue-opta" name="families-evalue-opta"
+                        E-Value: <input type="text" class="small" id="evalue-opta" name="evalue-opta"
                             value="<?php echo functions::get_evalue(); ?>">
                         Negative log of e-value for all-by-all BLAST (&ge;1; default <?php echo functions::get_evalue(); ?>)
                     </div>
                     <div>
-                        Fraction: <input type="text" class="small fraction" id="blast-fraction" name="blast-fraction"
+                        Fraction: <input type="text" class="small fraction" id="fraction-opta" name="fraction-opta"
                             value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
                         <?php echo functions::get_fraction(); ?>)
                     </div>
-<?php make_db_mod_option($db_modules, "a"); ?>
+<?php make_db_mod_option($db_modules, "opta"); ?>
                 </div>
 <?php } ?>
 
@@ -325,7 +325,7 @@ the <a href="family_list.php">Family Information page</a>.
                         </select>
                     </div>
 <?php    } ?>
-<?php    make_db_mod_option($db_modules, "b"); ?>
+<?php    make_db_mod_option($db_modules, "optb"); ?>
                 </div>
 
                 <div>Optional job name: <input type="text" class="small" name="job-name-optb" id="job-name-optb" value=""></div>
@@ -407,7 +407,7 @@ the <a href="family_list.php">Family Information page</a>.
                         </select>
                     </div>
 <?php    } ?>
-<?php    make_db_mod_option($db_modules, "c"); ?>
+<?php    make_db_mod_option($db_modules, "optc"); ?>
                 </div>
 
                 <div>Optional job name: <input type="text" class="small" name="job-name-optc" id="job-name-optc" value=""></div>
@@ -513,7 +513,7 @@ the <a href="family_list.php">Family Information page</a>.
                         </select>
                     </div>
 <?php    } ?>
-<?php    make_db_mod_option($db_modules, "d"); ?>
+<?php    make_db_mod_option($db_modules, "optd"); ?>
                 </div>
 
                 <div>Optional job name: <input type="text" class="small" name="job-name-optd" id="job-name-optd" value=""></div>
@@ -604,7 +604,7 @@ the <a href="family_list.php">Family Information page</a>.
                         </select>
                     </div>
 <?php    } ?>
-<?php    make_db_mod_option($db_modules, "e"); ?>
+<?php    make_db_mod_option($db_modules, "opte"); ?>
                 </div>
     
                 <div>Optional job name: <input type="text" class="small" name="job-name-opte" id="job-name-opte" value=""></div>
@@ -898,11 +898,11 @@ This job will be permanently removed from your list of jobs.
 
 <?php
 
-function make_db_mod_option($db_modules, $form) {
+function make_db_mod_option($db_modules, $option) {
     if (count($db_modules) < 2)
         return "";
 
-    $id = "option-$form-db-mod";
+    $id = "db-mod-$option";
     $ws = "                    ";
     echo <<<HTML
 $ws Database version:
