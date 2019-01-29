@@ -14,6 +14,8 @@ abstract class quantify_shared extends job_shared {
     protected $identify_diamond_sens = "";
     protected $identify_cdhit_sid = "";
     protected $identify_parent_id = 0;
+    protected $mg_db_name = "";
+    protected $mg_db_id = 0;
 
     
     
@@ -32,6 +34,12 @@ abstract class quantify_shared extends job_shared {
     }
     public function get_identify_cdhit_sid() {
         return $this->identify_cdhit_sid;
+    }
+    public function get_metagenome_db_name() {
+        return $this->mg_db_name;
+    }
+    public function get_metagenome_db_id() {
+        return $this->mg_db_id;
     }
 
 
@@ -247,7 +255,7 @@ abstract class quantify_shared extends job_shared {
 
 
     public function get_metagenome_data() {
-    
+
         $mg_data = array();
     
         $clust_file = $this->get_genome_normalized_cluster_file_path();
@@ -269,7 +277,7 @@ abstract class quantify_shared extends job_shared {
             if (in_array("Cluster Size", $headers))
                 $start_idx = 2;
         
-            $site_info = functions::get_mg_db_info();
+            $site_info = metagenome_db_manager::get_metagenome_db_site_info($this->mg_db_id);
             $metagenomes_hdr = array_slice($headers, $start_idx);
             foreach ($metagenomes_hdr as $mg_id) {
                 $info = array($mg_id, "");

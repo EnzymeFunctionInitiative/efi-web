@@ -50,6 +50,8 @@ class quantify_example extends quantify_shared {
                 $this->set_max_seq_len($val);
             } elseif ($key == "min_seq_len") {
                 $this->set_min_seq_len($val);
+            } elseif ($key == "mg_db_index") {
+                $this->mg_db_index = $val;
             }
         }
         fclose($fh);

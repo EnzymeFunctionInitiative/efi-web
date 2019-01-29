@@ -18,6 +18,7 @@ if (!$IsLoggedIn) {
 }
 
 $hide_empty = isset($_GET["hide-empty"]) ? $_GET["hide-empty"] : true;
+$show_extra = isset($_GET["show-extra"]) ? $_GET["show-extra"] : false;
 $show_color_ssn = isset($_GET["show-colorssn"]) ? $_GET["show-colorssn"] : true;
 $show_gnn = isset($_GET["show-gnn"]) ? $_GET["show-gnn"] : true;
 $show_cgfp = isset($_GET["show-cgfp"]) ? $_GET["show-cgfp"] : true;
@@ -32,7 +33,7 @@ $est_db = __EFI_EST_DB_NAME__;
 $gnt_db = __EFI_GNT_DB_NAME__;
 
 $NoAdmin = true;
-$HeaderAdditional = array("<link rel=\"stylesheet\" type=\"text/css\" href=\"css/tree.css\" />");
+$HeaderAdditional = array("<link rel='stylesheet' type='text/css' href='css/tree.css' />");
 require_once("inc/header.inc.php");
 
 ?>
@@ -46,6 +47,7 @@ require_once("inc/header.inc.php");
 <br>
 <label><input type="checkbox" id="hide-empty" <?php echo $hide_empty ? "checked" : ""; ?> /> Hide EST jobs that have no analyze step</label>
 <label><input type="checkbox" id="recent-first" <?php echo $recent_first ? "checked" : ""; ?> /> Show recent jobs first</label>
+<label><input type="checkbox" id="show-extra" <?php echo $show_extra ? "checked" : ""; ?> /> Show extra info</label>
 <br>
 <label>Show last <input type="text" id="num-days" style="width: 50px" value="<?php echo $num_days; ?>" /> days <button class="mini" id="submit-num-days">Apply</button></label>
 
@@ -67,6 +69,7 @@ if ($show_cgfp) {
     $results = $db->query($sb_sql);
     $sb_jobs_file = get_job_list($results, "identify", LEVEL2, GET_IDS_FROM_FILE|GET_IDS_IGNORE_PARENT);
     $sb_jobs_file = add_quantify_jobs($sb_jobs_file, $db, $sb_db);
+    $sb_jobs_file_assn = array();
 }
 
 
@@ -75,6 +78,9 @@ $results = $db->query($gnt_sql);
 $gnt_jobs_file = get_job_list($results, "gnn", LEVEL2, GET_IDS_FROM_FILE); // These link to generate results pages (stepc, the ID is a generate ID)
 $gnt_jobs_db = get_job_list($results, "gnn", LEVEL2, GET_IDS_FROM_DB); // These link to analysis jobs (stepe, the ID is an analysis ID)
 $gnt_child_jobs = get_job_list($results, "gnn", LEVEL3, GET_IDS_FROM_DB); // GNT jobs that are children of another GNT job
+$gnt_jobs_file_assn = array();
+$gnt_jobs_db_assn = array();
+$gnt_child_jobs_assn = array();
 
 
 // Find all EST IDs
@@ -111,12 +117,15 @@ $color_sql = "SELECT * FROM $est_db.generate WHERE generate_email = '$user_email
 $results = $db->query($color_sql);
 $color_jobs_file = get_job_list($results, "generate", LEVEL2, GET_IDS_FROM_FILE);
 $color_jobs_db = get_job_list($results, "generate", LEVEL2, GET_IDS_FROM_DB);
+$color_jobs_file_assn = array(); // Assigned color jobs
+$color_jobs_db_assn = array(); // Assigned color jobs
+
 
 
 //var_dump($results);
 //die();
 
-$est_sql = "SELECT generate_id, generate_key, generate_params, generate_type, analysis_id, analysis_name FROM $est_db.generate LEFT JOIN $est_db.analysis ON generate.generate_id = analysis.analysis_generate_id WHERE generate_email = '$user_email' AND generate_type != 'COLORSSN' AND (generate_time_completed >= '$start_date' OR analysis_time_completed >= '$start_date' $additional_ids_clause) ORDER BY generate_id";
+$est_sql = "SELECT generate_id, generate_key, generate_params, generate_type, generate_time_created, analysis_id, analysis_name FROM $est_db.generate LEFT JOIN $est_db.analysis ON generate.generate_id = analysis.analysis_generate_id WHERE generate_email = '$user_email' AND generate_type != 'COLORSSN' AND (generate_time_completed >= '$start_date' OR analysis_time_completed >= '$start_date' $additional_ids_clause) ORDER BY generate_id";
 if ($recent_first)
     $est_sql .= " DESC";
 $results = $db->query($est_sql);
@@ -132,20 +141,41 @@ foreach ($results as $row) {
     array_push($est_grouping[$gid], $row);
 }
 
-echo "<ul class=\"tree\">\n";
+$topLevelClass = "top-level";
+echo "<ul class='no-deco'>\n";
+//echo "<ul class='tree'>\n";
 foreach ($est_order as $gid) {
     $row = $est_grouping[$gid][0];
     $key = $row["generate_key"];
     $job_type = $row["generate_type"];
+    $date = global_functions::format_short_date($row["generate_time_created"], true);
+
+    $params = array();
+    if (isset($row["generate_params"]))
+        $params = global_functions::decode_object($row["generate_params"]);
+    $job_name = isset($params["generate_job_name"]) ? $params["generate_job_name"] : "";
+    $families = isset($params["generate_families"]) ? $params["generate_families"] : "";
+    $families = implode(", ", explode(",", $families));
+    $uniref = isset($params["generate_uniref"]) ? $params["generate_uniref"] : "";
+    $uniref = $uniref ? "; UniRef$uniref" : "";
+    
+    if (!$job_name)
+        $job_name = $job_type;
+    if ($families)
+        $job_name .= " [$families$uniref]";
+    if ($show_extra)
+        $job_name .= " (EST Job #$gid)";
 
     $level1_html = "";
 
     if (isset($gnt_jobs_file[$gid]) && $show_gnn) {
-        $level1_html .= get_gnt_html($gnt_jobs_file[$gid], $gnt_child_jobs, $sb_jobs_file, "      ");
+        $level1_html .= get_gnt_html($gnt_jobs_file[$gid], $gnt_child_jobs, $sb_jobs_file, "      ", LEVEL1, $gid);
+        $gnt_jobs_file_assn[$gid] = 1;
     }
 
     if (isset($color_jobs_file[$gid]) && $show_color_ssn) {
-        $level1_html .= get_colorssn_html($color_jobs_file[$gid], $sb_jobs_file, "       ");
+        $level1_html .= get_colorssn_html($color_jobs_file[$gid], $sb_jobs_file, "       ", LEVEL1, $gid);
+        $color_jobs_file_assn[$gid] = 1;
     }
 
     $level2_html = "";
@@ -160,29 +190,78 @@ foreach ($est_order as $gid) {
     
         $chtml = "";
         if (isset($color_jobs_db[$aid]) && $show_color_ssn) {
-            $chtml .= get_colorssn_html($color_jobs_db[$aid], $sb_jobs_file, "          ");
+            $chtml .= get_colorssn_html($color_jobs_db[$aid], $sb_jobs_file, "          ", LEVEL2, $aid);
+            $color_jobs_db_assn[$aid] = 1;
         }
 
         $ghtml = "";
         if (isset($gnt_jobs_db[$aid]) && $show_gnn) {
-            $ghtml .= get_gnt_html($gnt_jobs_db[$aid], $gnt_child_jobs, $sb_jobs_file, "          ");
+            $ghtml .= get_gnt_html($gnt_jobs_db[$aid], $gnt_child_jobs, $sb_jobs_file, "          ", LEVEL2, $aid);
+            $gnt_jobs_db_assn[$aid] = 1;
         }
 
-        $level2_html .= "      <li><a href='efi-est/stepe.php?id=$gid&key=$key&analysis_id=$aid' class='hl-est'>$ssn_name (SSN)</a>";
+        $ssn_extra = $show_extra ? " (SSN Job #$aid)" : "";
+        $level2_html .= "      <li class='$topLevelClass'><a href='efi-est/stepe.php?id=$gid&key=$key&analysis_id=$aid' class='hl-est' title='EST Job #$gid - SSN Creation Job'>$ssn_name$ssn_extra</a>";
         if ($chtml || $ghtml)
-            $level2_html .= "\n        <ul>\n$chtml$ghtml        </ul>\n";
+            $level2_html .= "\n        <ul class='tree'>\n$chtml$ghtml        </ul>\n";
         $level2_html .= "      </li>\n";
     }
 
     if (!$hide_empty || $level1_html || $level2_html) {
-        echo "  <li><a href='efi-est/stepc.php?id=$gid&key=$key' class='hl-est'>$job_type (EST $gid)</a>";
+        echo "  <li class='$topLevelClass'><a href='efi-est/stepc.php?id=$gid&key=$key' class='hl-est' title='EST Job #$gid'>$job_name</a> <span class='date'>-- $date</span>";
         if ($level1_html || $level2_html)
-            echo "\n    <ul>\n$level1_html$level2_html    </ul>\n";
+            echo "\n    <ul class='tree'>\n$level1_html$level2_html    </ul>\n";
         echo "  </li>\n";
     }
 }
 
 echo "</ul>\n";
+
+echo "\n\n<h3>Unassigned GNT Jobs</h3>\n";
+
+$html = "";
+foreach ($gnt_jobs_file as $id => $info) {
+    if (!isset($gnt_jobs_file_assn[$id]))
+        $html .= get_gnt_html($info, $gnt_child_jobs, array(), "  ", LEVEL2, $id);
+}
+foreach ($gnt_jobs_db as $id => $info) {
+    if (!isset($gnt_jobs_db_assn[$id]))
+        $html .= get_gnt_html($info, $gnt_child_jobs, array(), "  ", LEVEL2, $id);
+}
+
+if ($html) {
+    echo "<ul>\n$html</ul>\n\n";
+}
+
+
+echo "\n\n<h3>Unassigned Color SSN Jobs</h3>\n";
+
+$html = "";
+foreach ($color_jobs_file as $id => $info) {
+    if (!isset($color_jobs_file_assn[$id]))
+        $html .= get_colorssn_html($info, array(), "  ", LEVEL2, $id);
+}
+foreach ($color_jobs_db as $id => $info) {
+    if (!isset($color_jobs_db_assn[$id]))
+        $html .= get_colorssn_html($info, array(), "  ", LEVEL2, $id);
+}
+
+if ($html) {
+    echo "<ul>\n$html</ul>\n\n";
+}
+
+
+echo "\n\n<h3>Unassigned CGFP Jobs</h3>\n";
+
+$html = "";
+foreach ($sb_jobs_file as $id => $info) {
+    if (!isset($sb_jobs_file_assn[$id]))
+        $html .= get_cgfp_html($info, "  ", $id);
+}
+
+if ($html) {
+    echo "<ul>\n$html</ul>\n\n";
+}
 
 
 
@@ -194,6 +273,7 @@ echo "</ul>\n";
 $(document).ready(function() {
     var redirectFilter = function() {
         var hideEmpty = $("#hide-empty").prop("checked") ? 1 : 0;
+        var hideExtra = $("#show-extra").prop("checked") ? 1 : 0;
         var showColorSsn = $("#show-colorssn").prop("checked") ? 1 : 0;
         var showGnn = $("#show-gnn").prop("checked") ? 1 : 0;
         var showCgfp = $("#show-cgfp").prop("checked") ? 1 : 0;
@@ -202,6 +282,7 @@ $(document).ready(function() {
 
         var qPath = "?" +
             "hide-empty=" + hideEmpty + "&" +
+            "show-extra=" + hideExtra + "&" +
             "show-colorssn=" + showColorSsn + "&" +
             "show-gnn=" + showGnn + "&" +
             "show-cgfp=" + showCgfp + "&" +
@@ -210,7 +291,7 @@ $(document).ready(function() {
         window.location = qPath;
     };
 
-    $("#hide-empty, #show-colorssn, #show-gnn, #show-cgfp, #recent-first").change(function (evt) { redirectFilter(); });
+    $("#hide-empty, #show-colorssn, #show-gnn, #show-cgfp, #recent-first, #show-extra").change(function (evt) { redirectFilter(); });
     $("#submit-num-days").click(function(evt) { redirectFilter(); });
     $("#num-days").on("keypress", function(e) { if (e.which == 13) redirectFilter(); });
 }).tooltip();
@@ -234,9 +315,10 @@ function get_job_list($results, $table, $job_level = LEVEL1, $get_id_type = GET_
     foreach ($results as $row) {
         $id = $row["${table}_id"];
         $key = $row["${table}_key"];
+        $date = global_functions::format_short_date($row["${table}_time_created"], true);
         $info = get_info($row, $table);
         if ($job_level == LEVEL1) {
-            $jobs[$id] = array("id" => $id, "key" => $key, "file" => $info["file"]);
+            $jobs[$id] = array("id" => $id, "key" => $key, "file" => $info["file"], "date" => $date);
         } elseif ($job_level == LEVEL2) {
             $id_chain = get_id_chain($row, $table, $info);
 
@@ -250,7 +332,7 @@ function get_job_list($results, $table, $job_level = LEVEL1, $get_id_type = GET_
             if ($main_id) {
                 if (!isset($jobs[$main_id]))
                     $jobs[$main_id] = array();
-                array_push($jobs[$main_id], array("id" => $id, "key" => $key, "file" => $info["file"]));
+                array_push($jobs[$main_id], array("id" => $id, "key" => $key, "file" => $info["file"], "date" => $date));
             }
         } elseif ($job_level == LEVEL3) { // job is a child of another job of the same type
             if (isset($info["parent"])) {
@@ -258,7 +340,7 @@ function get_job_list($results, $table, $job_level = LEVEL1, $get_id_type = GET_
                 if ($main_id) {
                     if (!isset($jobs[$main_id]))
                         $jobs[$main_id] = array();
-                    array_push($jobs[$main_id], array("id" => $id, "key" => $key, "file" => $info["file"]));
+                    array_push($jobs[$main_id], array("id" => $id, "key" => $key, "file" => $info["file"], "date" => $date));
                 }
             }
         }
@@ -353,30 +435,41 @@ function add_quantify_jobs($sb_jobs_file, $db, $sb_db) {
 }
 
 
-function get_gnt_html($gnt_jobs, $child_jobs, $sb_jobs, $indent = "        ") {
+function get_gnt_html($gnt_jobs, $child_jobs, $sb_jobs, $indent = "        ", $level = LEVEL2, $parent_id = -1) {
+    global $show_extra;
+
     $html = "";
+    $class = $level == LEVEL1 ? "class='top-level'" : "";
     foreach ($gnt_jobs as $gnt_job) {
         $id = $gnt_job["id"];
         $key = $gnt_job["key"];
         $file = $gnt_job["file"];
-        $html .= "$indent<li><a href='efi-gnt/stepc.php?id=$id&key=$key' class='hl-gnt'>$file (GNT $id)</a>";
+        $date = (isset($child_jobs) && $child_jobs !== false) ? $gnt_job["date"] : "";
+        $date_str = $date ? " <span class='date'>-- $date</span>" : "";
+        
         $chtml = "";
-        if (isset($child_jobs) && $child_jobs !== false && isset($child_jobs[$id])) {
-            $chtml = get_gnt_html($child_jobs[$id], false, $sb_jobs, "$indent    ");
-        }
-        $sb_html = "";
+        if (isset($child_jobs) && $child_jobs !== false && isset($child_jobs[$id]))
+            $chtml = get_gnt_html($child_jobs[$id], false, $sb_jobs, "$indent    ", $level, $id);
         if ($sb_jobs !== false && isset($sb_jobs[$id]))
-            $sb_html = get_cgfp_html($sb_jobs[$id], "$indent    ");
+            $sb_html = get_cgfp_html($sb_jobs[$id], "$indent    ", $id);
+
+        $parent_str = $parent_id >= 0 ? "; Parent=$parent_id" : "";
+        $extra_info = $show_extra ? " (GNT Job #$id$parent_str)" : "";
+        $html .= "$indent<li $class><a href='efi-gnt/stepc.php?id=$id&key=$key' class='hl-gnt' title='GNT Job #$id'>$file$extra_info</a> $date_str";
+        $sb_html = "";
         if ($chtml || $sb_html)
-            $html .= "\n$indent  <ul>\n$chtml$sb_html$indent  </ul>\n";
+            $html .= "\n$indent  <ul class='tree'>\n$chtml$sb_html$indent  </ul>\n";
         $html .= "$indent</li>\n";
     }
     return $html;
 }
 
 
-function get_colorssn_html($color_jobs, $sb_jobs, $indent = "        ") {
+function get_colorssn_html($color_jobs, $sb_jobs, $indent = "        ", $level = LEVEL2, $parent_id = -1) {
+    global $show_extra;
+
     $html = "";
+    $class = $level == LEVEL1 ? "class='top-level'" : "";
     foreach ($color_jobs as $cjob) {
         $id = $cjob["id"];
         $key = $cjob["key"];
@@ -384,31 +477,42 @@ function get_colorssn_html($color_jobs, $sb_jobs, $indent = "        ") {
 
         $sb_html = "";
         if (isset($sb_jobs[$id])) {
-            $sb_html = get_cgfp_html($sb_jobs[$id], "$indent    ");
+            $sb_html = get_cgfp_html($sb_jobs[$id], "$indent    ", $id);
         }
 
-        $html .= "$indent<li><a href='efi-est/view_coloredssn.php?id=$id&key=$key' class='hl-est'>$file (Color SSN $id)</a>";
+        $parent_str = $parent_id >= 0 ? "; Parent=$parent_id" : "";
+        $extra_info = $show_extra ? " (Color SSN Job #$id$parent_str)" : "";
+        $html .= "$indent<li $class><a href='efi-est/view_coloredssn.php?id=$id&key=$key' class='hl-est' title='Color SSN Job #$id'>$file$extra_info</a>";
         if ($sb_html)
-            $html .= "$indent  <ul>\n$sb_html$indent  </ul>\n";
+            $html .= "$indent  <ul class='tree'>\n$sb_html$indent  </ul>\n";
         $html .= "$indent</li>\n";
     }
     return $html;
 }
 
 
-function get_cgfp_html($jobs, $indent) {
+function get_cgfp_html($jobs, $indent, $parent_id = -1) {
+    global $show_extra;
+
     $sb_html = "";
     foreach ($jobs as $sb_job) {
         $sb_id = $sb_job["id"];
         $sb_key = $sb_job["key"];
+        $date = $sb_job["date"];
+        $date_str = $date ? " <span class='date'>-- $date</span>" : "";
+
         $q_jobs = $sb_job["quantify"];
-        $sb_html .= "$indent<li><a href='efi-cgfp/stepc.php?id=$sb_id&key=$sb_key' class='hl-cgfp'>CGFP $sb_id</a>";
         $q_html = "";
         foreach ($q_jobs as $q_job) {
             $q_id = $q_job["id"];
             $mgs = $q_job["mgs"];
-            $q_html .= "$indent    <li><a href='efi-cgfp/stepe.php?id=$sb_id&key=$sb_key&quantify-id=$q_id' class='hl-cgfp'>$mgs</a>\n";
+            $extra_info = $show_extra ? " (CGFP Quantify Job #$q_id; Parent=$sb_id)" : "";
+            $q_html .= "$indent    <li><a href='efi-cgfp/stepe.php?id=$sb_id&key=$sb_key&quantify-id=$q_id' class='hl-cgfp' title='CGFP Quantify Job #$q_id'>$mgs [quantification]$extra_info</a>\n";
         }
+        
+        $parent_str = $parent_id >= 0 ? "; Parent=$parent_id" : "";
+        $extra_info = $show_extra ? " (CGFP Job #$sb_id$parent_str)" : "";
+        $sb_html .= "$indent<li><a href='efi-cgfp/stepc.php?id=$sb_id&key=$sb_key' class='hl-cgfp' title='CGFP Identify Job #$sb_id'>CGFP $sb_id [marker]$extra_info</a> $date_str";
         if ($q_html)
             $sb_html .= "$indent  <ul>\n$q_html$indent  </ul>\n";
         $sb_html .= "$indent</li>\n";

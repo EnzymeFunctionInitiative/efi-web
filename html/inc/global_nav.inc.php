@@ -29,11 +29,11 @@ $IncludeShortBred = global_settings::get_shortbred_enabled();
 <?php } ?>
 <?php
 if ($IsAdminUser) { ?>
-                <li><a href="<?php echo $UrlPrefix; ?>/users/" class="user-mgmt">User Management</a></li>
 <?php
     if (!isset($NoAdmin)) { ?>
                 <li><a href="admin/" class="about">Admin</a></li>
 <?php } ?>
+                <li><a href="<?php echo $UrlPrefix; ?>/users/" class="user-mgmt">User Management</a></li>
 <?php } ?>
                 <li style="float:right"><?php echo $LoginText; ?></li>
 <?php if ($isLoggedIn && $useDashboard) { ?>

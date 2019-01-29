@@ -105,14 +105,8 @@ foreach ($metadata as $order => $row) {
 }
 
 
-$hmp_list = array();
-if ($is_finished) {
-    $hmp_id = new metagenome_db();
-
-    if ($hmp_id->load_db()) {
-        $hmp_list = $hmp_id->get_name_list();
-    }
-}
+$mg_db = new metagenome_db_manager();
+$mg_db_list = $mg_db->get_metagenome_db_ids();
 
 
 $q_jobs = job_manager::get_quantify_jobs($db, $id);
@@ -219,34 +213,50 @@ if ($is_enabled) {
 <p>
 The next step in the process is quantifying the occurrence of the markers against a metagenome dataset.
 This tool currently provides access to metagenomes from the <a href="https://commonfund.nih.gov/hmp">NIH
-Human Microbiome Project</a>.
+Human Microbiome Project (HMP)</a> and HMP2 datasets.
 </p>
 
 <form action="" id="quantify-params">
 <input type="hidden" name="id" value="<?php echo $id; ?>">
 <input type="hidden" name="key" value="<?php echo $key; ?>">
 
-<div class="row">
-    <div class="col-xs-5">
-        <select id="search" name="from[]" multiple="multiple" size="8">
+<div class="tabs" id="download-tabs">
+    <ul class="tab-headers">
 <?php
-
-foreach ($hmp_list as $hmp_id => $hmp_name) {
-    echo "                <option value=\"$hmp_id\">$hmp_name</option>\n";
-}
-
+    $c = 0;
+    foreach ($mg_db_list as $mg_db_id) {
+        $ac_cls = $c++ ? "" : "active";
+        $mg_db_name = $mg_db->get_metagenome_db_name($mg_db_id);
+        echo <<<HTML
+        <li class="$ac_cls"><a href="#ds-mgds-$mg_db_id">$mg_db_name</a></li>
+HTML;
+//        <li class="active"><a href="#ds-hmp">HMP</a></li>
+//        <li><a href="#ds-hmp2mg">HMP2 Metagenomes</a></li>
+//        <li><a href="#ds-hmp2mt">HMP2 Metatranscriptomes</a></li>
+    }
 ?>
-        </select>
-    </div>
-    <div class="col-xs-2" style="text-align:center;">
-        <button type="button" id="search_rightAll" class="light btn-select"><i class="fas fa-angle-double-right"></i></button>
-        <button type="button" id="search_rightSelected" class="light btn-select"><i class="fas fa-angle-right"></i></button>
-        <button type="button" id="search_leftSelected" class="light btn-select"><i class="fas fa-angle-left"></i></button>
-        <button type="button" id="search_leftAll" class="light btn-select"><i class="fas fa-angle-double-left"></i></button>
-    </div>
-    
-    <div class="col-xs-5">
-        <select name="to[]" id="search_to" class="form-control" size="8" multiple="multiple"></select>
+    </ul>
+
+    <div class="tab-content tab-content-normal">
+<?php
+    $c = 0;
+    foreach ($mg_db_list as $mg_db_id) {
+        $ac_cls = $c++ ? "" : "active";
+        $mg_list = $mg_db->get_metagenome_list_for_db($mg_db_id);
+        $mg_desc = $mg_db->get_metagenome_db_description($mg_db_id);
+        echo <<<HTML
+        <div id="ds-mgds-$mg_db_id" class="tab $ac_cls">
+HTML;
+        output_mg_sel("mgds-$mg_db_id", $mg_list);
+        echo <<<HTML
+            <p>
+            $mg_desc
+            </p>
+            <input type="hidden" name="mgds-$mg_db_id-dt" id="mgds-$mg_db_id-dt" value="$mg_db_id" />
+        </div>
+HTML;
+    }
+?>
     </div>
 </div>
 
@@ -255,14 +265,6 @@ foreach ($hmp_list as $hmp_id => $hmp_name) {
     Sequence search type: <select name="search_type" id="search_type"><option>USEARCH</option><option>DIAMOND</option></select> (Optional)
 </p>
 <?php } ?>
-    
-<p>
-Metagenomes originate from samples collected from 300 healthy adult men and women 
-between the ages of 18 and 40, recruited at Baylor College of Medicine in Houston, 
-TX and Washington University in St. Louis, MO. More information about the Sample Collection 
-&amp; Participant Guidelines, and methods applied can be found at:
-<a href="https://www.hmpdacc.org/hmp/micro_analysis/microbiome_analyses.php">https://www.hmpdacc.org/hmp/micro_analysis/microbiome_analyses.php</a>.
-</p>
 
 <p>&nbsp;</p>
 <div id="error-message" style="color: red"></div>
@@ -270,7 +272,7 @@ TX and Washington University in St. Louis, MO. More information about the Sample
 <center>
 <?php if ($is_submittable) { ?>
 <button class="dark" type="button" name="submit" id="quantify-submit"
-    onclick="submitQuantify('quantify-params', 'search_to', 'search_type', 'error-message', '<?php echo $id; ?>', '<?php echo $key; ?>')">Quantify Markers</button>
+    onclick="submitQuantify('quantify-params', '', 'search_type', 'error-message', '<?php echo $id; ?>', '<?php echo $key; ?>')">Quantify Markers</button>
 <?php } else { // is submittable ?>
 <button class="dark" type="button" name="submit">Quantify Markers (inactive for training jobs)</button>
 <?php } ?>
@@ -353,7 +355,26 @@ Identify and Quantify data.
 <script src="<?php echo $SiteUrlPrefix; ?>/chosen/chosen.jquery.min.js" type="text/javascript"></script>
 <script>
 $(document).ready(function() {
-    $('#search').multiselect({
+<?php
+    foreach ($mg_db_list as $mg_db_id) {
+        echo <<<HTML
+    $('#mgds-${mg_db_id}_search').multiselect({
+        search: {
+            left: '<input type="text" name="ql" class="form-control" placeholder="Search..." />',
+            right: '<input type="text" name="qr" class="form-control" placeholder="Search..." />',
+        },
+        fireSearch: function(value) {
+            return value.length > 3;
+        },
+        keepRenderingSort: true,
+    });
+
+HTML;
+    }
+?>
+
+/*
+    $('#hmp2mg_search').multiselect({
         search: {
             left: '<input type="text" name="ql" class="form-control" placeholder="Search..." />',
             right: '<input type="text" name="qr" class="form-control" placeholder="Search..." />',
@@ -362,6 +383,18 @@ $(document).ready(function() {
             return value.length > 3;
         }
     });
+
+    $('#hmp2mt_search').multiselect({
+        search: {
+            left: '<input type="text" name="ql" class="form-control" placeholder="Search..." />',
+            right: '<input type="text" name="qr" class="form-control" placeholder="Search..." />',
+        },
+        fireSearch: function(value) {
+            return value.length > 3;
+        }
+    });
+*/
+
     $("#job-stats-btn").click(function() {
         $(".stats-row").toggle();
         if ($(this).text() == "Show Job Statistics")
@@ -370,10 +403,47 @@ $(document).ready(function() {
             $(this).text("Show Job Statistics");
     });
     $(".stats-row").hide();
+    $(".tabs .tab-headers a").on("click", function(e) {
+        var curAttrValue = $(this).attr("href");
+        $(".tabs " + curAttrValue).fadeIn(300).show().siblings().hide();
+        $(this).parent("li").addClass("active").siblings().removeClass("active");
+        e.preventDefault();
+    });
 });
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
 
 <?php require_once "inc/footer.inc.php"; ?>
 
+<?php
+
+function output_mg_sel($prefix, $mg_list) {
+    echo <<<HTML
+<div class="row">
+    <div class="col-xs-5">
+        <select id="${prefix}_search" name="from[]" multiple="multiple" size="8">
+HTML;
+
+    foreach ($mg_list as $mg_id => $mg_name) {
+        echo "                <option value=\"$mg_id\">$mg_name - $mg_id</option>\n";
+    }
+
+    echo <<<HTML
+        </select>
+    </div>
+    <div class="col-xs-2" style="text-align:center;">
+        <button type="button" id="${prefix}_search_rightAll" class="light btn-select"><i class="fas fa-angle-double-right"></i></button>
+        <button type="button" id="${prefix}_search_rightSelected" class="light btn-select"><i class="fas fa-angle-right"></i></button>
+        <button type="button" id="${prefix}_search_leftSelected" class="light btn-select"><i class="fas fa-angle-left"></i></button>
+        <button type="button" id="${prefix}_search_leftAll" class="light btn-select"><i class="fas fa-angle-double-left"></i></button>
+    </div>
+    
+    <div class="col-xs-5">
+        <select name="to[]" id="${prefix}_search_to" class="form-control" size="8" multiple="multiple"></select>
+    </div>
+</div>
+HTML;
+}
+
+?>
 

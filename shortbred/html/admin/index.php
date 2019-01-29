@@ -80,12 +80,13 @@ foreach ($requests as $req) {
     $body = $req["body"];
 
     echo <<<HTML
-<hr style="margin-top:30px">
+<hr>
 <div>Name: $name</div>
 <div>Email: $email</div>
 <div>Institution: $inst</div>
 <div>Description of use:</div>
 <div style="margin-left: 20px">$body</div>
+<div style="margin-bottom: 50px"></div>
 HTML;
 }
 
