@@ -564,11 +564,22 @@ ArrowDiagram.prototype.drawArrow = function(svgContainer, xpos, ypos, width, isC
     attrData.cx = ulx + (urx - ulx) / 2;
     attrData.cy = lly; //py;
     attrData.class = "an-arrow";
+
+    var familyMerged = [];
+    for (var i = 0; i < attrData.family.length; i++)
+        familyMerged[i] = attrData.family[i] + " (" + attrData.family_desc[i] + ")";
+    attrData.family_merged = familyMerged.join(", ");
     attrData.family = attrData.family.join("-"); // Shown on popup
     attrData.family_desc = attrData.family_desc.join("-"); // Shown on popup
+
+    var familyMerged = [];
+    for (var i = 0; i < attrData.ipro_family.length; i++)
+        familyMerged[i] = attrData.ipro_family[i] + " (" + attrData.ipro_family_desc[i] + ")";
+    attrData.ipro_family_merged = familyMerged.join(", ");
     attrData.ipro_family = attrData.ipro_family.join("-"); // Shown on popup
     attrData.ipro_family_desc = attrData.ipro_family_desc.join("-"); // Shown on popup
     attrData.base_family = famParts.length ? famParts[famParts.length-1] : "";
+
     var arrow = svgContainer.polygon(coords).attr(attrData);
 
     var that = this;
@@ -781,6 +792,9 @@ ArrowDiagram.prototype.doPopup = function(xPos, yPos, doShow, data) {
         var familyDesc = data.attr("family_desc");
         if (!familyDesc || familyDesc.length == 0)
             familyDesc = "none";
+        var familyMerged = data.attr("family_merged");
+        if (!familyMerged || familyMerged.length == 0)
+            familyMerged = "";
 
         var iproFamily = data.attr("ipro_family");
         if (!iproFamily || iproFamily.length == 0)
@@ -788,17 +802,41 @@ ArrowDiagram.prototype.doPopup = function(xPos, yPos, doShow, data) {
         var iproFamilyDesc = data.attr("ipro_family_desc");
         if (!iproFamilyDesc || iproFamilyDesc.length == 0)
             iproFamilyDesc = "none";
+        var iproFamilyMerged = data.attr("ipro_family_merged");
+        if (!iproFamilyMerged || iproFamilyMerged.length == 0)
+            iproFamilyMerged = "";
 
         //    family = family.join("-");
         $("#" + this.popupIds.IdId + " span").text(data.attr("accession"));
         $("#" + this.popupIds.IdId + " a").attr("href", "https://www.uniprot.org/uniprot/" + data.attr("accession"));
         $("#" + this.popupIds.DescId + " span").text(data.attr("desc"));
-        $("#" + this.popupIds.FamilyId + " span").text(family);
-        $("#" + this.popupIds.FamilyDescId + " span").text(familyDesc);
-        $("#" + this.popupIds.IproFamilyId + " span").text(iproFamily);
-        $("#" + this.popupIds.IproFamilyDescId + " span").text(iproFamilyDesc);
         $("#" + this.popupIds.SpTrId + " span").text(data.attr("anno_status"));
         $("#" + this.popupIds.SeqLenId + " span").text(data.attr("seq_len") + " AA");
+        
+        if (familyMerged) {
+            if (family == "none")
+                $("#" + this.popupIds.FamilyId + " span").text(family);
+            else
+                $("#" + this.popupIds.FamilyId + " span").text(familyMerged);
+            $("#" + this.popupIds.FamilyDescId + " span").hide();
+        } else {
+            $("#" + this.popupIds.FamilyId + " span").text(family);
+            $("#" + this.popupIds.FamilyDescId + " span").text(familyDesc);
+            $("#" + this.popupIds.FamilyDescId + " span").show();
+        }
+
+        if (iproFamilyMerged) {
+            if (iproFamily == "none")
+                $("#" + this.popupIds.IproFamilyId + " span").text(iproFamily);
+            else
+                $("#" + this.popupIds.IproFamilyId + " span").text(iproFamilyMerged);
+            $("#" + this.popupIds.IproFamilyDescId + " span").hide();
+        } else {
+            $("#" + this.popupIds.IproFamilyId + " span").text(iproFamily);
+            $("#" + this.popupIds.IproFamilyDescId + " span").text(iproFamilyDesc);
+            $("#" + this.popupIds.IproFamilyDescId + " span").show();
+        }
+
         //this.popupElement.show();
         this.popupElement.removeClass("hidden");
     } else {
@@ -814,6 +852,11 @@ function getInfoText(data) {
     var familyDesc = data.attr("family_desc");
     if (!familyDesc || familyDesc.length == 0)
         familyDesc = "none";
+    var familyMerged = data.attr("family_merged");
+    if (!familyMerged || familyMerged.length == 0)
+        familyMerged = "";
+    if (family == "none")
+        familyMerged = "none";
 
     var iproFamily = data.attr("ipro_family");
     if (!iproFamily || iproFamily.length == 0)
@@ -821,6 +864,11 @@ function getInfoText(data) {
     var iproFamilyDesc = data.attr("ipro_family_desc");
     if (!iproFamilyDesc || iproFamilyDesc.length == 0)
         iproFamilyDesc = "none";
+    var iproFamilyMerged = data.attr("ipro_family_merged");
+    if (!iproFamilyMerged || iproFamilyMerged.length == 0)
+        iproFamilyMerged = "";
+    if (iproFamily == "none")
+        iproFamilyMerged = "none";
 
     var acc = data.attr("accession");
     var desc = data.attr("desc");
@@ -830,12 +878,16 @@ function getInfoText(data) {
     var text =
         "UniProt ID\t" + acc + "\n" +
         "Description\t" + desc + "\n" +
-        "Annotation Status\t" + annoStatus + "\n" +
-        "Pfam\t" + family + "\n" +
-        "Pfam Description\t" + familyDesc + "\n" +
-        "InterPro\t" + iproFamily + "\n" +
-        "InterPro Desc\t" + iproFamilyDesc + "\n" +
-        "Sequence Length\t" + seqLen + "\n";
+        "Annotation Status\t" + annoStatus + "\n";
+    if (familyMerged)
+        text += "Pfam\t" + familyMerged + "\n";
+    else
+        text += "Pfam\t" + family + "\n" + "Pfam Description\t" + familyDesc + "\n";
+    if (iproFamilyMerged)
+        text += "InterPro\t" + iproFamilyMerged + "\n";
+    else
+        text += "InterPro\t" + iproFamily + "\n" + "InterPro Desc\t" + iproFamilyDesc + "\n";
+    text += "Sequence Length\t" + seqLen + "\n";
 
     return text;
 }

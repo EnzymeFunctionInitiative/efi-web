@@ -281,6 +281,16 @@ input.filter-cb {
     text-decoration: underline;
 }
 
+.info-popup-group {
+    margin-top: 9px;
+}
+
+.info-popup-group .info-hdr {
+    text-transform: uppercase;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
 #copy-info {
     float: right;
     padding-top: 5px;

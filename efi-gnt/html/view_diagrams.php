@@ -536,12 +536,18 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
             <div id="info-popup-id">UniProt ID: <a href="https://www.uniprot.org/uniprot" target="_blank"><span class="popup-id"></span></a></div>
             <div id="info-popup-desc">Description: <span class="popup-pfam"></span></div>
             <div id="info-popup-sptr">Annotation Status: <span class="popup-pfam"></span></div>
-            <div id="info-popup-fam">Pfam: <span class="popup-pfam"></span></div>
-            <div id="info-popup-fam-desc">Pfam Desc: <span class="popup-pfam"></span></div>
-            <div id="info-popup-ipro-fam" <?php echo $hideInterpro; ?>>InterPro: <span class="popup-pfam"></span></div>
-            <div id="info-popup-ipro-fam-desc" <?php echo $hideInterpro; ?>>InterPro Desc: <span class="popup-pfam"></span></div>
+            <div class="info-popup-group">
+                <div class="info-hdr">Pfam</div>
+                <div id="info-popup-fam"><span class="popup-pfam"></span></div>
+                <div id="info-popup-fam-desc"><span class="popup-pfam"></span></div>
+            </div>
+            <div class="info-popup-group" <?php echo $hideInterpro; ?>>
+                <div class="info-hdr">InterPro</div>
+                <div id="info-popup-ipro-fam"><span class="popup-pfam"></span></div>
+                <div id="info-popup-ipro-fam-desc"><span class="popup-pfam"></span></div>
+            </div>
             <!--    <div id="info-popup-coords">Coordinates: <span class="popup-pfam"></span></div>-->
-            <div id="info-popup-seqlen">Sequence Length: <span class="popup-pfam"></span></div>
+            <div id="info-popup-seqlen" class="info-popup-group">Sequence Length: <span class="popup-pfam"></span></div>
             <!--    <div id="info-popup-dir">Direction: <span class="popup-pfam"></span></div>-->
             <!--    <div id="info-popup-num">Gene Index: <span class="popup-pfam"></span></div>-->
         </div>
