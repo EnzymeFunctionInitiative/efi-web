@@ -431,7 +431,8 @@ Please change parameters or select a new file to upload before refiltering.
                     }
                 });
             } else {
-                uploadSsn('ssn_file','upload_form','progress_number','progress_bar','ssn_message','','filter-btn');
+                var email = "<?php echo $IsLoggedIn ? $IsLoggedIn : ""; ?>";
+                uploadSsnFilter('ssn_file','upload_form','progress_number','progress_bar','ssn_message',email,'filter-btn');
             }
         });
 
