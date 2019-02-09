@@ -36,7 +36,7 @@ class generate extends family_shared {
         $insert_array = parent::get_insert_array($data);
         
         $domain_bool = 0;
-        if ($data->domain == 'true') {
+        if ($data->domain == 'true' || $data->domain == 1) {
             $domain_bool = 1;
         }
 
@@ -48,6 +48,8 @@ class generate extends family_shared {
     protected function get_run_script_args($out) {
         $parms = parent::get_run_script_args($out);
         $parms["-domain"] = $this->get_domain();
+        if (functions::advanced_options_enabled()) // Dev site
+            $parms["-force-domain"] = 1;
         return $parms;
     }
 

@@ -5,6 +5,14 @@ require_once("functions.class.inc.php");
 
 class family_size {
 
+    public static function parse_family_query($query) {
+        $query = str_replace("\n", ",", $query);
+        $query = str_replace("\r", ",", $query);
+        $query = str_replace(" ", ",", $query);
+        $families = explode(",", $query);
+        return $families;
+    }
+
     public static function compute_family_size($db, $families, $fraction, $is_uniref, $uniref_ver = "", $db_version = "") {
 
         $families = array_unique($families);
