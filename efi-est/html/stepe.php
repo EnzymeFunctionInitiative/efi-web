@@ -150,7 +150,8 @@ if ($included_family && !empty($num_family_nodes))
 $table->add_row("Total Number of Sequences $extra_nodes_ast", number_format($total_num_nodes));
 
 $table->add_row("Network Name", $analysis->get_name());
-$table->add_row("Alignment Score", $analysis->get_evalue());
+$table->add_row("Alignment Score", $analysis->get_filter_value());
+$table->add_row("Filter", $analysis->get_filter_name());
 $table->add_row("Minimum Length", number_format($analysis->get_min_length()));
 $table->add_row("Maximum Length", number_format($analysis->get_max_length()));
 if (functions::custom_clustering_enabled())
@@ -223,9 +224,9 @@ else {
     $network_sel_list = array();
 
     $color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
-        $js_code = "submitStepEColorSsnForm(\"$email\", $analysis_id, $ssn_index)";
-        //$js_code = "alert(\"hi\")";
-        $html = " <button class='mini' type='button' onclick='$js_code'>Color SSN</button>";
+        //$js_code = "submitStepEColorSsnForm(\"$email\", $analysis_id, $ssn_index)";
+        $js_code = "";
+        $html = " <button class='mini colorssn-btn' type='button' onclick='$js_code' data-aid='$analysis_id' data-ssn-index='$ssn_index'>Color SSN</button>";
         return $html;
     };
 
@@ -402,6 +403,38 @@ Biochimica et Biophysica Acta (BBA) - Proteins and Proteomics, Volume 1854, Issu
 <center><h4><b><span style="color: blue">BETA</span></b></h4></center>
 <?php } ?>
 
+
+<div id="ssn-confirm" title="Submit Confirmation" style="display: none">
+<p>
+<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+Would you like to color the SSN?
+</p>    
+</div>
+
+<script>
+    $(document).ready(function() {
+        $(".colorssn-btn").click(function(evt) {
+            var email = "<?php echo $email; ?>";
+            var aid = $(this).data("aid");
+            var ssnIndex = $(this).data("ssn-index");
+            $("#ssn-confirm").dialog({
+                resizable: false,
+                height: "auto",
+                width: 400,
+                modal: true,
+                buttons: {
+                    Yes: function() {
+                        submitStepEColorSsnForm(email, aid, ssnIndex);
+                        $(this).dialog("close");
+                    },
+                    No: function() {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        });
+    });
+</script>
 
 <?php
 

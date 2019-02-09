@@ -22,6 +22,7 @@ function addCommonFormData(opt, fd) {
     var useUniref = $("#use-uniref-" + opt).prop("checked");
     var unirefVer = $("#uniref-ver-" + opt).val();
     var fraction = $("#fraction-" + opt).val();
+    var cpuX2 = $("#cpu-x2-" + opt).prop("checked");
 
     fd.append("email", email);
     fd.append("job-name", jobName);
@@ -31,6 +32,7 @@ function addCommonFormData(opt, fd) {
     fd.append("evalue", evalue);
     fd.append("fraction", fraction);
     fd.append("db-mod", dbMod);
+    fd.append("cpu-x2", cpuX2);
 }
 
 function submitOptionAForm(famHelper, outputIds) { // familySizeHelper
@@ -108,7 +110,7 @@ function submitOptionCForm(famHelper, outputIds) {
     }
 }
 
-function submitOptionDForm() {
+function submitOptionDForm(famHelper, outputIds) {
 
     var optionId = "optd";
 
@@ -131,7 +133,7 @@ function submitOptionDForm() {
             };
         }
     
-        doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+        doFormPost(FORM_ACTION, fd, outputIds.warningMsg, fileHandler, completionHandler);
     };
 
     if (!famHelper.checkUnirefRequirement(optionId, submitFn)) {
@@ -139,7 +141,7 @@ function submitOptionDForm() {
     }
 }
 
-function submitOptionEForm() {
+function submitOptionEForm(famHelper, outputIds) {
 
     var optionId = "opte";
 
@@ -158,7 +160,7 @@ function submitOptionEForm() {
         var completionHandler = getDefaultCompletionHandler();
         var unirefVer = getUnirefVersion(fd);
     
-        doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+        doFormPost(FORM_ACTION, fd, outputIds.warningMsg, fileHandler, completionHandler);
     };
 
     if (!famHelper.checkUnirefRequirement(optionId, submitFn)) {
