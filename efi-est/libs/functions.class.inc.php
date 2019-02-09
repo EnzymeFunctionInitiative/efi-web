@@ -582,6 +582,9 @@ class functions {
     public static function get_colorssn_map_filename() {
         return __COLORSSN_MAP_FILE_NAME__;
     }
+    public static function get_colorssn_domain_map_filename() {
+        return __COLORSSN_DOMAIN_MAP_FILE_NAME__;
+    }
 
     public static function get_accession_counts_filename() {
         return __ACC_COUNT_FILENAME__ ? __ACC_COUNT_FILENAME__ : "";
@@ -704,7 +707,7 @@ class functions {
     }
 
     public static function get_analysis_job_info($db, $analysis_id) {
-        $sql = "SELECT * FROM analysis WHERE analysis_id = $analysis_id";
+        $sql = "SELECT analysis.*, generate_key FROM analysis LEFT JOIN generate ON analysis_generate_id = generate_id WHERE analysis_id = $analysis_id";
         $result = $db->query($sql);
 
         $info = array();
@@ -712,6 +715,7 @@ class functions {
         if ($result) {
             $result = $result[0];
             $info["generate_id"] = $result["analysis_generate_id"];
+            $info["generate_key"] = $result["generate_key"];
             $info["analysis_id"] = $analysis_id;
             $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
                                     $result["analysis_evalue"] . "-" .

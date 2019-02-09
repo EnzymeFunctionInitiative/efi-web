@@ -10,7 +10,7 @@ class analysis {
     private $db; //mysql database object
     private $id;
     private $status;
-    private $evalue;
+    private $filter_value;
     private $name;
     private $minimum;
     private $maximum;
@@ -56,7 +56,7 @@ class analysis {
     public function get_status() { return $this->status; }
     public function get_id() { return $this->id; }
     public function get_generate_id() { return $this->generate_id; }
-    public function get_evalue() { return $this->evalue; }
+    public function get_filter_value() { return $this->filter_value; }
     public function get_min_length() { return $this->minimum; }
     public function get_max_length() { return $this->maximum; }
     public function get_time_created() { return $this->time_created; }
@@ -118,10 +118,9 @@ class analysis {
         return $num_seq;
     }
 
-    public function create($generate_id, $evalue, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "") {
+    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval") {
         $errors = false;
         $message = "";		
-        $filter = "eval";
 
         $hasCustomClustering = 0;
         if ($customFile && file_exists($customFile)) {
@@ -143,14 +142,28 @@ class analysis {
             $errors = true;
         }
         
-        if (!$hasCustomClustering && !$this->verify_evalue($evalue)) {
-            $message .= "<br><b>Please verify the alignment score.</b>";
-            $errors = true;	
+        if (!$hasCustomClustering) {
+            if ($filter == "eval" && !$this->verify_evalue($filter_value)) {
+                $message .= "<br><b>Please verify the alignment score.</b>";
+                $errors = true;
+            } elseif ($filter == "pid" && !$this->verify_percent_id($filter_value)) {
+                $message .= "<br><b>Please verify the percent identity.</b>";
+                $errors = true;
+            } elseif ($filter == "bit" && !$this->verify_bit_score($filter_value)) {
+                $message .= "<br><b>Please verify the bit score.</b>";
+                $errors = true;
+            } elseif ($filter == "custom") {
+                $message .= "<br><b>The custom cluster input file is invalid.</b>";
+                $errors = true;
+            } elseif ($filter != "eval" and $filter != "pid" and $filter != "custom" and $filter != "bit") {
+                $message .= "<br><b>An unknown filter type was specified.</b>";
+                $errors = true;
+            }
         }
 
         if (!$errors) {
             $insert_array = array('analysis_generate_id'=>$generate_id,
-                'analysis_evalue'=>$evalue,
+                'analysis_evalue'=>$filter_value,
                 'analysis_name'=>$name,
                 'analysis_min_length'=>$minimum,
                 'analysis_max_length'=>$maximum,
@@ -495,7 +508,7 @@ class analysis {
                 $exec .= "-minlen " . $this->get_min_length() . " ";
                 $exec .= "-filter " . $this->get_filter() . " ";
                 $exec .= "-title " . $this->get_name() . " ";
-                $exec .= "-minval " . $this->get_evalue() . " ";
+                $exec .= "-minval " . $this->get_filter_value() . " ";
                 $exec .= "-maxfull " . functions::get_maximum_number_ssn_nodes() . " ";
                 $exec .= "-tmp " . $relative_output_dir . " ";
                 $exec .= "-job-id " . $this->get_generate_id() . " ";
@@ -568,7 +581,7 @@ class analysis {
             $this->id = $id;
             $this->generate_id = $result[0]['analysis_generate_id'];
             $this->pbs_number = $result[0]['analysis_pbs_number'];
-            $this->evalue = $result[0]['analysis_evalue'];
+            $this->filter_value = $result[0]['analysis_evalue'];
             $this->name = $result[0]['analysis_name'];
             $this->minimum = $result[0]['analysis_min_length'];
             $this->maximum = $result[0]['analysis_max_length'];
@@ -599,7 +612,7 @@ class analysis {
         if ($this->custom_clustering) {
             $path = "custom_cluster_" . $this->get_id();
         } else {
-            $path = $this->get_filter() . "-" . $this->get_evalue();
+            $path = $this->get_filter() . "-" . $this->get_filter_value();
             $path .= "-" . $this->get_min_length() . "-" . $this->get_max_length();
             if ($this->cdhit_opt == "sb" || $this->cdhit_opt == "est+")
                 $path .= "-" . $this->cdhit_opt;
@@ -643,6 +656,28 @@ class analysis {
         return $result;
     }
 
+    private function verify_percent_id($pid) {
+        $result = true;
+        if ($pid == "") {
+            $result = false;
+        }
+        elseif (!is_numeric($pid)) {
+            $result = false;
+        }
+        return $result;
+    }
+
+    private function verify_bit_score($pid) {
+        $result = true;
+        if ($pid == "") {
+            $result = false;
+        }
+        elseif (!is_numeric($pid)) {
+            $result = false;
+        }
+        return $result;
+    }
+
     private function is_integer($value) {
         if (preg_match('/^\d+$/',$value)) {
             return true;
@@ -678,7 +713,8 @@ class analysis {
         $message = "Job ID: " . $this->get_id() . "\r\n";
         $message .= "Minimum Length: " . $this->get_min_length() . "\r\n";
         $message .= "Maximum Length: " . $this->get_max_length() . "\r\n";
-        $message .= "Alignment Score: " . $this->get_evalue() . "\r\n";
+        $message .= "Filter Type: " . $this->get_filter_name() . "\r\n";
+        $message .= "Filter Value: " . $this->get_filter_value() . "\r\n";
         $message .= "Network Name: " . $this->get_name() . "\r\n";
         return $message;
     }
@@ -719,6 +755,26 @@ class analysis {
         } else {
             return false;
         }
+    }
+
+    public function get_filter_name() {
+        $filter = $this->get_filter();
+        $name = "";
+        switch ($filter) {
+            case "bit":
+                $name = "Bit score";
+                break;
+
+            case "pid":
+                $name = "Percent ID";
+                break;
+
+            case "eval":
+            default:
+                return "E-Value";
+        }
+
+        return $name;
     }
 }
 

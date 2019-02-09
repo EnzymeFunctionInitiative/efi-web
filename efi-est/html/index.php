@@ -228,6 +228,12 @@ the <a href="family_list.php">Family Information page</a>.
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
                         <?php echo functions::get_fraction(); ?>)
                     </div>
+<?php    if ($useAdvancedFamilyInputs) { ?>
+                    <div>
+                        CPUx2: <input type="checkbox" id="cpu-x2-opta" name="cpu-x2-opta" value="1">
+                        <label for="cpu-x2-opta">Check to use two times the number of processors (default: off)</label>
+                    </div>
+<?php    } ?>
 <?php make_db_mod_option($db_modules, "opta"); ?>
                 </div>
 <?php } ?>
@@ -296,8 +302,14 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
                     <div>
                         Enable Domain: <input type="checkbox" id="domain-optb" name="domain-optb" value="1">
-                        Check to generate SSN with Pfam-defined domains (default: off)
+                        <label for="domain-optb">Check to generate SSN with Pfam-defined domains (default: off)</label>
                     </div>
+<?php    if ($useAdvancedFamilyInputs) { ?>
+                    <div>
+                        CPUx2: <input type="checkbox" id="cpu-x2-optb" name="cpu-x2-optb" value="1">
+                        <label for="cpu-x2-optb">Check to use two times the number of processors (default: off)</label>
+                    </div>
+<?php    } ?>
 <?php    if ($useAdvancedFamilyInputs) { ?>
                     <div>
                         Sequence Identity: <input type="text" class="small" id="seqid-optb" name="seqid-optb" value="1">
@@ -396,6 +408,12 @@ the <a href="family_list.php">Family Information page</a>.
                         Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default: 
                         <?php echo functions::get_fraction(); ?>)
                     </div>
+<?php    if ($useAdvancedFamilyInputs) { ?>
+                    <div>
+                        CPUx2: <input type="checkbox" id="cpu-x2-optc" name="cpu-x2-optc" value="1">
+                        <label for="cpu-x2-optc">Check to use two times the number of processors (default: off)</label>
+                    </div>
+<?php    } ?>
 <?php    if (functions::get_program_selection_enabled()) { ?>
                     <div>
                         Select Program to use:
@@ -485,6 +503,12 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
 <?php    if ($useAdvancedFamilyInputs) { ?>
                     <div>
+                        CPUx2: <input type="checkbox" id="cpu-x2-optd" name="cpu-x2-optd" value="1">
+                        <label for="cpu-x2-optd">Check to use two times the number of processors (default: off)</label>
+                    </div>
+<?php    } ?>
+<?php    if ($useAdvancedFamilyInputs) { ?>
+                    <div>
                         Expand UniRef homologs: 
                         <input type="checkbox" id="accession-use-uniref" name="accession-use-uniref"
                             onchange="toggleUniref('accession-uniref-version', this)">
@@ -571,7 +595,7 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
                     <div>
                         Enable Domain: <input type="checkbox" id="domain-opte" name="domain-opte" value="1">
-                        Check to generate SSN with Pfam-defined domains (default: off)
+                        <label for="domain-opte">Check to generate SSN with Pfam-defined domains (default: off)</label>
                     </div>
                     <div>
                         Sequence Identity: <input type="text" class="small" id="seqid-opte" name="seqid-opte" value="1">
@@ -592,6 +616,10 @@ the <a href="family_list.php">Family Information page</a>.
                         Do not demultiplex:
                         <input type="checkbox" id="demux-opte" name="demux-opte" value="1">
                         Check to prevent a demultiplex to expand cd-hit clusters (default: demultiplex)
+                    </div>
+                    <div>
+                        CPUx2: <input type="checkbox" id="cpu-x2-opte" name="cpu-x2-opte" value="1">
+                        <label for="cpu-x2-opte">Check to use two times the number of processors (default: off)</label>
                     </div>
 <?php    if (functions::get_program_selection_enabled()) { ?>
                     <div>
@@ -857,6 +885,7 @@ the <a href="family_list.php">Family Information page</a>.
         }
     }
 </script>
+<script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
 
 <div id="family-warning" class="hidden" title="UniRef Family Warning">
 <div style="color:red;" id="family-warning-size-info">
@@ -955,7 +984,8 @@ HTML;
         } else {
             if ($isCompleted) {
                 $theScript = $jobs[$i]["is_colorssn"] ? "view_coloredssn.php" : "stepc.php";
-                $linkStart = "<a href=\"$theScript?id=$id&key=$key\">";
+                $theStyle = $jobs[$i]["is_colorssn"] ? "hl-color" : "hl-est";
+                $linkStart = "<a href=\"$theScript?id=$id&key=$key\" class=\"$theStyle\">";
                 $linkEnd = "</a>";
             }
             $idText = "$linkStart${id}$linkEnd";
