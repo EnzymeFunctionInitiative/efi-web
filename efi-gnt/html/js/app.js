@@ -177,11 +177,11 @@ ArrowApp.prototype.doSearch = function(idList) {
         that.updateMoreButtonStatus(isEod);
         that.stopProgressBar();
         that.updateCountFields();
-        $("#start-info").hide();
     };
     
     this.arrows.setIdList(idList);
     this.showAll = false;
+    $("#start-info").hide();
     this.arrows.searchArrows(!this.showAll, finishCb);
 }
 
@@ -330,10 +330,12 @@ ArrowApp.prototype.togglePfamNamesNumbers = function(isChecked) {
 
 ArrowApp.prototype.startProgressBar = function() {
     this.progressObj.removeClass("hidden-placeholder");
+    $(".zoom-btn").prop("disabled", true).addClass("disabled");
 }
 
 ArrowApp.prototype.stopProgressBar = function() {
     this.progressObj.addClass("hidden-placeholder");
+    $(".zoom-btn").prop("disabled", false).removeClass("disabled");
 }
 
 ArrowApp.prototype.getIdList = function(inputObj) {
