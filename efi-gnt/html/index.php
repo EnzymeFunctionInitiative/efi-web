@@ -11,10 +11,15 @@ $gnnJobs = array();
 $diagramJobs = array();
 $IsAdminUser = false;
 $trainingJobs = array();
+$max_debug = false;
 
 if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
+    $token = user_jobs::get_user_token();
+    if (isset($_GET["max_debug"])) {
+        $max_debug = true;
+    }
     $userJobs = new user_jobs();
-    $userJobs->load_jobs($db, user_jobs::get_user_token());
+    $userJobs->load_jobs($db, $token);
     $gnnJobs = $userJobs->get_jobs();
     $diagramJobs = $userJobs->get_diagram_jobs();
     $trainingJobs = $userJobs->get_training_jobs();
@@ -123,6 +128,8 @@ for ($i = 0; $i < count($gnnJobs); $i++) {
 
     $linkStart = $isActive ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
     $linkEnd = $isActive ? "" : "</a>";
+    $linkStart .= "<span title='$id'>";
+    $linkEnd = "</span>" . $linkEnd;
     $idText = "$linkStart${id}$linkEnd";
 
     $nameStyle = "";
