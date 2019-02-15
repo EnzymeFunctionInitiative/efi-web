@@ -4,10 +4,8 @@ require_once("../libs/input.class.inc.php");
 require_once("../libs/family_size.class.inc.php");
 
 
-$query_string = str_replace("\n", ",", $_GET["families"]);
-$query_string = str_replace("\r", ",", $query_string);
-$query_string = str_replace(" ", ",", $query_string);
-$families = explode(",", $query_string);
+$query = $_GET["families"];
+$families = family_size::parse_family_query($query);
 
 $use_uniref = isset($_GET["uniref"]) && $_GET["uniref"] == 1;
 $uniref_ver = ($use_uniref && isset($_GET["uniref-ver"]) && $_GET["uniref-ver"]) ? $_GET["uniref-ver"] : "";

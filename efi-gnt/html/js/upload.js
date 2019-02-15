@@ -4,20 +4,27 @@ var SSN_UPLOAD = 1;
 var ARCHIVE = 2;
 
 function submitEstJob(formId, messageId, emailId, submitId, estId, estKey, estSsn) {
-    uploadFileShared("", formId, "", "", messageId, emailId, submitId, true, estId, estKey, estSsn);
+    uploadFileShared("", formId, "", "", messageId, emailId, submitId, true, estId, estKey, estSsn, false);
 }
 
 function uploadSsn(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId) {
-    uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, true, 0, "", 0);
+    uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, true, 0, "", 0, false);
+}
+
+function uploadSsnFilter(fileInputId, formId, progressNumId, progressBarId, messageId, emailAddr, submitId) {
+    uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailAddr, submitId, true, 0, "", 0, true);
 }
 
 function uploadDiagramFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId) {
-    uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, false, 0, "", 0);
+    uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, false, 0, "", 0, false);
 }
 
-function uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, isSsn, estId, estKey, estSsn) {
+function uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, isSsn, estId, estKey, estSsn, isFilterSubmit) {
     var fd = new FormData();
-    addParam(fd, "email", emailId);
+    if (isFilterSubmit && emailId.includes("@"))
+        fd.append("email", emailId); // in this case emailId is actually the email address
+    else if (emailId.length > 0)
+        addParam(fd, "email", emailId);
     addParam(fd, "submit", submitId);
     if (isSsn) {
         addParam(fd, "neighbor_size", "neighbor_size");

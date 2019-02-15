@@ -32,13 +32,13 @@ function ArrowApp(arrows, popupIds) {
             that.advancedInputObj.value = that.inputObj.value;
             that.search(that.inputObj);
         });
-    $("input").on('keypress', function(e) {
-            if (e.which == 13) {
-                that.advancedInputObj.value = that.inputObj.value;
-                that.search(that.inputObj);
-                e.preventDefault();
-            }
-        });
+//    $("input").on('keypress', function(e) {
+//            if (e.which == 13) {
+//                that.advancedInputObj.value = that.inputObj.value;
+//                that.search(that.inputObj);
+//                e.preventDefault();
+//            }
+//        });
     $("#advanced-search-cluster-button").click(function() {
             that.showAll = false;
             that.search(that.advancedInputObj);
@@ -71,6 +71,28 @@ function ArrowApp(arrows, popupIds) {
         that.setNeighborhoodWindow(nbSize);
         that.refreshAll();
     });
+    $("#scale-factor").keyup(function (e) {
+        if (e.which == 13) {
+            that.setScaleFactor($("#scale-factor").val());
+            that.refreshAll();
+        }
+    });
+    $("#scale-zoom-in-large").click(function(e) {
+        that.zoom(4);
+        that.refreshAll();
+    });
+    $("#scale-zoom-in-small").click(function(e) {
+        that.zoom(1.125);
+        that.refreshAll();
+    });
+    $("#scale-zoom-out-small").click(function(e) {
+        that.zoom(0.8888888888888);
+        that.refreshAll();
+    });
+    $("#scale-zoom-out-large").click(function(e) {
+        that.zoom(0.25);
+        that.refreshAll();
+    });
     
     this.showAllObj.click(function() {
         that.startProgressBar();
@@ -88,13 +110,6 @@ function ArrowApp(arrows, popupIds) {
         };
 
         that.arrows.searchArrows(!that.showAll, finishCb);
-//        that.arrows.retrieveArrowData(undefined, false, ARROW_RESET_REFRESH, function(isEod) {
-//            that.updateMoreButtonStatus(isEod);
-//            that.populateFilterList();
-//            that.stopProgressBar();
-//            that.updateCountFields();
-////            $('html,body').animate({scrollTop: document.body.scrollHeight},{duration:800});
-//        });
     });
 
     $("#filter-clear").click(function() {
@@ -102,6 +117,7 @@ function ArrowApp(arrows, popupIds) {
         });
 
     $("#download-data").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
+    $(".zoom-btn").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
 
     this.enableSaveButton();
 }
@@ -116,6 +132,16 @@ ArrowApp.prototype.refreshAll = function() {
 
 ArrowApp.prototype.refreshCanvas = function(pageResults, callback) {
     this.arrows.refreshCanvas(pageResults, callback);
+}
+
+ArrowApp.prototype.setScaleFactor = function(scaleFactor) {
+    this.arrows.setScaleFactor(scaleFactor);
+}
+
+ArrowApp.prototype.zoom = function(zoomFactor) {
+    var sf = this.arrows.getScaleFactor();
+    sf = sf * zoomFactor;
+    this.arrows.setScaleFactor(sf);
 }
 
 ArrowApp.prototype.setNeighborhoodWindow = function(nbSize) {
@@ -142,6 +168,7 @@ ArrowApp.prototype.search = function(inputObj) {
 
 ArrowApp.prototype.doSearch = function(idList) {
     this.arrows.clearFamilyData();
+    this.arrows.resetScaleFactor();
     this.clearFilter();
     
     var that = this;
@@ -156,14 +183,6 @@ ArrowApp.prototype.doSearch = function(idList) {
     this.arrows.setIdList(idList);
     this.showAll = false;
     this.arrows.searchArrows(!this.showAll, finishCb);
-
-//    this.arrows.retrieveArrowData(idList, true, ARROW_RESET_REFRESH, function(isEod) {
-//        that.populateFilterList();
-//        that.updateMoreButtonStatus(isEod);
-//        that.stopProgressBar();
-//        that.updateCountFields();
-//        $("#start-info").hide();
-//    });
 }
 
 ArrowApp.prototype.uiFilterUpdate = function(fam, doRemove) {
