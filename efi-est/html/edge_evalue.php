@@ -1,28 +1,30 @@
 <?php
-require_once("../includes/main.inc.php");
-//require_once("../libs/user_auth.class.inc.php");
-//require_once("../includes/login_check.inc.php");
-//
-//$HeaderAdditional = array('<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>');
-//
-//require_once("inc/header.inc.php");
 
-if (!isset($_GET["id"]) || !isset($_GET["key"])) {
-    die("Invalid paramters.");
+
+$has_html = true;
+
+if (!defined("MAIN_UI") || !isset($GenerateJob)) {
+    require_once("../includes/main.inc.php");
+    if (!isset($_GET["id"]) || !isset($_GET["key"])) {
+        die("Invalid paramters.");
+    }
+    $id = $_GET["id"];
+    $key = $_GET["key"];
+
+    $job = new stepa($db, $id);
+    
+    if ($job->get_key() != $key) {
+        die("Invalid key.");
+    }
+
+    $has_html = false;
+} else {
+    $job = $GenerateJob;
 }
-
-$id = $_GET["id"];
-$key = $_GET["key"];
-
-$job = new stepa($db, $id);
-
-if ($job->get_key() != $key) {
-    die("Invalid key.");
-}
-
 
 $ev_data = $job->get_evalue_data();
 
+if (!$has_html) {
 ?>
 
 <!doctype html>
@@ -31,6 +33,7 @@ $ev_data = $job->get_evalue_data();
 </head>
 
 <body>
+<?php } ?>
 
 <div id="plot"></div>
 
@@ -72,6 +75,9 @@ Plotly.newPlot('plot', traces, layout);
 
 </script>
 
+
+<?php if (!$has_html) { ?>
 </body>
 </html>
+<?php } ?>
 

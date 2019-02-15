@@ -332,7 +332,7 @@ class colorssn extends option_base {
         if ($stepe_path) {
             $gid = $this->ssn_source_id;
             $aid = $this->ssn_source_analysis_id;
-            array_push($metadata, array("Original SSN", "<a href='$stepc_path' title='EST $gid'>Original Dataset</a> | <a href='$stepe_path' title='EST Analysis ID $aid'>SSN Download</a>"));
+            array_push($metadata, array("Original SSN Job Number", "$gid/$aid (<a href='$stepc_path' title='EST $gid'>Original Dataset</a> | <a href='$stepe_path' title='EST Analysis ID $aid'>SSN Download</a>)"));
         }
         array_push($metadata, array("Time Started/Finished", global_functions::format_short_date($this->time_started) . " -- " .
             global_functions::format_short_date($this->time_completed)));
