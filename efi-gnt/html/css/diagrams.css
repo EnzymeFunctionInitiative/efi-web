@@ -266,6 +266,14 @@ input.filter-cb {
 }
 
 
+.auto {
+    width: auto;
+}
+.zoom-btn {
+    width: auto;
+}
+
+
 /* Popup */
 
 .info-popup {
@@ -363,5 +371,3 @@ input.filter-cb {
     width: 600px;
     left: 350px;
 }
-
-

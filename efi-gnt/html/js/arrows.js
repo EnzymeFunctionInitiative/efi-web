@@ -5,7 +5,10 @@ var DM_INDEX = 2;
 var ARROW_ADD_PAGE = 0;
 var ARROW_RESET_REFRESH = 1;
 var ARROW_REFRESH = 2;
-var DEFAULT_PAGE_SIZE = 200;
+var DEFAULT_PAGE_SIZE = 20;
+var NB_WINDOW = 90;
+var SCALE_FACTOR = 91;
+var DEFAULT_SCALE_FACTOR = 5;
 
 
 // filterUpdateCb is the callback for updating the UI filter checkboxes, when we CTRL+click to add a family filter.
@@ -35,6 +38,8 @@ function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds, nu
     this.maxDiagrams = 0;
     this.displayedDiagrams = 0;
     this.nbSize = 10;
+    this.scaleType = NB_WINDOW;
+    this.scaleFactor = DEFAULT_SCALE_FACTOR;
 
     this.popupElement = $("#" + this.popupIds.ParentId);
 
@@ -43,7 +48,7 @@ function ArrowDiagram(canvasId, displayModeCbId, canvasContainerId, popupIds, nu
     this.pfamList = {};
     this.groupList = [];
     this.legendGroup = undefined;
-    this.pageSize = typeof numDiagrams === 'undefined' ? DEFAULT_PAGE_SIZE : numDiagramsPerPage;
+    this.pageSize = typeof numDiagramsPerPage === 'undefined' ? DEFAULT_PAGE_SIZE : numDiagramsPerPage;
 
     this.idKeyQueryString = ""; 
 
@@ -63,9 +68,9 @@ ArrowDiagram.prototype.setUiFilterUpdateCb = function(callback) {
     this.filterUpdateCb = callback;
 }
 
-ArrowDiagram.prototype.nextPage = function(callback, pageSize = 20) {
+ArrowDiagram.prototype.nextPage = function(callback, pageSize = 0) {
     this.diagramPage++;
-    this.retrieveArrowData(this.idList, true, ARROW_ADD_PAGE, callback, pageSize);
+    this.retrieveArrowData(this.idList, true, ARROW_ADD_PAGE, callback, this.pageSize);
 }
 
 ArrowDiagram.prototype.refreshCanvas = function(usePaging, callback) {
@@ -97,14 +102,19 @@ ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAct
                 pageString = "&page=" + this.diagramPage;
             pageString += "&pagesize=" + pageSize;
         }
-        var nbSizeString = "&window=" + this.nbSize;
+        var scaleString = "";
+        if (this.scaleType == NB_WINDOW)
+            scaleString = "&window=" + this.nbSize;
+        else if (this.scaleType == SCALE_FACTOR)
+            scaleString = "&scale-factor=" + this.scaleFactor;
+        console.log("Sent scale: " + this.scaleFactor);
 
-
-        var theUrl = "get_neighbor_data.php?" + this.idKeyQueryString + "&query=" + idListQuery + pageString + nbSizeString;
+        var theUrl = "get_neighbor_data.php?" + this.idKeyQueryString + "&query=" + idListQuery + pageString + scaleString;
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", theUrl, true);
         xmlhttp.onload = function() {
             if (this.readyState == 4 && this.status == 200) {
+                console.timeEnd("HTTP");
                 var data = null;
                 var isError = false;
                 try {
@@ -114,15 +124,18 @@ ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAct
                 }
                 var eod = false;
                 if (data !== null) {
-                    that.makeArrowDiagram(data, usePaging, resetCanvas);
+                    console.time("ARROW");
+                    that.makeArrowDiagram(data, usePaging, resetCanvas, callback);
+                    console.timeEnd("ARROW");
                     that.data = data;
                     eod = data.eod;
                 } else {
+                    typeof callback === 'function' && callback(eod, true);
                     that.data = {'data': []};
                 }
-                typeof callback === 'function' && callback(eod, isError);
             }
         };
+        console.time("HTTP");
         xmlhttp.send(null);
     }
 }
@@ -180,7 +193,7 @@ ArrowDiagram.prototype.getPfamColor = function(pfam) {
     }
 }
 
-ArrowDiagram.prototype.makeArrowDiagram = function(data, usePaging, resetCanvas) {
+ArrowDiagram.prototype.makeArrowDiagram = function(data, usePaging, resetCanvas, callback) {
     canvas = document.getElementById(this.canvasId);
     
     //var drawingWidth = canvas.getBoundingClientRect().width - this.padding * 2;
@@ -194,30 +207,43 @@ ArrowDiagram.prototype.makeArrowDiagram = function(data, usePaging, resetCanvas)
 
     this.maxDiagrams = data.counts.max;
     this.displayedDiagrams = data.counts.displayed;
+    this.scaleFactor = data.scale_factor;
 
     var drawingWidth = this.initialWidth - this.padding * 2;
 
     var i = usePaging && !resetCanvas ? this.diagramCount : 0;
 
-    var maxDiagramWidthBp = 1;
-    //for (seqId in data.data) {
-    for (var oi = 0; oi < data.data.length; oi++) {
-        this.drawDiagram(canvas, i, data.data[oi], drawingWidth);
-        //var diagramWidthBp = this.drawDiagram(canvas, i, data.data[oi], drawingWidth);
-        //if (diagramWidthBp > maxDiagramWidthBp)
-        //    maxDiagramWidthBp = diagramWidthBp;
-        i++;
+    var arrowUi = this;
+    function finishDrawing() {
+        var extraPadding = 60; // for popup for last one
+        var ypos = arrowUi.diagramCount * arrowUi.diagramHeight + arrowUi.padding * 2 + arrowUi.fontHeight;
+        arrowUi.S.attr({viewBox: "0 0 " + arrowUi.initialWidth + " " + ypos});
+        document.getElementById(arrowUi.canvasId).setAttribute("style","height:" + (ypos + arrowUi.diagramHeight + arrowUi.padding + extraPadding) + "px");
     }
-    this.diagramCount = i;
-
-    this.drawLegendLine(canvas, i, data, drawingWidth);
-    //this.drawLegendLine(canvas, i, maxDiagramWidthBp, drawingWidth);
     
-    //var canvasHeight = canvas.getBoundingClientRect().height;
-    var extraPadding = 60; // for popup for last one
-    var ypos = this.diagramCount * this.diagramHeight + this.padding * 2 + this.fontHeight;
-    this.S.attr({viewBox: "0 0 " + this.initialWidth + " " + ypos});
-    document.getElementById(this.canvasId).setAttribute("style","height:" + (ypos + this.diagramHeight + this.padding + extraPadding) + "px");
+    var chunkSize = 10; // we effectively disable this here, since we're going to do batch retrievals instead of batch drawing.
+    var chunkIndex = 0;
+    function batchDraw() {
+        var cs = chunkSize;
+        while (cs-- && chunkIndex < data.data.length) {
+            arrowUi.drawDiagram(canvas, i, data.data[chunkIndex], drawingWidth);
+            i++;
+            chunkIndex++;
+        }
+        if (chunkIndex < data.data.length) {
+            console.log("Shown " + chunkIndex + " of " + data.data.length + " diagrams");
+            arrowUi.diagramCount = i;
+            finishDrawing();
+            setTimeout(batchDraw, 1);
+        } else {
+            arrowUi.diagramCount = i;
+            finishDrawing();
+            arrowUi.drawLegendLine(canvas, arrowUi.diagramCount, data, drawingWidth);
+            arrowUi.scaleType = SCALE_FACTOR;
+            typeof callback === 'function' && callback(data.eod, false);
+        }
+    }
+    batchDraw();
 }
 
 ArrowDiagram.prototype.drawLegendLine = function(canvas, index, data, drawingWidth) {
@@ -1009,6 +1035,21 @@ ArrowDiagram.prototype.getDiagramCounts = function() {
 
 ArrowDiagram.prototype.setNeighborhoodWindow = function(nbSize) {
     this.nbSize = nbSize;
+    this.scaleType = NB_WINDOW;
+}
+
+ArrowDiagram.prototype.setScaleFactor = function(scaleFactor) {
+    this.scaleFactor = scaleFactor;
+    this.scaleType = SCALE_FACTOR;
+}
+
+ArrowDiagram.prototype.getScaleFactor = function() {
+    return this.scaleFactor;
+}
+
+ArrowDiagram.prototype.resetScaleFactor = function() {
+    this.scaleType = NB_WINDOW;
+    this.scaleFactor = DEFAULT_SCALE_FACTOR;
 }
 
 ArrowDiagram.prototype.setIdList = function(idList) {
