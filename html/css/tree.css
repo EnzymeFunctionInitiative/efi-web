@@ -49,3 +49,15 @@ span.date {
     font-size: 0.9em;
 }
 
+.bold {
+    font-weight: bold;
+}
+
+a {
+    font-weight: normal;
+}
+
+.hidden {
+    display: none;
+}
+
