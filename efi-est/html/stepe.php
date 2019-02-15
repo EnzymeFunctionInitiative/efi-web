@@ -47,7 +47,7 @@ $legacy = empty($db_version); // Indicates if we are looking at old jobs.
 $gen_type = $generate->get_type();
 $formatted_gen_type = functions::format_job_type($gen_type);
 
-$table->add_row_with_html("EST Job Number", "<a href='stepc.php?id=$generate_id&key=$key'>$generate_id</a>");
+$table->add_row_with_html("EST Job Number", "$generate_id (<a href='stepc.php?id=$generate_id&key=$key'>Original Dataset</a>)");
 $table->add_row("Time Started/Finished", $time_window);
 if (!empty($db_version)) {
     $table->add_row("Database Version", $db_version);

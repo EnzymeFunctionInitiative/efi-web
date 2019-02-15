@@ -305,6 +305,7 @@ if (isset($_GET["as-table"])) {
 }
 else {
 
+    $IncludePlotlyJs = true;
     require_once 'inc/header.inc.php'; 
 
 
@@ -333,9 +334,31 @@ else {
         return $html;
     }
 
+    function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {
+        $plot = plots::get_plot($gen, $plot_id);
+        if (!$plot || !$plot->has_data())
+            return "";
 
+        $data = $plot->render_data(); // Javascript notation
+        $plotly = $plot->render_plotly_config(); // Javascript code
+        $trace_var = $plot->get_trace_var();
+        $layout_var = $plot->get_layout_var();
 
-    $has_edge_evalue_data = $generate->get_has_edge_evalue_data();
+        $html = <<<HTML
+                <span class="plot_header">$hdr</span>
+                <button class="accordion" type="button">View</button>
+                <div class="acpanel">
+                    <div id="$plot_div"></div>
+                    <script>
+                        $data
+                        $plotly
+                        Plotly.newPlot("$plot_div", $trace_var, $layout_var);
+                    </script>
+                </div>
+HTML;
+        echo $html;
+    }
+
 
 
 ?>	
@@ -397,6 +420,10 @@ should or should not be connected in a network is needed. This will determine th
 <h3>Analyze your data set<a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
 <p>View plots and histogram to determine the appropriate lengths and alignment score before continuing.</p>
 
+<?php 
+        make_interactive_plot($generate, "Edge Count vs Alignment Score Plot", "edge-evalue-plot", "edge_evalue");
+?>
+
 <?php echo make_plot_download($generate, "Number of Edges Histogram", "EDGES", $generate->get_number_edges_plot_sm(), $generate->get_number_edges_plot(1), $generate->number_edges_plot_exists()); ?>
 
 <?php echo make_plot_download($generate, "Length Histogram", "HISTOGRAM", $generate->get_length_histogram_plot_sm(), $generate->get_length_histogram_plot(1), $generate->length_histogram_plot_exists()); ?>
@@ -406,15 +433,6 @@ should or should not be connected in a network is needed. This will determine th
 <?php echo make_plot_download($generate, "Alignment Length Quartile Plot", "ALIGNMENT", $generate->get_alignment_plot_sm(), $generate->get_alignment_plot(1), $generate->alignment_plot_exists()); ?>
 
 <?php echo make_plot_download($generate, "Percent Identity Quartile Plot", "IDENTITY", $generate->get_percent_identity_plot_sm(), $generate->get_percent_identity_plot(1), $generate->percent_identity_plot_exists()); ?>
-
-<?php if ($has_edge_evalue_data) { ?>
-                <span class='plot_header'>Edge Count vs Alignment Score Plot</span>
-                <button id="edge-evalue-button" class="accordion" type="button">Preview</button>
-<!--                <button id="edge-evalue-button" type="button" style="margin-top: 20px">Preview</button>-->
-                <div id="edge-evalue-chart" class="acpanel">
-                    <iframe id="edge-evalue-iframe" src="edge_evalue.php?<?php echo "id=$gen_id&key=$key"; ?>" width="900" height="500" style="border: none"></iframe>
-                </div>
-<?php } ?>
 
 
 <hr><p><br></p>
