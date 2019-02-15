@@ -33,7 +33,7 @@ foreach ($jobs as $job) {
 		$gnn_html .= "<td><a href='" . $url ."'><span class='glyphicon glyphicon-share'></span></a></td>";
     }
     $tco = $job['Time Completed'];
-    if (strpos($tco, "0000") !== FALSE)
+    if ($tco != __FINISH__ || strpos($tco, "0000") !== FALSE)
         $tco = "<span title=\"" . $job['PBS Number'] . "\">" . $job['Status'] . "</span>";
     else
         $tco = str_replace(" ", "&nbsp;", global_functions::format_short_date($tco));

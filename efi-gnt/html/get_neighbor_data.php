@@ -59,6 +59,12 @@ $window = NULL;
 if (isset($_GET["window"]) && is_numeric($_GET["window"])) {
     $window = intval($_GET["window"]);
 }
+$scaleFactor = NULL;
+if (isset($_GET["scale-factor"]) && is_numeric($_GET["scale-factor"])) {
+    $scaleFactor = floatval($_GET["scale-factor"]);
+    if ($scaleFactor < 0.00000001 || $scaleFactor > 1000000.0)
+        $scaleFactor = NULL;
+}
 
 $pageSize = 20;
 if (isset($_GET["pagesize"]) && is_numeric($_GET["pagesize"])) {
@@ -76,7 +82,6 @@ if ($message) {
     exit;
 }
 
-
 if (array_key_exists("query", $_GET)) {
     $queryString = strtoupper($_GET["query"]);
     $queryString = str_replace("\n", ",", $queryString);
@@ -87,7 +92,9 @@ if (array_key_exists("query", $_GET)) {
     $blastId = getBlastId();
     //$orderData = getOrder($blastId, $items, $dbFile, $blastCacheDir, $gnn);
     $orderData = getDefaultOrder();
-    $arrowData = getArrowData($items, $dbFile, $orderData, $window, $isDirectJob, $pageSize);
+
+    $arrowData = getArrowData($items, $dbFile, $orderData, $window, $scaleFactor, $isDirectJob, $pageSize);
+    $output["scale_factor"] = $arrowData["scale_factor"];
     $output["eod"] = $arrowData["eod"];
     $output["counts"] = $arrowData["counts"];
     $output["IDS"] = $arrowData["IDS"];
@@ -149,7 +156,7 @@ function getFamilies($dbFile) {
 
 
 
-function getArrowData($items, $dbFile, $orderDataStruct, $window, $isDirectJob, $pageSize) {
+function getArrowData($items, $dbFile, $orderDataStruct, $window, $scaleFactor, $isDirectJob, $pageSize) {
 
     $orderData = $orderDataStruct['order'];
     $output = array();
@@ -199,7 +206,6 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $isDirectJob, 
         if ($queryWidth > $maxQueryWidth)
             $maxQueryWidth = $queryWidth;
 
-
         $nbSql = "SELECT * FROM neighbors WHERE gene_key = '" . $row['sort_key'] . "'";
         if ($window !== NULL) {
             //TODO: handle circular case
@@ -232,7 +238,7 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $isDirectJob, 
     if (!$output["eod"])
         $output["counts"]["displayed"]--;
 
-    $output = computeRelativeCoordinates($output, $minBp, $maxBp, $maxQueryWidth);
+    $output = computeRelativeCoordinates($output, $minBp, $maxBp, $maxQueryWidth, $scaleFactor);
     
     return $output;
 }
@@ -264,9 +270,19 @@ function sortNodes($a, $b) {
 }
 
 
-function computeRelativeCoordinates($output, $minBp, $maxBp, $maxQueryWidth) {
-    $maxSide = (abs($maxBp) > abs($minBp)) ? abs($maxBp) : abs($minBp);
-    $maxWidth = $maxSide * 2 + $maxQueryWidth;
+function computeRelativeCoordinates($output, $minBp, $maxBp, $maxQueryWidth, $scaleFactor) {
+
+    if ($scaleFactor !== NULL) {
+        $maxWidth = 300000 / $scaleFactor; // scale factor is between 1 and 100 (specifying the scale factor as a percentage of the screen width = 1000AA) the data points in the file are given in bp so we x3 to get the factor in bp
+        $maxQueryWidth = 0;
+        $maxSide = $maxWidth / 2;
+    } else {
+        $maxSide = (abs($maxBp) > abs($minBp)) ? abs($maxBp) : abs($minBp);
+        $maxWidth = $maxSide * 2 + $maxQueryWidth;
+        if ($maxWidth < 0.000001)
+            $maxWidth = 1;
+        $scaleFactor = 300000 / $maxWidth;
+    }
     $minBp = -$maxSide;
     $maxBp = $maxSide + $maxQueryWidth;
 
@@ -290,7 +306,7 @@ function computeRelativeCoordinates($output, $minBp, $maxBp, $maxQueryWidth) {
             $maxPct = $acEnd;
         if ($acStart < $minPct)
             $minPct = $acStart;
-    
+
         foreach ($output["data"][$i]["neighbors"] as $idx => $data2) {
             $nbStartBp = $output["data"][$i]["neighbors"][$idx]["rel_start_coord"];
             $nbWidthBp = $output["data"][$i]["neighbors"][$idx]["rel_stop_coord"] - $output["data"][$i]["neighbors"][$idx]["rel_start_coord"];
@@ -308,11 +324,11 @@ function computeRelativeCoordinates($output, $minBp, $maxBp, $maxQueryWidth) {
     }
 
     $output["legend_scale"] = ($maxBp - $minBp);
-    //$output["legend_scale"] = (($maxBp - $minBp) * ($maxPct - $minPct)) / 2 - $maxQueryWidth;// / 2 - $maxQueryWidth;
     $output["min_pct"] = $minPct;
     $output["max_pct"] = $maxPct;
     $output["min_bp"] = $minBp;
     $output["max_bp"] = $maxBp;
+    $output["scale_factor"] = $scaleFactor;
 
     return $output;
 }

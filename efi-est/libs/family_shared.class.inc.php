@@ -207,7 +207,7 @@ abstract class family_shared extends option_base {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private function verify_families($families) {
-        $family_array = explode(",",$families);
+        $family_array = family_size::parse_family_query($families);
         $valid = 0;
         foreach ($family_array as $family) {
             $family = trim(rtrim($family));

@@ -37,7 +37,8 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         if ($job_info !== false) {
             $gnn_parent_id = $parent_id;
             $parent_file_name = $job_info['filename'];
-            $email = $job_info['email'];
+            if (!$email) // we want to set the email address to the parent job email address if none is specified.
+                $email = $job_info['email'];
         }
     }
 

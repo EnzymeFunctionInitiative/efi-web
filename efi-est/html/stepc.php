@@ -56,6 +56,24 @@ if (isset($_POST['analyze_data'])) {
         $customFile = $_FILES['cluster_file']['tmp_name'];
     }
 
+    $filter = "";
+    $filter_value = 0;
+    if (isset($_POST['filter'])) {
+        $filter = $_POST['filter'];
+        if ($filter == "eval") {
+            $filter_value = $_POST['evalue'];
+        } elseif ($filter == "pid") {
+            $filter_value = $_POST['pid'];
+        } elseif ($filter == "bit") {
+            $filter_value = $_POST['bitscore'];
+        } elseif ($filter != "custom") {
+            $filter = "eval";
+        }
+    } else {
+        $filter = "eval";
+        $filter_value = $_POST['evalue'];
+    }
+
     if (user_auth::has_token_cookie()) {
         $email = user_auth::get_email_from_token($db, user_auth::get_user_token());
         if (functions::is_job_sticky($db, $job_id, $email)) {
@@ -83,12 +101,14 @@ if (isset($_POST['analyze_data'])) {
 
     $result = $analysis->create(
         $job_id,
-        $_POST['evalue'],
+        $filter_value,
         $_POST['network_name'],
         $min,
         $max,
         $customFile,
-        $cdhitOpt);
+        $cdhitOpt,
+        $filter
+    );
 
     if ($result['RESULT']) {
         header('Location: stepd.php');
@@ -113,6 +133,7 @@ $web_address = dirname($_SERVER['PHP_SELF']);
 $time_window = $generate->get_time_period();
 $db_version = $generate->get_db_version();
 
+$useAdvancedOptions = functions::custom_clustering_enabled();
 
 $gen_type = $generate->get_type();
 $formatted_gen_type = functions::format_job_type($gen_type);
@@ -284,6 +305,7 @@ if (isset($_GET["as-table"])) {
 }
 else {
 
+    $IncludePlotlyJs = true;
     require_once 'inc/header.inc.php'; 
 
 
@@ -312,9 +334,31 @@ else {
         return $html;
     }
 
+    function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {
+        $plot = plots::get_plot($gen, $plot_id);
+        if (!$plot || !$plot->has_data())
+            return "";
 
+        $data = $plot->render_data(); // Javascript notation
+        $plotly = $plot->render_plotly_config(); // Javascript code
+        $trace_var = $plot->get_trace_var();
+        $layout_var = $plot->get_layout_var();
 
-    $has_edge_evalue_data = $generate->get_has_edge_evalue_data();
+        $html = <<<HTML
+                <span class="plot_header">$hdr</span>
+                <button class="accordion" type="button">View</button>
+                <div class="acpanel">
+                    <div id="$plot_div"></div>
+                    <script>
+                        $data
+                        $plotly
+                        Plotly.newPlot("$plot_div", $trace_var, $layout_var);
+                    </script>
+                </div>
+HTML;
+        echo $html;
+    }
+
 
 
 ?>	
@@ -376,6 +420,10 @@ should or should not be connected in a network is needed. This will determine th
 <h3>Analyze your data set<a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
 <p>View plots and histogram to determine the appropriate lengths and alignment score before continuing.</p>
 
+<?php 
+        make_interactive_plot($generate, "Edge Count vs Alignment Score Plot", "edge-evalue-plot", "edge_evalue");
+?>
+
 <?php echo make_plot_download($generate, "Number of Edges Histogram", "EDGES", $generate->get_number_edges_plot_sm(), $generate->get_number_edges_plot(1), $generate->number_edges_plot_exists()); ?>
 
 <?php echo make_plot_download($generate, "Length Histogram", "HISTOGRAM", $generate->get_length_histogram_plot_sm(), $generate->get_length_histogram_plot(1), $generate->length_histogram_plot_exists()); ?>
@@ -392,17 +440,19 @@ should or should not be connected in a network is needed. This will determine th
 
 <form name="define_length" method="post" action="<?php echo $url; ?>" class="align_left" enctype="multipart/form-data">
 
-<?php if (functions::custom_clustering_enabled()) { ?>
 <div class="tabs">
     <ul class="tab-headers">
-        <li class="active"><a href="#threshold">Alignment Score Threshold</a></li>
-        <li><a href="#custom">Custom Clustering</a></li>
+        <li class="active"><a href="#threshold-eval">Alignment Score Threshold</a></li>
+        <li><a href="#threshold-pid">Percent ID Threshold</a></li>
+        <li><a href="#threshold-bit">Bit Score Threshold</a></li>
+<?php if ($useAdvancedOptions) { ?>
+        <li><a href="#threshold-custom">Custom Clustering</a></li>
+<?php } ?>
     </ul>
 
-    <div class="tab-content" style="min-height: 300px">
-        <div id="threshold" class="tab active">
-<?php } ?>
-            <h3>1: Alignment score for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
+    <div class="tab-content" style="min-height: 220px">
+        <div id="threshold-eval" class="tab active">
+            <h3>Alignment score for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
             <p>Select a lower limit for the aligment score for the output files. You will input an integer which represents the exponent of 10<sup>-X</sup> where X is the integer.</p>
 
             <p><input type="text" name="evalue" <?php if (isset($_POST['evalue'])) { echo "value='" . $_POST['evalue'] ."'"; } ?>>
@@ -410,44 +460,34 @@ should or should not be connected in a network is needed. This will determine th
 
             This score is the similarity threshold which determine the connection of proteins with each other. All pairs of proteins with a similarity score below this number will not be connected. Sets of connected proteins will form clusters.
 
-<?php if (functions::file_size_graph_enabled()) { ?>
-            <br><button id="file-size-button" class="mini" type="button" style="margin-top: 20px">View Node-Edge-File Size Chart</button>
-            <div id="node-edge-chart" class="advanced-options" style="display: none;">
-                <iframe id="file-size-iframe" src="<?php echo $SiteUrlPrefix; ?>/node_edge_filesize.php" width="900" height="500" style="border: none"></iframe>
-            </div>
-<?php } ?>
+        </div>
+        <div id="threshold-pid" class="tab">
+            <h3>Percent ID for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
+            <p>Select a lower limit for the percent ID to use as a lower threshold for clustering in the SSN.</p>
 
-<?php if ($has_edge_evalue_data) { ?>
-            <br><button id="edge-evalue-button" class="mini" type="button" style="margin-top: 20px">View Edge Count vs Alignment Score Chart</button>
-            <div id="edge-evalue-chart" style="display: none;">
-                <iframe id="edge-evalue-iframe" src="edge_evalue.php?<?php echo "id=$gen_id&key=$key"; ?>" width="900" height="500" style="border: none"></iframe>
-            </div>
-<?php } ?>
+            <p><input type="text" name="pid" <?php if (isset($_POST['pid'])) { echo "value='" . $_POST['pid'] ."'"; } ?>>
+            % ID</p>
 
-            <hr>
-            <h3>2: Sequence length restriction  <a href="tutorial_analysis.php" class="question" target="_blank">?</a>
-                <span style='color:red'>Optional</span></h3>
-            <p> This option can be used to restrict sequences used based on their length.</p>
+            This score is the similarity threshold which determine the 
+            connection of proteins with each other. All pairs of proteins with a percent
+            ID below this number will not be connected. Sets of connected proteins will 
+            form clusters.
+        </div>
+        <div id="threshold-bit" class="tab">
+            <h3>Bit score for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
+            <p>Select a lower limit for the bit score to use as a lower threshold for clustering in the SSN.</p>
+
+            <p><input type="text" name="bitscore" <?php if (isset($_POST['bitscore'])) { echo "value='" . $_POST['bitscore'] ."'"; } ?>></p>
 
             <p>
-                <input type="text" name="minimum" maxlength='20' <?php if (isset($_POST['minimum'])) { echo "value='" . $_POST['minimum'] . "'"; } ?>> Min (Defaults: <?php echo __MINIMUM__; ?>)<br>
-                <input type="text" name="maximum" maxlength='20' <?php if (isset($_POST['maximum'])) { echo "value='" . $_POST['maximum'] . "'"; } ?>> Max (Defaults: <?php echo __MAXIMUM__; ?>)
-            </p>
-
-<?php if (functions::custom_clustering_enabled()) { ?>
-            <hr>
-            <h3>3: CD-HIT Clustering Options (For Repnode Networks)
-                <span style='color:red'>Optional</span></h3>
-            <p>
-                <input type="radio" name="cdhit-opt" value="sb" id="cdhit-opt-sb">
-                    <label for="cdhit-opt-sb">ShortBRED (-b 10, -g 1, -n 5)</label><br>
-                <input type="radio" name="cdhit-opt" value="est+" id="cdhit-opt-est-g1"> 
-                    <label for="cdhit-opt-est-g1">Legacy EST, accurate mode (-g 1)</label><br>
-                <input type="radio" name="cdhit-opt" value="est" id="cdhit-opt-est" checked> 
-                    <label for="cdhit-opt-est">Legacy EST</label>
+            This score is the similarity threshold which determine the 
+            connection of proteins with each other. All pairs of proteins with a bit score
+            below this number will not be connected. Sets of connected proteins will 
+            form clusters.
             </p>
         </div>
-        <div id="custom" class="tab">
+<?php if ($useAdvancedOptions) { ?>
+        <div id="threshold-custom" class="tab">
             <h3>Custom Clustering File <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
             
             A file specifying which proteins are in what cluster can be uploaded.  The file must be givein in the format below.
@@ -462,13 +502,44 @@ Protein_ID_3,Cluster#
 <?php echo ui::make_upload_box("Custom cluster file (text)", "cluster_file", "progress-bar-cluster", "progress-num-cluster"); ?>
             </div>
         </div>
-    </div>
-</div>
 <?php } ?>
+    </div>
+
+    <input type="hidden" name="filter" id="filter-type" value="eval" />
+
+            <h3>Sequence length restriction  <a href="tutorial_analysis.php" class="question" target="_blank">?</a>
+                <span style='color:red'>Optional</span></h3>
+            <p> This option can be used to restrict sequences used based on their length.</p>
+
+            <p>
+                <input type="text" name="minimum" maxlength='20' <?php if (isset($_POST['minimum'])) { echo "value='" . $_POST['minimum'] . "'"; } ?>> Min (Defaults: <?php echo __MINIMUM__; ?>)<br>
+                <input type="text" name="maximum" maxlength='20' <?php if (isset($_POST['maximum'])) { echo "value='" . $_POST['maximum'] . "'"; } ?>> Max (Defaults: <?php echo __MAXIMUM__; ?>)
+            </p>
+
+<?php if ($useAdvancedOptions) { ?>
+            <hr>
+            <h3>CD-HIT Clustering Options (For Repnode Networks)
+                <span style='color:red'>Optional</span></h3>
+            <p>
+                <input type="radio" name="cdhit-opt" value="sb" id="cdhit-opt-sb">
+                    <label for="cdhit-opt-sb">ShortBRED (-b 10, -g 1, -n 5)</label><br>
+                <input type="radio" name="cdhit-opt" value="est+" id="cdhit-opt-est-g1"> 
+                    <label for="cdhit-opt-est-g1">Legacy EST, accurate mode (-g 1)</label><br>
+                <input type="radio" name="cdhit-opt" value="est" id="cdhit-opt-est" checked> 
+                    <label for="cdhit-opt-est">Legacy EST</label>
+            </p>
+<?php } ?>
+<?php if (functions::file_size_graph_enabled()) { ?>
+            <br><button id="file-size-button" class="mini" type="button" style="margin-top: 20px">View Node-Edge-File Size Chart</button>
+            <div id="node-edge-chart" class="advanced-options" style="display: none;">
+                <iframe id="file-size-iframe" src="<?php echo $SiteUrlPrefix; ?>/node_edge_filesize.php" width="900" height="500" style="border: none"></iframe>
+            </div>
+<?php } ?>
+</div>
 
 
 <hr>
-<h3><?php if (!functions::custom_clustering_enabled()) { echo "3: "; } ?>Provide Network Name</h3>
+<h3>Provide Network Name</h3>
 
 <p>
     <input type="text" name="network_name" <?php if (isset($_POST['network_name'])) { echo "value='" . $_POST['network_name'] . "'";} ?>>
@@ -557,11 +628,11 @@ $(document).ready(function() {
     });
     
     $('#edge-evalue-button').click(function() {
-        $header = $(this);
-        //getting the next element
-        $content = $header.next();
-        //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
-        $content.toggle();
+//        $header = $(this);
+//        //getting the next element
+//        $content = $header.next();
+//        //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+//        $content.toggle();
         edgeIframe.attr('src', function() {
             return $(this).data('src');
         });
@@ -582,6 +653,8 @@ $(document).ready(function() {
     $(document).ready(function() {
         $(".tabs .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");
+            var filterType = curAttrValue.substr(11);
+            $("#filter-type").val(filterType);
             $(".tabs " + curAttrValue).fadeIn(300).show().siblings().hide();
             $(this).parent("li").addClass("active").siblings().removeClass("active");
             e.preventDefault();

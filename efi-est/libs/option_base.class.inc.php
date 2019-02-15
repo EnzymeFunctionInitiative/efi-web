@@ -10,6 +10,7 @@ abstract class option_base extends stepa {
     protected $max_blast_failed = "accession.txt.failed";
     protected $bad_import_format = "blast.failed";
     protected $db_mod = "";
+    protected $num_cpu = 0;
 
 
     public function __construct($db, $id = 0) {
@@ -27,6 +28,7 @@ abstract class option_base extends stepa {
 //        return strtoupper($db_mod);
 //    }
 
+    public function get_num_cpu() { return functions::get_cluster_procs() * ($this->cpu_x2 ? 2 : 1); }
 
     public function get_sequence_max() { return $this->sequence_max; }
 
@@ -130,6 +132,9 @@ abstract class option_base extends stepa {
         }
         $this->db_mod = $db_mod;
 
+        $cpu_x2 = isset($result["generate_cpu_x2"]) ? $result["generate_cpu_x2"] : false;
+        $this->cpu_x2 = $cpu_x2;
+
         return $result;
     }
 
@@ -162,6 +167,8 @@ abstract class option_base extends stepa {
             $insert_array['generate_job_name'] = $data->job_name;
         if (isset($data->db_mod) && preg_match("/^[A-Z0-9]{4}/", $data->db_mod))
             $insert_array['generate_db_mod'] = $data->db_mod;
+        if (isset($data->cpu_x2) && $data->cpu_x2 === true)
+            $insert_array['generate_cpu_x2'] = $data->cpu_x2;
         return $insert_array;
     }
 

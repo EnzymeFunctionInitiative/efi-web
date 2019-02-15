@@ -89,7 +89,7 @@ class user_jobs extends user_auth {
 
         $sql = self::get_select_statement() .
             "WHERE (generate_email = '$email') AND generate_status != 'ARCHIVED' AND " .
-            "(generate_time_completed >= '$expDate' OR (generate_time_created >= '$expDate' AND (generate_status = 'NEW' OR generate_status = 'RUNNING'))) " .
+            "(generate_time_completed >= '$expDate' OR (generate_time_created >= '$expDate' AND (generate_status = 'NEW' OR generate_status = 'RUNNING' OR generate_status = 'FAILED'))) " .
             "ORDER BY generate_status, generate_time_completed DESC";
         $rows = $db->query($sql);
 
@@ -135,7 +135,7 @@ class user_jobs extends user_auth {
                     "date_completed" => $comp, "is_colorssn" => $row["generate_type"] == "COLORSSN"));
 
             if ($isCompleted && $includeAnalysisJobs) {
-                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length FROM analysis " .
+                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter FROM analysis " .
                     "WHERE analysis_generate_id = $id ";
                 if (!$includeFailedAnalysisJobs)
                     $sql .= "AND analysis_status = 'FINISH'";
@@ -147,8 +147,10 @@ class user_jobs extends user_auth {
                     $aIsCompleted = $acompResult[0];
                     $aMin = $arow["analysis_min_length"] == __MINIMUM__ ? "" : "Min=".$arow["analysis_min_length"];
                     $aMax = $arow["analysis_max_length"] == __MAXIMUM__ ? "" : "Max=".$arow["analysis_max_length"];
+                    $filter = $arow["analysis_filter"];
+                    $filter = $filter == "eval" ? "AS" : ($filter == "pid" ? "%ID" : ($filter == "bit" ? "BS" : "custom"));
 
-                    $aJobName = "AS=" . $arow["analysis_evalue"] . " $aMin $aMax Title=<i>" . $arow["analysis_name"] . "</i>";
+                    $aJobName = "$filter=" . $arow["analysis_evalue"] . " $aMin $aMax Title=<i>" . $arow["analysis_name"] . "</i>";
 
                     array_push($jobs, array("id" => $id, "key" => $key, "analysis_id" => $arow["analysis_id"],
                             "job_name" => $aJobName,

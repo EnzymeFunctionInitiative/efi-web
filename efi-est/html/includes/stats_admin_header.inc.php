@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <title>EFI-EST Statistics</title>
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/bs/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/bs/css/bootstrap.min.css">
 <style>
 /*.families-col {
     max-width: 200px;
