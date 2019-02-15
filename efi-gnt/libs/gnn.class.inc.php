@@ -267,7 +267,6 @@ class gnn extends gnn_shared {
         $exec .= " -cluster-sizes \"" . $this->get_cluster_sizes_file() . "\"";
         $exec .= " -sp-clusters-desc \"" . $this->get_swissprot_desc_file($want_clusters) . "\"";
         $exec .= " -sp-singletons-desc \"" . $this->get_swissprot_desc_file($want_singles) . "\"";
-#        $exec .= " -\"" . $this->get_stats() . "\"";
         $exec .= " -warning-file \"" . $this->get_warning_file() . "\"";
         $exec .= " -pfam \"" . $this->get_pfam_hub() . "\"";
         $exec .= " -pfam-dir \"" . $this->get_pfam_data_dir()  . "\"";
@@ -275,6 +274,7 @@ class gnn extends gnn_shared {
         $exec .= " -split-pfam-dir \"" . $this->get_split_pfam_data_dir()  . "\"";
         $exec .= " -all-split-pfam-dir \"" . $this->get_all_split_pfam_data_dir()  . "\"";
         $exec .= " -id-out \"" . $this->get_id_table_file() . "\"";
+        $exec .= " -id-out-domain \"" . $this->get_id_table_file(true) . "\"";
         $exec .= " -none-dir \"" . $this->get_pfam_none_dir() . "\"";
         
         if (!$this->is_sync) {
@@ -470,11 +470,13 @@ class gnn extends gnn_shared {
         return $this->shared_get_relative_file_path("_all_split_pfam_mapping", ".zip");
     }
 
-    public function get_id_table_file() {
-        return $this->shared_get_full_file_path("_mapping_table", ".txt");
+    public function get_id_table_file($with_domain = false) {
+        $with_domain_str = $with_domain ? "_domain" : "";
+        return $this->shared_get_full_file_path("_mapping_table$with_domain_str", ".txt");
     }
-    public function get_relative_id_table_file() {
-        return $this->shared_get_relative_file_path("_mapping_table", ".txt");
+    public function get_relative_id_table_file($with_domain = false) {
+        $with_domain_str = $with_domain ? "_domain" : "";
+        return $this->shared_get_relative_file_path("_mapping_table$with_domain_str", ".txt");
     }
     public function get_relative_swissprot_desc_file_path($want_clusters_file) {
         $filename = $this->get_swissprot_desc_filename($want_clusters_file);
@@ -604,8 +606,8 @@ class gnn extends gnn_shared {
         $file = $this->get_pfam_hub_zipfile();
         return $this->get_shared_file_size($file);
     }
-    public function get_id_table_filesize() {
-        $file = $this->get_id_table_file();
+    public function get_id_table_filesize($with_domain = false) {
+        $file = $this->get_id_table_file($with_domain);
         return $this->get_shared_file_size($file);
     }
     public function get_cooc_table_filesize() {
@@ -1011,10 +1013,14 @@ class gnn extends gnn_shared {
 
         array_push($metadata, array("Job Number", $this->id));
         if ($source_info !== false) {
-            if ($this->gnn_parent_id)
-                array_push($metadata, array("Original GNT Job Number", "<a href=\"stepc.php?id=$this->gnn_parent_id&key=$source_info\">$this->gnn_parent_id</a>"));
-            else
-                array_push($metadata, array("Original EST Job Number", "<a href=\"../efi-est/stepe.php?id=" . $source_info['generate_id'] . "&key=" . $source_info['key'] . "&analysis_id=" . $source_info['analysis_id'] . "\" class=\"hl-est\">" . $source_info['generate_id'] . "/" . $source_info['analysis_id'] . "</a>"));
+            if ($this->gnn_parent_id) {
+                array_push($metadata, array("Original GNT Job Number", "<a href='stepc.php?id=$this->gnn_parent_id&key=$source_info'>$this->gnn_parent_id</a>"));
+            } else {
+                $gid = $source_info["generate_id"];
+                $aid = $source_info["analysis_id"];
+                $key = $source_info["key"];
+                array_push($metadata, array("Original EST Job Number", "$gid/$aid (<a href='../efi-est/stepc.php?id=$gid&key=$key' class='hl-est'>Original EST Dataset</a> | <a href='../efi-est/stepe.php?id=$gid&key=$key&analysis_id=$aid' class='hl-est'>Original SSN Download</a>)"));
+            }
         }
         array_push($metadata, array("Time Started/Finished", global_functions::format_short_date($this->time_started) . " -- " .
             global_functions::format_short_date($this->time_completed)));

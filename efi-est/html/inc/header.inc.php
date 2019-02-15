@@ -36,9 +36,11 @@ include("../../html/inc/global_login_button.inc.php");
     <script src="<?php echo $SiteUrlPrefix; ?>/js/accordion.js" type="text/javascript"></script>
     <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-3.2.1.min.js" type="text/javascript"></script>
     <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.js" type="text/javascript"></script>
+<?php if (isset($IncludePlotlyJs)) { ?>
+    <script src="<?php echo $SiteUrlPrefix; ?>/js/plotly-1.42.5.min.js" type="text/javascript"></script>
+<?php } ?>
 <?php if (isset($IncludeSubmitJs)) { ?>
     <script src="js/submit.js" type="text/javascript"></script>
-    <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
     <script src="js/family_size_helper.js" type="text/javascript"></script>
 <?php } else { /* ?>
     <script src="js/submit.js" type="text/javascript"></script>

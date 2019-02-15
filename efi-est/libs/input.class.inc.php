@@ -10,6 +10,7 @@ class input_data {
     public $max_seqs;
     public $random_fraction;
     public $db_mod;
+    public $cpu_x2;
 
     // For option A, C, D
     public $field_input;

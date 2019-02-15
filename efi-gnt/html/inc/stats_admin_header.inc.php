@@ -2,6 +2,7 @@
 <html lang='en'>
 <head>
 <title>EFI-GNT Statistics</title>
+<link rel="stylesheet" type="text/css" href="/font-awesome/css/fontawesome-all.min.css">
 <link rel="stylesheet" type="text/css" href="/bs/css/bootstrap.min.css">
 <style>
 td.file_col { max-width: 450px; overflow-wrap: break-word; }

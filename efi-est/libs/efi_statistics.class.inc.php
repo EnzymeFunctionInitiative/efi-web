@@ -100,10 +100,11 @@ class efi_statistics
 
         $results = $db->query($sql);
         for ($i = 0; $i < count($results); $i++) {
-            $res_obj = functions::decode_object($results[$i]['generate_params']);
-            $results[$i]['Blast'] = $res_obj['generate_blast'];
-            $results[$i]['Families'] = $res_obj['generate_families'];
-            $results[$i]['Number of Sequences'] = $res_obj['generate_num_seq'];
+            $params = functions::decode_object($results[$i]['generate_params']);
+            $res_obj = functions::decode_object($results[$i]['generate_results']);
+            $results[$i]['Blast'] = isset($params['generate_blast']) ? $params['generate_blast'] : "";
+            $results[$i]['Families'] = isset($params['generate_families']) ? $params['generate_families'] : "";
+            $results[$i]['Number of Sequences'] = isset($res_obj['generate_num_seq']) ? $res_obj['generate_num_seq'] : "";
         }
         //$sql .= else echo "--"; "generate.generate_blast as Blast, ";
         //$sql .= "generate.generate_families as Families, ";
@@ -131,11 +132,12 @@ class efi_statistics
         
         $results = $db->query($sql);
         for ($i = 0; $i < count($results); $i++) {
-            $res_obj = functions::decode_object($results[$i]['generate_params']);
-            $results[$i]['Blast'] = $res_obj['generate_blast'];
-            $results[$i]['Families'] = $res_obj['generate_families'];
-            $results[$i]['E-Value'] = $res_obj['generate_evalue'];
-            $results[$i]['Number of Sequences'] = $res_obj['generate_num_seq'];
+            $params = functions::decode_object($results[$i]['generate_params']);
+            $res_obj = functions::decode_object($results[$i]['generate_results']);
+            $results[$i]['Blast'] = isset($params['generate_blast']) ? $params['generate_blast'] : "";
+            $results[$i]['Families'] = isset($params['generate_families']) ? $params['generate_families'] : "";
+            $results[$i]['E-Value'] = isset($params['generate_evalue']) ? $params['generate_evalue'] : "";
+            $results[$i]['Number of Sequences'] = isset($res_obj['generate_num_seq']) ? $res_obj['generate_num_seq'] : "";
             $results[$i]['Time Started'] = self::format_date($results[$i]['Time Started']);
             $results[$i]['Time Completed'] = self::format_date($results[$i]['Time Completed']);
             $results[$i]['Time Submitted'] = self::format_date($results[$i]['Time Submitted']);

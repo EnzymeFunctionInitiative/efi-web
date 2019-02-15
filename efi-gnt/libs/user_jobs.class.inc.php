@@ -60,7 +60,7 @@ class user_jobs extends user_auth {
         $rows = $db->query($sql);
 
         $includeFailedJobs = true;
-        $this->jobs = self::process_load_rows($db, $rows, $includeFailedJobs);
+        $this->jobs = self::process_load_rows($db, $rows, $includeFailedJobs, $email);
     }
 
     private function load_training_jobs($db) {
@@ -77,10 +77,10 @@ class user_jobs extends user_auth {
         $rows = $db->query($sql);
 
         $includeFailedJobs = false;
-        $this->training_jobs = self::process_load_rows($db, $rows, $includeFailedJobs);
+        $this->training_jobs = self::process_load_rows($db, $rows, $includeFailedJobs, "");
     }
  
-    private static function process_load_rows($db, $rows, $includeFailedJobs) {
+    private static function process_load_rows($db, $rows, $includeFailedJobs, $email) {
         $jobs = array();
         $indexMap = array();
 
@@ -103,7 +103,16 @@ class user_jobs extends user_auth {
             $id = $row["gnn_id"];
             $jobInfo = array("id" => $id, "key" => $row["gnn_key"], "filename" => $jobName, "completed" => $comp, "is_child" => false);
 
+            $isChild = false;
             if (isset($params["gnn_parent_id"]) && $params["gnn_parent_id"]) {
+                // Get parent email address and if it's not the same as the current email address then treat this job
+                // as a normal job.
+                $sql = "SELECT gnn_email FROM gnn WHERE gnn_id = " . $params["gnn_parent_id"];
+                $parentRow = $db->query($sql);
+                $isChild = !$parentRow || $parentRow[0]["gnn_email"] == $email;
+            }
+
+            if ($isChild) {
                 $parentId = $params["gnn_parent_id"];
                 $jobInfo["is_child"] = true;
                 $jobInfo["parent_id"] = $parentId;

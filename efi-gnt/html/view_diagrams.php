@@ -282,10 +282,26 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
         echo "                                    <option value=\"$i\" $sel>$i</option>\n";
     }
 ?>
-                                </select>
-                                <button type="button" class="btn btn-default tool-button" id="refresh-window" style="width:auto">
+                                </select> genes
+                                <button type="button" class="btn btn-default tool-button auto" id="refresh-window">
                                     <i class="fas fa-refresh" aria-hidden="true"></i> Apply
                                 </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-default tool-button zoom-btn" id="scale-zoom-out-large" style="font-size: 1.2em" title="0.25x">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                <button type="button" class="btn btn-default tool-button zoom-btn" id="scale-zoom-out-small" title="0.888x">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                Zoom
+                                <button type="button" class="btn btn-default tool-button zoom-btn" id="scale-zoom-in-small" title="1.125x">
+                                    <i class="fas fa-search-plus" title="1.125x"></i>
+                                </button>
+                                <button type="button" class="btn btn-default tool-button zoom-btn" id="scale-zoom-in-large" style="font-size: 1.2em" title="4x">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                                <!--Scale factor: 1000 AA=<input type="text" width="5" name="scale-factor" id="scale-factor" value="15" style="line-height: 1.5em; padding: 2px; width: 35px; color: black" title="press enter to apply" />%-->
                             </div>
                         </div>
                     </li>
@@ -418,6 +434,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
         <!-- Placed at the end of the document so the pages load faster -->
 
         <script src="js/snap.svg-min.js" content-type="text/javascript"></script>
+        <script src="js/Queue.js" content-type="text/javascript"></script>
 
         <!-- jQuery -->
         <script src="js/jquery-3.2.1.min.js"></script>
@@ -536,12 +553,18 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
             <div id="info-popup-id">UniProt ID: <a href="https://www.uniprot.org/uniprot" target="_blank"><span class="popup-id"></span></a></div>
             <div id="info-popup-desc">Description: <span class="popup-pfam"></span></div>
             <div id="info-popup-sptr">Annotation Status: <span class="popup-pfam"></span></div>
-            <div id="info-popup-fam">Pfam: <span class="popup-pfam"></span></div>
-            <div id="info-popup-fam-desc">Pfam Desc: <span class="popup-pfam"></span></div>
-            <div id="info-popup-ipro-fam" <?php echo $hideInterpro; ?>>InterPro: <span class="popup-pfam"></span></div>
-            <div id="info-popup-ipro-fam-desc" <?php echo $hideInterpro; ?>>InterPro Desc: <span class="popup-pfam"></span></div>
+            <div class="info-popup-group">
+                <div class="info-hdr">Pfam</div>
+                <div id="info-popup-fam"><span class="popup-pfam"></span></div>
+                <div id="info-popup-fam-desc"><span class="popup-pfam"></span></div>
+            </div>
+            <div class="info-popup-group" <?php echo $hideInterpro; ?>>
+                <div class="info-hdr">InterPro</div>
+                <div id="info-popup-ipro-fam"><span class="popup-pfam"></span></div>
+                <div id="info-popup-ipro-fam-desc"><span class="popup-pfam"></span></div>
+            </div>
             <!--    <div id="info-popup-coords">Coordinates: <span class="popup-pfam"></span></div>-->
-            <div id="info-popup-seqlen">Sequence Length: <span class="popup-pfam"></span></div>
+            <div id="info-popup-seqlen" class="info-popup-group">Sequence Length: <span class="popup-pfam"></span></div>
             <!--    <div id="info-popup-dir">Direction: <span class="popup-pfam"></span></div>-->
             <!--    <div id="info-popup-num">Gene Index: <span class="popup-pfam"></span></div>-->
         </div>
