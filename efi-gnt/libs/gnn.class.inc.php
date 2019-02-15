@@ -1013,10 +1013,14 @@ class gnn extends gnn_shared {
 
         array_push($metadata, array("Job Number", $this->id));
         if ($source_info !== false) {
-            if ($this->gnn_parent_id)
-                array_push($metadata, array("Original GNT Job Number", "<a href=\"stepc.php?id=$this->gnn_parent_id&key=$source_info\">$this->gnn_parent_id</a>"));
-            else
-                array_push($metadata, array("Original EST Job Number", "<a href=\"../efi-est/stepe.php?id=" . $source_info['generate_id'] . "&key=" . $source_info['key'] . "&analysis_id=" . $source_info['analysis_id'] . "\" class=\"hl-est\">" . $source_info['generate_id'] . "/" . $source_info['analysis_id'] . "</a>"));
+            if ($this->gnn_parent_id) {
+                array_push($metadata, array("Original GNT Job Number", "<a href='stepc.php?id=$this->gnn_parent_id&key=$source_info'>$this->gnn_parent_id</a>"));
+            } else {
+                $gid = $source_info["generate_id"];
+                $aid = $source_info["analysis_id"];
+                $key = $source_info["key"];
+                array_push($metadata, array("Original EST Job Number", "$gid/$aid (<a href='../efi-est/stepc.php?id=$gid&key=$key' class='hl-est'>Original EST Dataset</a> | <a href='../efi-est/stepe.php?id=$gid&key=$key&analysis_id=$aid' class='hl-est'>Original SSN Download</a>)"));
+            }
         }
         array_push($metadata, array("Time Started/Finished", global_functions::format_short_date($this->time_started) . " -- " .
             global_functions::format_short_date($this->time_completed)));
