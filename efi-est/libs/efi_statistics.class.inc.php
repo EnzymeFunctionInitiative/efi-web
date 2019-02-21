@@ -84,7 +84,7 @@ class efi_statistics
         $sql .= "generate_status as 'Generate Step Status', ";
         $sql .= "generate_time_started as 'Generate Time Started', ";
         $sql .= "generate_time_completed as 'Generate Time Completed', ";
-        $sql .= "generate_params, ";
+        $sql .= "generate_params, generate_results, ";
         $sql .= "analysis.analysis_status as 'Analysis Step Status', ";
         $sql .= "analysis.analysis_min_length as 'Minimum Length', ";
         $sql .= "analysis.analysis_max_length as 'Maximum Length', ";
@@ -124,7 +124,7 @@ class efi_statistics
         $sql .= "generate_time_completed as 'Time Completed', ";
         $sql .= "generate_key as 'Key', ";
         $sql .= "generate_status as 'Status', ";
-        $sql .= "generate_params ";
+        $sql .= "generate_params, generate_results ";
         $sql .= "FROM generate ";
         $sql .= "WHERE MONTH(generate.generate_time_created)='" . $month . "' ";
         $sql .= "AND YEAR(generate.generate_time_created)='" . $year . "' ";
