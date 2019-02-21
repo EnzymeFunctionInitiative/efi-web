@@ -437,6 +437,7 @@ function get_group_select_statement($db, $table, $user_email, $group_clause, $ti
         $sql .= "LEFT OUTER JOIN $db.job_group ON $table.${table}_id = job_group.${table}_id WHERE $group_clause";
     else
         $sql .= "WHERE ${table}_email = '$user_email'";
+    $sql .= " AND ${table}_status = 'FINISH'";
     if ($time_completed)
         $sql .= " AND ${table}_time_completed >= '$time_completed'";
     if ($job_type)
@@ -523,7 +524,8 @@ function retrieve_and_display($start_date, $user_email, $user_groups) {
         $est_sql .= " WHERE generate_email = '$user_email'";
     if ($additional_ids_clause)
         $additional_ids_clause = " OR " . $additional_ids_clause;
-    $est_sql .= " AND generate_type != 'COLORSSN' AND (generate_time_completed >= '$start_date' OR analysis_time_completed >= '$start_date' $additional_ids_clause) ORDER BY generate_id";
+    $est_sql .= " AND generate_type != 'COLORSSN' AND generate_status = 'FINISH' AND " .
+        "(generate_time_completed >= '$start_date' OR analysis_time_completed >= '$start_date' $additional_ids_clause) ORDER BY generate_id";
     if ($recent_first)
         $est_sql .= " DESC";
     $results = $db->query($est_sql);

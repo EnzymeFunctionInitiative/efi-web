@@ -103,18 +103,15 @@ ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAct
             pageString += "&pagesize=" + pageSize;
         }
         var scaleString = "";
-        if (this.scaleType == NB_WINDOW)
-            scaleString = "&window=" + this.nbSize;
-        else if (this.scaleType == SCALE_FACTOR)
-            scaleString = "&scale-factor=" + this.scaleFactor;
-        console.log("Sent scale: " + this.scaleFactor);
+        scaleString = "&window=" + this.nbSize;
+        if (this.scaleType == SCALE_FACTOR)
+            scaleString += "&scale-factor=" + this.scaleFactor;
 
         var theUrl = "get_neighbor_data.php?" + this.idKeyQueryString + "&query=" + idListQuery + pageString + scaleString;
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", theUrl, true);
         xmlhttp.onload = function() {
             if (this.readyState == 4 && this.status == 200) {
-                console.timeEnd("HTTP");
                 var data = null;
                 var isError = false;
                 try {
@@ -124,9 +121,7 @@ ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAct
                 }
                 var eod = false;
                 if (data !== null) {
-                    console.time("ARROW");
                     that.makeArrowDiagram(data, usePaging, resetCanvas, callback);
-                    console.timeEnd("ARROW");
                     that.data = data;
                     eod = data.eod;
                 } else {
@@ -135,7 +130,6 @@ ArrowDiagram.prototype.retrieveArrowData = function(idList, usePaging, canvasAct
                 }
             }
         };
-        console.time("HTTP");
         xmlhttp.send(null);
     }
 }
@@ -231,7 +225,6 @@ ArrowDiagram.prototype.makeArrowDiagram = function(data, usePaging, resetCanvas,
             chunkIndex++;
         }
         if (chunkIndex < data.data.length) {
-            console.log("Shown " + chunkIndex + " of " + data.data.length + " diagrams");
             arrowUi.diagramCount = i;
             finishDrawing();
             setTimeout(batchDraw, 1);
