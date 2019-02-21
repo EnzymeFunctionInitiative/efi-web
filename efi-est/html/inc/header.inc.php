@@ -21,7 +21,7 @@ include("../../html/inc/global_login_button.inc.php");
 <!doctype html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/shared.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/tabs.css">
@@ -35,7 +35,7 @@ include("../../html/inc/global_login_button.inc.php");
     <script src="<?php echo $SiteUrlPrefix; ?>/js/login.js" type="text/javascript"></script>
     <script src="<?php echo $SiteUrlPrefix; ?>/js/accordion.js" type="text/javascript"></script>
     <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-3.2.1.min.js" type="text/javascript"></script>
-    <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.js" type="text/javascript"></script>
+    <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
 <?php if (isset($IncludePlotlyJs)) { ?>
     <script src="<?php echo $SiteUrlPrefix; ?>/js/plotly-1.42.5.min.js" type="text/javascript"></script>
 <?php } ?>
