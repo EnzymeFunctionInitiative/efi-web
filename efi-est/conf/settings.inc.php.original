@@ -83,6 +83,7 @@ define("__DEFAULT_NEIGHBOR_SIZE__",10);
 define("__COOCCURRENCE__",20);
 define("__COLORSSN_MAP_DIR_NAME__","clusterdata");
 define("__COLORSSN_MAP_FILE_NAME__","nodedata.txt");
+define("__COLORSSN_DOMAIN_MAP_FILE_NAME__","domain_mapping_table.txt");
 define("__ACC_COUNT_FILENAME__","acc_counts.txt");
 define("__CDHIT_STATS_FILE","");
 define("__CONVERGENCE_RATIO_FILENAME__","");
