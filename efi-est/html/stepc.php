@@ -443,9 +443,9 @@ should or should not be connected in a network is needed. This will determine th
 <div class="tabs">
     <ul class="tab-headers">
         <li class="active"><a href="#threshold-eval">Alignment Score Threshold</a></li>
+<?php if ($useAdvancedOptions) { ?>
         <li><a href="#threshold-pid">Percent ID Threshold</a></li>
         <li><a href="#threshold-bit">Bit Score Threshold</a></li>
-<?php if ($useAdvancedOptions) { ?>
         <li><a href="#threshold-custom">Custom Clustering</a></li>
 <?php } ?>
     </ul>
@@ -461,6 +461,7 @@ should or should not be connected in a network is needed. This will determine th
             This score is the similarity threshold which determine the connection of proteins with each other. All pairs of proteins with a similarity score below this number will not be connected. Sets of connected proteins will form clusters.
 
         </div>
+<?php if ($useAdvancedOptions) { ?>
         <div id="threshold-pid" class="tab">
             <h3>Percent ID for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
             <p>Select a lower limit for the percent ID to use as a lower threshold for clustering in the SSN.</p>
@@ -486,7 +487,6 @@ should or should not be connected in a network is needed. This will determine th
             form clusters.
             </p>
         </div>
-<?php if ($useAdvancedOptions) { ?>
         <div id="threshold-custom" class="tab">
             <h3>Custom Clustering File <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
             
