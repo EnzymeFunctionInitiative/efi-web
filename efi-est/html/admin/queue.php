@@ -1,7 +1,7 @@
 <?php
 
-include_once '../includes/stats_main.inc.php';
-include_once '../includes/stats_admin_header.inc.php';
+include_once 'inc/stats_main.inc.php';
+include_once 'inc/stats_admin_header.inc.php';
 
 #$tmp_dir = defined("__UPLOADS_DIR__") ? __UPLOADS_DIR__ : "";
 $tmp_file = "/var/www/efi-web-dev/tmp/efi.queue";

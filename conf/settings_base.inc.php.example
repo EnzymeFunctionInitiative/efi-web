@@ -51,4 +51,11 @@ define("__FILE_RETENTION_DAYS__","80");  // Number of days to keep files from su
 define("__FAILED_RETENTION_DAYS__","14"); // Number of days to keep files from failed jobs around.
 define("__NUM_JOB_LIMIT__","6");
 
+//
+// DIRECTORIES
+define("__BASE_DIR__",__DIR__."/..");
+define("__JPGRAPH_SRC__",__BASE_DIR__."/libs/jpgraph-3.5.0b1/src");
+define("__PHPEXCEL_SRC__",__BASE_DIR__."/libs/PHPExcel/Classes");
+define("__PEAR_SRC__",__BASE_DIR__."/includes/pear");
+
 ?>

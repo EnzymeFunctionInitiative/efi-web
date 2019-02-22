@@ -1,11 +1,6 @@
 <?php
 
-if (file_exists("includes/stats_main.inc.php")) {
-    require_once 'includes/stats_main.inc.php';
-}
-elseif (file_exists("../includes/stats_main.inc.php")) {
-    require_once "../includes/stats_main.inc.php";
-}
+require_once 'inc/stats_main.inc.php';
 
 if (isset($_GET['year'])) {
     $year = $_GET['year'];

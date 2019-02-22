@@ -18,8 +18,7 @@ $get_array  = array('graph_type'=>$graph_type,
                 'year'=>$year);
 $graph_image = "<img src='daily_graph.php?" . http_build_query($get_array) . "'>";
 
-$recentOnly = true;
-$generate_per_month = statistics::num_per_month($db, $recentOnly);
+$generate_per_month = statistics::num_per_month($db);
 $generate_per_month_html = "";
 foreach ($generate_per_month as $value) {
 	$generate_per_month_html .= "<tr><td>" . $value['month'] . "</td>";
@@ -59,7 +58,7 @@ $year_html .= "</select>";
 <h3>EFI-GNT Statistics</h3>
 
 <h4>Statistics</h4>
-<table class='table table-condensed table-bordered table-striped'>
+<table class='table table-condensed table-bordered span8'>
 <tr>
 	<th>Month</th>
 	<th>Year</th>
@@ -67,36 +66,17 @@ $year_html .= "</select>";
 </tr>
 <?php echo $generate_per_month_html; ?>
 </table>
-
-<form class='form-inline' method='post' action='report.php'>
-                <select name='report_type' class='form-control'>
-                <option value='xls'>Excel 2003</option>
-                <option value='xlsx'>Excel 2007</option>
-                <option value='csv'>CSV</option>
-        </select> <input class='btn btn-primary' type='submit'
-                name='create_user_report' value='Download User List'>
-<br>
-<br>
 <hr>
-                <select name='report_type' class='form-control'>
-                <option value='xls'>Excel 2003</option>
-                <option value='xlsx'>Excel 2007</option>
-                <option value='csv'>CSV</option>
-        </select> 
-	<?php echo $month_html; ?>
-	<?php echo $year_html; ?>
-<input class='btn btn-primary' type='submit'
-                name='create_job_report' value='Download Job List'>
-
-</form>
-<br>
+<h4>Running Total of Unique Users</h4>
+<p>Number of Unique Users: <?php echo statistics::num_unique_users($db); ?>
 <hr>
+<h4>Running Total of Jobs</h4>
+<p>Total Number of Jobs: <?php echo statistics::num_jobs($db); ?>
+<hr>
+
+<hr>
+<h4>Daily Graph</h4>
 <form class='form-inline' method='post' action='<?php echo $_SERVER['PHP_SELF']; ?>'>
-                <select name='report_type' class='form-control'>
-                <option value='xls'>Excel 2003</option>
-                <option value='xlsx'>Excel 2007</option>
-                <option value='csv'>CSV</option>
-        </select> 
         <?php echo $month_html; ?>
         <?php echo $year_html; ?>
 
@@ -108,4 +88,5 @@ $year_html .= "</select>";
 <?php echo $graph_image; ?>
 
 
-<?php include_once '../inc/stats_footer.inc.php'; ?>
+<?php include_once 'inc/stats_footer.inc.php'; ?>
+

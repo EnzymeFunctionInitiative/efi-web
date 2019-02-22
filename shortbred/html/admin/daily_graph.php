@@ -1,12 +1,9 @@
 <?php
 
-set_include_path(get_include_path() . ":" . __DIR__."/../../../libs/jpgraph-3.5.0b1/src");
-if (file_exists("../../includes/stats_main.inc.php")) {
-    require_once("../../includes/stats_main.inc.php");
-}
-
-require_once(__DIR__."/../../libs/cgfp_statistics.class.inc.php");
-require_once(__DIR__."/../../../libs/custom_graph.class.inc.php");
+require_once("inc/stats_main.inc.php");
+require_once(LOCAL_BASE . "/libs/functions.class.inc.php");
+require_once(LOCAL_BASE . "/libs/cgfp_statistics.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/custom_graph.class.inc.php");
 
 if (isset($_GET['year'])) {
     $year = $_GET['year'];

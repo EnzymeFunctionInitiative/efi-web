@@ -13,17 +13,30 @@ class job_manager {
     private $jobs_by_status = array();
     private $jobs_by_id = array();
 
-    function __construct($db, $table_name) {
+    public static function init_by_date_range($db, $table_name, $date_range) {
+        return new job_manager($db, $table_name, $date_range, NULL, NULL);
+    }
+
+    public static function init_by_user($db, $table_name, $user_token) {
+        $user_email = user_auth::get_email_from_token($db, $user_token);
+        $user_groups = user_auth::get_user_groups($db, $user_token);
+        if (!$user_email)
+            return NULL;
+
+        return new job_manager($db, $table_name, NULL, $user_email, $user_groups);
+    }
+
+    function __construct($db, $table_name, $date_range = NULL, $email = NULL, $groups = NULL) {
         $this->table_name = $table_name;
         $this->db = $db;
-        $this->get_jobs();
+        $this->get_jobs($date_range, $email, $groups);
     }
     
     public function validate_job($id, $key) {
         return isset($this->jobs_by_id[$id]) && $this->jobs_by_id[$id]["key"] == $key;
     }
 
-    private function get_jobs() {
+    private function get_jobs($date_range, $email, $groups) {
         $table = $this->table_name;
         $id_table = job_types::Identify;
         $q_table = job_types::Quantify;
@@ -52,13 +65,28 @@ class job_manager {
         //    $cols .= ", $col_qid, $col_mg";
         //}
 
+        $where_params = array();
+        if ($date_range !== NULL) {
+            if (isset($date_range["start"]))
+                array_push($where_params, "$col_time_created >= '" . $date_range["start"] . "'");
+            if (isset($date_range["end"]))
+                array_push($where_params, "$col_time_created <= '" . $date_range["end"] . "'");
+        }
+        if ($email !== NULL) {
+            array_push($where_params, "$col_email = '$email'");
+        }
+
         $q_sql = "";
+        $where_sql = "";
         $order_sql = "ORDER BY $col_id";
         if ($table == job_types::Quantify) {
             $q_sql = "JOIN $id_table ON $table.${table}_identify_id = ${id_table}_id";
             $order_sql = "ORDER BY $table.$col_qid";
         }
-        $sql = "SELECT $cols FROM $table $q_sql $order_sql";
+        if (count($where_params) > 0) {
+            $where_sql = "WHERE " . implode(" AND ", $where_params);
+        }
+        $sql = "SELECT $cols FROM $table $q_sql $where_sql $order_sql";
 
         $rows = $this->db->query($sql);
 
