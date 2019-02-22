@@ -1,12 +1,12 @@
 <?php
 
-include_once '../includes/stats_main.inc.php';
+include_once 'inc/stats_main.inc.php';
 
 
 $NumWaitingJobs = efi_statistics::get_num_jobs($db, __NEW__);
 $NumRunningJobs = efi_statistics::get_num_jobs($db, __RUNNING__);
 
-include_once '../includes/stats_admin_header.inc.php';
+include_once 'inc/stats_admin_header.inc.php';
 
 $month = date('n');
 if (isset($_GET['month'])) {

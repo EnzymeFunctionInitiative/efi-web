@@ -1,7 +1,7 @@
 <?php
 
-require_once("../../includes/stats_main.inc.php");
-require_once("../../libs/functions.class.inc.php");
+require_once("inc/stats_main.inc.php");
+require_once(LOCAL_BASE . "/libs/functions.class.inc.php");
 
 $month = date('n');
 if (isset($_POST['month'])) {
@@ -14,10 +14,13 @@ if (isset($_POST['year'])) {
 
 $requests = functions::get_cgfp_applications($db);
 
-$id_graph_array = array('graph_type' => "identify_daily_jobs", 'month' => $month, 'year' => $year);
-$identify_graph = "<img src='daily_graph.php?" . http_build_query($id_graph_array) . "'>";
-$q_graph_array = array('graph_type' => "identify_daily_jobs", 'month' => $month, 'year' => $year);
-$quantify_graph = "<img src='daily_graph.php?" . http_build_query($q_graph_array) . "'>";
+$id_graph_type = "identify_daily_jobs";
+$q_graph_type = "quantify_daily_jobs";
+
+$id_graph_array = array('graph_type' => $id_graph_type, 'month' => $month, 'year' => $year);
+$identify_graph = "<img src='daily_graph.php?" . http_build_query($id_graph_array) . "' id='daily-id-graph'>";
+$q_graph_array = array('graph_type' => $q_graph_type, 'month' => $month, 'year' => $year);
+$quantify_graph = "<img src='daily_graph.php?" . http_build_query($q_graph_array) . "' id='daily-q-graph'>";
 
 
 
@@ -30,7 +33,7 @@ require_once("inc/header.inc.php");
 
 echo "<div style=\"margin-top: 70px\"></div>\n";
 
-$month_html = "<select class='form-control' name='month'>";
+$month_html = "<select class='form-control month-sel' name='month'>";
 for ($i=1;$i<=12;$i++) {
     if ($month == $i) {
         $month_html .= "<option value='" . $i . "' selected='selected'>" . date("F", mktime(0, 0, 0, $i, 10)) . "</option>\n";
@@ -40,7 +43,7 @@ for ($i=1;$i<=12;$i++) {
 }
 $month_html .= "</select>";
 
-$year_html = "<select class='form-control' name='year'>";
+$year_html = "<select class='form-control year-sel' name='year'>";
 for ($i=2014;$i<=date('Y');$i++) {
     if ($year = $i) {
         $year_html .= "<option selected='selected' value='" . $i . "'>". $i . "</option>\n";
@@ -55,6 +58,8 @@ $year_html .= "</select>";
 
 ?>
 
+<?php include("stats_nav.php"); ?>
+
 <form class='form-inline' method='post' action='<?php echo $_SERVER['PHP_SELF']; ?>'>
 <?php echo $month_html; ?>
 <?php echo $year_html; ?>
@@ -65,7 +70,32 @@ $year_html .= "</select>";
 <?php echo $quantify_graph; ?>
 </form>
 
+<script type="text/javascript" src="stats_nav.js"></script>
+<script type="text/javascript">
 
+$(document).ready(function() {
+    var graphApp = "daily_graph.php";
+    var idGraphType = "<?php echo $id_graph_type; ?>";
+    var qGraphType = "<?php echo $q_graph_type; ?>";
+    setMonth(<?php echo $month; ?>);
+    setYear(<?php echo $year; ?>);
+    
+    $("#prev-month").click(function() {
+        decMonth();
+        var url = graphApp + "?" + "graph_type=" + idGraphType + "&" + "month=" + getMonth() + "&year=" + getYear();
+        $("#daily-id-graph").attr("src", url);
+        url = graphApp + "?" + "graph_type=" + qGraphType + "&" + "month=" + getMonth() + "&year=" + getYear();
+        $("#daily-q-graph").attr("src", url);
+    });
+    $("#next-month").click(function() {
+        incMonth();
+        var url = graphApp + "?" + "graph_type=" + idGraphType + "&" + "month=" + getMonth() + "&year=" + getYear();
+        $("#daily-id-graph").attr("src", url);
+        url = graphApp + "?" + "graph_type=" + qGraphType + "&" + "month=" + getMonth() + "&year=" + getYear();
+        $("#daily-q-graph").attr("src", url);
+    });
+});
+</script>
 
 <?php
 
