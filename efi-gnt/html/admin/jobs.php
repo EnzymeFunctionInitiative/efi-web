@@ -65,7 +65,7 @@ foreach ($jobs as $job) {
 	    $gnn_html .= "<td>" . $job['Input Cooccurrance'] . "</td>\n";
 	$gnn_html .= "<td>" . str_replace(" ", "&nbsp;", global_functions::format_short_date($job['Time Created'])) . "</td>\n";
 	$gnn_html .= "<td>" . str_replace(" ", "&nbsp;", global_functions::format_short_date($job['Time Started'])) . "</td>\n";
-	$gnn_html .= "<td>" . $tco . "</td>\n";
+	$gnn_html .= "<td class='" . strtolower($job['Status']) . "'>" . $tco . "</td>\n";
 	$gnn_html .= "</tr>";
 
 }

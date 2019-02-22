@@ -12,6 +12,10 @@ if (isset($NumWaitingJobs) && isset($NumRunningJobs)) {
     <link rel="stylesheet" type="text/css" href="/bs/css/bootstrap.min.css">
     <script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
 <style>
+.running { font-weight: bold; color: green; }
+.failed { font-weight: bold; color: red; }
+.cancelled { color: orange; }
+.completed { }
 /*.families-col {
     max-width: 200px;
     overflow: auto;
