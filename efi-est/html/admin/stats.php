@@ -18,13 +18,13 @@ $graph_type = "generate_daily_jobs";
 $get_array  = array('graph_type'=>$graph_type,
                 'month'=>$month,
                 'year'=>$year);
-$graph_image = "<img src='daily_graph.php?" . http_build_query($get_array) . "'>";
+$graph_image = "<img src='stats_graph.php?" . http_build_query($get_array) . "'>";
 
 
 $get_analyse_array = array('graph_type'=>"analysis_daily_jobs",
                 'month'=>$month,
                 'year'=>$year);
-$graph_analyze_image = "<img src='daily_graph.php?" . http_build_query($get_analyse_array) . "'>";
+$graph_analyze_image = "<img src='stats_graph.php?" . http_build_query($get_analyse_array) . "'>";
 
 $generate_per_month = efi_statistics::num_generate_per_month($db);
 $generate_per_month_html = "";
