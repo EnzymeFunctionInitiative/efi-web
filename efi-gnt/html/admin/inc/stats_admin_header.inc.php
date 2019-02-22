@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-<title>EFI/ShortBRED Statistics</title>
-    <script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
+<title>EFI-GNT Statistics</title>
+<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/font-awesome/css/fontawesome-all.min.css">
 <link rel="stylesheet" type="text/css" href="/bs/css/bootstrap.min.css">
 <style>
-.running { font-weight: bold; color: green; }
-.failed { font-weight: bold; color: red; }
-.cancelled { color: orange; }
-.completed { }
+td.file-col {
+    max-width: 450px;
+    overflow-wrap: break-word;
+}
 </style>
 </head>
 
@@ -20,12 +21,12 @@
         </div>  
         <div id='navbar' class='collapse navbar-collapse'>
             <ul class='nav navbar-nav'>
-                <li><a href='index.php'>Main</a></li>
-                <li><a href='jobs.php?job-type=identify'>Identify Jobs</a></li>
-                <li><a href='jobs.php?job-type=quantify'>Quantify Jobs</a></li>
+	   	        <li><a href='index.php'>Statistics</a></li>
+                <li><a href='jobs.php?job-type=gnt'>Jobs</a></li>
+                <li><a href='jobs.php?job-type=diagram'>Diagrams</a></li>
             </ul>
         </div>
-    </div>
+	</div>
 </nav>
 
 <div class='container-fluid'>

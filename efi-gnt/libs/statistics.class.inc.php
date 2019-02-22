@@ -39,7 +39,7 @@ class statistics
         $id_field = "GNT ID";
         if ($job_type)
             $id_field = "ID";
-        if ($job_type == "GND") {
+        if ($job_type == "diagram") {
             $sql = "SELECT diagram.diagram_email as 'Email', ";
             $sql .= "diagram.diagram_id as '$id_field', ";
             $sql .= "diagram.diagram_key as 'Key', ";
