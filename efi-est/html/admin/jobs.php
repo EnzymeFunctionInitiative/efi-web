@@ -88,7 +88,7 @@ foreach ($jobs as $job) {
     $job_list_html .= "<td>" . str_replace(" ", "&nbsp;", $job['Time Submitted']) . "</td>";
     $job_list_html .= "<td>" . str_replace(" ", "&nbsp;", $job['Time Started']) . "</td>";
     $job_list_html .= "<td>" . str_replace(" ", "&nbsp;", $job['Time Completed'])  ."</td>";
-    $job_list_html .= "<td>" . $job['Status'] . "</td>";
+    $job_list_html .= "<td class='" . strtolower($job['Status']) . "'>" . $job['Status'] . "</td>";
     //$job_list_html .= "<td><center><span style='font-size: 100%'><a href='#' onclick='restartJob($id)'>&#8635;</a></span></center></td>";
     $job_list_html .= "</tr>\n";
 }
