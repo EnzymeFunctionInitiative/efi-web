@@ -24,8 +24,9 @@ $num_days = isset($_GET["num-days"]) ? $_GET["num-days"] : $num_default_days;
 $recent_first = isset($_GET["recent-first"]) ? $_GET["recent-first"] : 1;
 
 $user_email = $IsLoggedIn;
-//$user_email = "rzallot@illinois.edu";
-//$user_email = "j-gerlt@illinois.edu";
+$user_token = user_auth::get_user_token();
+$user_groups = user_auth::get_user_groups($db, $user_token);
+
 $sb_db = __EFI_SHORTBRED_DB_NAME__;
 $est_db = __EFI_EST_DB_NAME__;
 $gnt_db = __EFI_GNT_DB_NAME__;
@@ -85,7 +86,7 @@ echo <<<HTML
 HTML;
 
 
-retrieve_and_display("", "", array("TEST"));
+retrieve_and_display("", "", $user_groups);
 
 echo <<<HTML
 

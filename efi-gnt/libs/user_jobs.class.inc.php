@@ -109,7 +109,7 @@ class user_jobs extends user_auth {
                 // as a normal job.
                 $sql = "SELECT gnn_email FROM gnn WHERE gnn_id = " . $params["gnn_parent_id"];
                 $parentRow = $db->query($sql);
-                $isChild = !$parentRow || $parentRow[0]["gnn_email"] == $email;
+                $isChild = !$parentRow || $parentRow[0]["gnn_email"] == $email || !$email;  // !$email is true for training jobs
             }
 
             if ($isChild) {
