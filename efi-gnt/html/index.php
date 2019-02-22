@@ -198,7 +198,7 @@ HTML;
 
 <?php if (count($trainingJobs) > 0) { ?>
             <h4>Training Jobs</h4>
-            <table class="pretty" style="table-layout:fixed">
+            <table class="pretty_nested" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>
@@ -206,6 +206,7 @@ HTML;
                 </thead>
                 <tbody>
 <?php
+$lastBgColor = "#eee";
 for ($i = 0; $i < count($trainingJobs); $i++) {
     $key = $trainingJobs[$i]["key"];
     $id = $trainingJobs[$i]["id"];
@@ -215,14 +216,28 @@ for ($i = 0; $i < count($trainingJobs); $i++) {
 
     $linkStart = $isActive ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
     $linkEnd = $isActive ? "" : "</a>";
+    $linkStart .= "<span title='$id'>";
+    $linkEnd = "</span>" . $linkEnd;
+    $idText = "$linkStart${id}$linkEnd";
+
+    $nameStyle = "";
+    if ($trainingJobs[$i]["is_child"]) {
+        $idText = "";
+        $nameStyle = "style=\"padding-left: 50px;\"";
+    } else {
+        if ($lastBgColor == "#eee")
+            $lastBgColor = "#fff";
+        else
+            $lastBgColor = "#eee";
+    }
 
     if (array_key_exists("diagram", $trainingJobs[$i]))
         $linkStart = "<a href=\"view_diagrams.php?upload-id=$id&key=$key\">";
 
     echo <<<HTML
-                    <tr>
-                        <td>$linkStart${id}$linkEnd</td>
-                        <td>$linkStart${name}$linkEnd</td>
+                    <tr style="background-color: $lastBgColor">
+                        <td>$idText</td>
+                        <td $nameStyle>$linkStart${name}$linkEnd</td>
                         <td>$dateCompleted</td>
                     </tr>
 HTML;
