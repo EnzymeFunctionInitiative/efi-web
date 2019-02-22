@@ -6,6 +6,10 @@
 <link rel="stylesheet" type="text/css" href="/font-awesome/css/fontawesome-all.min.css">
 <link rel="stylesheet" type="text/css" href="/bs/css/bootstrap.min.css">
 <style>
+.running { font-weight: bold; color: green; }
+.failed { font-weight: bold; color: red; }
+.cancelled { color: orange; }
+.completed { }
 td.file-col {
     max-width: 450px;
     overflow-wrap: break-word;
