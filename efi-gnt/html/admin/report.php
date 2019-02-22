@@ -1,5 +1,5 @@
 <?php
-include_once 'includes/main.inc.php';
+include_once 'inc/stats_main.inc.php';
 
 if (isset($_POST['create_user_report'])) {
 
