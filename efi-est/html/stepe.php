@@ -39,7 +39,7 @@ $table = new table_builder($table_format);
 
 
 $web_address = dirname($_SERVER['PHP_SELF']);
-$time_window = $generate->get_time_period();
+$time_window = $analysis->get_time_period();
 $db_version = $generate->get_db_version();
 $legacy = empty($db_version); // Indicates if we are looking at old jobs.
 
