@@ -74,6 +74,11 @@ class analysis {
     public function get_time_completed_formatted() {
         return functions::format_datetime(functions::parse_datetime($this->time_completed));
     }
+    public function get_time_period() {
+        $window = global_functions::format_short_date($this->get_time_started()) . " -- " .
+            global_functions::format_short_date($this->get_time_completed());
+        return $window;
+    }
     public function get_db_version() { return $this->db_version; }
 
     public function get_output_dir() {
