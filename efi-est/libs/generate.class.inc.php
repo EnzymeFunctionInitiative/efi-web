@@ -75,19 +75,17 @@ class generate extends family_shared {
         return $result;
     }
 
-    public function get_job_info($eol = "\r\n") {
-        $message = "EFI-EST Job ID: " . $this->get_id() . $eol;
-        $message .= "Computation Type: " . functions::format_job_type($this->get_type()) . $eol;
-        $message .= "PFAM/Interpro Families: " . $this->get_families_comma() . $eol;
-        $message .= "E-Value: " . $this->get_evalue() . $eol;
-        $message .= "Fraction: " . $this->get_fraction() . $eol;
-        $message .= "Enable Domain: " . $this->get_domain() . $eol;
+    protected function get_email_job_info() {
+        $message = parent::get_email_job_info();
+        $message .= "PFAM/Interpro Families: " . $this->get_families_comma() . PHP_EOL;
+        $message .= "E-Value: " . $this->get_evalue() . PHP_EOL;
+        $message .= "Fraction: " . $this->get_fraction() . PHP_EOL;
+        $message .= "Enable Domain: " . $this->get_domain() . PHP_EOL;
         if ($this->uniref_version)
-            $message .= "Using UniRef " . $this->uniref_version . $eol;
-        //$message .= "Selected Program: " . $this->get_program() . $eol;
+            $message .= "Using UniRef " . $this->uniref_version . PHP_EOL;
+        //$message .= "Selected Program: " . $this->get_program() . PHP_EOL;
         
         return $message;
-
     }
 
     // END OVERLOADS

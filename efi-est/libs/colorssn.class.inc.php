@@ -96,7 +96,7 @@ class colorssn extends option_base {
     }
 
     protected function get_started_email_body() {
-        $body = "The SSN has been uploaded and is being colored and analyzed." . $this->eol . $this->eol;
+        $body = "The SSN has been uploaded and is being colored and analyzed." . PHP_EOL . PHP_EOL;
         return $body;
     }
 
@@ -105,7 +105,7 @@ class colorssn extends option_base {
     }
 
     protected function get_completion_email_body() {
-        $body = "The SSN has been colored and analyzed. To view it, please go to THE_URL" . $this->eol . $this->eol;
+        $body = "The SSN has been colored and analyzed. To view it, please go to THE_URL" . PHP_EOL . PHP_EOL;
         return $body;
     }
 
@@ -155,9 +155,8 @@ class colorssn extends option_base {
         return $result;
     }
 
-    public function get_job_info($eol = "\r\n") {
-        $message = "EFI-EST Job ID: " . $this->get_id() . $eol;
-        $message .= "Computation Type: Color SSN" . $eol;
+    protected function get_email_job_info() {
+        $message = parent::get_email_job_info();
         return $message;
     }
 

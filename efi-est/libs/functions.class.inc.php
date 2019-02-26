@@ -80,8 +80,14 @@ class functions {
         $sql .= "ORDER BY analysis_time_created ASC ";
         $result = $db->query($sql);
         return $result;
+    }
 
-
+    public static function get_analysis_jobs_for_generate($db, $generate_id, $status = "") {
+        $sql = "SELECT * FROM analysis WHERE analysis_generate_id = $generate_id";
+        if ($status)
+            $sql .= " AND analysis_status = '$status'";
+        $result = $db->query($sql);
+        return $result;
     }
 
     public static function get_job_status($db, $generate_id, $analysis_id, $key) {
@@ -518,6 +524,8 @@ class functions {
             $gen_type = "Option C (no FASTA header reading)";
         } else if ($gen_type == "FASTA_ID") {
             $gen_type = "Option C (with FASTA header reading)";
+        } else if ($gen_type == "COLORSSN") {
+            $gen_type = "Colored SSN";
         }
         return $gen_type;
     }
