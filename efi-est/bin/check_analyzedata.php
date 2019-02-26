@@ -11,19 +11,17 @@ else {
     $running_jobs = functions::get_analysis($db,__RUNNING__);
     if (count($running_jobs)) {
         foreach ($running_jobs as $job) {
-            $jobObj = new analysis($db,$job['analysis_id']);
-            $pbs_running = $jobObj->check_pbs_running();
-            if ((!$pbs_running) && ($jobObj->check_finish_file())) {
-                $jobObj->set_status(__FINISH__);
-                $jobObj->set_time_completed();
-                $jobObj->email_complete();
+            $job_obj = new analysis($db,$job['analysis_id']);
+            $pbs_running = $job_obj->check_pbs_running();
+            if ((!$pbs_running) && ($job_obj->check_finish_file())) {
+                $job_obj->finish_job_complete();
+                $job_obj->email_complete();
                 $msg = "Analaysis ID: " . $job['analysis_id'] . " - Job Completed Successfully";
                 functions::log_message($msg);	
             }
-            elseif ((!$pbs_running) && (!$jobObj->check_finish_file())) {
-                $jobObj->set_status(__FAILED__);
-                $jobObj->set_time_completed();
-                $jobObj->email_failed();
+            elseif ((!$pbs_running) && (!$job_obj->check_finish_file())) {
+                $job_obj->finish_job_failed();
+                $job_obj->email_failed();
                 $msg = "Analaysis ID: " . $job['analysis_id'] . " - Job Failed";
                 functions::log_message($msg);
             }

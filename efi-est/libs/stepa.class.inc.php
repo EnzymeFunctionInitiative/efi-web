@@ -1,24 +1,20 @@
 <?php
 
-require_once("Mail.php");
-require_once("Mail/mime.php");
-require_once("../../libs/user_auth.class.inc.php");
-require_once(__DIR__."/../../libs/global_functions.class.inc.php");
+require_once(__DIR__ . "/../includes/main.inc.php");
+require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
+require_once(__DIR__ . "/est_shared.class.inc.php");
 
-class stepa {
+class stepa extends est_shared {
 
     ////////////////Private Variables//////////
 
     protected $db; //mysql database object
     protected $id;
-    protected $email;
     protected $key;
     protected $status;
     protected $evalue;
-    protected $time_created;
     protected $pbs_number;
-    protected $time_completed;
-    protected $time_started;
     protected $finish_file = "1.out.completed";
     protected $output_dir = "output";
     protected $type;
@@ -30,12 +26,10 @@ class stepa {
     protected $num_full_family_sequences;
     protected $accession_file = "allsequences.fa";
     protected $counts_file;
-    protected $eol = PHP_EOL;
     protected $num_pbs_jobs = 1;
     protected $program;
     protected $fraction;
     protected $db_version;
-    protected $beta;
     protected $is_sticky = false;
     protected $job_name = "";
 
@@ -56,15 +50,13 @@ class stepa {
     private $number_of_edges_sm = "number_of_edges_sm.png";
     ///////////////Public Functions///////////
 
-    public function __construct($db,$id = 0) {
+    public function __construct($db, $id = 0) {
+        parent::__construct($db, "generate");
+
         $this->db = $db;
-
-        if ($id) {
+        if ($id)
             $this->load_generate($id);
-        }
-
         $this->counts_file = functions::get_accession_counts_filename();
-        $this->beta = functions::get_release_status();
     }
 
     public function __destruct() {
@@ -75,19 +67,7 @@ class stepa {
     public function get_email() { return $this->email; }
     public function get_key() { return $this->key; }
     public function get_evalue() { return $this->evalue; }
-    public function get_time_created() { return $this->time_created; }
     public function get_pbs_number() { return $this->pbs_number; }
-    public function get_time_started() { return $this->time_started; }
-    public function get_time_completed() { return $this->time_completed; }
-    public function get_time_completed_formatted() {
-        return functions::format_datetime(functions::parse_datetime($this->time_completed));
-    }
-    public function get_time_period() {
-        $window = global_functions::format_short_date($this->get_time_started()) . " -- " .
-            global_functions::format_short_date($this->get_time_completed());
-        return $window;
-    }
-    public function get_unixtime_completed() { return strtotime($this->time_completed); }
     public function get_num_sequences() { return $this->num_sequences; }
     public function get_total_num_file_sequences() { return $this->total_num_file_sequences; }
     public function get_num_matched_file_sequences() { return $this->num_matched_file_sequences; }
@@ -96,57 +76,33 @@ class stepa {
     public function get_num_full_family_sequences() { return $this->num_full_family_sequences; }
     public function get_program() { return $this->program; }
     public function get_fraction() { return $this->fraction; }
-    public function get_finish_file() { 
-        return $this->get_output_dir() . "/" . $this->finish_file; 
-    }
-    public function get_accession_file() {
-        return $this->get_output_dir() . "/".  $this->accession_file;
-    }
-    public function get_accession_counts_file() {
-        return $this->get_output_dir() . "/".  $this->counts_file;
-    }
-    public function get_accession_counts_file_full_path() {
-        return functions::get_results_dir() . "/" . $this->get_output_dir() . "/".  $this->counts_file;
-    }
-    public function get_output_dir() {
-        return $this->get_id() . "/" . $this->output_dir;
-    }
+    public function get_finish_file() { return $this->get_output_dir() . "/" . $this->finish_file; }
+    public function get_accession_file() {return $this->get_output_dir() . "/".  $this->accession_file;}
+    public function get_accession_counts_file() {return $this->get_output_dir() . "/".  $this->counts_file;}
+    public function get_accession_counts_file_full_path() {return functions::get_results_dir() . "/" . $this->get_output_dir() . "/".  $this->counts_file;}
+    public function get_output_dir() {return $this->get_id() . "/" . $this->output_dir;}
     public function get_blast_input() { return ""; }
     public function get_families() { return array(); }
     public function get_db_version() { return $this->db_version; }
     public function get_job_name() { return $this->job_name; }
     public function is_cd_hit_job() { return FALSE; } //HACK: this is a temporary hack for research purposes
 
+    // This function is here so we don't have to do a full instantiation of the object from the
+    // database if we are just looking for the job type.
+    public static function get_type_static($db, $id) {
+        $sql = "SELECT generate_type FROM generate WHERE generate_id = $id";
+        $result = $db->query($sql);
+        if (!$result)
+            return "";
+        else
+            return $result[0]["generate_type"];
+    }
 
     public function set_pbs_number($pbs_number) {
         $sql = "UPDATE generate SET generate_pbs_number='" . $pbs_number . "' ";
         $sql .= "WHERE generate_id='" . $this->get_id() . "' LIMIT 1";
         $this->db->non_select_query($sql);
         $this->pbs_number = $pbs_number;
-
-
-    }
-
-    public function set_time_started() {
-        $current_time = self::get_current_datetime();
-        $sql = "UPDATE generate SET generate_time_started='" . $current_time . "' ";
-        $sql .= "WHERE generate_id='" . $this->get_id() . "' LIMIT 1";
-        $this->db->non_select_query($sql);
-        $this->time_started = $current_time;
-    }
-
-    public function set_time_completed($current_time = false) {
-        if ($current_time === false)
-            $current_time = self::get_current_datetime();
-        $sql = "UPDATE generate SET generate_time_completed='" . $current_time . "' ";
-        $sql .= "WHERE generate_id='" . $this->get_id() . "' LIMIT 1";
-        $this->db->non_select_query($sql);
-        $this->time_completed = $current_time;
-    }
-
-    private static function get_current_datetime() {
-        $current_time = date("Y-m-d H:i:s",time());
-        return $current_time;
     }
 
     public function check_pbs_running() {
@@ -184,14 +140,6 @@ class stepa {
         if ($result) {
             $this->status = $status;
         }
-    }
-
-    public function mark_job_as_archived() {
-        // This marks the job as archived-failed. If the job is archived but the
-        // time completed is non-zero, then the job successfully completed.
-        if ($this->get_status() == __FAILED__)
-            $this->set_time_completed("0000-00-00 00:00:00");
-        $this->set_status(__ARCHIVED__);
     }
 
     public function get_num_sequence_from_file() {
@@ -424,197 +372,64 @@ class stepa {
         }
     }
 
+    // PARENT EMAIL-RELATED OVERLOADS
 
-    public function email_started() {
-        $subject = $this->beta . "EFI-EST - Initial submission received";
-        $to = $this->get_email();
-        $from = "EFI EST <" . functions::get_admin_email() . ">";
-
-        $full_url = functions::get_web_root() . "/" . functions::get_job_status_script();
-        $full_url = $full_url . "?" . http_build_query(array('id'=>$this->get_id(), 'key'=>$this->get_key()));
-
-        $plain_email = "";
-
-        if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
-
-        //plain text email
-        $plain_email .= $this->get_started_email_body();
-        $plain_email .= "You will receive an email once the job has been completed." . $this->eol . $this->eol;
-        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
-        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
-        $plain_email .= "To check on the status of this job, go to THE_STATUS_URL" . $this->eol . $this->eol;
-        $plain_email .= "If no new email is received after 48 hours, please contact us and mention the EFI-EST ";
-        $plain_email .= "Job ID that corresponds to this email." . $this->eol . $this->eol;
-        $plain_email .= functions::get_email_footer();
-
-        $html_email = nl2br($plain_email, false);
-        
-        $plain_email = str_replace("THE_STATUS_URL", $full_url, $plain_email);
-        $html_email = str_replace("THE_STATUS_URL", "<a href=\"" . htmlentities($full_url) . "\">" . $full_url . "</a>", $html_email);
-
-        $message = new Mail_mime(array("eol"=>$this->eol));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From"=>$from,
-            "Subject"=>$subject
-        );
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to,$headers,$body);
+    // Called by all inheritees
+    protected function get_email_job_info() {
+        $message = "EFI-EST Job ID: " . $this->get_id() . PHP_EOL;
+        $message .= "Computation Type: " . functions::format_job_type($this->get_type()) . PHP_EOL;
+        return $message;
     }
-
-    protected function get_started_email_body() {
-        $plain_email = "The initial information needed for the generation of the data set is being fetched and ";
-        $plain_email .= "processed. The similarity between sequences is being calculated." . $this->eol . $this->eol;
-        return $plain_email;
-    }
-
+    
     // This can be overridden.
     protected function get_generate_results_script() {
         return "stepc.php";
     }
 
-    protected function get_completion_email_subject_line() {
-        return "Initial calculation complete";
+
+    protected function get_email_started_subject() { return "EFI-EST - Initial submission received"; }
+    protected function get_email_started_body() {
+        $plain_email = "The initial information needed for the generation of the data set is being fetched and ";
+        $plain_email .= "processed. The similarity between sequences is being calculated." . PHP_EOL . PHP_EOL;
+        $plain_email .= "You will receive an email once the job has been completed." . PHP_EOL . PHP_EOL;
+        $plain_email .= "To check on the status of this job, go to THE_URL" . PHP_EOL . PHP_EOL;
+        $plain_email .= "If no new email is received after 48 hours, please contact us and mention the EFI-EST ";
+        $plain_email .= "Job ID that corresponds to this email." . PHP_EOL . PHP_EOL;
+        
+        $full_url = functions::get_web_root() . "/" . functions::get_job_status_script();
+        $full_url = $full_url . "?" . http_build_query(array('id' => $this->get_id(), 'key' => $this->get_key()));
+
+        return array("body" => $plain_email, "url" => $full_url);
     }
 
-    protected function get_completion_email_body() {
+    protected function get_email_completion_subject() { return "EFI-EST - Initial calculation complete"; }
+    protected function get_email_completion_body() {
         $plain_email = "The initial information needed for the generation of the data set has been fetched and ";
-        $plain_email .= "processed. The similarity between sequences has been calculated." . $this->eol . $this->eol;
-        $plain_email .= "To finalize your SSN, please go to THE_URL" . $this->eol . $this->eol;
+        $plain_email .= "processed. The similarity between sequences has been calculated." . PHP_EOL . PHP_EOL;
+        $plain_email .= "To finalize your SSN, please go to THE_URL" . PHP_EOL . PHP_EOL;
+        
+        $full_url = functions::get_web_root() . "/" . $this->get_generate_results_script();
+        $full_url = $full_url . "?" . http_build_query(array('id' => $this->get_id(), 'key' => $this->get_key()));
+
+        return array("body" => $plain_email, "url" => $full_url);
+    }
+
+    protected function get_email_cancelled_subject() { return "EFI-EST - Job cancelled"; }
+    protected function get_email_cancelled_body() {
+        $plain_email = "The EFI-EST job was cancelled upon user request.";
         return $plain_email;
     }
 
-
-    public function email_complete() {
-        $subject = $this->beta . "EFI-EST - " . $this->get_completion_email_subject_line();
-        $to = $this->get_email();
-        $from = "EFI-EST <" .functions::get_admin_email() . ">";
-
-        $full_url = functions::get_web_root() . "/" . $this->get_generate_results_script();
-        $full_url = $full_url . "?" . http_build_query(array('id'=>$this->get_id(),
-            'key'=>$this->get_key()));
-
-        if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
-
-        //plain text email
-        $plain_email = $this->get_completion_email_body();
-        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
-        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
-        $plain_email .= "These data will only be retained for " . functions::get_retention_days() . " days." . $this->eol . $this->eol;
-        $plain_email .= functions::get_email_footer() . $this->eol;
-
-        $html_email = nl2br($plain_email, false);
-
-        $plain_email = str_replace("THE_URL", $full_url, $plain_email);
-        $html_email = str_replace("THE_URL", "<a href=\"" . htmlentities($full_url) . "\">" . $full_url . "</a>", $html_email);
-
-        $message = new Mail_mime(array("eol"=>$this->eol));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From"=>$from,
-            "Subject"=>$subject
-        );
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to,$headers,$body);
-
-
-    }
-
-    // Analysis only
-    public function email_failed() {
-
-        $subject = $this->beta . "EFI-EST - Analysis computation failed";
-        $to = $this->get_email();
-        $full_url = functions::get_web_root();
-        $from = "EFI-EST <" .functions::get_admin_email() . ">";
-
-        $plain_email = "";
-
-        if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
-
-        //plain text email
-        $plain_email .= "The analysis computation failed." . $this->eol;
-        $plain_email .= "Please restart by going to THE_URL" . $this->eol . $this->eol;
-        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
-        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
-        $plain_email .= functions::get_email_footer() . $this->eol;
-
-        $html_email = nl2br($plain_email, false);
-
-        $plain_email = str_replace("THE_URL", $full_url, $plain_email);
-        $html_email = str_replace("THE_URL", "<a href=\"" . htmlentities($full_url) . "\">" . $full_url . "</a>", $html_email);
-
-        $message = new Mail_mime(array("eol"=>$this->eol));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From"=>$from,
-            "Subject"=>$subject
-        );
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to,$headers,$body);
-
-
-    }
-
-    // Email admin only
-    public function email_error_admin() {
-
-        $to = functions::get_error_admin_email();
-        if (!$to) {
-            return;
-        }
-
-        $subject = $this->beta . "EFI-EST - Pipeline error";
-        $from = "EFI-EST <" .functions::get_admin_email() . ">";
-
-        $plain_email = "";
-
-        //plain text email
-        $plain_email .= "There was an error in the pipeline and the job failed before completing." . $this->eol;
-        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
-        $plain_email .= functions::get_email_footer() . $this->eol;
-
-        $html_email = nl2br($plain_email, false);
-
-        $message = new Mail_mime(array("eol"=>$this->eol));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From"=>$from,
-            "Subject"=>$subject
-        );
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to,$headers,$body);
-    }
-
-
     public function email_number_seq() {
-        $subject = $this->beta . "EFI-EST - Too many sequences for initial computation";
-        $to = $this->get_email();
+        $subject = "EFI-EST - Too many sequences for initial computation";
         $full_url = functions::get_web_root();
-        $from = "EFI-EST <" .functions::get_admin_email() . ">";
         $max_seq = functions::get_max_seq();
 
         $plain_email = "";
-
-        if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
-
-        //plain text
-        $plain_email .= "This computation will use " . number_format($this->get_num_sequences()) . "." . $this->eol;
+        $plain_email .= "This computation will use " . number_format($this->get_num_sequences()) . "." . PHP_EOL;
         $plain_email .= "This number is too large--you are limited to ";
-        $plain_email .=  number_format($max_seq) . " sequences." . $this->eol . $this->eol;
-        $plain_email .= "Return to THE_URL" . $this->eol;
+        $plain_email .=  number_format($max_seq) . " sequences." . PHP_EOL . PHP_EOL;
+        $plain_email .= "Return to THE_URL" . PHP_EOL;
         $plain_email .= "to start a new job with a different set of Pfam/InterPro families.";
         $plain_email .= "Or, if you would like to generate a network with the Pfam/InterPro";
         $plain_email .= " families you have chosen, send an e-mail to efi@enzymefunction.org and";
@@ -622,105 +437,48 @@ class stepa {
         $plain_email .= " to use our Unix scripts for network generation.  These scripts allow you";
         $plain_email .= " to use a larger number of processors and, also, provide more options for";
         $plain_email .= " generating the network files.  Your e-mail should provide a brief ";
-        $plain_email .= "description of your project so that the EFI can assist you." . $this->eol . $this->eol;
-        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
-        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
-        $plain_email .= functions::get_email_footer() . $this->eol . $this->eol;
+        $plain_email .= "description of your project so that the EFI can assist you." . PHP_EOL . PHP_EOL;
 
-        $html_email = nl2br($plain_email, false);
-        $plain_email = str_replace("THE_URL", $full_url, $plain_email);
-        $html_email = str_replace("THE_URL", "<a href=\"" . htmlentities($full_url) . "\">" . $full_url . "</a>", $html_email);
-
-        $message = new Mail_mime(array("eol"=>$this->eol));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From"=>$from,
-            "Subject"=>$subject
-        );
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to,$headers,$body);
+        $this->email_error($subject, array("body" => $plain_email, "url" => $full_url));
     }
 
-
     public function email_format_error() {
-        $subject = $this->beta . "EFI-EST - Job failed; check input format";
-        $to = $this->get_email();
+        $subject = "EFI-EST - Job failed; check input format";
         $full_url = functions::get_web_root();
-        $from = "EFI-EST <" .functions::get_admin_email() . ">";
-        $max_seq = functions::get_max_seq();
 
         $plain_email = "";
-
-        if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
-
-        //plain text
         $plain_email .= "The job failed to finish.  If you uploaded a FASTA file, please check the ";
         $plain_email .= "input file format.  Submitted FASTA files must only include alphabetical ";
         $plain_email .= "amino acid codes and cannot include the translation stop (*) or indeterminate ";
-        $plain_email .= "length gap (-) codes." . $this->eol . $this->eol;
-        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
-        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
-        $plain_email .= functions::get_email_footer() . $this->eol . $this->eol;
+        $plain_email .= "length gap (-) codes." . PHP_EOL . PHP_EOL;
 
-        $html_email = nl2br($plain_email, false);
-        $plain_email = str_replace("THE_URL", $full_url, $plain_email);
-        $html_email = str_replace("THE_URL", "<a href=\"" . htmlentities($full_url) . "\">" . $full_url . "</a>", $html_email);
-
-        $message = new Mail_mime(array("eol"=>$this->eol));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From"=>$from,
-            "Subject"=>$subject
-        );
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to,$headers,$body);
+        $this->email_error($subject, array("body" => $plain_email, "url" => $full_url));
     }
 
 
     public function email_bad_sequence() {
-        $subject = $this->beta . "EFI-EST - Job failed; check input format";
-        $to = $this->get_email();
+        $subject = "EFI-EST - Job failed; check input format";
         $full_url = functions::get_web_root();
-        $from = "EFI-EST <" .functions::get_admin_email() . ">";
-        $max_seq = functions::get_max_seq();
-
+        
         $plain_email = "";
-
-        if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
-
-        //plain text
         $plain_email .= "The job failed to finish. The input sequence was invalid or too short. ";
         $plain_email .= "Input sequences must only include alphabetical ";
         $plain_email .= "amino acid codes and cannot include the translation stop (*) or indeterminate ";
-        $plain_email .= "length gap (-) codes or FASTA headers." . $this->eol . $this->eol;
-        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
-        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
-        $plain_email .= functions::get_email_footer() . $this->eol . $this->eol;
+        $plain_email .= "length gap (-) codes or FASTA headers." . PHP_EOL . PHP_EOL;
 
-        $html_email = nl2br($plain_email, false);
-        $plain_email = str_replace("THE_URL", $full_url, $plain_email);
-        $html_email = str_replace("THE_URL", "<a href=\"" . htmlentities($full_url) . "\">" . $full_url . "</a>", $html_email);
-
-        $message = new Mail_mime(array("eol"=>$this->eol));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From"=>$from,
-            "Subject"=>$subject
-        );
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to,$headers,$body);
+        $this->email_error($subject, array("body" => $plain_email, "url" => $full_url));
     }
 
+    public function email_general_failure() {
+        $subject = "EFI-EST - Job failed";
 
+        $plain_email = "";
+        $plain_email .= "The job failed to finish.  Please report this problem to us with the ";
+        $plain_email .= "contact information in this email.  Please include this email in any ";
+        $plain_email .= "correspondence." . PHP_EOL . PHP_EOL;
+
+        $this->email_error($subject, $plain_email);
+    }
 
 
     public static function duplicate_job($db, $parent_id, $email) {
