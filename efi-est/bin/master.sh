@@ -5,6 +5,10 @@ echo "$DATE: Start EFI-EST Master script"
 
 #export EFI_DEBUG=1
 
+echo "Checking for job cancellation requests"
+sleep 1
+php $DIR/check_cancels.php
+
 echo "Checking FAMILIES"
 php $DIR/check_generate.php FAMILIES
 

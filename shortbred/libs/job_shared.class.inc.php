@@ -285,7 +285,7 @@ abstract class job_shared {
 
     private function send_email($subject, $plain_email, $full_url = "", $to = "") {
         if ($this->beta)
-            $plain_email = "Thank you for using the beta site of EFI-CGFP." . $this->eol . $plain_email;
+            $plain_email = "Thank you for using the EFI beta site." . $this->eol . $plain_email;
 
         if (!$to)
             $to = $this->get_email();
