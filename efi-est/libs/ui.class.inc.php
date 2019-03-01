@@ -9,12 +9,11 @@ class ui {
 
         return <<<HTML
                 <div style="margin-top: 10px">
-                    <b>$title</b><br>
+                    <b>$title</b> <a class="question" title="Maximum size is $maxFileSize">?</a><br>
                     <input type='file' name='$fileId' id='$fileId' data-url='server/php/' class="input_file">
                     <label for="$fileId" class="file_upload"><img src="images/upload.svg" /> <span>Choose a file&hellip;</span></label>
-                    <progress id='$progressBarId' max='100' value='0'></progress> <a class="question" title="Maximum size is $maxFileSize">?</a>
+                    <progress id='$progressBarId' max='100' value='0'></progress> <span id="$progressNumId"></span>
                 </div>
-                <br><div id="$progressNumId"></div>
 HTML;
     }
 

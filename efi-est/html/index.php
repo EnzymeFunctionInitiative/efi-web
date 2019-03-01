@@ -1,4 +1,10 @@
 <?php
+
+const RT_GENERATE = 1;
+const RT_COLOR = 2;
+const RT_ANALYSIS = 3;
+const RT_NESTED_COLOR = 4;
+
 require_once "../includes/main.inc.php";
 require_once "../libs/user_jobs.class.inc.php";
 require_once("../../includes/login_check.inc.php");
@@ -151,12 +157,12 @@ the <a href="family_list.php">Family Information page</a>.
 */?>
             <h3>User Jobs</h3>
 <?php 
-    $allowStatusUpdate = true;
-    outputJobList($jobs, $allowStatusUpdate);
+    $show_archive = true;
+    output_job_list($jobs, $show_archive);
 
     if (count($tjobs)) {
         echo "            <h3>Training Jobs</h3>\n";
-        outputJobList($tjobs);
+        output_job_list($tjobs);
     }
 ?>
          </div>
@@ -165,7 +171,7 @@ the <a href="family_list.php">Family Information page</a>.
 
 <?php if ($showTrainingJobsTab) {
     echo "        <div id=\"tjobs\" class=\"tab\">\n";
-    outputJobList($tjobs);
+    output_job_list($tjobs);
     echo "        </div>\n";
 } ?>
 
@@ -458,14 +464,20 @@ the <a href="family_list.php">Family Information page</a>.
                     <div>
 <?php echo ui::make_upload_box("Accession ID File:", "accession-file", "progress-bar-accession", "progress-num-accession"); ?>
                     </div>
-                    <div id="accession-seq-type-container">
-                        Treat UniProt accession IDs as:
+                    <div id="accession-seq-type-container" style="margin-top:15px">
+                        Create SSN with the accession IDs as:
                         <select id="accession-seq-type">
                             <option value="uniprot" selected>UniProt IDs</option>
                             <option value="uniref90">UniRef90 seed sequence IDs</option>
                             <option value="uniref50">UniRef50 seed sequence IDs</option>
                         </select>
-                        <a class="question" title="If a list of UniProt accession IDs is provided, this option can be used to specify if the accession IDs are to be treated as UniRef50, UniRef90, or UniProt sequences.">?</a>
+                        <a class="question" title="When in the course of human history,
+                            the accession IDs that are provided happen to be UniRef50 or UniRef90 seed sequences,
+                            setting this box to a UniRef option will result in an SSN that is like one that is created by using the
+                            UniRef option with a family.  This means that the list of sequences that is put into
+                            the tool will be end up being the node IDs, and node attributes with the UniRef clusters
+                            will be included in the output SSN. If the UniProt setting is used (the default), then a
+                            normal SSN will be created.">?</a>
                     </div>
                 </div>
 
@@ -508,17 +520,30 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
 <?php    } ?>
 <?php    if ($useAdvancedFamilyInputs) { ?>
+                    <div id="accession-input-domain-cb-container">
+                        <label for="accession-input-domain-cb">Enable domain</label>
+                        <input type="checkbox" name="accession-input-domain-cb" id="accession-input-domain-cb" />
+                        <span id="accession-input-domain-container" style="display:none">
+                            Specify which family the domain should be applied to: <input type="text" name="accession-input-domain-family" id="accession-input-domain-family" style="width: 100px" />
+                        </span>
+                    </div>
+                    <div style="clear: both"></div>
+<?php    } ?>
+<?php    if ($useAdvancedFamilyInputs) { ?>
                     <div>
-                        Expand UniRef homologs: 
+                        Expand UniRef seed sequences: 
                         <input type="checkbox" id="accession-use-uniref" name="accession-use-uniref"
                             onchange="toggleUniref('accession-uniref-version', this)">
-                        Check to expand the homologs for any input sequences that are UniRef seed sequences (default: off)
-                        <div>
+                        <a class="question" title="Check to create an SSN that considers all of the sequences
+                            in UniRef seed sequence clusters that are provided as inputs to this option,
+                            and not just the seed sequences.  This expands the seed sequences before doing anything else
+                            (if any sequences are not seed sequences, they are included as normal nodes in the SSN).
+                            This option is incompatible with the 'Create SSN with the accession IDs' option above.">?</a>
+                        (default: off)
                             <select name="accession-uniref-version" id="accession-uniref-version" disabled="disabled">
                                 <option value="50">UniRef50</option>
                                 <option value="90">UniRef90</option>
                             </select>
-                        </div>
                     </div>
 <?php    } else { ?>
                     <div>
@@ -874,7 +899,22 @@ the <a href="family_list.php">Family Information page</a>.
                     $("#accession-seq-type").val("uniref90");
                 else if (fileName.includes("UniProt"))
                     $("#accession-seq-type").val("uniprot");
+                //$("#accession-input-domain-cb-container").show();
             }
+        });
+
+        //$("#accession-input").on("input", function() {
+        //    var isDomain = $(this).data("is_domain");
+        //    if (typeof isDomain === 'undefined' && this.value && this.value.includes(":")) {
+        //        $(this).data("is_domain", true);
+        //        $("#accession-input-domain-container").show();
+        //        $("#accession-input-domain-cb-container").show();
+        //        $("#accession-input-domain-cb").prop("checked", true);
+        //    }
+        //});
+
+        $("#accession-input-domain-cb").change(function() {
+            $("#accession-input-domain-container").toggle();
         });
 
     }).tooltip();
@@ -948,7 +988,7 @@ $ws</select>
 HTML;
 }
 
-function outputJobList($jobs, $allowStatusUpdate = false) {
+function output_job_list($jobs, $show_archive = false) {
     echo <<<HTML
             <table class="pretty_nested" style="table-layout:fixed">
                 <thead>
@@ -959,59 +999,150 @@ function outputJobList($jobs, $allowStatusUpdate = false) {
                 <tbody>
 HTML;
 
-    $lastBgColor = "#eee";
-    for ($i = 0; $i < count($jobs); $i++) {
-        $key = $jobs[$i]["key"];
-        $id = $jobs[$i]["id"];
-        $name = $jobs[$i]["job_name"];
-        $dateCompleted = $jobs[$i]["date_completed"];
-        $isCompleted = $jobs[$i]["is_completed"];
-    
-        $idText = "";
-        $linkStart = "";
-        $linkEnd = "";
-        $nameStyle = "";
-    
-        if ($jobs[$i]["is_analysis"]) {
-            if ($isCompleted) {
-                $analysisId = $jobs[$i]["analysis_id"];
-                $linkStart = "<a href=\"stepe.php?id=$id&key=$key&analysis_id=$analysisId\">";
-                $linkEnd = "</a>";
-            }
-            $nameStyle = "style=\"padding-left: 50px;\"";
-            //$name = '<i class="fas fa-long-arrow-right" aria-hidden="true"></i> ' . $name;
-            $name = '[Analysis] ' . $name;
-        } else {
-            if ($isCompleted) {
-                $theScript = $jobs[$i]["is_colorssn"] ? "view_coloredssn.php" : "stepc.php";
-                $theStyle = $jobs[$i]["is_colorssn"] ? "hl-color" : "hl-est";
-                $linkStart = "<a href=\"$theScript?id=$id&key=$key\" class=\"$theStyle\">";
-                $linkEnd = "</a>";
-            }
-            $idText = "$linkStart${id}$linkEnd";
-            if ($lastBgColor == "#fff")
-                $lastBgColor = "#eee";
-            else
-                $lastBgColor = "#fff";
+    $order = $jobs["order"];
+    $cjobs = $jobs["color_jobs"];
+    $gjobs = $jobs["generate_jobs"];
+
+    $get_bg_color = new bg_color_toggle();
+
+    for ($i = 0; $i < count($order); $i++) {
+        $id = $order[$i];
+
+        if (isset($gjobs[$id])) {
+            output_generate_job($id, $gjobs[$id], $get_bg_color, $show_archive);
+        } elseif (isset($cjobs[$id])) {
+            output_top_color_job($id, $cjobs[$id], $get_bg_color, $show_archive);
         }
-
-        $statusUpdateHtml = "";
-        if ($allowStatusUpdate && !$jobs[$i]["is_analysis"])
-            $statusUpdateHtml = "<div style=\"float:right\" class=\"archive-btn\" data-type=\"gnn\" data-id=\"$id\" data-key=\"$key\" title=\"Archive Job\"><i class=\"fas fa-trash-alt\"></i></div>";
-        
-        echo <<<HTML
-                    <tr style="background-color: $lastBgColor">
-                        <td>$idText</td>
-                        <td $nameStyle>$linkStart${name}$linkEnd</td>
-                        <td>$dateCompleted $statusUpdateHtml</td>
-                    </tr>
-HTML;
     }
-
     echo <<<HTML
                 </tbody>
             </table>
 HTML;
+}
+
+
+function output_top_color_job($id, $job, $get_bg_color, $show_archive) {
+    $bg_color = $get_bg_color->get_color();
+    $link_class = "hl-color";
+    $html = output_colorssn_row($id, $job, $bg_color, $show_archive);
+    echo $html;
+}
+
+
+function output_generate_job($id, $job, $get_bg_color, $show_archive) {
+    $bg_color = $get_bg_color->get_color();
+    $link_class = "hl-est";
+    $html = output_generate_row($id, $job, $bg_color, $show_archive);
+    echo $html;
+
+    foreach ($job["analysis_jobs"] as $ajob) {
+        $html = output_analysis_row($id, $job["key"], $ajob, $bg_color);
+        echo $html;
+        if (isset($ajob["color_jobs"])) {
+            foreach ($ajob["color_jobs"] as $cjob) {
+                $html = output_nested_colorssn_row($cjob["id"], $cjob, $bg_color);
+                echo $html;
+            }
+        }
+    }
+}
+
+
+function get_script($row_type) {
+    switch ($row_type) {
+    case RT_GENERATE:
+        return "stepc.php";
+    case RT_ANALYSIS:
+        return "stepe.php";
+    case RT_COLOR:
+    case RT_NESTED_COLOR:
+        return "view_coloredssn.php";
+    default:
+        return "";
+    }
+}
+
+function get_link_class($row_type) {
+    switch ($row_type) {
+    case RT_COLOR:
+    case RT_NESTED_COLOR:
+        return "hl-color";
+    default:
+        return "hl-est";
+    }
+}
+
+function output_generate_row($id, $job, $bg_color, $show_archive) {
+    return output_row(RT_GENERATE, $id, NULL, $job["key"], $job, $bg_color, $show_archive);
+}
+
+function output_colorssn_row($id, $job, $bg_color, $show_archive) {
+    return output_row(RT_COLOR, $id, NULL, $job["key"], $job, $bg_color, $show_archive);
+}
+
+function output_nested_colorssn_row($id, $job, $bg_color) {
+    return output_row(RT_NESTED_COLOR, $id, NULL, $job["key"], $job, $bg_color, false);
+}
+
+function output_analysis_row($id, $key, $job, $bg_color) {
+    return output_row(RT_ANALYSIS, $id, $job["analysis_id"], $key, $job, $bg_color, false);
+}
+
+// $aid = NULL to not output an analysis (nested) job
+function output_row($row_type, $id, $aid, $key, $job, $bg_color, $show_archive) {
+    $script = get_script($row_type);
+    $link_class = get_link_class($row_type);
+
+    $name = $job["job_name"];
+    $date_completed = $job["date_completed"];
+    $is_completed = $job["is_completed"];
+
+    $link_start = "";
+    $link_end = "";
+    $name_style = "";
+    if ($is_completed) {
+        $aid_param = $row_type == RT_ANALYSIS ? "&analysis_id=$aid" : "";
+        $link_start = "<a href='$script?id=$id&key=${key}${aid_param}' class='$link_class'>";
+        $link_end = "</a>";
+    }
+    $id_text = "$link_start${id}$link_end";
+
+    if ($row_type == RT_ANALYSIS) {
+        $name_style = "style=\"padding-left: 35px;\"";
+        $name = '[Analysis] ' . $name;
+        $id_text = "";
+    } elseif ($row_type == RT_NESTED_COLOR) {
+        $name_style = "style=\"padding-left: 70px;\"";
+        $id_text = "";
+    }
+    $name = "<span title='$id'>$name</span>";
+
+    $status_update_html = "";
+    if ($show_archive)
+        $status_update_html = "<div style='float:right' class='archive-btn' data-type='gnn' data-id='$id' data-key='$key' title='Archive Job'><i class='fas fa-trash-alt'></i></div>";
+
+    return <<<HTML
+                    <tr style="background-color: $bg_color">
+                        <td>$id_text</td>
+                        <td $name_style>$link_start${name}$link_end</td>
+                        <td>$date_completed $status_update_html</td>
+                    </tr>
+HTML;
+}
+
+
+class bg_color_toggle {
+
+    private $last_bg_color = "#eee";
+
+    // Return the color and then toggle it.
+    public function get_color() {
+        if ($this->last_bg_color == "#fff")
+            $this->last_bg_color = "#eee";
+        else
+            $this->last_bg_color = "#fff";
+        return $this->last_bg_color;
+    }
 }
 
 ?>
