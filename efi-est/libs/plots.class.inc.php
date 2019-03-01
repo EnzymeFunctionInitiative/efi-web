@@ -75,17 +75,21 @@ class plot_edge_evalue extends plot {
     public function render_data() {
         $ev_data = $this->get_data();
 
+        $check_size = true;
+        if (count($ev_data) < 30)
+            $check_size = false;
+
         $xvar = self::get_var(self::PLOT_ID, "x");
         $yvar = self::get_var(self::PLOT_ID, "y");
         $js = "var $xvar = [";
         foreach ($ev_data as $ev => $edge_sum) {
-            if ($edge_sum > 100)
+            if (!$check_size || $edge_sum > 100)
                 $js .= "$ev,";
         }
         $js .= "];\n";
         $js .= "var $yvar = [";
         foreach ($ev_data as $ev => $edge_sum) {
-            if ($edge_sum > 100)
+            if (!$check_size || $edge_sum > 100)
                 $js .= "$edge_sum,";
         }
         $js .= "];\n";

@@ -59,6 +59,7 @@ if ($generate->get_job_name())
 $uploaded_file = "";
 $included_family = "";
 $num_family_nodes = $generate->get_num_family_sequences();
+$num_full_family_nodes = $generate->get_num_full_family_sequences();
 $total_num_nodes = $generate->get_num_sequences();
 $extra_nodes_string = "";
 $extra_nodes_ast = "";
@@ -145,8 +146,8 @@ elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
     }
 }
 
-if ($included_family && !empty($num_family_nodes))
-    $table->add_row("Number of Sequences in PFAM/InterPro Family", number_format($num_family_nodes));
+if ($included_family && !empty($num_full_family_nodes))
+    $table->add_row("Number of Sequences in PFAM/InterPro Family", number_format($num_full_family_nodes));
 $table->add_row("Total Number of Sequences $extra_nodes_ast", number_format($total_num_nodes));
 
 $table->add_row("Network Name", $analysis->get_name());
@@ -224,7 +225,6 @@ else {
     $network_sel_list = array();
 
     $color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
-        //$js_code = "submitStepEColorSsnForm(\"$email\", $analysis_id, $ssn_index)";
         $js_code = "";
         $html = " <button class='mini colorssn-btn' type='button' onclick='$js_code' data-aid='$analysis_id' data-ssn-index='$ssn_index'>Color SSN</button>";
         return $html;
@@ -414,7 +414,6 @@ Would you like to color the SSN?
 <script>
     $(document).ready(function() {
         $(".colorssn-btn").click(function(evt) {
-            var email = "<?php echo $email; ?>";
             var aid = $(this).data("aid");
             var ssnIndex = $(this).data("ssn-index");
             $("#ssn-confirm").dialog({
@@ -424,7 +423,7 @@ Would you like to color the SSN?
                 modal: true,
                 buttons: {
                     Yes: function() {
-                        submitStepEColorSsnForm(email, aid, ssnIndex);
+                        submitStepEColorSsnForm(aid, ssnIndex);
                         $(this).dialog("close");
                     },
                     No: function() {

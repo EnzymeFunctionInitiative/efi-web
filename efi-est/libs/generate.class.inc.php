@@ -14,12 +14,7 @@ class generate extends family_shared {
     public function __destruct() {
     }
 
-    public function get_domain() { 
-        if ($this->domain) {
-            return "on";
-        }
-        return "off";
-    }
+    public function get_domain() { return $this->domain ? "on" : "off"; }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // OVERLOADS
@@ -34,11 +29,10 @@ class generate extends family_shared {
 
     protected function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
-        
+
         $domain_bool = 0;
-        if ($data->domain == 'true' || $data->domain == 1) {
+        if ($data->domain == 'true' || $data->domain == 1)
             $domain_bool = 1;
-        }
 
         $insert_array['generate_domain'] = $domain_bool;
 

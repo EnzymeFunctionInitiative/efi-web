@@ -122,6 +122,10 @@ function submitOptionDForm(famHelper, outputIds) {
         addCbParam(fd, "accession_use_uniref", "accession-use-uniref");
         addParam(fd, "accession_uniref_version", "accession-uniref-version");
         addParam(fd, "accession_seq_type", "accession-seq-type");
+        if ($("#accession-input-domain-cb").prop("checked")) {
+            fd.append("accession_use_dom", true);
+            addParam(fd, "accession_dom_fam", "accession-input-domain-family");
+        }
     
         var completionHandler = getDefaultCompletionHandler();
         var fileHandler = function(xhr) {};
@@ -189,11 +193,10 @@ function submitColorSsnForm() {
     doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
 }
 
-function submitStepEColorSsnForm(email, analysisId, ssnIndex) {
+function submitStepEColorSsnForm(analysisId, ssnIndex) {
 
     var fd = new FormData();
     fd.append("option_selected", "colorssn");
-    fd.append("email", email);
     fd.append("ssn-source-id", analysisId);
     fd.append("ssn-source-idx", ssnIndex);
 
@@ -236,12 +239,9 @@ function addUploadStuff(xhr, progressNumId, progressBarId) {
 function uploadProgress(evt, progressTextId, progressBarId) {
     if (evt.lengthComputable) {
         var percentComplete = Math.round(evt.loaded * 100 / evt.total);
-        document.getElementById(progressTextId).innerHTML = "Uploading File: " + percentComplete.toString() + '%';
+        document.getElementById(progressTextId).innerHTML = percentComplete.toString() + '%';
         var bar = document.getElementById(progressBarId);
         bar.value = percentComplete;
-    }
-    else {
-        document.getElementById(progressTextId).innerHTML = 'unable to compute';
     }
 }
 

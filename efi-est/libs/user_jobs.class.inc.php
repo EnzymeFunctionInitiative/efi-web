@@ -96,7 +96,7 @@ class user_jobs extends user_auth {
         $familyLookupFn = function($family_id) {};
         $includeFailedAnalysisJobs = true;
         $includeAnalysisJobs = true;
-        $this->jobs = self::process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn);
+        $this->jobs = self::process_load_generate_rows2($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn);
     }
 
     private function load_training_jobs($db) {
@@ -115,7 +115,107 @@ class user_jobs extends user_auth {
         $familyLookupFn = function($family_id) {};
         $includeFailedAnalysisJobs = false;
         $includeAnalysisJobs = true;
-        $this->training_jobs = self::process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn);
+        $this->training_jobs = self::process_load_generate_rows2($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn);
+    }
+
+    private static function process_load_generate_rows2($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn) {
+        $jobs = array();
+
+        $map_fn = function ($row) { return $row["generate_id"]; };
+        $id_order = array_map($map_fn, $rows);
+
+        // First process all of the color SSN jobs.  This allows us to link them to SSN jobs.
+        $child_color_jobs = array();
+        $color_jobs = array();
+        foreach ($rows as $row) {
+            if ($row["generate_type"] != "COLORSSN")
+                continue;
+
+            $comp_result = self::get_completed_date_label($row["generate_time_completed"], $row["generate_status"]);
+            $job_name = self::build_job_name($row["generate_params"], $row["generate_type"], $familyLookupFn);
+            $comp = $comp_result[1];
+            $is_completed = $comp_result[0];
+            $id = $row["generate_id"];
+            $key = $row["generate_key"];
+
+            $params = functions::decode_object($row["generate_params"]);
+            if (isset($params["generate_color_ssn_source_id"]) && $params["generate_color_ssn_source_id"]) {
+                $aid = $params["generate_color_ssn_source_id"];
+                $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
+                if (isset($child_color_jobs[$aid]))
+                    array_push($child_color_jobs[$aid], $color_job);
+                else
+                    $child_color_jobs[$aid] = array($color_job);
+            } else {
+                $color_jobs[$id] = array("key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
+            }
+        }
+
+        $colors_to_remove = array(); // these are the generate_id that will need to be removed from $id_order, since they are now attached to an analysis job
+        // Process all non Color SSN jobs.  Link analysis jobs to generate jobs and color SSN jobs to analysis jobs.
+        foreach ($rows as $row) {
+            if ($row["generate_type"] == "COLORSSN")
+                continue;
+
+            $comp_result = self::get_completed_date_label($row["generate_time_completed"], $row["generate_status"]);
+            $job_name = self::build_job_name($row["generate_params"], $row["generate_type"], $familyLookupFn);
+            $comp = $comp_result[1];
+            $is_completed = $comp_result[0];
+            $id = $row["generate_id"];
+            $key = $row["generate_key"];
+            
+            $job_data = array("key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
+
+            $analysis_jobs = array();
+            if ($is_completed && $includeAnalysisJobs) {
+                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter FROM analysis " .
+                    "WHERE analysis_generate_id = $id ";
+                if (!$includeFailedAnalysisJobs)
+                    $sql .= "AND analysis_status = 'FINISH'";
+                $arows = $db->query($sql); // Analysis Rows
+    
+                foreach ($arows as $arow) {
+                    $aid = $arow["analysis_id"];
+                    $acomp_result = self::get_completed_date_label($arow["analysis_time_completed"], $arow["analysis_status"]);
+                    $acomp = $acomp_result[1];
+                    $a_is_completed = $acomp_result[0];
+                    $a_min = $arow["analysis_min_length"] == __MINIMUM__ ? "" : "Min=".$arow["analysis_min_length"];
+                    $a_max = $arow["analysis_max_length"] == __MAXIMUM__ ? "" : "Max=".$arow["analysis_max_length"];
+                    $filter = $arow["analysis_filter"];
+                    $filter = $filter == "eval" ? "AS" : ($filter == "pid" ? "%ID" : ($filter == "bit" ? "BS" : "custom"));
+                    $a_job_name = "$filter=" . $arow["analysis_evalue"] . " $a_min $a_max Title=<i>" . $arow["analysis_name"] . "</i>";
+
+                    $a_job = array("analysis_id" => $aid, "job_name" => $a_job_name, "is_completed" => $a_is_completed, "date_completed" => $acomp);
+                    if (isset($child_color_jobs[$aid])) {
+                        $a_job["color_jobs"] = $child_color_jobs[$aid];
+                        foreach ($child_color_jobs[$aid] as $cjob) {
+                            $colors_to_remove[$cjob["id"]] = 1;
+                        }
+                        unset($child_color_jobs[$aid]);
+                    }
+                    array_push($analysis_jobs, $a_job);
+                }
+            }
+
+            $job_data["analysis_jobs"] = $analysis_jobs;
+            $jobs[$id] = $job_data;
+        }
+
+        foreach ($child_color_jobs as $aid => $infos) {
+            foreach ($infos as $info) {
+                $color_jobs[$info["id"]] = $info;
+            }
+        }
+
+        // Remove color jobs that have been attached to an analysis job.
+        $id_order_new = array();
+        for ($i = 0; $i < count($id_order); $i++) {
+            if (!isset($colors_to_remove[$id_order[$i]]))
+                array_push($id_order_new, $id_order[$i]);
+        }
+
+        $retval = array("generate_jobs" => $jobs, "color_jobs" => $color_jobs, "order" => $id_order_new);
+        return $retval;
     }
 
     private static function process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn) {
@@ -309,7 +409,7 @@ class user_jobs extends user_auth {
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);
         
-        $jobName = self::get_job_label($type);
+        $job_name = self::get_job_label($type);
 
         $jobInfo = "";
         if ($jobNameField) {
@@ -319,10 +419,10 @@ class user_jobs extends user_auth {
         }
 
         if ($jobInfo) {
-            $jobName .= " ($jobInfo)";
+            $job_name .= " ($jobInfo)";
         }
 
-        return $jobName;
+        return $job_name;
     }
 
     private static function lookup_family_name($db, $family_id) {
@@ -336,7 +436,7 @@ class user_jobs extends user_auth {
     }
 
     private static function get_completed_date_label($comp, $status) {
-        $isCompleted = false;
+        $is_completed = false;
         if ($status == "FAILED") {
             $comp = "FAILED";
         } elseif (!$comp || substr($comp, 0, 4) == "0000" || $status == "RUNNING") {
@@ -345,9 +445,9 @@ class user_jobs extends user_auth {
                 $comp = "PENDING";
         } else {
             $comp = date_format(date_create($comp), "n/j h:i A");
-            $isCompleted = true;
+            $is_completed = true;
         }
-        return array($isCompleted, $comp);
+        return array($is_completed, $comp);
     }
 
     private function load_analysis_jobs($db) {
@@ -366,7 +466,7 @@ class user_jobs extends user_auth {
         foreach ($rows as $row) {
             $comp = $row["analysis_time_completed"];
             $status = $row["analysis_status"];
-            $isCompleted = false;
+            $is_completed = false;
             if ($status == "FAILED") {
                 $comp = "FAILED";
             } elseif (!$comp || substr($comp, 0, 4) == "0000") {
@@ -375,13 +475,13 @@ class user_jobs extends user_auth {
                     $comp = "PENDING";
             } else {
                 $comp = date_format(date_create($comp), "n/j h:i A");
-                $isCompleted = true;
+                $is_completed = true;
             }
 
-            $jobName = $row["generate_type"];
+            $job_name = $row["generate_type"];
 
             array_push($this->analysis_jobs, array("id" => $row["analysis_generate_id"], "key" => $row["generate_key"],
-                    "job_name" => $jobName, "is_completed" => $isCompleted, "analysis_id" => $row["analysis_id"],
+                    "job_name" => $job_name, "is_completed" => $is_completed, "analysis_id" => $row["analysis_id"],
                     "date_completed" => $comp));
         }
     }

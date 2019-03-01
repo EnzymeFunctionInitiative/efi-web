@@ -32,13 +32,19 @@ if ($input->is_debug) {
 #    $test .= " " . $var;
 #}
 
-$input->email = $_POST['email'];
+if (isset($_POST['email'])) {
+    $input->email = $_POST['email'];
+} else {
+    if (global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie())
+        $input->email = user_auth::get_email_from_token($db, user_auth::get_user_token());
+}
+
 $num_job_limit = global_settings::get_num_job_limit();
 $is_job_limited = user_jobs::check_for_job_limit($db, $input->email);
 
 if (!isset($_POST['submit'])) {
     $result["MESSAGE"] = "Form is invalid.";
-} elseif (!$input->email) {
+} elseif (!isset($input->email) || !$input->email) {
     $result["MESSAGE"] = "Please enter an e-mail address.";
 } elseif ($is_job_limited) {
     $result["MESSAGE"] = "Due to finite computational resource constraints, you can only submit $num_job_limit jobs within a 24 hour period.  Please try again in 24 hours.";
@@ -168,6 +174,10 @@ if (!isset($_POST['submit'])) {
                     } else {
                         $input->expand_homologs = false;
                     }
+                    if (isset($_POST["accession_use_dom"]) && $_POST["accession_use_dom"])
+                        $input->domain = $_POST["accession_use_dom"];
+                    if (isset($_POST["accession_dom_fam"]) && $_POST["accession_dom_fam"])
+                        $input->domain_family = $_POST["accession_dom_fam"];
                 } else if ($option == "colorssn") {
                     $obj = new colorssn($db);
                     if (isset($_POST['ssn-source-id']))
