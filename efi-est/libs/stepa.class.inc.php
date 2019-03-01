@@ -72,7 +72,7 @@ class stepa extends est_shared {
     public function get_total_num_file_sequences() { return $this->total_num_file_sequences; }
     public function get_num_matched_file_sequences() { return $this->num_matched_file_sequences; }
     public function get_num_unmatched_file_sequences() { return $this->num_unmatched_file_sequences; }
-    public function get_num_family_sequences() { return $this->num_family_sequences; }
+    public function get_num_family_sequences() { return $this->num_family_sequences; }  // UniRef size if option is for UniRef.
     public function get_num_full_family_sequences() { return $this->num_full_family_sequences; }
     public function get_program() { return $this->program; }
     public function get_fraction() { return $this->fraction; }

@@ -20,6 +20,7 @@ class input_data {
 
     // For option D
     public $expand_homologs;
+    public $domain_family;
 
     // For option B, and E
     public $domain;
