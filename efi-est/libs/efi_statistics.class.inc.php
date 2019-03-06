@@ -141,7 +141,7 @@ class efi_statistics
             $results[$i]['Time Started'] = self::format_date($results[$i]['Time Started']);
             $results[$i]['Time Completed'] = self::format_date($results[$i]['Time Completed']);
             $results[$i]['Time Submitted'] = self::format_date($results[$i]['Time Submitted']);
-            $results[$i]['UniRef'] = array_key_exists('generate_uniref', $res_obj) ? $res_obj['generate_uniref'] : '';
+            $results[$i]['UniRef'] = array_key_exists('generate_uniref', $params) ? $params['generate_uniref'] : '';
         }
         //$sql .= "generate.generate_blast as Blast, ";
         //$sql .= "generate.generate_families as Families, ";
