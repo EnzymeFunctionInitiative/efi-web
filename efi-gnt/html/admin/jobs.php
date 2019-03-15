@@ -47,12 +47,13 @@ foreach ($jobs as $job) {
     $filename = "";
     $nb_size = "";
     $type_field = "";
+    $params = global_functions::decode_object($job['params']);
     if ($job_type == "gnt") {
-        $filename = $job['Filename'];
-        $nb_size = $job['Neighborhood Size'];
-        $type_field = $job['DB Mod'];
+        $filename = $params["filename"];
+        $nb_size = $params["neighborhood_size"];
+        $type_field = $params["db_mod"];
+        $cooc = $params["cooccurrence"];
     } else {
-        $params = global_functions::decode_object($job['params']);
         $type_field = $job['type'];
 
         if (isset($params["neighborhood_size"]))
@@ -62,7 +63,7 @@ foreach ($jobs as $job) {
     $gnn_html .= "<td class='file_col'>" . $filename . "</td>\n";
     $gnn_html .= "<td>" . $nb_size . "</td>\n";
     if ($job_type == "gnt")
-	    $gnn_html .= "<td>" . $job['Input Cooccurrance'] . "</td>\n";
+	    $gnn_html .= "<td>$cooc</td>";
     $gnn_html .= "<td>" . $type_field . "</td>\n";
 	$gnn_html .= "<td>" . str_replace(" ", "&nbsp;", global_functions::format_short_date($job['Time Created'])) . "</td>\n";
 	$gnn_html .= "<td>" . str_replace(" ", "&nbsp;", global_functions::format_short_date($job['Time Started'])) . "</td>\n";
