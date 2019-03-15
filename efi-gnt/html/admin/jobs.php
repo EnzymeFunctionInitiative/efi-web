@@ -46,14 +46,14 @@ foreach ($jobs as $job) {
     $gnn_html .= "<td>" . $job['Email'] . "</td>\n";
     $filename = "";
     $nb_size = "";
+    $type_field = "";
     if ($job_type == "gnt") {
         $filename = $job['Filename'];
         $nb_size = $job['Neighborhood Size'];
+        $type_field = $job['DB Mod'];
     } else {
         $params = global_functions::decode_object($job['params']);
-        $type = $job['type'];
-
-        $gnn_html .= "<td>" . $type . "</td>\n";
+        $type_field = $job['type'];
 
         if (isset($params["neighborhood_size"]))
             $nb_size = $params["neighborhood_size"];
@@ -63,14 +63,14 @@ foreach ($jobs as $job) {
     $gnn_html .= "<td>" . $nb_size . "</td>\n";
     if ($job_type == "gnt")
 	    $gnn_html .= "<td>" . $job['Input Cooccurrance'] . "</td>\n";
+    $gnn_html .= "<td>" . $type_field . "</td>\n";
 	$gnn_html .= "<td>" . str_replace(" ", "&nbsp;", global_functions::format_short_date($job['Time Created'])) . "</td>\n";
 	$gnn_html .= "<td>" . str_replace(" ", "&nbsp;", global_functions::format_short_date($job['Time Started'])) . "</td>\n";
 	$gnn_html .= "<td class='" . strtolower($job['Status']) . "'>" . $tco . "</td>\n";
 	$gnn_html .= "</tr>";
-
 }
 
-$cooc_field = $job_type == "gnd" ? "Diagram Type" : "Input Cooccurrence";
+$cooc_field = $job_type == "diagram" ? "Diagram Type" : "Input Cooccurrence";
 
 
 
@@ -116,6 +116,7 @@ $monthName = date("F", mktime(0, 0, 0, $month, 10));
 	<th>Filename</th>
 	<th>Neighborhood Size</th>
     <th><?php echo $cooc_field; ?></th>
+<?php if ($job_type == "gnt") echo "    <th>DB Mod</th>\n"; ?>
 	<th>Time Submitted</th>
 	<th>Time Started</th>
 	<th>Time Finished</th>
