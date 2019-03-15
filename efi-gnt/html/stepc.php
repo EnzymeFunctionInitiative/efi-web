@@ -78,6 +78,8 @@ $pfamZipFilesize = format_file_size($gnn->get_pfam_hub_zip_filesize());
 
 $uniprotIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIPROT);
 $uniprotIdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIPROT));
+$uniprotDomIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIPROT_DOMAIN);
+$uniprotDomIdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIPROT_DOMAIN));
 $uniref50IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIREF50);
 $uniref50IdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIREF50));
 $uniref90IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIREF90);
@@ -95,10 +97,14 @@ $warningFile = $gnn->get_relative_warning_file();
 $warningFilesize = $gnn->get_warning_filesize();
 $idTableFile = $gnn->get_relative_id_table_file();
 $idTableFilesize = $gnn->get_id_table_filesize();
+$idDomTableFile = $gnn->get_relative_id_table_file(true);
+$idDomTableFilesize = $gnn->get_id_table_filesize(true);
 $pfamNoneZip = $gnn->get_relative_pfam_none_zip_file();
 $pfamNoneZipFilesize = $gnn->get_pfam_none_zip_filesize();
 $fastaZip = $gnn->get_relative_fasta_zip_file();
+$fastaDomainZip = $gnn->get_relative_fasta_zip_file(true);
 $fastaZipFilesize = $gnn->get_fasta_zip_filesize();
+$fastaDomainZipFilesize = $gnn->get_fasta_zip_filesize(true);
 $coocTableFile = $gnn->get_relative_cooc_table_file();
 $coocTableFilesize = $gnn->get_cooc_table_filesize();
 $hubCountFile = $gnn->get_relative_hub_count_file();
@@ -121,6 +127,8 @@ if ($idTableFile or $pfamDataZip or $splitPfamDataZip or $allPfamDataZip or $all
     array_push($otherFiles, array("Mapping Tables"));
 if ($idTableFile)
     array_push($otherFiles, array($idTableFile, format_file_size($idTableFilesize), "UniProt ID-Color-Cluster Number"));
+if ($idDomTableFilesize !== false)
+    array_push($otherFiles, array($idDomTableFile, format_file_size($idDomTableFilesize), "UniProt ID-Color-Cluster (Domain) Number"));
 if ($pfamDataZip)
     array_push($otherFiles, array($pfamDataZip, format_file_size($pfamDataZipFilesize), "Neighbor Pfam domain fusions at specified minimal cooccurrence frequency"));
 if ($splitPfamDataZip)
@@ -134,12 +142,16 @@ if ($uniprotIdDataZip or $uniref50IdDataZip or $uniref90IdDataZip or $fastaZip o
     array_push($otherFiles, array("Data Files by Cluster"));
 if ($uniprotIdDataZip)
     array_push($otherFiles, array($uniprotIdDataZip, format_file_size($uniprotIdDataZipFilesize), "UniProt ID Lists"));
+if ($uniprotDomIdDataZip)
+    array_push($otherFiles, array($uniprotDomIdDataZip, format_file_size($uniprotDomIdDataZipFilesize), "UniProt ID (Domain) Lists"));
 if ($uniref50IdDataZip)
     array_push($otherFiles, array($uniref50IdDataZip, format_file_size($uniref50IdDataZipFilesize), "UniRef50 ID Lists"));
 if ($uniref90IdDataZip)
     array_push($otherFiles, array($uniref90IdDataZip, format_file_size($uniref90IdDataZipFilesize), "UniRef90 ID Lists"));
 if ($fastaZip)
     array_push($otherFiles, array($fastaZip, format_file_size($fastaZipFilesize), "FASTA Files"));
+if ($fastaDomainZipFilesize)
+    array_push($otherFiles, array($fastaDomainZip, format_file_size($fastaDomainZipFilesize), "FASTA Files (with Domain)"));
 if ($pfamNoneZip)
     array_push($otherFiles, array($pfamNoneZip, format_file_size($pfamNoneZipFilesize), "Neighbors without PFAM assigned"));
 
