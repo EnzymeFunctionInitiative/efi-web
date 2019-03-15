@@ -20,15 +20,6 @@ else {
 $gnnId = $gnn->get_id();
 $gnnKey = $gnn->get_key();
 $baseUrl = settings::get_web_address();
-$isMigrated = false;
-$migInfo = functions::get_est_job_info_from_gnn_id($db, $gnnId);
-if ($migInfo !== false) {
-    $isMigrated = true;
-    $generateId = $migInfo["generate_id"];
-    $analysisId = $migInfo["analysis_id"];
-    $generateKey = $migInfo["key"];
-    $estParams = "id=$generateId&key=$generateKey&analysis_id=$analysisId";
-}
 
 
 
@@ -205,9 +196,9 @@ require_once('inc/header.inc.php');
         <tbody>
             <tr style='text-align:center;'>
                 <td class="button-col">
-                    <a href="<?php echo "$baseUrl/$ssnFile" ?>"><button class="light small">Download</button></a>
+                    <a href="<?php echo "$baseUrl/$ssnFile" ?>"><button class="mini">Download</button></a>
 <?php if ($ssnZipFile) { ?>
-                    <a href="<?php echo "$baseUrl/$ssnZipFile"; ?>"><button class="light small">Download ZIP</button></a>
+                    <a href="<?php echo "$baseUrl/$ssnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
 <?php } ?>
                 </td>
                 <td><?php echo number_format($gnn->get_ssn_nodes()); ?></td>
@@ -228,9 +219,9 @@ require_once('inc/header.inc.php');
         <tbody>
             <tr style='text-align:center;'>
                 <td class="button-col">
-                    <a href="<?php echo "$baseUrl/$gnnFile"; ?>"><button class="light small">Download</button></a>
+                    <a href="<?php echo "$baseUrl/$gnnFile"; ?>"><button class="mini">Download</button></a>
 <?php if ($gnnZipFile) { ?>
-                    <a href="<?php echo "$baseUrl/$gnnZipFile"; ?>"><button class="light small">Download ZIP</button></a>
+                    <a href="<?php echo "$baseUrl/$gnnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
 <?php } ?>
                 </td>
                 <td><?php echo $gnnFilesize; ?>MB</td>
@@ -249,9 +240,9 @@ require_once('inc/header.inc.php');
         <tbody>
             <tr style='text-align:center;'>
                 <td class="button-col">
-                    <a href="<?php echo "$baseUrl/$pfamFile"; ?>"><button class="light small">Download</button></a>
+                    <a href="<?php echo "$baseUrl/$pfamFile"; ?>"><button class="mini">Download</button></a>
 <?php if ($pfamZipFile) { ?>
-                    <a href="<?php echo "$baseUrl/$pfamZipFile"; ?>"><button class="light small">Download ZIP</button></a>
+                    <a href="<?php echo "$baseUrl/$pfamZipFile"; ?>"><button class="mini">Download ZIP</button></a>
 <?php } ?>
                 </td>
                 <td>
@@ -277,7 +268,7 @@ require_once('inc/header.inc.php');
             <tbody>
                 <tr style='text-align:center;'>
                     <td class="button-col">
-                        <a href="view_diagrams.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?>" target="_blank"><button class="light small">View diagrams</button></a>
+                        <a href="view_diagrams.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?>" target="_blank"><button class="mini">View diagrams</button></a>
                     </td>
                     <td colspan="2">
                         Opens arrow diagram explorer in a new tab or window.
@@ -285,9 +276,9 @@ require_once('inc/header.inc.php');
                 </tr>
                 <tr style="text-align:center;">
                     <td class="button-col">
-                        <a href="<?php echo "$baseUrl/$diagramFile"; ?>"><button class="light small">Download</button></a>
+                        <a href="<?php echo "$baseUrl/$diagramFile"; ?>"><button class="mini">Download</button></a>
 <?php if ($diagramZipFileSize) { ?>
-                        <a href="<?php echo "$baseUrl/$diagramZipFile"; ?>"><button class="light small">Download ZIP</button></a>
+                        <a href="<?php echo "$baseUrl/$diagramZipFile"; ?>"><button class="mini">Download ZIP</button></a>
 <?php } ?>
                     </td>
                     <td>
@@ -333,7 +324,7 @@ HTML;
         echo <<<HTML
             <tr style="text-align:center;">
                 <td>
-                    <a href="$baseUrl/$info[0]"><button class="light small">$btnText</button></a>
+                    <a href="$baseUrl/$info[0]"><button class="mini">$btnText</button></a>
                 </td>
                 <td>$info[2]</td>
                 <td>$info[1] MB</td>
@@ -386,25 +377,27 @@ Recreate an SSN with a different cooccurrence frequency and/or neighborhood size
 </p>
     
 <p>
-<button type="button" id="filter-btn" class="small light">Filter/Regenerate GNN</button>
+<center>
+<button type="button" id="filter-btn" class="dark">Filter/Regenerate GNN</button>
+</center>
 </p>
 </form>
 
-<center>
-    <div><progress id='progress_bar' max='100' value='0'></progress></div>
-    <div id="progress_number"></div>
-</center>
 </div>
 <?php
 }
 ?>
 
-    <hr>
+<hr>
 
-<?php if ($isMigrated) { ?>
-    <p><a href="../efi-est/stepe.php?<?php echo $estParams; ?>"><button type="button" class="small light">Go back to original SSN</button></a></p>
+<?php
+
+if (false) {
+?>
+<h3>Child (Filtered) GNT Jobs</h3>
+<hr>
 <?php } ?>
-    
+
 
 <div id="ssn_message">
 <?php if (isset($message)) { echo "<h3 class='center'>" . $message . "</h3>"; } ?>  

@@ -99,8 +99,8 @@ A listing of new features and other information pertaining to GNT is available o
         <li <?php if (!$est_id) echo "class=\"active\""; ?>><a href="#jobs">Previous Jobs</a></li>
 <?php } ?>
         <li <?php if ($est_id) echo "class=\"active\""; ?>><a href="#create">Create GNN</a></li>
-        <li><a href="#diagrams">View Saved Diagrams</a></li>
         <li><a href="#create-diagrams">Retrieve Neighborhoods</a></li>
+        <li><a href="#diagrams">View Saved Diagrams</a></li>
         <li <?php if (! $showPreviousJobs) echo "class=\"active\""; ?>><a href="#tutorial">Tutorial</a></li>
     </ul>
 
@@ -283,6 +283,13 @@ HTML;
                 The default value is  <?php echo $default_neighbor_size; ?>.
                 </p>
 
+                <p>
+                    <label for="cooccurrence_input"><b>Co-occurrence percentage lower limit:</b></label>
+                    <input type="text" id="cooccurrence" name="cooccurrence" maxlength="3"><br>
+                    This option allows to filter the neighboring pFAMs with a co-occurrence <br>percentage lower than the set value. <br>
+                    The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 1-100.
+                </p>
+
 <?php    if (count($db_modules) > 1) { ?>
                 <p>
                 Database version:
@@ -290,12 +297,6 @@ HTML;
                 </p>
 <?php    } ?>
     
-                <p>
-                    <label for="cooccurrence_input"><b>Co-occurrence percentage lower limit:</b></label>
-                    <input type="text" id="cooccurrence" name="cooccurrence" maxlength="3"><br>
-                    This option allows to filter the neighboring pFAMs with a co-occurrence <br>percentage lower than the set value. <br>
-                    The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 1-100.
-                </p>
                 <p>
                     E-mail address: 
                     <input name="ssn_email" id="ssn_email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
@@ -316,8 +317,6 @@ HTML;
                             >
                                 Generate GNN
                         </button></div>
-                    <div><progress id="progress_bar" max="100" value="0"></progress></div>
-                    <div id="progress_number"></div>
                 </center>
 
 <?php /* if ($est_id) {?>
@@ -327,33 +326,6 @@ HTML;
 <?php } */ ?>
     
             </form>
-        </div>
-
-        <div id="diagrams" class="tab">
-            <form name="upload_diagram_form" id="upload_diagram_form" method="post" action="" enctype="multipart/form-data">
-                <p>
-                    <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "diagram_file", "progress_bar_diagram", "progress_number_diagram", "The acceptable format is sqlite."); ?>
-                </p>
-    
-                <p>
-                    E-mail address: 
-                    <input name="email" id="diagram_email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
-                    When the file has been uploaded and processed, you will receive an e-mail containing a link
-                    to view the diagrams.
-                </p>
-    
-                <div id="diagram_message" style="color: red">
-                    <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
-                </div>
-                <center>
-                    <div><button type="button" id="diagram_submit" name="submit" class="dark"
-                                onclick="uploadDiagramFile('diagram_file','upload_diagram_form','progress_number_diagram','progress_bar_diagram','diagram_message','diagram_email','diagram_submit')">
-                            Upload Diagram Data</button>
-                    </div>
-                    <div><progress id="progress_bar_diagram" max="100" value="0"></progress></div>
-                    <div id="progress_number_diagram"></div>
-                </center>
-            </form> 
         </div>
 
         <div id="create-diagrams" class="tab">
@@ -567,8 +539,6 @@ HTML;
                                                 'option-d-progress-number', 'option-d-progress-bar', 'option-d-message',
                                                 'option-d-db-mod');"
                                 >Submit</button>
-                            <div><progress id="option-d-progress-bar" max="100" value="0"></progress></div>
-                            <div id="option-d-progress-number"></div>
                         </center>
                     </form>
                 </div>
@@ -656,13 +626,36 @@ HTML;
                                                 'option-c-progress-number', 'option-c-progress-bar', 'option-c-message',
                                                 'option-c-db-mod');"
                                 >Submit</button>
-                            <div><progress id="option-c-progress-bar" max="100" value="0"></progress></div>
-                            <div id="option-c-progress-number"></div>
                         </center>
                     </form>
                 </div>
                 </div><!-- class="tab-content" -->
             </div>
+        </div>
+
+        <div id="diagrams" class="tab">
+            <form name="upload_diagram_form" id="upload_diagram_form" method="post" action="" enctype="multipart/form-data">
+                <p>
+                    <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "diagram_file", "progress_bar_diagram", "progress_number_diagram", "The acceptable format is sqlite."); ?>
+                </p>
+    
+                <p>
+                    E-mail address: 
+                    <input name="email" id="diagram_email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
+                    When the file has been uploaded and processed, you will receive an e-mail containing a link
+                    to view the diagrams.
+                </p>
+    
+                <div id="diagram_message" style="color: red">
+                    <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
+                </div>
+                <center>
+                    <div><button type="button" id="diagram_submit" name="submit" class="dark"
+                                onclick="uploadDiagramFile('diagram_file','upload_diagram_form','progress_number_diagram','progress_bar_diagram','diagram_message','diagram_email','diagram_submit')">
+                            Upload Diagram Data</button>
+                    </div>
+                </center>
+            </form> 
         </div>
 
         <div id="tutorial" class="tab <?php if (!$showPreviousJobs) echo "active"; ?>">
