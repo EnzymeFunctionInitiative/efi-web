@@ -98,7 +98,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
 
     if ($valid) {
         if ($est_analysis_id) {
-            $gnnInfo = gnn::create_from_est_job($db, $email, $_POST['neighbor_size'], $cooccurrence, $est_file_path, $est_analysis_id);
+            $gnnInfo = gnn::create_from_est_job($db, $email, $_POST['neighbor_size'], $cooccurrence, $est_file_path, $est_analysis_id, $db_mod);
         } else {
             $parms = array(
                 'size' => $_POST['neighbor_size'],
