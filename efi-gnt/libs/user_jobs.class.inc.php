@@ -35,7 +35,7 @@ class user_jobs extends user_auth {
     }
 
     private static function get_select_statement() {
-        $sql = "SELECT gnn.gnn_id, gnn_key, gnn_filename, gnn_time_completed, gnn_status, gnn_size, gnn_cooccurrence, gnn_params FROM gnn ";
+        $sql = "SELECT gnn.gnn_id, gnn_key, gnn_time_completed, gnn_status, gnn_params, gnn_parent_id, gnn_child_type FROM gnn ";
         return $sql;
     }
 
@@ -96,39 +96,30 @@ class user_jobs extends user_auth {
             } else {
                 $comp = date_format(date_create($comp), "n/j h:i A");
             }
-            $filename = pathinfo($row["gnn_filename"], PATHINFO_BASENAME);
             $params = global_functions::decode_object($row["gnn_params"]);
-            $jobName = "N=" . $row["gnn_size"] . " Cooc=" . $row["gnn_cooccurrence"] . " Submission=<i>" . $filename . "</i>";
+            $filename = pathinfo($params["filename"], PATHINFO_BASENAME);
+            $jobName = "N=" . $params["neighborhood_size"] . " Cooc=" . $params["cooccurrence"] . " Submission=<i>" . $filename . "</i>";
 
             $id = $row["gnn_id"];
             $jobInfo = array("id" => $id, "key" => $row["gnn_key"], "filename" => $jobName, "completed" => $comp, "is_child" => false);
 
             $isChild = false;
-            if (isset($params["gnn_parent_id"]) && $params["gnn_parent_id"]) {
+            if (isset($row["gnn_parent_id"]) && $row["gnn_parent_id"]) {
                 // Get parent email address and if it's not the same as the current email address then treat this job
                 // as a normal job.
-                $sql = "SELECT gnn_email FROM gnn WHERE gnn_id = " . $params["gnn_parent_id"];
+                $sql = "SELECT gnn_email FROM gnn WHERE gnn_id = " . $row["gnn_parent_id"];
                 $parentRow = $db->query($sql);
                 $isChild = !$parentRow || $parentRow[0]["gnn_email"] == $email || !$email;  // !$email is true for training jobs
             }
 
             if ($isChild) {
-                $parentId = $params["gnn_parent_id"];
+                $parentId = $row["gnn_parent_id"];
                 $jobInfo["is_child"] = true;
                 $jobInfo["parent_id"] = $parentId;
                 if (isset($childJobs[$parentId]))
                     array_push($childJobs[$parentId], $jobInfo);
                 else
                     $childJobs[$parentId] = array($jobInfo);
-#                if (isset($indexMap[$parentId])) {
-#                    var_dump($jobs);
-#                    array_splice($jobs, $indexMap[$parentId], 0, $jobInfo);
-#                    var_dump($jobs);
-#                    die();
-#                } else {
-#                    die("$parentId doesn't exist");
-#                    array_push($jobs, $jobInfo);
-#                }
             } else {
                 array_push($jobs, $jobInfo);
                 $indexMap[$id] = $idx;
