@@ -391,10 +391,19 @@ Recreate an SSN with a different cooccurrence frequency and/or neighborhood size
 <hr>
 
 <?php
-
-if (false) {
+$child_jobs = $gnn->get_child_jobs();
+if (count($child_jobs) > 0) {
 ?>
 <h3>Child (Filtered) GNT Jobs</h3>
+<ul>
+<?php
+    foreach ($child_jobs as $id => $job) {
+        $name = "N=" . $job["size"] . " Cooc=" . $job["cooccurrence"] . " Submission=<i>" . $job["filename"] . "</i>";
+        $url = "stepc.php?id=" . $id . "&key=" . $job["key"];
+        echo "<li><a href='$url'>$name</a></li>\n";
+    }
+?>
+</ul>
 <hr>
 <?php } ?>
 
