@@ -34,13 +34,14 @@ class gnn_shared extends arrow_api {
         return self::create4($db, $parms);
     }
 
-    public static function create_from_est_job($db, $email, $size, $cooccurrence, $ssn_file_path, $est_id) {
+    public static function create_from_est_job($db, $email, $size, $cooccurrence, $ssn_file_path, $est_id, $db_mod) {
         $parms = array(
             'email' => $email,
             'size' => $size,
             'cooccurrence' => $cooccurrence,
             'filename' => $ssn_file_path,
             'est_id' => $est_id,
+            'db_mod' => $db_mod,
         );
         return self::create4($db, $parms); // create4 adds default parameters
     }
