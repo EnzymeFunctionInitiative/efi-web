@@ -703,12 +703,12 @@ class gnn extends gnn_shared {
     }
 
     private function update_results_object($data) {
-        $result = global_functions::update_results_object_tmpl($db, "gnn", "gnn", "results", $this->get_id(), $data);
+        $result = global_functions::update_results_object_tmpl($this->db, "gnn", "gnn", "results", $this->get_id(), $data);
         return $result;
     }
 
     private function update_params_object($data) {
-        $result = global_functions::update_results_object_tmpl($db, "gnn", "gnn", "params", $this->get_id(), $data);
+        $result = global_functions::update_results_object_tmpl($this->db, "gnn", "gnn", "params", $this->get_id(), $data);
         return $result;
     }
 
