@@ -59,19 +59,19 @@
     background-color: SaddleBrown;
 }
 
-.hl-gnt {
+.hl-gnt, .ui-widget-content .hl-gnt {
     color: #005591;
 }
 
-.hl-est {
+.hl-est, .ui-widget-content .hl-est {
     color: #7a0026;
 }
 
-.hl-color {
+.hl-color, .ui-widget-content .hl-color {
     color: orchid;
 }
 
-.hl-cgfp, .hl-shortbred {
+.hl-cgfp, .hl-shortbred, .ui-widget-content .hl-cgfp, .ui-widget-content .hl-shortbred {
     color: #317873;
 }
 
