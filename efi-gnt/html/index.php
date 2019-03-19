@@ -287,7 +287,7 @@ HTML;
                     <label for="cooccurrence_input"><b>Co-occurrence percentage lower limit:</b></label>
                     <input type="text" id="cooccurrence" name="cooccurrence" maxlength="3"><br>
                     This option allows to filter the neighboring pFAMs with a co-occurrence <br>percentage lower than the set value. <br>
-                    The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 1-100.
+                    The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 0-100.
                 </p>
 
 <?php    if (count($db_modules) > 1) { ?>
