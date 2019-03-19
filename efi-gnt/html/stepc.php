@@ -363,6 +363,9 @@ Recreate an SSN with a different cooccurrence frequency and/or neighborhood size
 
 <p>
 <b>Co-occurrence percentage lower limit:</b> <input type="text" id="cooccurrence" maxlength="3" value="<?php echo $gnn->get_cooccurrence(); ?>">
+<br>
+This option allows to filter the neighboring pFAMs with a co-occurrence percentage lower than the set value.
+The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 0-100.
 </p>
 
 <p>
@@ -370,10 +373,19 @@ Recreate an SSN with a different cooccurrence frequency and/or neighborhood size
 <select name="neighbor_size" id="neighbor_size" class="bigger">
     <?php echo $neighbor_size_html; ?>
 </select>
+<br>
+With a value of <?php echo $default_neighbor_size; ?>, the PFAM families for <?php echo $default_neighbor_size; ?> 
+genes located upstream and for <?php echo $default_neighbor_size; ?> genes
+located downstream of sequences in the SNN will be collected and displayed.
+The default value is  <?php echo $default_neighbor_size; ?>.
 </p>
 
 <p>
 <?php echo ui::make_upload_box("<b>(OPTIONALLY) Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", "", ""); ?>
+<br>
+Uploading a new file will use information saved from this GNN to generate a new GNN, 
+returning results to the user faster than creating a brand-new GNN.  This is useful when examining SSNs with varying
+alignment scores.
 </p>
     
 <p>
