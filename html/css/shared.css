@@ -36,6 +36,10 @@ div.indent {
     padding-left: 20px;
 }
 
+.left-margin-70 {
+    margin-left: 70px;
+}
+
 table.tutorial {
     border-bottom: 1px darkgray solid;
 }
