@@ -198,7 +198,10 @@ class functions {
     }
 
     public static function bytes_to_megabytes($bytes) {
-        return number_format($bytes/1048576,0);
+        $mb = number_format($bytes/1048576,0);
+        if ($mb == 0)
+            return "<1";
+        return $mb;
 
     }
 
