@@ -67,6 +67,7 @@ class gnn extends gnn_shared {
     public function get_gnn_nodes() { return $this->gnn_nodes; }
     public function get_gnn_edges() { return $this->gnn_edges; }
     public function get_source_id() { return $this->est_id; }
+    public function get_gnn_name() { return $this->basefilename; }
     public function has_parent() { return $this->gnn_parent_id > 0; }
 
     private function get_full_input_ssn_path() {

@@ -3,7 +3,6 @@ require_once("../includes/main.inc.php");
 require_once("../../libs/table_builder.class.inc.php");
 require_once("../../libs/ui.class.inc.php");
 
-$message = "";
 if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
     $gnn = new gnn($db,$_GET['id']);
     if ($gnn->get_key() != $_GET['key']) {
@@ -53,6 +52,8 @@ if (isset($_GET["as-table"])) {
     exit(0);
 }
 
+
+$allow_regenerate = !$gnn->has_parent();
 
 
 
@@ -162,6 +163,7 @@ if ($swissprotSinglesDescFileSize !== false)
     array_push($otherFiles, array($swissprotSinglesDescFile, format_file_size($swissprotSinglesDescFileSize), "SwissProt Annotations by Singleton"));
 
 $updateMessage = functions::get_update_message();
+$gnn_name = $gnn->get_gnn_name();
 
 require_once('inc/header.inc.php'); 
 
@@ -172,174 +174,194 @@ require_once('inc/header.inc.php');
 <?php if (isset($updateMessage)) echo $updateMessage; ?>
 </div>
 
-    <h2>Results</h2>
+<h2>Results</h2>
 
-    <h3>Network Information</h3>
-    <table width="100%" style="margin-top: 10px" class="pretty">
-        <tbody>
-<?php echo $tableString; ?>
-        </tbody>
-    </table>
-    <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$gnnId&key=$gnnKey&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
-    <div style="clear: both"></div>
+<h4>Name: <b><?php echo $gnn_name; ?></b></h4>
 
-    <h3>Colored Sequence Similarity Network (SSN)</h3>
-    <p>The nodes in the input SSN are assigned unique cluster numbers and colors.</p>
-
-    <table width="100%" class="pretty">
-        <thead>
-            <th></th>
-            <th># Nodes</th>
-            <th># Edges</th>
-            <th>File Size (MB)</th>
-        </thead>
-        <tbody>
-            <tr style='text-align:center;'>
-                <td class="button-col">
-                    <a href="<?php echo "$baseUrl/$ssnFile" ?>"><button class="mini">Download</button></a>
-<?php if ($ssnZipFile) { ?>
-                    <a href="<?php echo "$baseUrl/$ssnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
+<div class="tabs-efihdr tabs">
+    <ul class="tab-headers">
+        <li><a href="#info">Job Information</a></li>
+        <li class="ui-tabs-active"><a href="#results">GNN/GND Download</a></li>
+        <li><a href="#other">Other Files</a></li>
+<?php if ($allow_regenerate) { ?>
+        <li><a href="#regenerate">Regenerate GNN</a></li>
 <?php } ?>
-                </td>
-                <td><?php echo number_format($gnn->get_ssn_nodes()); ?></td>
-                <td><?php echo number_format($gnn->get_ssn_edges()); ?></td>
-                <td><?php echo $ssnFilesize; ?>MB</td>
-            </tr>
-        </tbody>
-    </table>
+    </ul>
 
-    <h3>SSN Cluster Hub-Nodes: Genome Neighborhood Network (GNN)</h3>
-    <p>Each hub-node in the network represents an SSN cluster that identified neighbors, with spoke-nodes for Pfam family with neighbors.</p>
+    <div class="tab-content">
 
-    <table width="100%" class="pretty">
-        <thead>
-            <th></th>
-            <th>File Size (MB)</th>
-        </thead>
-        <tbody>
-            <tr style='text-align:center;'>
-                <td class="button-col">
-                    <a href="<?php echo "$baseUrl/$gnnFile"; ?>"><button class="mini">Download</button></a>
-<?php if ($gnnZipFile) { ?>
-                    <a href="<?php echo "$baseUrl/$gnnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
-<?php } ?>
-                </td>
-                <td><?php echo $gnnFilesize; ?>MB</td>
-            </tr>
-        </tbody>
-    </table>
+        <!-- NETWORK INFORMATION -->
+        <div id="info" class="">
+            <table width="100%" style="margin-top: 10px" class="pretty">
+                <tbody>
+                    <?php echo $tableString; ?>
+                </tbody>
+            </table>
+            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$gnnId&key=$gnnKey&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
+            <div style="clear: both"></div>
+        </div>
 
-    <h3>Pfam Family Hub-Nodes Genome Neighborhood Network (GNN)</h3>
-    <p>Each hub-node in the network represents a Pfam family of neighbors, with spoke-nodes for each SSN cluster that identified the Pfam family.</p>
+        
+        <!-- DOWNLOAD NETWORKS -->
+        <div id="results" class="ui-tabs-active">
+            <h3>Colored Sequence Similarity Network (SSN)</h3>
+            <p>The nodes in the input SSN are assigned unique cluster numbers and colors.</p>
+        
+            <table width="100%" class="pretty">
+                <thead>
+                    <th></th>
+                    <th># Nodes</th>
+                    <th># Edges</th>
+                    <th>File Size (MB)</th>
+                </thead>
+                <tbody>
+                    <tr style='text-align:center;'>
+                        <td class="button-col">
+                            <a href="<?php echo "$baseUrl/$ssnFile" ?>"><button class="mini">Download</button></a>
+                            <?php if ($ssnZipFile) { ?>
+                            <a href="<?php echo "$baseUrl/$ssnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
+                            <?php } ?>
+                        </td>
+                        <td><?php echo number_format($gnn->get_ssn_nodes()); ?></td>
+                        <td><?php echo number_format($gnn->get_ssn_edges()); ?></td>
+                        <td><?php echo $ssnFilesize; ?>MB</td>
+                    </tr>
+                </tbody>
+            </table>
+        
+            <h3>SSN Cluster Hub-Nodes: Genome Neighborhood Network (GNN)</h3>
+            <p>Each hub-node in the network represents an SSN cluster that identified neighbors, with spoke-nodes for Pfam family with neighbors.</p>
+        
+            <table width="100%" class="pretty">
+                <thead>
+                    <th></th>
+                    <th>File Size (MB)</th>
+                </thead>
+                <tbody>
+                    <tr style='text-align:center;'>
+                        <td class="button-col">
+                            <a href="<?php echo "$baseUrl/$gnnFile"; ?>"><button class="mini">Download</button></a>
+                            <?php if ($gnnZipFile) { ?>
+                            <a href="<?php echo "$baseUrl/$gnnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
+                            <?php } ?>
+                        </td>
+                        <td><?php echo $gnnFilesize; ?>MB</td>
+                    </tr>
+                </tbody>
+            </table>
+        
+            <h3>Pfam Family Hub-Nodes Genome Neighborhood Network (GNN)</h3>
+            <p>Each hub-node in the network represents a Pfam family of neighbors, with spoke-nodes for each SSN cluster that identified the Pfam family.</p>
+        
+            <table width="100%" class="pretty">
+                <thead>
+                    <th></th>
+                    <th>File Size (Unzipped/Zipped MB)</th>
+                </thead>
+                <tbody>
+                    <tr style='text-align:center;'>
+                        <td class="button-col">
+                            <a href="<?php echo "$baseUrl/$pfamFile"; ?>"><button class="mini">Download</button></a>
+                            <?php if ($pfamZipFile) { ?>
+                            <a href="<?php echo "$baseUrl/$pfamZipFile"; ?>"><button class="mini">Download ZIP</button></a>
+                            <?php } ?>
+                        </td>
+                        <td>
+                            <?php echo $pfamFilesize; ?> MB
+                            <?php if ($pfamZipFilesize) { echo "/ $pfamZipFilesize MB"; } ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        
+            <?php if ($hasDiagrams) { ?>
+            <h3>Genome Neighborhood Diagrams</h3> 
+            Genome neighboorhoods can be visualized in an arrow digram format in a new window.
+        
+            <table width="100%" class="pretty">
+                <thead>
+                    <th>Action</th>
+                    <th></th>
+                    <th>File Size (Unzipped/Zipped MB)</th>
+                </thead>
+                <tbody>
+                    <tr style='text-align:center;'>
+                        <td class="button-col">
+                            <a href="view_diagrams.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?>" target="_blank"><button class="mini">View diagrams</button></a>
+                        </td>
+                        <td colspan="2">
+                            Opens arrow diagram explorer in a new tab or window.
+                        </td>
+                    </tr>
+                    <tr style="text-align:center;">
+                        <td class="button-col">
+                            <a href="<?php echo "$baseUrl/$diagramFile"; ?>"><button class="mini">Download</button></a>
+                            <?php if ($diagramZipFileSize) { ?>
+                            <a href="<?php echo "$baseUrl/$diagramZipFile"; ?>"><button class="mini">Download ZIP</button></a>
+                            <?php } ?>
+                        </td>
+                        <td>
+                            Diagram data for later review
+                        </td>
+                        <td>
+                            <?php echo $diagramFileSize; ?> MB
+                            <?php if ($diagramZipFileSize) { echo "/ $diagramZipFileSize MB"; } ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <?php } else { ?>
+            <div style="color:red">
+                <br><br>
+                Since this job was run before the neighborhood diagrams were supported, there are no
+                genome neighborhood diagrams available.
+            </div>
+            <?php } ?>
+        </div>
 
-    <table width="100%" class="pretty">
-        <thead>
-            <th></th>
-            <th>File Size (Unzipped/Zipped MB)</th>
-        </thead>
-        <tbody>
-            <tr style='text-align:center;'>
-                <td class="button-col">
-                    <a href="<?php echo "$baseUrl/$pfamFile"; ?>"><button class="mini">Download</button></a>
-<?php if ($pfamZipFile) { ?>
-                    <a href="<?php echo "$baseUrl/$pfamZipFile"; ?>"><button class="mini">Download ZIP</button></a>
-<?php } ?>
-                </td>
-                <td>
-                    <?php echo $pfamFilesize; ?> MB
-<?php if ($pfamZipFilesize) { echo "/ $pfamZipFilesize MB"; } ?>
-                </td>
-            </tr>
-        </tbody>
-    </table>
 
-<?php if ($hasDiagrams) { ?>
-<!--    <div style="color:red">-->
-<!--        <h3 style="color:red">Genome Neighborhood Diagrams</h3> -->
-        <h3>Genome Neighborhood Diagrams</h3> 
-        Genome neighboorhoods can be visualized in an arrow digram format in a new window.
-    
-        <table width="100%" class="pretty">
-            <thead>
-                <th>Action</th>
-                <th></th>
-                <th>File Size (Unzipped/Zipped MB)</th>
-            </thead>
-            <tbody>
-                <tr style='text-align:center;'>
-                    <td class="button-col">
-                        <a href="view_diagrams.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?>" target="_blank"><button class="mini">View diagrams</button></a>
-                    </td>
-                    <td colspan="2">
-                        Opens arrow diagram explorer in a new tab or window.
-                    </td>
-                </tr>
-                <tr style="text-align:center;">
-                    <td class="button-col">
-                        <a href="<?php echo "$baseUrl/$diagramFile"; ?>"><button class="mini">Download</button></a>
-<?php if ($diagramZipFileSize) { ?>
-                        <a href="<?php echo "$baseUrl/$diagramZipFile"; ?>"><button class="mini">Download ZIP</button></a>
-<?php } ?>
-                    </td>
-                    <td>
-                        Diagram data for later review
-                    </td>
-                    <td>
-                        <?php echo $diagramFileSize; ?> MB
-<?php if ($diagramZipFileSize) { echo "/ $diagramZipFileSize MB"; } ?>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-<!--    </div>-->
-<?php } else { ?>
-    <div style="color:red">
-        <br><br>
-        Since this job was run before the neighborhood diagrams were supported, there are no
-        genome neighborhood diagrams available.
-    </div>
-<?php } ?>
-
-    <h3>Other Files</h3>
-<div class="new_feature"></div>
-    <table width="100%" class="pretty">
-        <thead>
-            <th></th>
-            <th>File</th>
-            <th>File Size (MB)</th>
-        </thead>
-        <tbody>
-<?php
-foreach ($otherFiles as $info) {
-    if (count($info) == 1) {
-        echo <<<HTML
-            <tr style="text-align:center;">
-                <td colspan="3" style="font-weight:bold">
-                    $info[0]
-                </td>
-            </tr>
+        <!-- OTHER DOWNLOAD FILES -->
+        <div id="other" class="">
+            <table width="100%" class="pretty">
+                <thead>
+                    <th></th>
+                    <th>File</th>
+                    <th>File Size (MB)</th>
+                </thead>
+                <tbody>
+                    <?php
+                    foreach ($otherFiles as $info) {
+                        if (count($info) == 1) {
+                            echo <<<HTML
+                    <tr style="text-align:center;">
+                        <td colspan="3" style="font-weight:bold">
+                            $info[0]
+                        </td>
+                    </tr>
 HTML;
-    } else {
-        $btnText = strpos($info[0], ".zip") > 0 ? "Download All (ZIP)" : "Download";
-        echo <<<HTML
-            <tr style="text-align:center;">
-                <td>
-                    <a href="$baseUrl/$info[0]"><button class="mini">$btnText</button></a>
-                </td>
-                <td>$info[2]</td>
-                <td>$info[1] MB</td>
-            </tr>
+                        } else {
+                            $btnText = strpos($info[0], ".zip") > 0 ? "Download All (ZIP)" : "Download";
+                            echo <<<HTML
+                    <tr style="text-align:center;">
+                        <td>
+                            <a href="$baseUrl/$info[0]"><button class="mini">$btnText</button></a>
+                        </td>
+                        <td>$info[2]</td>
+                        <td>$info[1] MB</td>
+                    </tr>
 HTML;
-    }
-}
-?>
-        </tbody>
-    </table>
+                        }
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
 
+        <!-- REGENERATE GNN -->
 <?php
 // Regen stuff
 
-if (!$gnn->has_parent()) {
+if ($allow_regenerate) {
     $neighbor_size_html = "";
     $default_neighbor_size = $gnn->get_size();
     for ($i=3;$i<=20;$i++) {
@@ -350,79 +372,80 @@ if (!$gnn->has_parent()) {
     }
 
 ?>
+        <div id="regenerate" class="">
+            <?php
+                $child_jobs = $gnn->get_child_jobs();
+                if (count($child_jobs) > 0) {
+                    echo <<<HTML
+                        <h3>Related Regenerated GNT Jobs</h3>
+                        <div>
+                            <ul>
+HTML;
+                    foreach ($child_jobs as $id => $job) {
+                        $name = "N=" . $job["size"] . " Cooc=" . $job["cooccurrence"] . " Submission=<i>" . $job["filename"] . "</i>";
+                        $url = "stepc.php?id=" . $id . "&key=" . $job["key"];
+                        echo "<li><a href='$url'>$name</a></li>\n";
+                    }
+                    echo <<<HTML
+                            </ul>
+                        </div>
+HTML;
+                }
+            ?>
+            <h3>Regenerate GNN</h3>
+            
+            <form id="upload_form" action="">
+            <input type="hidden" id="parent_id" value="<?php echo $gnnId; ?>">
+            <input type="hidden" id="parent_key" value="<?php echo $gnnKey; ?>">
+            
+            Recreate an SSN with a different cooccurrence frequency and/or neighborhood size from this job.
 
-<div id="regenerate">
-<h3>Regenerate GNN</h3>
+            <p>
+                <b>Co-occurrence percentage lower limit:</b> <input type="text" id="cooccurrence" maxlength="3" value="<?php echo $gnn->get_cooccurrence(); ?>">
+                <div class="left-margin-70">
+                    This option allows to filter the neighboring pFAMs with a co-occurrence percentage lower than the set value.
+                    The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 0-100.
+                </div>
+            </p>
+            
+            <p>
+                <b>Neighborhood Size:</b> 
+                <select name="neighbor_size" id="neighbor_size" class="bigger">
+                    <?php echo $neighbor_size_html; ?>
+                </select>
+                <div class="left-margin-70">
+                    With a value of <?php echo $default_neighbor_size; ?>, the PFAM families for <?php echo $default_neighbor_size; ?> 
+                    genes located upstream and for <?php echo $default_neighbor_size; ?> genes
+                    located downstream of sequences in the SNN will be collected and displayed.
+                    The default value is  <?php echo $default_neighbor_size; ?>.
+                </div>
+            </p>
+            
+            <p>
+                <?php echo ui::make_upload_box("(Optional) Select a File to Upload:", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", "", ""); ?>
+                <br>
+                Uploading a new file will use information saved from this GNN to generate a new GNN, 
+                returning results to the user faster than creating a brand-new GNN.  This is useful when examining SSNs with varying
+                alignment scores.
+            </p>
+                
+            <p>
+                <center>
+                <button type="button" id="filter-btn" class="dark">Filter/Regenerate GNN</button>
+                </center>
+            </p>
+            </form>
 
-<form id="upload_form" action="">
-<input type="hidden" id="parent_id" value="<?php echo $gnnId; ?>">
-<input type="hidden" id="parent_key" value="<?php echo $gnnKey; ?>">
-
-<div class="new_feature"></div>
-Recreate an SSN with a different cooccurrence frequency and/or neighborhood size from this job.
-
-<p>
-<b>Co-occurrence percentage lower limit:</b> <input type="text" id="cooccurrence" maxlength="3" value="<?php echo $gnn->get_cooccurrence(); ?>">
-<br>
-This option allows to filter the neighboring pFAMs with a co-occurrence percentage lower than the set value.
-The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 0-100.
-</p>
-
-<p>
-<b>Neighborhood Size:</b> 
-<select name="neighbor_size" id="neighbor_size" class="bigger">
-    <?php echo $neighbor_size_html; ?>
-</select>
-<br>
-With a value of <?php echo $default_neighbor_size; ?>, the PFAM families for <?php echo $default_neighbor_size; ?> 
-genes located upstream and for <?php echo $default_neighbor_size; ?> genes
-located downstream of sequences in the SNN will be collected and displayed.
-The default value is  <?php echo $default_neighbor_size; ?>.
-</p>
-
-<p>
-<?php echo ui::make_upload_box("<b>(OPTIONALLY) Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", "", ""); ?>
-<br>
-Uploading a new file will use information saved from this GNN to generate a new GNN, 
-returning results to the user faster than creating a brand-new GNN.  This is useful when examining SSNs with varying
-alignment scores.
-</p>
-    
-<p>
-<center>
-<button type="button" id="filter-btn" class="dark">Filter/Regenerate GNN</button>
-</center>
-</p>
-</form>
-
-</div>
+            <div id="ssn_message">
+            </div>
+        </div>
 <?php
 }
 ?>
-
-<hr>
-
-<?php
-$child_jobs = $gnn->get_child_jobs();
-if (count($child_jobs) > 0) {
-?>
-<h3>Child (Filtered) GNT Jobs</h3>
-<ul>
-<?php
-    foreach ($child_jobs as $id => $job) {
-        $name = "N=" . $job["size"] . " Cooc=" . $job["cooccurrence"] . " Submission=<i>" . $job["filename"] . "</i>";
-        $url = "stepc.php?id=" . $id . "&key=" . $job["key"];
-        echo "<li><a href='$url'>$name</a></li>\n";
-    }
-?>
-</ul>
-<hr>
-<?php } ?>
-
-
-<div id="ssn_message">
-<?php if (isset($message)) { echo "<h3 class='center'>" . $message . "</h3>"; } ?>  
+    </div>
 </div>
+
+
 
 <div id="filter-confirm" title="" style="display: none">
 <p>
@@ -462,12 +485,7 @@ Please change parameters or select a new file to upload before refiltering.
             }
         });
 
-//        $("#filter-btn").click(function() {
-//            var id = <?php echo $gnnId; ?>;
-//            var key = "<?php echo $gnnKey; ?>";
-//
-//            alert("Hi John and Remi.");
-//        });
+        $(".tabs").tabs();
     });
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
