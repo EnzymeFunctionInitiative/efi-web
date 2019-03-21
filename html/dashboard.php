@@ -577,7 +577,9 @@ function output_tree($est_order, $est_grouping, $gnt_jobs_file, $gnt_jobs_db, $g
         if (!$job_name)
             $job_name = $job_type;
         if ($families)
-            $job_name .= " [$families$uniref]";
+            $job_name .= " [$job_type; $families$uniref]";
+        else
+            $job_name .= " [$job_type]";
         $job_name .= make_extra(" (EST Job #$gid)");
     
         $level1_html = "";
