@@ -159,8 +159,11 @@ class accession extends family_shared {
         if ($this->expand_homologs)
             $parms["-uniref-expand"] = "";
         $parms["-domain"] = $this->get_domain();
-        if ($this->get_domain() == "on")
+        if ($this->get_domain() == "on") {
             $parms["-domain-family"] = $this->get_domain_family();
+            if (functions::advanced_options_enabled())
+                $parms["-force-domain"] = 1;
+        }
         return $parms;
     }
     
