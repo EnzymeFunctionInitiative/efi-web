@@ -12,12 +12,12 @@ class ui {
 
         return <<<HTML
                 <div>
-                    $title
+                    <b>$title</b> <a class="question" title="Maximum size is $maxFileSize">?</a><br>
                     <input type='file' name='$file_id' id='$file_id' data-url='server/php/' class="input_file">
                     <label for="$file_id" class="file_upload"><img src="$site_url_prefix/images/upload.svg" /> <span>$default_file</span></label>
                 <progress id='$progress_bar_id' max='100' value='0'></progress> <span id="$progress_num_id"></span>
                 </div>
-                $other <a class="question" title="Maximum size is $maxFileSize">?</a>
+                $other
 HTML;
     }
 }
