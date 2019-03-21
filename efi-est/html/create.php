@@ -42,10 +42,14 @@ if (isset($_POST['email'])) {
 $num_job_limit = global_settings::get_num_job_limit();
 $is_job_limited = user_jobs::check_for_job_limit($db, $input->email);
 
+$option = $_POST['option_selected'];
+
 if (!isset($_POST['submit'])) {
     $result["MESSAGE"] = "Form is invalid.";
 } elseif (!isset($input->email) || !$input->email) {
     $result["MESSAGE"] = "Please enter an e-mail address.";
+} elseif ($option != "colorssn" && (!isset($_POST['job-name']) || !$_POST['job-name'])) {
+    $result["MESSAGE"] = "Job name is required.";
 } elseif ($is_job_limited) {
     $result["MESSAGE"] = "Due to finite computational resource constraints, you can only submit $num_job_limit jobs within a 24 hour period.  Please try again in 24 hours.";
 } elseif (isset($_POST['blast_input']) && !preg_match('/\S/', $_POST['blast_input'])) {
@@ -57,7 +61,6 @@ if (!isset($_POST['submit'])) {
     #    $var = trim(rtrim($var));
     #}
     $message = "";
-    $option = $_POST['option_selected'];
     
     if (array_key_exists('evalue', $_POST))
         $input->evalue = $_POST['evalue'];

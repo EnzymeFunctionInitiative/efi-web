@@ -35,6 +35,19 @@ function addCommonFormData(opt, fd) {
     fd.append("cpu-x2", cpuX2);
 }
 
+function submitOptionForm(option, famHelper, outputIds) {
+    if (option == "opta")
+        submitOptionAForm(famHelper, outputIds);
+    else if (option == "optb")
+        submitOptionBForm(famHelper, outputIds);
+    else if (option == "optc")
+        submitOptionCForm(famHelper, outputIds);
+    else if (option == "optd")
+        submitOptionDForm(famHelper, outputIds);
+    else if (option == "opte")
+        submitOptionEForm(famHelper, outputIds);
+}
+
 function submitOptionAForm(famHelper, outputIds) { // familySizeHelper
 
     var optionId = "opta";
@@ -115,25 +128,31 @@ function submitOptionDForm(famHelper, outputIds) {
     var optionId = "optd";
 
     var submitFn = function() {
+        var source = $("#optionD-src-tabs").data("source");
+        
         var fd = new FormData();
         fd.append("option_selected", "D");
         addCommonFormData(optionId, fd);
-        addParam(fd, "accession_input", "accession-input");
+        addParam(fd, "accession_input", "accession-input-" + source);
         addCbParam(fd, "accession_use_uniref", "accession-use-uniref");
         addParam(fd, "accession_uniref_version", "accession-uniref-version");
-        addParam(fd, "accession_seq_type", "accession-seq-type");
-        if ($("#accession-input-domain-cb").prop("checked")) {
+        if (source == "uniprot")
+            addParam(fd, "accession_seq_type", "uniprot");
+        else
+            addParam(fd, "accession_seq_type", "accession-seq-type");
+
+        if ($("#domain-optd").prop("checked")) {
             fd.append("accession_use_dom", true);
             addParam(fd, "accession_dom_fam", "accession-input-domain-family");
         }
     
         var completionHandler = getDefaultCompletionHandler();
         var fileHandler = function(xhr) {};
-        var files = document.getElementById("accession-file").files;
+        var files = document.getElementById("accession-file-" + source).files;
         if (files.length > 0) {
             fd.append("file", files[0]);
             fileHandler = function(xhr) {
-                addUploadStuff(xhr, "progress-num-accession", "progress-bar-accession");
+                addUploadStuff(xhr, "progress-num-accession-" + source, "progress-bar-accession-" + source);
             };
         }
     
