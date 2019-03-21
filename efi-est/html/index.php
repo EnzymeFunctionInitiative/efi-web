@@ -5,10 +5,11 @@ const RT_COLOR = 2;
 const RT_ANALYSIS = 3;
 const RT_NESTED_COLOR = 4;
 
-require_once "../includes/main.inc.php";
-require_once "../libs/user_jobs.class.inc.php";
+require_once("../includes/main.inc.php");
+require_once("../libs/user_jobs.class.inc.php");
 require_once("../../includes/login_check.inc.php");
-require_once "../libs/ui.class.inc.php";
+require_once("../libs/est_ui.class.inc.php");
+require_once("../../libs/ui.class.inc.php");
 
 $userEmail = "Enter your e-mail address";
 
@@ -36,8 +37,6 @@ $showJobGroups = $IsAdminUser && global_settings::get_job_groups_enabled();
 $maxSeqNum = functions::get_max_seq();
 $maxSeqFormatted = number_format($maxSeqNum, 0);
 
-$useUniref90 = true;
-$useUniref50 = true;
 $useAdvancedFamilyInputs = functions::advanced_options_enabled();
 $maxFullFamily = number_format(functions::get_maximum_full_family_count(), 0);
 
@@ -75,11 +74,11 @@ The EST provides access to the UniRef90 and UniRef50 databases to allow the crea
 of SSNs for very large Pfam and/or InterPro families. For families that contain 
 more than <?php echo $maxFullFamily; ?> sequences, the SSN <b>will be</b> generated 
 using the UniRef90 database. In UniRef90, sequences that share &ge;90% sequence identity 
-over 80% of the sequence length are grouped together and represented by a single seed 
-sequence (the longest sequence in the group). UniRef50 is similar except that the
+over 80% of the sequence length are grouped together and represented by a 
+sequence known as the cluster ID. UniRef50 is similar except that the
 sequence identity is &ge;50%. If one of the UniRef databases is used,
 the output SSN is equivalent to a 90% (for UniRef90) or 50% (for UniRef50)
-Representative Node Network with each node corresponding to a seed sequence; in this
+Representative Node Network with each node corresponding to a UniRef cluster ID; in this
 case an additional node attribute is provided which lists all
 of the sequences represented by the UniRef node.
 </p>
@@ -117,7 +116,7 @@ Information on Pfam families and clans and InterPro family sizes is now availabl
 the <a href="family_list.php">Family Information page</a>.
 </p>
 
-<div class="tabs">
+<div class="tabs-efihdr tabs">
     <ul class="tab-headers">
 <?php if ($showJobsTab) { ?>
         <li class="active"><a href="#jobs">Previous Jobs</a></li>
@@ -149,6 +148,7 @@ the <a href="family_list.php">Family Information page</a>.
     <div class="tab-content">
 <?php if ($showJobsTab) { ?>
         <div id="jobs" class="tab active">
+
 <?php /*
             <h3>Precomputed Option B Jobs</h3>
             Precomputed jobs for selected families are available 
@@ -179,85 +179,61 @@ the <a href="family_list.php">Family Information page</a>.
         <div id="optionAtab" class="tab">
 
             <p>
-            The provided sequence is used as the query for a BLAST search of the UniProt database and then, the
-            similarities between the sequences are calculated and used to generate the SSN.  Submit only one
-            protein sequence without FASTA header. The default maximum number of retrieved sequences is <?php echo number_format(functions::get_default_blast_seq(),0); ?>.
+            The input sequence is used as the query for a search of the UniProt database 
+            using BLAST. The similarities among the input and retrieved sequences are 
+            calculated and used to generate the SSN.  The default maximum number of 
+            retrieved sequences is
+            <?php echo number_format(functions::get_default_blast_seq(),0); ?>.
             </p>
     
             <form name="optionAform" id="optionAform" method="post" action="" enctype="multipart/form-data">
                 <div class="primary-input">
                     <textarea id="blast-input" name="blast-input"></textarea>
-                </div>
-                <div>
-                    UniProt BLAST Query E-value:
-                    <input type="text" class="small" id="blast-evalue" name="blast-evalue"
-                        value="<?php echo functions::get_evalue(); ?>">
-                    Negative log of e-value for retrieving similar sequences (&ge; 1; default: <?php echo functions::get_evalue(); ?>)
-                </div>
-                <div style="margin: 10px 0px">
-                    Maximum Blast Sequences: <input type="text" id="blast-max-seqs" class="small" name="blast-max-seqs"
-                        value="<?php  echo functions::get_default_blast_seq(); ?>">
-                    Maximum number of sequences retrieved (&le; <?php echo functions::get_max_blast_seq(); ?>;
-                    default: <?php echo functions::get_default_blast_seq(); ?>)
+                    Input a single <b>protein sequence</b> only.
                 </div>
 
-<?php if (functions::option_a_families_enabled()) { ?>                 
-                <div>
-                    If desired, include Pfam and/or InterPro families, in the analysis of your sequence. For Pfam families,
-                    the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the format is
-                    IPRxxxxxx (six digits); for Pfam clans, the format is CLxxxx (four digits).
-                    For Pfam families, InterPro families, and Pfam clans with a size greater than <?php echo $maxFullFamily; ?>,
-                    UniRef90 seed sequences will be utilized instead of the full family.
-                </div>
-                <div class="primary-input">
+                <div class="option-panels">
                     <div>
-                        <input type="text" id="families-input-opta" name="families-input-opta">
-<div class="new_feature"></div>
-                        <input type="checkbox" id="use-uniref-opta" class="cb-use-uniref bigger" value="1">
-                        <label for="use-uniref-opta">Use <select id="uniref-ver-opta" name="uniref-ver-opta" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
-                        <div style="margin-top: 10px">
-<?php echo ui::make_pfam_size_box("family-size-container-opta", "family-count-table-opta", $useUniref90, $useUniref50); ?> 
+                        <h3>BLAST Retrieval Options</h3>
+                        <div>
+                            <div>
+                                UniProt BLAST query e-value:
+                                <input type="text" class="small" id="blast-evalue" name="blast-evalue" size="5"
+                                    value="<?php echo functions::get_evalue(); ?>">
+                                Negative log of e-value for retrieving similar sequences (&ge; 1; default: <?php echo functions::get_evalue(); ?>)
+                            </div>
+                            <div class="primary-input">
+                                Input an alternative e-value for BLAST to retrieve sequences from the
+                                UniProt database. We suggest using a larger e-value
+                                (smaller negative log) for retreiving homologues if the query
+                                sequence is short and a smaller e-value (larger negative log) if there
+                                is no need to retrieve divergent homologues.
+                            </div>
+                            <div>
+                                Maximum number of sequences retrieved:
+                                <input type="text" id="blast-max-seqs" class="small" name="blast-max-seqs" value="<?php  echo functions::get_default_blast_seq(); ?>" size="5">
+                                (&le; <?php echo number_format(functions::get_max_blast_seq()); ?>,
+                                default: <?php echo number_format(functions::get_default_blast_seq()); ?>)
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="advanced-toggle">Advanced Family Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
-                <div id="blast-advanced" class="advanced-options" style="display: none;">
-                    <div>
-                        E-Value: <input type="text" class="small" id="evalue-opta" name="evalue-opta"
-                            value="<?php echo functions::get_evalue(); ?>">
-                        Negative log of e-value for all-by-all BLAST (&ge;1; default <?php echo functions::get_evalue(); ?>)
-                    </div>
-                    <div>
-                        Fraction: <input type="text" class="small fraction" id="fraction-opta" name="fraction-opta"
-                            value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
-                        Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
-                        <?php echo functions::get_fraction(); ?>)
-                    </div>
-<?php    if ($useAdvancedFamilyInputs) { ?>
-                    <div>
-                        CPUx2: <input type="checkbox" id="cpu-x2-opta" name="cpu-x2-opta" value="1">
-                        <label for="cpu-x2-opta">Check to use two times the number of processors (default: off)</label>
-                    </div>
-<?php    } ?>
-<?php make_db_mod_option($db_modules, "opta"); ?>
-                </div>
-<?php } ?>
-
-                <div>Optional job name: <input type="text" class="small" name="job-name-opta" id="job-name-opta" value=""></div>
-                <div>
-                    E-mail address:
-                    <input name="email" id="email-opta" type="text" value="<?php echo $userEmail; ?>" class="email"
-                        onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;' value="asdf"><br>
-                    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
-                    to analyze the data.
-                </div>
     
-                <div id="message-opta" style="color: red" class="error_message">
+                    <div>
+                        <?php add_family_input_option("opta", $maxFullFamily); ?>
+                    </div>
+
+                    <div>
+                        <?php add_ssn_calc_option("opta") ?>
+                    </div>
+
+                    <?php if ($useAdvancedFamilyInputs) { ?>
+                    <div>
+                        <?php add_dev_site_option("opta", $db_modules); ?>
+                    </div>
+                    <?php } ?>
                 </div>
-                <center>
-                    <div><button type="button" class="dark" onclick="submitOptionAForm(familySizeHelper, optAoutputIds)">Submit Analysis</button></div>
-                </center>
+
+                <?php add_submit_html("opta", "optAoutputIds", $userEmail); ?>
             </form>
         </div>
 <?php } ?>
@@ -267,100 +243,37 @@ the <a href="family_list.php">Family Information page</a>.
             <p>
             The sequences from the Pfam families, InterPro families, and/or Pfam clans (superfamilies) are retrieved,
             and then, the similarities between the sequences are calculated and used to generate the SSN.
-            For Pfam families, the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the
-            format is IPRxxxxxx (six digits); for Pfam clans, the format is CLxxxx (four digits).
             Lists of Pfam families, InterPro families, and Pfam clans are included in the <a href="notes.php">release notes</a>.
-            </p>
-            <p>
             <a href="https://www.ebi.ac.uk/interpro/search/sequence-search">InterProScan sequence search</a> can be used to
             find matches within the InterPro database for a given sequence.
             </p>
-            <p>
-            The maximum number of retrieved sequences is <?php echo $maxSeqFormatted; ?>.
-            For Pfam families, InterPro families, and Pfam clans with a size greater than <?php echo $maxFullFamily; ?>,
-            UniRef90 seed sequences will be utilized instead of the full family.
-            </p>
 
             <form name="optionBform" id="optionBform" method="post" action="">
-                <div class="primary-input">
-                    <input type="text" id="families-input-optb" name="families-input-optb">
-<div class="new_feature"></div>
-                    <input type="checkbox" id="use-uniref-optb" class="cb-use-uniref bigger" value="1">
-                    <label for="use-uniref-optb">Use <select id="uniref-ver-optb" name="uniref-ver-optb" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
-                    <div style="margin-top: 10px">
-<?php echo ui::make_pfam_size_box('family-size-container-optb', 'family-count-table-optb', $useUniref90, $useUniref50); ?> 
-                    </div>
-                </div>
-                
+                <?php add_family_input_option_family_only("optb", $maxFullFamily); ?>
 
-                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
-                <div style="display: none;" class="advanced-options">
+                <div class="option-panels">
                     <div>
-                        E-Value: <input type="text" class="small" id="evalue-optb" name="evalue-optb"
-                            value="<?php echo functions::get_evalue(); ?>">
-                        Negative log of e-value for all-by-all BLAST (&ge;1; default <?php echo functions::get_evalue(); ?>)
+                        <?php add_domain_option("optb"); ?>
                     </div>
                     <div>
-                        Fraction: <input type="text" class="small fraction" id="fraction-optb" name="fraction-optb"
-                            value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
-                        Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
-                        <?php echo functions::get_fraction(); ?>)
+                        <h3>Protein Family Option</h3>
+                        <?php echo get_fraction_html("optb"); ?>
                     </div>
                     <div>
-                        Enable Domain: <input type="checkbox" id="domain-optb" name="domain-optb" value="1">
-                        <label for="domain-optb">Check to generate SSN with Pfam-defined domains (default: off)</label>
+                        <?php add_ssn_calc_option("optb") ?>
                     </div>
-<?php    if ($useAdvancedFamilyInputs) { ?>
+                    <?php if ($useAdvancedFamilyInputs) { ?>
                     <div>
-                        CPUx2: <input type="checkbox" id="cpu-x2-optb" name="cpu-x2-optb" value="1">
-                        <label for="cpu-x2-optb">Check to use two times the number of processors (default: off)</label>
+                        <?php add_dev_site_option("optb", $db_modules, get_advanced_seq_html("optb")); ?>
                     </div>
-<?php    } ?>
-<?php    if ($useAdvancedFamilyInputs) { ?>
-                    <div>
-                        Sequence Identity: <input type="text" class="small" id="seqid-optb" name="seqid-optb" value="1">
-                        Sequence identity (&le; 1; default: 1)
-                    </div>
-                    <div>
-                        Sequence Length Overlap:
-                        <input type="text" class="small" id="length-overlap-optb" name="length-overlap-optb" value="1">
-                        Sequence length overlap (&le; 1; default: 1)
-                    </div>
-<?php    } else { ?>
-                    <div>
+                    <?php } ?>
+                    <?php if (!$useAdvancedFamilyInputs) { ?>
                         <input type="hidden" id="seqid-optb" value="">
                         <input type="hidden" id="length-overlap-optb" value="">
-                    </div>
-<?php    } ?>
-<?php    if (functions::get_program_selection_enabled()) { ?>
-                    <div>
-                        Select Program to use: 
-                        <select name="program-optb" id="program-optb">
-                            <option value="BLAST">Blast</option>
-                            <option value="BLAST+">Blast+</option>
-                            <option selected="selected" value="DIAMOND">Diamond</option>
-                        	<option value="DIAMONDSENSITIVE">Diamond Sensitive</option>
-                        </select>
-                    </div>
-<?php    } ?>
-<?php    make_db_mod_option($db_modules, "optb"); ?>
+                    <?php } ?>
                 </div>
 
-                <div>Optional job name: <input type="text" class="small" name="job-name-optb" id="job-name-optb" value=""></div>
-                <div>
-                    E-mail address:
-                    <input name="email" id="email-optb" type="text" value="<?php echo $userEmail; ?>" class="email"
-                        onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
-                    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
-                    to analyze the data.
-                </div>
-    
-                <div id="message-optb" style="color: red" class="error_message">
-                    <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
-                </div>
-                <center>
-                    <div><button type="button" class="dark" onclick="submitOptionBForm(familySizeHelper, optBoutputIds)">Submit Analysis</button></div>
-                </center>
+                <?php add_submit_html("optb", "optBoutputIds", $userEmail); ?>
             </form>
         </div>
 <?php } ?>
@@ -374,322 +287,138 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="primary-input">
                     <textarea id="fasta-input" name="fasta-input"></textarea>
                     <div>
-                        <input type="checkbox" id="fasta-use-headers" name="fasta-use-headers" value="1"> <b>Read FASTA headers</b><br>
+                        <input type="checkbox" id="fasta-use-headers" name="fasta-use-headers" value="1"> <label for="fasta-use-headers"><b>Read FASTA headers</b></label><br>
                         When selected, recognized UniProt or Genbank identifiers from FASTA headers are used to retrieve
                         corresponding node attributes from the UniProt database.
                     </div>
-<?php echo ui::make_upload_box("FASTA File:", "fasta-file", "progress-bar-fasta", "progress-num-fasta"); ?>
+                    <?php echo ui::make_upload_box("FASTA File:", "fasta-file", "progress-bar-fasta", "progress-num-fasta"); ?>
                 </div>
 
+                <div class="option-panels">
                     <div>
-                        If desired, include Pfam and/or InterPro families, in the analysis of your FASTA file. For Pfam families,
-                        the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the format is
-                        IPRxxxxxx (six digits); for Pfam clans, the format is CLxxxx (four digits).
-                        For Pfam families, InterPro families, and Pfam clans with a size greater than <?php echo $maxFullFamily; ?>,
-                        UniRef90 seed sequences will be utilized instead of the full family.
-                    </div>
-                <div class="primary-input">
-                    <div>
-                        <input type="text" id="families-input-optc" name="families-input-optc">
-<div class="new_feature"></div>
-                        <input type="checkbox" id="use-uniref-optc" class="cb-use-uniref bigger" value="1">
-                        <label for="use-uniref-optc">Use <select id="uniref-ver-optc" name="uniref-ver-optc" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
-                        <div style="margin-top: 10px">
-<?php echo ui::make_pfam_size_box("family-size-container-optc", "family-count-table-optc", $useUniref90, $useUniref50); ?> 
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
-                <div style="display: none;" class="advanced-options">
-                    <div>
-                        E-Value: <input type="text" class="small" id="evalue-optc" name="evalue-optc"
-                            value="<?php echo functions::get_evalue(); ?>">
-                        Negative log of e-value for all-by-all BLAST (&ge;1; default: <?php echo functions::get_evalue(); ?>)
+                        <?php add_family_input_option("optc", $maxFullFamily); ?>
                     </div>
                     <div>
-                        Fraction:
-                        <input type="text" class="small fraction" id="fraction-optc" name="fraction-optd"
-                            value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
-                        Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default: 
-                        <?php echo functions::get_fraction(); ?>)
+                        <?php add_ssn_calc_option("optc") ?>
                     </div>
-<?php    if ($useAdvancedFamilyInputs) { ?>
+                    <?php if ($useAdvancedFamilyInputs) { ?>
                     <div>
-                        CPUx2: <input type="checkbox" id="cpu-x2-optc" name="cpu-x2-optc" value="1">
-                        <label for="cpu-x2-optc">Check to use two times the number of processors (default: off)</label>
+                        <?php add_dev_site_option("optc", $db_modules); ?>
                     </div>
-<?php    } ?>
-<?php    if (functions::get_program_selection_enabled()) { ?>
-                    <div>
-                        Select Program to use:
-                        <select name="program-optc" id="program-optc">
-                            <option value="BLAST">Blast</option>
-                            <option value="BLAST+">Blast+</option>
-                            <option selected="selected" value="DIAMOND">Diamond</option>
-                        	<option value="DIAMONDSENSITIVE">Diamond Sensitive</option>
-                        </select>
-                    </div>
-<?php    } ?>
-<?php    make_db_mod_option($db_modules, "optc"); ?>
+                    <?php } ?>
                 </div>
 
-                <div>Optional job name: <input type="text" class="small" name="job-name-optc" id="job-name-optc" value=""></div>
-                <div>
-                    E-mail address:
-                    <input name="email" id="email-optc" type="text" value="<?php echo $userEmail; ?>" class="email"
-                        onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
-                    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
-                    to analyze the data.
-                </div>
-    
-                <div id="message-optc" style="color: red" class="error_message">
-                    <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
-                </div>
-                <center>
-                    <div><button type="button" class="dark" onclick="submitOptionCForm(familySizeHelper, optCoutputIds)">Submit Analysis</button></div>
-                </center>
+                <?php add_submit_html("optc", "optCoutputIds", $userEmail); ?>
             </form>
         </div>
 <?php    } ?>
 
 <?php    if (functions::option_d_enabled()) { ?>
         <div id="optionDtab" class="tab">
-            Input a list of Uniprot, NCBI, or Genbank sequence accession IDs, and/or upload a text file containing
-            the accession IDs.
-            
+            Generate SSN from a list of UniProt, UniRef, NCBI IDs, or Genbank sequence IDs.
             <form name="optionDform" id="optionDform" method="post" action="">
-                <div class="primary-input">
-                    <textarea id="accession-input" name="accession-input"></textarea>
-                    <div>
-<?php echo ui::make_upload_box("Accession ID File:", "accession-file", "progress-bar-accession", "progress-num-accession"); ?>
-                    </div>
-                    <div id="accession-seq-type-container" style="margin-top:15px">
-                        Create SSN with the accession IDs as:
-                        <select id="accession-seq-type">
-                            <option value="uniprot" selected>UniProt IDs</option>
-                            <option value="uniref90">UniRef90 seed sequence IDs</option>
-                            <option value="uniref50">UniRef50 seed sequence IDs</option>
-                        </select>
-                        <a class="question" title="When in the course of human history,
-                            the accession IDs that are provided happen to be UniRef50 or UniRef90 seed sequences,
-                            setting this box to a UniRef option will result in an SSN that is like one that is created by using the
-                            UniRef option with a family.  This means that the list of sequences that is put into
-                            the tool will be end up being the node IDs, and node attributes with the UniRef clusters
-                            will be included in the output SSN. If the UniProt setting is used (the default), then a
-                            normal SSN will be created.">?</a>
-                    </div>
-                </div>
-
-                <div>
-                    If desired, include Pfam and/or InterPro families, in the analysis of your list of IDs. For Pfam families,
-                    the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the format is
-                    IPRxxxxxx (six digits); for Pfam clans, the format is CLxxxx (four digits).
-                    For Pfam families, InterPro families, and Pfam clans with a size greater than <?php echo $maxFullFamily; ?>,
-                    UniRef90 seed sequences will be utilized instead of the full family.
-                </div>
-                <div class="primary-input">
-                    <div>
-                        <input type="text" id="families-input-optd" name="families-input-optd">
-<div class="new_feature"></div>
-                        <input type="checkbox" id="use-uniref-optd" class="cb-use-uniref bigger" value="1">
-                        <label for="use-uniref-optd">Use <select id="uniref-ver-optd" name="uniref-ver-optd" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> seed sequences instead of the full family</label>
-                        <div style="margin-top: 10px">
-<?php echo ui::make_pfam_size_box("family-size-container-optd", "family-count-table-optd", $useUniref90, $useUniref50); ?> 
+                <div class="tabs tabs-efihdr" id="optionD-src-tabs">
+                    <ul class="tab-headers">
+                        <li class="active"><a href="#optionD-source-uniprot">Use UniProt IDs</a></li>
+                        <li><a href="#optionD-source-uniref">Use UniRef 50 or 90 Cluster IDs</a></li>
+                    </ul>
+                    <div class="tab-content" style="min-height: 250px">
+                        <div id="optionD-source-uniprot" class="tab active">
+                            Input a list of UniProt, NCBI, or Genbank sequence accession IDs, and/or upload a text
+                            file containing the accession IDs.
+                            <div class="primary-input">
+                                <textarea id="accession-input-uniprot" name="accession-input-uniprot"></textarea>
+                                <div>
+<?php echo ui::make_upload_box("Accession ID File:", "accession-file-uniprot", "progress-bar-accession-uniprot", "progress-num-accession-uniprot"); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="optionD-source-uniref" class="tab">
+                            Input a list of UniRef50 or UniRef90 cluster accession IDs, and/or upload a text
+                            file containing the accession IDs.
+                            <div class="primary-input">
+                                <textarea id="accession-input-uniref" name="accession-input-uniref"></textarea>
+                                <div>
+<?php echo ui::make_upload_box("Accession ID File:", "accession-file-uniref", "progress-bar-accession-uniref", "progress-num-accession-uniref"); ?>
+                                </div>
+                                <div id="accession-seq-type-container" style="margin-top:15px">
+                                    Input accession IDs are:
+                                    <select id="accession-seq-type">
+                                        <option value="uniref90">UniRef90 cluster IDs</option>
+                                        <option value="uniref50">UniRef50 cluster IDs</option>
+                                    </select>
+                                    <a class="question" title="
+                                        The list of sequences that is put into
+                                        the tool will be end up being the node IDs, and node attributes with the UniRef clusters
+                                        will be included in the output SSN.">?</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
-                <div style="display: none;" class="advanced-options">
+
+                <div class="option-panels">
                     <div>
-                        E-Value: <input type="text" class="small" id="evalue-optd" name="evalue-optd" 
-                            value="<?php echo functions::get_evalue(); ?>">
-                        Negative log of e-value for all-by-all BLAST (&ge;1; default: <?php echo functions::get_evalue(); ?>)
+                        <?php add_domain_option("optd", true); ?>
+                    </div>
+
+                    <div>
+                        <?php add_family_input_option("optd", $maxFullFamily); ?>
                     </div>
                     <div>
-                        Fraction: <input type="text" class="small fraction" id="fraction-optd" name="fraction-optd" 
-                            value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
-                        Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
-                        <?php echo functions::get_fraction(); ?>)
+                        <?php add_ssn_calc_option("optd") ?>
                     </div>
-<?php    if ($useAdvancedFamilyInputs) { ?>
+                    <?php if ($useAdvancedFamilyInputs) { ?>
                     <div>
-                        CPUx2: <input type="checkbox" id="cpu-x2-optd" name="cpu-x2-optd" value="1">
-                        <label for="cpu-x2-optd">Check to use two times the number of processors (default: off)</label>
+                        <?php add_dev_site_option("optd", $db_modules); ?>
                     </div>
-<?php    } ?>
-<?php    if ($useAdvancedFamilyInputs) { ?>
-                    <div id="accession-input-domain-cb-container">
-                        <label for="accession-input-domain-cb">Enable domain</label>
-                        <input type="checkbox" name="accession-input-domain-cb" id="accession-input-domain-cb" />
-                        <span id="accession-input-domain-container" style="display:none">
-                            Specify which family the domain should be applied to: <input type="text" name="accession-input-domain-family" id="accession-input-domain-family" style="width: 100px" />
-                        </span>
-                    </div>
-                    <div style="clear: both"></div>
-<?php    } ?>
-<?php    if ($useAdvancedFamilyInputs) { ?>
-                    <div>
-                        Expand UniRef seed sequences: 
-                        <input type="checkbox" id="accession-use-uniref" name="accession-use-uniref"
-                            onchange="toggleUniref('accession-uniref-version', this)">
-                        <a class="question" title="Check to create an SSN that considers all of the sequences
-                            in UniRef seed sequence clusters that are provided as inputs to this option,
-                            and not just the seed sequences.  This expands the seed sequences before doing anything else
-                            (if any sequences are not seed sequences, they are included as normal nodes in the SSN).
-                            This option is incompatible with the 'Create SSN with the accession IDs' option above.">?</a>
-                        (default: off)
-                            <select name="accession-uniref-version" id="accession-uniref-version" disabled="disabled">
-                                <option value="50">UniRef50</option>
-                                <option value="90">UniRef90</option>
-                            </select>
-                    </div>
-<?php    } else { ?>
-                    <div>
-                        <input type="checkbox" id="accession-use-uniref" value="" style="display: none">
-                        <input type="hidden" id="accession-uniref-version" value="">
-                    </div>
-<?php    } ?>
-<?php    if (functions::get_program_selection_enabled()) { ?>
-                    <div>
-                        Select Program to use:
-                        <select name='option_d_program' id='option_d_program'>
-                            <option value='BLAST'>Blast</option>
-                            <option value='BLAST+'>Blast+</option>
-                            <option selected='selected' value='DIAMOND'>Diamond</option>
-                        	<option value='DIAMONDSENSITIVE'>Diamond Sensitive</option>
-                        </select>
-                    </div>
-<?php    } ?>
-<?php    make_db_mod_option($db_modules, "optd"); ?>
+                    <?php } ?>
                 </div>
 
-                <div>Optional job name: <input type="text" class="small" name="job-name-optd" id="job-name-optd" value=""></div>
-                <div>
-                    E-mail address:
-                    <input name="email" id="email-optd" type="text" value="<?php echo $userEmail; ?>" class="email"
-                        onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
-                    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
-                    to analyze the data.
-                </div>
-    
-                <div id="message-optd" style="color: red" class="error_message">
-                    <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
-                </div>
-                <center>
-                    <div><button type="button" class="dark" onclick="submitOptionDForm(familySizeHelper, optDoutputIds)">Submit Analysis</button></div>
-                </center>
+                <?php add_submit_html("optd", "optDoutputIds", $userEmail); ?>
             </form>
         </div>
 <?php    } ?>
 
 <?php if (functions::option_e_enabled()) { ?>
         <div id="optionEtab" class="tab">
-            <div>
-                The sequences from the Pfam and/or InterPro families are retrieved, and then, the similarities between the
-                sequences are calculated and used to generate the SSN. Advanced options, including specifying the use of
-                UniRef, sequence identity, and sequence length are provided.
-                For Pfam families, the format is a comma separated list of PFxxxxx (five digits); for InterPro families, the
-                format is IPRxxxxxx (six digits). The maximum number of retrieved sequences is <?php echo $maxSeqFormatted; ?>.
-                For Pfam families, InterPro families, and Pfam clans with a size greater than <?php echo $maxFullFamily; ?>,
-                UniRef90 seed sequences will be utilized instead of the full family.
-            </div>
-
             <form name="optionEform" id="optionEform" method="post" action="">
-                <div class="primary-input">
-                    <input type="text" id="families-input-opte" name="families-input-opte">
-                    <div style="margin-top: 10px">
-<?php echo ui::make_pfam_size_box('family-size-container-opte', 'family-count-table-opte', $useUniref90, $useUniref50); ?> 
-                    </div>
-                </div>
-                
+                <?php add_family_input_option_family_only("opte", $maxFullFamily); ?>
 
-                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
-                <div style="display: none;" class="advanced-options">
+                <div class="option-panels">
                     <div>
-                        E-Value: <input type="text" class="small" id="evalue-opte" name="evalue-opte"
-                            value="<?php echo functions::get_evalue(); ?>">
-                        Negative log of e-value for all-by-all BLAST (&ge;1; default <?php echo functions::get_evalue(); ?>)
+                        <?php add_domain_option("opte"); ?>
                     </div>
                     <div>
-                        Fraction: <input type="text" class="small fraction" id="fraction-opte" name="fraction-opte"
-                            value="<?php echo functions::get_fraction(); ?>"> <a class="question" title="Either fraction or UniRef90 can be used, not both.">?</a>
-                        Fraction of sequences in Pfam/Interpro family for network (&ge; 1; default:
-                        <?php echo functions::get_fraction(); ?>)
+                        <?php add_ssn_calc_option("opte") ?>
                     </div>
                     <div>
-                        Enable Domain: <input type="checkbox" id="domain-opte" name="domain-opte" value="1">
-                        <label for="domain-opte">Check to generate SSN with Pfam-defined domains (default: off)</label>
+                        <h3>Protein Family Option</h3>
+                        <?php echo get_fraction_html("opte"); ?>
                     </div>
                     <div>
-                        Sequence Identity: <input type="text" class="small" id="seqid-opte" name="seqid-opte" value="1">
-                        Sequence identity (&le; 1; default: 1)
+                        <?php add_dev_site_option("opte", $db_modules, get_advanced_seq_html("opte")); ?>
                     </div>
-                    <div>
-                        Minimum Sequence Length: <input type="text" class="small" id="min-seq-len-opte" name="min-seq-len-opte" value="">
-                    </div>
-                    <div>
-                        Maximum Sequence Length: <input type="text" class="small" id="max-seq-len-opte" name="max-seq-len-opte" value="">
-                    </div>
-                    <div>
-                        Sequence Length Overlap:
-                        <input type="text" class="small" id="length-overlap-opte" name="length-overlap-opte" value="1">
-                        Sequence length overlap (&le; 1; default: 1)
-                    </div>
-                    <div>
-                        Do not demultiplex:
-                        <input type="checkbox" id="demux-opte" name="demux-opte" value="1">
-                        Check to prevent a demultiplex to expand cd-hit clusters (default: demultiplex)
-                    </div>
-                    <div>
-                        CPUx2: <input type="checkbox" id="cpu-x2-opte" name="cpu-x2-opte" value="1">
-                        <label for="cpu-x2-opte">Check to use two times the number of processors (default: off)</label>
-                    </div>
-<?php    if (functions::get_program_selection_enabled()) { ?>
-                    <div>
-                        Select Program to use: 
-                        <select name="program-opte" id="program-opte">
-                            <option value="BLAST">Blast</option>
-                            <option value="BLAST+">Blast+</option>
-                            <option selected="selected" value="DIAMOND">Diamond</option>
-                        	<option value="DIAMONDSENSITIVE">Diamond Sensitive</option>
-                        </select>
-                    </div>
-<?php    } ?>
-<?php    make_db_mod_option($db_modules, "opte"); ?>
                 </div>
     
-                <div>Optional job name: <input type="text" class="small" name="job-name-opte" id="job-name-opte" value=""></div>
-                <div>
-                    E-mail address:
-                    <input name="email" id="email-opte" type="text" value="<?php echo $userEmail; ?>" class="email"
-                        onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;'><br>
-                    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
-                    to analyze the data.
-                </div>
-    
-                <div id="message-opte" style="color: red" class="error_message">
-                    <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
-                </div>
-                <center>
-                    <div><button type="button" class="dark" onclick="submitOptionEForm(familySizeHelper, optEoutputIds)">Submit Analysis</button></div>
-                </center>
+                <?php add_submit_html("opte", "optEoutputIds", $userEmail); ?>
             </form>
         </div>
 <?php } ?>
 
 <?php    if (functions::colorssn_enabled()) { ?>
         <div id="colorssntab" class="tab">
-            <b>Color a previously generated SSN and return associated cluster data.</b><br>
-            Independent sequence clusters in the uploaded SSN are identified, numbered and colored. Summary tables,
-            sets of IDs and sequences for specific clusters are provided. A Cytoscape-edited SNN can serve as input for this utility.
-            In order for all of the new features to work correctly, SSNs generated by EFI-EST <?php echo functions::get_est_version(); ?>
-            (released 8/17/2017) should be used. 
+            <div>
+                Clusters in the submitted SSN are identified, numbered and colored.
+                Summary tables, sets of IDs and sequences per cluster are provided.
+            </div>
 
             <form name="colorSsnForm" id="colorSsnform" method="post" action="">
                 <div class="primary-input">
-<?php echo ui::make_upload_box("SNN to color and analyze (uncompressed or zipped XGMML file):", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
+<?php echo ui::make_upload_box("SSN File:", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
+                    <div>
+                        A Cytoscape-edited SNN can serve as input for this utility. File can be uncompressed or zipped XGMML.
+                    </div>
                 </div>
 
                 <div>
@@ -818,9 +547,16 @@ the <a href="family_list.php">Family Information page</a>.
 
     $(document).ready(function() {
         resetForms();
+        $("#optionD-src-tabs").data("source", "uniprot");
 
         $(".tabs .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");
+            if (curAttrValue.substr(0, 15) == "#optionD-source") {
+                var source = curAttrValue.substr(16);
+                $("#optionD-src-tabs").data("source", source);
+            }
+            var filterType = curAttrValue.substr(11);
+            $("#filter-type").val(filterType);
             $(".tabs " + curAttrValue).fadeIn(300).show().siblings().hide();
             $(this).parent("li").addClass("active").siblings().removeClass("active");
             e.preventDefault();
@@ -843,10 +579,10 @@ the <a href="family_list.php">Family Information page</a>.
         
         });
 
-        $("#create-accordion" ).accordion({
-            icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" },
-            heightStyle: "content"
-        });
+//        $("#create-accordion" ).accordion({
+//            icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" },
+//            heightStyle: "content"
+//        });
 
         familySizeHelper.setupFamilyInput("opta", optAinputIds, optAoutputIds);
         familySizeHelper.setupFamilyInput("optb", optBinputIds, optBoutputIds);
@@ -889,7 +625,14 @@ the <a href="family_list.php">Family Information page</a>.
             });
         });
 
-        $("#accession-file").on("change", function(e) {
+        $("#fasta-file").on("change", function(e) {
+            var fileName = '';
+            fileName = e.target.value.split( '\\' ).pop();
+            if (fileName && !$("#job-name-optc").val())
+                $("#job-name-optc").val(fileName);
+        });
+
+        $("#accession-file-uniref").on("change", function(e) {
             var fileName = '';
             fileName = e.target.value.split( '\\' ).pop();
             if (fileName) {
@@ -899,30 +642,39 @@ the <a href="family_list.php">Family Information page</a>.
                     $("#accession-seq-type").val("uniref90");
                 else if (fileName.includes("UniProt"))
                     $("#accession-seq-type").val("uniprot");
-                //$("#accession-input-domain-cb-container").show();
             }
+            if (fileName && !$("#job-name-optd").val())
+                $("#job-name-optd").val(fileName);
         });
 
-        //$("#accession-input").on("input", function() {
-        //    var isDomain = $(this).data("is_domain");
-        //    if (typeof isDomain === 'undefined' && this.value && this.value.includes(":")) {
-        //        $(this).data("is_domain", true);
-        //        $("#accession-input-domain-container").show();
-        //        $("#accession-input-domain-cb-container").show();
-        //        $("#accession-input-domain-cb").prop("checked", true);
-        //    }
-        //});
-
-        $("#accession-input-domain-cb").change(function() {
-            $("#accession-input-domain-container").toggle();
+        $("#accession-file-uniprot").on("change", function(e) {
+            var fileName = '';
+            fileName = e.target.value.split( '\\' ).pop();
+            if (fileName && !$("#job-name-optd").val())
+                $("#job-name-optd").val(fileName);
         });
 
+        $("#domain-optd").change(function() {
+            var status = $("#accession-input-domain-family").prop("disabled");
+            if (status)
+                $("#accession-input-domain-family").prop("disabled", false);
+            else
+                $("#accession-input-domain-family").prop("disabled", true);
+        });
+
+        $(".option-panels > div").accordion({
+            heightStyle: "content",
+                collapsible: true,
+                active: false,
+        });
+        $(".tabs").tabs();
     }).tooltip();
 
     function resetForms() {
         for (i = 0; i < document.forms.length; i++) {
             document.forms[i].reset();
         }
+        document.getElementById("accession-input-domain-family").disabled = true;
     }
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
@@ -931,14 +683,14 @@ the <a href="family_list.php">Family Information page</a>.
 <div style="color:red;" id="family-warning-size-info">
 The family(ies) selected has <span id="family-warning-total-size"> </span> proteins&mdash;this is greater than
 the maximum allowed (<?php echo $maxFullFamily; ?>). To reduce computing time and the size of
-output SSN, UniRef<span class="family-warning-uniref">90</span> seed sequences will automatically be used.
+output SSN, UniRef<span class="family-warning-uniref">90</span> cluster ID sequences will automatically be used.
 </div>
 
 <p>In UniRef<span class="family-warning-uniref">90</span>, sequences that share
 &ge;<span class="family-warning-uniref">90</span>% sequence identity over 80% of the sequence 
-length are grouped together and represented by a single seed sequence. The output 
+length are grouped together and represented by an accession ID known as the cluster ID. The output 
 SSN is equivalent a to <span class="family-warning-uniref">90</span>% Representative Node
-Network with each node corresponding to a seed sequence, and for which the node attribute
+Network with each node corresponding to a UniRef cluster ID, and for which the node attribute
 "UniRef<span class="family-warning-uniref">90</span> Cluster IDs" lists 
 all the sequences represented by a node. UniRef<span class="family-warning-uniref">90</span>
 SSNs are compatible with the Color SSN utility as well as the EFI-GNT tool.
@@ -950,7 +702,7 @@ SSNs are compatible with the Color SSN utility as well as the EFI-GNT tool.
     The family(ies) selected has <span id="family-warning-total-size"> </span> 
     proteins<span id="family-warning-fraction-size"></span>, which is greater
     than the maximum allowed (<?php echo $maxFullFamily; ?>) for full family
-    inclusion.  UniRef<span class="family-warning-uniref">90</span> seed sequences will automatically be 
+    inclusion.  UniRef<span class="family-warning-uniref">90</span> cluster IDs will automatically be 
     used instead of the full number of proteins in the family(ies).  Press OK to continue with UniRef<span class="family-warning-uniref">90</span>
     or Cancel to enter a different family, or option.
 <?php */ ?>
@@ -974,6 +726,7 @@ function make_db_mod_option($db_modules, $option) {
     $id = "db-mod-$option";
     $ws = "                    ";
     echo <<<HTML
+<div>
 $ws Database version:
 $ws<select name="$id" id="$id">
 HTML;
@@ -985,8 +738,212 @@ HTML;
 
     echo <<<HTML
 $ws</select>
+</div>
 HTML;
 }
+
+
+function add_submit_html($option_id, $js_id_name, $user_email) {
+    echo <<<HTML
+<div style="margin-top: 35px">
+    <div>Job name: <input type="text" class="email" name="job-name-$option_id" id="job-name-$option_id" value=""> (required)</div>
+</div>
+<div>
+    E-mail address:
+    <input name="email" id="email-$option_id" type="text" value="$user_email" class="email"
+        onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;' value=""><br>
+    When the sequence has been uploaded and processed, you will receive an e-mail containing a link
+    to analyze the data.
+</div>
+
+<div id="message-$option_id" style="color: red" class="error_message">
+</div>
+<center>
+    <div><button type="button" class="dark" onclick="submitOptionForm('$option_id', familySizeHelper, $js_id_name)">Submit Analysis</button></div>
+</center>
+HTML;
+}
+
+
+function get_advanced_seq_html($option_id) {
+    $addl_html = <<<HTML
+<div>
+    Sequence Identity: <input type="text" class="small" id="seqid-$option_id" name="seqid-$option_id" value="1">
+    Sequence identity (&le; 1; default: 1)
+</div>
+<div>
+    Sequence Length Overlap:
+    <input type="text" class="small" id="length-overlap-$option_id" name="length-overlap-$option_id" value="1">
+    Sequence length overlap (&le; 1; default: 1)
+</div>
+HTML;
+    if ($option_id == "opte") {
+        $addl_html .= <<<HTML
+<div>
+    Minimum Sequence Length: <input type="text" class="small" id="min-seq-len-$option_id" name="min-seq-len-$option_id" value="">
+</div>
+<div>
+    Maximum Sequence Length: <input type="text" class="small" id="max-seq-len-$option_id" name="max-seq-len-$option_id" value="">
+</div>
+<div>
+    Do not demultiplex:
+    <input type="checkbox" id="demux-$option_id" name="demux-$option_id" value="1">
+    Check to prevent a demultiplex to expand cd-hit clusters (default: demultiplex)
+</div>
+HTML;
+    }
+    return $addl_html;
+}
+
+
+function add_dev_site_option($option_id, $db_modules, $extra_html = "") {
+    echo <<<HTML
+<h3>Dev Site Options</h3>
+<div>
+    <div>
+        CPUx2: <input type="checkbox" id="cpu-x2-$option_id" name="cpu-x2-$option_id" value="1">
+        <label for="cpu-x2-$option_id">Check to use two times the number of processors (default: off)</label>
+    </div>
+HTML;
+    make_db_mod_option($db_modules, $option_id);
+    if (functions::get_program_selection_enabled()) {
+        echo <<<HTML
+    <div>
+        Select Program to use:
+        <select name="program-$option_id" id="program-$option_id">
+            <option value="BLAST">Blast</option>
+            <option value="BLAST+">Blast+</option>
+            <option selected="selected" value="DIAMOND">Diamond</option>
+        	<option value="DIAMONDSENSITIVE">Diamond Sensitive</option>
+        </select>
+    </div
+HTML;
+    }
+    echo <<<HTML
+    $extra_html
+</div>
+HTML;
+}
+
+
+function add_ssn_calc_option($option_id) {
+    $default_evalue = functions::get_evalue();
+    echo <<<HTML
+<h3>SSN Edge Calculation Option</h3>
+<div>
+    <div>
+        E-Value: <input type="text" class="small" id="evalue-$option_id" name="evalue-$option_id" size="5"
+            value="$default_evalue">
+        Negative log of e-value for all-by-all BLAST (&ge;1; default $default_evalue)
+    </div>
+    <div class="primary-input">
+        Input an alternative e-value for BLAST to calculate the edges.
+        We suggest using a larger e-value
+        (smaller negative log) for short sequences and a smaller
+        e-value (larger negative log) for separating
+        divergent homologues in different clusters.
+    </div>
+</div>
+HTML;
+}
+
+
+function add_domain_option($option_id, $specify_family = false) {
+    $option_text = $specify_family ? "Options" : "Option";
+    echo <<<HTML
+<h3>Family Domain Boundaries $option_text</h3>
+<div>
+    <div>
+        Pfam and InterPro databases define domain boundaries for members of their families.
+    </div>
+    <div>
+        Domain:
+        <input type="checkbox" id="domain-$option_id" name="domain-$option_id" value="1" class="bigger">
+        <label for="domain-$option_id">Sequences trimmed to the domain boundaries defined by the input family will be used for the calculations.</label>
+    </div>
+HTML;
+    if ($specify_family) {
+        echo <<<HTML
+    <div>
+        Family:
+        <input type="text" name="accession-input-domain-family" id="accession-input-domain-family" style="width: 100px" disabled />
+        Use domain boundaries from the specified family (single entry).
+    </div>
+HTML;
+    }
+    echo <<<HTML
+</div>
+HTML;
+}
+
+
+function add_family_input_option_family_only($option_id, $max_full_family) {
+    return add_family_input_option_base($option_id, $max_full_family, false, "");
+}
+
+
+function add_family_input_option($option_id, $max_full_family) {
+    return add_family_input_option_base($option_id, $max_full_family, true, get_fraction_html($option_id));
+}
+
+
+function add_family_input_option_base($option_id, $max_full_family, $include_intro, $fraction_html) {
+    if ($include_intro) {
+        $option_text = $fraction_html ? "Options" : "Option";
+        echo <<<HTML
+<h3>Protein Family Addition $option_text</h3>
+<div>
+    <div>
+        Add sequences belonging to Pfam and/or InterPro families to the sequences used to generate the SSN.
+    </div>
+HTML;
+    } else {
+        echo "<div>\n";
+    }
+    echo <<<HTML
+    <div class="primary-input">
+        <div>
+            <input type="text" id="families-input-$option_id" name="families-input-$option_id">
+            <input type="checkbox" id="use-uniref-$option_id" class="cb-use-uniref bigger" value="1">
+            <label for="use-uniref-$option_id">Use <select id="uniref-ver-$option_id" name="uniref-ver-$option_id" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> cluster ID sequences instead of the full family</label>
+            <div style="margin-top: 10px">
+HTML;
+    echo est_ui::make_pfam_size_box("family-size-container-$option_id", "family-count-table-$option_id");
+    echo <<<HTML
+            </div>
+        </div>
+        The input format is a single family or comma/space separated list of families.
+        Families should be specified as PFxxxxx (five digits),
+        IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans.<br>
+        For families with a size greater than $max_full_family,
+        the SSN will instead contain UniRef90 or UniRef50 representative sequences.
+    </div>
+$fraction_html
+</div>
+HTML;
+}
+
+
+function get_fraction_html($option_id) {
+    $default_fraction = functions::get_fraction(); 
+    return <<<HTML
+    <div>
+        <div>
+            Fraction:
+            <input type="text" class="small fraction" id="fraction-$option_id" name="fraction-$option_id" value="$default_fraction" size="5">
+            <a class="question" title="Either fraction or UniRef can be used, not both.">?</a>
+            Reduce the number of sequences used to a fraction of the full family size (&ge; 1; default:
+            $default_fraction)
+        </div>
+        <div class="primary-input">
+            Selects every Nth sequence in the family; the sequences are assumed to be
+            added randomly to UniProt, so the selected sequences are assumed to be a
+            representative sampling of the family. This allows reduction of the size of the SSN.
+        </div>
+    </div>
+HTML;
+}
+
 
 function output_job_list($jobs, $show_archive = false) {
     echo <<<HTML
