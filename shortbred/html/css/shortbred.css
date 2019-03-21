@@ -128,6 +128,10 @@ form button {
     margin-top: 15px;
 }
 
+.option-panel div {
+    margin-bottom: 15px;
+}
+
 /* CONTAINERS */
 
 .header {

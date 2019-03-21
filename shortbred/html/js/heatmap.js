@@ -37,6 +37,10 @@ function HeatmapApp(paramData, progLoaderId) {
     ];
 
     this.parms = paramData;
+    if (typeof this.parms.Width === 'undefined')
+        this.parms.Width = 950;
+    if (typeof this.parms.Height === 'undefined')
+        this.parms.Height = 700;
     
     this.bodySites = [];
 }
@@ -376,8 +380,8 @@ HeatmapApp.prototype.processData = function(data) {
 
     var layout = {
         title: title,
-        width: 950,
-        height: 700,
+        width: this.parms.Width,
+        height: this.parms.Height,
         xaxis: {
             tickangle: -45,
             showticklabels: false,

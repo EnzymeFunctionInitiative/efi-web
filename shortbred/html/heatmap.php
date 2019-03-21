@@ -38,15 +38,24 @@
     <i id="progress-loader" class="fas fa-sync black fa-spin fa-4x fa-fw hidden-placeholder"></i>
 </div>
 
+<div id="boxplot" title="Box Plot" class="hidden">
+<div id="boxplot-plot"></div>
+</div>
+
 
 <script src="../js/jquery-3.2.1.min.js"></script>
+<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js"></script>
 <script src="../bs/js/bootstrap.min.js"></script>
 <script src="js/heatmap.js"></script>
 
 <script>
 $(document).ready(function() {
 
+    var width = <?php echo (isset($_GET["w"]) && is_numeric($_GET["w"])) ? $_GET["w"] : 950; ?>;
+    width = width > 1000 ? 1000 : width < 600 ? 600 : width;
+
     var data = {
+        Width: width,
 <?php if (isset($_GET["example"])) { ?>
         Example: true,
         Id: 0,
