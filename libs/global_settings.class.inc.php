@@ -110,5 +110,9 @@ class global_settings {
     public static function get_num_job_limit() { // The maximum number of jobs a user can submit in a 24-hour time period.
         return (defined("__NUM_JOB_LIMIT__") && __NUM_JOB_LIMIT__) ? __NUM_JOB_LIMIT__ : 6;
     }
+    
+    public static function advanced_options_enabled() {
+        return defined("__ENABLE_ADVANCED_OPTIONS__") ? __ENABLE_ADVANCED_OPTIONS__ : false;
+    }
 }
 ?>
