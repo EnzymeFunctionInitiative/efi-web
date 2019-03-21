@@ -68,6 +68,8 @@ $cdhit_sid = $job->get_cdhit_sid();
 $cons_thresh = $job->get_consensus_threshold();
 $diamond_sens = $job->get_diamond_sensitivity();
 
+$job_name = pathinfo($filename, PATHINFO_FILENAME);
+
 $table_format = "html";
 if (isset($_GET["as-table"])) {
     $table_format = "tab";
@@ -157,7 +159,6 @@ require_once "inc/header.inc.php";
 
 
 <h2><?php echo $ExtraTitle; ?></h2>
-<p>&nbsp;</p>
 
 <?php if ($is_failed) { ?>
 <p>There was an error generating the marker data.</p>
@@ -165,192 +166,204 @@ require_once "inc/header.inc.php";
 <p>The computation is still running.</p>
 <?php } else { ?>
 
+<h4>Job Name: <b><?php echo $job_name; ?></b></h4>
 
-<h3>Job Information</h3>
-
-<table class="pretty" style="border-top: 1px solid #aaa">
-    <tbody>
-<?php echo $table_string; ?>
-    </tbody>
-</table>
-<!--<div style="display: flex; justify-content: flex-end"><a href="stepc.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Info</button></a></div>-->
-<div style="float:left"><button type="button" class="mini" id="job-stats-btn">Show Job Statistics</button></div>
-<div style="float:right"><a href="stepc.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Information</button></a></div>
-<div style="clear:both"></div>
-
-<h3>Downloadable Data</h3>
-
-<table class="pretty">
-    <thead>
-        <th></th>
-        <th>File</th>
-        <th>Size</th>
-    </thead>
-    <tbody>
-<?php
-foreach ($dl_data as $dl_row) {
-    $type = $dl_row[0];
-    $desc = $dl_row[1];
-    $size = $dl_row[2] ? $dl_row[2] . " MB" : "--";
-    echo <<<HTML
-        <tr>
-            <td style='text-align:center;'><a href="download_files.php?type=$type&$id_query_string"><button class="mini">Download</button></a></td>
-            <td>$desc</td>
-            <td style='text-align:center;'>$size</td>
-        </tr>
-HTML;
-}
-?>
-    </tbody>
-</table>
-
-<?php
-if ($is_enabled) {
-?>
-
-<h3>Select Metagenomes from the Human Microbiome Project</h3>
-
-<p>
-The next step in the process is quantifying the occurrence of the markers against a metagenome dataset.
-This tool currently provides access to metagenomes from the <a href="https://commonfund.nih.gov/hmp">NIH
-Human Microbiome Project (HMP)</a> and HMP2 datasets.
-</p>
-
-<form action="" id="quantify-params">
-<input type="hidden" name="id" value="<?php echo $id; ?>">
-<input type="hidden" name="key" value="<?php echo $key; ?>">
-
-<div class="tabs" id="download-tabs">
-    <ul class="tab-headers">
-<?php
-    $c = 0;
-    foreach ($mg_db_list as $mg_db_id) {
-        $ac_cls = $c++ ? "" : "active";
-        $mg_db_name = $mg_db->get_metagenome_db_name($mg_db_id);
-        echo <<<HTML
-        <li class="$ac_cls"><a href="#ds-mgds-$mg_db_id">$mg_db_name</a></li>
-HTML;
-//        <li class="active"><a href="#ds-hmp">HMP</a></li>
-//        <li><a href="#ds-hmp2mg">HMP2 Metagenomes</a></li>
-//        <li><a href="#ds-hmp2mt">HMP2 Metatranscriptomes</a></li>
-    }
-?>
+<div class="tabs-efihdr tabs">
+    <ul>
+        <li><a href="#info">Job Information</a></li>
+        <li><a href="#data">Marker Data</a></li>
+        <li class="ui-tabs-active"><a href="#mg">Metagenome Selection</a></li>
+        <li><a href="#filter">Resubmit SSN</a></li>
     </ul>
 
-    <div class="tab-content tab-content-normal">
-<?php
-    $c = 0;
-    foreach ($mg_db_list as $mg_db_id) {
-        $ac_cls = $c++ ? "" : "active";
-        $mg_list = $mg_db->get_metagenome_list_for_db($mg_db_id);
-        $mg_desc = $mg_db->get_metagenome_db_description($mg_db_id);
-        echo <<<HTML
-        <div id="ds-mgds-$mg_db_id" class="tab $ac_cls">
-HTML;
-        output_mg_sel("mgds-$mg_db_id", $mg_list);
-        echo <<<HTML
-            <p>
-            $mg_desc
-            </p>
-            <input type="hidden" name="mgds-$mg_db_id-dt" id="mgds-$mg_db_id-dt" value="$mg_db_id" />
-        </div>
-HTML;
-    }
-?>
-    </div>
-</div>
-
-<?php if (settings::get_diamond_enabled()) { ?>
-<p>
-    Sequence search type: <select name="search_type" id="search_type"><option>USEARCH</option><option>DIAMOND</option></select> (Optional)
-</p>
-<?php } ?>
-
-<p>&nbsp;</p>
-<div id="error-message" style="color: red"></div>
-
-<center>
-<?php if ($is_submittable) { ?>
-<button class="dark" type="button" name="submit" id="quantify-submit"
-    onclick="submitQuantify('quantify-params', '', 'search_type', 'error-message', '<?php echo $id; ?>', '<?php echo $key; ?>')">Quantify Markers</button>
-<?php } else { // is submittable ?>
-<button class="dark" type="button" name="submit">Quantify Markers (inactive for training jobs)</button>
-<?php } ?>
-</center>
-
-</form>
-
-
-<?php } ?>
-
-<?php
-if (count($q_jobs)) {
-
-    echo "<hr>";
-    echo "<h3>Existing Quantify Jobs</h3>";
-
-    foreach ($q_jobs as $job) {
-        $qid = $job["quantify_id"];
-        $status = $job["is_completed"];
-        if ($status) {
-            echo "<p><a href='stepe.php?id=$id&key=$key&quantify-id=$qid'><button type='button' class='mini'>Quantify Job #$qid</button></a></p>";
-        } else {
-            echo "<p>Quantify Job #$qid - not completed</p>";
-        }
-    }
-}
-
-
-if (count($child_data)) {
-}
-
-?>
-
-<?php if ($user_email) { ?>
-
-<hr>
-<h3>Upload SSN with Different Alignment Score</h3>
-
-An SSN using the same EST job but with a different alignment score can be uploaded here.  This will eliminate
-the need to re-run the Identify and Quantify steps and return a result quicker.  Submitting an SSN will
-create a new job in the ShortBRED website which will function independently of the original job but share the
-Identify and Quantify data.
-
-<form name="upload_form" id='upload_form' method="post" action="" enctype="multipart/form-data">
-<p>
-<?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", $SiteUrlPrefix); ?>
-
-<div id='ssn_message' style="color: red">
-    <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
-</div>
-<center>
     <div>
-<?php if ($is_submittable) { ?>
-        <button type="button" id='ssn_submit' name="ssn_submit" class="dark"
-            onclick="uploadAlignmentScoreUpdateSSN('ssn_file','upload_form','progress_number','progress_bar','ssn_message','<?php echo $user_email; ?>',<?php echo $id; ?>,'<?php echo $key; ?>')"
-            >
-                Upload SSN
-        </button>
-<?php } else { // is submittable ?>
-        <button type="button" id='ssn_submit' name="ssn_submit" class="dark">
-            Upload SSN (inactive for training jobs)
-        </button>
+        <div id="info">
+            <table class="pretty" style="border-top: 1px solid #aaa">
+                <tbody>
+            <?php echo $table_string; ?>
+                </tbody>
+            </table>
+            <!--<div style="display: flex; justify-content: flex-end"><a href="stepc.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Info</button></a></div>-->
+            <!--<div style="float:left"><button type="button" class="mini" id="job-stats-btn">Show Job Statistics</button></div>-->
+            <div style="float:right"><a href="stepc.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Information</button></a></div>
+            <div style="clear:both"></div>
+
+            <?php
+            if (count($q_jobs)) {
+                echo <<<HTML
+                <hr>
+                <h3>Existing Quantify Jobs</h3>
+                <ul>
+HTML;
+                foreach ($q_jobs as $job) {
+                    $qid = $job["quantify_id"];
+                    $status = $job["is_completed"];
+                    if ($status) {
+                        echo "<li><a href='stepe.php?id=$id&key=$key&quantify-id=$qid'>Quantify Job #$qid</a></li>";
+                    } else {
+                        echo "<p>Quantify Job #$qid - not completed</p>";
+                    }
+                }
+                echo <<<HTML
+</ul>
+HTML;
+            }
+            ?>
+        </div>
+
+        
+        <div id="data">
+            <table class="pretty">
+                <thead>
+                    <th></th>
+                    <th>File</th>
+                    <th>Size</th>
+                </thead>
+                <tbody>
+            <?php
+            foreach ($dl_data as $dl_row) {
+                $type = $dl_row[0];
+                $desc = $dl_row[1];
+                $size = $dl_row[2] ? $dl_row[2] . " MB" : "--";
+                echo <<<HTML
+                    <tr>
+                        <td style='text-align:center;'><a href="download_files.php?type=$type&$id_query_string"><button class="mini">Download</button></a></td>
+                        <td>$desc</td>
+                        <td style='text-align:center;'>$size</td>
+                    </tr>
+HTML;
+            }
+            ?>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div id="mg">
+        <?php
+        if ($is_enabled) {
+        ?>
+            <h4>Select Metagenomes from the Human Microbiome Project</h4>
+            
+            <p>
+            The next step in the process is quantifying the occurrence of the markers against a metagenome dataset.
+            This tool currently provides access to metagenomes from the <a href="https://commonfund.nih.gov/hmp">NIH
+            Human Microbiome Project (HMP)</a> and HMP2 datasets.
+            </p>
+            
+            <form action="" id="quantify-params">
+            <input type="hidden" name="id" value="<?php echo $id; ?>">
+            <input type="hidden" name="key" value="<?php echo $key; ?>">
+            
+            <div class="tabs-efihdr tabs" id="download-tabs">
+                <ul class="tab-headers">
+            <?php
+                $c = 0;
+                foreach ($mg_db_list as $mg_db_id) {
+                    $ac_cls = $c++ ? "" : "active";
+                    $mg_db_name = $mg_db->get_metagenome_db_name($mg_db_id);
+                    echo <<<HTML
+                    <li class="$ac_cls"><a href="#ds-mgds-$mg_db_id">$mg_db_name</a></li>
+HTML;
+                }
+            ?>
+                </ul>
+            
+                <div class="tab-content tab-content-normal">
+            <?php
+                $c = 0;
+                foreach ($mg_db_list as $mg_db_id) {
+                    $ac_cls = $c++ ? "" : "active";
+                    $mg_list = $mg_db->get_metagenome_list_for_db($mg_db_id);
+                    $mg_desc = $mg_db->get_metagenome_db_description($mg_db_id);
+                    echo <<<HTML
+                    <div id="ds-mgds-$mg_db_id" class="tab $ac_cls">
+HTML;
+                    output_mg_sel("mgds-$mg_db_id", $mg_list);
+                    echo <<<HTML
+                        <p>
+                        $mg_desc
+                        </p>
+                        <input type="hidden" name="mgds-$mg_db_id-dt" id="mgds-$mg_db_id-dt" value="$mg_db_id" />
+                    </div>
+HTML;
+                }
+            ?>
+                </div>
+            </div>
+            
+            <?php if (settings::get_diamond_enabled()) { ?>
+                <div class="option-panels" style="margin-top: 20px">
+                    <div>
+                        <h3>Database Search Options</h3>
+                        <div>
+                            Sequence search type:
+                            <select name="search_type" id="search_type"><option>USEARCH</option><option>DIAMOND</option></select>
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
+            
+            <p>&nbsp;</p>
+            <div id="error-message" style="color: red"></div>
+            
+            <center>
+            <?php if ($is_submittable) { ?>
+            <button class="dark" type="button" name="submit" id="quantify-submit"
+                onclick="submitQuantify('quantify-params', '', 'search_type', 'error-message', '<?php echo $id; ?>', '<?php echo $key; ?>')">Quantify Markers</button>
+            <?php } else { // is submittable ?>
+            <button class="dark" type="button" name="submit">Quantify Markers (inactive for training jobs)</button>
+            <?php } ?>
+            </center>
+            
+            </form>
+            
+            
+        <?php } ?>
+        </div>
+
+
+    <?php if ($user_email) { ?>
+        <div id="filter">
+            <p>
+            An SSN using the same EST job but with a different alignment score can be uploaded here.
+            </p>
+            
+            <form name="upload_form" id='upload_form' method="post" action="" enctype="multipart/form-data">
+            <div class="primary-input">
+                <?php echo ui::make_upload_box("Select a File to Upload:", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", $SiteUrlPrefix); ?>
+                <div>
+                    This will eliminate
+                    the need to re-run the Identify and Quantify steps and return a result quicker.  Submitting an SSN will
+                    create a new job in the ShortBRED website which will function independently of the original job but share the
+                    Identify and Quantify data.
+                </div>
+            </div>
+            
+            <div id='ssn_message' style="color: red">
+                <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
+            </div>
+            <center>
+                <div>
+            <?php if ($is_submittable) { ?>
+                    <button type="button" id='ssn_submit' name="ssn_submit" class="dark"
+                        onclick="uploadAlignmentScoreUpdateSSN('ssn_file','upload_form','progress_number','progress_bar','ssn_message','<?php echo $user_email; ?>',<?php echo $id; ?>,'<?php echo $key; ?>')"
+                        >
+                            Upload SSN
+                    </button>
+            <?php } else { // is submittable ?>
+                    <button type="button" id='ssn_submit' name="ssn_submit" class="dark">
+                        Upload SSN (inactive for training jobs)
+                    </button>
+            <?php } ?>
+                </div>
+            </center>
+            </form>
+        </div>            
+    <?php   } ?>
 <?php } ?>
-    </div>
-    <div><progress id='progress_bar' max='100' value='0'></progress></div>
-    <div id="progress_number"></div>
-</center>
-</form>
 
-
-<?php   } ?>
-<?php } ?>
-
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p></p>
-<p>&nbsp;</p>
-
+<div style="margin-top: 50px"></div>
 
 <script src="<?php echo $SiteUrlPrefix; ?>/chosen/chosen.jquery.min.js" type="text/javascript"></script>
 <script>
@@ -402,12 +415,12 @@ HTML;
         else
             $(this).text("Show Job Statistics");
     });
-    $(".stats-row").hide();
-    $(".tabs .tab-headers a").on("click", function(e) {
-        var curAttrValue = $(this).attr("href");
-        $(".tabs " + curAttrValue).fadeIn(300).show().siblings().hide();
-        $(this).parent("li").addClass("active").siblings().removeClass("active");
-        e.preventDefault();
+    //$(".stats-row").hide();
+    $(".tabs").tabs();
+    $(".option-panels > div").accordion({
+        heightStyle: "content",
+        collapsible: true,
+        active: false,
     });
 });
 </script>
