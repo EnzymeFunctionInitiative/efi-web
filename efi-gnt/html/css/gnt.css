@@ -94,7 +94,7 @@ h2.bold {
     font-weight: normal;
 }
 
-a {
+a, .ui-widget-content a {
     color: #005591;
     font-weight: bold;
 }
@@ -109,6 +109,10 @@ fieldset {
 
 form button {
     margin-top: 15px;
+}
+
+form div {
+    margin-bottom: 15px;
 }
 
 /* CONTAINERS */
@@ -264,61 +268,4 @@ textarea.options
 #jobs table th.date-col {
     width: 150px;
 }
-
-/* TABLE *************************************************************************************************************/
-
-table.pretty {
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #aaa;
-    border-right: 1px solid #aaa;
-    width: 100%;
-}
-
-table.pretty td, th {
-    border-left: 1px solid #aaa;
-    margin: 0;
-    padding: 7px;
-}
-
-table.pretty th {
-    background-color: #bbb;
-}
-
-table.pretty tr:nth-of-type(even) td {
-    background-color: #eee;
-}
-
-
-/* FORM INPUT */
-
-input.email {
-    width: 50%;
-    font-style: italic;
-    font-size: 1.1em;
-}
-
-/* OVERRIDE JQUERY UI */
-
-.ui-accordion .ui-accordion-header {
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 110%; 
-}
-
-.ui-state-active,
-.ui-widget-content .ui-state-active,
-.ui-widget-header .ui-state-active,
-a.ui-button:active,
-.ui-button:active,
-.ui-button.ui-state-active:hover {
-    background: #555;
-    color: white;
-}
-
-.ui-widget-content a {
-    color: #005591;
-}
-
-
 
