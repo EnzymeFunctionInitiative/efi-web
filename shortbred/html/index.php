@@ -68,21 +68,21 @@ include("inc/header.inc.php");
 </div>
 <?php } ?>
 
-<div class="tabs">
+<div class="tabs-efihdr tabs">
     <ul class="tab-headers">
-<?php if ($show_previous_jobs) { ?>
-        <li class="active"><a href="#jobs">Previous Jobs</a></li>
-<?php } ?>
+        <?php if ($show_previous_jobs) { ?>
+            <li class="active"><a href="#jobs">Previous Jobs</a></li>
+        <?php } ?>
         <li><a href="#create">Run CGFP/ShortBRED</a></li>
         <li <?php if (! $show_previous_jobs) echo "class=\"active\""; ?>><a href="#tutorial">Tutorial</a></li>
         <li><a href="#example">Example</a></li>
     </ul>
 
     <div class="tab-content">
-<?php if ($show_previous_jobs) { ?>
+        <?php if ($show_previous_jobs) { ?>
         <div id="jobs" class="tab active">
-<?php } ?>
-<?php if (count($jobs) > 0) { ?>
+        <?php } ?>
+        <?php if (count($jobs) > 0) { ?>
             <h4>ShortBRED Jobs</h4>
             <table class="pretty_nested" style="table-layout:fixed">
                 <thead>
@@ -91,15 +91,15 @@ include("inc/header.inc.php");
                     <th class="date-col">Date Completed</th>
                 </thead>
                 <tbody>
-<?php
-$allow_cancel = true;
-show_jobs($jobs, $allow_cancel);
-?>
+                    <?php
+                    $allow_cancel = true;
+                    show_jobs($jobs, $allow_cancel);
+                    ?>
                 </tbody>
             </table>
-<?php } ?>
+        <?php } ?>
             
-<?php if (count($training_jobs) > 0) { ?>
+        <?php if (count($training_jobs) > 0) { ?>
             <h4>Training Jobs</h4>
             <table class="pretty_nested" style="table-layout:fixed">
                 <thead>
@@ -108,22 +108,22 @@ show_jobs($jobs, $allow_cancel);
                     <th class="date-col">Date Completed</th>
                 </thead>
                 <tbody>
-<?php
-$allow_cancel = false;
-show_jobs($training_jobs, $allow_cancel);
-?>
+                    <?php
+                    $allow_cancel = false;
+                    show_jobs($training_jobs, $allow_cancel);
+                    ?>
                 </tbody>
             </table>
-<?php } ?>
+        <?php } ?>
             
-<?php if ($show_previous_jobs) { ?>
+        <?php if ($show_previous_jobs) { ?>
         </div>
-<?php } ?>
+        <?php } ?>
 
         <div id="create" class="tab">
-<?php if ($is_enabled) { ?>
+        <?php if ($is_enabled) { ?>
             <p>
-            <strong class="blue">Upload the Sequence Similarity Network (SSN) for which you want to run CGFP/ShortBRED.</strong>
+            Upload the Sequence Similarity Network (SSN) for which you want to run CGFP/ShortBRED.
             </p>
     
             <p>
@@ -131,54 +131,78 @@ show_jobs($training_jobs, $allow_cancel);
     
             <form name="upload_form" id="upload_form" method="post" action="" enctype="multipart/form-data">
     
-                <p>
-                <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", $SiteUrlPrefix); ?>
-                </p>
+                <div class="primary-input">
+                    <?php echo ui::make_upload_box("Select a File to Upload:", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", $SiteUrlPrefix); ?>
+                </div>
 
-                <div class="advanced-toggle">Advanced Options <i class="fas fa-plus-square" aria-hidden="true"></i></div>
-                <div style="display:none;" class="advanced-options">
+                <div class="option-panels">
                     <div>
-                        Minimum sequence length (default none): <input name="ssn_min_seq_len" id="ssn_min_seq_len" type="text" />
-                        <a class="question" title="If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a minimum sequence length, in order to eliminate fragments that may be included in UniRef90 clusters.">?</a>
+                        <h3>Sequence Length Restriction Options</h3>
+                        <div class="option-panel">
+                            <div>
+                                Minimum: <input name="ssn_min_seq_len" id="ssn_min_seq_len" type="text" size="7" /> (default: none)
+                                <div class="left-margin-70">
+                                    If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a minimum sequence length, in order to eliminate fragments that may be included in UniRef90 clusters.
+                                </div>
+                            </div>
+                            <div>
+                                Maximum: <input name="ssn_max_seq_len" id="ssn_max_seq_len" type="text" size="7" /> (default: none)
+                                <div class="left-margin-70">
+                                    If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a maximum sequence length, in order to eliminate certain sequences that may be included in UniRef90 clusters.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div>
-                        Maximum sequence length (default none): <input name="ssn_max_seq_len" id="ssn_max_seq_len" type="text" />
-                        <a class="question" title="If the uploaded SSN was generated using the UniRef90 option in EST, then it is helpful to specify a maximum sequence length, in order to eliminate certain sequences that may be included in UniRef90 clusters.">?</a>
+                        <h3>Database Search Options</h3>
+                        <div class="option-panel">
+                            <div>
+                                Reference database:
+                                <select name="ssn_ref_db" id="ssn_ref_db"><option value="uniprot">Full UniProt</option><option value="uniref90" selected>UniRef 90</option><option value="uniref50">UniRef 50</option></select>
+                                <div class="left-margin-70">
+                                    ShortBRED can use the full UniProt database or UniRef90 or UniRef50 to determine markers. The default is UniRef90.
+                                </div>
+                            </div>
+                            <div>
+                                CD-HIT sequence identity (default 85%): <input type="text" name="ssn_cdhit_sid" id="ssn_cdhit_sid" value="" size="4">
+                                <div class="left-margin-70">
+                                    This is the sequence identity parameter that will be used for determining the ShortBRED consensus sequence families.
+                                </div>
+                            </div>
+        
+                            <?php if (settings::get_diamond_enabled()) { ?>
+                                <div>
+                                    Sequence search type: <select name="ssn_search_type" id="ssn_search_type"><option>BLAST</option><option selected>DIAMOND</option></select>
+                                    <div class="left-margin-70">
+                                        This is the search engine that will be used to remove false positives and identify unique markers.
+                                    </div>
+                                </div>
+        
+                                <input type="hidden" name="ssn_diamond_sens" id="ssn_diamond_sens" value="normal" />
+                            <?php } ?>
+                        </div>
                     </div>
                     <div>
-                        Reference database: <select name="ssn_ref_db" id="ssn_ref_db"><option value="uniprot">Full UniProt</option><option value="uniref90" selected>UniRef 90</option><option value="uniref50">UniRef 50</option></select>
-                        <a class="question" title="ShortBRED can use the full UniProt database or UniRef90 or UniRef50 to determine markers. The default is UniRef90.">?</a>
-                    </div>
-                    <div>
-                        CD-HIT sequence identity (default 85%): <input type="text" name="ssn_cdhit_sid" id="ssn_cdhit_sid" value="">
-                        <a class="question" title="This is the sequence identity parameter that will be used for determining the ShortBRED consensus sequence families.">?</a>
-                    </div>
-
-<?php if (settings::get_diamond_enabled()) { ?>
-                    <div>
-                        Sequence search type: <select name="ssn_search_type" id="ssn_search_type"><option>BLAST</option><option selected>DIAMOND</option></select>
-                        <a class="question" title="This is the search engine that will be used to remove false positives and identify unique markers.">?</a>
-                    </div>
-
-                    <input type="hidden" name="ssn_diamond_sens" id="ssn_diamond_sens" value="normal" />
-                    <!--<div>
-                        DIAMOND sensitivity: <select name="ssn_diamond_sens" id="ssn_diamond_sens"><option>sensitive</option><option>more-sensitive</option><option selected>normal</option></select>
-                        <a class="question" title="This is the sentivitiy parameter that DIAMOND will use in its computations.  It defaults to sensitive in ShortBRED.">?</a>
-                    </div>-->
-<?php } ?>
-<?php
-if (count($db_modules) > 1) {
-    echo <<<HTML
-                    <div>
-                        Database version: 
-                        <select name="ssn_db_mod" id="ssn_db_mod">
+                        <h3>Dev Site Options</h3>
+                        <div class="option-panel">
+                            <?php
+                            if (count($db_modules) > 1) {
+                                echo <<<HTML
+                            <div>
+                                Database version: 
+                                <select name="ssn_db_mod" id="ssn_db_mod">
 HTML;
-    foreach ($db_modules as $mod_info) {
-        $mod_name = $mod_info[1];
-        echo "                            <option value=\"$mod_name\">$mod_name</option>\n";
-    }
-    echo "                        </select></div>";
-} ?>
+                                foreach ($db_modules as $mod_info) {
+                                    $mod_name = $mod_info[1];
+                                    echo "                            <option value=\"$mod_name\">$mod_name</option>\n";
+                                }
+                                echo <<<HTML
+                                </select>
+                            </div>
+HTML;
+                            } ?>
+                        </div>
+                    </div>
                 </div>
 
                 <p>
@@ -191,13 +215,13 @@ HTML;
                 <div id="ssn_message" style="color: red">
                     <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                 </div>
-<?php if (!$IsAdminUser) { ?>
-                <div>
-                    Multiple SSNs may be submitted, but due to resource constraints only one computation
-                    will run at any given time.  Submitted jobs will be queued and executed when any
-                    running job completes.
-                </div>
-<?php } ?>
+                <?php if (!$IsAdminUser) { ?>
+                    <div>
+                        Multiple SSNs may be submitted, but due to resource constraints only one computation
+                        will run at any given time.  Submitted jobs will be queued and executed when any
+                        running job completes.
+                    </div>
+                <?php } ?>
                 <center>
                     <div><button type="button" id="ssn_submit" name="ssn_submit" class="dark" onclick="uploadInitialSSNFile()">
                                 Upload SSN
@@ -206,7 +230,7 @@ HTML;
                     <div id="progress_number"></div>
                 </center>
             </form>
-<?php } elseif ($IsLoggedIn) { ?>
+        <?php } elseif ($IsLoggedIn) { ?>
             <div style="margin-top: 30px;"></div>
             <p>
                 Due to the computationally-heavy nature of CGFP, we are granting
@@ -241,7 +265,7 @@ HTML;
                 </table>
                 <button type="submit" class="light">Submit Application</button>
             </form>
-<?php } else { ?>
+        <?php } else { ?>
             <div style="margin-top: 30px;"></div>
             <p>
                 Due to the computationally-heavy nature of CGFP, we are granting access to the
@@ -256,11 +280,11 @@ HTML;
                 in, please login and return to this page to submit an application to
                 become a member of the EFI-CGFP user group.
             </p>
-<?php } ?>
+        <?php } ?>
         </div>
 
         <div id="tutorial" class="tab <?php if (!$show_previous_jobs) echo "active"; ?>">
-<?php include("tutorial.inc.php"); ?>
+            <?php include("tutorial.inc.php"); ?>
         </div>
 
         <div id="example" class="tab">
@@ -276,23 +300,24 @@ HTML;
                 As required, the obtained SSN was colored using the EFI-EST Color SSN utility prior to submission
                 to EFI-CGFP for analysis.
             </p>
-<?php include("stepe_example.php"); ?>
+            <?php $HeatmapWidth = 860; ?>
+            <?php include("stepe_example.php"); ?>
         </div>
     </div> <!-- tab-content -->
 </div> <!-- tabs -->
 
 <div id="cancel-confirm" title="Cancel the job?" style="display: none">
-<p>
-<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
-All progress will be lost.
-</p>    
+    <p>
+    <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+    All progress will be lost.
+    </p>    
 </div>
 
 <div id="archive-confirm" title="Archive the job?" style="display: none">
-<p>
-<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
-This job will be permanently removed from your list of jobs.
-</p>    
+    <p>
+    <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+    This job will be permanently removed from your list of jobs.
+    </p>    
 </div>
 
 <div align="center">
@@ -307,9 +332,7 @@ This job will be permanently removed from your list of jobs.
 
 <script>
     $(document).ready(function() {
-
-<?php include("inc/stepe_script.inc.php"); ?>
-
+        <?php include("inc/stepe_script.inc.php"); ?>
 
         $(".tabs .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");
@@ -388,6 +411,13 @@ This job will be permanently removed from your list of jobs.
                 }
             });
         });
+        
+        $(".option-panels > div").accordion({
+            heightStyle: "content",
+            collapsible: true,
+            active: false,
+        });
+        $(".tabs").tabs();
 
     });
 </script>
