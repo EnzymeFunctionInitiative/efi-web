@@ -120,7 +120,7 @@ if (isset($_POST['analyze_data'])) {
 
 
 
-$updateMessage = functions::get_update_message();
+$update_message = functions::get_update_message();
 
 $table_format = "html";
 if (isset($_GET["as-table"])) {
@@ -132,8 +132,9 @@ $table = new table_builder($table_format);
 $web_address = dirname($_SERVER['PHP_SELF']);
 $time_window = $generate->get_time_period();
 $db_version = $generate->get_db_version();
+$job_name = $generate->get_job_name();
 
-$useAdvancedOptions = functions::custom_clustering_enabled();
+$use_advanced_options = functions::custom_clustering_enabled();
 
 $gen_type = $generate->get_type();
 $formatted_gen_type = functions::format_job_type($gen_type);
@@ -144,10 +145,10 @@ if (!empty($db_version)) {
     $table->add_row("Database Version", $db_version);
 }
 $table->add_row("Input Option", $formatted_gen_type);
-if ($generate->get_job_name())
-    $table->add_row("Job Name", $generate->get_job_name());
+if ($job_name)
+    $table->add_row("Job Name", $job_name);
 
-$job_name = $gen_id . "_" . $gen_type;
+$file_job_name = $gen_id . "_" . $gen_type;
 
 $uploaded_file = "";
 $included_family = "";
@@ -209,6 +210,8 @@ elseif ($gen_type == "ACCESSION") {
         $table->add_row("PFam/Interpro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
+    if (functions::advanced_options_enabled())
+        $table->add_row("Domain", $generate->get_domain());
     $uniref = $generate->get_uniref_version();
     if ($uniref)
         $table->add_row("UniRef Version", $uniref);
@@ -267,6 +270,7 @@ if ($gen_type != "COLORSSN") {
 
 if ($included_family && !empty($num_family_nodes))
     $table->add_row("Number of IDs in PFAM/InterPro Family", number_format($num_full_family_nodes));
+
 $table->add_row("Total Number of Nodes $extra_nodes_ast", number_format($total_num_nodes));
 $conv_ratio = $generate->get_convergence_ratio();
 $convergence_ratio_string = "";
@@ -279,20 +283,12 @@ very similar (identical) to 0.0 for sequences that are very different (unrelated
 STR;
     $table->add_row("Convergence Ratio<a class=\"question\" title=\"$convergence_ratio_string\">?</a>", number_format($conv_ratio, 3));
     $convergence_ratio_string = "";
-//    $table->add_row("Convergence Ratio<sup>+</sup>", number_format($conv_ratio, 3));
-//    $convergence_ratio_string = <<<STR
-//<div><sup>+</sup>
-//The convergence ratio is a measure of the similarity of the sequences used in the BLAST.  It is the
-//ratio of the total number of edges retained from the BLAST (e-values less than the specified threshold;
-//default 5) to the total number of sequence pairs.  The value decreases from 1.0 for sequences that are
-//very similar (identical) to 0.0 for sequences that are very different (unrelated).</div>
-//STR;
 }
 
 $table_string = $table->as_string();
 
 if (isset($_GET["as-table"])) {
-    $table_filename = functions::safe_filename($job_name) . "_settings.txt";
+    $table_filename = functions::safe_filename($file_job_name) . "_settings.txt";
 
     header('Pragma: public');
     header('Expires: 0');
@@ -365,240 +361,228 @@ HTML;
 
 
 <div id="update-message" class="update_message initial-hidden">
-<?php if (isset($updateMessage)) echo $updateMessage; ?>
+<?php if (isset($update_message)) echo $update_message; ?>
 </div>
 
 <h2 class="darkbg">Data set Completed</h2>
-<p>&nbsp;</p>
-    <p style="color:red"><?php if (isset($result['MESSAGE'])) { echo $result['MESSAGE']; } ?></p>
 
-<h3>Network Information</h3>
-
-<h4>Generation Summary Table</h4>
-
-<table width="100%" class="pretty">
-    <?php echo $table_string; ?>
-</table>
-<div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
-<div style="clear: both"></div>
-<?php echo $extra_nodes_string; ?>
-<?php echo $convergence_ratio_string; ?>
-
-<hr>
-
-<?php
-    if ($generate->is_cd_hit_job()) {
-?>
-
-<h4>CD-HIT Counts</h4>
-
-<table class="pretty">
-<thead><th>Sequence % ID</th><th>Sequence Length</th><th>Number of Nodes</th></thead>
-<tbody>
-<?php
-        $cdhit_stats = $generate->get_cdhit_stats();
-        for ($i = 0; $i < count($cdhit_stats); $i++) {
-            echo "<tr><td>";
-            echo join("</td><td>", array($cdhit_stats[$i]['SequenceId'], $cdhit_stats[$i]['SequenceLength'], $cdhit_stats[$i]['Nodes']));
-            echo "</td></tr>\n";
-        }
-?>
-</tbody>
-</table>
-
-<hr>
-  </div>
-<?php
-    } else {
-?>
-
-<h3><b>Parameters for SSN Finalization</b></h3>
-
-To finalize the generation of an SSN, a similarity threshold that defines which protein sequences
-should or should not be connected in a network is needed. This will determine the segregation of proteins into clusters.
-
-<h3>Analyze your data set<a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
-<p>View plots and histogram to determine the appropriate lengths and alignment score before continuing.</p>
-
-<?php 
-        make_interactive_plot($generate, "Edge Count vs Alignment Score Plot", "edge-evalue-plot", "edge_evalue");
-?>
-
-<?php echo make_plot_download($generate, "Number of Edges Histogram", "EDGES", $generate->get_number_edges_plot_sm(), $generate->get_number_edges_plot(1), $generate->number_edges_plot_exists()); ?>
-
-<?php echo make_plot_download($generate, "Length Histogram", "HISTOGRAM", $generate->get_length_histogram_plot_sm(), $generate->get_length_histogram_plot(1), $generate->length_histogram_plot_exists()); ?>
-
-<?php if ($uniref) { echo make_plot_download($generate, "Full UniProt Length Histogram", "HISTOGRAM_UNIPROT", $generate->get_uniprot_length_histogram_plot_sm(), $generate->get_uniprot_length_histogram_plot(1), $generate->uniprot_length_histogram_plot_exists()); } ?>
-
-<?php echo make_plot_download($generate, "Alignment Length Quartile Plot", "ALIGNMENT", $generate->get_alignment_plot_sm(), $generate->get_alignment_plot(1), $generate->alignment_plot_exists()); ?>
-
-<?php echo make_plot_download($generate, "Percent Identity Quartile Plot", "IDENTITY", $generate->get_percent_identity_plot_sm(), $generate->get_percent_identity_plot(1), $generate->percent_identity_plot_exists()); ?>
-
-
-<hr><p><br></p>
-<h3><b>Finalization Parameters</b></h3>
-
-<form name="define_length" method="post" action="<?php echo $url; ?>" class="align_left" enctype="multipart/form-data">
-
-<div class="tabs">
-    <ul class="tab-headers">
-        <li class="active"><a href="#threshold-eval">Alignment Score Threshold</a></li>
-<?php if ($useAdvancedOptions) { ?>
-        <li><a href="#threshold-pid">Percent ID Threshold</a></li>
-        <li><a href="#threshold-bit">Bit Score Threshold</a></li>
-        <li><a href="#threshold-custom">Custom Clustering</a></li>
+<?php if ($job_name) { ?>
+<h4>Job Name: <b><?php echo $job_name; ?></b></h4>
 <?php } ?>
+
+<div style="margin:20px;color:red"><?php if (isset($result['MESSAGE'])) { echo $result['MESSAGE']; } ?></div>
+
+<div class="tabs-efihdr tabs">
+    <ul class="">
+        <li><a href="#info">Job Information</a></li>
+        <li class="ui-tabs-active"><a href="#graphs">Histograms and Graphs</a></li>
+        <li><a href="#final">Finalization Parameters</a></li>
     </ul>
-
-    <div class="tab-content" style="min-height: 220px">
-        <div id="threshold-eval" class="tab active">
-            <h3>Alignment score for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
-            <p>Select a lower limit for the aligment score for the output files. You will input an integer which represents the exponent of 10<sup>-X</sup> where X is the integer.</p>
-
-            <p><input type="text" name="evalue" <?php if (isset($_POST['evalue'])) { echo "value='" . $_POST['evalue'] ."'"; } ?>>
-            alignment score</p>
-
-            This score is the similarity threshold which determine the connection of proteins with each other. All pairs of proteins with a similarity score below this number will not be connected. Sets of connected proteins will form clusters.
-
-        </div>
-<?php if ($useAdvancedOptions) { ?>
-        <div id="threshold-pid" class="tab">
-            <h3>Percent ID for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
-            <p>Select a lower limit for the percent ID to use as a lower threshold for clustering in the SSN.</p>
-
-            <p><input type="text" name="pid" <?php if (isset($_POST['pid'])) { echo "value='" . $_POST['pid'] ."'"; } ?>>
-            % ID</p>
-
-            This score is the similarity threshold which determine the 
-            connection of proteins with each other. All pairs of proteins with a percent
-            ID below this number will not be connected. Sets of connected proteins will 
-            form clusters.
-        </div>
-        <div id="threshold-bit" class="tab">
-            <h3>Bit score for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
-            <p>Select a lower limit for the bit score to use as a lower threshold for clustering in the SSN.</p>
-
-            <p><input type="text" name="bitscore" <?php if (isset($_POST['bitscore'])) { echo "value='" . $_POST['bitscore'] ."'"; } ?>></p>
-
-            <p>
-            This score is the similarity threshold which determine the 
-            connection of proteins with each other. All pairs of proteins with a bit score
-            below this number will not be connected. Sets of connected proteins will 
-            form clusters.
-            </p>
-        </div>
-        <div id="threshold-custom" class="tab">
-            <h3>Custom Clustering File <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
+    <div>
+        <!-- JOB INFORMATION -->
+        <div id="info">
+            <h4>Generation Summary Table</h4>
             
-            A file specifying which proteins are in what cluster can be uploaded.  The file must be givein in the format below.
-            Tabs or spaces can be used instead of the ',' comma separating character.
+            <table width="100%" class="pretty">
+                <?php echo $table_string; ?>
+            </table>
+            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
+            <div style="clear: both"></div>
+            <?php echo $extra_nodes_string; ?>
+            <?php echo $convergence_ratio_string; ?>
+
+            <?php
+                $ssn_jobs = $generate->get_analysis_jobs();
+                if (count($ssn_jobs) > 0) {
+            ?>
+
+            <h3>SSNs Created from this Job</h3>
+
+            <?php
+                    foreach ($ssn_jobs as $job_id => $job_info) {
+                        $ssn_name = $job_info["name"];
+                        $ssn_ascore = $job_info["ascore"];
+                        $ssn_min = $job_info["min_len"];
+                        $ssn_max = $job_info["max_len"];
+                        $min_text = $max_text = "";
+                        if ($ssn_min)
+                            $min_text = "Min=$ssn_min";
+                        if ($ssn_max)
+                            $max_text = "Max=$ssn_max";
+                        $status = $job_info["status"];
+                        echo "<p>";
+                        if ($status == __FINISH__)
+                            echo "<a href=\"stepe.php?id=$gen_id&key=$key&analysis_id=$job_id\">";
+                        echo "$ssn_name AS=$ssn_ascore $min_text $max_text (Analysis ID=$job_id)";
+                        if ($status == __FINISH__)
+                            echo "</a>";
+                        else
+                            echo " ($status)";
+                        echo "</p>\n";
+                    }
+                }
+            ?>
+        </div>
+
+
+        <?php if ($generate->is_cd_hit_job()) { ?>
+
+        <div id="cdhit">
+            <h4>CD-HIT Counts</h4>
+            <table class="pretty">
+            <thead><th>Sequence % ID</th><th>Sequence Length</th><th>Number of Nodes</th></thead>
+            <tbody>
+            <?php
+                    $cdhit_stats = $generate->get_cdhit_stats();
+                    for ($i = 0; $i < count($cdhit_stats); $i++) {
+                        echo "<tr><td>";
+                        echo join("</td><td>", array($cdhit_stats[$i]['SequenceId'], $cdhit_stats[$i]['SequenceLength'], $cdhit_stats[$i]['Nodes']));
+                        echo "</td></tr>\n";
+                    }
+            ?>
+            </tbody>
+            </table>
+        </div>
+
+        <?php } ?>
+
+        <!-- GRAPHS -->
+        <div id="graphs">
+            To finalize the generation of an SSN, a similarity threshold that defines which protein sequences
+            should or should not be connected in a network is needed. This will determine the segregation of proteins into clusters.
+            
+            <h3>Analyze your data set<a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
+            <p>View plots and histogram to determine the appropriate lengths and alignment score before continuing.</p>
+            
+            <?php 
+                    make_interactive_plot($generate, "Edge Count vs Alignment Score Plot", "edge-evalue-plot", "edge_evalue");
+            ?>
+            
+            <?php echo make_plot_download($generate, "Number of Edges Histogram", "EDGES", $generate->get_number_edges_plot_sm(), $generate->get_number_edges_plot(1), $generate->number_edges_plot_exists()); ?>
+            
+            <?php echo make_plot_download($generate, "Length Histogram", "HISTOGRAM", $generate->get_length_histogram_plot_sm(), $generate->get_length_histogram_plot(1), $generate->length_histogram_plot_exists()); ?>
+            
+            <?php if ($uniref) { echo make_plot_download($generate, "Full UniProt Length Histogram", "HISTOGRAM_UNIPROT", $generate->get_uniprot_length_histogram_plot_sm(), $generate->get_uniprot_length_histogram_plot(1), $generate->uniprot_length_histogram_plot_exists()); } ?>
+            
+            <?php echo make_plot_download($generate, "Alignment Length Quartile Plot", "ALIGNMENT", $generate->get_alignment_plot_sm(), $generate->get_alignment_plot(1), $generate->alignment_plot_exists()); ?>
+            
+            <?php echo make_plot_download($generate, "Percent Identity Quartile Plot", "IDENTITY", $generate->get_percent_identity_plot_sm(), $generate->get_percent_identity_plot(1), $generate->percent_identity_plot_exists()); ?>
+        </div>
+
+
+        <!-- FINALIZATION -->
+        <div id="final">
+            <form name="define_length" method="post" action="<?php echo $url; ?>" class="align_left" enctype="multipart/form-data">
+            
+            <?php if ($use_advanced_options) { ?>
+            <div class="tabs-efihdr tabs">
+                <ul class="tab-headers">
+                    <li class="active"><a href="#threshold-eval">Alignment Score Threshold</a></li>
+                    <li><a href="#threshold-pid">Percent ID Threshold</a></li>
+                    <li><a href="#threshold-bit">Bit Score Threshold</a></li>
+                    <li><a href="#threshold-custom">Custom Clustering</a></li>
+                </ul>
+            
+                <div class="tab-content" style="min-height: 220px">
+            <?php } ?>
+                    <div id="threshold-eval" class="tab active">
+                        <h3>Alignment score for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
+                        <p>Select a lower limit for the aligment score for the output files. You will input an integer which represents the exponent of 10<sup>-X</sup> where X is the integer.</p>
+            
+                        <p>
+                            Alignment score: <input type="text" name="evalue" size="5" <?php if (isset($_POST['evalue'])) { echo "value='" . $_POST['evalue'] ."'"; } ?>>
+                            <div class="left-margin-70">
+                            This score is the similarity threshold which determines the connection of proteins with each other. All pairs of proteins with a similarity score below this number will not be connected. Sets of connected proteins will form clusters.
+                            </div>
+                        </p>
+            
+                    </div>
+            <?php if ($use_advanced_options) { ?>
+                    <div id="threshold-pid" class="tab">
+                        <h3>Percent ID for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
+                        <p>Select a lower limit for the percent ID to use as a lower threshold for clustering in the SSN.</p>
+            
+                        <p><input type="text" name="pid" <?php if (isset($_POST['pid'])) { echo "value='" . $_POST['pid'] ."'"; } ?>>
+                        % ID</p>
+            
+                        This score is the similarity threshold which determine the 
+                        connection of proteins with each other. All pairs of proteins with a percent
+                        ID below this number will not be connected. Sets of connected proteins will 
+                        form clusters.
+                    </div>
+                    <div id="threshold-bit" class="tab">
+                        <h3>Bit score for output <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
+                        <p>Select a lower limit for the bit score to use as a lower threshold for clustering in the SSN.</p>
+            
+                        <p><input type="text" name="bitscore" <?php if (isset($_POST['bitscore'])) { echo "value='" . $_POST['bitscore'] ."'"; } ?>></p>
+            
+                        <p>
+                        This score is the similarity threshold which determine the 
+                        connection of proteins with each other. All pairs of proteins with a bit score
+                        below this number will not be connected. Sets of connected proteins will 
+                        form clusters.
+                        </p>
+                    </div>
+                    <div id="threshold-custom" class="tab">
+                        <h3>Custom Clustering File <a href="tutorial_analysis.php" class="question" target="_blank">?</a></h3>
+                        
+                        A file specifying which proteins are in what cluster can be uploaded.  The file must be givein in the format below.
+                        Tabs or spaces can be used instead of the ',' comma separating character.
 <pre>
 Protein_ID_1,Cluster#
 Protein_ID_2,Cluster#
 Protein_ID_3,Cluster#
 ...
 </pre>
-            <div class="primary-input">
-<?php echo ui::make_upload_box("Custom cluster file (text)", "cluster_file", "progress-bar-cluster", "progress-num-cluster"); ?>
+                        <div class="primary-input">
+                            <?php echo ui::make_upload_box("Custom cluster file (text)", "cluster_file", "progress-bar-cluster", "progress-num-cluster"); ?>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <?php } ?>
+            <input type="hidden" name="filter" id="filter-type" value="eval" />
+            
+            <div class="option-panels">
+                <div>
+                    <h3>Sequence Length Restriction Options</h3>
+                    <div>
+                        <p>
+                            This option can be used to restrict sequences used based on their length. 
+                            For more information, consult the <a href="tutorial_analysis.php">tutorial</a>.
+                        </p>
+                
+                        <p>
+                            Minimum: <input type="text" name="minimum" size="7" maxlength='20' <?php if (isset($_POST['minimum'])) { echo "value='" . $_POST['minimum'] . "'"; } ?>> (default: <?php echo __MINIMUM__; ?>)<br>
+                            Maximum: <input type="text" name="maximum" size="7" maxlength='20' <?php if (isset($_POST['maximum'])) { echo "value='" . $_POST['maximum'] . "'"; } ?>> (default: <?php echo __MAXIMUM__; ?>)
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <p>
+                Network name:
+                <input type="text" name="network_name" class="email" <?php if (isset($_POST['network_name'])) { echo "value='" . $_POST['network_name'] . "'";} ?>>
+                This name will be displayed in Cytoscape.
+                </p>
+            </div>
+            
+            <input type='hidden' name='id' value='<?php echo $generate->get_id(); ?>'>
+
+            <center>
+                <button type="submit" name="analyze_data" class="dark">Create SSN</button>
+                <?php if (functions::is_beta_release()) { ?>
+                <h4><b><span style="color: blue">BETA</span></b></h4>
+                <?php } ?>
+            </center>
+            
+            </form>
         </div>
-<?php } ?>
     </div>
-
-    <input type="hidden" name="filter" id="filter-type" value="eval" />
-
-            <h3>Sequence length restriction  <a href="tutorial_analysis.php" class="question" target="_blank">?</a>
-                <span style='color:red'>Optional</span></h3>
-            <p> This option can be used to restrict sequences used based on their length.</p>
-
-            <p>
-                <input type="text" name="minimum" maxlength='20' <?php if (isset($_POST['minimum'])) { echo "value='" . $_POST['minimum'] . "'"; } ?>> Min (Defaults: <?php echo __MINIMUM__; ?>)<br>
-                <input type="text" name="maximum" maxlength='20' <?php if (isset($_POST['maximum'])) { echo "value='" . $_POST['maximum'] . "'"; } ?>> Max (Defaults: <?php echo __MAXIMUM__; ?>)
-            </p>
-
-<?php if ($useAdvancedOptions) { ?>
-            <hr>
-            <h3>CD-HIT Clustering Options (For Repnode Networks)
-                <span style='color:red'>Optional</span></h3>
-            <p>
-                <input type="radio" name="cdhit-opt" value="sb" id="cdhit-opt-sb">
-                    <label for="cdhit-opt-sb">ShortBRED (-b 10, -g 1, -n 5)</label><br>
-                <input type="radio" name="cdhit-opt" value="est+" id="cdhit-opt-est-g1"> 
-                    <label for="cdhit-opt-est-g1">Legacy EST, accurate mode (-g 1)</label><br>
-                <input type="radio" name="cdhit-opt" value="est" id="cdhit-opt-est" checked> 
-                    <label for="cdhit-opt-est">Legacy EST</label>
-            </p>
-<?php } ?>
-<?php if (functions::file_size_graph_enabled()) { ?>
-            <br><button id="file-size-button" class="mini" type="button" style="margin-top: 20px">View Node-Edge-File Size Chart</button>
-            <div id="node-edge-chart" class="advanced-options" style="display: none;">
-                <iframe id="file-size-iframe" src="<?php echo $SiteUrlPrefix; ?>/node_edge_filesize.php" width="900" height="500" style="border: none"></iframe>
-            </div>
-<?php } ?>
 </div>
 
-
-<hr>
-<h3>Provide Network Name</h3>
-
-<p>
-    <input type="text" name="network_name" <?php if (isset($_POST['network_name'])) { echo "value='" . $_POST['network_name'] . "'";} ?>>
-    Name
-</p>
-
-This name will be displayed in Cytoscape.
-
-<p>
-    <input type='hidden' name='id' value='<?php echo $generate->get_id(); ?>'>
-</p>
-
-<hr>
-
-<center>
-    <button type="submit" name="analyze_data" class="dark">Create SSN</button>
-
-<?php if (functions::is_beta_release()) { ?>
-<h4><b><span style="color: blue">BETA</span></b></h4>
-<?php } ?>
-</center>
-
-</form>
-
-<?php
-        $ssn_jobs = $generate->get_analysis_jobs();
-
-        if (count($ssn_jobs) > 0) {
-?>
-
-<hr>
-<h3>SSNs Created from this Job</h3>
-
-<?php
-            foreach ($ssn_jobs as $job_id => $job_info) {
-                $ssn_name = $job_info["name"];
-                $ssn_ascore = $job_info["ascore"];
-                $ssn_min = $job_info["min_len"];
-                $ssn_max = $job_info["max_len"];
-                $min_text = $max_text = "";
-                if ($ssn_min)
-                    $min_text = "Min=$ssn_min";
-                if ($ssn_max)
-                    $max_text = "Max=$ssn_max";
-                $status = $job_info["status"];
-                echo "<p>";
-                if ($status == __FINISH__)
-                    echo "<a href=\"stepe.php?id=$gen_id&key=$key&analysis_id=$job_id\">";
-                echo "$ssn_name AS=$ssn_ascore $min_text $max_text (Analysis ID=$job_id)";
-                if ($status == __FINISH__)
-                    echo "</a>";
-                else
-                    echo " ($status)";
-                echo "</p>\n";
-            }
-
-            echo "<div style=\"margin-top:85px\"></div>\n";
-        }
-?>
+        
+<div style="margin-top:85px"></div>
 
 <center>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</center>
 
@@ -628,11 +612,6 @@ $(document).ready(function() {
     });
     
     $('#edge-evalue-button').click(function() {
-//        $header = $(this);
-//        //getting the next element
-//        $content = $header.next();
-//        //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
-//        $content.toggle();
         edgeIframe.attr('src', function() {
             return $(this).data('src');
         });
@@ -646,25 +625,29 @@ $(document).ready(function() {
         var src = $(this).attr('src');
         $(this).data('src', src).attr('src', '');
     });
+
+    $(".tabs").tabs();
+    $(".option-panels > div").accordion({
+            heightStyle: "content",
+                collapsible: true,
+                active: false,
+    });
+    $(".initial-open").accordion("option", {active: 0});
 });
 </script>
 <?php if (functions::custom_clustering_enabled()) { ?>
 <script>
     $(document).ready(function() {
-        $(".tabs .tab-headers a").on("click", function(e) {
+        $(".tabs-efihdr .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");
             var filterType = curAttrValue.substr(11);
             $("#filter-type").val(filterType);
-            $(".tabs " + curAttrValue).fadeIn(300).show().siblings().hide();
-            $(this).parent("li").addClass("active").siblings().removeClass("active");
-            e.preventDefault();
         });
     }).tooltip();
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
 <?php } ?>
 <?php
-    }
 
     require_once 'inc/footer.inc.php';
 }
