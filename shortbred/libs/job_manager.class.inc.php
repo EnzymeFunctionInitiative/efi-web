@@ -1,8 +1,8 @@
 <?php
 
 require_once("job_types.class.inc.php");
-require_once(__DIR__ . "/../../libs/user_auth.class.inc.php");
-require_once(__DIR__ . "/../../libs/global_functions.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
 require_once("functions.class.inc.php");
 
 

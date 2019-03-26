@@ -518,29 +518,20 @@ class functions {
 
     public static function format_job_type($gen_type) {
         if ($gen_type == "BLAST") {
-            $gen_type = "Option A";
+            $gen_type = "Sequence BLAST (Option A)";
         } else if ($gen_type == "FAMILIES") {
-            $gen_type = "Option B";
+            $gen_type = "Families (Option B)";
         } else if ($gen_type == "ACCESSION") {
-            $gen_type = "Option D";
+            $gen_type = "Accession IDs (Option D)";
         } else if ($gen_type == "FASTA") {
-            $gen_type = "Option C (no FASTA header reading)";
+            $gen_type = "FASTA (Option C), no FASTA header reading";
         } else if ($gen_type == "FASTA_ID") {
-            $gen_type = "Option C (with FASTA header reading)";
+            $gen_type = "FASTA (Option C), with FASTA header reading";
         } else if ($gen_type == "COLORSSN") {
-            $gen_type = "Colored SSN";
+            $gen_type = "Color SSN";
         }
         return $gen_type;
     }
-
-    public static function get_release_status() {
-        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? (__BETA_RELEASE__ . " ") : "";
-    }
-
-    public static function is_beta_release() {
-        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? true : false;
-    }
-
 
     public static function add_database($db,$db_date,$interpro,$unipro,$default = 0) {
         $sql = "INSERT INTO db_version(db_version_date,db_version_interpro,db_version_unipro,db_version_default) ";

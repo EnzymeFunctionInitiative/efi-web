@@ -1,6 +1,6 @@
 <?php 
 include_once '../includes/main.inc.php';
-require_once("../../includes/login_check.inc.php");
+require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
     header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);

@@ -1,8 +1,10 @@
 
 <?php 
 require_once("../includes/main.inc.php");
-require_once(__DIR__."/../../libs/table_builder.class.inc.php");
-require_once("../../includes/login_check.inc.php");
+require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
+require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
+require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
@@ -566,12 +568,16 @@ Protein_ID_3,Cluster#
                 This name will be displayed in Cytoscape.
                 </p>
             </div>
+
+            <p>
+            You will be notified by e-mail when the SSN is ready for download.
+            </p>
             
             <input type='hidden' name='id' value='<?php echo $generate->get_id(); ?>'>
 
             <center>
                 <button type="submit" name="analyze_data" class="dark">Create SSN</button>
-                <?php if (functions::is_beta_release()) { ?>
+                <?php if (global_settings::is_beta_release()) { ?>
                 <h4><b><span style="color: blue">BETA</span></b></h4>
                 <?php } ?>
             </center>

@@ -7,9 +7,10 @@ const RT_NESTED_COLOR = 4;
 
 require_once("../includes/main.inc.php");
 require_once("../libs/user_jobs.class.inc.php");
-require_once("../../includes/login_check.inc.php");
 require_once("../libs/est_ui.class.inc.php");
-require_once("../../libs/ui.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
+require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
+require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
 $userEmail = "Enter your e-mail address";
 
@@ -520,12 +521,13 @@ the <a href="family_list.php">Family Information page</a>.
 
 
 <div align="center">
-    <?php if (functions::is_beta_release()) { ?>
+    <?php if (global_settings::is_beta_release()) { ?>
     <h4><b><span style="color: red">BETA</span></b></h4>
     <?php } ?>
 
     <p>
-    UniProt Version: <b><?php echo functions::get_uniprot_version(); ?></b><br>
+    UniProt Version: <b><?php echo global_settings::get_uniprot_version(); ?></b><br>
+    InterPro Version: <b><?php echo global_settings::get_interpro_version(); ?></b><br>
     </p>
 </div>
 
