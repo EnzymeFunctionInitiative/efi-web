@@ -1,7 +1,9 @@
 <?php 
 require_once("../includes/main.inc.php");
-require_once(__DIR__."/../../libs/table_builder.class.inc.php");
-require_once("../../includes/login_check.inc.php");
+require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
+require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
+require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
@@ -398,32 +400,16 @@ else {
             <div style="clear:both"></div>
 
             <center><p><a href='http://enzymefunction.org/resources/tutorials/efi-and-cytoscape3'>New to Cytoscape?</a></p></center>
-            <p>
-                The coloring utility recently developed will help downstream analysis of your SSN. 
-                <a href="<?php echo $stepa_link; ?>">Try it!</a>
-            </p>
-            <p>
-                Have you tried exploring Genome Neighborhood Networks (GNTs) from your favorite SSNs?
-                <a href="<?php echo $gnt_link; ?>">Submit a GNT analysis</a>.
-            </p>
         </div>
     </div>
 </div>
 
 
 
-<p>
-If you use an SSN from EFI-EST, please <a href="http://www.sciencedirect.com/science/article/pii/S1570963915001120">cite</a>:<br>
-John A. Gerlt, Jason T. Bouvier, Daniel B. Davidson, Heidi J. Imker, Boris Sadkhin, David R. Slater, Katie L. Whalen,
-<b>Enzyme Function Initiative-Enzyme Similarity Tool (EFI-EST): A web tool for generating protein sequence similarity networks</b>,
-Biochimica et Biophysica Acta (BBA) - Proteins and Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639.
-</p>
+<center><p>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</p></center>
 
-<center>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</center>
 
-<hr>
-
-<?php if (functions::is_beta_release()) { ?>
+<?php if (global_settings::is_beta_release()) { ?>
 <center><h4><b><span style="color: blue">BETA</span></b></h4></center>
 <?php } ?>
 

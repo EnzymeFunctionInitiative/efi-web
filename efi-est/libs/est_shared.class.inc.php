@@ -5,6 +5,7 @@ require_once("Mail.php");
 require_once("Mail/mime.php");
 require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 
 abstract class est_shared {
 
@@ -21,7 +22,7 @@ abstract class est_shared {
     function __construct($db, $table) {
         $this->db = $db;
         $this->table = $table;
-        $this->beta = functions::get_release_status();
+        $this->beta = global_settings::get_release_status();
     }
 
     public function get_time_created() { return $this->time_created; }

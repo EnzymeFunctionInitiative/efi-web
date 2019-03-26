@@ -1,7 +1,7 @@
 <?php 
 
-require_once "../libs/quantify.class.inc.php";
-require_once "../../libs/table_builder.class.inc.php";
+require_once("../libs/quantify.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
 
 // Before including this file, some vars must be set:
 //   $id_tbl_val

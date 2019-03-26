@@ -14,8 +14,8 @@ if (isset($Is404Page) && $Is404Page)
 if (isset($IsExpiredPage) && $IsExpiredPage)
     $title = "Expired Job";
 
-include_once("../../includes/login_check.inc.php");
-include_once("../../html/inc/global_login_button.inc.php");
+include_once(__BASE_DIR__ . "/includes/login_check.inc.php");
+include_once(__BASE_DIR__ . "/html/inc/global_login_button.inc.php");
 
 ?>
 
@@ -44,7 +44,7 @@ include_once("../../html/inc/global_login_button.inc.php");
 
 <body>
 <?php
-include("../../html/inc/global_nav.inc.php");
+include(__BASE_DIR__ . "/html/inc/global_nav.inc.php");
 ?>
     <div id="container">
         <div class="header">

@@ -42,7 +42,7 @@ class analysis extends est_shared {
         $this->db = $db;
         if ($id)
             $this->load_analysis($id);
-        $this->beta = functions::get_release_status();
+        $this->beta = global_settings::get_release_status();
     }
 
     public function __destruct() {

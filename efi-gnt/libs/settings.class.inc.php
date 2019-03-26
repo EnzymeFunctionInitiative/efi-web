@@ -115,34 +115,6 @@ class settings extends global_settings {
         return defined("__EFI_DB_MODULE__") ? __EFI_DB_MODULE__ : __EFIDB_MODULE__;
     }
 
-    public static function get_uniprot_version() {
-        return __UNIPROT_VERSION__;
-    }
-
-    public static function get_ena_version() {
-        return __ENA_VERSION__;
-    }
-
-    public static function get_est_version() {
-        return defined("__EST_VERSION__") && __EST_VERSION__ ? __EST_VERSION__ : "-";
-    }
-
-    public static function get_est_url() {
-        return __EST_URL__ ? __EST_URL__ : "#";
-    }
-
-    public static function get_gnt_version() {
-        return defined("__GNT_VERSION__") && __GNT_VERSION__ ? __GNT_VERSION__ : "-";
-    }
-
-    public static function get_release_status() {
-        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? __BETA_RELEASE__ . " " : "";
-    }
-
-    public static function is_beta_release() {
-        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? true : false;
-    }
-
     public static function get_valid_diagram_file_types() {
         $filetypes = explode(" ", __VALID_DIAGRAM_FILE_TYPE__);
         return $filetypes[0];

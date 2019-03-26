@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/main.inc.php';
-require_once '../../libs/user_auth.class.inc.php';
+require_once("../includes/main.inc.php");
+require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
 
 $id = 0;
 $key = 0;

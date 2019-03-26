@@ -1,7 +1,7 @@
 <?php 
 
-require_once "../includes/main.inc.php";
-require_once "../libs/job_manager.class.inc.php";
+require_once("../includes/main.inc.php");
+require_once("../libs/job_manager.class.inc.php");
 
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id']) || !isset($_GET['key']) || !isset($_GET['quantify-id']) || !is_numeric($_GET['quantify-id'])) {
