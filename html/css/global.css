@@ -62,6 +62,9 @@
 .hl-gnt, .ui-widget-content .hl-gnt {
     color: #005591;
 }
+button.hl-gnt-bg {
+    background-color: #005591;
+}
 
 .hl-est, .ui-widget-content .hl-est {
     color: #7a0026;
