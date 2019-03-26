@@ -1,7 +1,7 @@
 <?php 
 require_once("../includes/main.inc.php");
-require_once("../../libs/table_builder.class.inc.php");
-require_once("../../libs/ui.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
 if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
     $gnn = new gnn($db,$_GET['id']);

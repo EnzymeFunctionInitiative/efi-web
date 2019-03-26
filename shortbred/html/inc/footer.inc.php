@@ -45,5 +45,5 @@ A framework for human microbiome research.
 
 <hr>
 
-<?php include("../../html/inc/shared_footer.inc.php"); ?>
+<?php include(__BASE_DIR__ . "/html/inc/shared_footer.inc.php"); ?>
 

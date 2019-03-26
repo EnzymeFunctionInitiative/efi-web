@@ -14,7 +14,7 @@ if (isset($Is404Page) && $Is404Page)
 if (isset($IsExpiredPage) && $IsExpiredPage)
     $title = "Expired Job";
 
-include("../../html/inc/global_login_button.inc.php");
+include(__BASE_DIR__ . "/html/inc/global_login_button.inc.php");
 
 ?>
 
@@ -62,8 +62,8 @@ include("../../html/inc/global_nav.inc.php");
         </div>
 
         <div class="content_holder">
-            <h1 class="ruled">EFI - Enzyme Similarity Tool</h1>
-<?php if (functions::is_beta_release()) { ?>
+            <h1 class="ruled"><?php echo $title; ?></h1>
+<?php if (global_settings::is_beta_release()) { ?>
             <div class="beta"><h4>BETA</h4></div>
 <?php } ?>
 

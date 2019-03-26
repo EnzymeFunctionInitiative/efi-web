@@ -1,7 +1,7 @@
 <?php
-require_once "../libs/user_jobs.class.inc.php";
-require_once "../../libs/ui.class.inc.php";
-require_once "../includes/main.inc.php";
+require_once("../libs/user_jobs.class.inc.php");
+require_once("../includes/main.inc.php");
+require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
 $user_email = "Enter your e-mail address";
 

@@ -1,7 +1,7 @@
 <?php
 
-require_once(__DIR__ . "/../../libs/user_auth.class.inc.php");
-require_once(__DIR__ . "/../../libs/global_functions.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
 
 
 class job_cancels {

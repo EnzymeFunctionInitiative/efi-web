@@ -1,6 +1,6 @@
 <?php
 
-require_once(__DIR__."/../../libs/global_settings.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 
 class settings extends global_settings {
 
@@ -55,14 +55,6 @@ class settings extends global_settings {
 
     public static function get_efidb_module() {
         return defined("__EFI_DB_MODULE__") ? __EFI_DB_MODULE__ : __EFIDB_MODULE__;
-    }
-
-    public static function get_uniprot_version() {
-        return __UNIPROT_VERSION__;
-    }
-
-    public static function get_est_url() {
-        return __EST_URL__ ? __EST_URL__ : "#";
     }
 
     public static function get_diamond_enabled() {
