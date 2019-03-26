@@ -286,10 +286,12 @@ function get_info($row, $table) {
     $file = "";
     if (isset($params["${table}_filename"]))
         $file = $params["${table}_filename"];
-    elseif (isset($row["${table}_filename"]))
-        $file = $row["${table}_filename"];
+    if (isset($params["filename"]))
+        $file = $params["filename"];
     elseif (isset($params["${table}_fasta_file"]))
         $file = $params["${table}_fasta_file"];
+    elseif (isset($row["${table}_filename"]))
+        $file = $row["${table}_filename"];
 
     $est_source_id = 0;
     if (isset($row["${table}_est_source_id"]))

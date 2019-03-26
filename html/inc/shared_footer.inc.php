@@ -2,8 +2,24 @@
 $siteUrlPrefix = "";
 if (isset($SiteUrlPrefix))
     $siteUrlPrefix = $SiteUrlPrefix;
+
+$feedbackMessage = "To contact us for help, reporting issues, suggestion or comments, please click here.";
+
+if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPage)) {
+    echo "</div>";
+    if (isset($Is404Page) && $Is404Page)
+        $feedbackMessage = "Please click here to report this.";
+}
+
 ?>
 
+            <p><center>If you use the EFI web tools, please <a href="../#citeus">cite us</a>.</center></p>
+            <p class="suggestions">
+                <a href="http://enzymefunction.org/content/sequence-similarity-networks-tool-feedback"><?php echo $feedbackMessage; ?></a>
+            </p>
+        </div> <!-- content_holder -->
+
+        <div class="footer_container">
             <div class="footer">
                 <div class="address inline">
                     Carl R. Woese Institute for Genomic Biology<br>
@@ -18,4 +34,12 @@ if (isset($SiteUrlPrefix))
                     <a href="http://www.nigms.nih.gov/" target="_blank"><img alt="NIGMS" src="<?php echo $SiteUrlPrefix; ?>/images/nighnew.png" style="width: 201px; height: 30px;"></a>
                 </div>
             </div>
+
+        </div>
+    </div> <!-- container -->
+
+<?php include(__DIR__."/global_login.inc.php"); ?>
+
+</body>
+</html>
 
