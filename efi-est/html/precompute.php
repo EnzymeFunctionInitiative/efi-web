@@ -47,7 +47,7 @@ outputJobList($jobs);
 
 function outputJobList($jobs) {
     echo <<<HTML
-            <table class="pretty_nested">
+            <table class="pretty-nested">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Job Name</th>

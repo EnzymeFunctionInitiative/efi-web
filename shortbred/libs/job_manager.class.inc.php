@@ -53,6 +53,7 @@ class job_manager {
         $col_iparams = "${id_table}_params";
         $col_qparams = "${q_table}_params";
         $col_parent_id = "${id_table}_parent_id";
+        $col_job_name = "${q_table}_job_name";
 
         $cols = implode(",", array($col_id, $col_key, $col_email, $col_status, $col_time_created, $col_time_started,
             $col_time_completed, $col_iparams, $col_parent_id));
@@ -117,6 +118,7 @@ class job_manager {
                 $this->jobs_by_id[$id]["identify_id"] = $result[$col_qid];
                 $qparams = global_functions::decode_object($result[$col_qparams]);
                 $this->jobs_by_id[$id]["metagenomes"] = $qparams[$col_mg];
+                $this->jobs_by_id[$id]["job_name"] = isset($qparams[$col_job_name]) ? $qparams[$col_job_name] : "";
             }
             if ($result[$col_parent_id])
                 $this->jobs_by_id[$id]["parent_id"] = $result[$col_parent_id];
@@ -345,6 +347,7 @@ class job_manager {
                     $q_comp = $q_comp_result[1];
                     $q_is_completed = $q_comp_result[0];
                     $q_id = $q_row["quantify_id"];
+                    $job_name = isset($qparams["quantify_job_name"]) ? $qparams["quantify_job_name"] : "";
                     $par_id = "";
 
                     $mg_ids = explode(",", $qparams["quantify_metagenome_ids"]);
@@ -359,7 +362,9 @@ class job_manager {
                         $the_id_id = $id_id;
                         $the_key = $key;
                         $q_full_job_name = implode(", ", $mg_ids);
-                        if (count($mg_ids) > 6) {
+                        if ($job_name) {
+                            $q_job_name = $job_name;
+                        } elseif (count($mg_ids) > 6) {
                             $q_job_name = implode(", ", array_slice($mg_ids, 0, 5)) . " ...";
                         } else {
                             $q_job_name = $q_full_job_name;

@@ -1,27 +1,3 @@
-<?php
-
-$feedbackMessage = "Need help or have suggestions or comments?   Please click here.";
-
-if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPage)) {
-    echo "</div>";
-    if (isset($Is404Page) && $Is404Page)
-        $feedbackMessage = "Please click here to report this.";
-}
-
-?>
-
-            <p class="suggestions">
-                <a href="http://enzymefunction.org/content/sequence-similarity-networks-tool-feedback" target="_blank"><?php echo $feedbackMessage; ?></a>
-            </p>
-        </div> <!-- content_holder -->
-
-        <div class="footer_container">
-<?php include_once("shared_footer.inc.php"); ?>
-        </div>
-    </div> <!-- container -->
-
-<?php include("global_login.inc.php"); ?>
-
-</body>
-</html>
+<?php $HideCiteUs = true; ?>
+<?php include_once("global_footer.inc.php"); ?>
 

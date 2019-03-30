@@ -74,7 +74,7 @@ if (!isset($_POST['submit'])) {
         $input->job_name = $_POST['job-name'];
     if (array_key_exists('db-mod', $_POST))
         $input->db_mod = $_POST['db-mod'];
-    if (array_key_exists('cpu-x2', $_POST) && functions::advanced_options_enabled())
+    if (array_key_exists('cpu-x2', $_POST) && global_settings::advanced_options_enabled())
         $input->cpu_x2 = $_POST['cpu-x2'] == "true" ? true : false;
 
     switch($option) {

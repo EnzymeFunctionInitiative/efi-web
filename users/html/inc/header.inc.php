@@ -1,17 +1,7 @@
 <?php
 
-if (!isset($TopLevelUrl))
-    $TopLevelUrl = "http://efi.igb.illinois.edu/users/";
 
 $title = "Enzyme Function Initiative";
-if (isset($GnnId))
-    $title .= ": Job #$GnnId";
-
-if (isset($Is404Page) && $Is404Page)
-    $title = "Page Not Found";
-
-if (isset($IsExpiredPage) && $IsExpiredPage)
-    $title = "Expired Job";
 
 include("../../includes/login_check.inc.php");
 include("../../html/inc/global_login_button.inc.php");
@@ -61,20 +51,13 @@ foreach ($pages as $page => $page_title) {
     echo "                <li><a href=\"$page\" $the_class>$page_title</a></li>\n";
 }
 ?>
-<!--
-                <li><a href="create_user.php">Create Users</a></li>
-                <li><a href="manage_user.php">Manage Users</a></li>
-                <li><a href="create_group.php">Create Groups</a></li>
-                <li><a href="manage_group.php">Manage Groups</a></li>
-                <li><a href="manage_jobs.php">Manage Training Jobs</a></li>
--->
             </ul>
         </div>
     </div>
 
     <div id="container">
 
-        <div class="content_holder">
+        <div class="content-holder">
             <h1 class="ruled">EFI Training and User Tools</h1>
             <?php echo $cur_page_title; ?>
 

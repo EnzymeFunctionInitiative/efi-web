@@ -158,7 +158,7 @@ node network to visualize larger networks.
 <p>
 Pfam and/or InterPro family identifier(s) for your family of interest are used 
 as input. The Pfam and/or InterPro families to which proteins belong to can be 
-determined on the <a href="http://pfam.xfam.org/search">PFAM</a> and 
+determined on the <a href="http://pfam.xfam.org/search">Pfam</a> and 
 <a href="http://www.ebi.ac.uk/interpro">InterPro</a> websites.
 </p>
 

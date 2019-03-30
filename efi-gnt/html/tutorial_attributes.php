@@ -4,8 +4,8 @@ require_once "../includes/main.inc.php";
 require_once 'inc/header.inc.php';
 ?>
 
-<div class="tutorial_nav">
-	<?php require_once('inc/tutorial_nav.php'); ?>
+<div class="tutorial-nav">
+	<?php require_once('inc/tutorial-nav.php'); ?>
 </div>
   
 
@@ -159,7 +159,7 @@ thereby facilitating the determination of whether the neighbors identified in th
 A concatenated file that contains all of the information is also available and may be more convenient for adding node 
 attributes to SSNs for multiple Pfam families.</li>
 
-<li>"Neighbors without PFAM assigned per Cluster" is a folder of tab-delimited text files for each SSN cluster that 
+<li>"Neighbors without Pfam assigned per Cluster" is a folder of tab-delimited text files for each SSN cluster that 
 lists the accession IDs of neighbors not assigned to Pfam families.  These files allow SSNs to be generated with Option 
 D of EFI-EST 2.0 so that protein families not curated by Pfam can be identified.  The user should use an alignment score 
 of ~20 to filter the SSN; in most cases, this alignment score will segregate the SSN into protein families.</li>
@@ -327,7 +327,7 @@ spoke-node Pfam family found by the queries in hub-node SSN cluster.</li>
 </ul>
 
 The value 
-of "#Pfam Neighbors" will be greater than the value of the <b>Hub Queries with PFAM 
+of "#Pfam Neighbors" will be greater than the value of the <b>Hub Queries with Pfam 
 Neighbors</b> (previous) node attribute if a query found more than one neighbor in 
 the Pfam family. Again, the neighbors in the Pfam family need not be orthologues 
 (share the same function). This node attribute is text—strings of characters can 
@@ -488,7 +488,7 @@ attribute reports only the number of queries that found any neighbor.
 <div class="indent">
 <b># of Pfam Neighbors</b>: The total number of neighbors in the Pfam family
 found by the queries in the spoke-node SSN cluster. This value of this node
-attribute will be greater than the value of the <b>Queries with PFAM Neighbors</b>
+attribute will be greater than the value of the <b>Queries with Pfam Neighbors</b>
 (previous) node attribute if a query found more than one neighbor in the Pfam
 family. The neighbors in the Pfam family need not be orthologues (share the
 same function)—this can be evaluated by mapping the neighbors to the SSN for
@@ -975,7 +975,7 @@ sequences can be selected with the Select Control Panel.
 <div class="indent">
 <b># of Pfam Neighbors</b>: The total number of neighbors in the Pfam family
 that were found by the sequences in the SSN cluster. This value of
-this node attribute will be greater than the value of the <b># Queries with PFAM
+this node attribute will be greater than the value of the <b># Queries with Pfam
 Neighbors</b> (previous) node attribute if a query found more than one neighbor in
 the Pfam family. Again, the neighbors in the Pfam family need not be
 orthologues (share the same function)— this can be evaluated by mapping the
@@ -1221,7 +1221,7 @@ selected with the Select Control Panel.
     <td>EC number, from UniProt</td>
 </tr>
 <tr>
-    <td>PFAM</td>
+    <td>Pfam</td>
     <td>Pfam family, from UniProt</td>
 </tr>
 <tr>

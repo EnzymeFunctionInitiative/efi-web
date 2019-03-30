@@ -183,7 +183,16 @@ class user_jobs extends user_auth {
                     $a_max = $arow["analysis_max_length"] == __MAXIMUM__ ? "" : "Max=".$arow["analysis_max_length"];
                     $filter = $arow["analysis_filter"];
                     $filter = $filter == "eval" ? "AS" : ($filter == "pid" ? "%ID" : ($filter == "bit" ? "BS" : "custom"));
-                    $a_job_name = "$filter=" . $arow["analysis_evalue"] . " $a_min $a_max Title=<i>" . $arow["analysis_name"] . "</i>";
+                    //$a_job_name = "$filter=" . $arow["analysis_evalue"] . " $a_min $a_max Title=<i>" . $arow["analysis_name"] . "</i>";
+                    $a_job_name = "SSN " . $arow["analysis_name"] . " (Threshold=" . $arow["analysis_evalue"];
+                    if ($a_min && $a_max)
+                        $a_job_name .= " $a_min $a_max)";
+                    elseif ($a_min)
+                        $a_job_name .= " $a_min)";
+                    elseif ($a_max)
+                        $a_job_name .= " $a_max)";
+                    else
+                        $a_job_name .= ")";
 
                     $a_job = array("analysis_id" => $aid, "job_name" => $a_job_name, "is_completed" => $a_is_completed, "date_completed" => $acomp);
                     if (isset($child_color_jobs[$aid])) {
@@ -271,9 +280,11 @@ class user_jobs extends user_auth {
         case "FASTA_ID":
             return "FASTA+Headers";
         case "ACCESSION":
-            return "Sequence IDs";
+            return "Accession IDs";
         case "COLORSSN":
             return "Color SSN";
+        case "BLAST":
+            return "Sequence BLAST";
         default:
             return $type;
         }

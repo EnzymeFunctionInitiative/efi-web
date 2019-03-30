@@ -25,37 +25,39 @@ class quantify extends quantify_shared {
         $this->load_job();
     }
 
-    public static function create($db, $identify_id, $metagenome_ids, $search_type, $mg_db_id = "") {
-        $info = self::create_shared($db, $identify_id, $metagenome_ids, "", $search_type, $mg_db_id);
+    public static function create($db, $identify_id, $metagenome_ids, $search_type, $mg_db_id = "", $job_name = "") {
+        $info = self::create_shared($db, $identify_id, $metagenome_ids, "", $search_type, $mg_db_id, $job_name);
         return $info;
     }
 
-    private static function create_shared($db, $identify_id, $metagenome_ids, $parent_id, $search_type, $mg_db_id) {
+    private static function create_shared($db, $identify_id, $metagenome_ids, $parent_id, $search_type, $mg_db_id, $job_name) {
         $insert_array = array(
-            'quantify_identify_id' => $identify_id,
-            'quantify_status' => __NEW__,
-            'quantify_time_created' => self::get_current_time(),
+            "quantify_identify_id" => $identify_id,
+            "quantify_status" => __NEW__,
+            "quantify_time_created" => self::get_current_time(),
         );
         if ($parent_id)
-            $insert_array['quantify_parent_id'] = $parent_id; // the parent QUANTIFY job ID, not identify
+            $insert_array["quantify_parent_id"] = $parent_id; // the parent QUANTIFY job ID, not identify
 
-        $params_array = array('quantify_metagenome_ids' => $metagenome_ids);
+        $params_array = array("quantify_metagenome_ids" => $metagenome_ids);
         if ($search_type) {
             $search_type = strtolower($search_type);
             if ($search_type == "diamond" || $search_type == "usearch")
-                $params_array['quantify_search_type'] = $search_type;
+                $params_array["quantify_search_type"] = $search_type;
         }
         if ($mg_db_id)
-            $params_array['quantify_mg_db_id'] = $mg_db_id;
+            $params_array["quantify_mg_db_id"] = $mg_db_id;
+        if ($job_name)
+            $params_array["quantify_job_name"] = $job_name;
         $params = global_functions::encode_object($params_array);
 
-        $insert_array['quantify_params'] = $params;
+        $insert_array["quantify_params"] = $params;
 
-        $result = $db->build_insert('quantify', $insert_array);
+        $result = $db->build_insert("quantify", $insert_array);
         if (!$result)
             return false;
 
-        $info = array('id' => $result);
+        $info = array("id" => $result);
         return $info;
     }
     
@@ -65,11 +67,12 @@ class quantify extends quantify_shared {
         $mg_ids = implode(",", $mg_id_array);
         $search_type = $job->get_search_type();
         $mg_db_id = $job->get_metagenome_db_id();
+        $job_name = $job->get_job_name();
 
         if (!$mg_ids)
             return false;
 
-        $info = self::create_shared($db, $identify_id, $mg_ids, $parent_quantify_id, $search_type, $mg_db_id);
+        $info = self::create_shared($db, $identify_id, $mg_ids, $parent_quantify_id, $search_type, $mg_db_id, $job_name);
         return $info;
     }
 
@@ -245,6 +248,7 @@ class quantify extends quantify_shared {
         $this->metagenome_ids = explode(",", $mg_ids);
 
         $this->mg_db_id = isset($qparams['quantify_mg_db_id']) ? $qparams['quantify_mg_db_id'] : 0;
+        $this->job_name = isset($qparams['quantify_job_name']) ? $qparams['quantify_job_name'] : "";
 
         if (isset($params['identify_ref_db']))
             $this->ref_db = $params['identify_ref_db'];

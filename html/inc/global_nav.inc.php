@@ -37,7 +37,7 @@ if ($IsAdminUser) { ?>
 <?php } ?>
                 <li style="float:right"><?php echo $LoginText; ?></li>
 <?php if ($isLoggedIn && $useDashboard) { ?>
-                <li style="float:right"><a href="<?php echo $UrlPrefix; ?>/dashboard.php" class="about" title="Job Dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li style="float:right"><a href="<?php echo $UrlPrefix; ?>/dashboard.php" class="about" title="Consolidated list of jobs across the EFI tools"><i class="fas fa-history"></i> Job History</a></li>
 <?php } ?>
             </ul>
         </div>

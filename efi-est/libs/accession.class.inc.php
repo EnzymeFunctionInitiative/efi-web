@@ -161,7 +161,7 @@ class accession extends family_shared {
         $parms["-domain"] = $this->get_domain();
         if ($this->get_domain() == "on") {
             $parms["-domain-family"] = $this->get_domain_family();
-            if (functions::advanced_options_enabled())
+            if (global_settings::advanced_options_enabled())
                 $parms["-force-domain"] = 1;
         }
         return $parms;
@@ -176,7 +176,7 @@ class accession extends family_shared {
         }
 
         if (count($this->get_families())) {
-            $message .= "PFAM/Interpro Families: " . $this->get_families_comma() . PHP_EOL;
+            $message .= "Pfam/Interpro Families: " . $this->get_families_comma() . PHP_EOL;
         }
 
         $message .= "E-Value: " . $this->get_evalue() . PHP_EOL;

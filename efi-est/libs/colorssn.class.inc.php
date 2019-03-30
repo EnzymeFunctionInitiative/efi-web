@@ -85,7 +85,7 @@ class colorssn extends option_base {
             }
         } elseif (!$this->verify_colorssn_file($data->uploaded_filename)) {
             $result->errors = true;
-            $result->message .= "<br><b>Please upload a valid XGMML (zipped or unzipped) file.  The file extension must be .xgmml or .zip</b></br>";
+            $result->message .= "Please upload a valid XGMML (zipped or unzipped) file.  The file extension must be .xgmml or .zip";
         }
 
         return $result;
@@ -341,7 +341,7 @@ class colorssn extends option_base {
             $aid = $this->ssn_source_analysis_id;
             array_push($metadata, array("Original SSN Job Number", "$gid/$aid (<a href='$stepc_path' title='EST $gid'>Original Dataset</a> | <a href='$stepe_path' title='EST Analysis ID $aid'>SSN Download</a>)"));
         }
-        array_push($metadata, array("Time Started/Finished", global_functions::format_short_date($this->time_started) . " -- " .
+        array_push($metadata, array("Time Started -- Finished", global_functions::format_short_date($this->time_started) . " -- " .
             global_functions::format_short_date($this->time_completed)));
         array_push($metadata, array("Uploaded Filename", $this->get_uploaded_filename()));
         if (!empty($db_version))
@@ -371,7 +371,6 @@ class colorssn extends option_base {
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
         $valid = true;
         if (!in_array($ext, functions::get_valid_colorssn_filetypes())) {
-            print "Extension: $ext\n";
             $valid = false;
         }
         return $valid;

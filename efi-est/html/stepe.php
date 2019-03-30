@@ -52,13 +52,13 @@ $gen_type = $generate->get_type();
 $formatted_gen_type = functions::format_job_type($gen_type);
 
 $table->add_row_with_html("EST Job Number", "$generate_id (<a href='stepc.php?id=$generate_id&key=$key'>Original Dataset</a>)");
-$table->add_row("Time Started/Finished", $time_window);
+$table->add_row("Time Started -- Finished", $time_window);
 if (!empty($db_version)) {
     $table->add_row("Database Version", $db_version);
 }
 $table->add_row("Input Option", $formatted_gen_type);
 if ($generate->get_job_name())
-    $table->add_row("Job Name", $generate->get_job_name());
+    $table->add_row("Submission Name", $generate->get_job_name());
 
 $uploaded_file = "";
 $included_family = "";
@@ -79,7 +79,7 @@ if ($gen_type == "BLAST") {
     $included_family = $generate->get_families_comma();
     if ($included_family != "")
         $table->add_row("PFam/Interpro Families", $included_family);
-    $table->add_row("Maximum Blast Sequences", number_format($generate->get_submitted_max_sequences()));
+    $table->add_row("Maximum Retrieved Sequences", number_format($generate->get_submitted_max_sequences()));
 }
 elseif ($gen_type == "FAMILIES") {
     $generate = new generate($db,$_GET['id']);
@@ -110,7 +110,7 @@ elseif ($gen_type == "ACCESSION") {
         $table->add_row("PFam/Interpro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
-    if (functions::advanced_options_enabled())
+    if (global_settings::advanced_options_enabled())
         $table->add_row("Domain", $generate->get_domain());
     $unirefVersion = $generate->get_uniref_version();
     if ($unirefVersion)
@@ -153,7 +153,7 @@ elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
 }
 
 if ($included_family && !empty($num_full_family_nodes))
-    $table->add_row("Number of Sequences in PFAM/InterPro Family", number_format($num_full_family_nodes));
+    $table->add_row("Number of Sequences in Pfam/InterPro Family", number_format($num_full_family_nodes));
 $table->add_row("Total Number of Sequences $extra_nodes_ast", number_format($total_num_nodes));
 
 $table->add_row("Network Name", $network_name);
@@ -179,7 +179,7 @@ STR;
 $table_string = $table->as_string();
 
 if (isset($_GET["as-table"])) {
-    $table_filename = functions::safe_filename($analysis->get_name()) . "_settings.txt";
+    $table_filename = functions::safe_filename($analysis->get_name()) . "_SSN_overview.txt";
 
     send_table($table_filename, $table_string);
 
@@ -253,7 +253,7 @@ else {
             $full_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
             $full_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($stats[$i]['Size'],0) . " MB</td>\n";
             $full_network_html .= "<td style='text-align:center;'>";
-            $full_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>Make GNN</button></a>";
+            $full_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>GNT Submission</button></a>";
             $full_network_html .= $color_ssn_code_fn($i);
             $full_network_html .= "</td>\n";
             $full_network_html .= "</tr>";
@@ -284,7 +284,7 @@ else {
                 $rep_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
                 $rep_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($stats[$i]['Size'],0) . " MB</td>\n";
                 $rep_network_html .= "<td style='text-align:center;'>";
-                $rep_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>Make GNN</button></a>";
+                $rep_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>GNT Submission</button></a>";
                 $rep_network_html .= $color_ssn_code_fn($i);
                 $rep_network_html .= "</td>\n";
             }
@@ -302,11 +302,11 @@ else {
 
 ?>	
 
-<h2 class="darkbg">Download Network Files</h2>
+<h2>Download Network Files</h2>
 
 <?php if ($job_name || $network_name) { ?>
-<h4>
-    <?php if ($job_name) { ?>Job Name: <b><?php echo $job_name; ?></b><?php } ?>
+<h4 class="job-display">
+    <?php if ($job_name) { ?>Submission Name: <b><?php echo $job_name; ?></b><?php } ?>
     <?php if ($job_name && $network_name) { ?>/<?php } ?>
     <?php if ($network_name) { ?>Network Name: <b><?php echo $network_name; ?></b><?php } ?>
 </h4>
@@ -314,13 +314,13 @@ else {
 
 <div class="tabs-efihdr tabs">
     <ul>
-        <li><a href="#info">Job Information</a></li>
+        <li><a href="#info">SSN Overview</a></li>
         <li class="ui-tabs-active"><a href="#results">Network Files</a></li>
     </ul>
 
     <div>
         <div id="info">
-            <h4>Generation and Analysis Summary Table</h4>
+            <h4>SSN Generation and Analysis Summary Table</h4>
         
             <table width="100%" class="pretty">
                 <?php echo $table_string; ?>
@@ -331,7 +331,11 @@ else {
             <?php echo $convergence_ratio_string; ?>
             <?php if ($is_migrated) { ?>
                 <div style="margin-top: 20px;">
-                    <a href="../efi-gnt/stepc.php?<?php echo "id=$gnn_id&key=$gnn_key"; ?>"><button class="mini" type="button">View GNN</button></a>
+                    <center>
+                    <a href="../efi-gnt/stepc.php?<?php echo "id=$gnn_id&key=$gnn_key"; ?>">
+                        <button class="hl-gnt-bg" type="button" style="color:white">View GNN generated from this SSN</button>
+                    </a>
+                    </center>
                 </div>
             <?php } ?>
 
@@ -367,13 +371,11 @@ else {
                     In representative node (RepNode) networks, each node in the network represents a collection of proteins grouped
                     according to percent identity. For example, for a 75% identity RepNode network, all connected sequences
                     that share 75% or more identity are grouped into a single node (meta node).
+                    Sequences are collapsed together to reduce the overall number of nodes, making for less complicated networks
+                    easier to load in Cytoscape.
                 </p>
                 <p>
                     The cluster organization is not changed, and the clustering of sequences remains identical to the full network.
-                </p>
-                <p>
-                    Sequences are collapsed together to reduce the overall number of nodes making for less complicated networks
-                    easier to load in Cytoscape.
                 </p>
             </div>
             <table width="100%" class="pretty">

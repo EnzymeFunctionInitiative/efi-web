@@ -44,7 +44,7 @@ abstract class family_shared extends option_base {
     public function get_pfam_families() {
         $pfam_families = array();
         foreach ($this->families as $family) {
-            if (substr($family,0,2) == "PF" || substr($family,0,2) == "CL") { // Also allow PFAM clans
+            if (substr($family,0,2) == "PF" || substr($family,0,2) == "CL") { // Also allow Pfam clans
                 array_push($pfam_families,$family);
             }
         }

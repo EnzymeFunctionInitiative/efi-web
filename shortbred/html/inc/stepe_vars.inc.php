@@ -145,40 +145,75 @@ $html_labels = array(
 );
 
 $dl_ssn_items = array("ssn", "ssn_zip", "mg-info");
-$dl_misc_items = array("cdhit", "markers", "meta-cl-size", "meta-sp-cl", "meta-sp-si");
-$dl_median_items = array("protein", "cluster", "protein_norm", "cluster_norm", "protein_genome_norm", "cluster_genome_norm");
-$dl_mean_items = array("protein_mean", "cluster_mean", "protein_norm_mean", "cluster_norm_mean", "protein_genome_norm_mean", "cluster_genome_norm_mean");
+$dl_misc_items = array("cdhit", "markers");
+#$dl_misc_items = array("cdhit", "markers", "meta-cl-size", "meta-sp-cl", "meta-sp-si");
+#$dl_median_items = array("protein", "cluster", "protein_norm", "cluster_norm", "protein_genome_norm", "cluster_genome_norm");
+#$dl_mean_items = array("protein_mean", "cluster_mean", "protein_norm_mean", "cluster_norm_mean", "protein_genome_norm_mean", "cluster_genome_norm_mean");
+$dl_median_items = array("protein", "cluster", "protein_genome_norm", "cluster_genome_norm");
+$dl_mean_items = array("protein_mean", "cluster_mean", "protein_genome_norm_mean", "cluster_genome_norm_mean");
 
 
 $table_string = $table->as_string();
 
+function make_results_row($id_query_string, $arg, $btn_text, $size_data, $label) {
+    $link_fn = function($arg, $text) use ($id_query_string) {
+        return "<a href='download_files.php?type=$arg&$id_query_string'><button class='mini'>$text</button></a>";
+    };
+
+    $link_html = "";
+    $size_html = "";
+    if (is_array($arg)) {
+        for ($i = 0; $i < count($arg); $i++) {
+            $link_html .= "                " . $link_fn($arg[$i], $btn_text[$i]) . "\n";
+        }
+        if (isset($size_data))
+            $size_html = implode(" / ", array_map(function($a) { return "$a MB"; }, $size_data));
+    } else {
+        $link_html = "                " . $link_fn($arg, $btn_text) . "\n";
+        $size_html = $size_data . " MB";
+    }
+
+    echo <<<HTML
+        <tr>
+            <td style='text-align:center;'>
+                $link_html
+            </td>
+            <td>$label</td>
+HTML;
+    if ($size_html)
+        echo "             <td style='text-align:center;'>$size_html</td>\n";
+    echo "        </tr>\n";
+}
+
+
 function outputResultsTable($items, $id_query_string, $size_data, $file_types, $html_labels) {
 
     foreach ($items as $type) {
-        $arg = $file_types[$type];
-        
-        if (!isset($size_data[$type]))
+        if (!is_array($type) && !isset($size_data[$type]))
+            continue;
+        if (is_array($type) && count($type) != 2)
             continue;
 
-        $label = $html_labels[$type];
         echo <<<HTML
         <tr>
             <td style='text-align:center;'>
 HTML;
 
-        $size_label = "--";
-        $label = $html_labels[$type];
-        if (isset($size_data[$type]) && $size_data[$type]) {
-            echo "                <a href='download_files.php?type=$arg&$id_query_string'><button class='mini'>Download</button></a>\n";
-            $size_label = $size_data[$type] . " MB";
+        if (is_array($type)) { # assume we're joining an uncompressed and zipped into one line
+            $label = $html_labels[$type[0]];
+            $arg1 = $file_types[$type[0]];
+            $arg2 = $file_types[$type[1]];
+            echo "                <a href='download_files.php?type=$arg1&$id_query_string'><button class='mini'>Download</button></a>\n";
+            echo "                <a href='download_files.php?type=$arg2&$id_query_string'><button class='mini'>Download (ZIP)</button></a>\n";
         } else {
-            echo "";
+            $arg = $file_types[$type];
+            $label = $html_labels[$type];
+            echo "                <a href='download_files.php?type=$arg&$id_query_string'><button class='mini'>Download</button></a>\n";
         }
     
         echo <<<HTML
             </td>
             <td>$label</td>
-            <td style='text-align:center;'>$size_label</td>
         </tr>
 HTML;
     }

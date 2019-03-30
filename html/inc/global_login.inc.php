@@ -14,8 +14,7 @@ $(document).ready(function() {
 <?php if (isset($_GET["show-login"]) && $_GET["show-login"] == 1) { ?>
     showLoginForm();
 <?php } ?>
-
-});
+}).tooltip();
 </script>
 
 <?php if (!isset($IsLoggedIn) || !$IsLoggedIn) { ?>
