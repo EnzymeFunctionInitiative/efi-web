@@ -3,23 +3,25 @@ $siteUrlPrefix = "";
 if (isset($SiteUrlPrefix))
     $siteUrlPrefix = $SiteUrlPrefix;
 
-$feedbackMessage = "To contact us for help, reporting issues, suggestion or comments, please click here.";
+$feedback_msg = "Click here to contact us for help, reporting issues, or suggestions.";
 
 if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPage)) {
     echo "</div>";
     if (isset($Is404Page) && $Is404Page)
-        $feedbackMessage = "Please click here to report this.";
+        $feedback_msg = "Please click here to report this.";
 }
 
 ?>
 
+<?php if (!isset($HideCiteUs)) { ?>
             <p><center>If you use the EFI web tools, please <a href="../#citeus">cite us</a>.</center></p>
+<?php } ?>
             <p class="suggestions">
-                <a href="http://enzymefunction.org/content/sequence-similarity-networks-tool-feedback"><?php echo $feedbackMessage; ?></a>
+                <a href="http://enzymefunction.org/content/sequence-similarity-networks-tool-feedback"><?php echo $feedback_msg; ?></a>
             </p>
-        </div> <!-- content_holder -->
+        </div> <!-- content-holder -->
 
-        <div class="footer_container">
+        <div class="footer-container">
             <div class="footer">
                 <div class="address inline">
                     Carl R. Woese Institute for Genomic Biology<br>
@@ -27,11 +29,11 @@ if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPag
                     1206 W. Gregory Drive Urbana, IL 61801<br>
                     <a href="mailto:efi@enzymefunction.org">efi@enzymefunction.org</a>
                 </div>
-                <div class="footer_logo inline">
-                    <img alt="Enzyme Function Initiative logo" src="<?php echo $SiteUrlPrefix; ?>/images/efi_logo.png" height="38"></a>
+                <div class="footer-logo inline">
+                    <img alt="Enzyme Function Initiative logo" src="<?php echo $siteUrlPrefix; ?>/images/efi_logo.png" height="38"></a>
                 </div>
-                <div class="footer_logo inline">
-                    <a href="http://www.nigms.nih.gov/" target="_blank"><img alt="NIGMS" src="<?php echo $SiteUrlPrefix; ?>/images/nighnew.png" style="width: 201px; height: 30px;"></a>
+                <div class="footer-logo inline">
+                    <a href="http://www.nigms.nih.gov/" target="_blank"><img alt="NIGMS" src="<?php echo $siteUrlPrefix; ?>/images/nighnew.png" style="width: 201px; height: 30px;"></a>
                 </div>
             </div>
 

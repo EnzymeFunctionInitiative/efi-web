@@ -2,6 +2,7 @@
 require_once("../libs/user_jobs.class.inc.php");
 require_once("../includes/main.inc.php");
 require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
+require_once("../libs/gnt_ui.class.inc.php");
 
 $user_email = "Enter your e-mail address";
 
@@ -65,8 +66,8 @@ if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])
 $use_advanced_options = global_settings::advanced_options_enabled();
 
 $updateMessage = 
-//    '<div class="new_feature"></div>' .
-    "The <a href=\"../efi-cgfp/\">Computationally-Guided Functional Profiling tool (EFI-CGFP)</a> is now available.<br><br>" .
+//    '<div class="new-feature"></div>' .
+    "The <a href='../efi-cgfp/' class='hl-cgfp'>Computationally-Guided Functional Profiling tool (EFI-CGFP)</a> is now available.<br>" .
     functions::get_update_message();
 
 require_once "inc/header.inc.php";
@@ -74,26 +75,37 @@ require_once "inc/header.inc.php";
 ?>
 
 
-<p></p>
 <p>
-The EFI-Genome Neighborhood Tool (EFI-GNT) allows the exploration of the physical association of genes on genomes, i.e. 
-gene clustering. EFI-GNT enables a user to retrieve, display, and interact with genome neighborhood information for 
-large datasets of sequences.
+EFI-GNT allows exploration of the genome neighborhoods for sequence similarity
+network (SSN) clusters in order to facilitate the 
+assignment of function within protein families and superfamilies.
 </p>
 
-<div id="update-message" class="update_message initial-hidden">
+<p>
+In <b>GNT Submission</b>, each sequence within a SSN is used as a query for interrogation of its genome neighborhood.
+A colored SSN identifying 
+clusters, Genome Neighborhood Networks (GNNs) providing statistical analysis of 
+neighboring Pfam families, Genome Neighborhood Diagrams (GNDs), sets of IDs and 
+sequences per cluster and additional files are created. For the <b>Retrieve
+Neighorhood Diagrams</b> option, only GNDs will be created.
+</p>
+
+
+<div id="update-message" class="update-message initial-hidden">
 <?php if (isset($updateMessage)) echo $updateMessage; ?>
 </div>
 
+<p>
 A listing of new features and other information pertaining to GNT is available on the <a href="notes.php">release notes page</a>. 
+</p>
 
 <div class="tabs-efihdr tabs">
     <ul class="tab-headers">
 <?php if ($showPreviousJobs) { ?>
         <li <?php if (!$est_id) echo "class=\"ui-tabs-active\""; ?>><a href="#jobs">Previous Jobs</a></li>
 <?php } ?>
-        <li <?php if ($est_id) echo "class=\"ui-tabs-active\""; ?>><a href="#create">Create GNN</a></li>
-        <li><a href="#create-diagrams">Retrieve Neighborhoods</a></li>
+        <li <?php if ($est_id) echo "class=\"ui-tabs-active\""; ?>><a href="#create">GNT Submission</a></li>
+        <li><a href="#create-diagrams">Retrieve Neighborhood Diagrams</a></li>
         <li><a href="#diagrams">View Saved Diagrams</a></li>
         <li <?php if (! $showPreviousJobs) echo "class=\"active\""; ?>><a href="#tutorial">Tutorial</a></li>
     </ul>
@@ -101,10 +113,22 @@ A listing of new features and other information pertaining to GNT is available o
     <div class="tab-content">
 <?php if ($showPreviousJobs) { ?>
         <div id="jobs" class="tab <?php echo $est_id ? "" : "active"; ?>">
-<?php } ?>
+<!--
+            <div style="margin-top: 10px">
+            <div style="float: right">
+                <a href="#gnd"><button class="mini"><i class="fas fa-angle-double-down"></i> Retrieve Neighborhood Jobs</button></a>
+                <a href="#training"><button class="mini"><i class="fas fa-angle-double-down"></i> Training Resources</button></a>
+            </div>
+            <div style="float: left">
+            <h4>GNT Jobs</h4>
+            </div>
+            <div style="clear: both"></div>
+            </div>
+-->
+
 <?php if (count($gnnJobs) > 0) { ?>
-            <h4>GNN Jobs</h4>
-            <table class="pretty_nested" style="table-layout:fixed">
+            <h4>GNT Jobs</h4>
+            <table class="pretty-nested" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>
@@ -151,7 +175,8 @@ HTML;
 <?php } ?>
             
 <?php if (count($diagramJobs) > 0) { ?>
-            <h4>Diagram Jobs</h4>
+            <a name="gnd"></a>
+            <h4>Retrieved Genomic Neighborhood Diagrams</h4>
             <table class="pretty" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
@@ -191,8 +216,9 @@ HTML;
 
 
 <?php if (count($trainingJobs) > 0) { ?>
-            <h4>Training Jobs</h4>
-            <table class="pretty_nested" style="table-layout:fixed">
+            <a name="training"></a>
+            <h4>Training Resources</h4>
+            <table class="pretty-nested" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>
@@ -244,49 +270,37 @@ HTML;
 
 
 
-<?php if ($showPreviousJobs) { ?>
         </div>
 <?php } ?>
 
         <div id="create" class="tab <?php echo $est_id ? "ui-tabs-active" : ""; ?>">
             <p>
-                Genome Neighborhood Networks (GNNs), a colored Sequence Similarity Network (SSN), summary
-                tables, sets of IDs and sequences per cluster are created for the submitted SSN.
+            In a submitted SSN, each sequence is considered as a query. Information 
+            associated with protein encoding genes that are neighbors of input queries 
+            (within a defined window on either side) are collected from sequence files for 
+            bacterial (prokaryotic and archaeal) and fungal genomes in the European 
+            Nucleotide Archive (ENA) database. The neighboring genes are sorted into 
+            neighbor Pfam families. For each cluster, the co-occurrence frequencies of the 
+            identified neighboring Pfam families with the input queries are calculated. 
             </p>
 
             <form name="upload_form" id="upload_form" method="post" action="" enctype="multipart/form-data">
                 <div class="primary-input">
-                <?php echo ui::make_upload_box("Select a File to Upload:", "ssn_file", "progress_bar", "progress_number", "", "", $est_file_name); ?>
-                    The submitted SSN must have been generated using any of the EST options except the
-                    FASTA without header reading option.
-                    The SSNs generated with these Options can be modified in Cytoscape.
-                    The acceptable format is uncompressed or zipped XGMML.
+                <?php echo ui::make_upload_box("SSN File:", "ssn_file", "progress_bar", "progress_number", "", "", $est_file_name); ?>
+                    SSNs generated by EFI-EST are compatible with GNT analysis (with the exception 
+                    of SSNs from the FASTA sequences without the "Read FASTA header" option), even 
+                    when they have been modified in Cytoscape.
+                    The accepted format is XGMML (or compressed XGMML as zip).
                 </div>
     
-                <?php add_neighborhood_size_setting(false); ?>
-                <?php add_cooccurrence_setting(false); ?>
-<!--
-                <div class="option-panels gnn-options">
-                    <div>
-                        <?php add_neighborhood_size_setting(); ?>
-                    </div>
-                    <div>
-                        <?php add_cooccurrence_setting(); ?>
-                    </div>
-                    <?php if ($use_advanced_options) { ?>
-                    <div>
-                        <?php add_dev_site_options("db_mod"); ?>
-                    </div>
-                    <?php } ?>
-                </div>
--->
-
+                <?php gnt_ui::add_neighborhood_size_setting(false); ?>
+                <?php gnt_ui::add_cooccurrence_setting(false); ?>
                 <?php add_submit_button("gnn", "ssn_email", "ssn_message", "Generate GNN"); ?>
             </form>
         </div>
 
         <div id="create-diagrams" class="tab">
-            <div style="margin-bottom: 10px;">Clicking on the headers below provides access to various ways of generating genomic network diagrams.</div>
+            <div style="margin-bottom: 10px;">Clicking on the headers below provides access to various ways of generating genomic neighborhood diagrams.</div>
             <div class="tabs-efihdr tabs">
                 <ul class="tab-headers">
                     <li class="ui-tabs-active"><a href="#diagram-blast">Single Sequence BLAST</a></li>
@@ -312,7 +326,7 @@ HTML;
                             <table>
 <?php add_job_title_option("option-a-title"); ?>
                             <tr>
-                                <td><label for="max-seqs">Maximum Blast Sequences:</label></td>
+                                <td><b><label for="max-seqs">Maximum Blast Sequences:</label></b></td>
                                 <td>
                                      <input type="text" id="option-a-max-seqs" class="small" name="max-seqs" value="<?php echo $default_seq; ?>">
                                 </td>
@@ -322,7 +336,7 @@ HTML;
                                 </td>
                             </tr>
                             <tr>
-                                 <td>E-Value:</td>
+                                 <td><b>E-Value:</b></td>
                                  <td>
                                      <input type="text" class="small" id="option-a-evalue" name="evalue" value="<?php echo $default_evalue; ?>">
                                  </td>
@@ -405,6 +419,11 @@ HTML;
         <div id="diagrams" class="tab">
             <form name="upload_diagram_form" id="upload_diagram_form" method="post" action="" enctype="multipart/form-data">
                 <p>
+                <b>Upload a saved diagram data file for visualization.</b>
+
+                </p>
+
+                <p>
                     <?php echo ui::make_upload_box("Select a File to Upload:", "diagram_file", "progress_bar_diagram", "progress_number_diagram", "The acceptable format is sqlite."); ?>
                 </p>
     
@@ -429,7 +448,7 @@ HTML;
             its genome neighborhood.
             </p>
     
-            <h3>EFI-GNT acceptable input</h3>
+            <h3>EFI-GNT Acceptable Input</h3>
     
             <p>
             The sequence datasets are generated from an SSN produced by the EFI-Enzyme Similarity Tool (EFI-EST). Acceptable 
@@ -440,7 +459,7 @@ HTML;
             colored using the "Color SSN Utility" of EFI-EST and that originated from any of acceptable Options are also acceptable.
             </p>
     
-            <h3>Principle of GNT analysis</h3>
+            <h3>Principle of GNT Analysis</h3>
     
             <p>
             Protein encoding genes that are neighbors of input queries (within a defined window on either side) are collected from 
@@ -451,7 +470,7 @@ HTML;
             SSN that aids analysis of the GNNs.
             </p>
     
-            <h3>EFI-GNT output</h3>
+            <h3>EFI-GNT Output</h3>
     
             <p>
             EFI-GNT generates two formats of the Genome Neighborhood Network (GNN) as well as a colored version of the input SSN 
@@ -493,8 +512,8 @@ HTML;
 
     <p>
     UniProt Version: <b><?php echo settings::get_uniprot_version(); ?></b><br>
-    ENA Version: <b><?php echo settings::get_ena_version(); ?></b><br>
-    EFI-GNT Version: <b><?php echo settings::get_gnt_version(); ?></b>
+    InterPro Version: <b><?php echo settings::get_interpro_version(); ?></b><br>
+    ENA Version: <b><?php echo settings::get_ena_version(); ?></b>
     </p>
 </div>
 
@@ -507,23 +526,6 @@ This job will be permanently removed from your list of jobs.
 
 <script>
     $(document).ready(function() {
-
-        $(".advanced-toggle").click(function () {
-            $header = $(this);
-            //getting the next element
-            $content = $header.next();
-            //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
-            $content.slideToggle(100, function () {
-                if ($content.is(":visible")) {
-                    $header.find("i.fa").addClass("fa-minus-square");
-                    $header.find("i.fa").removeClass("fa-plus-square");
-                } else {
-                    $header.find("i.fa").removeClass("fa-minus-square");
-                    $header.find("i.fa").addClass("fa-plus-square");
-                }
-            });
-        
-        });
 
         $(".archive-btn").click(function() {
             var id = $(this).data("id");
@@ -561,69 +563,6 @@ This job will be permanently removed from your list of jobs.
 
 <?php
 
-function make_db_mod_option($db_modules, $form_id) {
-}
-
-
-function add_cooccurrence_setting($use_header = true) {
-    $default_cooc = settings::get_default_cooccurrence();
-    $title = "Co-occurrence Percentage Lower Limit";
-    
-    if ($use_header)
-        echo <<<HTML
-<h3>$title</h3>
-HTML;
-
-    $title = $use_header ? "Cooccurrence" : "<b>$title</b>";
-
-    echo <<<HTML
-<div>
-    $title:
-    <input type="text" id="cooccurrence" name="cooccurrence" maxlength="3" size="4">
-    <div class="left-margin-70">
-        This option allows to filter the neighboring pFAMs with a co-occurrence percentage lower than the set value.
-        The default value is $default_cooc and valid values are 0-100.
-    </div>
-</div>
-HTML;
-}
-
-
-function add_neighborhood_size_setting($use_header = true) {
-    $neighbor_size_html = "";
-    $default_neighbor_size = settings::get_default_neighbor_size();
-    for ($i=3;$i<=20;$i++) {
-        if ($i == $default_neighbor_size)
-            $neighbor_size_html .= "<option value='" . $i . "' selected='selected'>" . $i . "</option>";
-        else
-            $neighbor_size_html .= "<option value='" . $i . "'>" . $i . "</option>";
-    }
-
-    $title = "Neighbhorhood Size";
-    if ($use_header)
-        echo <<<HTML
-<h3>$title</h3>
-HTML;
-
-    $title = $use_header ? "Size" : "<b>$title</b>";
-
-    echo <<<HTML
-<div>
-    $title:
-    <select name="neighbor_size" id="neighbor_size" class="bigger">
-        <?php echo $neighbor_size_html; ?>
-    </select>
-    <div class="left-margin-70">
-        With a value of $default_neighbor_size the PFAM families for $default_neighbor_size
-        genes located upstream and for $default_neighbor_size genes
-        located downstream of sequences in the SNN will be collected and displayed.
-        The default value is $default_neighbor_size.
-    </div>
-</div>
-HTML;
-}
-
-
 function add_dev_site_options($option_id, $use_header = true) {
     if ($use_header)
         echo <<<HTML
@@ -632,10 +571,12 @@ HTML;
     echo <<<HTML
 <div>
     <div>
-        Database version:
+        <span class="input-name">Database version:</span>
+        <span class="input-field">
 HTML;
     add_db_mod_html($option_id);
     echo <<<HTML
+        </span>
     </div>
 </div>
 HTML;
@@ -667,7 +608,7 @@ function add_database_option($db_id) {
         return;
     echo <<<HTML
                                 <tr>
-                                    <td>Database version:</td>
+                                    <td><b>Database version:</b></td>
                                     <td>
 HTML;
     add_db_mod_html($db_id);
@@ -684,7 +625,7 @@ function add_window_option($nb_id) {
     $default_nb_size = settings::get_default_neighborhood_size();
     echo <<<HTML
                                 <tr>
-                                    <td>Neighborhood window size:</td>
+                                    <td><b>Neighborhood window size:</b></td>
                                     <td>
                                         <input type="text" id="$nb_id" class="small" name="nb-size" value="$default_nb_size">
                                     </td>
@@ -698,9 +639,9 @@ HTML;
 
 
 function add_job_title_option($title_id) {
-    return <<<HTML
+    echo <<<HTML
                                 <tr>
-                                    <td>Optional job title:</td>
+                                    <td><b>Optional job title:</b></td>
                                     <td>
                                         <input type="text" class="small" id="$title_id" name="title" value="">
                                     </td>
@@ -721,11 +662,14 @@ function add_submit_button($type, $email_id, $message_id, $btn_text) {
     global $user_email;
     echo <<<HTML
 <p>
-    E-mail address: 
-    <input name="$email_id" id="$email_id" type="text" value="$user_email" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
-    When the file has been uploaded and processed, you will receive an e-mail containing a link
-    to download the data.
+    <span class="input-name">
+        E-mail address: 
+    </span>
+    <span class="input-field">
+        <input name="$email_id" id="$email_id" type="text" value="$user_email" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
+    </span>
 </p>
+<p>You will receive an e-mail when your network has been processed.</p>
 <div id="$message_id" style="color: red">
     $message
 </div>

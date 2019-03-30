@@ -1,10 +1,8 @@
 
-/* OVERRIDE JQUERY UI */
+/*********** OVERRIDE SOME JQUERY UI STYLES ******************************************************/
 
 .ui-accordion .ui-accordion-header {
     font-weight: bold;
-/*    text-transform: uppercase;*/
-/*    font-size: 110%; */
 }
 
 .option-panels .ui-state-active {
@@ -12,14 +10,16 @@
     color: #eee;
 }
 
-//.ui-widget-content a {
-//    color: #7a0026;
-//}
+.ui-widget-content a {
+    font-weight: bold;
+}
+
 .tabs-efihdr { 
     padding: 0px; 
     background: none; 
     border-width: 0px; 
-} 
+}
+
 .tabs-efihdr .ui-tabs-nav { 
     padding-left: 7px; 
     background: transparent; 
@@ -28,6 +28,7 @@
     -webkit-border-radius: 0px; 
     border-radius: 0px; 
 } 
+
 .tabs-efihdr .ui-tabs-panel { 
     -moz-border-radius: 3px; 
     -webkit-border-radius: 3px; 
@@ -36,16 +37,20 @@
     background: #fff;
     border: 1px solid darkgray;
 }
+
 .tabs-efihdr .ui-tabs-nav .ui-state-default a {
     color: #4c4c4c;
 }
+
 .tabs-efihdr .ui-tabs-nav .ui-state-active a {
     color: #4c4c4c;
 }
+
 .tabs-efihdr .ui-tabs-nav .ui-state-active {
     background-color: #8ABFFF;
     border: 1px solid #aaa;
 }
+
 .tabs-efihdr.ui-widget-content {
     border: 0;
 }

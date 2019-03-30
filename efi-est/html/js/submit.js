@@ -193,12 +193,11 @@ function submitOptionEForm(famHelper, outputIds) {
 
 function submitColorSsnForm() {
 
-    var messageId = "colorssn-message";
+    var messageId = "message-colorssn";
 
     var fd = new FormData();
     fd.append("option_selected", "colorssn");
-    addParam(fd, "email", "colorssn-email");
-    addParam(fd, "job-group", "colorssn-job-group");
+    addParam(fd, "email", "email-colorssn");
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
     var files = document.getElementById("colorssn-file").files;

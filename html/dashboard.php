@@ -37,7 +37,12 @@ require_once("inc/header.inc.php");
 
 ?>
 
-<h2>Job Dashboard</h2>
+<h2>Consolidated Job History</h2>
+
+<p>This page provides an overview of the connections between EFI jobs. When it is not
+possible to automatically link GNT and CGFP jobs to EST jobs then they are listed in the "Other Jobs"
+sections at the bottom of the page.
+</p>
 
 
 Highlight
@@ -52,8 +57,8 @@ Highlight
 <br>
 <div style="margin-top: 10px">
 <div style="float: right">
-    <a href="#unassigned"><button class="mini"><i class="fas fa-angle-double-down"></i> Unassigned Jobs</button></a>
-    <a href="#training"><button class="mini"><i class="fas fa-angle-double-down"></i> Training Jobs</button></a>
+    <a href="#unassigned"><button class="mini"><i class="fas fa-angle-double-down"></i> Other Jobs</button></a>
+    <a href="#training"><button class="mini"><i class="fas fa-angle-double-down"></i> Training Resources</button></a>
 </div>
 <div style="float: left">
     <label>Show last <input type="text" id="num-days" style="width: 50px" value="<?php echo $num_days; ?>" /> days <button class="mini" id="submit-num-days">Apply</button></label>
@@ -64,7 +69,7 @@ Highlight
 
 <div style="margin-top: 20px"></div>
 
-<h3>User Jobs</h3>
+<h3>Jobs</h3>
 
 <?php
 
@@ -81,7 +86,7 @@ list($gnt_jobs_file, $gnt_jobs_db, $gnt_child_jobs,
 
 echo <<<HTML
 <a name="training"></a>
-<h3>Training Jobs</h3>
+<h3>Training Resources</h3>
 
 HTML;
 
@@ -91,7 +96,7 @@ retrieve_and_display("", "", $user_groups);
 echo <<<HTML
 
 <a name="unassigned"></a>
-<h3>Unassigned GNT Jobs</h3>
+<h3>Other GNT Jobs</h3>
 
 HTML;
 
@@ -132,7 +137,7 @@ if ($ghtml) {
 }
 
 
-echo "\n\n<h3>Unassigned Color SSN Jobs</h3>\n";
+echo "\n\n<h3>Other Color SSN Jobs</h3>\n";
 
 $html = "";
 foreach ($color_jobs_file as $id => $info) {
@@ -149,7 +154,7 @@ if ($html) {
 }
 
 
-echo "\n\n<h3>Unassigned CGFP Jobs</h3>\n";
+echo "\n\n<h3>Other CGFP Jobs</h3>\n";
 
 $html = "";
 foreach ($sb_jobs_file as $id => $info) {

@@ -336,7 +336,7 @@ class functions {
     public static function get_lengths_for_family($db_name, $db_config, $fam, $uniref_ver = "") {
         $db_name = "efi_201809";
         $anno_table = "annotations2";
-        $fam_field = preg_match("/^PF/", $fam) ? "PFAM" : "IPRO";
+        $fam_field = preg_match("/^PF/", $fam) ? "Pfam" : "IPRO";
 
         $sql = "";
         if ($uniref_ver) {
@@ -461,9 +461,6 @@ class functions {
     }
     public static function colorssn_enabled() {
         return __ENABLE_COLORSSN__;
-    }
-    public static function advanced_options_enabled() {
-        return defined("__ENABLE_ADVANCED_OPTIONS__") ? __ENABLE_ADVANCED_OPTIONS__ : false;
     }
 
     public static function get_uploads_dir() {

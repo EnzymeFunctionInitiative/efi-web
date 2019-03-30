@@ -1,7 +1,7 @@
 
 <h3>Quantify Results</h3>
 
-<div class="tutorial_figure">
+<div class="tutorial-figure">
 <img src="tutorial/step_e.png" width="100%" alt="Image of the identify results page." />
 </div>
 
@@ -156,7 +156,7 @@ abundances.
 The same display filters described for the Cluster Heatmap are available.
 </p>
 
-<div class="tutorial_figure">
+<div class="tutorial-figure">
 <img src="tutorial/step_e_heatmap.png" width="100%" alt="Image of the heatmap." />
 </div>
 

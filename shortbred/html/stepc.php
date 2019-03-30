@@ -55,7 +55,7 @@ if ($status == __FAILED__) {
     $ExtraTitle = "Computation Cancelled";
     $is_failed = true;
 } else {
-    $ExtraTitle = "Markers Computation Results for ID $id";
+    $ExtraTitle = "Markers Computation Results";
     $is_finished = true;
 }
 
@@ -121,23 +121,10 @@ $clusterSizesFileSize = $job->get_metadata_cluster_sizes_file_size();
 $swissProtClustersFileSize = $job->get_metadata_swissprot_clusters_file_size();
 $swissProtSinglesFileSize = $job->get_metadata_swissprot_singles_file_size();
 
-$dl_data = array();
-array_push($dl_data, array('ssn-c', "SSN with marker results", $job->get_output_ssn_file_size()));
-if ($ssnZipFileSize)
-    array_push($dl_data, array('ssn-c-zip', "SSN with marker results (ZIP)", $ssnZipFileSize));
-array_push($dl_data, array('markers', "ShortBRED marker data", $job->get_marker_file_size()));
-array_push($dl_data, array('cdhit', "CD-HIT ShortBRED families by cluster", $job->get_cdhit_file_size()));
-if ($clusterSizesFileSize)
-    array_push($dl_data, array('meta-cl-size', "Cluster sizes", $clusterSizesFileSize));
-if ($swissProtClustersFileSize)
-    array_push($dl_data, array('meta-sp-cl', "SwissProt annotations by cluster", $swissProtClustersFileSize));
-if ($swissProtSinglesFileSize)
-    array_push($dl_data, array('meta-sp-si', "SwissProt annotations by singletons", $swissProtSinglesFileSize));
-
 $table_string = $table->as_string();
 
 if (isset($_GET["as-table"])) {
-    $table_filename = "${identify_id}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_identify_settings.txt";
+    $table_filename = "${identify_id}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_identify_summary.txt";
     functions::send_table($table_filename, $table_string);
     exit(0);
 }
@@ -166,38 +153,36 @@ require_once "inc/header.inc.php";
 <p>The computation is still running.</p>
 <?php } else { ?>
 
-<h4>Job Name: <b><?php echo $job_name; ?></b></h4>
+<h4 class="job-display">Submitted SSN: <b><?php echo $job_name; ?></b></h4>
 
 <div class="tabs-efihdr tabs">
     <ul>
-        <li><a href="#info">Job Information</a></li>
-        <li><a href="#data">Marker Data</a></li>
-        <li class="ui-tabs-active"><a href="#mg">Metagenome Selection</a></li>
+        <li><a href="#info">Submission Summary</a></li>
+        <li><a href="#data">Identified Markers</a></li>
+        <li class="ui-tabs-active"><a href="#mg">Select Metagenomes for Marker Quantification</a></li>
         <li><a href="#filter">Resubmit SSN</a></li>
     </ul>
 
     <div>
         <div id="info">
+            <h4>Submission Summary Table</h4>
             <table class="pretty" style="border-top: 1px solid #aaa">
                 <tbody>
             <?php echo $table_string; ?>
                 </tbody>
             </table>
-            <!--<div style="display: flex; justify-content: flex-end"><a href="stepc.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Info</button></a></div>-->
-            <!--<div style="float:left"><button type="button" class="mini" id="job-stats-btn">Show Job Statistics</button></div>-->
-            <div style="float:right"><a href="stepc.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="mini">Download Information</button></a></div>
+            <div style="float:right"><a href="stepc.php?<?php echo $id_query_string; ?>&as-table=1"><button type="button" class="normal">Download Information</button></a></div>
             <div style="clear:both"></div>
 
             <?php
             if (count($q_jobs)) {
                 echo <<<HTML
-                <hr>
-                <h3>Existing Quantify Jobs</h3>
+                <h4>Existing Quantify Jobs</h4>
                 <ul>
 HTML;
-                foreach ($q_jobs as $job) {
-                    $qid = $job["quantify_id"];
-                    $status = $job["is_completed"];
+                foreach ($q_jobs as $q_job) {
+                    $qid = $q_job["quantify_id"];
+                    $status = $q_job["is_completed"];
                     if ($status) {
                         echo "<li><a href='stepe.php?id=$id&key=$key&quantify-id=$qid'>Quantify Job #$qid</a></li>";
                     } else {
@@ -213,27 +198,46 @@ HTML;
 
         
         <div id="data">
+            <p>
+            Markers that uniquely define clusters in the submitted SSN have been identified.
+            </p>
+            
+            <p>
+            Files detailing the identities of the markers and which sequences they represent are available for download.
+            </p>
+
+            <h4>SSN With Marker Identification Results</h4>
+            <p>
+            The SSN submitted has been edited to include the marker ID and type
+            and the number of markers that were identified.
+            </p>
+
             <table class="pretty">
-                <thead>
-                    <th></th>
-                    <th>File</th>
-                    <th>Size</th>
-                </thead>
+                <thead><th></th><th>File</th><th>Size</th></thead>
                 <tbody>
-            <?php
-            foreach ($dl_data as $dl_row) {
-                $type = $dl_row[0];
-                $desc = $dl_row[1];
-                $size = $dl_row[2] ? $dl_row[2] . " MB" : "--";
-                echo <<<HTML
-                    <tr>
-                        <td style='text-align:center;'><a href="download_files.php?type=$type&$id_query_string"><button class="mini">Download</button></a></td>
-                        <td>$desc</td>
-                        <td style='text-align:center;'>$size</td>
-                    </tr>
-HTML;
-            }
-            ?>
+                    <?php
+                        make_output_row($id_query_string,
+                            array("ssn-c", "ssn-c-zip"), array("Download", "Download (ZIP)"),
+                                "SSN with marker results", array($job->get_output_ssn_file_size(), $ssnZipFileSize));
+                    ?>
+                </tbody>
+            </table>
+
+            <h4>CGFP Family and Marker Data</h4>
+            <p>
+            The <b>CD-HIT ShortBRED families by cluster</b> file contains mappings of ShortBRED
+            families to SSN cluster number as well as a color that is assigned
+            to each unique ShortBRED family. The <b>ShortBRED marker data</b> file
+            lists the markers that were identified.
+            </p>
+
+            <table class="pretty">
+                <thead><th></th><th>File</th><th>Size</th></thead>
+                <tbody>
+                    <?php
+                        make_output_row($id_query_string, "cdhit", "Download", "CD-HIT ShortBRED families by cluster", $job->get_cdhit_file_size());
+                        make_output_row($id_query_string, "markers", "Download", "ShortBRED marker data", $job->get_marker_file_size());
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -246,9 +250,10 @@ HTML;
             <h4>Select Metagenomes from the Human Microbiome Project</h4>
             
             <p>
-            The next step in the process is quantifying the occurrence of the markers against a metagenome dataset.
+            The next step in the process is to quantify the occurrences of the previously-identified
+            markers against metagenome datasets.
             This tool currently provides access to metagenomes from the <a href="https://commonfund.nih.gov/hmp">NIH
-            Human Microbiome Project (HMP)</a> and HMP2 datasets.
+            Human Microbiome Project (HMP)</a>.
             </p>
             
             <form action="" id="quantify-params">
@@ -269,7 +274,7 @@ HTML;
             ?>
                 </ul>
             
-                <div class="tab-content tab-content-normal">
+                <div>
             <?php
                 $c = 0;
                 foreach ($mg_db_list as $mg_db_id) {
@@ -295,22 +300,36 @@ HTML;
             <?php if (settings::get_diamond_enabled()) { ?>
                 <div class="option-panels" style="margin-top: 20px">
                     <div>
-                        <h3>Database Search Options</h3>
+                        <h3>Marker Quantification Option</h3>
                         <div>
-                            Sequence search type:
-                            <select name="search_type" id="search_type"><option>USEARCH</option><option>DIAMOND</option></select>
+                            <span class="input-name">
+                                Search type:
+                            </span>
+                            <span class="input-field">
+                                <select name="search-type" id="search-type"><option>USEARCH</option><option>DIAMOND</option></select>
+                                (default: USEARCH)
+                            </span>
+                            <div class="input-desc">
+                                Select the algorithm for determining marker abundances in the selected metagenomes.
+                            </div>
                         </div>
                     </div>
                 </div>
             <?php } ?>
+
+            <p>
+            <span class="input-name">Job name:</span>
+            <span class="input-field"><input type="text" class="email" name="job-name" id="job-name" value=""></span> (Optional)
+            </p>
             
-            <p>&nbsp;</p>
+            <p>You will receive an e-mail when your network has been processed.</p>
+            
             <div id="error-message" style="color: red"></div>
-            
+
             <center>
             <?php if ($is_submittable) { ?>
             <button class="dark" type="button" name="submit" id="quantify-submit"
-                onclick="submitQuantify('quantify-params', '', 'search_type', 'error-message', '<?php echo $id; ?>', '<?php echo $key; ?>')">Quantify Markers</button>
+                onclick="submitQuantify('quantify-params', '', 'search-type', 'job-name', 'error-message', '<?php echo $id; ?>', '<?php echo $key; ?>')">Quantify Markers</button>
             <?php } else { // is submittable ?>
             <button class="dark" type="button" name="submit">Quantify Markers (inactive for training jobs)</button>
             <?php } ?>
@@ -325,20 +344,30 @@ HTML;
 
     <?php if ($user_email) { ?>
         <div id="filter">
+            <p class="p-heading">
+            Map previously-computed protein/cluster abundances per metagenome to a different Colored SSN.
+            </p>
+
             <p>
-            An SSN using the same EST job but with a different alignment score can be uploaded here.
+            The new SSN must have been generated using the same EFI-EST job as the original
+            SSN uploaded to EFI-CGFP, and segregated with a different alignment score and/or
+            is a subset of the initial clusters.
+            </p>
+
+            <p>
+            This eliminates the need to re-run the identify and quantify steps so the results
+            will be obtained in a much shorter period of time.
             </p>
             
             <form name="upload_form" id='upload_form' method="post" action="" enctype="multipart/form-data">
             <div class="primary-input">
-                <?php echo ui::make_upload_box("Select a File to Upload:", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", $SiteUrlPrefix); ?>
+                <?php echo ui::make_upload_box("SSN File:", "ssn_file", "progress_bar", "progress_number", "", $SiteUrlPrefix); ?>
                 <div>
-                    This will eliminate
-                    the need to re-run the Identify and Quantify steps and return a result quicker.  Submitting an SSN will
-                    create a new job in the ShortBRED website which will function independently of the original job but share the
-                    Identify and Quantify data.
+                    The accepted format is XGMML (or compressed XGMML as zip).
                 </div>
             </div>
+            
+            <p>You will receive an e-mail when your network has been processed.</p>
             
             <div id='ssn_message' style="color: red">
                 <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
@@ -361,6 +390,8 @@ HTML;
             </form>
         </div>            
     <?php   } ?>
+    </div>
+</div>
 <?php } ?>
 
 <div style="margin-top: 50px"></div>
@@ -385,28 +416,6 @@ $(document).ready(function() {
 HTML;
     }
 ?>
-
-/*
-    $('#hmp2mg_search').multiselect({
-        search: {
-            left: '<input type="text" name="ql" class="form-control" placeholder="Search..." />',
-            right: '<input type="text" name="qr" class="form-control" placeholder="Search..." />',
-        },
-        fireSearch: function(value) {
-            return value.length > 3;
-        }
-    });
-
-    $('#hmp2mt_search').multiselect({
-        search: {
-            left: '<input type="text" name="ql" class="form-control" placeholder="Search..." />',
-            right: '<input type="text" name="qr" class="form-control" placeholder="Search..." />',
-        },
-        fireSearch: function(value) {
-            return value.length > 3;
-        }
-    });
-*/
 
     $("#job-stats-btn").click(function() {
         $(".stats-row").toggle();
@@ -434,6 +443,7 @@ function output_mg_sel($prefix, $mg_list) {
     echo <<<HTML
 <div class="row">
     <div class="col-xs-5">
+        <b>Available metagenomes</b>:
         <select id="${prefix}_search" name="from[]" multiple="multiple" size="8">
 HTML;
 
@@ -445,6 +455,7 @@ HTML;
         </select>
     </div>
     <div class="col-xs-2" style="text-align:center;">
+        <div style="margin-top:45px"></div>
         <button type="button" id="${prefix}_search_rightAll" class="light btn-select"><i class="fas fa-angle-double-right"></i></button>
         <button type="button" id="${prefix}_search_rightSelected" class="light btn-select"><i class="fas fa-angle-right"></i></button>
         <button type="button" id="${prefix}_search_leftSelected" class="light btn-select"><i class="fas fa-angle-left"></i></button>
@@ -452,9 +463,41 @@ HTML;
     </div>
     
     <div class="col-xs-5">
+        <b>Metagenomes used for quantification</b>:
         <select name="to[]" id="${prefix}_search_to" class="form-control" size="8" multiple="multiple"></select>
     </div>
 </div>
+
+<div>
+<center>Use the arrow buttons to select metagenomes for quantification.</center>
+</div>
+HTML;
+}
+
+function make_output_row($id_query_string, $type, $btn_text, $desc, $size) {
+    $link_fn = function($arg, $btn_text) use($id_query_string) {
+        return "<a href='download_files.php?type=$arg&$id_query_string'><button class='mini'>$btn_text</button></a>\n";
+    };
+
+    $link_text = "";
+    $size_text = "";
+    if (is_array($type)) {
+        for ($i = 0; $i < count($type); $i++) {
+            $link_text .= $link_fn($type[$i], $btn_text[$i]);
+        }
+        if (isset($size))
+            $size_text = implode(" / ", array_map(function($size){return ($size ? "$size MB" : "--");}, $size));
+    } else {
+        $link_text = $link_fn($type, $btn_text);
+        $size_text = ($size ? "$size MB" : "--");
+    }
+
+    echo <<<HTML
+                    <tr>
+                        <td style='text-align:center;'>$link_text</td>
+                        <td>$desc</td>
+                        <td style='text-align:center;'>$size_text</td>
+                    </tr>
 HTML;
 }
 

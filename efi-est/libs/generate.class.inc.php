@@ -5,7 +5,7 @@ require_once('family_shared.class.inc.php');
 class generate extends family_shared {
 
     private $domain;
-    public $subject = "EFI-EST PFAM/Interpro";
+    public $subject = "EFI-EST Pfam/Interpro";
     
     public function __construct($db,$id = 0) {
         parent::__construct($db, $id);
@@ -42,7 +42,7 @@ class generate extends family_shared {
     protected function get_run_script_args($out) {
         $parms = parent::get_run_script_args($out);
         $parms["-domain"] = $this->get_domain();
-        if (functions::advanced_options_enabled()) // Dev site
+        if (global_settings::advanced_options_enabled()) // Dev site
             $parms["-force-domain"] = 1;
         return $parms;
     }
@@ -71,7 +71,7 @@ class generate extends family_shared {
 
     protected function get_email_job_info() {
         $message = parent::get_email_job_info();
-        $message .= "PFAM/Interpro Families: " . $this->get_families_comma() . PHP_EOL;
+        $message .= "Pfam/Interpro Families: " . $this->get_families_comma() . PHP_EOL;
         $message .= "E-Value: " . $this->get_evalue() . PHP_EOL;
         $message .= "Fraction: " . $this->get_fraction() . PHP_EOL;
         $message .= "Enable Domain: " . $this->get_domain() . PHP_EOL;

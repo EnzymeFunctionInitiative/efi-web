@@ -1,147 +1,28 @@
-/* HTML OBJECT STYLES */
 
-body {
-    background: #ececec url(../images/bodyBG.png) repeat-y center;
-    font-family: Arial, sans-serif;
-    color: #333;
-    margin: 0px;
-}
+/* Set colors */
 
-/* Set header fonts */
 h1 {
-    font-family: 'DINPro-bold', helvetica, sans-serif;
-}
-h2 {
-    font-family: 'DINPro-bold', helvetica, sans-serif;
-}
-h3 {
-    font-family: 'DINPro-bold', helvetica, sans-serif;
-}
-h4 {
-    font-family: 'DINPro-bold', helvetica, sans-serif;
-}
-
-h1 { 
     color:#7a0026;
-    text-transform:uppercase;
-    font-size: 240%;
-    margin:0px 0 4px 0;
-    border-bottom: none;
-    line-height: 110%;
-    font-weight: normal;
 }
 
-h2 {
-    color:#452e36;
-    font-weight: normal;
-    border-bottom: 1px solid #ccc;
-    font-size: 170%;
-    text-transform: uppercase;
-    padding: 2px;
-    margin: 10px 0px;
-}
-
-h3 {
-    font-size: 145%;
-    font-weight: normal;
-    margin: 20px 0px 3px 0px;
-}
-
-h4 {
-    font-size: 120%;
-    font-weight: normal;
-    margin: 10px 0px;
-}
-
-a:link, a:visited {
-    text-decoration: none;
-}
-
-h2.bold {
-    background: #58585a;
-    font-size: 175%;
-    padding: 4px;
-    color: #ebebeb;
-    font-family: 'DINPro-bold', helvetica, sans-serif;
-    font-weight: normal;
+h1.ruled {
+    border-bottom-color: #7a0026;
 }
 
 a, .ui-widget-content a {
     color: #7a0026;
-    font-weight: bold;
-}
-
-table td {
-    padding: 10px;
-}
-
-fieldset {
-    border-style: none;
-}
-
-form button {
-    margin-top: 15px;
-}
-
-form div {
-    margin-bottom: 15px;
-}
-
-/* CONTAINERS */
-
-.header {
-    background:url(../images/headerBG.png) top no-repeat; 
-    width: 100%; 
-    height: 128px; 
-    margin-bottom:4px;  
-}
-
-/* ELEMENTS */
-
-h1.ruled {
-    margin: 0 0 4px 0;
-    border-bottom: 10px #7a0026 solid;
-    line-height: 110%;
-    font-weight: lighter;
-}
-
-h3.darkbg {
-    background: #452e36;
-    font-size: 175%;
-    padding: 4px;
-    color: #ebebeb;
-    margin: 10px 0px;
-    text-transform: uppercase;
-}
-
-div.beta h4 {
-    color: red;
-    text-align: center;
-    font-weight: bold;
-        font-size: 135%;
-}
-
-.suggestions
-{
-    background: #eee;
-    padding: 5px;
-    font-size: 20px;
-    text-align: center;
-    margin: 10px 20px 30px 20px;
-    font-weight: bold;
 }
 
 .footer a:link, .footer a:visited {
     color: #7a0026;
 }
 
-.center {
-    text-align: center;
-}
 
-span.plot_header {
+/* EST-Specific Styles */
+
+span.plot-header {
     display: inline-block;
-    width: 250px;
+    width: 320px;
 }
 
 .family_count_btn {
@@ -160,125 +41,6 @@ span.plot_header {
     margin-bottom: 10px;
 }
 
-div.acpanel {
-    padding: 0 18px;
-    background-color: white;
-    max-height: 0;
-    overflow: hidden;
-//    transition: max-height 0.2s ease-out;
-}
-
-
-
-button.light {
-    border:1px solid #dcdcdc;
-    background:-webkit-gradient( linear, left top, left bottom, color-stop(27%, #f7f7f7), color-stop(78%, #dfdfdf) );
-    background:-moz-linear-gradient( center top, #f7f7f7 27%, #dfdfdf 78% );
-    background:-ms-linear-gradient( top, #f7f7f7 27%, #dfdfdf 78% );
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f7f7f7', endColorstr='#dfdfdf');
-    background-color:#f7f7f7;
-    color:#424242;
-    text-shadow:1px 1px 0px #ffffff;
-    -webkit-box-shadow:inset 1px 1px 0px 0px #ffffff;
-    -moz-box-shadow:inset 1px 1px 0px 0px #ffffff;
-    box-shadow:inset 1px 1px 0px 0px #ffffff;
-}
-button.light:hover {
-    background:-webkit-gradient( linear, left top, left bottom, color-stop(27%, #dfdfdf), color-stop(78%, #f7f7f7) );
-    background:-moz-linear-gradient( center top, #dfdfdf 27%, #f7f7f7 78% );
-    background:-ms-linear-gradient( top, #dfdfdf 27%, #f7f7f7 78% );
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#f7f7f7');
-    background-color:#dfdfdf;
-}
-
-button.dark {
-    border:1px solid #dcdcdc;
-    background:-webkit-gradient( linear, left top, left bottom, color-stop(27%, #000000), color-stop(78%, #333333) );
-    background:-moz-linear-gradient( center top, #000000 27%, #333333 78% );
-    background:-ms-linear-gradient( top, #000000 27%, #333333 78% );
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#333333');
-    background-color:#000000;
-    color:#eeeeee;
-}
-button.dark:hover {
-    background:-webkit-gradient( linear, left top, left bottom, color-stop(27%, #333333), color-stop(78%, #000000) );
-    background:-moz-linear-gradient( center top, #333333 27%, #000000 78% );
-    background:-ms-linear-gradient( top, #333333 27%, #000000 78% );
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#333333', endColorstr='#000000');
-    background-color:#333333;
-}
-
-td.button-col {
-    width: 25%;
-}
-
-table tr.deeper td {
-    padding: 10px;
-}
-
-textarea.options
-{
-    margin: auto;
-    padding: 10px;
-    width: 80%;
-    margin-bottom: 30px;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 110%;
-}
-
-.advanced-toggle {
-    font-weight: bold;
-    cursor: pointer;
-    margin-bottom: 10px;
-    margin-top: 20px;
-}
-
-.advanced-options {
-    margin-left: 20px;
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-
-.advanced-options div {
-    margin: 10px 0;
-}
-
-.advanced-input {
-    border: 2px lightgray dashed;
-}
-
-.tab-content {
-    min-height: 500px;
-}
-
-.create-job-options div {
-    margin-bottom: 10px;
-}
-
-.create-job-options table {
-    border: 0;
-}
-
-.create-job-options table td {
-    padding: 0 10px 10px 0;
-}
-
-#jobs table th.id-col {
-    width: 60px;
-}
-
-#jobs table th.type-col {
-    width: 200px;
-}
-
-#jobs table th.date-col {
-    width: 150px;
-}
-
-.initial-hidden {
-    display: none;
-}
-
 table.family {
     border-collapse: collapse;
 }
@@ -291,10 +53,6 @@ table.family th {
 table.family td {
     border-bottom: thin solid #ddd;
     padding: 5px;
-}
-
-td.right-align {
-    text-align: right;
 }
 
 table.attributes th
@@ -311,54 +69,6 @@ table.attributes tr td p
 table.attributes td {
     border-bottom: thin solid #eee;
     padding: 10px;
-}
-
-
-
-
-/* TUTORIAL */
-
-
-.tutorial_nav {
-    margin: 4px 6px 0 0;
-    float: left;
-    width: 25%;
-    text-transform: uppercase;
-}
-
-.tutorial_content {
-    margin-top: 4px;
-    float: left;
-    width: 74%;
-    padding-bottom: 10px;
-}
-
-.tutorial_nav li {
-    text-transform: uppercase;
-    list-style: none;
-    line-height: 120%;
-    margin-left: 0;
-    padding: 2px 0;
-    border-bottom: dotted #666 2px;
-}
-
-.tutorial_nav ul {
-    padding-left: 0;
-}
-
-.tutorial_nav ul ul {
-    padding-left: 20px;
-}
-
-
-
-
-.input-error {
-    color: red;
-}
-
-.input-warning {
-    color: orange;
 }
 
 

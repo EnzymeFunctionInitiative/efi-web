@@ -406,7 +406,7 @@ abstract class job_shared {
             if (isset($iparams["identify_max_seq_len"]))
                 $tab_data["max_seq_len"] = $iparams["identify_max_seq_len"];
 
-            $time_data = array("Time Started/Finished", functions::format_short_date($result[0]["time_started"]) . " -- " .
+            $time_data = array("Time Started -- Finished", functions::format_short_date($result[0]["time_started"]) . " -- " .
                                                         functions::format_short_date($result[0]["time_completed"]));
         }
 

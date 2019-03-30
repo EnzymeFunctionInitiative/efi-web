@@ -1,8 +1,8 @@
 <?php
 
-require_once 'stepa.class.inc.php';
-require_once 'input.class.inc.php';
-require_once 'output.class.inc.php';
+require_once('stepa.class.inc.php');
+require_once('input.class.inc.php');
+require_once('output.class.inc.php');
 
 abstract class option_base extends stepa {
 
