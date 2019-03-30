@@ -5,7 +5,7 @@
 
 <h2>EFI-EST and Cytoscape Tutorials</h2>
 
-<div class="tutorial_nav">
+<div class="tutorial-nav">
 <ul>
 	  <li><a href='index.php'>Options for Generating Sequence Similarity Networks</a></li>
           <li><a href="tutorial.php">What is a Sequence Similarity Network?</a></li>
@@ -35,5 +35,5 @@
 </ul>
 </div>
 
-<div class="tutorial_content">
+<div class="tutorial-content">
 

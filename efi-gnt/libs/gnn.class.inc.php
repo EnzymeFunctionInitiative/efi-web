@@ -1008,7 +1008,7 @@ class gnn extends gnn_shared {
                 array_push($metadata, array("Original EST Job Number", "$gid/$aid (<a href='../efi-est/stepc.php?id=$gid&key=$key' class='hl-est'>Original EST Dataset</a> | <a href='../efi-est/stepe.php?id=$gid&key=$key&analysis_id=$aid' class='hl-est'>Original SSN Download</a>)"));
             }
         }
-        array_push($metadata, array("Time Started/Finished", global_functions::format_short_date($this->time_started) . " -- " .
+        array_push($metadata, array("Time Started -- Finished", global_functions::format_short_date($this->time_started) . " -- " .
             global_functions::format_short_date($this->time_completed)));
         array_push($metadata, array("Uploaded Filename", $this->get_filename()));
         array_push($metadata, array("Neighborhood Size", $this->get_size()));

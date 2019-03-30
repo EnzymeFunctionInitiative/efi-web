@@ -67,6 +67,7 @@ if ($swissprotSinglesDescFile)
 
 
 $metadata = $obj->get_metadata();
+$job_name = $obj->get_uploaded_filename();
 
 foreach ($metadata as $row) {
     if (strpos($row[0], '<a href') !== false)
@@ -88,7 +89,7 @@ foreach ($metadata as $row) {
 $table_string = $table->as_string();
 
 if (isset($_GET["as-table"])) {
-    $table_filename = functions::safe_filename($baseSsnName) . "_settings.txt";
+    $table_filename = functions::safe_filename($baseSsnName) . "_summary.txt";
 
     header('Pragma: public');
     header('Expires: 0');
@@ -114,47 +115,61 @@ else {
 ?>	
 
 <h2>Download Colored SSN Files</h2>
-<p>&nbsp;</p>
 
-<h3>Network Information</h3>
-<table width="100%" class="pretty">
-<?php echo $table_string ?>
-</table>
-<div style="float:right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=" . $_GET['key'] . "&as-table=1" ?>'><button class='mini'>Download Information</button></a></div>
-<div style="clear:both;margin-bottom:20px"></div>
+<h3>Uploaded Filename: <?php echo $job_name; ?></h3>
 
-<hr>
-
-<h3>Data File Download</h3>
-<table width="100%" class="pretty">
-<?php
-   foreach ($fileInfo as $info) {
-       echo <<<HTML
-<tr>
-    <td>$info[0]</td>
+<div class="tabs-efihdr tabs">
+    <ul class="">
+        <li><a href="#info">Submission Overview</a></li>
+        <li class="ui-tabs-active"><a href="#data">Data File Download</a></li>
+    </ul>
+    <div>
+        <!-- JOB INFORMATION -->
+        <div id="info">
+            <h4>Submission Summary Table</h4>
+            <table width="100%" class="pretty">
+            <?php echo $table_string ?>
+            </table>
+            <div style="float:right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=" . $_GET['key'] . "&as-table=1" ?>'><button class='normal'>Download Information</button></a></div>
+            <div style="clear:both;margin-bottom:20px"></div>
+        </div>
+        <div id="data">
+            <h4>Colored SSN and Supplementary Files</h4>
+            <table width="100%" class="pretty">
+            <?php
+               foreach ($fileInfo as $info) {
+                   echo <<<HTML
+            <tr>
+                <td>$info[0]</td>
 HTML;
-       if (is_array($info[1])) {
-           $f1 = $info[1][0];
-           $f2 = $info[1][1];
-           echo <<<HTML
-    <td>
-        <a href="$f1"><button class='mini'>Download</button></a>
-        <a href="$f2"><button class='mini'>Download (ZIP)</button></a>
-    </td>
+                   if (is_array($info[1])) {
+                       $f1 = $info[1][0];
+                       $f2 = $info[1][1];
+                       echo <<<HTML
+                <td>
+                    <a href="$f1"><button class='mini'>Download</button></a>
+                    <a href="$f2"><button class='mini'>Download (ZIP)</button></a>
+                </td>
 HTML;
-       } else {
-           $text = substr($info[1], -4) == ".zip" ? "Download All (ZIP)" : "Download";
-           echo <<<HTML
-    <td><a href="$info[1]"><button class='mini'>$text</button></a></td>
+                   } else {
+                       $text = substr($info[1], -4) == ".zip" ? "Download All (ZIP)" : "Download";
+                       echo <<<HTML
+                <td><a href="$info[1]"><button class='mini'>$text</button></a></td>
 HTML;
-       }
-       echo "</tr>\n";
-   }
-?>
-</table>
-
-
+                   }
+                   echo "</tr>\n";
+               }
+            ?>
+            </table>
+        </div>
+    </div>
 </div>
+   
+<script>
+$(document).ready(function() {
+    $(".tabs").tabs();
+});
+</script>
 
 <?php
     

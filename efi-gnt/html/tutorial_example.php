@@ -5,8 +5,8 @@ require_once 'inc/header.inc.php';
 $webRoot = settings::get_web_root(); 
 ?>
 
-<div class="tutorial_nav">
-	<?php require_once('inc/tutorial_nav.php'); ?>
+<div class="tutorial-nav">
+	<?php require_once('inc/tutorial-nav.php'); ?>
 </div>
 
 <div class="tutorial_body">

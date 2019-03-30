@@ -139,7 +139,7 @@ class fasta extends family_shared {
         }
 
         if (count($this->get_families())) {
-            $message .= "PFAM/Interpro Families: ";
+            $message .= "Pfam/Interpro Families: ";
             $message .= $this->get_families_comma() . PHP_EOL;
         }
 

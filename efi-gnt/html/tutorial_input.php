@@ -4,8 +4,8 @@ require_once "../includes/main.inc.php";
 require_once 'inc/header.inc.php';
 ?>
 
-<div class="tutorial_nav">
-	<?php require_once('inc/tutorial_nav.php'); ?>
+<div class="tutorial-nav">
+	<?php require_once('inc/tutorial-nav.php'); ?>
 </div>
 
 <div class="tutorial_body">
@@ -149,7 +149,7 @@ genome neighborhoods are orthologous.  A concatenated file that contains all of
 the information is also available and may be more convenient for adding node 
 attributes to SSNs for multiple Pfam families.</li>
 
-<li>"Neighbors without PFAM assigned per Cluster" is a folder of tab-delimited 
+<li>"Neighbors without Pfam assigned per Cluster" is a folder of tab-delimited 
 text files for each SSN cluster that lists the accession IDs of neighbors not 
 assigned to Pfam families.  These files allow SSNs to be generated with Option 
 D of EFI-EST 2.0 so that protein families not curated by Pfam can be 

@@ -1,7 +1,7 @@
 
 <h3>"Run CGFP/ShortBRED" tab:  EFI-CGFP Input SSNs</h3>
 
-<div class="tutorial_figure">
+<div class="tutorial-figure">
 <img src="tutorial/step_a.png" width="100%" alt="Image of the input form." />
 </div>
 

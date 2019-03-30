@@ -32,7 +32,7 @@ if (isset($_GET["as-table"])) {
 }
 
 
-$ExtraTitle = "Quantify Results for Identify ID $identify_id / Quantify ID $qid";
+$ExtraTitle = "Quantify Results";
 $job_obj = new quantify($db, $qid);
 
 
@@ -43,7 +43,7 @@ require_once("inc/stepe_vars.inc.php");
 //     $filename
 
 if (isset($_GET["as-table"])) {
-    $table_filename = "${identify_id}_q${qid}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_settings.txt";
+    $table_filename = "${identify_id}_q${qid}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_summary.txt";
     functions::send_table($table_filename, $table_string);
     exit(0);
 }
@@ -59,7 +59,7 @@ include("inc/header.inc.php");
 <h2><?php echo $ExtraTitle; ?></h2>
 
 
-<h4>Job Name: <b><?php echo $job_name; ?></b></h4>
+<h4 class="job-display">Submitted SSN: <b><?php echo $job_name; ?></b></h4>
 
 <?php include("inc/stepe_body.inc.php"); ?>
 

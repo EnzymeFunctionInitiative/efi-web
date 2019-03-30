@@ -133,8 +133,8 @@ class blast extends family_shared {
         $message .= "E-Value: " . $this->blast_evalue . PHP_EOL;
         $fams = $this->get_families_comma();
         if ($fams) {
-            $message .= "PFAM/Interpro Families: " . $fams . PHP_EOL;
-            $message .= "PFAM/Interpro Families BLAST E-Value: " . $this->get_evalue() . PHP_EOL;
+            $message .= "Pfam/Interpro Families: " . $fams . PHP_EOL;
+            $message .= "Pfam/Interpro Families BLAST E-Value: " . $this->get_evalue() . PHP_EOL;
         }
         $message .= "Maximum Blast Sequences: " . $this->get_submitted_max_sequences() . PHP_EOL;
         //$message .= "Selected Program: " . $this->get_program() . PHP_EOL;

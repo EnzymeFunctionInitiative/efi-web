@@ -2,7 +2,7 @@
 <h3>Marker Quantification/Metagenome Abundance</h3>
 
 
-<div class="tutorial_figure">
+<div class="tutorial-figure">
 <img src="tutorial/step_c.png" width="100%" alt="Image of the identify results page." />
 </div>
 
@@ -76,7 +76,7 @@ The "Existing Quantify Jobs" button is provided to access the pages for the
 metagenome quantification jobs/results generated with the markers.
 </p>
 
-<div class="tutorial_figure">
+<div class="tutorial-figure">
 <img src="tutorial/step_c_upload.png" width="100%" alt="Image of the button for uploading new SSNs for the same identify results." />
 </div>
 
