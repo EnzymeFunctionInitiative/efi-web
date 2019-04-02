@@ -181,7 +181,6 @@ HTML;
                 <thead>
                     <th class="id-col">ID</th>
                     <th class="name-col">Job Name</th>
-                    <th class="type-col">Job Type</th>
                     <th class="date-col">Date Completed</th>
                 </thead>
                 <tbody>
@@ -202,8 +201,7 @@ for ($i = 0; $i < count($diagramJobs); $i++) {
     echo <<<HTML
                     <tr>
                         <td>$linkStart${id}$linkEnd</td>
-                        <td>$linkStart${name}$linkEnd</td>
-                        <td>$linkStart${jobType}$linkEnd</td>
+                        <td>$linkStart<span class='job-name'>$name</span><br><span class='job-metadata'>$jobType</span>$linkEnd</td>
                         <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="diagram" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
                     </tr>
 HTML;
