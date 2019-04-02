@@ -1,14 +1,14 @@
 <?php
-$TUTORIAL = true;
+$Tutorial = true;
 require_once "../includes/main.inc.php";
 require_once 'inc/header.inc.php';
 ?>
 
 <div class="tutorial-nav">
-	<?php require_once('inc/tutorial-nav.php'); ?>
+	<?php require_once('inc/tutorial_nav.php'); ?>
 </div>
 
-<div class="tutorial_body">
+<div class="tutorial-content">
 
 <h2>Advice, Limitations, and Caveats</h2>
 
@@ -205,11 +205,14 @@ RNAs is not reported.
 </p>
 
 
-</div>
+<center><a href='tutorial_example.php'><button class="light">Continue Tutorial</button></a></center>
 
-<div class="tutorial_next">
-<a href='tutorial_example.php'><button class="light">Continue Tutorial</button></a>
-</div>
+<?php include_once('inc/tutorial_footer.inc.php'); ?>
+
+</div> <!-- end of float -->
+
+<div style="clear: both"></div>
+
 
 <?php require_once('inc/footer.inc.php'); ?>
 
