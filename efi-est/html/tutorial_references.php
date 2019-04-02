@@ -18,7 +18,7 @@ include_once 'inc/tutorial_nav.inc.php';
 <p>6. <b>Enzyme Function Initiative-Enzyme Similarity Tool (EFI-EST): A web tool for generating protein sequence similarity networks. Gerlt JA, Bouvier JT, Davidson DB, Imker HJ, Sadkhin B, Slater DR, Whalen KL. (2015) Biochimica et Biophysica Acta (BBA) - Proteins and Proteomics 
 doi:10.1016/j.bbapap.2015.04.015</b></p>
         
-<?php require('inc/tutorial_footer.inc.php'); ?>
+<?php include_once('inc/tutorial_footer.inc.php'); ?>
 
-<?php include_once 'inc/footer.inc.php'; ?>
+<?php include_once('inc/footer.inc.php'); ?>
 
