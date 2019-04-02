@@ -1,6 +1,6 @@
 
 
-function HeatmapApp(paramData, progLoaderId) {
+function HeatmapApp(paramData, progLoaderId, useBoxplots) {
 
     this.progLoaderObj = $(progLoaderId);
 
@@ -43,6 +43,8 @@ function HeatmapApp(paramData, progLoaderId) {
         this.parms.Height = 700;
     
     this.bodySites = [];
+
+    this.useBoxplots = useBoxplots;
 }
 
 
@@ -402,50 +404,52 @@ HeatmapApp.prototype.processData = function(data) {
 
     Plotly.newPlot('plot', traces, layout, {toImageButtonOptions: {filename: exportFileName, width: 1425, height: 1050}});
 
-    var plotDiv = document.getElementById('plot');
-    plotDiv.on("plotly_click", function (data) {
-        if (!data || !data.points || data.points.length == 0)
-            return;
-        var point = data.points[0];
-        
-        var mg = point.x;
-        var mgIdx = point.pointIndex[1];
-        var clusterIdx = point.y - 1;
-        var clusterId = point.data.y[clusterIdx];
-        var mgType = bodysiteMgLabels[mgIdx];
-        
-        console.log(point);
-        
-        if (!(clusterIdx in point.data.z)) {
-            console.log("Not found: " + clusterId + "/" + clusterIdx + " " + mg + " " + mgType);
-            return;
-        }
-
-        var clusterData = point.data.z[clusterIdx];
-        console.log(clusterData);
-        var groupedData = [];
-        var groupMap = {};
-        var groupCount = 0;
-        for (var i = 0; i < clusterData.length; i++) {
-            var site = bodysiteMgLabels[i];
-            if (!(site in groupMap)) {
-                groupMap[site] = groupCount++;
-                groupedData.push({y: [], type: "box", name: site});
+    if (this.useBoxplots) {
+        var plotDiv = document.getElementById('plot');
+        plotDiv.on("plotly_click", function (data) {
+            if (!data || !data.points || data.points.length == 0)
+                return;
+            var point = data.points[0];
+            
+            var mg = point.x;
+            var mgIdx = point.pointIndex[1];
+            var clusterIdx = point.y - 1;
+            var clusterId = point.data.y[clusterIdx];
+            var mgType = bodysiteMgLabels[mgIdx];
+            
+            console.log(point);
+            
+            if (!(clusterIdx in point.data.z)) {
+                console.log("Not found: " + clusterId + "/" + clusterIdx + " " + mg + " " + mgType);
+                return;
             }
-            groupedData[groupMap[site]].y.push(clusterData[i]);
-        }
-
-        var layout = {
-            width: 550,
-            height: 550
-        };
-
-        console.log(groupedData);
-
-        Plotly.newPlot("boxplot-plot", groupedData, layout);
-        //$("#boxplot").data("data", groupedData);
-        $("#boxplot").dialog({minWidth: 600, minHeight: 600});
-    });
+    
+            var clusterData = point.data.z[clusterIdx];
+            console.log(clusterData);
+            var groupedData = [];
+            var groupMap = {};
+            var groupCount = 0;
+            for (var i = 0; i < clusterData.length; i++) {
+                var site = bodysiteMgLabels[i];
+                if (!(site in groupMap)) {
+                    groupMap[site] = groupCount++;
+                    groupedData.push({y: [], type: "box", name: site});
+                }
+                groupedData[groupMap[site]].y.push(clusterData[i]);
+            }
+    
+            var layout = {
+                width: 550,
+                height: 550
+            };
+    
+            console.log(groupedData);
+    
+            Plotly.newPlot("boxplot-plot", groupedData, layout);
+            //$("#boxplot").data("data", groupedData);
+            $("#boxplot").dialog({minWidth: 600, minHeight: 600});
+        });
+    }
 };
 
 
