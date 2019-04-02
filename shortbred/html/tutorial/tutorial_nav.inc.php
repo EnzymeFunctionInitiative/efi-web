@@ -6,6 +6,7 @@
 	<li><a href="tutorial_overview.php">Overview of Web Tool and Input Parameters</a></li>
 	<li><a href="tutorial_quantify.php">Marker Quantification</a></li>
     <li><a href="tutorial_results.php">Quantification and Marker Abundance Results</a></li>
+    <li><a href="tutorial_reading.php">Recommended Reading</a></li>
 </ul>
 </div>
 

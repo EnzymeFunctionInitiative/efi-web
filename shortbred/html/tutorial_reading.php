@@ -10,11 +10,8 @@ include("tutorial/tutorial_nav.inc.php");
 //include("tutorial/overview.inc.php");
 //include("tutorial/input.inc.php");
 //include("tutorial/quantify.inc.php");
-include("tutorial/results.inc.php");
-
-?>
-<center><a href="tutorial_reading.php"><button class="light">Continue Tutorial</button></a></center>
-<?php
+//include("tutorial/results.inc.php");
+include("tutorial/refs.inc.php");
 
 include("tutorial/tutorial_footer.inc.php");
 
