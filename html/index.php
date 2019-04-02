@@ -51,6 +51,12 @@ tools for functional assignment</b>, Current Opinion in Chemical Biology, Volume
 </p>
 
 <p>
+John A. Gerlt,
+<b>Genomic enzymology: Web tools for leveraging protein family sequence–function space and genome context to discover novel functions</b>,
+Biochemistry, 2017 - ACS Publications
+</p>
+
+<p>
 John A. Gerlt, Jason T. Bouvier, Daniel B. Davidson, Heidi J. Imker, Boris 
 Sadkhin, David R. Slater, Katie L. Whalen, <b>Enzyme Function Initiative-Enzyme 
 Similarity Tool (EFI-EST): A web tool for generating protein sequence 
