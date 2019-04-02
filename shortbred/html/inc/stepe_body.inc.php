@@ -99,7 +99,8 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
                         The <b><?php echo $html_labels["cdhit"]; ?></b> file contains mappings of ShortBRED
                         families to SSN cluster number as well as a color that is assigned to each unique
                         ShortBRED family.  The <b><?php echo $html_labels["markers"]; ?></b> file lists the markers
-                        that were identified.
+                        that were identified.  Finally, the <b><?php echo $html_labels["mg-info"]; ?></b> file
+                        provides available metadata associated with the selected metagenomes.
                         </p>
                         <table class="pretty">
                             <thead><th></th><th>File</th><th>Size</th></thead>
@@ -109,6 +110,8 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
                                     "Download", $size_data["cdhit"], $html_labels["cdhit"]);
                                 make_results_row($identify_only_id_query_string, $file_types["markers"],
                                     "Download", $size_data["markers"], $html_labels["markers"]);
+                                make_results_row($id_query_string, $file_types["mg-info"],
+                                    "Download", $size_data["mg-info"], $html_labels["mg-info"]);
                             ?>
                             </tbody>
                         </table>
