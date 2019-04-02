@@ -1,3 +1,7 @@
+<?php
+include(__DIR__ . "/../includes/main.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -75,7 +79,9 @@ $(document).ready(function() {
         CdHitSid: "<?php echo (isset($_GET["cdhit-sid"]) ? $_GET["cdhit-sid"] : ""); ?>",
     };
 
-    var app = new HeatmapApp(data, "#progress-loader");
+    var useBoxplots = <?php echo (global_settings::advanced_options_enabled() ? "true" : "false"); ?>;
+
+    var app = new HeatmapApp(data, "#progress-loader", useBoxplots);
 
     var bodySiteFn = function() {
         var bs = app.getBodySites();
