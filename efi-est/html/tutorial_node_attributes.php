@@ -505,6 +505,6 @@ Color SSN utility if Option C without FASTA header reading was used as input</a>
 <center><a href="tutorial_cytoscape.php"><button type='submit' class='light'>Continue Tutorial</button></a></center>
 
 
-<?php require('inc/tutorial_footer.inc.php'); ?>
+<?php include_once('inc/tutorial_footer.inc.php'); ?>
 
-<?php include_once 'inc/footer.inc.php'; ?>
+<?php include_once('inc/footer.inc.php'); ?>
