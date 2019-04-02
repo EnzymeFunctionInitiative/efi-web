@@ -146,7 +146,7 @@ the <a href="family_list.php">Family Information page</a>.
 
             <p>
             The input sequence is used as the query for a search of the UniProt database using BLAST.
-            Sequences that resemble the query in UniProt are retrieved.
+            Sequences that are similar to the query in UniProt are retrieved.
             <?php add_blast_calc_desc(); ?>
             </p>
 
@@ -427,7 +427,7 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="primary-input">
 <?php echo ui::make_upload_box("SSN File:", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
                     <div>
-                        A Cytoscape-edited SNN can serve as input for this utility.
+                        A Cytoscape-edited SNN can serve as input.
                         The accepted format is XGMML (or compressed XGMML as zip).
                     </div>
                 </div>
@@ -900,7 +900,7 @@ HTML;
             Family:
         </span><span class="input-field">
             <input type="text" name="accession-input-domain-family" id="accession-input-domain-family" style="width: 100px" disabled />
-            Use domain boundaries from the specified family (single entry).
+            Use domain boundaries from the specified family (enter only one family).
         </span>
     </div>
 HTML;
