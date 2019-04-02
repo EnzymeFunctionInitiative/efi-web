@@ -492,6 +492,8 @@ function show_jobs($jobs, $allow_cancel) {
         $name_style = "";
         $id_field = $id;
         $quantify_id = "";
+        $job_name = "";
+        $job_info = "";
     
         if ($jobs[$i]["is_quantify"]) {
             $quantify_id = $jobs[$i]["quantify_id"];
@@ -503,11 +505,14 @@ function show_jobs($jobs, $allow_cancel) {
                 $link_start = "<span $title_str>";
                 $link_end = "</span>";
             }
-            $name_style = "style=\"padding-left: 50px;\"";
+
             $par_text = "";
             if ($jobs[$i]["identify_parent_id"])
                 $par_text = "Identify " . $jobs[$i]["id"] . "-";
-            $name = "[${par_text}Quantify $quantify_id] " . $name;
+
+            $name_style = "style=\"padding-left: 50px;\"";
+            $job_name = $name;
+            $job_info = "[${par_text}Quantify $quantify_id]";
             $id_field = "";
         } else {
             $link_start = $is_finished ? "<a href=\"stepc.php?id=$id&key=$key\">" : "";
@@ -517,18 +522,17 @@ function show_jobs($jobs, $allow_cancel) {
             else
                 $last_bg_color = "#fff";
             if ($jobs[$i]["identify_parent_id"]) {
-                $name = "Child job of Identify " . $jobs[$i]["identify_parent_id"];
+                $job_name = "Child job of Identify " . $jobs[$i]["identify_parent_id"];
                 $date_completed = "PENDING";
+            } else {
+                $job_name = $name;
             }
         }
 
-        $extra = "";
         if ($search_type)
-            $extra .= "Search=$search_type";
+            $job_info .= " Search=$search_type";
         if ($ref_db)
-            $extra .= ($extra ? ", " : "") . "RefDB=$ref_db";
-        if ($extra)
-            $name = "$name ($extra)";
+            $job_info .= " RefDB=$ref_db";
 
         $job_action_code = "";
         if ($allow_cancel) {
@@ -549,7 +553,7 @@ function show_jobs($jobs, $allow_cancel) {
         echo <<<HTML
                     <tr style="background-color: $last_bg_color">
                         <td>$link_start${id_field}$link_end</td>
-                        <td $name_style>$link_start${name}$link_end</td>
+                        <td $name_style>$link_start<span class='job-name'>$job_name</span><br><span class='job-metadata'>$job_info</span>$link_end</td>
                         <td>$date_completed $job_action_code</td>
                     </tr>
 HTML;

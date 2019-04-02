@@ -132,7 +132,7 @@ class user_jobs extends user_auth {
                 continue;
 
             $comp_result = self::get_completed_date_label($row["generate_time_completed"], $row["generate_status"]);
-            $job_name = self::build_job_name($row["generate_params"], $row["generate_type"], $familyLookupFn);
+            $job_name = self::build_job_name($row["generate_params"], $row["generate_type"], $familyLookupFn, $row["generate_id"]);
             $comp = $comp_result[1];
             $is_completed = $comp_result[0];
             $id = $row["generate_id"];
@@ -184,15 +184,12 @@ class user_jobs extends user_auth {
                     $filter = $arow["analysis_filter"];
                     $filter = $filter == "eval" ? "AS" : ($filter == "pid" ? "%ID" : ($filter == "bit" ? "BS" : "custom"));
                     //$a_job_name = "$filter=" . $arow["analysis_evalue"] . " $a_min $a_max Title=<i>" . $arow["analysis_name"] . "</i>";
-                    $a_job_name = "SSN " . $arow["analysis_name"] . " (Threshold=" . $arow["analysis_evalue"];
-                    if ($a_min && $a_max)
-                        $a_job_name .= " $a_min $a_max)";
-                    elseif ($a_min)
-                        $a_job_name .= " $a_min)";
+                    $a_job_name = "<span class='job-name'>" . $arow["analysis_name"] . "</span><br><span class='job-metadata'>SSN Threshold=" . $arow["analysis_evalue"];
+                    if ($a_min)
+                        $a_job_name .= " $a_min";
                     elseif ($a_max)
-                        $a_job_name .= " $a_max)";
-                    else
-                        $a_job_name .= ")";
+                        $a_job_name .= " $a_max";
+                    $a_job_name .= "</span>";
 
                     $a_job = array("analysis_id" => $aid, "job_name" => $a_job_name, "is_completed" => $a_is_completed, "date_completed" => $acomp);
                     if (isset($child_color_jobs[$aid])) {
@@ -390,7 +387,7 @@ class user_jobs extends user_auth {
         return $info;
     }
 
-    private static function build_job_name($json, $type, $familyLookupFn) {
+    private static function build_job_name($json, $type, $familyLookupFn, $job_id = 0) {
         $data = functions::decode_object($json);
 
         $newFamilyLookupFn = function($family_id) use($familyLookupFn) {
@@ -409,7 +406,25 @@ class user_jobs extends user_auth {
         $maxHits = self::get_max_blast_hits($data);
         $jobNameField = isset($data["generate_job_name"]) ? $data["generate_job_name"] : "";
 
-        $info = array();
+        $job_name = "";
+        if ($jobNameField) {
+            $job_name = $jobNameField;
+        } else {
+            if ($type == "FAMILIES") {
+                $job_name = $families;
+                $families = ""; // do this so we don't add it in the metadata line below
+            } elseif ($type == "BLAST") {
+                $job_name = $sequence;
+                $sequence = "";
+            } else {
+                $job_name = $fileName;
+                $fileName = "";
+            }
+        }
+
+        $job_type = self::get_job_label($type);
+
+        $info = array($job_type);
         if ($fileName) array_push($info, $fileName);
         if ($families) array_push($info, $families);
         if ($evalue) array_push($info, $evalue);
@@ -419,19 +434,10 @@ class user_jobs extends user_auth {
         if ($sequence) array_push($info, $sequence);
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);
+
+        $job_info = implode("; ", $info);
         
-        $job_name = self::get_job_label($type);
-
-        $jobInfo = "";
-        if ($jobNameField) {
-            $jobInfo = $jobNameField;
-        } else {
-            $jobInfo = implode("; ", $info);
-        }
-
-        if ($jobInfo) {
-            $job_name .= " ($jobInfo)";
-        }
+        $job_name = "<span class='job-name'>$job_name</span><br><span class='job-metadata'>$job_info</span>";
 
         return $job_name;
     }

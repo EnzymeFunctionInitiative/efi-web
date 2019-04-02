@@ -98,7 +98,7 @@ class user_jobs extends user_auth {
             }
             $params = global_functions::decode_object($row["gnn_params"]);
             $filename = pathinfo($params["filename"], PATHINFO_BASENAME);
-            $jobName = $filename . " (Neighborhood Size=" . $params["neighborhood_size"] . " Co-occurrence=" . $params["cooccurrence"] . ")";
+            $jobName = "<span class='job-name'>$filename</span><br><span class='job-metadata'>Neighborhood Size=" . $params["neighborhood_size"] . " Co-occurrence=" . $params["cooccurrence"] . "</span>";
 
             $id = $row["gnn_id"];
             $jobInfo = array("id" => $id, "key" => $row["gnn_key"], "filename" => $jobName, "completed" => $comp, "is_child" => false);
