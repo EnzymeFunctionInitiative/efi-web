@@ -487,6 +487,13 @@ p.p-heading {
     font-weight: bold;
 }
 
+span.job-metadata {
+    font-weight: normal;
+}
+
+span.job-name {
+    font-weight: bold;
+}
 
 
 
