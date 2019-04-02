@@ -352,7 +352,9 @@ HTML;
         </div>
 
         <div id="tutorial" class="tab <?php if (!$show_previous_jobs) echo "active"; ?>">
-            <?php include("tutorial.inc.php"); ?>
+            <?php include("tutorial/intro.inc.php"); ?>
+
+            <center><a href="tutorial_overview.php"><button class="light">Continue Tutorial</button></a></center>
         </div>
 
         <div id="example" class="tab">
@@ -560,6 +562,9 @@ HTML;
     }
 }
 
+include_once("inc/refs.inc.php");
+
+echo "<hr>\n";
 
 require_once("inc/footer.inc.php");
 
