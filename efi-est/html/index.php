@@ -442,27 +442,31 @@ the <a href="family_list.php">Family Information page</a>.
             <h3>Overview of possible inputs for EFI-EST</h3>
             
             <p>
-            The EFI - ENZYME SIMILARITY TOOL (EFI-EST) is a webserver for the generation of 
-            SSNs. Four options for user-initiated generation of a SSN are available. In 
-            addition, a utility to enhance SSNs interpretation is available.
+            The EFI - Enzyme Similarity Tool (EFI-EST) is a service for the generation of SSNs.
+            Four options are available to generate SSNs.
+            A utility to enhance SSN interpretation is also available.
             </p>
             
             <ul>
                 <li><b>Sequence BLAST (Option A): Single sequence query</b>.  The provided sequence is used as 
                     the query for a BLAST search of the UniProt database. The retrieved sequences 
                     are used to generate the SSN.
-                    <p class="indentall">Option A allows the user to explore local sequence-function space for the query 
-                    sequence. Homologs are collected and used to generate the SSN. By default, 
-                    <?php echo functions::get_default_blast_seq(1); ?> sequences are collected
-                    as this number often allows a “full” SSN to be generated and viewed with Cytoscape.</p>
+                    <p class="indentall">Option A allows exploration of local sequence-function space for the query 
+                    sequence. By default, 
+                    <?php echo functions::get_default_blast_seq(1); ?> sequences are collected.
+                    This allows a small "full" SSN to be generated and viewed with Cytoscape.
+                    This for local high resolution SSNs.
+                    </p>
                 </li>
                 
                 <li><b>Families (Option B): Pfam and/or InterPro families; Pfam clans (superfamilies)</b>.
                     Defined protein families are used to generate the SSN.
                     <p class="indentall">
-                    Option B allows the user to explore sequence-function space from defined 
+                    Option B allows exploration of sequence-function space from defined 
                     protein families. A limit of <?php echo functions::get_max_seq(1); ?> 
                     sequences is imposed. Generation of a SSN for more than one family is allowed.
+                    Using UniRef90 and UniRef50 databases allows the creation of SSNs for very large
+                    Pfam and/or InterPro families, but at lower resolution.
                     </p>
                 </li>
                 
@@ -470,14 +474,12 @@ the <a href="family_list.php">Family Information page</a>.
                     A SSN is generated from a set of defined sequences.
                     
                     <p class="indentall">
-                    Option C allows the user to generate a SSN for a provided set of FASTA 
-                    formatted sequences. By default, the provided sequences cannot be associated 
+                    Option C allows generation of a SSN for a provided set of FASTA 
+                    formatted sequences. By default, EST cannot associate the provided sequences
                     with sequences in the UniProt database, and only two node attributes are 
-                    provided for the SSNs generated: the number of residues as the “Sequence 
-                    Length”, and the FASTA header as the “Description”. 
-                    </p>
-                    
-                    <p class="indentall">An option allows the FASTA headers to be read and if Uniprot or NCBI 
+                    provided for the SSNs generated: the number of residues as the "Sequence 
+                    Length", and the FASTA header as the "Description". 
+                    An option allows the FASTA headers to be read and if Uniprot or NCBI 
                     identifiers are recognized, the corresponding Uniprot information will be 
                     presented as node attributes.
                     </p>
@@ -488,12 +490,12 @@ the <a href="family_list.php">Family Information page</a>.
                     fetching the information from the corresponding databases.
                     
                     <p class="indentall">
-                    Option D allows the user to provide a list of UniProt IDs, NCBI IDs, and/or 
-                    NCBI GI numbers (now “retired”). UniProt IDs are used to retrieve sequences and 
+                    Option D allows for a list of UniProt IDs, NCBI IDs, and/or 
+                    NCBI GI numbers (now "retired"). UniProt IDs are used to retrieve sequences and 
                     annotation information from the UniProt database. When recognized, NCBI IDs and 
-                    GI numbers are used to retrieve the “equivalent” UniProt IDs and information. 
+                    GI numbers are used to retrieve the "equivalent" UniProt IDs and information. 
                     Sequences with NCBI IDs that cannot be recognized will not be included in the 
-                    SSN and a “nomatch” file listing these IDs is available for download.
+                    SSN and a "no match" file listing these IDs is available for download.
                     </p>
                 </li>
                 
@@ -502,8 +504,8 @@ the <a href="family_list.php">Family Information page</a>.
                     
                     <p class="indentall">
                     Independent clusters in the uploaded SSN are identified, numbered and colored. 
-                    Summary tables, sets of IDs and sequences for specific clusters and are 
-                    provided. A manually edited SNN can serve as input for this utility.
+                    Summary tables, sets of IDs and sequences per clusters are 
+                    provided. A Cytoscape-edited SNN can serve as input for this utility.
                     </p>
                 </li>
             </ul>
