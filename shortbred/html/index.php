@@ -352,9 +352,63 @@ HTML;
         </div>
 
         <div id="tutorial" class="tab <?php if (!$show_previous_jobs) echo "active"; ?>">
-            <?php include("tutorial/intro.inc.php"); ?>
 
-            <center><a href="tutorial_overview.php"><button class="light">Continue Tutorial</button></a></center>
+            <h3>Chemically-Guided Functional Profiling Overview</h3>
+            
+            <p>
+            Experimental assignment of functions to uncharacterized enzymes in predicted 
+            pathways is expensive and time-consuming. Therefore, targets that are 'worth 
+            the effort' must be selected. Balskus, Huttenhower and their coworkers 
+            described 'chemically guided functional profiling' (CGFP). CGFP identifies SSN 
+            clusters that are abundant in
+            <a href="https://www.sciencedirect.com/topics/biochemistry-genetics-and-molecular-biology/metagenome">metagenome</a>
+            datasets to prioritize targets for functional characterization.
+            </p>
+             
+            <h3>EFI-CGFP Acceptable Input</h3>
+            
+            <p>
+            The input for EFI-CGFP is a colored sequence similarity network (SSN).
+            To obtain SSNs compatible with EFI-CGFP analysis, users need to be familiar 
+            with both EFI-EST
+            (<a href="../efi-est/">https://efi.igb.illinois.edu/efi-est/</a>)
+            to generate SSNs for protein families, and Cytoscape
+            (<a href="http://www.cytoscape.org/">http://www.cytoscape.org/</a>) to visualize, 
+            analyze, and edit SSNs. Users should also be familiar with the EFI-GNT web tool 
+            (<a href="../efi-gnt/">https://efi.igb.illinois.edu/efi-gnt/</a>)
+            that colors SSNs, and collects, analyzes, and represents genome neighborhoods for bacterial and fungal 
+            sequences in SSN clusters.
+            </p>
+            
+            <h3>Principle of CGFP Analysis</h3>
+             
+            <p>
+            EFI-CGFP uses the ShortBRED software package developed by Huttenhower and 
+            colleagues in two successive steps: 1) <b>identify</b> sequence markers that are 
+            unique to members of families in the input SSN that are identified by ShortBRED 
+            and share 85% sequence identity using the CD-HIT algorithm (CD-HIT 85 clusters) 
+            and 2) <b>quantify</b> the marker abundances in metagenome datasets and then map these 
+            to the SSN clusters. 
+            </p>
+            
+            <h3>EFI-CGFP Output</h3>
+            
+            <p>
+            When the "Identify" step has been performed, several files are available. They 
+            include: a SSN enhanced with the markers that have been identified and their 
+            type as node attributes, additional files that describe the markers and
+            the ShortBRED families that were used to identify them.
+            </p>
+            
+            <p>
+            After the "quantify" step has been performed, heatmaps summarizing the 
+            quantification of metagenome hits per SSN clusters are available. Several 
+            additional files are provided: the SSN enhanced with metagenome hits 
+            that have been identified and quantification results given in abundance within
+            metagenomes, per protein and per cluster.
+            </p>
+
+            <center><a href="tutorial_intro.php"><button class="light">Continue Tutorial</button></a></center>
         </div>
 
         <div id="example" class="tab">
