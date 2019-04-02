@@ -562,7 +562,7 @@ HTML;
     }
 }
 
-include_once("inc/refs.inc.php");
+include_once("tutorial/refs.inc.php");
 
 echo "<hr>\n";
 
