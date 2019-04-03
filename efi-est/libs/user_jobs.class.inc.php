@@ -138,7 +138,7 @@ class user_jobs extends user_auth {
             $id = $row["generate_id"];
             $key = $row["generate_key"];
 
-            $params = functions::decode_object($row["generate_params"]);
+            $params = global_functions::decode_object($row["generate_params"]);
             if (isset($params["generate_color_ssn_source_id"]) && $params["generate_color_ssn_source_id"]) {
                 $aid = $params["generate_color_ssn_source_id"];
                 $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
