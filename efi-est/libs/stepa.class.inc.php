@@ -497,7 +497,7 @@ class stepa extends est_shared {
             elseif ($key == "generate_email")
                 $val = $email;
             elseif ($key == "generate_key")
-                $val = functions::generate_key();
+                $val = global_functions::generate_key();
             elseif ($key == "generate_time_created")
                 $val = "NULL";
             elseif ($key == "generate_time_started" || $key == "generate_time_completed")
@@ -567,13 +567,11 @@ class stepa extends est_shared {
     }
 
     protected function decode_object($json) {
-        //return json_decode($json, true);
-        return functions::decode_object($json);
+        return global_functions::decode_object($json);
     }
 
     protected function encode_object($obj) {
-        //return json_encode($obj);
-        return functions::encode_object($obj);
+        return global_functions::encode_object($obj);
     }
 
     protected function verify_email($email) {
@@ -624,12 +622,6 @@ class stepa extends est_shared {
 
     }
 
-    protected function generate_key() {
-        $key = uniqid (rand (),true);
-        $hash = sha1($key);
-        return $hash;
-
-    }
 
 //    public function shared_get_full_file_path($infix_type, $ext) {
 //        $filename = $this->get_file_prefix() . $infix_type . $ext;

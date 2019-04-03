@@ -629,24 +629,6 @@ class functions {
         return __CONVERGENCE_RATIO_FILENAME__;
     }
 
-    public static function decode_object($json) {
-        $data = json_decode($json, true);
-        if (!$data)
-            return array();
-        else
-            return $data;
-    }
-
-    public static function encode_object($obj) {
-        return json_encode($obj);
-    }
-
-    public static function generate_key() {
-        $key = uniqid(rand(), true);
-        $hash = sha1($key);
-        return $hash;
-    }
-
     public static function get_update_message() {
         $msg = 
             "The EST database has been updated to use UniProt " . 
