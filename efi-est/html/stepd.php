@@ -5,7 +5,7 @@ require_once("../../includes/login_check.inc.php");
 require_once 'inc/header.inc.php'; 
 
 ?>	
-	<h2 class="darkbg">Generating your Sequence Similarity Network</h2>
+	<h2>Generating your Sequence Similarity Network</h2>
 	<p>&nbsp;</p>
 	<p>An e-mail will be sent when your files are ready to be downloaded.</p>
 	<p>&nbsp;</p>

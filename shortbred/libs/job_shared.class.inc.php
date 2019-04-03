@@ -285,7 +285,7 @@ abstract class job_shared {
 
     private function send_email($subject, $plain_email, $full_url = "", $to = "") {
         if ($this->beta)
-            $plain_email = "Thank you for using the beta site of EFI-CGFP." . $this->eol . $plain_email;
+            $plain_email = "Thank you for using the EFI beta site." . $this->eol . $plain_email;
 
         if (!$to)
             $to = $this->get_email();
@@ -406,7 +406,7 @@ abstract class job_shared {
             if (isset($iparams["identify_max_seq_len"]))
                 $tab_data["max_seq_len"] = $iparams["identify_max_seq_len"];
 
-            $time_data = array("Time Started/Finished", functions::format_short_date($result[0]["time_started"]) . " -- " .
+            $time_data = array("Time Started -- Finished", functions::format_short_date($result[0]["time_started"]) . " -- " .
                                                         functions::format_short_date($result[0]["time_completed"]));
         }
 

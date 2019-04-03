@@ -1,3 +1,7 @@
+<?php
+include(__DIR__ . "/../includes/main.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -38,15 +42,24 @@
     <i id="progress-loader" class="fas fa-sync black fa-spin fa-4x fa-fw hidden-placeholder"></i>
 </div>
 
+<div id="boxplot" title="Box Plot" class="hidden">
+<div id="boxplot-plot"></div>
+</div>
+
 
 <script src="../js/jquery-3.2.1.min.js"></script>
+<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js"></script>
 <script src="../bs/js/bootstrap.min.js"></script>
 <script src="js/heatmap.js"></script>
 
 <script>
 $(document).ready(function() {
 
+    var width = <?php echo (isset($_GET["w"]) && is_numeric($_GET["w"])) ? $_GET["w"] : 950; ?>;
+    width = width > 1000 ? 1000 : width < 600 ? 600 : width;
+
     var data = {
+        Width: width,
 <?php if (isset($_GET["example"])) { ?>
         Example: true,
         Id: 0,
@@ -66,7 +79,9 @@ $(document).ready(function() {
         CdHitSid: "<?php echo (isset($_GET["cdhit-sid"]) ? $_GET["cdhit-sid"] : ""); ?>",
     };
 
-    var app = new HeatmapApp(data, "#progress-loader");
+    var useBoxplots = <?php echo (global_settings::advanced_options_enabled() ? "true" : "false"); ?>;
+
+    var app = new HeatmapApp(data, "#progress-loader", useBoxplots);
 
     var bodySiteFn = function() {
         var bs = app.getBodySites();

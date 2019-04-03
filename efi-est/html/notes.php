@@ -1,6 +1,6 @@
 <?php
 require_once "../includes/main.inc.php";
-require_once("../../includes/login_check.inc.php");
+require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
 
 require_once "inc/header.inc.php";
 
@@ -25,13 +25,13 @@ In order to speed up computation for large families, UniRef50 or UniRef90 can be
 number of sequences that are used to generate the SSNs.
 
 As an example, the full set of sequences in family PF05544 is 10,914 sequences, but if the user
-instructs the tool to use UniRef90, 4,198 UniRef90 seed sequences representing the entire set of
+instructs the tool to use UniRef90, 4,198 UniRef90 cluster ID sequences representing the entire set of
 sequences with a 90% sequence identity<sup>&dagger;</sup> will be used isntead.  Likewise, if
-UniRef50 is used, 552 seed sequences that represent the set of UniRef90 seed sequences with a 50%
+UniRef50 is used, 552 cluster ID sequences that represent the set of UniRef90 seed sequences with a 50%
 sequence identity<sup>&dagger;</sup> will
-be used in the computations.  The sequences that are represented by a seed sequence are listed
+be used in the computations.  The sequences represented by a cluster ID sequence are listed
 as a node attribute in the SSN.  To use UniRef, the user must select the "Use UniRef 50/UniRef 90
-seed sequences instead of the full family" option.
+cluster ID sequences instead of the full family" option.
 </p>
 
 <p>
@@ -105,9 +105,9 @@ a total of 99,261,416 entries:  98,705,220 in TrEMBL and 556,196 in SwissProt.
 <p>
 This database includes 16,712 Pfam families, 32,568 InterPro families, and 604 Pfam clans.   Lists of 
 the families/clans are available along with the number number of sequences (full and UniRef90) can be 
-accessed with the link below.  The reductions in the number of sequences when using UniRef90 seed sequences 
+accessed with the link below.  The reductions in the number of sequences when using UniRef90 cluster ID sequences
 are provided; the time required for the BLAST is decreased by the sequence of this reduction.  Use of 
-UniRef90 seed sequences also allows SSNs to be generated for larger families/clans (305,000 sequence 
+UniRef90 cluster ID sequences also allows SSNs to be generated for larger families/clans (305,000 sequence 
 limit).
 Tables of family sizes are available <a href="family_list.php">here</a>.
 </p>

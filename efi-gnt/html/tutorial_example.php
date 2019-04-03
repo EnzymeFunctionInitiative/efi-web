@@ -1,15 +1,15 @@
 <?php
-$TUTORIAL = true;
+$Tutorial = true;
 require_once "../includes/main.inc.php";
 require_once 'inc/header.inc.php';
 $webRoot = settings::get_web_root(); 
 ?>
 
-<div class="tutorial_nav">
+<div class="tutorial-nav">
 	<?php require_once('inc/tutorial_nav.php'); ?>
 </div>
 
-<div class="tutorial_body">
+<div class="tutorial-content">
 
 <h2>Example of Generating and Interpreting a GNN</h2>
 
@@ -320,9 +320,11 @@ multiple members of a neighbor Pfam family.</p>
 <p><i>Figure 10.</i> SSN for PF00171 (from Figure 9C) with the sequences associated with
 query-node distances &ge; 5 orfs colored blue.</p>
 
-</div>
+<?php include_once('inc/tutorial_footer.inc.php'); ?>
 
-<div class="tutorial_next"></div>
+</div> <!-- end of float -->
+
+<div style="clear: both"></div>
 
 <?php require_once('inc/footer.inc.php'); ?>
 

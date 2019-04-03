@@ -272,7 +272,7 @@ resources (such as <a href="http://www.physics.csbsju.edu/stats/box2.html">this 
 
 <center><a href="tutorial_download.php"><button type='submit' class='light'>Continue Tutorial</button></a></center>
 
-<?php require('inc/tutorial_footer.inc.php'); ?>
+<?php include_once('inc/tutorial_footer.inc.php'); ?>
 
-<?php include_once 'inc/footer.inc.php'; ?>
+<?php include_once('inc/footer.inc.php'); ?>
 

@@ -108,7 +108,8 @@ class job_manager {
             $info = "";
             //TODO: fix this hard coded schema stuff
             if ($table == "gnn") {
-                $info = substr($result["${table}_filename"], 0, 40);
+                $parms = global_functions::decode_object($result["${table}_params"]);
+                $info = substr($parms["filename"], 0, 40);
             } elseif ($table == "identify") {
                 $parms = global_functions::decode_object($result["${table}_params"]);
                 $info = substr($parms["${table}_filename"], 0, 40);
@@ -157,10 +158,10 @@ class job_manager {
         $col_time_created = "$dbn.gnn.gnn_time_created";
         $col_time_started = "$dbn.gnn.gnn_time_started";
         $col_time_completed = "$dbn.gnn.gnn_time_completed";
-        $col_filename = "$dbn.gnn.gnn_filename";
+        $col_params = "$dbn.gnn.gnn_params";
 
         $cols = implode(",", array($col_id, $col_key, $col_email, $col_status, $col_time_created,
-            $col_time_started, $col_time_completed, $col_filename));
+            $col_time_started, $col_time_completed, $col_params));
 
         $sql = "SELECT $cols FROM $dbn.gnn " . 
             "JOIN $auth_db.user_token ON $dbn.gnn.gnn_email = $auth_db.user_token.user_email " .
