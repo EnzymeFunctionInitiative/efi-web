@@ -1,9 +1,10 @@
 <?php
-require_once "../libs/user_jobs.class.inc.php";
-require_once "../../libs/ui.class.inc.php";
-require_once "../includes/main.inc.php";
+require_once("../libs/user_jobs.class.inc.php");
+require_once("../includes/main.inc.php");
+require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
+require_once("../libs/gnt_ui.class.inc.php");
 
-$userEmail = "Enter your e-mail address";
+$user_email = "Enter your e-mail address";
 
 $IsLoggedIn = false;
 $showPreviousJobs = false;
@@ -25,23 +26,16 @@ if (settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $trainingJobs = $userJobs->get_training_jobs();
     $jobEmail = $userJobs->get_email();
     if ($jobEmail)
-        $userEmail = $jobEmail;
+        $user_email = $jobEmail;
     $showPreviousJobs = count($gnnJobs) > 0 || count($diagramJobs) > 0 || count($trainingJobs) > 0;
-    if ($userEmail)
-        $IsLoggedIn = $userEmail;
+    if ($user_email)
+        $IsLoggedIn = $user_email;
     $IsAdminUser = $userJobs->is_admin();
 }
 
-$neighborhood = 10;
-$cooccurrence = 20;
-$neighbor_size_html = "";
-$default_neighbor_size = settings::get_default_neighbor_size();
-for ($i=3;$i<=20;$i++) {
-    if ($i == $default_neighbor_size)
-        $neighbor_size_html .= "<option value='" . $i . "' selected='selected'>" . $i . "</option>";
-    else
-        $neighbor_size_html .= "<option value='" . $i . "'>" . $i . "</option>";
-}
+$default_seq = settings::get_default_blast_seq();
+$max_seq = settings::get_max_blast_seq();
+$default_evalue = settings::get_default_evalue();
 
 
 $est_id = "";
@@ -68,11 +62,12 @@ if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])
     }
 }
 
-$db_modules = global_settings::get_database_modules();
+
+$use_advanced_options = global_settings::advanced_options_enabled();
 
 $updateMessage = 
-//    '<div class="new_feature"></div>' .
-    "The <a href=\"../efi-cgfp/\">Computationally-Guided Functional Profiling tool (EFI-CGFP)</a> is now available.<br><br>" .
+//    '<div class="new-feature"></div>' .
+    "The <a href='../efi-cgfp/' class='hl-cgfp'>Computationally-Guided Functional Profiling tool (EFI-CGFP)</a> is now available.<br>" .
     functions::get_update_message();
 
 require_once "inc/header.inc.php";
@@ -80,37 +75,60 @@ require_once "inc/header.inc.php";
 ?>
 
 
-<p></p>
 <p>
-The EFI-Genome Neighborhood Tool (EFI-GNT) allows the exploration of the physical association of genes on genomes, i.e. 
-gene clustering. EFI-GNT enables a user to retrieve, display, and interact with genome neighborhood information for 
-large datasets of sequences.
+EFI-GNT allows exploration of the genome neighborhoods for sequence similarity
+network (SSN) clusters in order to facilitate the 
+assignment of function within protein families and superfamilies.
 </p>
 
-<div id="update-message" class="update_message initial-hidden">
+<p>
+In <b>GNT Submission</b>, each sequence within a SSN is used as a query for interrogation of its genome neighborhood.
+A colored SSN identifying 
+clusters, Genome Neighborhood Networks (GNNs) providing statistical analysis of 
+neighboring Pfam families, Genome Neighborhood Diagrams (GNDs), sets of IDs and 
+sequences per cluster and additional files are created. For the <b>Retrieve
+Neighorhood Diagrams</b> option, only GNDs will be created.
+</p>
+
+
+<div id="update-message" class="update-message initial-hidden">
 <?php if (isset($updateMessage)) echo $updateMessage; ?>
 </div>
 
+<p>
 A listing of new features and other information pertaining to GNT is available on the <a href="notes.php">release notes page</a>. 
+</p>
 
-<div class="tabs">
+<div class="tabs-efihdr tabs">
     <ul class="tab-headers">
 <?php if ($showPreviousJobs) { ?>
-        <li <?php if (!$est_id) echo "class=\"active\""; ?>><a href="#jobs">Previous Jobs</a></li>
+        <li <?php if (!$est_id) echo "class=\"ui-tabs-active\""; ?>><a href="#jobs">Previous Jobs</a></li>
 <?php } ?>
-        <li <?php if ($est_id) echo "class=\"active\""; ?>><a href="#create">Create GNN</a></li>
+        <li <?php if ($est_id) echo "class=\"ui-tabs-active\""; ?>><a href="#create">GNT Submission</a></li>
+        <li><a href="#create-diagrams">Retrieve Neighborhood Diagrams</a></li>
         <li><a href="#diagrams">View Saved Diagrams</a></li>
-        <li><a href="#create-diagrams">Retrieve Neighborhoods</a></li>
         <li <?php if (! $showPreviousJobs) echo "class=\"active\""; ?>><a href="#tutorial">Tutorial</a></li>
     </ul>
 
     <div class="tab-content">
 <?php if ($showPreviousJobs) { ?>
         <div id="jobs" class="tab <?php echo $est_id ? "" : "active"; ?>">
-<?php } ?>
+<!--
+            <div style="margin-top: 10px">
+            <div style="float: right">
+                <a href="#gnd"><button class="mini"><i class="fas fa-angle-double-down"></i> Retrieve Neighborhood Jobs</button></a>
+                <a href="#training"><button class="mini"><i class="fas fa-angle-double-down"></i> Training Resources</button></a>
+            </div>
+            <div style="float: left">
+            <h4>GNT Jobs</h4>
+            </div>
+            <div style="clear: both"></div>
+            </div>
+-->
+
 <?php if (count($gnnJobs) > 0) { ?>
-            <h4>GNN Jobs</h4>
-            <table class="pretty_nested" style="table-layout:fixed">
+            <h4>GNT Jobs</h4>
+            <table class="pretty-nested" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>
@@ -157,12 +175,12 @@ HTML;
 <?php } ?>
             
 <?php if (count($diagramJobs) > 0) { ?>
-            <h4>Diagram Jobs</h4>
+            <a name="gnd"></a>
+            <h4>Retrieved Genomic Neighborhood Diagrams</h4>
             <table class="pretty" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th class="name-col">Job Name</th>
-                    <th class="type-col">Job Type</th>
                     <th class="date-col">Date Completed</th>
                 </thead>
                 <tbody>
@@ -183,8 +201,7 @@ for ($i = 0; $i < count($diagramJobs); $i++) {
     echo <<<HTML
                     <tr>
                         <td>$linkStart${id}$linkEnd</td>
-                        <td>$linkStart${name}$linkEnd</td>
-                        <td>$linkStart${jobType}$linkEnd</td>
+                        <td>$linkStart<span class='job-name'>$name</span><br><span class='job-metadata'>$jobType</span>$linkEnd</td>
                         <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="diagram" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
                     </tr>
 HTML;
@@ -197,8 +214,9 @@ HTML;
 
 
 <?php if (count($trainingJobs) > 0) { ?>
-            <h4>Training Jobs</h4>
-            <table class="pretty_nested" style="table-layout:fixed">
+            <a name="training"></a>
+            <h4>Training Resources</h4>
+            <table class="pretty-nested" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Filename</th>
@@ -232,7 +250,7 @@ for ($i = 0; $i < count($trainingJobs); $i++) {
     }
 
     if (array_key_exists("diagram", $trainingJobs[$i]))
-        $linkStart = "<a href=\"view_diagrams.php?upload-id=$id&key=$key\">";
+        $linkStart = "<a href='view_diagrams.php?upload-id=$id&key=$key'>";
 
     echo <<<HTML
                     <tr style="background-color: $lastBgColor">
@@ -250,124 +268,46 @@ HTML;
 
 
 
-<?php if ($showPreviousJobs) { ?>
         </div>
 <?php } ?>
 
-        <div id="create" class="tab <?php echo $est_id ? "active" : ""; ?>">
+        <div id="create" class="tab <?php echo $est_id ? "ui-tabs-active" : ""; ?>">
             <p>
-            <strong class="blue">Upload the Sequence Similarity Network (SSN) for which you want to create a Genome Neighborhood Network (GNN)</strong>
-            </p>
-    
-            <p>
-            The submitted SSN must have been generated using Option A, B, C with reading FASTA headers on, or D
-            of <a href='http://efi.igb.illinois.edu/efi-est'>EFI-EST <?php echo settings::get_est_version(); ?></a> (released 8/16/2017) to be interpreted.
-            <br>The SSNs generated with these Options can be modified in Cytoscape.
+            In a submitted SSN, each sequence is considered as a query. Information 
+            associated with protein encoding genes that are neighbors of input queries 
+            (within a defined window on either side) are collected from sequence files for 
+            bacterial (prokaryotic and archaeal) and fungal genomes in the European 
+            Nucleotide Archive (ENA) database.
+            The neighboring genes are sorted into 
+            neighbor Pfam families. For each cluster, the co-occurrence frequencies of the 
+            identified neighboring Pfam families with the input queries are calculated. 
             </p>
 
             <form name="upload_form" id="upload_form" method="post" action="" enctype="multipart/form-data">
-    
-                <p>
-                <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", "", $est_file_name); ?>
-                </p>
-    
-                <p>
-                <b>Neighborhood Size:</b>
-                <select name="neighbor_size" id="neighbor_size" class="bigger">
-                    <?php echo $neighbor_size_html; ?>
-                </select>
-                <br>
-                With a value of <?php echo $default_neighbor_size; ?>, the PFAM families for <?php echo $default_neighbor_size; ?>
-                genes located upstream and for <?php echo $default_neighbor_size; ?> genes <br>
-                located downstream of sequences in the SNN will be collected and displayed.<br>
-                The default value is  <?php echo $default_neighbor_size; ?>.
-                </p>
-
-<?php    if (count($db_modules) > 1) { ?>
-                <p>
-                Database version:
-<?php    make_db_mod_option($db_modules, "db_mod"); ?>
-                </p>
-<?php    } ?>
-    
-                <p>
-                    <label for="cooccurrence_input"><b>Co-occurrence percentage lower limit:</b></label>
-                    <input type="text" id="cooccurrence" name="cooccurrence" maxlength="3"><br>
-                    This option allows to filter the neighboring pFAMs with a co-occurrence <br>percentage lower than the set value. <br>
-                    The default value is  <?php echo settings::get_default_cooccurrence(); ?>, Valid values are 1-100.
-                </p>
-                <p>
-                    E-mail address: 
-                    <input name="ssn_email" id="ssn_email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
-                    When the file has been uploaded and processed, you will receive an e-mail containing a link
-                    to download the data.
-                </p>
-    
-                <div id="ssn_message" style="color: red">
-                    <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
+                <div class="primary-input">
+                <?php echo ui::make_upload_box("SSN File:", "ssn_file", "progress_bar", "progress_number", "", "", $est_file_name); ?>
+                    SSNs generated by EFI-EST are compatible with GNT analysis (with the exception 
+                    of SSNs from the FASTA sequences without the "Read FASTA header" option), even 
+                    when they have been modified in Cytoscape.
+                    The accepted format is XGMML (or compressed XGMML as zip).
                 </div>
-                <center>
-                    <div><button type="button" id="ssn_submit" name="ssn_submit" class="dark"
-<?php if ($est_id) {?>
-                            onclick="submitEstJob('upload_form','ssn_message','ssn_email','ssn_submit',<?php echo $submit_est_args; ?>)"
-<?php } else { ?>
-                            onclick="uploadSsn('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit')"
-<?php } ?>
-                            >
-                                Generate GNN
-                        </button></div>
-                    <div><progress id="progress_bar" max="100" value="0"></progress></div>
-                    <div id="progress_number"></div>
-                </center>
-
-<?php /* if ($est_id) {?>
-<input type="hidden" name="est-id" value="<?php echo $est_id; ?>">
-<input type="hidden" name="est-key" value="<?php echo $est_key; ?>">
-<input type="hidden" name="est-ssn" value="<?php echo $est_file_index; ?>">
-<?php } */ ?>
     
+                <?php gnt_ui::add_neighborhood_size_setting(false); ?>
+                <?php gnt_ui::add_cooccurrence_setting(false); ?>
+                <?php add_submit_button("gnn", "ssn_email", "ssn_message", "Generate GNN"); ?>
             </form>
         </div>
 
-        <div id="diagrams" class="tab">
-            <form name="upload_diagram_form" id="upload_diagram_form" method="post" action="" enctype="multipart/form-data">
-                <p>
-                    <?php echo ui::make_upload_box("<b>Select a File to Upload:</b><br>", "diagram_file", "progress_bar_diagram", "progress_number_diagram", "The acceptable format is sqlite."); ?>
-                </p>
-    
-                <p>
-                    E-mail address: 
-                    <input name="email" id="diagram_email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;"><br>
-                    When the file has been uploaded and processed, you will receive an e-mail containing a link
-                    to view the diagrams.
-                </p>
-    
-                <div id="diagram_message" style="color: red">
-                    <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
-                </div>
-                <center>
-                    <div><button type="button" id="diagram_submit" name="submit" class="dark"
-                                onclick="uploadDiagramFile('diagram_file','upload_diagram_form','progress_number_diagram','progress_bar_diagram','diagram_message','diagram_email','diagram_submit')">
-                            Upload Diagram Data</button>
-                    </div>
-                    <div><progress id="progress_bar_diagram" max="100" value="0"></progress></div>
-                    <div id="progress_number_diagram"></div>
-                </center>
-            </form> 
-        </div>
-
         <div id="create-diagrams" class="tab">
-            <div style="margin-bottom: 10px;">Clicking on the headers below provides access to various ways of generating genomic network diagrams.</div>
-            <div class="tabs">
+            <div style="margin-bottom: 10px;">Clicking on the headers below provides access to various ways of generating genomic neighborhood diagrams.</div>
+            <div class="tabs-efihdr tabs">
                 <ul class="tab-headers">
-                    <li class="active"><a href="#diagram-blast">Single Sequence BLAST</a></li>
+                    <li class="ui-tabs-active"><a href="#diagram-blast">Single Sequence BLAST</a></li>
                     <li><a href="#diagram-seqid">Sequence ID Lookup</a></li>
                     <li><a href="#diagram-fasta">FASTA Sequence Lookup</a></li>
                 </ul>
                 <div class="tab-content">
-<!--            <div id="create-accordion">-->
-<!--                <h3 class="high">Single Sequence BLAST</h3>-->
-                <div id="diagram-blast" class="tab active">
+                <div id="diagram-blast" class="tab ui-tabs-active">
                     <p>
                     The provided sequence is used as the query for a BLAST search of the UniProt database.
                     The retrieved sequences are used to generate genomic neighborhood diagrams. 
@@ -375,116 +315,43 @@ HTML;
 
                     <form name="create_diagrams" id="create_diagram_form" method="post" action="">
                         <input type="hidden" id="option-a-option" name="option" value="a">
-                        <textarea class="options" id="option-a-input" name="option-a-input"><?php
-                            if (isset($_POST["option-a-input"])) { echo $_POST["option-a-input"]; }
-                            ?></textarea>
+                        <textarea class="options" id="option-a-input" name="option-a-input"></textarea>
 
+                        <div class="option-panels">
+                            <div>
+                            </div>
+                        </div>
                         <div class="create-job-options">
                             <table>
-                                <tr>
-                                    <td>Optional job title:</td>
-                                    <td>
-                                        <input type="text" class="small" id="option-a-title" name="title" value="<?php
-                                                    if (isset($_POST["title"]))
-                                                        echo $_POST["title"];
-                                                    else
-                                                        echo "";
-                                            ?>">
-                                    </td>
-                                    <td></td>
-                                </tr>
-
-    
-                                <!--
-                                <div class="advanced-toggle">
-                                    Advanced Options <i class="fa fa-plus-square" aria-hidden="true"></i>
-                                </div>
-                                <div class="advanced-options">
-                                </div>
-                                -->
-                                <tr>
-                                    <td><label for="max-seqs">Maximum Blast Sequences:</label></td>
-                                    <td>
-                                        <input type="text" id="option-a-max-seqs" class="small" name="max-seqs" value="<?php
-                                                if (isset($_POST["max-seqs"])) {
-                                                    echo $_POST["max-seqs"];
-                                                } else {
-                                                    echo settings::get_default_blast_seq(); }
-                                                    ?>">
-                                   </td>
-                                   <td>
-                                        Maximum number of sequences retrieved (&le; <?php echo settings::get_max_blast_seq(); ?>;
-                                        default: <?php echo settings::get_default_blast_seq(); ?>)
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Neighborhood window size:</td>
-                                    <td>
-                                        <input type="text" id="option-a-nb-size" class="small" name="nb-size" value="<?php
-                                                if (isset($_POST["nb-size"])) {
-                                                    echo $_POST["nb-size"];
-                                                } else {
-                                                    echo settings::get_default_neighborhood_size(); }
-                                            ?>">
-                                    </td>
-                                    <td>
-                                        Number of neighbors to retrieve on either side of the query sequence for each BLAST result
-                                        (default: <?php echo settings::get_default_neighborhood_size(); ?>)
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>E-Value:</td>
-                                    <td>
-                                        <input type="text" class="small" id="option-a-evalue" name="evalue" value="<?php
-                                                if (isset($_POST["evalue"])) {
-                                                    echo $_POST["evalue"];
-                                                } else {
-                                                    echo settings::get_default_evalue(); }
-                                            ?>">
-                                    </td>
-                                    <td>
-                                        Negative log of e-value for all-by-all BLAST (&ge; 1; default:
-                                        <?php echo settings::get_default_evalue(); ?>)
-                                    </td>
-                                </tr>
-<?php    if (count($db_modules) > 1) { ?>
-                                <tr>
-                                    <td>Database version:</td>
-                                    <td>
-<?php    make_db_mod_option($db_modules, "option-a-db-mod"); ?>
-                                    </td>
-                                    <td>
-                                    </td>
-                                </tr>
-<?php    } ?>
+<?php add_job_title_option("option-a-title"); ?>
+                            <tr>
+                                <td><b><label for="max-seqs">Maximum Blast Sequences:</label></b></td>
+                                <td>
+                                     <input type="text" id="option-a-max-seqs" class="small" name="max-seqs" value="<?php echo $default_seq; ?>">
+                                </td>
+                                <td>
+                                    Maximum number of sequences retrieved (&le; <?php echo $max_seq; ?>;
+                                    default: <?php echo $default_seq; ?>)
+                                </td>
+                            </tr>
+                            <tr>
+                                 <td><b>E-Value:</b></td>
+                                 <td>
+                                     <input type="text" class="small" id="option-a-evalue" name="evalue" value="<?php echo $default_evalue; ?>">
+                                 </td>
+                                 <td>
+                                     Negative log of e-value for all-by-all BLAST (&ge; 1; default: <?php echo $default_evalue; ?>)
+                                 </td>
+                            </tr>
+<?php add_window_option("option-a-nb-size"); ?>
+<?php add_database_option("option-a-db-mod"); ?>
                             </table>
-
-                            <div>
-                                E-mail address:
-                                <input name="email" id="option-a-email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
-                            </div>
-                            <div>
-                                When the file has been uploaded and processed, you will receive an e-mail containing a link
-                                to view the diagrams.
-                            </div>
-                        </div>
-    
-                        <div id="option-a-message" style="color: red">
-                            <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
                         </div>
 
-                        <center>
-                            <button type="button" class="dark"
-                                            onclick="submitOptionAForm('create_diagram.php', 'option-a-option', 'option-a-input',
-                                                                       'option-a-title', 'option-a-evalue', 'option-a-max-seqs',
-                                                                       'option-a-email', 'option-a-nb-size', 'option-a-message',
-                                                                       'option-a-db-mod');"
-                                >Submit</button>
-                        </center>
+                        <?php add_submit_button("diagram_blast", "option-a-email", "option-a-message", "Submit"); ?>
                     </form>
                 </div>
 
-<!--                <h3 class="high">Sequence ID Lookup</h3>-->
                 <div id="diagram-seqid" class="tab">
                     <p>
                     The genomic neighborhoods are retreived for the UniProt, NCBI, EMBL-EBI ENA, and PDB identifiers
@@ -494,86 +361,27 @@ HTML;
 
                     <form name="create_diagrams" id="create_diagram_form" method="post" action="create_diagram.php">
                         <input type="hidden" id="option-d-option" name="option" value="d">
-                        <textarea class="options" id="option-d-input" name="input"><?php
-                            if (isset($_POST["input"])) { echo $_POST["input"]; }
-                            ?></textarea>
+                        <textarea class="options" id="option-d-input" name="input"></textarea>
 
                         <div style="margin-bottom: 20px">
                             <?php echo ui::make_upload_box(
-                                        "Alternatively, a file containing a list of IDs can be uploaded:<br>",
+                                        "Alternatively, a file containing a list of IDs can be uploaded:",
                                         "option-d-file", "option-d-progress-bar", "option-d-progress-number",
                                         "The acceptable format is text."); ?>
                         </div>
 
                         <div class="create-job-options">
                             <table>
-                                <tr>
-                                    <td>Optional job title:</td>
-                                    <td>
-                                        <input type="text" class="small" id="option-d-title" name="title" value="<?php
-                                                    if (isset($_POST["title"]))
-                                                        echo $_POST["title"];
-                                                    else
-                                                        echo "";
-                                            ?>">
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>Neighborhood window size:</td>
-                                    <td>
-                                        <input type="text" id="option-d-nb-size" class="small" name="nb-size" value="<?php
-                                                if (isset($_POST["nb-size"])) {
-                                                    echo $_POST["nb-size"];
-                                                } else {
-                                                    echo settings::get_default_neighborhood_size(); }
-                                            ?>">
-                                    </td>
-                                    <td>
-                                        Number of neighbors to retrieve on either side of the query sequence for each BLAST result
-                                        (default: <?php echo settings::get_default_neighborhood_size(); ?>)
-                                    </td>
-                                </tr>
-<?php    if (count($db_modules) > 1) { ?>
-                                <tr>
-                                    <td>Database version:</td>
-                                    <td>
-<?php    make_db_mod_option($db_modules, "option-d-db-mod"); ?>
-                                    </td>
-                                    <td>
-                                    </td>
-                                </tr>
-<?php    } ?>
+<?php add_job_title_option("option-d-title"); ?>
+<?php add_window_option("option-d-nb-size"); ?>
+<?php add_database_option("option-d-db-mod"); ?>
                             </table>
-
-                            <div>
-                                E-mail address:
-                                <input name="email" id="option-d-email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
-                            </div>
-                            <div>
-                                When the file has been uploaded and processed, you will receive an e-mail containing a link
-                                to view the diagrams.
-                            </div>
                         </div>
     
-                        <div id="option-d-message" style="color: red">
-                            <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
-                        </div>
-
-                        <center>
-                            <button type="button" class="dark"
-                                            onclick="submitOptionDForm('create_diagram.php', 'option-d-option', 'option-d-input',
-                                                'option-d-title', 'option-d-email', 'option-d-nb-size', 'option-d-file',
-                                                'option-d-progress-number', 'option-d-progress-bar', 'option-d-message',
-                                                'option-d-db-mod');"
-                                >Submit</button>
-                            <div><progress id="option-d-progress-bar" max="100" value="0"></progress></div>
-                            <div id="option-d-progress-number"></div>
-                        </center>
+                        <?php add_submit_button("diagram_id", "option-d-email", "option-d-message", "Submit"); ?>
                     </form>
                 </div>
 
-<!--                <h3 class="high">FASTA Sequence Lookup</h3>-->
                 <div id="diagram-fasta" class="tab">
                     <p>
                     The genomic neighborhoods are retreived for the UniProt, NCBI, EMBL-EBI ENA, and PDB identifiers
@@ -583,155 +391,133 @@ HTML;
 
                     <form name="create_diagrams" id="create_diagram_form" method="post" action="create_diagram.php">
                         <input type="hidden" id="option-c-option" name="option" value="c">
-                        <textarea class="options" id="option-c-input" name="input"><?php
-                            if (isset($_POST["input"])) { echo $_POST["input"]; }
-                            ?></textarea>
+                        <textarea class="options" id="option-c-input" name="input"></textarea>
 
                         <div style="margin-bottom: 20px">
                             <?php echo ui::make_upload_box(
-                                        "Alternatively, a file containing FASTA headers and sequences can be uploaded:<br>",
+                                        "Alternatively, a file containing FASTA headers and sequences can be uploaded:",
                                         "option-c-file", "option-c-progress-bar", "option-c-progress-number",
                                         "The acceptable format is text."); ?>
                         </div>
 
                         <div class="create-job-options">
                             <table>
-                                <tr>
-                                    <td>Optional job title:</td>
-                                    <td>
-                                        <input type="text" class="small" id="option-c-title" name="title" value="<?php
-                                                    if (isset($_POST["title"]))
-                                                        echo $_POST["title"];
-                                                    else
-                                                        echo "";
-                                            ?>">
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>Neighborhood window size:</td>
-                                    <td>
-                                        <input type="text" id="option-c-nb-size" class="small" name="nb-size" value="<?php
-                                                if (isset($_POST["nb-size"])) {
-                                                    echo $_POST["nb-size"];
-                                                } else {
-                                                    echo settings::get_default_neighborhood_size(); }
-                                            ?>">
-                                    </td>
-                                    <td>
-                                        Number of neighbors to retrieve on either side of the query sequence for each BLAST result
-                                        (default: <?php echo settings::get_default_neighborhood_size(); ?>)
-                                    </td>
-                                </tr>
-<?php    if (count($db_modules) > 1) { ?>
-                                <tr>
-                                    <td>Database version:</td>
-                                    <td>
-<?php    make_db_mod_option($db_modules, "option-c-db-mod"); ?>
-                                    </td>
-                                    <td>
-                                    </td>
-                                </tr>
-<?php    } ?>
+<?php add_job_title_option("option-c-title"); ?>
+<?php add_window_option("option-c-nb-size"); ?>
+<?php add_database_option("option-c-db-mod"); ?>
                             </table>
-
-                            <div>
-                                E-mail address:
-                                <input name="email" id="option-c-email" type="text" value="<?php echo $userEmail; ?>" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
-                            </div>
-                            <div>
-                                When the file has been uploaded and processed, you will receive an e-mail containing a link
-                                to view the diagrams.
-                            </div>
                         </div>
     
-                        <div id="option-c-message" style="color: red">
-                            <?php if (isset($message)) { echo "<h4 class='center'>" . $message . "</h4>"; } ?>
-                        </div>
-
-                        <center>
-                            <button type="button" class="dark"
-                                            onclick="submitOptionCForm('create_diagram.php', 'option-c-option', 'option-c-input',
-                                                'option-c-title', 'option-c-email', 'option-c-nb-size', 'option-c-file',
-                                                'option-c-progress-number', 'option-c-progress-bar', 'option-c-message',
-                                                'option-c-db-mod');"
-                                >Submit</button>
-                            <div><progress id="option-c-progress-bar" max="100" value="0"></progress></div>
-                            <div id="option-c-progress-number"></div>
-                        </center>
+                        <?php add_submit_button("diagram_fasta", "option-c-email", "option-c-message", "Submit"); ?>
                     </form>
                 </div>
                 </div><!-- class="tab-content" -->
             </div>
         </div>
 
-        <div id="tutorial" class="tab <?php if (!$showPreviousJobs) echo "active"; ?>">
+        <div id="diagrams" class="tab">
+            <form name="upload_diagram_form" id="upload_diagram_form" method="post" action="" enctype="multipart/form-data">
+                <p>
+                <b>Upload a saved diagram data file for visualization.</b>
+
+                </p>
+
+                <p>
+                    <?php echo ui::make_upload_box("Select a File to Upload:", "diagram_file", "progress_bar_diagram", "progress_number_diagram", "The acceptable format is sqlite."); ?>
+                </p>
+    
+                <?php add_submit_button("diagram_upload", "diagram_email", "diagram_message", "Upload Diagram Data"); ?>
+            </form> 
+        </div>
+
+        <div id="tutorial" class="tab <?php if (!$showPreviousJobs) echo "ui-tabs-active"; ?>">
             <h3>EFI-Genome Neighborhood Tool Overview</h3>
     
             <p>
-            Although other tools allow comparison of gene neighborhoods among multiple prokaryotic genomes to allow inference of 
-            phylogenetic relationships, e.g., IMG (<a href="https://img.jgi.doe.gov" target="_blank">https://img.jgi.doe.gov</a>)
-            and  PATRIC (<a href="https://www.patricbrc.org" target="_blank">https://www.patricbrc.org</a>), EFI-GNT enables 
-            comparison of the genome neighborhoods for clusters of similar protein sequences in order to facilitate the assignment 
-            of function within protein families and superfamilies.
-            </p>
-    
-            <p>
-            EFI-GNT is focused on placing protein families and superfamilies into a context. A sequence similarity network (SSN) 
-            with defined protein clusters is used as an input. Each sequence within a SSN is used as a query for interrogation of 
+            The EFI-GNT (EFI Genome Neighborhood Tool)
+            is focused on placing protein families and superfamilies into a genomic context. A sequence similarity network (SSN) 
+            is used as an input. Each sequence within a SSN is used as a query for interrogation of 
             its genome neighborhood.
             </p>
     
-            <h3>EFI-GNT acceptable input</h3>
-    
             <p>
-            The sequence datasets are generated from an SSN produced by the EFI-Enzyme Similarity Tool (EFI-EST). Acceptable 
-            SSNs are generated for an entire Pfam and/or InterPro protein family (from Option B of EFI-EST), a focused region of a 
-            family (from Option A of EFI-EST), a set of protein sequence that can be identified from FASTA headers (from option C of 
-            EFI-EST with header reading) or a list of recognizable UniProt and/or NCBI IDs (from option D of EFI-EST). A manually 
-            modified SSN within Cytoscape that originated from any of the EST options is also acceptable. SSNs that have been 
-            colored using the "Color SSN Utility" of EFI-EST and that originated from any of acceptable Options are also acceptable.
+            EFI-GNT enables 
+            exploration of the genome neighborhoods for sequences in SSN clusters 
+            in order to facilitate their assignment of function.
             </p>
     
-            <h3>Principle of GNT analysis</h3>
+            <h3>EFI-GNT Acceptable Input</h3>
     
             <p>
-            Protein encoding genes that are neighbors of input queries (within a defined window on either side) are collected from 
-            sequence files for bacterial (prokaryotic and archaeal) and fungal genomes in the European Nucleotide Archive (ENA) 
-            database. The co-occurrence frequencies of the identified neighboring sequences with the input queries are calculated as 
-            well as the absolute values of the distances in open reading frames (orfs) between the queries and neighbors. The 
-            calculated information is provided as Genome Neighborhood Networks (GNNs), in addition to a colored version of the input 
-            SSN that aids analysis of the GNNs.
+            EFI-GNT is compatible with SSN generated by the EFI-Enzyme Similarity Tool
+            (EFI-EST). Acceptable SSNs are generated for an entire Pfam and/or InterPro
+            protein family (EFI-EST option B), a focused region of a family (option A), a
+            set of protein sequence that can be identified from FASTA headers (from option
+            C with “Header Reading” activated) or a list of recognizable UniProt and/or
+            NCBI IDs (from option D). SSNs manually modified within Cytoscape are accepted.
+            SSNs that have been colored using the "Color SSN Utility" are also accepted.
+            SSNs generated from FASTA sequences (option C) without the "Read Header" option
+            activated are not accepted.
             </p>
     
-            <h3>EFI-GNT output</h3>
+            <h3>Principle of GNT Analysis</h3>
+            <p>
+            EFI-GNT provides statistical analysis, per SSN cluster, of genome context
+            for bacterial, archeal and fungal sequences, in order to identify possible
+            functional linkage. Sequences from the SSN analyzed are used as query for
+            retrieval of their genome neighborhood. The user specifies the neighborhood
+            size (&plusmn;N orfs from the SSN query) and minimum query-neighbor co-occurrence
+            frequency for the outputs. 
+            </p>
+
+            <h3>EFI-GNT Output</h3>
     
             <p>
-            EFI-GNT generates two formats of the Genome Neighborhood Network (GNN) as well as a colored version of the input SSN 
-            that aids analysis of the GNNs.
-            </p>
-    
+            EFI-GNT identifies each SSN cluster and assigns it a unique color. A colored SSN is
+            produced. It then interrogates the European
+            <a href="https://www.sciencedirect.com/topics/chemistry/nucleotide">Nucleotide</a>
+            Archive (ENA; <a href="https://www.ebi.ac.uk/ena">https://www.ebi.ac.uk/ena</a>)
+            to obtain the genome contexts of each sequence,
+            sorts neighbors into Pfam families, and provides three specific outputs.
+            Firstly, a GNN network in which each SSN cluster is a hub node with its spoke
+            nodes identified neighboring Pfam families (for identifying candidates for
+            pathway enzymes); secondly, a GNN network in which each neighbor Pfam family is
+            a hub node with its spoke nodes that SSN clusters that identify this Pfam as a
+            neighbor (for identifying divergent clusters that are orthologues); and
+            thirdly, genome neighborhood diagrams (GNDs) for visual representations of the
+            neighborhoods for the sequences in each SSN cluster (for visual inspection of
+            <a href="https://www.sciencedirect.com/topics/biochemistry-genetics-and-molecular-biology/synteny">synteny</a>
+            and the presence/absence of functionally linked proteins).
+            
+            <h3>Direct Genomic Neighborhood Diagrams (GND) Generation</h3>
             <p>
-            The UniProt accession IDs for the queries and the neighbors, the Pfam families for the neighbors, and both the 
-            query-neighbor distances (in orfs) and co-occurrence frequencies are provided in the GNNs. The GNNs and colored SSN are 
-            downloaded, visualized, and analyzed using Cytoscape.
+            The "Retrieve neighborhood diagrams" allows exploring of neighboring genes for
+            specific queries. You can submit a single sequence that is used as the query
+            for a BLAST search of the UniProt database. The retrieved sequences are used to
+            generate GNDs. GNDs can be generated from a provided list of IDs or even from
+            FASTA sequences, by collecting IDs from FASTA headers. 
             </p>
-    
-            <p>
-            The user can use Cytoscape to filter the GNNs for a range of query-neighbor distances and/or co-occurrence frequencies 
-            to enable the identification of functionally related proteins/enzymes, with shorter distances and great co-occurrence 
-            frequencies suggesting functional linkage in a metabolic pathway. With the identities of the Pfam families for the 
-            neighbors, the user may be able to infer the in vitro enzymatic activities of the queries and neighbors and predict the 
-            reactions in the metabolic pathway in which they participate.
-            </p>
-    
+
             <center>
                 <p><img src="images/tutorial/intro_figure_1.jpg"></p>
                 <p><i>Figure 1:</i> Examples of colored SSN (left) and a hub-and-spoke cluster from a GNN (right).</p>
             </center>
     
-    
-    
+            <h3>Recommended Reading</h3>
+            
+            <p>
+            R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, <b>"Democratized" genomic enzymology web 
+            tools for functional assignment</b>, Current Opinion in Chemical Biology, Volume 
+            47, 2018, Pages 77-85,
+            <a href="https://doi.org/10.1016/j.cbpa.2018.09.009">https://doi.org/10.1016/j.cbpa.2018.09.009</a>
+            </p>
+            
+            <p>
+            John A. Gerlt,
+            <b>Genomic enzymology: Web tools for leveraging protein family sequence–function space and genome context to discover novel functions</b>,
+            Biochemistry, 2017 - ACS Publications
+            </p>
+
             <p class="center"><a href="tutorial.php"><button class="light">Continue Tutorial</button></a></p>
     
         </div>
@@ -746,8 +532,8 @@ HTML;
 
     <p>
     UniProt Version: <b><?php echo settings::get_uniprot_version(); ?></b><br>
-    ENA Version: <b><?php echo settings::get_ena_version(); ?></b><br>
-    EFI-GNT Version: <b><?php echo settings::get_gnt_version(); ?></b>
+    InterPro Version: <b><?php echo settings::get_interpro_version(); ?></b><br>
+    ENA Version: <b><?php echo settings::get_ena_version(); ?></b>
     </p>
 </div>
 
@@ -760,35 +546,7 @@ This job will be permanently removed from your list of jobs.
 
 <script>
     $(document).ready(function() {
-        $(".tabs .tab-headers a").on("click", function(e) {
-            var curAttrValue = $(this).attr("href");
-            $(".tabs " + curAttrValue).fadeIn(300).show().siblings().hide();
-            $(this).parent("li").addClass("active").siblings().removeClass("active");
-            e.preventDefault();
-        });
 
-        $(".advanced-toggle").click(function () {
-            $header = $(this);
-            //getting the next element
-            $content = $header.next();
-            //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
-            $content.slideToggle(100, function () {
-                if ($content.is(":visible")) {
-                    $header.find("i.fa").addClass("fa-minus-square");
-                    $header.find("i.fa").removeClass("fa-plus-square");
-                } else {
-                    $header.find("i.fa").removeClass("fa-minus-square");
-                    $header.find("i.fa").addClass("fa-plus-square");
-                }
-            });
-        
-        });
-
-        $("#create-accordion" ).accordion({
-            icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" },
-            heightStyle: "content"
-        });
-        
         $(".archive-btn").click(function() {
             var id = $(this).data("id");
             var key = $(this).data("key");
@@ -810,35 +568,196 @@ This job will be permanently removed from your list of jobs.
                     }
                 }
             });
-
-//            $(this).appendTo('<div id="archive-menu" class="speech-bubble archive-bubble">Cancel</div>');
         });
+
+        $(".option-panels > div").accordion({
+            heightStyle: "content",
+            collapsible: true,
+            active: false,
+        });
+        $(".gnn-options > div").accordion("option", {active: 0});
+        $(".tabs").tabs();
     });
 </script>
 <script src="js/custom-file-input.js" type="text/javascript"></script>
 
 <?php
 
-function make_db_mod_option($db_modules, $form_id) {
-    if (count($db_modules) < 2)
-        return "";
-
-    $id = $form_id;
-    $ws = "                    ";
-    echo <<<HTML
-$ws<select name="$id" id="$id" class="bigger">
+function add_dev_site_options($option_id, $use_header = true) {
+    if ($use_header)
+        echo <<<HTML
+<h3>Dev Site Options</h3>
 HTML;
-
-    foreach ($db_modules as $mod) {
-        $mod_name = $mod[1];
-        echo "$ws    <option value=\"$mod_name\">$mod_name</option>\n";
-    }
-
     echo <<<HTML
-$ws</select>
+<div>
+    <div>
+        <span class="input-name">Database version:</span>
+        <span class="input-field">
+HTML;
+    add_db_mod_html($option_id);
+    echo <<<HTML
+        </span>
+    </div>
+</div>
 HTML;
 }
 
+
+function add_db_mod_html($option_id) {
+    $db_modules = global_settings::get_database_modules();
+    if (count($db_modules) < 2)
+        return;
+    
+    echo <<<HTML
+        <select name="$option_id" id="$option_id" class="bigger">
+HTML;
+    foreach ($db_modules as $mod) {
+        $mod_name = $mod[1];
+        echo "            <option value=\"$mod_name\">$mod_name</option>\n";
+    }
+
+    echo <<<HTML
+        </select>
+HTML;
+}
+
+
+function add_database_option($db_id) {
+    global $use_advanced_options;
+    if (!$use_advanced_options)
+        return;
+    echo <<<HTML
+                                <tr>
+                                    <td><b>Database version:</b></td>
+                                    <td>
+HTML;
+    add_db_mod_html($db_id);
+    echo <<<HTML
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+HTML;
+}
+
+
+function add_window_option($nb_id) {
+    $default_nb_size = settings::get_default_neighborhood_size();
+    echo <<<HTML
+                                <tr>
+                                    <td><b>Neighborhood window size:</b></td>
+                                    <td>
+                                        <input type="text" id="$nb_id" class="small" name="nb-size" value="$default_nb_size">
+                                    </td>
+                                    <td>
+                                        Number of neighbors to retrieve on either side of the query sequence for each BLAST result
+                                        (default: $default_nb_size)
+                                    </td>
+                                </tr>
+HTML;
+}
+
+
+function add_job_title_option($title_id) {
+    echo <<<HTML
+                                <tr>
+                                    <td><b>Optional job title:</b></td>
+                                    <td>
+                                        <input type="text" class="small" id="$title_id" name="title" value="">
+                                    </td>
+                                    <td></td>
+                                </tr>
+HTML;
+}
+
+
+function add_blast_options() {
+}
+
+
+function add_submit_button($type, $email_id, $message_id, $btn_text) {
+    global $message;
+    if (!isset($message))
+        $message = "";
+    global $user_email;
+    echo <<<HTML
+<p>
+    <span class="input-name">
+        E-mail address: 
+    </span>
+    <span class="input-field">
+        <input name="$email_id" id="$email_id" type="text" value="$user_email" class="email" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
+    </span>
+</p>
+<p>You will receive an e-mail when your network has been processed.</p>
+<div id="$message_id" style="color: red">
+    $message
+</div>
+<center>
+    <div><button type="button" id="ssn_submit" name="ssn_submit" class="dark"
+HTML;
+    $type = "get_submit_${type}_code";
+    $js_code = $type();
+    echo <<<HTML
+            $js_code
+            >$btn_text</button>
+    </div>
+</center>
+HTML;
+}
+
+
+function get_submit_diagram_upload_code() {
+    return <<<HTML
+                                onclick="uploadDiagramFile('diagram_file','upload_diagram_form','progress_number_diagram',
+                                    'progress_bar_diagram','diagram_message','diagram_email','diagram_submit')"
+HTML;
+}
+
+
+function get_submit_diagram_fasta_code() {
+    return <<<HTML
+                                            onclick="submitOptionCForm('create_diagram.php', 'option-c-option', 'option-c-input',
+                                                'option-c-title', 'option-c-email', 'option-c-nb-size', 'option-c-file',
+                                                'option-c-progress-number', 'option-c-progress-bar', 'option-c-message',
+                                                'option-c-db-mod');"
+HTML;
+}
+
+
+function get_submit_diagram_id_code() {
+    return <<<HTML
+                                            onclick="submitOptionDForm('create_diagram.php', 'option-d-option', 'option-d-input',
+                                                'option-d-title', 'option-d-email', 'option-d-nb-size', 'option-d-file',
+                                                'option-d-progress-number', 'option-d-progress-bar', 'option-d-message',
+                                                'option-d-db-mod');"
+HTML;
+}
+
+
+function get_submit_diagram_blast_code() {
+    return <<<HTML
+                                            onclick="submitOptionAForm('create_diagram.php', 'option-a-option', 'option-a-input',
+                                                                       'option-a-title', 'option-a-evalue', 'option-a-max-seqs',
+                                                                       'option-a-email', 'option-a-nb-size', 'option-a-message',
+                                                                       'option-a-db-mod');"
+HTML;
+}
+
+
+function get_submit_gnn_code() {
+    global $submit_est_args;
+    global $est_id;
+    if ($est_id) {
+        return <<<HTML
+                            onclick="submitEstJob('upload_form','ssn_message','ssn_email','ssn_submit',$submit_est_args)"
+HTML;
+    } else {
+        return <<<HTML
+                            onclick="uploadSsn('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit')"
+HTML;
+    }
+}
 
 
 ?>

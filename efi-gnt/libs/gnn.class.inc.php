@@ -10,6 +10,7 @@ class gnn extends gnn_shared {
     const SEQ_UNIPROT = 1;
     const SEQ_UNIREF50 = 2;
     const SEQ_UNIREF90 = 3;
+    const SEQ_UNIPROT_DOMAIN = 4;
 
     ////////////////Private Variables//////////
 
@@ -66,6 +67,7 @@ class gnn extends gnn_shared {
     public function get_gnn_nodes() { return $this->gnn_nodes; }
     public function get_gnn_edges() { return $this->gnn_edges; }
     public function get_source_id() { return $this->est_id; }
+    public function get_gnn_name() { return $this->basefilename; }
     public function has_parent() { return $this->gnn_parent_id > 0; }
 
     private function get_full_input_ssn_path() {
@@ -244,6 +246,8 @@ class gnn extends gnn_shared {
 
         $want_clusters = true;
         $want_singles = false;
+        
+        $output_dir = $this->get_output_dir();
 
         $exec = "source /etc/profile\n";
         if ($this->db_mod)
@@ -257,6 +261,7 @@ class gnn extends gnn_shared {
         } else {
             $exec .= $binary . " ";
         }
+        $exec .= " -output-dir \"$output_dir\"";
         $exec .= " -queue " . $queue;
         $exec .= " -ssnin \"" . $target_ssnin . "\"";
         $exec .= " -nb-size " . $this->get_size();
@@ -269,13 +274,8 @@ class gnn extends gnn_shared {
         $exec .= " -sp-singletons-desc \"" . $this->get_swissprot_desc_file($want_singles) . "\"";
         $exec .= " -warning-file \"" . $this->get_warning_file() . "\"";
         $exec .= " -pfam \"" . $this->get_pfam_hub() . "\"";
-        $exec .= " -pfam-dir \"" . $this->get_pfam_data_dir()  . "\"";
-        $exec .= " -all-pfam-dir \"" . $this->get_all_pfam_data_dir()  . "\"";
-        $exec .= " -split-pfam-dir \"" . $this->get_split_pfam_data_dir()  . "\"";
-        $exec .= " -all-split-pfam-dir \"" . $this->get_all_split_pfam_data_dir()  . "\"";
         $exec .= " -id-out \"" . $this->get_id_table_file() . "\"";
         $exec .= " -id-out-domain \"" . $this->get_id_table_file(true) . "\"";
-        $exec .= " -none-dir \"" . $this->get_pfam_none_dir() . "\"";
         
         if (!$this->is_sync) {
             $exec .= " -pfam-zip \"" . $this->get_pfam_data_zip_file() . "\"";
@@ -283,11 +283,12 @@ class gnn extends gnn_shared {
             $exec .= " -split-pfam-zip \"" . $this->get_split_pfam_data_zip_file() . "\"";
             $exec .= " -all-split-pfam-zip \"" . $this->get_all_split_pfam_data_zip_file() . "\"";
             $exec .= " -uniprot-id-zip \"" . $this->get_cluster_data_zip_file(gnn::SEQ_UNIPROT) . "\"";
+            $exec .= " -uniprot-id-domain-zip \"" . $this->get_cluster_data_zip_file(gnn::SEQ_UNIPROT_DOMAIN) . "\"";
             $exec .= " -uniref50-id-zip \"" . $this->get_cluster_data_zip_file(gnn::SEQ_UNIREF50) . "\"";
             $exec .= " -uniref90-id-zip \"" . $this->get_cluster_data_zip_file(gnn::SEQ_UNIREF90) . "\"";
             $exec .= " -none-zip \"" . $this->get_pfam_none_zip_file() . "\"";
-            $exec .= " -fasta-dir \"" . $this->get_fasta_dir() . "\"";
             $exec .= " -fasta-zip \"" . $this->get_fasta_zip_file() . "\"";
+            $exec .= " -fasta-domain-zip \"" . $this->get_fasta_zip_file(true) . "\"";
             $exec .= " -arrow-file \"" . $this->get_diagram_data_file() . "\"";
             $exec .= " -cooc-table \"" . $this->get_cooc_table_file() . "\"";
             $exec .= " -hub-count-file \"" . $this->get_hub_count_file() . "\"";
@@ -365,27 +366,6 @@ class gnn extends gnn_shared {
         return $this->shared_get_relative_file_path("_nomatches_noneighbors", ".txt");
     }
 
-    public function get_cluster_data_dir() {
-        return $this->shared_get_dir("cluster-data");
-    }
-    public function get_pfam_data_dir() {
-        return $this->shared_get_dir("pfam-data");
-    }
-    public function get_all_pfam_data_dir() {
-        return $this->shared_get_dir("all-pfam-data");
-    }
-    public function get_split_pfam_data_dir() {
-        return $this->shared_get_dir("split-pfam-data");
-    }
-    public function get_all_split_pfam_data_dir() {
-        return $this->shared_get_dir("all-split-pfam-data");
-    }
-    public function get_pfam_none_dir() {
-        return $this->shared_get_dir("pfam-none");
-    }
-    public function get_fasta_dir() {
-        return $this->shared_get_dir("fasta");
-    }
     public function get_parent_dir() {
         $output_dir = $this->get_output_dir($this->gnn_parent_id);
         return $output_dir;
@@ -409,21 +389,34 @@ class gnn extends gnn_shared {
         return preg_replace("/\.xgmml$/", ".zip", $pfamFile);
     }
     public function get_cluster_data_zip_file($seq_type) {
-        $filename = $seq_type == gnn::SEQ_UNIREF50 ? "UniRef50" : ($seq_type == gnn::SEQ_UNIREF90 ? "UniRef90" : "UniProt");
+        $filename = self::get_data_zip_file_name($seq_type);
         return $this->shared_get_full_file_path("_${filename}_IDs", ".zip");
+    }
+    private static function get_data_zip_file_name($seq_type) {
+        $filename =
+            $seq_type == gnn::SEQ_UNIREF50 ?
+                "UniRef50" :
+                ($seq_type == gnn::SEQ_UNIREF90 ?
+                    "UniRef90" :
+                    ($seq_type == gnn::SEQ_UNIPROT_DOMAIN ? 
+                        "UniProt_Domain" :
+                        "UniProt"));
+        return $filename;
     }
     public function get_relative_cluster_data_zip_file($seq_type) {
         if (!file_exists($this->get_cluster_data_zip_file($seq_type)))
             return "";
-        $filename = $seq_type == gnn::SEQ_UNIREF50 ? "UniRef50" : ($seq_type == gnn::SEQ_UNIREF90 ? "UniRef90" : "UniProt");
+        $filename = self::get_data_zip_file_name($seq_type);
         return $this->shared_get_relative_file_path("_${filename}_IDs", ".zip");
     }
 
-    public function get_fasta_zip_file() {
-        return $this->shared_get_full_file_path("_FASTA", ".zip");
+    public function get_fasta_zip_file($want_domain = false) {
+        $dom_suffix = $want_domain ? "_Domain" : "";
+        return $this->shared_get_full_file_path("_FASTA$dom_suffix", ".zip");
     }
-    public function get_relative_fasta_zip_file() {
-        return $this->shared_get_relative_file_path("_FASTA", ".zip");
+    public function get_relative_fasta_zip_file($want_domain = false) {
+        $dom_suffix = $want_domain ? "_Domain" : "";
+        return $this->shared_get_relative_file_path("_FASTA$dom_suffix", ".zip");
     }
 
     public function get_pfam_none_zip_file() {
@@ -570,8 +563,8 @@ class gnn extends gnn_shared {
         $file = $this->get_cluster_data_zip_file($seq_type);
         return $this->get_shared_file_size($file);
     }
-    public function get_fasta_zip_filesize() {
-        $file = $this->get_fasta_zip_file();
+    public function get_fasta_zip_filesize($want_domain = false) {
+        $file = $this->get_fasta_zip_file($want_domain);
         return $this->get_shared_file_size($file);
     }
     public function get_pfam_none_zip_filesize() {
@@ -690,30 +683,34 @@ class gnn extends gnn_shared {
 
     public function set_gnn_stats() {
         $result = $this->count_nodes_edges($this->get_gnn());
-        $sql = "UPDATE gnn SET gnn_gnn_edges='" . $result['edges'] . "', ";
-        $sql .= "gnn_gnn_nodes='" . $result['nodes'] . "', ";
-        $sql .= "gnn_gnn_pfams='" . $result['pfams'] . "' ";
-        $sql .= "WHERE gnn_id='" . $this->get_id() . "' LIMIT 1";
-        $result = $this->db->non_select_query($sql);
+        $data = array("gnn_edges" => $result["edges"], "gnn_nodes" => $result["nodes"], "gnn_pfams" => $result["pfams"]);
+        $result = $this->update_results_object($data);
         if ($result) {
             $this->gnn_nodes = $result['nodes'];
             $this->gnn_edges = $result['edges'];
             $this->gnn_pfams = $result['pfams'];
         }
-
     }
 
     public function set_ssn_stats() {
         $result = $this->count_nodes_edges($this->get_color_ssn());
-        $sql = "UPDATE gnn SET gnn_ssn_edges='" . $result['edges'] . "', ";
-        $sql .= "gnn_ssn_nodes='" . $result['nodes'] . "' ";
-        $sql .= "WHERE gnn_id='" . $this->get_id() . "' LIMIT 1";
-        $result = $this->db->non_select_query($sql);
+        $data = array("ssn_edges" => $result["edges"], "ssn_nodes" => $result["nodes"]);
+        $result = $this->update_results_object($data);
         if ($result) {
             $this->ssn_nodes = $result['nodes'];
             $this->ssn_edges = $result['edges'];
         }
 
+    }
+
+    private function update_results_object($data) {
+        $result = global_functions::update_results_object_tmpl($this->db, "gnn", "gnn", "results", $this->get_id(), $data);
+        return $result;
+    }
+
+    private function update_params_object($data) {
+        $result = global_functions::update_results_object_tmpl($this->db, "gnn", "gnn", "params", $this->get_id(), $data);
+        return $result;
     }
 
     //////////////////Private Functions////////////
@@ -727,17 +724,9 @@ class gnn extends gnn_shared {
             $this->id = $result['gnn_id'];
             $this->email = $result['gnn_email'];
             $this->key = $result['gnn_key'];
-            $this->size = $result['gnn_size'];
-            $this->cooccurrence = $result['gnn_cooccurrence'];
-            $this->filename = $result['gnn_filename'];
             $this->time_created = $result['gnn_time_created'];
             $this->time_started = $result['gnn_time_started'];
             $this->time_completed = $result['gnn_time_completed'];
-            $this->ssn_nodes = $result['gnn_ssn_nodes'];
-            $this->ssn_edges = $result['gnn_ssn_edges'];
-            $this->gnn_nodes = $result['gnn_gnn_nodes'];
-            $this->gnn_edges = $result['gnn_gnn_edges'];
-            $this->gnn_pfams = $result['gnn_gnn_pfams'];
             $this->pbs_number = $result['gnn_pbs_number'];
             $this->status = $result['gnn_status'];
             $this->is_legacy = is_null($this->status);
@@ -745,17 +734,28 @@ class gnn extends gnn_shared {
                 $this->est_id = $result['gnn_est_source_id'];
 
             $params_obj = global_functions::decode_object($result['gnn_params']);
-            if (isset($params_obj['gnn_parent_id']) && isset($params_obj['gnn_child_type'])) {
-                $this->gnn_parent_id = $params_obj['gnn_parent_id'];
-                $this->child_filter_only = $params_obj['gnn_child_type'] == "filter";
+            $this->size = $params_obj['neighborhood_size'];
+            $this->cooccurrence = $params_obj['cooccurrence'];
+            $this->filename = $params_obj['filename'];
+
+            $results_obj = global_functions::decode_object($result['gnn_results']);
+            $this->ssn_nodes = isset($results_obj['ssn_nodes']) ? $results_obj['ssn_nodes'] : "";
+            $this->ssn_edges = isset($results_obj['ssn_edges']) ? $results_obj['ssn_edges'] : "";
+            $this->gnn_nodes = isset($results_obj['gnn_nodes']) ? $results_obj['gnn_nodes'] : "";
+            $this->gnn_edges = isset($results_obj['gnn_edges']) ? $results_obj['gnn_edges'] : "";
+            $this->gnn_pfams = isset($results_obj['gnn_pfams']) ? $results_obj['gnn_pfams'] : "";
+
+            if (isset($result['gnn_parent_id']) && isset($result['gnn_child_type'])) {
+                $this->gnn_parent_id = $result['gnn_parent_id'];
+                $this->child_filter_only = $result['gnn_child_type'] == "filter";
             }
 
             $db_mod = "";
-            if (isset($result["gnn_db_mod"])) {
+            if (isset($params["db_mod"])) {
                 // Get the actual module not the alias.
                 $mod_info = global_settings::get_database_modules();
                 foreach ($mod_info as $mod) {
-                    if ($mod[1] == $result["gnn_db_mod"]) {
+                    if ($mod[1] == $params["db_mod"]) {
                         $db_mod = $mod[0];
                     }
                 }
@@ -968,24 +968,10 @@ class gnn extends gnn_shared {
 
     private function update_est_job_file_field($full_ssn_path) {
         $file_name = pathinfo($full_ssn_path, PATHINFO_BASENAME);
-        $sql = "UPDATE gnn SET gnn_filename='$file_name' ";
-        $sql .= "WHERE gnn_id='" . $this->get_id() . "' LIMIT 1";
-        $this->db->non_select_query($sql);
+        $data = array("filename" => $file_name);
+        $result = $this->update_params_object($data);
         $this->filename = $file_name;
     }
-
-//    private function update_filename_from_parent() {
-//        if (!$this->gnn_parent_id)
-//            return;
-//        $sql = "SELECT gnn_filename FROM gnn WHERE gnn_id = " . $this->gnn_parent_id;
-//        $rows = $this->db->query($sql);
-//        if (!$rows)
-//            return;
-//        $file_name = $rows[0]["gnn_filename"];
-//        $sql = "UPDATE gnn SET gnn_filename='$file_name' WHERE gnn_id='" . $this->get_id() . "'";
-//        $this->db->non_select_query($sql);
-//        $this->filename = $file_name;
-//    }
 
     public function mark_job_as_archived() {
         // This marks the job as archived-failed. If the job is archived but the
@@ -1022,7 +1008,7 @@ class gnn extends gnn_shared {
                 array_push($metadata, array("Original EST Job Number", "$gid/$aid (<a href='../efi-est/stepc.php?id=$gid&key=$key' class='hl-est'>Original EST Dataset</a> | <a href='../efi-est/stepe.php?id=$gid&key=$key&analysis_id=$aid' class='hl-est'>Original SSN Download</a>)"));
             }
         }
-        array_push($metadata, array("Time Started/Finished", global_functions::format_short_date($this->time_started) . " -- " .
+        array_push($metadata, array("Time Started -- Finished", global_functions::format_short_date($this->time_started) . " -- " .
             global_functions::format_short_date($this->time_completed)));
         array_push($metadata, array("Uploaded Filename", $this->get_filename()));
         array_push($metadata, array("Neighborhood Size", $this->get_size()));
@@ -1047,6 +1033,22 @@ class gnn extends gnn_shared {
         fclose($fh);
 
         return $metadata;
+    }
+
+    public function get_child_jobs() {
+        $jobs = array();
+        $sql = "SELECT gnn_id, gnn_key, gnn_params FROM gnn WHERE gnn_parent_id = " . $this->get_id();
+        $results = $this->db->query($sql);
+        foreach ($results as $result) {
+            $params = global_functions::decode_object($result["gnn_params"]);
+            $jobs[$result["gnn_id"]] = array(
+                "key" => $result["gnn_key"],
+                "filename" => $params["filename"],
+                "size" => $params["neighborhood_size"],
+                "cooccurrence" => $params["cooccurrence"],
+            );
+        }
+        return $jobs;
     }
 }
 ?>

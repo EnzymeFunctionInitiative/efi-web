@@ -177,7 +177,7 @@ developing hypotheses.
 
 <center><a href="tutorial_startscreen.php"><button type='submit' class='light'>Continue Tutorial</button></a></center>
 
-<?php require('inc/tutorial_footer.inc.php'); ?>
+<?php include_once('inc/tutorial_footer.inc.php'); ?>
 
-<?php include_once 'inc/footer.inc.php'; ?>
+<?php include_once('inc/footer.inc.php'); ?>
 

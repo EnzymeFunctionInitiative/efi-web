@@ -83,6 +83,6 @@ Cytoscape, please see the tutorials <a href="tutorial_cytoscape.php">here</a>.
 
 <center><a href="tutorial_node_attributes.php"><button type='submit' class='light'>Continue Tutorial</button></a></center>
 
-<?php require('inc/tutorial_footer.inc.php'); ?>
+<?php include_once('inc/tutorial_footer.inc.php'); ?>
 
-<?php include_once 'inc/footer.inc.php'; ?>
+<?php include_once('inc/footer.inc.php'); ?>

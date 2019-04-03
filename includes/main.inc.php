@@ -11,7 +11,7 @@ function __autoload($class_name) {
 }
 
 
-require_once("../conf/settings.inc.php");
+require_once(__DIR__ . "/../conf/settings.inc.php");
 
 date_default_timezone_set(__TIMEZONE__);
 $db = new db(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);

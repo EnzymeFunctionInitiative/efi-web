@@ -1,7 +1,7 @@
 <?php
 
 require_once("../includes/main.inc.php");
-//TODO: require_once("../libs/job_cancels.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/job_cancels.class.inc.php");
 
 $is_error = false;
 $the_id = "";
@@ -22,15 +22,28 @@ $request_type = isset($_POST["rt"]) ? $_POST["rt"] : false;
 
 $result = array("valid" => false);
 
-if (!$is_error && $request_type !== false && $job_obj !== false) {
-    if ($request_type == "c") { // cancel
+if (!$is_error && $request_type !== false && $job_obj !== false && ($request_type == "c" || $request_type == "a")) {
+    $status = $job_obj->get_status();
+
+    if ($status == __RUNNING__) { // cancel
         $pbs_num = $job_obj->get_pbs_number();
-        $status = $job_obj->get_status();
-        if ($pbs_num) { 
-            //TODO: job_cancels::request_job_cancellation($db, $pbs_num);
+
+        if ($pbs_num)
+            job_cancels::request_job_cancellation($db, $pbs_num);
+
+        $job_obj->mark_job_as_cancelled();
+    } else { // archive NEW, FAILED.
+        $ajobs = functions::get_analysis_jobs_for_generate($db, $the_id, __RUNNING__);
+
+        foreach ($ajobs as $row) {
+            $anum = $row["analysis_id"];
+            $a_obj = new analysis($db, $anum);
+            $pbs_num = $a_obj->get_pbs_number();
+            if ($pbs_num)
+                job_cancels::request_job_cancellation($db, $pbs_num);
+            $a_obj->mark_job_as_archived();
         }
-        //TODO: $job_obj->mark_job_as_cancelled();
-    } elseif ($request_type == "a") { // archive
+
         $job_obj->mark_job_as_archived();
     }
     $result["valid"] = true;

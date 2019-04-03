@@ -46,9 +46,6 @@ button.btn-select {
     padding: 5px;
 }
 
-a button:hover {
-}
-
 a button:active {
     position:relative;
     top:1px;
@@ -91,3 +88,43 @@ button.dark:hover {
     filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#333333', endColorstr='#000000');
     background-color:#333333;
 }
+
+
+/* BUTTONS THAT EXPAND AND COLLAPSE STUFF */
+
+button.panel-toggle {
+    background-color: #ddd;
+    color: #000;
+    cursor: pointer;
+    padding: 6px 12px;
+    border: 1px solid #bbb;
+    text-align: left;
+    outline: none;
+    transition: 0.4s;
+    border-radius: 0;
+}
+
+button.panel-toggle.active, button.panel-toggle:hover {
+    background-color: #ddd; 
+}
+
+button.panel-toggle:after {
+    content: '\002B';
+    color: #777;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+button.panel-toggle.active:after {
+    content: "\2212";
+}
+
+div.panel-toggle {
+    padding: 0 18px;
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+//    transition: max-height 0.2s ease-out;
+}
+

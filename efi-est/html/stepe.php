@@ -1,7 +1,9 @@
 <?php 
 require_once("../includes/main.inc.php");
-require_once(__DIR__."/../../libs/table_builder.class.inc.php");
-require_once("../../includes/login_check.inc.php");
+require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
+require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
+require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
@@ -39,8 +41,10 @@ $table = new table_builder($table_format);
 
 
 $web_address = dirname($_SERVER['PHP_SELF']);
-$time_window = $generate->get_time_period();
+$time_window = $analysis->get_time_period();
 $db_version = $generate->get_db_version();
+$network_name = $analysis->get_name();
+$job_name = $generate->get_job_name();
 $legacy = empty($db_version); // Indicates if we are looking at old jobs.
 
 
@@ -48,17 +52,18 @@ $gen_type = $generate->get_type();
 $formatted_gen_type = functions::format_job_type($gen_type);
 
 $table->add_row_with_html("EST Job Number", "$generate_id (<a href='stepc.php?id=$generate_id&key=$key'>Original Dataset</a>)");
-$table->add_row("Time Started/Finished", $time_window);
+$table->add_row("Time Started -- Finished", $time_window);
 if (!empty($db_version)) {
     $table->add_row("Database Version", $db_version);
 }
 $table->add_row("Input Option", $formatted_gen_type);
 if ($generate->get_job_name())
-    $table->add_row("Job Name", $generate->get_job_name());
+    $table->add_row("Submission Name", $generate->get_job_name());
 
 $uploaded_file = "";
 $included_family = "";
 $num_family_nodes = $generate->get_num_family_sequences();
+$num_full_family_nodes = $generate->get_num_full_family_sequences();
 $total_num_nodes = $generate->get_num_sequences();
 $extra_nodes_string = "";
 $extra_nodes_ast = "";
@@ -74,7 +79,7 @@ if ($gen_type == "BLAST") {
     $included_family = $generate->get_families_comma();
     if ($included_family != "")
         $table->add_row("PFam/Interpro Families", $included_family);
-    $table->add_row("Maximum Blast Sequences", number_format($generate->get_submitted_max_sequences()));
+    $table->add_row("Maximum Retrieved Sequences", number_format($generate->get_submitted_max_sequences()));
 }
 elseif ($gen_type == "FAMILIES") {
     $generate = new generate($db,$_GET['id']);
@@ -105,6 +110,8 @@ elseif ($gen_type == "ACCESSION") {
         $table->add_row("PFam/Interpro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
+    if (global_settings::advanced_options_enabled())
+        $table->add_row("Domain", $generate->get_domain());
     $unirefVersion = $generate->get_uniref_version();
     if ($unirefVersion)
         $table->add_row("UniRef Version", $unirefVersion);
@@ -145,11 +152,11 @@ elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
     }
 }
 
-if ($included_family && !empty($num_family_nodes))
-    $table->add_row("Number of Sequences in PFAM/InterPro Family", number_format($num_family_nodes));
+if ($included_family && !empty($num_full_family_nodes))
+    $table->add_row("Number of Sequences in Pfam/InterPro Family", number_format($num_full_family_nodes));
 $table->add_row("Total Number of Sequences $extra_nodes_ast", number_format($total_num_nodes));
 
-$table->add_row("Network Name", $analysis->get_name());
+$table->add_row("Network Name", $network_name);
 $table->add_row("Alignment Score", $analysis->get_filter_value());
 $table->add_row("Filter", $analysis->get_filter_name());
 $table->add_row("Minimum Length", number_format($analysis->get_min_length()));
@@ -172,7 +179,7 @@ STR;
 $table_string = $table->as_string();
 
 if (isset($_GET["as-table"])) {
-    $table_filename = functions::safe_filename($analysis->get_name()) . "_settings.txt";
+    $table_filename = functions::safe_filename($analysis->get_name()) . "_SSN_overview.txt";
 
     send_table($table_filename, $table_string);
 
@@ -224,7 +231,6 @@ else {
     $network_sel_list = array();
 
     $color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
-        //$js_code = "submitStepEColorSsnForm(\"$email\", $analysis_id, $ssn_index)";
         $js_code = "";
         $html = " <button class='mini colorssn-btn' type='button' onclick='$js_code' data-aid='$analysis_id' data-ssn-index='$ssn_index'>Color SSN</button>";
         return $html;
@@ -247,7 +253,7 @@ else {
             $full_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
             $full_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($stats[$i]['Size'],0) . " MB</td>\n";
             $full_network_html .= "<td style='text-align:center;'>";
-            $full_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>Make GNN</button></a>";
+            $full_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>GNT Submission</button></a>";
             $full_network_html .= $color_ssn_code_fn($i);
             $full_network_html .= "</td>\n";
             $full_network_html .= "</tr>";
@@ -278,7 +284,7 @@ else {
                 $rep_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
                 $rep_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($stats[$i]['Size'],0) . " MB</td>\n";
                 $rep_network_html .= "<td style='text-align:center;'>";
-                $rep_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>Make GNN</button></a>";
+                $rep_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>GNT Submission</button></a>";
                 $rep_network_html .= $color_ssn_code_fn($i);
                 $rep_network_html .= "</td>\n";
             }
@@ -296,110 +302,116 @@ else {
 
 ?>	
 
-<h2 class="darkbg">Download Network Files</h2>
-    <p>&nbsp;</p>
-    <h3>Network Information</h3>
+<h2>Download Network Files</h2>
 
-    <h4>Generation and Analysis Summary Table</h4>
-
-    <table width="100%" class="pretty">
-        <?php echo $table_string; ?>
-    </table>
-    <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=" . $_GET['key'] . "&analysis_id=" . $_GET['analysis_id'] . "&as-table=1" ?>'><button class='normal'>Download Information</button></a></div>
-    <div style="clear: both"></div>
-    <?php echo $extra_nodes_string; ?>
-    <?php echo $convergence_ratio_string; ?>
-
-    <h3>Full Network <a href="tutorial_download.php" class="question" target="_blank">?</a></h3>
-    <p>Each node in the network represents a single protein sequence. Large files (&gt;500MB) may not open in Cytoscape.</p>
-<?php if (!$full_network_html) { ?>
-    <p><b>The output file was too large (edges=<?php echo $full_edge_count; ?>) to be generated by EST.  Please use a repnode below or choose a different alignment score.</b></p>
-<?php } else { ?>
-    <table width="100%" class="pretty">
-    <thead>
-    <tr>
-        <th></th>
-        <th># Nodes</th>
-        <th># Edges</th>
-        <th>File Size (MB)</th>
-        <th></th>
-    </thead>
-
-    <tbody>
-    <?php echo $full_network_html; ?>
-    </tbody>
-    </table>
+<?php if ($job_name || $network_name) { ?>
+<h4 class="job-display">
+    <?php if ($job_name) { ?>Submission Name: <b><?php echo $job_name; ?></b><?php } ?>
+    <?php if ($job_name && $network_name) { ?>/<?php } ?>
+    <?php if ($network_name) { ?>Network Name: <b><?php echo $network_name; ?></b><?php } ?>
+</h4>
 <?php } ?>
 
-    <p>&nbsp;</p>
-    <div class="align_left">
-    <h3>Representative Node Networks <a href="tutorial_download.php" class="question" target="_blank">?</a></h3>
-    <p>
-        In representative node (RepNode) networks, each node in the network represents a collection of proteins grouped
-        according to percent identity. For example, for a 75% identity RepNode network, all connected sequences
-        that share 75% or more identity are grouped into a single node (meta node).
-        <br><br>
-        The cluster organization is not changed, and the clustering of sequences remains identical to the full network.
-        <br><br>
-        Sequences are collapsed together to reduce the overall number of nodes making for less complicated networks
-        easier to load in Cytoscape.
+<div class="tabs-efihdr tabs">
+    <ul>
+        <li><a href="#info">SSN Overview</a></li>
+        <li class="ui-tabs-active"><a href="#results">Network Files</a></li>
+    </ul>
+
+    <div>
+        <div id="info">
+            <h4>SSN Generation and Analysis Summary Table</h4>
+        
+            <table width="100%" class="pretty">
+                <?php echo $table_string; ?>
+            </table>
+            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=" . $_GET['key'] . "&analysis_id=" . $_GET['analysis_id'] . "&as-table=1" ?>'><button class='normal'>Download Information</button></a></div>
+            <div style="clear: both"></div>
+            <?php echo $extra_nodes_string; ?>
+            <?php echo $convergence_ratio_string; ?>
+            <?php if ($is_migrated) { ?>
+                <div style="margin-top: 20px;">
+                    <center>
+                    <a href="../efi-gnt/stepc.php?<?php echo "id=$gnn_id&key=$gnn_key"; ?>">
+                        <button class="hl-gnt-bg" type="button" style="color:white">View GNN generated from this SSN</button>
+                    </a>
+                    </center>
+                </div>
+            <?php } ?>
+
+        </div>
+
+
+        <div id="results">
+            <h3>Full Network <a href="tutorial_download.php" class="question" target="_blank">?</a></h3>
+            <p>Each node in the network represents a single protein sequence. Large files (&gt;500MB) may not open in Cytoscape.</p>
+            <?php if (!$full_network_html) { ?>
+                <p><b>The output file was too large (edges=<?php echo $full_edge_count; ?>) to be generated by EST.  Please use a repnode below or choose a different alignment score.</b></p>
+            <?php } else { ?>
+                <table width="100%" class="pretty">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th># Nodes</th>
+                    <th># Edges</th>
+                    <th>File Size (MB)</th>
+                    <th></th>
+                </thead>
+            
+                <tbody>
+                <?php echo $full_network_html; ?>
+                </tbody>
+                </table>
+            <?php } ?>
+        
+            <p>&nbsp;</p>
+            <div class="align_left">
+                <h3>Representative Node Networks <a href="tutorial_download.php" class="question" target="_blank">?</a></h3>
+                <p>
+                    In representative node (RepNode) networks, each node in the network represents a collection of proteins grouped
+                    according to percent identity. For example, for a 75% identity RepNode network, all connected sequences
+                    that share 75% or more identity are grouped into a single node (meta node).
+                    Sequences are collapsed together to reduce the overall number of nodes, making for less complicated networks
+                    easier to load in Cytoscape.
+                </p>
+                <p>
+                    The cluster organization is not changed, and the clustering of sequences remains identical to the full network.
+                </p>
+            </div>
+            <table width="100%" class="pretty">
+            <thead>
+                <th></th>
+                <th>% ID</th>
+                <th># Nodes</th>
+                <th># Edges</th>
+                <th>File Size (MB)</th>
+                <th></th>
+            </thead>
+        
+            <tbody>
+            <?php echo $rep_network_html; ?>
+            </tbody>
+            </table>
+        
+            <div style="margin-top: 10px; float: right;">
+                <a href="<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] .
+                                    "&key=" . $_GET['key'] .
+                                    "&analysis_id=" . $_GET['analysis_id'] .
+                                    "&stats-as-table=1" ?>"><button class='mini'>Download Network Statistics as Table</button></a>
+            </div>
+            <div style="clear:both"></div>
+
+            <center><p><a href='http://enzymefunction.org/resources/tutorials/efi-and-cytoscape3'>New to Cytoscape?</a></p></center>
+        </div>
     </div>
-    <table width="100%" class="pretty">
-    <thead>
-        <th></th>
-        <th>% ID</th>
-        <th># Nodes</th>
-        <th># Edges</th>
-        <th>File Size (MB)</th>
-        <th></th>
-    </thead>
+</div>
 
-    <tbody>
-    <?php echo $rep_network_html; ?>
-    </tbody>
-    </table>
 
-    <div style="margin-top: 10px; float: right;">
-        <a href="<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] .
-                            "&key=" . $_GET['key'] .
-                            "&analysis_id=" . $_GET['analysis_id'] .
-                            "&stats-as-table=1" ?>"><button class='mini'>Download Network Statistics as Table</button></a>
-    </div>
-    <div style="clear:both"></div>
 
-<?php if ($is_migrated) { ?>
-    <div style="margin-top: 20px;">
-        <a href="../efi-gnt/stepc.php?<?php echo "id=$gnn_id&key=$gnn_key"; ?>"><button class="mini" type="button">View GNN</button></a>
-    </div>
-<?php } ?>
+<center><p>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</p></center>
 
-    <hr>
 
-<center><p><a href='http://enzymefunction.org/resources/tutorials/efi-and-cytoscape3'>New to Cytoscape?</a></p></center>
-
-<hr>
-
-<p>
-    The coloring utility recently developed will help downstream analysis of your SSN. 
-    <a href="<?php echo $stepa_link; ?>">Try it!</a>
-</p>
-<p>
-    Have you tried exploring Genome Neighborhood Networks (GNTs) from your favorite SSNs?
-    <a href="<?php echo $gnt_link; ?>">Submit a GNT analysis</a>.
-</p>
-
-<p>
-If you use an SSN from EFI-EST, please <a href="http://www.sciencedirect.com/science/article/pii/S1570963915001120">cite</a>:<br>
-John A. Gerlt, Jason T. Bouvier, Daniel B. Davidson, Heidi J. Imker, Boris Sadkhin, David R. Slater, Katie L. Whalen,
-<b>Enzyme Function Initiative-Enzyme Similarity Tool (EFI-EST): A web tool for generating protein sequence similarity networks</b>,
-Biochimica et Biophysica Acta (BBA) - Proteins and Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639.
-</p>
-
-<center>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</center>
-
-<hr>
-
-<?php if (functions::is_beta_release()) { ?>
+<?php if (global_settings::is_beta_release()) { ?>
 <center><h4><b><span style="color: blue">BETA</span></b></h4></center>
 <?php } ?>
 
@@ -414,7 +426,6 @@ Would you like to color the SSN?
 <script>
     $(document).ready(function() {
         $(".colorssn-btn").click(function(evt) {
-            var email = "<?php echo $email; ?>";
             var aid = $(this).data("aid");
             var ssnIndex = $(this).data("ssn-index");
             $("#ssn-confirm").dialog({
@@ -424,7 +435,7 @@ Would you like to color the SSN?
                 modal: true,
                 buttons: {
                     Yes: function() {
-                        submitStepEColorSsnForm(email, aid, ssnIndex);
+                        submitStepEColorSsnForm(aid, ssnIndex);
                         $(this).dialog("close");
                     },
                     No: function() {
@@ -433,6 +444,8 @@ Would you like to color the SSN?
                 }
             });
         });
+
+        $(".tabs").tabs();
     });
 </script>
 

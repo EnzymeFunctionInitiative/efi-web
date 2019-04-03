@@ -34,13 +34,14 @@ class gnn_shared extends arrow_api {
         return self::create4($db, $parms);
     }
 
-    public static function create_from_est_job($db, $email, $size, $cooccurrence, $ssn_file_path, $est_id) {
+    public static function create_from_est_job($db, $email, $size, $cooccurrence, $ssn_file_path, $est_id, $db_mod) {
         $parms = array(
             'email' => $email,
             'size' => $size,
             'cooccurrence' => $cooccurrence,
             'filename' => $ssn_file_path,
             'est_id' => $est_id,
+            'db_mod' => $db_mod,
         );
         return self::create4($db, $parms); // create4 adds default parameters
     }
@@ -91,24 +92,25 @@ class gnn_shared extends arrow_api {
         $key = global_functions::generate_key();
         $insert_array = array(
             'gnn_email' => $parms['email'],
-            'gnn_size' => $parms['size'],
             'gnn_key' => $key,
-            'gnn_filename' => $filename,
-            'gnn_cooccurrence' => $parms['cooccurrence'],
             'gnn_status' => $gnn_status);
         if ($est_job_id)
             $insert_array['gnn_est_source_id'] = $est_job_id;
-        if ($parms['job_name'])
-            $insert_array['gnn_job_name'] = $parms['job_name'];
-        if ($parms['db_mod'] && preg_match('/^[A-Z0-9]{4}$/', $parms['db_mod']))
-            $insert_array['gnn_db_mod'] = $parms['db_mod'];
-
-        // Handle option parameters - eventually most of the above will go into this structure
-        $params_array = array();
         if ($parms['parent_id'] && $parms['child_type']) {
-            $params_array['gnn_parent_id'] = $parms['parent_id'];
-            $params_array['gnn_child_type'] = $parms['child_type'];
+            $insert_array['gnn_parent_id'] = $parms['parent_id'];
+            $insert_array['gnn_child_type'] = $parms['child_type'];
         }
+
+        $params_array = array(
+            'neighborhood_size' => $parms['size'],
+            'filename' => $filename,
+            'cooccurrence' => $parms['cooccurrence'],
+        );
+        if ($parms['job_name'])
+            $params_array['job_name'] = $parms['job_name'];
+        if ($parms['db_mod'] && preg_match('/^[A-Z0-9]{4}$/', $parms['db_mod']))
+            $params_array['db_mod'] = $parms['db_mod'];
+
         $insert_array['gnn_params'] = global_functions::encode_object($params_array);
 
         $result = $db->build_insert('gnn',$insert_array);

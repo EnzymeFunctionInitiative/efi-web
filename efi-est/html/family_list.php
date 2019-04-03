@@ -1,6 +1,6 @@
 <?php
-require_once "../includes/main.inc.php";
-require_once("../../includes/login_check.inc.php");
+require_once("../includes/main.inc.php");
+require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
 
 $defaultFilterKey = "pfam";
 $defaultFilter = "PF%";
@@ -82,7 +82,8 @@ if (isset($_GET["as-table"])) {
 
 
 
-require_once "inc/header.inc.php";
+$LightweightTabs = true;
+require_once("inc/header.inc.php");
 
 ?>
 

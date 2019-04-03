@@ -1,8 +1,8 @@
 <?php
 require_once "../includes/main.inc.php";
 require_once "../libs/user_jobs.class.inc.php";
-require_once("../../includes/login_check.inc.php");
 require_once "../libs/ui.class.inc.php";
+require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
 
 
 $jobs = array();
@@ -47,7 +47,7 @@ outputJobList($jobs);
 
 function outputJobList($jobs) {
     echo <<<HTML
-            <table class="pretty_nested">
+            <table class="pretty-nested">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Job Name</th>

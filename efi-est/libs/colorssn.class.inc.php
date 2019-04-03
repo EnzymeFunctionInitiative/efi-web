@@ -85,7 +85,7 @@ class colorssn extends option_base {
             }
         } elseif (!$this->verify_colorssn_file($data->uploaded_filename)) {
             $result->errors = true;
-            $result->message .= "<br><b>Please upload a valid XGMML (zipped or unzipped) file.  The file extension must be .xgmml or .zip</b></br>";
+            $result->message .= "Please upload a valid XGMML (zipped or unzipped) file.  The file extension must be .xgmml or .zip";
         }
 
         return $result;
@@ -95,18 +95,26 @@ class colorssn extends option_base {
         return "make_colorssn_job.pl";
     }
 
-    protected function get_started_email_body() {
-        $body = "The SSN has been uploaded and is being colored and analyzed." . $this->eol . $this->eol;
-        return $body;
+    protected function get_email_started_body() {
+        $plain_email = "The SSN has been uploaded and is being colored and analyzed." . PHP_EOL . PHP_EOL;
+        $plain_email .= "To check on the status of this job, go to THE_URL" . PHP_EOL . PHP_EOL;
+        $plain_email .= "If no new email is received after 48 hours, please contact us and mention the EFI-EST ";
+        $plain_email .= "Job ID that corresponds to this email." . PHP_EOL . PHP_EOL;
+        
+        $full_url = functions::get_web_root() . "/" . functions::get_job_status_script();
+        $full_url = $full_url . "?" . http_build_query(array('id' => $this->get_id(), 'key' => $this->get_key()));
+
+        return array("body" => $plain_email, "url" => $full_url);
     }
 
-    protected function get_completion_email_subject_line() {
-        return "SSN colored";
-    }
+    protected function get_email_completion_subject() { return "EFI-EST - SSN colored"; }
+    protected function get_email_completion_body() {
+        $plain_email = "The SSN has been colored and analyzed. To view it, please go to THE_URL" . PHP_EOL . PHP_EOL;
+        
+        $full_url = functions::get_web_root() . "/" . $this->get_generate_results_script();
+        $full_url = $full_url . "?" . http_build_query(array('id' => $this->get_id(), 'key' => $this->get_key()));
 
-    protected function get_completion_email_body() {
-        $body = "The SSN has been colored and analyzed. To view it, please go to THE_URL" . $this->eol . $this->eol;
-        return $body;
+        return array("body" => $plain_email, "url" => $full_url);
     }
 
     protected function get_run_script_args($out) {
@@ -155,9 +163,8 @@ class colorssn extends option_base {
         return $result;
     }
 
-    public function get_job_info($eol = "\r\n") {
-        $message = "EFI-EST Job ID: " . $this->get_id() . $eol;
-        $message .= "Computation Type: Color SSN" . $eol;
+    protected function get_email_job_info() {
+        $message = parent::get_email_job_info();
         return $message;
     }
 
@@ -334,7 +341,7 @@ class colorssn extends option_base {
             $aid = $this->ssn_source_analysis_id;
             array_push($metadata, array("Original SSN Job Number", "$gid/$aid (<a href='$stepc_path' title='EST $gid'>Original Dataset</a> | <a href='$stepe_path' title='EST Analysis ID $aid'>SSN Download</a>)"));
         }
-        array_push($metadata, array("Time Started/Finished", global_functions::format_short_date($this->time_started) . " -- " .
+        array_push($metadata, array("Time Started -- Finished", global_functions::format_short_date($this->time_started) . " -- " .
             global_functions::format_short_date($this->time_completed)));
         array_push($metadata, array("Uploaded Filename", $this->get_uploaded_filename()));
         if (!empty($db_version))
@@ -364,7 +371,6 @@ class colorssn extends option_base {
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
         $valid = true;
         if (!in_array($ext, functions::get_valid_colorssn_filetypes())) {
-            print "Extension: $ext\n";
             $valid = false;
         }
         return $valid;

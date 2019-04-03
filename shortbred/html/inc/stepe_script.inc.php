@@ -8,12 +8,11 @@
     var handleTabPress = function(masterId, elemObj) {
         var curAttrValue = elemObj.attr("href");
         var tabPage = $(masterId + " " + curAttrValue);
-        tabPage.show().siblings().hide();
+        //tabPage.show().siblings().hide();
         //tabPage.fadeIn(300).show().siblings().hide();
-        elemObj.parent("li").addClass("active").siblings().removeClass("active");
+        //elemObj.parent("li").addClass("active").siblings().removeClass("active");
         var theFrame = tabPage.children().first();
         if (!theFrame.data("shown")) {
-            console.log("Showing again");
             theFrame.attr("src", function() {
                 return $(this).data("src");
             });
@@ -44,4 +43,7 @@
         else
             $(this).text("Show Job Statistics");
     });
-    $(".stats-row").hide();
+    //$(".stats-row").hide();
+    $(".tabs").tabs();
+
+
