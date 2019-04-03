@@ -306,8 +306,16 @@ HTML;
                                 Search type:
                             </span>
                             <span class="input-field">
-                                <select name="search-type" id="search-type"><option>USEARCH</option><option>DIAMOND</option></select>
-                                (default: USEARCH)
+                            <?php
+                                $default_search_type = settings::get_default_quantify_search();
+                                $search_usearch = $default_search_type == "USEARCH" ? "selected" : "";
+                                $search_diamond = $default_search_type == "DIAMOND" ? "selected" : "";
+                            ?>
+                                <select name="search-type" id="search-type">
+                                    <option <?php echo $search_usearch; ?>>USEARCH</option>
+                                    <option <?php echo $search_diamond; ?>>DIAMOND</option>
+                                </select>
+                                (default: <?php echo $default_search_type; ?>)
                             </span>
                             <div class="input-desc">
                                 Select the algorithm for determining marker abundances in the selected metagenomes.

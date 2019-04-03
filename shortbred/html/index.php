@@ -40,6 +40,9 @@ if (user_auth::has_token_cookie()) {
 
 $db_modules = global_settings::get_database_modules();
 $use_advanced_options = global_settings::advanced_options_enabled();
+$default_cdhit_id = settings::get_default_cdhit_id();
+$default_ref_db = settings::get_default_ref_db();
+$default_search = settings::get_default_identify_search();
 
 $login_banner_msg = "";
 if (!$IsLoggedIn) {
@@ -201,7 +204,16 @@ nares (nasal cavity), tongue dorsum (surface), and posterior fornix (vagina)].
                                     Reference database:
                                 </span>
                                 <span class="input-field">
-                                    <select name="ssn_ref_db" id="ssn_ref_db"><option value="uniprot">Full UniProt</option><option value="uniref90" selected>UniRef 90</option><option value="uniref50">UniRef 50</option></select>
+                                    <?php
+                                       $ref_db_uniprot = $default_ref_db == "uniprot" ? "selected" : "";
+                                       $ref_db_uniref90 = $default_ref_db == "uniref90" ? "selected" : "";
+                                       $ref_db_uniref50 = $default_ref_db == "uniref50" ? "selected" : "";
+                                    ?>
+                                    <select name="ssn_ref_db" id="ssn_ref_db">
+                                        <option value="uniprot" <?php echo $ref_db_uniprot; ?>>Full UniProt</option>
+                                        <option value="uniref90" <?php echo $ref_db_uniref90; ?>>UniRef 90</option>
+                                        <option value="uniref50" <?php echo $ref_db_uniref50; ?>>UniRef 50</option>
+                                    </select>
                                 </span>
                                 <div class="input-desc">
                                     ShortBRED uses the UniProt, UniRef90 or UniRef50 databases to evaluate markers
@@ -211,7 +223,7 @@ nares (nasal cavity), tongue dorsum (surface), and posterior fornix (vagina)].
                             </div>
                             <div>
                                 <span class="input-name">
-                                    CD-HIT sequence identity (default 85%):
+                                    CD-HIT sequence identity (default <?php echo $default_cdhit_id; ?>%):
                                 </span>
                                 <span class="input-field">
                                     <input type="text" name="ssn_cdhit_sid" id="ssn_cdhit_sid" value="" size="4">
@@ -228,7 +240,14 @@ nares (nasal cavity), tongue dorsum (surface), and posterior fornix (vagina)].
                                         Sequence search type:
                                     </span>
                                     <span class="input-field">
-                                        <select name="ssn_search_type" id="ssn_search_type"><option>BLAST</option><option selected>DIAMOND</option></select>
+                                        <?php
+                                            $search_blast = $default_search == "BLAST" ? "selected" : "";
+                                            $search_diamond = $default_search == "DIAMOND" ? "selected" : "";
+                                        ?>
+                                        <select name="ssn_search_type" id="ssn_search_type">
+                                            <option <?php echo $search_blast; ?>>BLAST</option>
+                                            <option <?php echo $search_diamond; ?>>DIAMOND</option>
+                                        </select>
                                     </span>
                                     <div class="input-desc">
                                         This is the search algorithm that will be used to remove false positives and identify unique markers.
@@ -406,6 +425,21 @@ HTML;
             additional files are provided: the SSN enhanced with metagenome hits 
             that have been identified and quantification results given in abundance within
             metagenomes, per protein and per cluster.
+            </p>
+            
+            <h3>Recommended Reading</h3>
+            
+            <p>
+            R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, <b>"Democratized" genomic enzymology web 
+            tools for functional assignment</b>, Current Opinion in Chemical Biology, Volume 
+            47, 2018, Pages 77-85,
+            <a href="https://doi.org/10.1016/j.cbpa.2018.09.009">https://doi.org/10.1016/j.cbpa.2018.09.009</a>
+            </p>
+            
+            <p>
+            John A. Gerlt,
+            <b>Genomic enzymology: Web tools for leveraging protein family sequence–function space and genome context to discover novel functions</b>,
+            Biochemistry, 2017 - ACS Publications
             </p>
 
             <center><a href="tutorial_intro.php"><button class="light">Continue Tutorial</button></a></center>
