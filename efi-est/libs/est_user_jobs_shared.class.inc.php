@@ -184,7 +184,7 @@ class est_user_jobs_shared {
         $job_name = "<span class='job-name'>" . $data_row["analysis_name"] . "</span><br><span class='job-metadata'>SSN Threshold=" . $data_row["analysis_evalue"];
         if ($a_min)
             $job_name .= " $a_min";
-        elseif ($a_max)
+        if ($a_max)
             $job_name .= " $a_max";
         $job_name .= "</span>";
         return $job_name;
