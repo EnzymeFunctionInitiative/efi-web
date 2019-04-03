@@ -1,8 +1,9 @@
 <?php
-require_once("../includes/main.inc.php");
-require_once("../libs/user_auth.class.inc.php");
-require_once("../libs/global_functions.class.inc.php");
-require_once("../includes/login_check.inc.php");
+require_once(__DIR__ . "/../includes/main.inc.php");
+require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
+require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
+require_once(__BASE_DIR__ . "/efi-est/libs/est_user_jobs_shared.class.inc.php");
 
 const GET_IDS_FROM_FILE = 1;
 const GET_IDS_FROM_DB = 2;
@@ -45,15 +46,17 @@ sections at the bottom of the page.
 </p>
 
 
+<?php /*
 Highlight
 <label><input type="checkbox" id="show-colorssn" /> Color SSN</label>
 <label><input type="checkbox" id="show-gnn" /> GNN</label>
 <label><input type="checkbox" id="show-cgfp" /> CGFP</label>
 <label><input type="checkbox" id="show-nuke" /> Everything</label>
 <br>
-<label><input type="checkbox" id="hide-empty" <?php echo $hide_empty ? "checked" : ""; ?> /> Hide EST jobs that have no analyze step</label>
-<label><input type="checkbox" id="recent-first" <?php echo $recent_first ? "checked" : ""; ?> /> Show recent jobs first</label>
-<label><input type="checkbox" id="show-extra" /> Show extra info</label>
+<!--<label><input type="checkbox" id="hide-empty" <?php echo $hide_empty ? "checked" : ""; ?> /> Hide EST jobs that have no analyze step</label>-->
+ */ ?>
+<label><input type="checkbox" id="recent-first" <?php echo $recent_first ? "checked" : ""; ?> /> Sort by mot recent EFI-EST analysis</label>
+<label><input type="checkbox" id="show-extra" /> Show consolidation details</label>
 <br>
 <div style="margin-top: 10px">
 <div style="float: right">
@@ -232,7 +235,7 @@ function get_job_list($results, $table, $job_level = LEVEL1, $get_id_type = GET_
         $date = global_functions::format_short_date($row["${table}_time_created"], true);
         $info = get_info($row, $table);
         if ($job_level == LEVEL1) {
-            $jobs[$id] = array("id" => $id, "key" => $key, "file" => $info["file"], "date" => $date);
+            $jobs[$id] = array("id" => $id, "key" => $key, "file" => $info["file"], "date" => $date, "info" => $info);
         } elseif ($job_level == LEVEL2) {
             $id_chain = get_id_chain($row, $table, $info);
 
@@ -246,7 +249,7 @@ function get_job_list($results, $table, $job_level = LEVEL1, $get_id_type = GET_
             if ($main_id) {
                 if (!isset($jobs[$main_id]))
                     $jobs[$main_id] = array();
-                array_push($jobs[$main_id], array("id" => $id, "key" => $key, "file" => $info["file"], "date" => $date));
+                array_push($jobs[$main_id], array("id" => $id, "key" => $key, "file" => $info["file"], "date" => $date, "info" => $info));
             }
         } elseif ($job_level == LEVEL3) { // job is a child of another job of the same type
             if (isset($info["parent"])) {
@@ -254,7 +257,7 @@ function get_job_list($results, $table, $job_level = LEVEL1, $get_id_type = GET_
                 if ($main_id) {
                     if (!isset($jobs[$main_id]))
                         $jobs[$main_id] = array();
-                    array_push($jobs[$main_id], array("id" => $id, "key" => $key, "file" => $info["file"], "date" => $date));
+                    array_push($jobs[$main_id], array("id" => $id, "key" => $key, "file" => $info["file"], "date" => $date, "info" => $info));
                 }
             }
         }
@@ -321,6 +324,10 @@ function get_info($row, $table) {
         $info["source"] = $est_source_id;
     if ($parent_id)
         $info["parent"] = $parent_id;
+    if (isset($params["neighborhood_size"]))
+        $info["nb_size"] = $params["neighborhood_size"];
+    if (isset($params["cooccurrence"]))
+        $info["cooc"] = $params["cooccurrence"];
 
     return $info;
 }
@@ -359,8 +366,11 @@ function get_gnt_html($gnt_jobs, $child_jobs, $sb_jobs, $indent = "        ", $l
         $id = $gnt_job["id"];
         $key = $gnt_job["key"];
         $file = $gnt_job["file"];
+        $nb = isset($gnt_job["info"]["nb_size"]) ? $gnt_job["info"]["nb_size"] : "";
+        $cooc = isset($gnt_job["info"]["cooc"]) ? $gnt_job["info"]["cooc"] : "";
         $date = (isset($child_jobs) && $child_jobs !== false) ? $gnt_job["date"] : "";
         $date_str = $date ? " <span class='date'>-- $date</span>" : "";
+        $jobName = "<span class='job-name'>$file</span><br><span class='job-metadata'>Neighborhood Size=$nb Co-occurrence=$cooc</span>";
         
         $chtml = "";
         if (isset($child_jobs) && $child_jobs !== false && isset($child_jobs[$id])) {
@@ -372,7 +382,7 @@ function get_gnt_html($gnt_jobs, $child_jobs, $sb_jobs, $indent = "        ", $l
 
         $parent_str = $parent_id >= 0 ? "; Parent=$parent_id" : "";
         $extra_info = make_extra(" (GNT Job #$id$parent_str)");
-        $html .= "$indent<li $class><a href='efi-gnt/stepc.php?id=$id&key=$key' class='hl-gnt gnn' title='GNT Job #$id'>$file$extra_info</a> $date_str";
+        $html .= "$indent<li $class><a href='efi-gnt/stepc.php?id=$id&key=$key' class='hl-gnt gnn' title='GNT Job #$id'>$jobName$extra_info</a> $date_str";
         $sb_html = "";
         if ($chtml || $sb_html)
             $html .= "\n$indent  <ul class='tree'>\n$chtml$sb_html$indent  </ul>\n";
@@ -397,7 +407,8 @@ function get_colorssn_html($color_jobs, $sb_jobs, $indent = "        ", $level =
 
         $parent_str = $parent_id >= 0 ? "; Parent=$parent_id" : "";
         $extra_info = make_extra(" (Color SSN Job #$id$parent_str)");
-        $html .= "$indent<li $class><a href='efi-est/view_coloredssn.php?id=$id&key=$key' class='hl-color colorssn' title='Color SSN Job #$id'>$file$extra_info</a>";
+        $job_name = "<span class='job-name'>$file</span><br><span class='job-metadata'>Color SSN</span>";
+        $html .= "$indent<li $class><a href='efi-est/view_coloredssn.php?id=$id&key=$key' class='hl-color colorssn' title='Color SSN Job #$id'>$job_name$extra_info</a>";
         if ($sb_html)
             $html .= "$indent  <ul class='tree'>\n$sb_html$indent  </ul>\n";
         $html .= "$indent</li>\n";
@@ -412,6 +423,7 @@ function get_cgfp_html($jobs, $indent, $parent_id = -1) {
         $sb_id = $sb_job["id"];
         $sb_key = $sb_job["key"];
         $date = $sb_job["date"];
+        $file = $sb_job["file"];
         $date_str = $date ? " <span class='date'>-- $date</span>" : "";
 
         $q_jobs = $sb_job["quantify"];
@@ -419,13 +431,24 @@ function get_cgfp_html($jobs, $indent, $parent_id = -1) {
         foreach ($q_jobs as $q_job) {
             $q_id = $q_job["id"];
             $mgs = $q_job["mgs"];
+            $job_name = "";
+            $meta = "";
+            if (isset($q_job["job_name"])) {
+                $job_name = $q_job["job_name"];
+                $meta = "Quantification $mgs";
+            } else {
+                $job_name = "$mgs";
+                $meta = "Quantification";
+            }
+            $job_name = "<span class='job-name'>$job_name</span><br><span class='job-metadata'>$meta</span>";
             $extra_info = make_extra(" (CGFP Quantify Job #$q_id; Parent=$sb_id)");
-            $q_html .= "$indent    <li><a href='efi-cgfp/stepe.php?id=$sb_id&key=$sb_key&quantify-id=$q_id' class='hl-cgfp cgfp' title='CGFP Quantify Job #$q_id'>$mgs [quantification]$extra_info</a>\n";
+            $q_html .= "$indent    <li><a href='efi-cgfp/stepe.php?id=$sb_id&key=$sb_key&quantify-id=$q_id' class='hl-cgfp cgfp' title='CGFP Quantify Job #$q_id'>$job_name</a>\n";
         }
         
         $parent_str = $parent_id >= 0 ? "; Parent=$parent_id" : "";
         $extra_info = make_extra(" (CGFP Job #$sb_id$parent_str)");
-        $sb_html .= "$indent<li><a href='efi-cgfp/stepc.php?id=$sb_id&key=$sb_key' class='hl-cgfp cgfp' title='CGFP Identify Job #$sb_id'>CGFP $sb_id [marker]$extra_info</a> $date_str";
+        $job_name = "<span class='job-name'>$file</span><br><span class='job-metadata'>Identification</span>";
+        $sb_html .= "$indent<li><a href='efi-cgfp/stepc.php?id=$sb_id&key=$sb_key' class='hl-cgfp cgfp' title='CGFP Identify Job #$sb_id'>$job_name</a> $date_str";
         if ($q_html)
             $sb_html .= "$indent  <ul>\n$q_html$indent  </ul>\n";
         $sb_html .= "$indent</li>\n";
@@ -525,7 +548,7 @@ function retrieve_and_display($start_date, $user_email, $user_groups) {
     $color_jobs_db = get_job_list($results, "generate", LEVEL2, GET_IDS_FROM_DB);
     
     
-    $est_sql = "SELECT generate.generate_id, generate_key, generate_params, generate_type, generate_time_created, analysis_id, analysis_name FROM $est_db.generate LEFT JOIN $est_db.analysis ON generate.generate_id = analysis.analysis_generate_id";
+    $est_sql = "SELECT generate.generate_id, generate_key, generate_params, generate_type, generate_time_created, analysis_id, analysis_name, analysis_min_length, analysis_max_length, analysis_evalue FROM $est_db.generate LEFT JOIN $est_db.analysis ON generate.generate_id = analysis.analysis_generate_id";
     if ($group_clause)
         $est_sql .= " LEFT OUTER JOIN $est_db.job_group ON generate.generate_id = job_group.generate_id WHERE $group_clause";
     else
@@ -569,7 +592,8 @@ function output_tree($est_order, $est_grouping, $gnt_jobs_file, $gnt_jobs_db, $g
     foreach ($est_order as $gid) {
         $row = $est_grouping[$gid][0];
         $key = $row["generate_key"];
-        $job_type = $row["generate_type"];
+        $type =$row["generate_type"];
+        $job_type = est_user_jobs_shared::get_job_label($type);
         $date = global_functions::format_short_date($row["generate_time_created"], true);
     
         $params = array();
@@ -587,6 +611,7 @@ function output_tree($est_order, $est_grouping, $gnt_jobs_file, $gnt_jobs_db, $g
             $job_name .= " [$job_type; $families$uniref]";
         else
             $job_name .= " [$job_type]";
+        $job_name = est_user_jobs_shared::build_job_name($params, $type, function($f){});
         $job_name .= make_extra(" (EST Job #$gid)");
     
         $level1_html = "";
@@ -615,6 +640,7 @@ function output_tree($est_order, $est_grouping, $gnt_jobs_file, $gnt_jobs_db, $g
                 continue;
     
             $ssn_name = $row["analysis_name"];
+            $ssn_name = est_user_jobs_shared::build_analyze_job_name($row);
         
             $chtml = "";
             if (isset($color_jobs_db[$aid])) {
