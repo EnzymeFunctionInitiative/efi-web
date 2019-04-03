@@ -594,7 +594,7 @@ Protein_ID_3,Cluster#
             <div>
                 <p>
                 <span class="input-name">Network name</span>:
-                <input type="text" name="network_name" class="email" <?php if (isset($_POST['network_name'])) { echo "value='" . $_POST['network_name'] . "'";} ?>>
+                <input type="text" name="network_name" class="email" value="<?php echo $job_name; ?>" />
                 This name will be displayed in Cytoscape.
                 </p>
             </div>

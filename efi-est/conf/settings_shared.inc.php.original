@@ -2,12 +2,9 @@
 ////////////////////////////////////
 //                                              
 //      EFI EST                         
-//      settings.inc.php                        
+//      settings_shared.inc.php                        
 //                                              
-//      Settings for the scripts.               
-//                                              
-//      David Slater                            
-//      Sep 2013                                
+//      These settings are used by shared code in other parts of the website.
 //                                              
 ////////////////////////////////////
 
