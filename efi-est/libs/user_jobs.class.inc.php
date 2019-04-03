@@ -1,8 +1,10 @@
 <?php
 
-require_once "../includes/main.inc.php";
-require_once "functions.class.inc.php";
-require_once "../../libs/user_auth.class.inc.php";
+require_once(__DIR__ . "/../includes/main.inc.php");
+require_once(__DIR__ . "/functions.class.inc.php");
+require_once(__DIR__ . "/est_user_jobs_shared.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
 
 class user_jobs extends user_auth {
 
@@ -179,17 +181,18 @@ class user_jobs extends user_auth {
                     $acomp_result = self::get_completed_date_label($arow["analysis_time_completed"], $arow["analysis_status"]);
                     $acomp = $acomp_result[1];
                     $a_is_completed = $acomp_result[0];
-                    $a_min = $arow["analysis_min_length"] == __MINIMUM__ ? "" : "Min=".$arow["analysis_min_length"];
-                    $a_max = $arow["analysis_max_length"] == __MAXIMUM__ ? "" : "Max=".$arow["analysis_max_length"];
-                    $filter = $arow["analysis_filter"];
-                    $filter = $filter == "eval" ? "AS" : ($filter == "pid" ? "%ID" : ($filter == "bit" ? "BS" : "custom"));
-                    //$a_job_name = "$filter=" . $arow["analysis_evalue"] . " $a_min $a_max Title=<i>" . $arow["analysis_name"] . "</i>";
-                    $a_job_name = "<span class='job-name'>" . $arow["analysis_name"] . "</span><br><span class='job-metadata'>SSN Threshold=" . $arow["analysis_evalue"];
-                    if ($a_min)
-                        $a_job_name .= " $a_min";
-                    elseif ($a_max)
-                        $a_job_name .= " $a_max";
-                    $a_job_name .= "</span>";
+                    //$a_min = $arow["analysis_min_length"] == __MINIMUM__ ? "" : "Min=".$arow["analysis_min_length"];
+                    //$a_max = $arow["analysis_max_length"] == __MAXIMUM__ ? "" : "Max=".$arow["analysis_max_length"];
+                    //$filter = $arow["analysis_filter"];
+                    //$filter = $filter == "eval" ? "AS" : ($filter == "pid" ? "%ID" : ($filter == "bit" ? "BS" : "custom"));
+                    ////$a_job_name = "$filter=" . $arow["analysis_evalue"] . " $a_min $a_max Title=<i>" . $arow["analysis_name"] . "</i>";
+                    //$a_job_name = "<span class='job-name'>" . $arow["analysis_name"] . "</span><br><span class='job-metadata'>SSN Threshold=" . $arow["analysis_evalue"];
+                    //if ($a_min)
+                    //    $a_job_name .= " $a_min";
+                    //elseif ($a_max)
+                    //    $a_job_name .= " $a_max";
+                    //$a_job_name .= "</span>";
+                    $a_job_name = est_user_jobs_shared::build_analyze_job_name($arow);
 
                     $a_job = array("analysis_id" => $aid, "job_name" => $a_job_name, "is_completed" => $a_is_completed, "date_completed" => $acomp);
                     if (isset($child_color_jobs[$aid])) {
@@ -268,178 +271,10 @@ class user_jobs extends user_auth {
         return $jobs;
     }
 
-    private static function get_job_label($type) {
-        switch ($type) {
-        case "FAMILIES":
-            return "Families";
-        case "FASTA":
-            return "FASTA";
-        case "FASTA_ID":
-            return "FASTA+Headers";
-        case "ACCESSION":
-            return "Accession IDs";
-        case "COLORSSN":
-            return "Color SSN";
-        case "BLAST":
-            return "Sequence BLAST";
-        default:
-            return $type;
-        }
-    }
-
-    private static function get_filename($data, $type) {
-        if (array_key_exists("generate_fasta_file", $data)) {
-            $file = $data["generate_fasta_file"];
-            if ($file) {
-                return str_replace("_", " ", $file);
-            } elseif ($type == "FASTA" || $type == "FASTA_ID" || $type == "ACCESSION") {
-                return "Text Input";
-            } else {
-                return "";
-            }
-        } else {
-            return "";
-        }
-    }
-
-    private static function get_families($data, $type, $familyLookupFn) {
-        $famStr = "";
-        if (array_key_exists("generate_families", $data)) {
-            $fams = $data["generate_families"];
-            if ($fams) {
-                $famParts = explode(",", $fams);
-                if (count($famParts) > 2)
-                    $famParts = array($famParts[0], $famParts[1], "...");
-                $fams = implode(", ", array_map($familyLookupFn, $famParts));
-                $famStr = $fams;
-            }
-        }
-        return $famStr;
-    }
-
-    private static function get_evalue($data) {
-        $evalueStr = "";
-        if (array_key_exists("generate_evalue", $data)) {
-            $evalue = $data["generate_evalue"];
-            if ($evalue && $evalue != functions::get_evalue())
-                $evalueStr = "E-value=" . $evalue;
-        }
-        return $evalueStr;
-    }
-
-    private static function get_fraction($data) {
-        $fractionStr = "";
-        if (array_key_exists("generate_fraction", $data)) {
-            $fraction = $data["generate_fraction"];
-            if ($fraction && $fraction != functions::get_fraction())
-                $fractionStr = "Fraction=" . $fraction;
-        }
-        return $fractionStr;
-    }
-
-    private static function get_uniref_version($data) {
-        $unirefStr = "";
-        if (array_key_exists("generate_uniref", $data)) {
-            if ($data["generate_uniref"])
-                $unirefStr = "UniRef " . $data["generate_uniref"];
-        }
-        return $unirefStr;
-    }
-
-    private static function get_domain($data) {
-        $domainStr = "";
-        if (array_key_exists("generate_domain", $data)) {
-            if ($data["generate_domain"])
-                $domainStr = "Domain=on";
-        }
-        return $domainStr;
-    }
-
-    private static function get_sequence($data) {
-        $seqStr = "";
-        if (array_key_exists("generate_blast", $data) && $data["generate_blast"]) {
-            $seq = $data["generate_blast"];
-            $seqLabel = substr($seq, 0, 20);
-            $seqTitle = "";
-            $pos = 0;
-            while ($pos < strlen($seq)) {
-                $seqTitle .= substr($seq, $pos, 27) . "\n";
-                $pos += 40;
-            }
-            $seqStr = "Sequence: <span title='$seqTitle'>$seqLabel...</span>";
-        }
-        return $seqStr;
-    }
-
-    private static function get_blast_evalue($data) {
-        $info = "";
-        if (array_key_exists("generate_blast_evalue", $data) && $data["generate_blast_evalue"]) {
-            $info = "e-value=" . $data["generate_blast_evalue"];
-        }
-        return $info;
-    }
-
-    private static function get_max_blast_hits($data) {
-        $info = "";
-        if (array_key_exists("generate_blast_max_sequence", $data) && $data["generate_blast_max_sequence"]) {
-            $info = "max hits=" . $data["generate_blast_max_sequence"];
-        }
-        return $info;
-    }
-
     private static function build_job_name($json, $type, $familyLookupFn, $job_id = 0) {
-        $data = functions::decode_object($json);
+        $data = global_functions::decode_object($json);
 
-        $newFamilyLookupFn = function($family_id) use($familyLookupFn) {
-            $fam_name = $familyLookupFn($family_id);
-            return $fam_name ? "$family_id-$fam_name" : $family_id;
-        };
-
-        $fileName = self::get_filename($data, $type);
-        $families = self::get_families($data, $type, $newFamilyLookupFn);
-        $evalue = self::get_evalue($data);
-        $fraction = self::get_fraction($data);
-        $uniref = self::get_uniref_version($data);
-        $domain = self::get_domain($data);
-        $sequence = self::get_sequence($data);
-        $blastEvalue = self::get_blast_evalue($data);
-        $maxHits = self::get_max_blast_hits($data);
-        $jobNameField = isset($data["generate_job_name"]) ? $data["generate_job_name"] : "";
-
-        $job_name = "";
-        if ($jobNameField) {
-            $job_name = $jobNameField;
-        } else {
-            if ($type == "FAMILIES") {
-                $job_name = $families;
-                $families = ""; // do this so we don't add it in the metadata line below
-            } elseif ($type == "BLAST") {
-                $job_name = $sequence;
-                $sequence = "";
-            } else {
-                $job_name = $fileName;
-                $fileName = "";
-            }
-        }
-
-        $job_type = self::get_job_label($type);
-
-        $info = array($job_type);
-        if ($fileName) array_push($info, $fileName);
-        if ($families) array_push($info, $families);
-        if ($evalue) array_push($info, $evalue);
-        if ($fraction) array_push($info, $fraction);
-        if ($uniref) array_push($info, $uniref);
-        if ($domain) array_push($info, $domain);
-        if ($sequence) array_push($info, $sequence);
-        if ($blastEvalue) array_push($info, $blastEvalue);
-        if ($maxHits) array_push($info, $maxHits);
-
-        $job_info = implode("; ", $info);
-        
-        $job_name = "<span class='job-name'>$job_name</span><br><span class='job-metadata'>$job_info</span>";
-
-        return $job_name;
+        return est_user_jobs_shared::build_job_name($data, $type, $familyLookupFn, $job_id);
     }
 
     private static function lookup_family_name($db, $family_id) {

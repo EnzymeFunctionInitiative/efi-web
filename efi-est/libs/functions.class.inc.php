@@ -569,12 +569,6 @@ class functions {
         return __TEMP_FASTA_ID_FILENAME__;
     }
 
-    public static function get_default_neighbor_size() {
-        return __DEFAULT_NEIGHBOR_SIZE__;
-    }
-    public static function get_default_cooccurrence() {
-        return __COOCCURRENCE__;
-    }
     public static function get_colorssn_map_dir_name() {
         return __COLORSSN_MAP_DIR_NAME__;
     }
