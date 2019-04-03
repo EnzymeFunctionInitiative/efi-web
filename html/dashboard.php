@@ -55,7 +55,7 @@ Highlight
 <br>
 <!--<label><input type="checkbox" id="hide-empty" <?php echo $hide_empty ? "checked" : ""; ?> /> Hide EST jobs that have no analyze step</label>-->
  */ ?>
-<label><input type="checkbox" id="recent-first" <?php echo $recent_first ? "checked" : ""; ?> /> Sort by mot recent EFI-EST analysis</label>
+<label><input type="checkbox" id="recent-first" <?php echo $recent_first ? "checked" : ""; ?> /> Sort by most recent EFI-EST submission</label>
 <label><input type="checkbox" id="show-extra" /> Show consolidation details</label>
 <br>
 <div style="margin-top: 10px">
@@ -232,7 +232,7 @@ function get_job_list($results, $table, $job_level = LEVEL1, $get_id_type = GET_
     foreach ($results as $row) {
         $id = $row["${table}_id"];
         $key = $row["${table}_key"];
-        $date = global_functions::format_short_date($row["${table}_time_created"], true);
+        $date = global_functions::format_short_date($row["${table}_time_completed"], true);
         $info = get_info($row, $table);
         if ($job_level == LEVEL1) {
             $jobs[$id] = array("id" => $id, "key" => $key, "file" => $info["file"], "date" => $date, "info" => $info);
@@ -347,8 +347,13 @@ function add_quantify_jobs($sb_jobs_file, $db, $sb_db) {
             $q_jobs = array();
             foreach ($results as $row) {
                 $params = global_functions::decode_object($row["quantify_params"]);
-                $mg_ids = substr($params["quantify_metagenome_ids"], 0, 60);
-                $q_info = array("id" => $row["quantify_id"], "mgs" => $mg_ids);
+                $mg_ids = substr($params["quantify_metagenome_ids"], 0, 80);
+                $id_list = explode(",", $mg_ids);
+                array_pop($id_list);
+                $mg_ids = implode(", ", $id_list);
+                $job_name = isset($params["quantify_job_name"]) ? $params["quantify_job_name"] : "";
+                $date = global_functions::format_short_date($row["quantify_time_completed"], true);
+                $q_info = array("id" => $row["quantify_id"], "mgs" => $mg_ids, "date" => $date, "name" => $job_name);
                 array_push($q_jobs, $q_info);
             }
             $sb_jobs_file[$est_id][$i]["quantify"] = $q_jobs;
@@ -368,7 +373,7 @@ function get_gnt_html($gnt_jobs, $child_jobs, $sb_jobs, $indent = "        ", $l
         $file = $gnt_job["file"];
         $nb = isset($gnt_job["info"]["nb_size"]) ? $gnt_job["info"]["nb_size"] : "";
         $cooc = isset($gnt_job["info"]["cooc"]) ? $gnt_job["info"]["cooc"] : "";
-        $date = (isset($child_jobs) && $child_jobs !== false) ? $gnt_job["date"] : "";
+        $date = $gnt_job["date"]; //(isset($child_jobs) && $child_jobs !== false) ? $gnt_job["date"] : "";
         $date_str = $date ? " <span class='date'>-- $date</span>" : "";
         $jobName = "<span class='job-name'>$file</span><br><span class='job-metadata'>Neighborhood Size=$nb Co-occurrence=$cooc</span>";
         
@@ -399,6 +404,8 @@ function get_colorssn_html($color_jobs, $sb_jobs, $indent = "        ", $level =
         $id = $cjob["id"];
         $key = $cjob["key"];
         $file = $cjob["file"];
+        $date = $cjob["date"];
+        $date_str = $date ? " <span class='date'>-- $date</span>" : "";
 
         $sb_html = "";
         if (isset($sb_jobs[$id])) {
@@ -408,7 +415,7 @@ function get_colorssn_html($color_jobs, $sb_jobs, $indent = "        ", $level =
         $parent_str = $parent_id >= 0 ? "; Parent=$parent_id" : "";
         $extra_info = make_extra(" (Color SSN Job #$id$parent_str)");
         $job_name = "<span class='job-name'>$file</span><br><span class='job-metadata'>Color SSN</span>";
-        $html .= "$indent<li $class><a href='efi-est/view_coloredssn.php?id=$id&key=$key' class='hl-color colorssn' title='Color SSN Job #$id'>$job_name$extra_info</a>";
+        $html .= "$indent<li $class><a href='efi-est/view_coloredssn.php?id=$id&key=$key' class='hl-color colorssn' title='Color SSN Job #$id'>$job_name$extra_info</a> $date_str";
         if ($sb_html)
             $html .= "$indent  <ul class='tree'>\n$sb_html$indent  </ul>\n";
         $html .= "$indent</li>\n";
@@ -431,10 +438,12 @@ function get_cgfp_html($jobs, $indent, $parent_id = -1) {
         foreach ($q_jobs as $q_job) {
             $q_id = $q_job["id"];
             $mgs = $q_job["mgs"];
+            $qdate = $q_job["date"];
+            $qdate_str = $qdate ? " <span class='date'>-- $qdate</span>" : "";
             $job_name = "";
             $meta = "";
-            if (isset($q_job["job_name"])) {
-                $job_name = $q_job["job_name"];
+            if ($q_job["name"]) {
+                $job_name = $q_job["name"];
                 $meta = "Quantification $mgs";
             } else {
                 $job_name = "$mgs";
@@ -442,7 +451,7 @@ function get_cgfp_html($jobs, $indent, $parent_id = -1) {
             }
             $job_name = "<span class='job-name'>$job_name</span><br><span class='job-metadata'>$meta</span>";
             $extra_info = make_extra(" (CGFP Quantify Job #$q_id; Parent=$sb_id)");
-            $q_html .= "$indent    <li><a href='efi-cgfp/stepe.php?id=$sb_id&key=$sb_key&quantify-id=$q_id' class='hl-cgfp cgfp' title='CGFP Quantify Job #$q_id'>$job_name</a>\n";
+            $q_html .= "$indent    <li><a href='efi-cgfp/stepe.php?id=$sb_id&key=$sb_key&quantify-id=$q_id' class='hl-cgfp cgfp' title='CGFP Quantify Job #$q_id'>$job_name</a> $qdate_str\n";
         }
         
         $parent_str = $parent_id >= 0 ? "; Parent=$parent_id" : "";
@@ -548,7 +557,7 @@ function retrieve_and_display($start_date, $user_email, $user_groups) {
     $color_jobs_db = get_job_list($results, "generate", LEVEL2, GET_IDS_FROM_DB);
     
     
-    $est_sql = "SELECT generate.generate_id, generate_key, generate_params, generate_type, generate_time_created, analysis_id, analysis_name, analysis_min_length, analysis_max_length, analysis_evalue FROM $est_db.generate LEFT JOIN $est_db.analysis ON generate.generate_id = analysis.analysis_generate_id";
+    $est_sql = "SELECT generate.generate_id, generate_key, generate_params, generate_type, generate_time_completed, analysis_id, analysis_name, analysis_min_length, analysis_max_length, analysis_evalue, analysis_time_completed FROM $est_db.generate LEFT JOIN $est_db.analysis ON generate.generate_id = analysis.analysis_generate_id";
     if ($group_clause)
         $est_sql .= " LEFT OUTER JOIN $est_db.job_group ON generate.generate_id = job_group.generate_id WHERE $group_clause";
     else
@@ -594,7 +603,7 @@ function output_tree($est_order, $est_grouping, $gnt_jobs_file, $gnt_jobs_db, $g
         $key = $row["generate_key"];
         $type =$row["generate_type"];
         $job_type = est_user_jobs_shared::get_job_label($type);
-        $date = global_functions::format_short_date($row["generate_time_created"], true);
+        $date = global_functions::format_short_date($row["generate_time_completed"], true);
     
         $params = array();
         if (isset($row["generate_params"]))
@@ -635,6 +644,7 @@ function output_tree($est_order, $est_grouping, $gnt_jobs_file, $gnt_jobs_db, $g
     
         foreach ($est_grouping[$gid] as $row) {
             $aid = $row["analysis_id"];
+            $adate = global_functions::format_short_date($row["analysis_time_completed"], true);
     
             if (!$aid)
                 continue;
@@ -660,7 +670,7 @@ function output_tree($est_order, $est_grouping, $gnt_jobs_file, $gnt_jobs_db, $g
             }
     
             $ssn_extra = make_extra(" (SSN Job #$aid)");
-            $level2_html .= "      <li class='$topLevelClass'><a href='efi-est/stepe.php?id=$gid&key=$key&analysis_id=$aid' class='hl-est' title='EST Job #$gid - SSN Creation Job'>$ssn_name$ssn_extra</a>";
+            $level2_html .= "      <li class='$topLevelClass'><a href='efi-est/stepe.php?id=$gid&key=$key&analysis_id=$aid' class='hl-est' title='EST Job #$gid - SSN Creation Job'>$ssn_name$ssn_extra</a> <span class='date'>-- $adate</span>";
             if ($chtml || $ghtml)
                 $level2_html .= "\n        <ul class='tree'>\n$chtml$ghtml        </ul>\n";
             $level2_html .= "      </li>\n";
