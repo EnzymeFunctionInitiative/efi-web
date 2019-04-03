@@ -1,5 +1,5 @@
 
-function submitQuantify(formId, selectId, searchTypeId, messageId, sbId, sbKey) {
+function submitQuantify(formId, selectId, searchTypeId, jobNameId, messageId, sbId, sbKey) {
 
     var datasetType = "";
 
@@ -14,6 +14,7 @@ function submitQuantify(formId, selectId, searchTypeId, messageId, sbId, sbKey) 
     fd.append("id", sbId);
     fd.append("key", sbKey);
     addParam(fd, "search-type", searchTypeId);
+    addParam(fd, "job-name", jobNameId);
     
     var hmpIds = [];
     var selObj = document.getElementById(selectId);

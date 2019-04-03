@@ -1,35 +1,31 @@
 <?php
 
-require_once("Mail.php");
-require_once("Mail/mime.php");
+require_once(__DIR__ . "/../includes/main.inc.php");
+require_once(__DIR__ . "/est_shared.class.inc.php");
 
-class analysis {
+class analysis extends est_shared {
 
     ////////////////Private Variables//////////
 
     private $db; //mysql database object
     private $id;
+    private $key;
     private $status;
     private $filter_value;
     private $name;
     private $minimum;
     private $maximum;
-    private $time_created;
     private $pbs_number;
     private $blast_id;
     private $generate_id;
     private $filter;
-    private $time_started;
-    private $time_completed;
     private $finish_file = "stats.tab.completed";
     private $sequence_file = "sequences.fa";
     private $stats_file = "stats.tab";
     protected $output_dir = "output";
     private $num_pbs_jobs = 16;
     private $filter_sequences;
-    private $eol = PHP_EOL;
     private $db_version;
-    private $beta;
     private $length_overlap;
     private $custom_clustering;
     private $custom_filename = "custom_cluster.txt";
@@ -40,14 +36,13 @@ class analysis {
 
     ///////////////Public Functions///////////
 
-    public function __construct($db,$id = 0) {
+    public function __construct($db, $id = 0) {
+        parent::__construct($db, "analysis");
+
         $this->db = $db;
-
-        if ($id) {
+        if ($id)
             $this->load_analysis($id);
-        }
-
-        $this->beta = functions::get_release_status();
+        $this->beta = global_settings::get_release_status();
     }
 
     public function __destruct() {
@@ -55,30 +50,19 @@ class analysis {
 
     public function get_status() { return $this->status; }
     public function get_id() { return $this->id; }
+    public function get_key() { return $this->key; }
     public function get_generate_id() { return $this->generate_id; }
     public function get_filter_value() { return $this->filter_value; }
     public function get_min_length() { return $this->minimum; }
     public function get_max_length() { return $this->maximum; }
-    public function get_time_created() { return $this->time_created; }
     public function get_pbs_number() { return $this->pbs_number; }
     public function get_name() { return $this->name; }
     public function get_filter() { return $this->filter; }
-    public function get_time_started() { return $this->time_started; }
-    public function get_time_completed() { return $this->time_completed; }
-    public function get_unixtime_completed() { return strtotime($this->time_completed); }
     public function get_finish_file() { return $this->finish_file; }
     public function get_filter_sequences() { return $filter_sequences; }
-    public function get_sequence_file() {
-        return $this->sequence_file;
-    }
-    public function get_time_completed_formatted() {
-        return functions::format_datetime(functions::parse_datetime($this->time_completed));
-    }
+    public function get_sequence_file() { return $this->sequence_file; }
     public function get_db_version() { return $this->db_version; }
-
-    public function get_output_dir() {
-        return $this->get_generate_id() . "/" . $this->output_dir;
-    }
+    public function get_output_dir() { return $this->get_generate_id() . "/" . $this->output_dir; }
     public function get_cdhit_method_nice() {
         if ($this->cdhit_opt == "sb")
             return "ShortBRED";
@@ -87,6 +71,14 @@ class analysis {
         else
             return "EST";
     }
+    
+    public function set_pbs_number($pbs_number) {
+        $sql = "UPDATE analysis SET analysis_pbs_number='" . $pbs_number . "' ";
+        $sql .= "WHERE analysis_id='" . $this->get_id() . "'";
+        $this->db->non_select_query($sql);
+        $this->pbs_number = $pbs_number;
+    }
+
 
     public function set_num_sequences_post_filter() {
         $num_seq = $this->get_num_sequences_post_filter();
@@ -116,6 +108,16 @@ class analysis {
 
         }
         return $num_seq;
+    }
+
+    public function set_status($status) {
+        $sql = "UPDATE analysis ";
+        $sql .= "SET analysis_status='" . $status . "' ";
+        $sql .= "WHERE analysis_id='" . $this->get_id() . "' LIMIT 1";
+        $result = $this->db->non_select_query($sql);
+        if ($result) {
+            $this->status = $status;
+        }
     }
 
     public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval") {
@@ -162,7 +164,9 @@ class analysis {
         }
 
         if (!$errors) {
-            $insert_array = array('analysis_generate_id'=>$generate_id,
+            $insert_array = array(
+                'analysis_generate_id'=>$generate_id,
+                'analysis_status' => __NEW__,
                 'analysis_evalue'=>$filter_value,
                 'analysis_name'=>$name,
                 'analysis_min_length'=>$minimum,
@@ -181,29 +185,6 @@ class analysis {
             }
         }
         return array('RESULT'=>!$errors,'MESSAGE'=>$message);
-    }
-
-    public function set_pbs_number($pbs_number) {
-        $sql = "UPDATE analysis SET analysis_pbs_number='" . $pbs_number . "' ";
-        $sql .= "WHERE analysis_id='" . $this->get_id() . "'";
-        $this->db->non_select_query($sql);
-        $this->pbs_number = $pbs_number;
-    }
-
-    public function set_time_started() {
-        $current_time = date("Y-m-d H:i:s",time());
-        $sql = "UPDATE analysis SET analysis_time_started='" . $current_time . "' ";
-        $sql .= "WHERE analysis_id='" . $this->get_id() . "' LIMIT 1";
-        $this->db->non_select_query($sql);
-        $this->time_started = $current_time;
-    }
-
-    public function set_time_completed() {
-        $current_time = date("Y-m-d H:i:s",time());
-        $sql = "UPDATE analysis SET analysis_time_completed='" . $current_time . "' ";
-        $sql .= "WHERE analysis_id='" . $this->get_id() . "' LIMIT 1";
-        $this->db->non_select_query($sql);
-        $this->time_completed = $current_time;
     }
 
     public function check_pbs_running() {
@@ -230,17 +211,6 @@ class analysis {
         $directory .= "/" . $this->get_network_dir();
         $full_path = $directory . "/" . $this->get_finish_file();
         return file_exists($full_path);
-    }
-
-    public function set_status($status) {
-
-        $sql = "UPDATE analysis ";
-        $sql .= "SET analysis_status='" . $status . "' ";
-        $sql .= "WHERE analysis_id='" . $this->get_id() . "' LIMIT 1";
-        $result = $this->db->non_select_query($sql);
-        if ($result) {
-            $this->status = $status;
-        }
     }
 
     public function get_network_stats() {
@@ -306,159 +276,7 @@ class analysis {
         $path = functions::get_web_root() . "/results/" . $this->get_output_dir() . "/" . $this->get_network_dir() . "/" . $this->stats_file;
         return $path;
     }
-
-    public function email_complete() {
-
-        $stepa = new stepa($this->db,$this->get_generate_id());	
-        $subject = $this->beta . "EFI-EST - Your SSN has now been completed and is available for download";
-        $from = "EFI-EST <" .functions::get_admin_email() . ">";
-        $to = $stepa->get_email();
-
-        $web_root = functions::get_web_root();
-        $url = $web_root . "/stepe.php";
-        $full_url = $url . "?" . http_build_query(array('id'=>$this->get_generate_id(),
-            'key'=>$stepa->get_key(),'analysis_id'=>$this->get_id()));
-        $gnt_url = functions::get_gnt_web_root();
-        $cgfp_url = functions::get_cgfp_web_root();
-
-        $plain_email = "";
-        if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
-
-        //plain text email
-        $plain_email .= "Your EFI-EST SSN has been generated and is available for download." . $this->eol . $this->eol;
-        $plain_email .= "To access the results, please go to THE_URL" . $this->eol;
-        $plain_email .= "This data will only be retained for " . functions::get_retention_days() . " days." . $this->eol . $this->eol;
-        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
-        $plain_email .= $this->get_stepa_job_info() . $this->eol;
-        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
-
-        $plain_email .= "The coloring utility recently developed will help downstream analysis of your SSN. Try it! ";
-        $plain_email .= "It can be found at the bottom of the $web_root/stepa.php#colorssn page." . $this->eol . $this->eol;
-        $plain_email .= "Have you tried exploring Genome Neighborhood Networks (GNTs) from your favorite SSNs? ";
-        $plain_email .= "GNT_URL" . $this->eol . $this->eol;
-
-        $plain_email .= "A new tool for Computationally-Guided Functional Profiling (EFI-CGFP) has been added! ";
-        $plain_email .= "Go to CGFP_URL to use it." . $this->eol . $this->eol;
-
-        $plain_email .= "Cite us:" . $this->eol . $this->eol;
-        $plain_email .= "John A. Gerlt, Jason T. Bouvier, Daniel B. Davidson, Heidi J. Imker, Boris Sadkhin, David R. ";
-        $plain_email .= "Slater, Katie L. Whalen, Enzyme Function Initiative-Enzyme Similarity Tool (EFI-EST): A web tool ";
-        $plain_email .= "for generating protein sequence similarity networks, Biochimica et Biophysica Acta (BBA) - Proteins ";
-        $plain_email .= "and Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639, EST_DOI ";
-        $plain_email .= $this->eol . $this->eol;
-
-        $plain_email .= "R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, ";
-        $plain_email .= "\"Democratized\" genomic enzymology web tools for functional assignment, ";
-        $plain_email .= "Current Opinion in Chemical Biology, Volume 47, 2018, Pages 77-85, GNT_DOI";
-        $plain_email .= $this->eol . $this->eol;
-        $plain_email .= functions::get_email_footer() . $this->eol;
-
-        $est_doi_url = "https://dx.doi.org/10.1016/j.bbapap.2015.04.015";
-        $gnt_doi_url = "https://doi.org/10.1016/j.cbpa.2018.09.009";
-//        $sci_url = "http://www.sciencedirect.com/science/article/pii/S1570963915001120";
-
-        $html_email = nl2br($plain_email, false);
-        $plain_email = str_replace("THE_URL", $full_url, $plain_email);
-        $plain_email = str_replace("GNT_URL", $gnt_url, $plain_email);
-        $plain_email = str_replace("EST_DOI", $est_doi_url, $plain_email);
-        $plain_email = str_replace("GNT_DOI", $gnt_doi_url, $plain_email);
-//        $plain_email = str_replace("SCI_URL", $sci_url, $plain_email);
-        $plain_email = str_replace("CGFP_URL", $cgfp_url, $plain_email);
-        $html_email = str_replace("THE_URL", "<a href=\"" . htmlentities($full_url) . "\">" . $full_url . "</a>", $html_email);
-        $html_email = str_replace("GNT_URL", "<a href=\"" . htmlentities($gnt_url) . "\">" . $gnt_url . "</a>", $html_email);
-        $html_email = str_replace("EST_DOI", "<a href=\"" . htmlentities($est_doi_url) . "\">" . $est_doi_url. "</a>", $html_email);
-        $html_email = str_replace("GNT_DOI", "<a href=\"" . htmlentities($gnt_doi_url) . "\">" . $gnt_doi_url. "</a>", $html_email);
-//        $html_email = str_replace("SCI_URL", "<a href=\"" . htmlentities($sci_url) . "\">" . $sci_url. "</a>", $html_email);
-        $html_email = str_replace("CGFP_URL", "<a href=\"" . htmlentities($cgfp_url) . "\">" . $cgfp_url . "</a>", $html_email);
-
-        $message = new Mail_mime(array("eol"=>$this->eol));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From"=>$from,
-            "Subject"=>$subject
-        );
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to,$headers,$body);
-    }
-
-    public function email_failed() { //$from_email,$web_root,$footer) {
-        $web_root = "";
-        $footer = "";
-
-        $generate = new stepa($this->db,$this->get_generate_id());
-        $subject = $this->beta . "EFI-EST - SSN finalization failed";
-        $to = $generate->get_email();
-        $from = "EFI-EST <" .functions::get_admin_email() . ">";
-        //$url = $web_root . "/stepa.php";
-
-        $plain_email = "";
-        if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
-
-        $plain_email .= "The SSN finalization failed. Please contact us with the EFI-EST Job ID to determine ";
-        $plain_email .= "why this occurred." . $this->eol . $this->eol;
-        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
-        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
-        $plain_email .= functions::get_email_footer() . $this->eol;
-        
-        $html_email = nl2br($plain_email, false);
-
-        $message = new Mail_mime(array("eol"=>$this->eol));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From"=>$from,
-            "Subject"=>$subject
-        );
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to,$headers,$body);
-    }
-
-    public function email_started() {
-        $stepa = new stepa($this->db,$this->get_generate_id());
-        $subject = $this->beta . "EFI-EST - Your SSN is being finalized";
-        $from = "EFI-EST <" .functions::get_admin_email() . ">";
-        $to = $stepa->get_email();
-
-        $full_url = functions::get_web_root() . "/" . functions::get_job_status_script();
-        $full_url .= "?" . http_build_query(array('id'=>$this->get_generate_id(),
-            'key'=>$stepa->get_key(),'analysis_id'=>$this->get_id()));
-
-        $plain_email = "";
-        if ($this->beta) $plain_email = "Thank you for using the beta site of EFI-EST." . $this->eol;
-
-        //plain text email
-        $plain_email .= "Your SSN is being finalized." . $this->eol;
-        $plain_email .= "You will receive an email once it is completed." . $this->eol . $this->eol;
-        $plain_email .= "Submission Summary:" . $this->eol . $this->eol;
-        $plain_email .= $this->get_stepa_job_info();
-        $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
-        $plain_email .= "To check on the status of this job go to THE_STATUS_URL" . $this->eol . $this->eol;
-        $plain_email .= "If no new email is received after 48 hours, please contact us and mention the EFI-EST ";
-        $plain_email .= "Job ID that corresponds to this email." . $this->eol . $this->eol;
-        $plain_email .= functions::get_email_footer() . $this->eol;
-
-        $html_email = nl2br($plain_email, false);
-        $plain_email = str_replace("THE_STATUS_URL", $full_url, $plain_email);
-        $html_email = str_replace("THE_STATUS_URL", "<a href=\"" . htmlentities($full_url) . "\">" . $full_url . "</a>", $html_email);
-
-        $message = new Mail_mime(array("eol"=>$this->eol));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From"=>$from,
-            "Subject"=>$subject
-        );
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to,$headers,$body);
-    }
-
+    
     public function run_job($is_debug = false) {
         if ($this->available_pbs_slots()) {
 
@@ -599,11 +417,10 @@ class analysis {
                             $result[0]['analysis_custom_cluster'] == 1;
             $this->custom_clustering = $has_custom;
             $email = $result[0]['generate_email'];
+            $key = $result[0]['generate_key'];
             $this->is_sticky = functions::is_job_sticky($this->db, $this->generate_id, $email);
-            //TODO: fix this. the field doesn't come from a database column anymore; it comes from the generate_params
-            // field which is a JSON structure. that would mean it would need to be decoded to get the value. this
-            // feature isn't used anymore.
-            //$this->length_overlap = $result[0]['generate_length_overlap'];
+            $this->set_email($email);
+            $this->key = $key;
         }
     }
 
@@ -709,43 +526,37 @@ class analysis {
         return $result;
     }
 
-    private function get_job_info() {
-        $message = "Job ID: " . $this->get_id() . "\r\n";
-        $message .= "Minimum Length: " . $this->get_min_length() . "\r\n";
-        $message .= "Maximum Length: " . $this->get_max_length() . "\r\n";
-        $message .= "Filter Type: " . $this->get_filter_name() . "\r\n";
-        $message .= "Filter Value: " . $this->get_filter_value() . "\r\n";
-        $message .= "Network Name: " . $this->get_name() . "\r\n";
-        return $message;
-    }
-
     private function get_stepa_job_info() {
-        $stepa = new stepa($this->db,$this->get_generate_id());
-        $job_type = $stepa->get_type();
+        $gen_id = $this->get_generate_id();
+        $job_type = stepa::get_type_static($this->db, $gen_id);
 
         switch ($job_type) {
             case "BLAST":
-                $stepa = new blast($this->db,$this->get_generate_id());
+                $stepa = new blast($this->db, $gen_id);
                 break;
     
             case "FAMILIES": 
-                $stepa = new generate($this->db,$this->get_generate_id());
+                $stepa = new generate($this->db, $gen_id);
                 break;			
     
             case "FASTA":
-                $stepa = new fasta($this->db,$this->get_generate_id());
+                $stepa = new fasta($this->db, $gen_id);
                 break;
     
             case "ACCESSION":
-                $stepa = new accession($this->db, $this->get_generate_id());
+                $stepa = new accession($this->db, $gen_id);
                 break;
     
             case "FASTA_ID":
-                $stepa = new fasta($this->db,$this->get_generate_id(), "E");
+                $stepa = new fasta($this->db, $gen_id, "E");
+                break;
+
+            default:
+                $stepa = new stepa($this->db, $gen_id);
                 break;
         }
 
-        $message = $stepa->get_job_info();
+        $message = $stepa->get_email_job_info();
         return $message;
     }
     
@@ -775,6 +586,95 @@ class analysis {
         }
 
         return $name;
+    }
+
+    // PARENT EMAIL-RELATED OVERLOADS
+
+    protected function get_email_job_info() {
+        $message = "Analysis Job ID: " . $this->get_id() . "\r\n";
+        $message .= "Minimum Length: " . $this->get_min_length() . "\r\n";
+        $message .= "Maximum Length: " . $this->get_max_length() . "\r\n";
+        $message .= "Filter Type: " . $this->get_filter_name() . "\r\n";
+        $message .= "Filter Value: " . $this->get_filter_value() . "\r\n";
+        $message .= "Network Name: " . $this->get_name() . "\r\n";
+        return $message;
+    }
+    
+    protected function get_generate_results_script() {
+        return "stepe.php";
+    }
+
+    protected function get_email_started_subject() { return "EFI-EST - Your SSN is being finalized"; }
+    protected function get_email_started_body() {
+        $full_url = functions::get_web_root() . "/" . functions::get_job_status_script();
+        $full_url .= "?" . http_build_query(array('id' => $this->get_generate_id(), 'key' => $this->get_key(), 'analysis_id' => $this->get_id()));
+
+        $plain_email = "";
+        $plain_email .= "Your SSN is being finalized." . PHP_EOL;
+        $plain_email .= "To check on the status of this job go to THE_URL " . PHP_EOL . PHP_EOL;
+        $plain_email .= "If no new email is received after 48 hours, please contact us and mention the EFI-EST ";
+        $plain_email .= "Job ID that corresponds to this email." . PHP_EOL . PHP_EOL;
+        $plain_email .= $this->get_stepa_job_info();
+
+        return array("body" => $plain_email, "url" => $full_url);
+    }
+
+    protected function get_email_completion_subject() { return "EFI-EST - Your SSN has now been completed and is available for download"; }
+    protected function get_email_completion_body() {
+        $web_root = functions::get_web_root();
+        $url = $web_root . "/stepe.php";
+        $full_url = $url . "?" . http_build_query(array('id' => $this->get_generate_id(), 'key' => $this->get_key(), 'analysis_id' => $this->get_id()));
+        $gnt_url = functions::get_gnt_web_root();
+        $cgfp_url = functions::get_cgfp_web_root();
+        //TODO: move these hardcode constant URLs out to a config file or something
+        $est_doi_url = "https://dx.doi.org/10.1016/j.bbapap.2015.04.015";
+        $gnt_doi_url = "https://doi.org/10.1016/j.cbpa.2018.09.009";
+        //$sci_url = "http://www.sciencedirect.com/science/article/pii/S1570963915001120";
+
+        $plain_email = "";
+        $plain_email .= "Your EFI-EST SSN has been generated and is available for download." . PHP_EOL . PHP_EOL;
+        $plain_email .= "To access the results, please go to THE_URL" . PHP_EOL;
+        $plain_email .= "This data will only be retained for " . functions::get_retention_days() . " days." . PHP_EOL . PHP_EOL;
+        $plain_email .= "Submission Summary:" . PHP_EOL . PHP_EOL;
+        $plain_email .= $this->get_stepa_job_info() . PHP_EOL;
+        $plain_email .= $this->get_email_job_info() . PHP_EOL . PHP_EOL;
+
+        $plain_email .= "The coloring utility recently developed will help downstream analysis of your SSN. Try it! ";
+        $plain_email .= "It can be found at the bottom of the $web_root/stepa.php#colorssn page." . PHP_EOL . PHP_EOL;
+        $plain_email .= "Have you tried exploring Genome Neighborhood Networks (GNTs) from your favorite SSNs? ";
+        $plain_email .= "GNT_URL" . PHP_EOL . PHP_EOL;
+
+        $plain_email .= "A new tool for Computationally-Guided Functional Profiling (EFI-CGFP) has been added! ";
+        $plain_email .= "Go to CGFP_URL to use it." . PHP_EOL . PHP_EOL;
+
+        $plain_email .= "Cite us:" . PHP_EOL . PHP_EOL;
+        $plain_email .= "John A. Gerlt, Jason T. Bouvier, Daniel B. Davidson, Heidi J. Imker, Boris Sadkhin, David R. ";
+        $plain_email .= "Slater, Katie L. Whalen, Enzyme Function Initiative-Enzyme Similarity Tool (EFI-EST): A web tool ";
+        $plain_email .= "for generating protein sequence similarity networks, Biochimica et Biophysica Acta (BBA) - Proteins ";
+        $plain_email .= "and Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639, EST_DOI ";
+        $plain_email .= PHP_EOL . PHP_EOL;
+
+        $plain_email .= "R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, ";
+        $plain_email .= "\"Democratized\" genomic enzymology web tools for functional assignment, ";
+        $plain_email .= "Current Opinion in Chemical Biology, Volume 47, 2018, Pages 77-85, GNT_DOI";
+        $plain_email .= PHP_EOL . PHP_EOL;
+
+        $url_list = array("THE_URL" => $full_url, "GNT_URL" => $gnt_url, "EST_DOI" => $est_doi_url, "GNT_DOI" => $gnt_doi_url, "CGFP_URL" => $cgfp_url);
+
+        return array("body" => $plain_email, "url" => $url_list, "suppress_job_info" => true);
+    }
+
+    protected function get_email_cancelled_subject() { return "EFI-EST - Your SSN creation was cancelled"; }
+    protected function get_email_cancelled_body() { return "Your SSN creation was cancelled upon user request."; }
+
+    public function email_failed() {
+        $subject = "EFI-EST - SSN finalization failed";
+
+        $plain_email = "";
+        $plain_email .= "The SSN finalization failed. Please contact us with the EFI-EST Job ID to determine ";
+        $plain_email .= "why this occurred." . PHP_EOL . PHP_EOL;
+
+        $this->email_error($subject, $plain_email);
     }
 }
 

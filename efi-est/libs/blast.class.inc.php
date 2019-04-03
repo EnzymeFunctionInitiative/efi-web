@@ -126,19 +126,18 @@ class blast extends family_shared {
         return $result;
     }
 
-    public function get_job_info($eol = "\r\n") {
-        $message = "EFI-EST ID: " . $this->get_id() . $eol;
-        $message .= "Computation Type: " . functions::format_job_type($this->get_type()) . $eol;
-        $message .= "Blast Sequence: " . $eol;
-        $message .= $this->get_formatted_blast() . $eol;
-        $message .= "E-Value: " . $this->blast_evalue . $eol;
+    protected function get_email_job_info() {
+        $message = parent::get_email_job_info();
+        $message .= "Blast Sequence: " . PHP_EOL;
+        $message .= $this->get_formatted_blast() . PHP_EOL;
+        $message .= "E-Value: " . $this->blast_evalue . PHP_EOL;
         $fams = $this->get_families_comma();
         if ($fams) {
-            $message .= "PFAM/Interpro Families: " . $fams . $eol;
-            $message .= "PFAM/Interpro Families BLAST E-Value: " . $this->get_evalue() . $eol;
+            $message .= "Pfam/Interpro Families: " . $fams . PHP_EOL;
+            $message .= "Pfam/Interpro Families BLAST E-Value: " . $this->get_evalue() . PHP_EOL;
         }
-        $message .= "Maximum Blast Sequences: " . $this->get_submitted_max_sequences() . $eol;
-        //$message .= "Selected Program: " . $this->get_program() . $eol;
+        $message .= "Maximum Blast Sequences: " . $this->get_submitted_max_sequences() . PHP_EOL;
+        //$message .= "Selected Program: " . $this->get_program() . PHP_EOL;
         
         return $message;
     }

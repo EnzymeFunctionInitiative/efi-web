@@ -2,9 +2,10 @@ ul.tree, ul.tree ul {
     list-style: none;
     margin: 0;
     padding: 0;
+    margin-left: 5px;
 } 
 ul.tree ul {
-    margin-left: 10px;
+    margin-left: 20px;
 }
 ul.tree li {
     margin: 0;
@@ -59,5 +60,9 @@ a {
 
 .hidden {
     display: none;
+}
+
+ul.tree li .job-metadata {
+    padding-left: 12px;
 }
 

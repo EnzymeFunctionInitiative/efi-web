@@ -16,6 +16,7 @@ abstract class quantify_shared extends job_shared {
     protected $identify_parent_id = 0;
     protected $mg_db_name = "";
     protected $mg_db_id = 0;
+    protected $job_name = "";
 
     
     
@@ -40,6 +41,9 @@ abstract class quantify_shared extends job_shared {
     }
     public function get_metagenome_db_id() {
         return $this->mg_db_id;
+    }
+    public function get_job_name() {
+        return $this->job_name;
     }
 
 

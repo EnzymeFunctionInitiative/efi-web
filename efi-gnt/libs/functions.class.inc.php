@@ -184,19 +184,21 @@ class functions extends global_functions {
     }
 
     public static function verify_gnt_job($db, $gnn_id, $gnn_key) {
-        $sql = "SELECT gnn_filename, gnn_email FROM gnn WHERE gnn_id = $gnn_id AND gnn_key = '$gnn_key'";
+        $sql = "SELECT gnn_params, gnn_email FROM gnn WHERE gnn_id = $gnn_id AND gnn_key = '$gnn_key'";
         $result = $db->query($sql);
-        if ($result)
-            return array('filename' => $result[0]['gnn_filename'], 'email' => $result[0]['gnn_email']);
-        else
+        if ($result) {
+            $params = global_functions::decode_object($result[0]["gnn_params"]);
+            return array("filename" => $params["filename"], "email" => $result[0]["gnn_email"]);
+        } else {
             return false;
+        }
     }
 
     public static function get_gnn_key($db, $gnn_id) {
         $sql = "SELECT gnn_key FROM gnn WHERE gnn_id = $gnn_id";
         $result = $db->query($sql);
         if ($result)
-            return $result[0]['gnn_key'];
+            return $result[0]["gnn_key"];
         else
             return false;
     }

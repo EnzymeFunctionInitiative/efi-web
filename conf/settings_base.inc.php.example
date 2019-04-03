@@ -29,6 +29,7 @@ define("__EMAIL_FOOTER__","");
 define("__ENABLE_RECENT_JOBS__",true);
 define("__ENABLE_JOB_GROUPS__",false);
 define("__ENABLE_SHORTBRED__",false);
+define("__ENABLE_ADVANCED_OPTIONS__",true);
 
 define("__MEMORY_QUEUE__","");
 define("__NORMAL_QUEUE__","");

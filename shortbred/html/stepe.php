@@ -1,5 +1,9 @@
 <?php 
 
+// In order to share as much code between the actual results page and the example results page
+// and make the example page as full-featured as possible, most of the contents of this file
+// are located in parts in the inc/ dir.
+
 require_once("../includes/main.inc.php");
 require_once("../libs/job_manager.class.inc.php");
 
@@ -28,7 +32,7 @@ if (isset($_GET["as-table"])) {
 }
 
 
-$ExtraTitle = "Quantify Results for Identify ID $identify_id / Quantify ID $qid";
+$ExtraTitle = "Quantify Results";
 $job_obj = new quantify($db, $qid);
 
 
@@ -39,19 +43,23 @@ require_once("inc/stepe_vars.inc.php");
 //     $filename
 
 if (isset($_GET["as-table"])) {
-    $table_filename = "${identify_id}_q${qid}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_settings.txt";
+    $table_filename = "${identify_id}_q${qid}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_summary.txt";
     functions::send_table($table_filename, $table_string);
     exit(0);
 }
 
+$job_name = pathinfo($filename, PATHINFO_FILENAME);
+
+$HeatmapWidth = 900;
 
 include("inc/header.inc.php");
 
 ?>
 
 <h2><?php echo $ExtraTitle; ?></h2>
-<p>&nbsp;</p>
 
+
+<h4 class="job-display">Submitted SSN: <b><?php echo $job_name; ?></b></h4>
 
 <?php include("inc/stepe_body.inc.php"); ?>
 

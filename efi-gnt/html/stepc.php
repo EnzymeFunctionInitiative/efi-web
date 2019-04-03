@@ -1,9 +1,8 @@
 <?php 
 require_once("../includes/main.inc.php");
-require_once("../../libs/table_builder.class.inc.php");
-require_once("../../libs/ui.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
-$message = "";
 if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
     $gnn = new gnn($db,$_GET['id']);
     if ($gnn->get_key() != $_GET['key']) {
@@ -20,15 +19,6 @@ else {
 $gnnId = $gnn->get_id();
 $gnnKey = $gnn->get_key();
 $baseUrl = settings::get_web_address();
-$isMigrated = false;
-$migInfo = functions::get_est_job_info_from_gnn_id($db, $gnnId);
-if ($migInfo !== false) {
-    $isMigrated = true;
-    $generateId = $migInfo["generate_id"];
-    $analysisId = $migInfo["analysis_id"];
-    $generateKey = $migInfo["key"];
-    $estParams = "id=$generateId&key=$generateKey&analysis_id=$analysisId";
-}
 
 
 
@@ -50,7 +40,7 @@ foreach ($metadata as $row) {
 $tableString = $table->as_string();
 
 if (isset($_GET["as-table"])) {
-    $tableFilename = functions::safe_filename($gnn->get_filename()) . "_settings.txt";
+    $tableFilename = functions::safe_filename($gnn->get_filename()) . "_summary.txt";
     header('Pragma: public');
     header('Expires: 0');
     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -62,6 +52,9 @@ if (isset($_GET["as-table"])) {
     exit(0);
 }
 
+
+$allow_regenerate = !$gnn->has_parent();
+$cooccurrence = $gnn->get_cooccurrence();
 
 
 
@@ -78,6 +71,8 @@ $pfamZipFilesize = format_file_size($gnn->get_pfam_hub_zip_filesize());
 
 $uniprotIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIPROT);
 $uniprotIdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIPROT));
+$uniprotDomIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIPROT_DOMAIN);
+$uniprotDomIdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIPROT_DOMAIN));
 $uniref50IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIREF50);
 $uniref50IdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIREF50));
 $uniref90IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIREF90);
@@ -95,10 +90,14 @@ $warningFile = $gnn->get_relative_warning_file();
 $warningFilesize = $gnn->get_warning_filesize();
 $idTableFile = $gnn->get_relative_id_table_file();
 $idTableFilesize = $gnn->get_id_table_filesize();
+$idDomTableFile = $gnn->get_relative_id_table_file(true);
+$idDomTableFilesize = $gnn->get_id_table_filesize(true);
 $pfamNoneZip = $gnn->get_relative_pfam_none_zip_file();
 $pfamNoneZipFilesize = $gnn->get_pfam_none_zip_filesize();
 $fastaZip = $gnn->get_relative_fasta_zip_file();
+$fastaDomainZip = $gnn->get_relative_fasta_zip_file(true);
 $fastaZipFilesize = $gnn->get_fasta_zip_filesize();
+$fastaDomainZipFilesize = $gnn->get_fasta_zip_filesize(true);
 $coocTableFile = $gnn->get_relative_cooc_table_file();
 $coocTableFilesize = $gnn->get_cooc_table_filesize();
 $hubCountFile = $gnn->get_relative_hub_count_file();
@@ -120,283 +119,352 @@ $otherFiles = array();
 if ($idTableFile or $pfamDataZip or $splitPfamDataZip or $allPfamDataZip or $allSplitPfamDataZip)
     array_push($otherFiles, array("Mapping Tables"));
 if ($idTableFile)
-    array_push($otherFiles, array($idTableFile, format_file_size($idTableFilesize), "UniProt ID-Color-Cluster Number"));
+    array_push($otherFiles, array($idTableFile, format_file_size($idTableFilesize), "UniProt ID-Color-Cluster number"));
+if ($idDomTableFilesize !== false)
+    array_push($otherFiles, array($idDomTableFile, format_file_size($idDomTableFilesize), "UniProt ID-Color-Cluster (domain) number"));
 if ($pfamDataZip)
-    array_push($otherFiles, array($pfamDataZip, format_file_size($pfamDataZipFilesize), "Neighbor Pfam domain fusions at specified minimal cooccurrence frequency"));
+    array_push($otherFiles, array($pfamDataZip, format_file_size($pfamDataZipFilesize), "Neighbor Pfam domain fusions at specified minimal co-occurrence frequency"));
 if ($splitPfamDataZip)
-    array_push($otherFiles, array($splitPfamDataZip, format_file_size($splitPfamDataZipFilesize), "Neighbor Pfam domains at specified minimal cooccurrence frequency"));
+    array_push($otherFiles, array($splitPfamDataZip, format_file_size($splitPfamDataZipFilesize), "Neighbor Pfam domains at specified minimal co-occurrence frequency"));
 if ($allPfamDataZip)
-    array_push($otherFiles, array($allPfamDataZip, format_file_size($allPfamDataZipFilesize), "Neighbor Pfam domain fusions at 0% minimal cooccurrence frequency"));
+    array_push($otherFiles, array($allPfamDataZip, format_file_size($allPfamDataZipFilesize), "Neighbor Pfam domain fusions at 0% minimal co-occurrence frequency"));
 if ($allSplitPfamDataZip)
-    array_push($otherFiles, array($allSplitPfamDataZip, format_file_size($allSplitPfamDataZipFilesize), "Neighbor Pfam domains at 0% minimal cooccurrence frequency"));
+    array_push($otherFiles, array($allSplitPfamDataZip, format_file_size($allSplitPfamDataZipFilesize), "Neighbor Pfam domains at 0% minimal co-occurrence frequency"));
 
 if ($uniprotIdDataZip or $uniref50IdDataZip or $uniref90IdDataZip or $fastaZip or $pfamNoneZip)
-    array_push($otherFiles, array("Data Files by Cluster"));
+    array_push($otherFiles, array("Data Files per SSN Cluster"));
 if ($uniprotIdDataZip)
-    array_push($otherFiles, array($uniprotIdDataZip, format_file_size($uniprotIdDataZipFilesize), "UniProt ID Lists"));
+    array_push($otherFiles, array($uniprotIdDataZip, format_file_size($uniprotIdDataZipFilesize), "UniProt ID lists"));
+if ($uniprotDomIdDataZip)
+    array_push($otherFiles, array($uniprotDomIdDataZip, format_file_size($uniprotDomIdDataZipFilesize), "UniProt ID (domain) lists"));
 if ($uniref50IdDataZip)
-    array_push($otherFiles, array($uniref50IdDataZip, format_file_size($uniref50IdDataZipFilesize), "UniRef50 ID Lists"));
+    array_push($otherFiles, array($uniref50IdDataZip, format_file_size($uniref50IdDataZipFilesize), "UniRef50 ID lists"));
 if ($uniref90IdDataZip)
-    array_push($otherFiles, array($uniref90IdDataZip, format_file_size($uniref90IdDataZipFilesize), "UniRef90 ID Lists"));
+    array_push($otherFiles, array($uniref90IdDataZip, format_file_size($uniref90IdDataZipFilesize), "UniRef90 ID lists"));
 if ($fastaZip)
     array_push($otherFiles, array($fastaZip, format_file_size($fastaZipFilesize), "FASTA Files"));
+if ($fastaDomainZipFilesize)
+    array_push($otherFiles, array($fastaDomainZip, format_file_size($fastaDomainZipFilesize), "FASTA files (with domain)"));
 if ($pfamNoneZip)
-    array_push($otherFiles, array($pfamNoneZip, format_file_size($pfamNoneZipFilesize), "Neighbors without PFAM assigned"));
+    array_push($otherFiles, array($pfamNoneZip, format_file_size($pfamNoneZipFilesize), "Neighbors without Pfam assigned"));
 
 if ($warningFile or $coocTableFile or $hubCountFile or $clusterSizesFileSize !== false or $swissprotClustersDescFileSize !== false or $swissprotSinglesDescFileSize !== false)
     array_push($otherFiles, array("Miscellaneous Files"));
 if ($warningFile)
-    array_push($otherFiles, array($warningFile, format_file_size($warningFilesize), "No Matches/No Neighbors File"));
+    array_push($otherFiles, array($warningFile, format_file_size($warningFilesize), "No matches/no neighbors file"));
 if ($coocTableFile)
-    array_push($otherFiles, array($coocTableFile, format_file_size($coocTableFilesize), "Pfam Family/Cluster Cooccurrence Table File"));
+    array_push($otherFiles, array($coocTableFile, format_file_size($coocTableFilesize), "Pfam family/cluster co-occurrence table file"));
 if ($hubCountFile)
-    array_push($otherFiles, array($hubCountFile, format_file_size($hubCountFilesize), "GNN Hub Cluster Sequence Count File"));
+    array_push($otherFiles, array($hubCountFile, format_file_size($hubCountFilesize), "GNN hub cluster sequence count file"));
 if ($clusterSizesFileSize !== false)
-    array_push($otherFiles, array($clusterSizesFile, format_file_size($clusterSizesFileSize), "Cluster Size File"));
+    array_push($otherFiles, array($clusterSizesFile, format_file_size($clusterSizesFileSize), "Cluster size file"));
 if ($swissprotClustersDescFileSize !== false)
-    array_push($otherFiles, array($swissprotClustersDescFile, format_file_size($swissprotClustersDescFileSize), "SwissProt Annotations by Cluster"));
+    array_push($otherFiles, array($swissprotClustersDescFile, format_file_size($swissprotClustersDescFileSize), "SwissProt annotations per SSN cluster"));
 if ($swissprotSinglesDescFileSize !== false)
-    array_push($otherFiles, array($swissprotSinglesDescFile, format_file_size($swissprotSinglesDescFileSize), "SwissProt Annotations by Singleton"));
+    array_push($otherFiles, array($swissprotSinglesDescFile, format_file_size($swissprotSinglesDescFileSize), "SwissProt annotations by singleton"));
 
-$updateMessage = functions::get_update_message();
+$gnn_name = $gnn->get_gnn_name();
 
 require_once('inc/header.inc.php'); 
 
 ?>
 
-<div id="update-message" class="update_message initial-hidden">
-    Several new features have been added to the GNT! <a href="notes.php">See the release notes.</a><br>
-<?php if (isset($updateMessage)) echo $updateMessage; ?>
-</div>
+<h2>Results</h2>
 
-    <h2>Results</h2>
+<h4 class="job-display">Submitted Network Name: <b><?php echo $gnn_name; ?></b></h4>
 
-    <h3>Network Information</h3>
-    <table width="100%" style="margin-top: 10px" class="pretty">
-        <tbody>
-<?php echo $tableString; ?>
-        </tbody>
-    </table>
-    <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$gnnId&key=$gnnKey&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
-    <div style="clear: both"></div>
-
-    <h3>Colored Sequence Similarity Network (SSN)</h3>
-    <p>The nodes in the input SSN are assigned unique cluster numbers and colors.</p>
-
-    <table width="100%" class="pretty">
-        <thead>
-            <th></th>
-            <th># Nodes</th>
-            <th># Edges</th>
-            <th>File Size (MB)</th>
-        </thead>
-        <tbody>
-            <tr style='text-align:center;'>
-                <td class="button-col">
-                    <a href="<?php echo "$baseUrl/$ssnFile" ?>"><button class="light small">Download</button></a>
-<?php if ($ssnZipFile) { ?>
-                    <a href="<?php echo "$baseUrl/$ssnZipFile"; ?>"><button class="light small">Download ZIP</button></a>
+<div class="tabs-efihdr tabs">
+    <ul class="tab-headers">
+        <li><a href="#info">Submission Summary</a></li>
+        <li class="ui-tabs-active"><a href="#results">Networks and GND</a></li>
+        <li><a href="#other">Other Files</a></li>
+<?php if ($allow_regenerate) { ?>
+        <li><a href="#regenerate">Regenerate GNN</a></li>
 <?php } ?>
-                </td>
-                <td><?php echo number_format($gnn->get_ssn_nodes()); ?></td>
-                <td><?php echo number_format($gnn->get_ssn_edges()); ?></td>
-                <td><?php echo $ssnFilesize; ?>MB</td>
-            </tr>
-        </tbody>
-    </table>
+    </ul>
 
-    <h3>SSN Cluster Hub-Nodes: Genome Neighborhood Network (GNN)</h3>
-    <p>Each hub-node in the network represents an SSN cluster that identified neighbors, with spoke-nodes for Pfam family with neighbors.</p>
+    <div class="tab-content">
 
-    <table width="100%" class="pretty">
-        <thead>
-            <th></th>
-            <th>File Size (MB)</th>
-        </thead>
-        <tbody>
-            <tr style='text-align:center;'>
-                <td class="button-col">
-                    <a href="<?php echo "$baseUrl/$gnnFile"; ?>"><button class="light small">Download</button></a>
-<?php if ($gnnZipFile) { ?>
-                    <a href="<?php echo "$baseUrl/$gnnZipFile"; ?>"><button class="light small">Download ZIP</button></a>
-<?php } ?>
-                </td>
-                <td><?php echo $gnnFilesize; ?>MB</td>
-            </tr>
-        </tbody>
-    </table>
+        <!-- NETWORK INFORMATION -->
+        <div id="info" class="">
+            <h4>Submission Summary Table</h4>
+            <table width="100%" style="margin-top: 10px" class="pretty">
+                <tbody>
+                    <?php echo $tableString; ?>
+                </tbody>
+            </table>
+            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$gnnId&key=$gnnKey&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
+            <div style="clear: both"></div>
+        </div>
 
-    <h3>Pfam Family Hub-Nodes Genome Neighborhood Network (GNN)</h3>
-    <p>Each hub-node in the network represents a Pfam family of neighbors, with spoke-nodes for each SSN cluster that identified the Pfam family.</p>
+        
+        <!-- DOWNLOAD NETWORKS -->
+        <div id="results" class="ui-tabs-active">
+            <h4>Colored Sequence Similarity Network (SSN)</h4>
+            <p>Each cluster in the submitted SSN has been identified and assigned a unique number and color.</p>
+        
+            <table width="100%" class="pretty">
+                <thead>
+                    <th></th>
+                    <th># Nodes</th>
+                    <th># Edges</th>
+                    <th>File Size (MB)</th>
+                </thead>
+                <tbody>
+                    <tr style='text-align:center;'>
+                        <td class="button-col">
+                            <a href="<?php echo "$baseUrl/$ssnFile" ?>"><button class="mini">Download</button></a>
+                            <?php if ($ssnZipFile) { ?>
+                            <a href="<?php echo "$baseUrl/$ssnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
+                            <?php } ?>
+                        </td>
+                        <td><?php echo number_format($gnn->get_ssn_nodes()); ?></td>
+                        <td><?php echo number_format($gnn->get_ssn_edges()); ?></td>
+                        <td><?php echo $ssnFilesize; ?>MB</td>
+                    </tr>
+                </tbody>
+            </table>
 
-    <table width="100%" class="pretty">
-        <thead>
-            <th></th>
-            <th>File Size (Unzipped/Zipped MB)</th>
-        </thead>
-        <tbody>
-            <tr style='text-align:center;'>
-                <td class="button-col">
-                    <a href="<?php echo "$baseUrl/$pfamFile"; ?>"><button class="light small">Download</button></a>
-<?php if ($pfamZipFile) { ?>
-                    <a href="<?php echo "$baseUrl/$pfamZipFile"; ?>"><button class="light small">Download ZIP</button></a>
-<?php } ?>
-                </td>
-                <td>
-                    <?php echo $pfamFilesize; ?> MB
-<?php if ($pfamZipFilesize) { echo "/ $pfamZipFilesize MB"; } ?>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+            <h4>Genome Neighborhood Networks (GNNs)</h4>
+            <p>
+            GNNs provide a representation of the neighboring Pfam families for each SSN 
+            cluster identified in the colored SSN. To be displayed, neighboring Pfams 
+            families must be detected in the specified window and at a co-occurrence 
+            frequency higher than the specified minimum.
+            </p>
+        
+            <h5>SSN Cluster Hub-Nodes: Genome Neighborhood Network (GNN)</h5>
+            <p>
+            Each hub-node in the network represents a SSN cluster. The spoke nodes 
+            represent Pfam families that have been identified as neighbors of the sequences 
+            from the center hub.
+            </p>
+        
+            <table width="100%" class="pretty">
+                <thead>
+                    <th></th>
+                    <th>File Size (MB)</th>
+                </thead>
+                <tbody>
+                    <tr style='text-align:center;'>
+                        <td class="button-col">
+                            <a href="<?php echo "$baseUrl/$gnnFile"; ?>"><button class="mini">Download</button></a>
+                            <?php if ($gnnZipFile) { ?>
+                            <a href="<?php echo "$baseUrl/$gnnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
+                            <?php } ?>
+                        </td>
+                        <td><?php echo $gnnFilesize; ?>MB</td>
+                    </tr>
+                </tbody>
+            </table>
+        
+            <h5>Pfam Family Hub-Nodes Genome Neighborhood Network (GNN)</h5>
+            <p>
+            Each hub-node in the network represents a Pfam family identified as a neighbor. 
+            The spokes nodes represent SSN clusters that identified the Pfam family from 
+            the center hub.
+            </p>
+        
+            <table width="100%" class="pretty">
+                <thead>
+                    <th></th>
+                    <th>File Size (Unzipped/Zipped MB)</th>
+                </thead>
+                <tbody>
+                    <tr style='text-align:center;'>
+                        <td class="button-col">
+                            <a href="<?php echo "$baseUrl/$pfamFile"; ?>"><button class="mini">Download</button></a>
+                            <?php if ($pfamZipFile) { ?>
+                            <a href="<?php echo "$baseUrl/$pfamZipFile"; ?>"><button class="mini">Download ZIP</button></a>
+                            <?php } ?>
+                        </td>
+                        <td>
+                            <?php echo $pfamFilesize; ?> MB
+                            <?php if ($pfamZipFilesize) { echo "/ $pfamZipFilesize MB"; } ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        
+            <?php if ($hasDiagrams) { ?>
+            <h4>Genome Neighborhood Diagrams (GNDs)</h4> 
+            <p>
+            Diagrams representing genomic regions around the genes encoded for the 
+            sequences from the submitted SSN are generated. All genes present in the 
+            specified window can be visualized
+            (no minimal co-occurrence frequency filter or neighborhood size threshold is applied).
+            Diagram data can be downloaded in .sqlite file format for later review in the View Saved Diagrams tab.
+            </p>
+        
+            <table width="100%" class="pretty">
+                <thead>
+                    <th>Action</th>
+                    <th></th>
+                    <th>File Size (Unzipped/Zipped MB)</th>
+                </thead>
+                <tbody>
+                    <tr style='text-align:center;'>
+                        <td class="button-col">
+                            <a href="view_diagrams.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?>" target="_blank"><button class="mini">View diagrams</button></a>
+                        </td>
+                        <td colspan="2">
+                            Opens GND explorer in a new tab.
+                        </td>
+                    </tr>
+                    <tr style="text-align:center;">
+                        <td class="button-col">
+                            <a href="<?php echo "$baseUrl/$diagramFile"; ?>"><button class="mini">Download</button></a>
+                            <?php if ($diagramZipFileSize) { ?>
+                            <a href="<?php echo "$baseUrl/$diagramZipFile"; ?>"><button class="mini">Download ZIP</button></a>
+                            <?php } ?>
+                        </td>
+                        <td>
+                            Diagram data for later review
+                        </td>
+                        <td>
+                            <?php echo $diagramFileSize; ?> MB
+                            <?php if ($diagramZipFileSize) { echo "/ $diagramZipFileSize MB"; } ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <?php } ?>
+        </div>
 
-<?php if ($hasDiagrams) { ?>
-<!--    <div style="color:red">-->
-<!--        <h3 style="color:red">Genome Neighborhood Diagrams</h3> -->
-        <h3>Genome Neighborhood Diagrams</h3> 
-        Genome neighboorhoods can be visualized in an arrow digram format in a new window.
-    
-        <table width="100%" class="pretty">
-            <thead>
-                <th>Action</th>
-                <th></th>
-                <th>File Size (Unzipped/Zipped MB)</th>
-            </thead>
-            <tbody>
-                <tr style='text-align:center;'>
-                    <td class="button-col">
-                        <a href="view_diagrams.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?>" target="_blank"><button class="light small">View diagrams</button></a>
-                    </td>
-                    <td colspan="2">
-                        Opens arrow diagram explorer in a new tab or window.
-                    </td>
-                </tr>
-                <tr style="text-align:center;">
-                    <td class="button-col">
-                        <a href="<?php echo "$baseUrl/$diagramFile"; ?>"><button class="light small">Download</button></a>
-<?php if ($diagramZipFileSize) { ?>
-                        <a href="<?php echo "$baseUrl/$diagramZipFile"; ?>"><button class="light small">Download ZIP</button></a>
-<?php } ?>
-                    </td>
-                    <td>
-                        Diagram data for later review
-                    </td>
-                    <td>
-                        <?php echo $diagramFileSize; ?> MB
-<?php if ($diagramZipFileSize) { echo "/ $diagramZipFileSize MB"; } ?>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-<!--    </div>-->
-<?php } else { ?>
-    <div style="color:red">
-        <br><br>
-        Since this job was run before the neighborhood diagrams were supported, there are no
-        genome neighborhood diagrams available.
-    </div>
-<?php } ?>
 
-    <h3>Other Files</h3>
-<div class="new_feature"></div>
-    <table width="100%" class="pretty">
-        <thead>
-            <th></th>
-            <th>File</th>
-            <th>File Size (MB)</th>
-        </thead>
-        <tbody>
-<?php
-foreach ($otherFiles as $info) {
-    if (count($info) == 1) {
-        echo <<<HTML
-            <tr style="text-align:center;">
-                <td colspan="3" style="font-weight:bold">
-                    $info[0]
-                </td>
-            </tr>
+        <!-- OTHER DOWNLOAD FILES -->
+        <div id="other" class="">
+            <h4>Mapping Tables, FASTA Files, ID Lists, and Supplementary Files</h4>
+            <table width="100%" class="pretty no-border">
+                <!--
+                <thead>
+                    <th></th>
+                    <th>File</th>
+                    <th>File Size (MB)</th>
+                </thead>
+                -->
+                <tbody>
+                    <?php
+                    $first = true;
+                    foreach ($otherFiles as $info) {
+                        if (count($info) == 1) {
+                            $first_class = $first ? "file-header-row-first" : "";
+                            echo <<<HTML
+                    <tr style="text-align:center;">
+                        <td colspan="3" class="file-header-row $first_class">
+                            $info[0]
+                        </td>
+                    </tr>
 HTML;
-    } else {
-        $btnText = strpos($info[0], ".zip") > 0 ? "Download All (ZIP)" : "Download";
-        echo <<<HTML
-            <tr style="text-align:center;">
-                <td>
-                    <a href="$baseUrl/$info[0]"><button class="light small">$btnText</button></a>
-                </td>
-                <td>$info[2]</td>
-                <td>$info[1] MB</td>
-            </tr>
+                        } else {
+                            $btnText = strpos($info[0], ".zip") > 0 ? "Download All (ZIP)" : "Download";
+                            echo <<<HTML
+                    <tr class="file-row" style="text-align:center;">
+                        <td>
+                            <a href="$baseUrl/$info[0]"><button class="mini">$btnText</button></a>
+                        </td>
+                        <td>$info[2]</td>
+                        <td>$info[1] MB</td>
+                    </tr>
 HTML;
-    }
-}
-?>
-        </tbody>
-    </table>
+                        }
+                        if ($first)
+                            $first = false;
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
 
+        <!-- REGENERATE GNN -->
 <?php
 // Regen stuff
 
-if (!$gnn->has_parent()) {
-    $neighbor_size_html = "";
-    $default_neighbor_size = $gnn->get_size();
-    for ($i=3;$i<=20;$i++) {
-        if ($i == $default_neighbor_size)
-            $neighbor_size_html .= "<option value='" . $i . "' selected='selected'>" . $i . "</option>";
-        else
-            $neighbor_size_html .= "<option value='" . $i . "'>" . $i . "</option>";
-    }
+if ($allow_regenerate) {
 
 ?>
+        <div id="regenerate" class="">
+            <?php
+                $child_jobs = $gnn->get_child_jobs();
+                if (count($child_jobs) > 0) {
+                    echo <<<HTML
+                        <h4>Related Regenerated GNT Jobs</h4>
+                        <div>
+                            <ul>
+HTML;
+                    foreach ($child_jobs as $id => $job) {
+                        $name = "N=" . $job["size"] . " Cooc=" . $job["cooccurrence"] . " Submission=<i>" . $job["filename"] . "</i>";
+                        $url = "stepc.php?id=" . $id . "&key=" . $job["key"];
+                        echo "<li><a href='$url'>$name</a></li>\n";
+                    }
+                    echo <<<HTML
+                            </ul>
+                        </div>
+HTML;
+                }
+?>
+            <p>
+            <b>Use existing neighboring information to perform a new GNN analysis on a previously-submitted SSN.</b>
+            This process is faster than performing a new GNN analysis.
+            </p>
+            
+            <form id="upload_form" action="">
+            <input type="hidden" id="parent_id" value="<?php echo $gnnId; ?>">
+            <input type="hidden" id="parent_key" value="<?php echo $gnnKey; ?>">
 
-<div id="regenerate">
-<h3>Regenerate GNN</h3>
+            <h4>Set Neighborhood Parameters</h4>
+            <p>
+            Specify new "Co-occurrence Percentage Lower Limit" and "Neighborhood Size".
+            See above for the name of the previously-submitted SSN.
+            </p>
 
-<form id="upload_form" action="">
-<input type="hidden" id="parent_id" value="<?php echo $gnnId; ?>">
-<input type="hidden" id="parent_key" value="<?php echo $gnnKey; ?>">
+            <p>
+                <?php gnt_ui::add_neighborhood_size_setting(false); ?>
+            </p>
+            <p>
+                <?php gnt_ui::add_cooccurrence_setting(false, $cooccurrence); ?>
+            </p>
 
-<div class="new_feature"></div>
-Recreate an SSN with a different cooccurrence frequency and/or neighborhood size from this job.
+            <h4>Submit Edited SSN and Reuse GNN Information</h4>
+            <p>
+                Uploading a new but related network will use information saved from this GNN analysis to generate a new GNN. 
+                Parameters for this analysis can be defined above.
+            </p>
+            <p>
+                The SSN to be submitted needs to contains IDs that are present in the initial SSN submitted. Examples:
+                <ul>
+                    <li>Examining SSNs from the same dataset at varying alignment scores</li>
+                    <li>Examining a network focusing on a single SSN cluster from the initial SNN at a different alignment score</li>
+                </ul>
+            </p>
 
-<p>
-<b>Co-occurrence percentage lower limit:</b> <input type="text" id="cooccurrence" maxlength="3" value="<?php echo $gnn->get_cooccurrence(); ?>">
-</p>
+            <div class="primary-input">
+            <?php echo ui::make_upload_box("(Optional) SSN File:", "ssn_file", "progress_bar", "progress_number", "", "", ""); ?>
+            SSNs generated by EFI-EST are compatible with GNT analysis (with the exception 
+            of SSNs from the FASTA sequences without the "Read FASTA header" option), even 
+            when they have been modified in Cytoscape.
+            The accepted format is XGMML (or compressed XGMML as zip).
+            </div>
 
-<p>
-<b>Neighborhood Size:</b> 
-<select name="neighbor_size" id="neighbor_size" class="bigger">
-    <?php echo $neighbor_size_html; ?>
-</select>
-</p>
+            <p>You will receive an e-mail when your network has been processed.</p>
+                
+            <p>
+                <center>
+                <button type="button" id="filter-btn" class="dark">Filter/Regenerate GNN</button>
+                </center>
+            </p>
+            </form>
 
-<p>
-<?php echo ui::make_upload_box("<b>(OPTIONALLY) Select a File to Upload:</b><br>", "ssn_file", "progress_bar", "progress_number", "The acceptable format is uncompressed or zipped xgmml.", "", ""); ?>
-</p>
-    
-<p>
-<button type="button" id="filter-btn" class="small light">Filter/Regenerate GNN</button>
-</p>
-</form>
-
-<center>
-    <div><progress id='progress_bar' max='100' value='0'></progress></div>
-    <div id="progress_number"></div>
-</center>
-</div>
+            <div id="ssn_message">
+            </div>
+        </div>
 <?php
 }
 ?>
-
-    <hr>
-
-<?php if ($isMigrated) { ?>
-    <p><a href="../efi-est/stepe.php?<?php echo $estParams; ?>"><button type="button" class="small light">Go back to original SSN</button></a></p>
-<?php } ?>
-    
-
-<div id="ssn_message">
-<?php if (isset($message)) { echo "<h3 class='center'>" . $message . "</h3>"; } ?>  
+    </div>
 </div>
+
+
 
 <div id="filter-confirm" title="" style="display: none">
 <p>
@@ -436,12 +504,7 @@ Please change parameters or select a new file to upload before refiltering.
             }
         });
 
-//        $("#filter-btn").click(function() {
-//            var id = <?php echo $gnnId; ?>;
-//            var key = "<?php echo $gnnKey; ?>";
-//
-//            alert("Hi John and Remi.");
-//        });
+        $(".tabs").tabs();
     });
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>

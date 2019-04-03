@@ -80,8 +80,14 @@ class functions {
         $sql .= "ORDER BY analysis_time_created ASC ";
         $result = $db->query($sql);
         return $result;
+    }
 
-
+    public static function get_analysis_jobs_for_generate($db, $generate_id, $status = "") {
+        $sql = "SELECT * FROM analysis WHERE analysis_generate_id = $generate_id";
+        if ($status)
+            $sql .= " AND analysis_status = '$status'";
+        $result = $db->query($sql);
+        return $result;
     }
 
     public static function get_job_status($db, $generate_id, $analysis_id, $key) {
@@ -192,7 +198,10 @@ class functions {
     }
 
     public static function bytes_to_megabytes($bytes) {
-        return number_format($bytes/1048576,0);
+        $mb = number_format($bytes/1048576,0);
+        if ($mb == 0)
+            return "<1";
+        return $mb;
 
     }
 
@@ -327,7 +336,7 @@ class functions {
     public static function get_lengths_for_family($db_name, $db_config, $fam, $uniref_ver = "") {
         $db_name = "efi_201809";
         $anno_table = "annotations2";
-        $fam_field = preg_match("/^PF/", $fam) ? "PFAM" : "IPRO";
+        $fam_field = preg_match("/^PF/", $fam) ? "Pfam" : "IPRO";
 
         $sql = "";
         if ($uniref_ver) {
@@ -453,9 +462,6 @@ class functions {
     public static function colorssn_enabled() {
         return __ENABLE_COLORSSN__;
     }
-    public static function advanced_options_enabled() {
-        return defined("__ENABLE_ADVANCED_OPTIONS__") ? __ENABLE_ADVANCED_OPTIONS__ : false;
-    }
 
     public static function get_uploads_dir() {
         return __UPLOADS_DIR__;
@@ -509,27 +515,20 @@ class functions {
 
     public static function format_job_type($gen_type) {
         if ($gen_type == "BLAST") {
-            $gen_type = "Option A";
+            $gen_type = "Sequence BLAST (Option A)";
         } else if ($gen_type == "FAMILIES") {
-            $gen_type = "Option B";
+            $gen_type = "Families (Option B)";
         } else if ($gen_type == "ACCESSION") {
-            $gen_type = "Option D";
+            $gen_type = "Accession IDs (Option D)";
         } else if ($gen_type == "FASTA") {
-            $gen_type = "Option C (no FASTA header reading)";
+            $gen_type = "FASTA (Option C), no FASTA header reading";
         } else if ($gen_type == "FASTA_ID") {
-            $gen_type = "Option C (with FASTA header reading)";
+            $gen_type = "FASTA (Option C), with FASTA header reading";
+        } else if ($gen_type == "COLORSSN") {
+            $gen_type = "Color SSN";
         }
         return $gen_type;
     }
-
-    public static function get_release_status() {
-        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? (__BETA_RELEASE__ . " ") : "";
-    }
-
-    public static function is_beta_release() {
-        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? true : false;
-    }
-
 
     public static function add_database($db,$db_date,$interpro,$unipro,$default = 0) {
         $sql = "INSERT INTO db_version(db_version_date,db_version_interpro,db_version_unipro,db_version_default) ";
@@ -570,12 +569,6 @@ class functions {
         return __TEMP_FASTA_ID_FILENAME__;
     }
 
-    public static function get_default_neighbor_size() {
-        return __DEFAULT_NEIGHBOR_SIZE__;
-    }
-    public static function get_default_cooccurrence() {
-        return __COOCCURRENCE__;
-    }
     public static function get_colorssn_map_dir_name() {
         return __COLORSSN_MAP_DIR_NAME__;
     }
@@ -628,24 +621,6 @@ class functions {
 
     public static function get_convergence_ratio_filename() {
         return __CONVERGENCE_RATIO_FILENAME__;
-    }
-
-    public static function decode_object($json) {
-        $data = json_decode($json, true);
-        if (!$data)
-            return array();
-        else
-            return $data;
-    }
-
-    public static function encode_object($obj) {
-        return json_encode($obj);
-    }
-
-    public static function generate_key() {
-        $key = uniqid(rand(), true);
-        $hash = sha1($key);
-        return $hash;
     }
 
     public static function get_update_message() {

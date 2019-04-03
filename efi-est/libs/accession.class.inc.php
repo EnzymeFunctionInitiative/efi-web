@@ -13,6 +13,8 @@ class accession extends family_shared {
     public $subject = "EFI-EST FASTA";
 
 
+    private $domain;
+    private $domain_family;
     private $expand_homologs = false;
 
 
@@ -24,6 +26,9 @@ class accession extends family_shared {
     public function __destruct() {
     }
 
+
+    public function get_domain() { return $this->domain ? "on" : "off"; }
+    public function get_domain_family() { return $this->domain ? $this->domain_family : ""; }
     public function get_uploaded_filename() { return $this->file_helper->get_uploaded_filename(); }
     public function get_no_matches_download_path() {
         return functions::get_web_root() . "/" .
@@ -67,9 +72,14 @@ class accession extends family_shared {
         if ($data->uploaded_filename && !$this->verify_accession_file($data->uploaded_filename)) {
             $result->errors = true;
             $result->message .= "<br><b>Please upload a valid accession ID file.  The file extension must be .txt</b></br>";
-        } else if (!$data->field_input && !$data->uploaded_filename) {
+        }
+        if (!$data->field_input && !$data->uploaded_filename) {
             $result->errors = true;
             $result->message .= "<br><b>Please specify a list of accession IDs and/or upload a valid accession ID file.  The file extension must be .txt.</b></br>";
+        }
+        if (($data->domain == 'true' || $data->domain == 1) && !$data->domain_family) {
+            $result->errors = true;
+            $result->message .= "<br><b>If the domain option is selected, a family to be used to retrieve domain extents must be used.";
         }
 
         return $result;
@@ -87,6 +97,10 @@ class accession extends family_shared {
             $this->expand_homologs = $result['generate_expand_homologs'];
         else
             $this->expand_homologs = false;
+        if (isset($result['generate_domain']) && isset($result['generate_domain_family'])) {
+            $this->domain = $result['generate_domain'];
+            $this->domain_family = $result['generate_domain_family'];
+        }
 
         $this->file_helper->on_load_generate($id, $result);
 
@@ -107,11 +121,18 @@ class accession extends family_shared {
     
     public function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
+        
+        if (($data->domain == 'true' || $data->domain == 1) && $data->domain_family) {
+            $insert_array['generate_domain_family'] = $data->domain_family;
+            $insert_array['generate_domain'] = 1;
+        }
+        
         $insert_array['generate_expand_homologs'] = $data->expand_homologs;
         // We don't want to override this in case the user specifies a family to use with uniref
         //if (!$data->expand_homologs)
         //$insert_array['generate_uniref'] = "";
         $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
+
         return $insert_array;
     }
 
@@ -133,33 +154,34 @@ class accession extends family_shared {
 
     protected function get_run_script_args($out) {
         $parms = parent::get_run_script_args($out);
-        //$parms = array();
-        //$parms = generate_helper::get_run_script_args($out, $parms);
-        //$parms["-blast"] = strtolower($this->get_program());
         $parms["-useraccession"] = $this->file_helper->get_results_input_file();
         $parms["-no-match-file"] = $this->get_no_matches_job_file();
         if ($this->expand_homologs)
             $parms["-uniref-expand"] = "";
-        //$parms["-fraction"] = $this->get_fraction();
+        $parms["-domain"] = $this->get_domain();
+        if ($this->get_domain() == "on") {
+            $parms["-domain-family"] = $this->get_domain_family();
+            if (global_settings::advanced_options_enabled())
+                $parms["-force-domain"] = 1;
+        }
         return $parms;
     }
     
-    public function get_job_info($eol = "\r\n") {
-        $message = "EFI-EST Job ID: " . $this->get_id() . $eol;
-        $message .= "Computation Type: " . functions::format_job_type($this->get_type()) . $eol;
+    protected function get_email_job_info() {
+        $message = parent::get_email_job_info();
 
         $upl_file = $this->file_helper->get_uploaded_filename();
         if ($upl_file) {
-            $message .= "Uploaded Accession File: $upl_file" . $eol;
+            $message .= "Uploaded Accession File: $upl_file" . PHP_EOL;
         }
 
         if (count($this->get_families())) {
-            $message .= "PFAM/Interpro Families: " . $this->get_families_comma() . $eol;
+            $message .= "Pfam/Interpro Families: " . $this->get_families_comma() . PHP_EOL;
         }
 
-        $message .= "E-Value: " . $this->get_evalue() . $eol;
-        $message .= "Fraction: " . $this->get_fraction() . $eol;
-        //$message .= "Selected Program: " . $this->get_program() . $eol;
+        $message .= "E-Value: " . $this->get_evalue() . PHP_EOL;
+        $message .= "Fraction: " . $this->get_fraction() . PHP_EOL;
+        //$message .= "Selected Program: " . $this->get_program() . PHP_EOL;
 
         return $message;
     }
