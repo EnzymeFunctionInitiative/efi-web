@@ -1,6 +1,7 @@
 <?php
 
-include_once 'functions.class.inc.php';
+include_once(__DIR__ . "/functions.class.inc.php");
+include_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
 
 class efi_statistics 
 {
@@ -100,8 +101,8 @@ class efi_statistics
 
         $results = $db->query($sql);
         for ($i = 0; $i < count($results); $i++) {
-            $params = functions::decode_object($results[$i]['generate_params']);
-            $res_obj = functions::decode_object($results[$i]['generate_results']);
+            $params = global_functions::decode_object($results[$i]['generate_params']);
+            $res_obj = global_functions::decode_object($results[$i]['generate_results']);
             $results[$i]['Blast'] = isset($params['generate_blast']) ? $params['generate_blast'] : "";
             $results[$i]['Families'] = isset($params['generate_families']) ? $params['generate_families'] : "";
             $results[$i]['Number of Sequences'] = isset($res_obj['generate_num_seq']) ? $res_obj['generate_num_seq'] : "";
@@ -132,8 +133,8 @@ class efi_statistics
         
         $results = $db->query($sql);
         for ($i = 0; $i < count($results); $i++) {
-            $params = functions::decode_object($results[$i]['generate_params']);
-            $res_obj = functions::decode_object($results[$i]['generate_results']);
+            $params = global_functions::decode_object($results[$i]['generate_params']);
+            $res_obj = global_functions::decode_object($results[$i]['generate_results']);
             $results[$i]['Blast'] = isset($params['generate_blast']) ? $params['generate_blast'] : "";
             $results[$i]['Families'] = isset($params['generate_families']) ? $params['generate_families'] : "";
             $results[$i]['E-Value'] = isset($params['generate_evalue']) ? $params['generate_evalue'] : "";
