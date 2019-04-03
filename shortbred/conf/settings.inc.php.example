@@ -40,6 +40,10 @@ define("__MYSQL_DATABASE__","");
 define("__TITLE__","EFI/ShortBRED");
 define("__ENABLE_DIAMOND__",false);
 define("__CGFP_APP_EMAIL__","");
+define("__DEFAULT_DB__","uniref90");
+define("__DEFAULT_CDHIT__",85);
+define("__DEFAULT_IDENTIFY_SEARCH__","DIAMOND");
+define("__DEFAULT_QUANTIFY_SEARCH__","USEARCH");
 
 //
 // JOB SCHEDULING PARAMETERS
