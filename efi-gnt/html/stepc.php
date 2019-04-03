@@ -201,7 +201,10 @@ require_once('inc/header.inc.php');
         <!-- DOWNLOAD NETWORKS -->
         <div id="results" class="ui-tabs-active">
             <h4>Colored Sequence Similarity Network (SSN)</h4>
-            <p>Each cluster in the submitted SSN has been identified and assigned a unique number and color.</p>
+            <p>
+            Each cluster in the submitted SSN has been identified and assigned a unique number and color.
+            Node attributes for "Neighbor Pfam Families" and "Neighbor InterPro Families" have been added.
+            </p>
         
             <table width="100%" class="pretty">
                 <thead>
