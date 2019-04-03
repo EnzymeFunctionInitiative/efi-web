@@ -296,6 +296,11 @@ class job_manager {
     private function get_jobs_by_user_shared($id_rows) {
         $jobs = array();
 
+        $default_cdhit_id = settings::get_default_cdhit_id();
+        $default_ref_db = settings::get_default_ref_db();
+        $default_id_search = strtolower(settings::get_default_identify_search());
+        $default_quantify_search = strtolower(settings::get_default_quantify_search());
+
         foreach ($id_rows as $id_row) {
             $iparams = global_functions::decode_object($id_row["identify_params"]);
 
@@ -312,12 +317,12 @@ class job_manager {
                 $i_job_info = array("id" => $id_id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed,
                     "is_quantify" => false, "date_completed" => $comp, "identify_parent_id" => "");
                 
-                if (isset($iparams["identify_search_type"]) && $iparams["identify_search_type"])
+                if (isset($iparams["identify_search_type"]) && $iparams["identify_search_type"] != $default_id_search)
                     $i_job_info["search_type"] = $iparams["identify_search_type"];
                 else
                     $i_job_info["search_type"] = "";
                 
-                if (isset($iparams["identify_ref_db"]) && $iparams["identify_ref_db"])
+                if (isset($iparams["identify_ref_db"]) && $iparams["identify_ref_db"] != $default_ref_db)
                     $i_job_info["ref_db"] = $iparams["identify_ref_db"];
                 else
                     $i_job_info["ref_db"] = "";
@@ -375,7 +380,7 @@ class job_manager {
                         "is_completed" => $q_is_completed, "is_quantify" => true, "date_completed" => $q_comp,
                         "full_job_name" => $q_full_job_name, "identify_parent_id" => $par_id);
 
-                    if (isset($qparams["quantify_search_type"]) && $qparams["quantify_search_type"])
+                    if (isset($qparams["quantify_search_type"]) && $qparams["quantify_search_type"] != $default_quantify_search)
                         $q_job_info["search_type"] = $qparams["quantify_search_type"];
                     else
                         $q_job_info["search_type"] = "";
