@@ -51,7 +51,10 @@ if (!$IsLoggedIn) {
 } elseif (!$is_enabled && $is_sb_enabled) {
     $login_banner_msg = "To use EFI-CGFP, submit a request on the 'Run CGFP/ShortBRED' tab.";
 }
-$update_message = functions::get_update_message();
+$update_message = 
+    "The EFI web tool interface has been updated to improve user experience.<br>" .
+    "<b>All functions remain unchanged.</b><br><br>" . 
+    "<small>" . functions::get_update_message() . "</small>";
 $update_message = ($login_banner_msg ? "$login_banner_msg<br>" : "") . $update_message;
 
 if (!global_settings::get_shortbred_enabled()) {
@@ -99,7 +102,7 @@ nares (nasal cavity), tongue dorsum (surface), and posterior fornix (vagina)].
             <li class="active"><a href="#jobs">Previous Jobs</a></li>
         <?php } ?>
         <li><a href="#create">Run CGFP/ShortBRED</a></li>
-        <li <?php if (! $show_previous_jobs) echo "class=\"active\""; ?>><a href="#tutorial">Tutorial</a></li>
+        <li <?php if (! $show_previous_jobs) echo "class=\"ui-tabs-active\""; ?>><a href="#tutorial">Tutorial</a></li>
         <li><a href="#example">Example</a></li>
     </ul>
 
@@ -370,7 +373,7 @@ HTML;
         <?php } ?>
         </div>
 
-        <div id="tutorial" class="tab <?php if (!$show_previous_jobs) echo "active"; ?>">
+        <div id="tutorial" class="tab <?php if (!$show_previous_jobs) echo "ui-tabs-active"; ?>">
 
             <h3>Chemically-Guided Functional Profiling Overview</h3>
             
@@ -479,10 +482,6 @@ HTML;
 </div>
 
 <div align="center">
-    <?php if (settings::is_beta_release()) { ?>
-    <h4><b><span style="color: red">BETA</span></b></h4>
-    <?php } ?>
-
     <p>
     UniProt Version: <b><?php echo settings::get_uniprot_version(); ?></b><br>
     </p>
