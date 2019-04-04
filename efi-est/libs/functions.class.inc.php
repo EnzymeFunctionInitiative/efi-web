@@ -627,9 +627,6 @@ class functions {
         $msg = 
             "The EST database has been updated to use UniProt " . 
             self::get_uniprot_version() . " and InterPro " . self::get_interpro_version() . ". ";
-        //$msg .=
-        //    "You now have the ability to register a user account for the purpose of viewing prior " .
-        //    "jobs in a summary table. You can also access both EFI-EST and EFI-GNT from the top of each page.";
         return $msg;
     }
 

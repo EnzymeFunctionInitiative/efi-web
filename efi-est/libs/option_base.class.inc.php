@@ -143,7 +143,7 @@ abstract class option_base extends stepa {
 
     // This is creates the actual array that is inserted into the database.
     protected function get_generate_insert_array($data) {
-        $key = $this->generate_key();
+        $key = global_functions::generate_key();
         $db_version = functions::get_encoded_db_version($data->db_mod);
         $insert_array = array(
             'generate_key' => $key,

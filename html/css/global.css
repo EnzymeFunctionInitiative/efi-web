@@ -60,11 +60,12 @@ h1.ruled {
     font-weight: lighter;
 }
 
-div.beta h4 {
+div.beta {
     color: red;
     text-align: center;
     font-weight: bold;
-    font-size: 135%;
+    font-size: 125%;
+    text-transform: uppercase;
 }
 
 h4.job-display {

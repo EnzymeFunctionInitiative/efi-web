@@ -66,9 +66,9 @@ if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])
 $use_advanced_options = global_settings::advanced_options_enabled();
 
 $updateMessage = 
-//    '<div class="new-feature"></div>' .
-    "The <a href='../efi-cgfp/' class='hl-cgfp'>Computationally-Guided Functional Profiling tool (EFI-CGFP)</a> is now available.<br>" .
-    functions::get_update_message();
+    "The EFI web tool interface has been updated to improve user experience.<br>" .
+    "<b>All functions remain unchanged.</b><br><br>" . 
+    "<small>" . functions::get_update_message() . "</small>";
 
 require_once "inc/header.inc.php";
 
@@ -526,10 +526,6 @@ HTML;
 
 
 <div align="center">
-    <?php if (settings::is_beta_release()) { ?>
-    <h4><b><span style="color: red">BETA</span></b></h4>
-    <?php } ?>
-
     <p>
     UniProt Version: <b><?php echo settings::get_uniprot_version(); ?></b><br>
     InterPro Version: <b><?php echo settings::get_interpro_version(); ?></b><br>
