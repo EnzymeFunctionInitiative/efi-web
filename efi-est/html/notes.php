@@ -9,11 +9,32 @@ require_once "inc/header.inc.php";
 
 <h2>Release Notes</h2>
 
+<!--
+<h3>April ZZZ, 2019</h3>
+
+<p>
+<?php echo get_db_size_text("2019_02", "73", 146106279, 559228); ?>
+</p>
+-->
+
+<h3>April 6, 2019</h3>
+
+<p>
+The EFI-EST web tool has been enhanced with a tab-style interface.  Contents of the pages are now
+grouped into logical tabs and data files can be downloaded without scrolling.  Job history is
+now clearer, and color SSN jobs are assigned a unique color.
+</p>
+
+<h3>January 30, 2019</h3>
+
+<p>
+<?php echo get_db_size_text("2019_01", "72", 139694261, 559077); ?>
+</p>
+
 <h3>December 7, 2018</h3>
 
 <p>
-The EST database now uses UniProt release 2018_10 and InterPro 71.  UniProt release 2018_10 includes
-a total of 134,066,044 entries: 133,507,323 in TrEMBL and 558,681 in SwissProt.
+<?php echo get_db_size_text("2018_10", "71", 133507323, 558681); ?>
 </p>
 
 <p>
@@ -123,6 +144,19 @@ Pfam clans can also be specified in the FASTA and Accession IDs options as suppl
 <p></p>
 
 <p class="center"><a href="index.php"><button class="dark">Run EST</button></a></p>
+
+<?php
+function get_db_size_text($uniprot, $interpro, $trembl_size, $swissprot_size) {
+    $total = $swissprot_size + $trembl_size;
+    $total_fmt = number_format($total, 0);
+    $swissprot_fmt = number_format($swissprot_size, 0);
+    $trembl_fmt = number_format($trembl_size, 0);
+    return <<<HTML
+The EST database now uses UniProt release $uniprot and InterPro $interpro.  UniProt release $uniprot includes
+a total of $total_fmt entries: $trembl_fmt in TrEMBL and $swissprot_fmt in SwissProt.
+HTML;
+}
+?>
 
 
 <?php require_once("inc/footer.inc.php"); ?>

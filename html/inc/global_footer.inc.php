@@ -13,6 +13,10 @@ if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPag
 
 ?>
 
+<?php if (global_settings::is_beta_release()) { ?>
+            <div class="beta">Beta</div>
+<?php } ?>
+
 <?php if (!isset($HideCiteUs)) { ?>
             <p><center>If you use the EFI web tools, please <a href="../#citeus">cite us</a>.</center></p>
 <?php } ?>

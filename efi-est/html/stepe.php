@@ -411,11 +411,6 @@ else {
 <center><p>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</p></center>
 
 
-<?php if (global_settings::is_beta_release()) { ?>
-<center><h4><b><span style="color: blue">BETA</span></b></h4></center>
-<?php } ?>
-
-
 <div id="ssn-confirm" title="Submit Confirmation" style="display: none">
 <p>
 <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>

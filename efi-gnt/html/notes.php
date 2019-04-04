@@ -5,9 +5,17 @@ require_once "inc/header.inc.php";
 ?>
 
 
-<h2>2 Release Notes</h2>
+<h2>Release Notes</h2>
 
-<h3>Version 2.2</h3>
+<h3>April 6, 2019</h4>
+
+<p>
+The GNT user interface has been updated.  The results page contains a tab-style interface
+that logically groups results on the page and allows download of SSN and GNNs without
+having to scroll the page past the submission information.
+</p>
+
+<h3>December 10, 2018</h3>
 
 <p>
 Users now have the ability to regenerate GNNs from an existing GNT job (only applicable to
@@ -22,7 +30,7 @@ arrows with that particular family will be highlighted.
 Users can now submit GNT jobs directly from the EST download page.
 </p>
 
-<h3>Version 2.0 and Prior</h3>
+<h3>Previous Updates</h3>
 
 <p>
 To improve usability of the GNT, the various tools have been separated into separate tabs.
