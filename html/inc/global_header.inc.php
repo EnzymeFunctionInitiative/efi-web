@@ -74,6 +74,6 @@ include(__DIR__ . "/global_nav.inc.php");
         <div class="content-holder">
             <h1 class="ruled"><?php echo $title; ?></h1>
 <?php if (global_settings::is_beta_release()) { ?>
-            <div class="beta"><h4>BETA</h4></div>
+            <div class="beta">Beta</div>
 <?php } ?>
 
