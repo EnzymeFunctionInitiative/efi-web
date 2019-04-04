@@ -476,10 +476,6 @@ Please change parameters or select a new file to upload before refiltering.
 </p>    
 </div>
 
-<?php if (settings::is_beta_release()) { ?>
-    <div><center><h4><b><span style="color: red">BETA</span></b></h4></center></div>
-<?php } ?>
-
 <script>
     $(document).ready(function() {
         $("#filter-btn").click(function() {

@@ -135,7 +135,10 @@ class functions extends global_functions {
     }
 
     public static function get_update_message() {
-        return "";
+        $msg =
+            "The EST database has been updated to use UniProt " . 
+            settings::get_uniprot_version() . ".";
+        return $msg;
     }
 
     public static function is_job_sticky($db, $identify_id, $user_email) {

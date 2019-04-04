@@ -43,9 +43,9 @@ $useAdvancedFamilyInputs = global_settings::advanced_options_enabled();
 $db_modules = global_settings::get_database_modules();
 
 $updateMessage =
-//    '<div class="new-feature"></div>' .
-    "The <a href='../efi-cgfp/' class='hl-cgfp'>Computationally-Guided Functional Profiling tool (EFI-CGFP)</a> is now available.<br>" .
-    functions::get_update_message();
+    "The EFI web tool interface has been updated to improve user experience.<br>" .
+    "<b>All functions remain unchanged.</b><br><br>" . 
+    "<small>" . functions::get_update_message() . "</small>";
 
 
 $IncludeSubmitJs = true;
@@ -536,10 +536,6 @@ the <a href="family_list.php">Family Information page</a>.
 
 
 <div align="center">
-    <?php if (global_settings::is_beta_release()) { ?>
-    <h4><b><span style="color: red">BETA</span></b></h4>
-    <?php } ?>
-
     <p>
     UniProt Version: <b><?php echo global_settings::get_uniprot_version(); ?></b><br>
     InterPro Version: <b><?php echo global_settings::get_interpro_version(); ?></b><br>

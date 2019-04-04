@@ -3,6 +3,7 @@ log
 uploads
 .htaccess
 settings.inc.php
+settings_shared.inc.php
 settings_base.inc.php
 remove_old_uploads.sh
 user_auth.class.inc.php.const
