@@ -607,9 +607,6 @@ Protein_ID_3,Cluster#
 
             <center>
                 <button type="submit" name="analyze_data" class="dark">Create SSN</button>
-                <?php if (global_settings::is_beta_release()) { ?>
-                <h4><b><span style="color: blue">BETA</span></b></h4>
-                <?php } ?>
             </center>
             
             </form>
