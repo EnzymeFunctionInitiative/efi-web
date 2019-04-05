@@ -11,6 +11,7 @@
 //
 // PATHS
 define("__BASE_WEB_ROOT__","");
+define("__BASE_WEB_PATH__","");
 define("__EST_URL__","");
 define("__INTERPRO_WEBSITE__","http://www.ebi.ac.uk/interpro/");
 
@@ -26,14 +27,22 @@ define("__EST_VERSION__","");
 define("__INTERPRO_VERSION__","");
 define("__EMAIL_FOOTER__","");
 //define("__BETA_RELEASE__","BETA --");
+define("__SHORTBRED_USER_GROUP__","");
+define("__USE_DASHBOARD__",true);
+define("__ENABLE_WEBSITE__",true);
+define("__ENABLE_EMAILS__",true);
+define("__ENABLE_ADVANCED_OPTIONS__",true);
 define("__ENABLE_RECENT_JOBS__",true);
 define("__ENABLE_JOB_GROUPS__",false);
-define("__ENABLE_SHORTBRED__",false);
-define("__ENABLE_ADVANCED_OPTIONS__",true);
+define("__ENABLE_SHORTBRED__",true);
 
+define("__CLUSTER_SCHEDULER__","slurm");
 define("__MEMORY_QUEUE__","");
 define("__NORMAL_QUEUE__","");
-define("__CLUSTER_SCHEDULER__","slurm");
+
+define("__EFIDB_MODULES__","");
+define("__ENA_VERSIONS__","");
+define("__UNIPROT_VERSIONS__",__UNIPROT_VERSION__);
 
 //
 // STATUS
@@ -51,6 +60,12 @@ define("__RETENTION_DAYS__","30");
 define("__FILE_RETENTION_DAYS__","80");  // Number of days to keep files from successful jobs around.
 define("__FAILED_RETENTION_DAYS__","14"); // Number of days to keep files from failed jobs around.
 define("__NUM_JOB_LIMIT__","6");
+
+//
+// DATABASES
+define("__EFI_GNT_DB_NAME__","");
+define("__EFI_EST_DB_NAME__","");
+define("__EFI_SHORTBRED_DB_NAME__","");
 
 //
 // DIRECTORIES
