@@ -877,7 +877,7 @@ HTML;
 function add_domain_option($option_id, $specify_family = false) {
     $option_text = $specify_family ? "Options" : "Option";
     echo <<<HTML
-<h3>Family Domain Boundaries $option_text</h3>
+<h3>Family Domain Boundary $option_text</h3>
 <div>
     <div>
         Pfam and InterPro databases define domain boundaries for members of their families.
