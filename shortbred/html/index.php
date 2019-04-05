@@ -316,8 +316,6 @@ HTML;
                     <div><button type="button" id="ssn_submit" name="ssn_submit" class="dark" onclick="uploadInitialSSNFile()">
                                 Upload SSN
                         </button></div>
-                    <div><progress id="progress_bar" max="100" value="0"></progress></div>
-                    <div id="progress_number"></div>
                 </center>
             </form>
         <?php } elseif ($IsLoggedIn) { ?>
