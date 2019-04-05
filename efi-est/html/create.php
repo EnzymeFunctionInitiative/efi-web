@@ -35,7 +35,7 @@ if ($input->is_debug) {
 if (isset($_POST['email'])) {
     $input->email = $_POST['email'];
 } else {
-    if (global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie())
+    if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie())
         $input->email = user_auth::get_email_from_token($db, user_auth::get_user_token());
 }
 
@@ -217,7 +217,7 @@ $returnData = array('valid'=>$result['RESULT'],
 
 // This resets the expiration date of the cookie so that frequent users don't have to login in every X days as long
 // as they keep using the app.
-if (global_settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
+if (global_settings::get_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $cookieInfo = user_jobs::get_cookie_shared(user_jobs::get_user_token());
     $returnData["cookieInfo"] = $cookieInfo;
 }

@@ -13,16 +13,18 @@ if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPag
 
 ?>
 
-<?php if (global_settings::is_beta_release()) { ?>
+<?php if (global_settings::get_is_beta_release()) { ?>
             <div class="beta">Beta</div>
 <?php } ?>
 
+<?php if (!$IsDisabled || $IsAdminUser) { // set in global_header ?>
 <?php if (!isset($HideCiteUs)) { ?>
             <p><center>If you use the EFI web tools, please <a href="../#citeus">cite us</a>.</center></p>
 <?php } ?>
             <p class="suggestions">
                 <a href="http://enzymefunction.org/content/sequence-similarity-networks-tool-feedback"><?php echo $feedback_msg; ?></a>
             </p>
+<?php } ?>
         </div> <!-- content-holder -->
 
         <div class="footer-container">

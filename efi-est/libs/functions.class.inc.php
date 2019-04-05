@@ -249,10 +249,6 @@ class functions {
         return __DEFAULT_BLAST_SEQ__;
     }
 
-    public static function get_email_footer() {
-        return __EMAIL_FOOTER__;
-    }
-
     public static function get_web_root() {
         return __WEB_ROOT__;
     }
@@ -262,17 +258,6 @@ class functions {
     public static function get_cgfp_web_root() {
         return __CGFP_WEB_ROOT__;
     }
-    public static function get_admin_email() {
-        return __ADMIN_EMAIL__;
-    }
-    public static function get_error_admin_email() {
-        return __ERROR_ADMIN_EMAIL__;
-    }
-
-    public static function website_enabled() {
-        return __ENABLE_WEBSITE__; 
-    }
-
 
     public static function get_efi_module() {
         return __EFI_MODULE__;
