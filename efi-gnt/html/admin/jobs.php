@@ -23,7 +23,7 @@ if (isset($_GET['year'])) {
 $stepc_page = $job_type == "diagram" ? "../view_diagrams.php" : "../stepc.php";
 $jobs = statistics::get_jobs($db, $month, $year, $job_type);
 
-$id_field = "$job_text $ID";
+$id_field = "$job_text";
 $query_id_field = $job_type == "gnt" ? "id" : "direct-id";
 
 $gnn_html = "";
@@ -51,7 +51,7 @@ foreach ($jobs as $job) {
     if ($job_type == "gnt") {
         $filename = $params["filename"];
         $nb_size = $params["neighborhood_size"];
-        $type_field = $params["db_mod"];
+        $type_field = isset($params["db_mod"]) ? $params["db_mod"] : "";
         $cooc = $params["cooccurrence"];
     } else {
         $type_field = $job['type'];
@@ -147,4 +147,4 @@ $(document).ready(function() {
 
 
 
-<?php include_once '../inc/stats_footer.inc.php' ?>
+<?php include_once(__DIR__ . "/inc/stats_footer.inc.php"); ?>

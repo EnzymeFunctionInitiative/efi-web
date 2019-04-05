@@ -78,7 +78,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
 
 // This resets the expiration date of the cookie so that frequent users don't have to login in every X days as long
 // as they keep using the app.
-if ($valid && global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
+if ($valid && global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie()) {
     $cookie_info = user_auth::get_cookie_shared(user_auth::get_user_token());
     $return_data["cookie_info"] = $cookie_info;
 }

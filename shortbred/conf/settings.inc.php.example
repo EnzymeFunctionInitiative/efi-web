@@ -6,10 +6,9 @@
 //                                              
 //      Settings for the scripts
 //                                              
-//      David Slater                            
-//      May 2014                                
-//                                              
 ////////////////////////////////////
+
+require_once(__DIR__."/../../conf/settings_base.inc.php");
 
 //
 // PATHS
@@ -19,6 +18,8 @@ define("__LOG_FILE__","");
 define("__WEB_PATH__","");
 define("__WEB_ROOT__","");
 define("__METAGENOME_DB_LIST__","");
+define("__EXAMPLE_SRC_DIR__","");
+define("__EXAMPLE_WEB_PATH__","");
 
 //
 // FILE INFO
@@ -33,12 +34,13 @@ define("__HTTP_OUTPUT_DIR__","results");
 define("__MYSQL_HOST__","");
 define("__MYSQL_USER__","");
 define("__MYSQL_PASSWORD__","");
+define("__MYSQL_AUTH_DATABASE__","");
 define("__MYSQL_DATABASE__","");
 
 //
 // UI PARAMETERS
-define("__TITLE__","EFI/ShortBRED");
-define("__ENABLE_DIAMOND__",false);
+define("__TITLE__","EFI-CGFP");
+define("__ENABLE_DIAMOND__",true);
 define("__CGFP_APP_EMAIL__","");
 define("__DEFAULT_DB__","uniref90");
 define("__DEFAULT_CDHIT__",85);

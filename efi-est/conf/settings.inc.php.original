@@ -11,10 +11,11 @@
 //                                              
 ////////////////////////////////////
 
+require_once(__DIR__ . "/../../conf/settings_base.inc.php");
+require_once(__DIR__ . "/settings_shared.inc.php");
 
-////////System Settings///////////
-define("__ENABLE_WEBSITE__",True);
-define("__ENABLE_EMAILS__",True);
+//
+// SYSTEM SETTINGS
 define("__TITLE__","EFI-EST");
 define("__WEB_PATH__","");
 define("__WEB_ROOT__","");
@@ -22,8 +23,10 @@ define("__GNT_WEB_ROOT__","");
 define("__CGFP_WEB_ROOT__","");
 define("__ENABLE_LOG__",true);
 define("__LOG_FILE__","");
+define("__UPLOADS_DIR__","");
 
-////////MySQL Settings///////////
+//
+// MYSQL SETTINGS
 define("__MYSQL_HOST__","");
 define("__MYSQL_USER__","");
 define("__MYSQL_DATABASE__","");
@@ -31,12 +34,13 @@ define("__MYSQL_AUTH_DATABASE__","");
 define("__MYSQL_PASSWORD__","");
 define("__MYSQL_GNT_DATABASE__","");
 
-////////Cluster Settings////////////
+//
+// CLUSTER SETTINGS
+define("__CLUSTER_USER__","
 define("__GENERATE_QUEUE__","");
 define("__ANALYSE_QUEUE__","");
 define("__CLUSTER_PROCS__","48");
 define("__BLASTHITS_PROCS__",12);
-define("__FRACTION_DEFAULT__",1);
 define("__RESULTS_DIR__","");
 define("__RESULTS_DIRNAME__","results");
 define("__EFI_MODULE__","");
@@ -46,30 +50,21 @@ define("__MAX_QUEUABLE_JOBS__",1000);
 define("__MAX_USER_QUEUABLE_JOBS__",1000);
 define("__EFI_DB_CONFIG__","");
 
-////////Blast Settings/////////////
-define("__EVALUE__","5");
-
-define("__MINIMUM__",0);
-define("__MAXIMUM__",50000);
-
+//
+// UI SETTINGS
 define("__MAX_SEQ__",100000);
-
 define("__MAX_BLAST_SEQ__",10000);
 define("__DEFAULT_BLAST_SEQ__",5000);
-
 define("__MAX_FULL_FAMILY_COUNT__",30000);
-
 define("__MAX_NUM_SNN_NODES__",10000000);
-
 define("__ENABLE_A__",true);
 define("__ENABLE_B__",true);
 define("__ENABLE_C__",true);
 define("__ENABLE_D__",true);
-define("__ENABLE_E__",true);
+define("__ENABLE_E__",false);
 define("__ENABLE_COLORSSN__",true);
 define("__ENABLE_PROGRAM_SELECTION__",false);
 define("__ENABLE_OPTION_A_FAMILIES__",false);
-define("__UPLOADS_DIR__","");
 define("__FASTA_FILETYPES__","txt fasta fa zip");
 define("__ACCESSION_FILETYPES__","txt");
 define("__COLORSSN_FILETYPES__","xgmml zip");
@@ -77,16 +72,13 @@ define("__NO_MATCHES_FILENAME__", "no_accession_matches.txt");
 define("__TEMP_FASTA_ID_FILENAME__", "fasta.ids");
 define("__USE_LEGACY_GRAPHS__",false);
 define("__ENABLE_CUSTOM_CLUSTERING__",false);
+define("__FILE_SIZE_GRAPH_ENABLED__",false);
 
-define("__DEFAULT_NEIGHBOR_SIZE__",10);
-define("__COOCCURRENCE__",20);
 define("__COLORSSN_MAP_DIR_NAME__","clusterdata");
 define("__COLORSSN_MAP_FILE_NAME__","nodedata.txt");
 define("__COLORSSN_DOMAIN_MAP_FILE_NAME__","domain_mapping_table.txt");
 define("__ACC_COUNT_FILENAME__","acc_counts.txt");
-define("__CDHIT_STATS_FILE","");
+define("__CDHIT_STATS_FILE__","");
 define("__CONVERGENCE_RATIO_FILENAME__","");
-
-define("__USER_LIST_KEY__","");
 
 ?>
