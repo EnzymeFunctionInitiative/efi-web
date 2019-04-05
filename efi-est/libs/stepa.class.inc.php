@@ -525,10 +525,11 @@ class stepa extends est_shared {
         $sql = "SELECT * FROM generate WHERE generate_id='" . $id . "' ";
         $sql .= "LIMIT 1";
         $result = $this->db->query($sql);
-        $result = $result[0];
 
         $results_obj = array();
+        $params_obj = array();
         if ($result) {
+            $result = $result[0];
             $this->id = $id;
             $this->key = $result['generate_key'];
             $this->pbs_number = $result['generate_pbs_number'];

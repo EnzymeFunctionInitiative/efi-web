@@ -8,8 +8,7 @@ require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
-    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-    exit;
+    error500("Unable to find the requested job.");
 }
 
 $generate = new stepa($db,$_GET['id']);
@@ -17,8 +16,7 @@ $gen_id = $generate->get_id();
 $key = $_GET['key'];
 
 if ($generate->get_key() != $_GET['key']) {
-    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-    exit;
+    error500("Unable to find the requested job.");
 }
 
 if ($generate->is_expired()) {
