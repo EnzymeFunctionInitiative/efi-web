@@ -27,6 +27,17 @@ if (!isset($BannerExtra))
 if (!isset($BannerImagePath))
     $BannerImagePath = "images/efi_logo.png";
 
+$IsDisabled = !global_settings::get_website_enabled();
+if (!isset($IsAdminUser))
+    $IsAdminUser = false;
+
+if ($IsDisabled && !$IsAdminUser) {
+    $BannerExtra = "";
+    $BannerImagePath = "$SiteUrlPrefix/images/efi_logo.png";
+    $title = "EFI Tools are Undergoing Maintenance";
+}
+if (!isset($IsLoginPage))
+    $IsLoginPage = false;
 
 ?>
 
@@ -60,7 +71,8 @@ if (!isset($BannerImagePath))
 
 <body>
 <?php
-include(__DIR__ . "/global_nav.inc.php");
+if (!$IsDisabled || $IsAdminUser)
+    include(__DIR__ . "/global_nav.inc.php");
 ?>
     <div id="container">
         <div class="header">
@@ -73,7 +85,26 @@ include(__DIR__ . "/global_nav.inc.php");
 
         <div class="content-holder">
             <h1 class="ruled"><?php echo $title; ?></h1>
-<?php if (global_settings::is_beta_release()) { ?>
+<?php if (global_settings::get_is_beta_release()) { ?>
             <div class="beta">Beta</div>
 <?php } ?>
+<?php
+if ($IsDisabled && !$IsAdminUser && !$IsLoginPage) {
+?>
+<div id="update-message" class="update-message">
+The Enzyme Function Initiative tools are evolving to improve user experience.
+
+EFI-EST, GNT and CGFP will be unavailable during maintenance on Saturday April 6.
+
+New submissions will not be allowed starting Friday April 5, 4 PM (North American Central Time Zone) until maintenance is complete.
+</div>
+<?php
+    include(__DIR__ . "/global_footer.inc.php");
+    exit(0);
+}
+?>
+<?php if ($IsDisabled && !$IsLoginPage) { ?>
+            <div class="beta"><big><i class="fas fa-exclamation-triangle"></i><br>The website is currently disabled for non-admin users or users who are not logged in.</big></div>
+<?php } ?>
+
 

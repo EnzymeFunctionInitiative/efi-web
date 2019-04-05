@@ -20,7 +20,7 @@ $jobs = array();
 $tjobs = array(); // training jobs
 $userGroups = array();
 $IsAdminUser = false;
-if (global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
+if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie()) {
     $userJobs = new user_jobs();
     $userJobs->load_jobs($db, user_auth::get_user_token());
     $jobs = $userJobs->get_jobs();
@@ -282,7 +282,7 @@ the <a href="family_list.php">Family Information page</a>.
                     <div>
                         <input type="checkbox" id="fasta-use-headers" name="fasta-use-headers" value="1"> <label for="fasta-use-headers"><b>Read FASTA headers</b></label><br>
                         When selected, recognized UniProt or Genbank identifiers from FASTA headers are used to retrieve
-                        corresponding node attributes from the UniProt database.
+                        node attributes from the UniProt database.
                     </div>
                     <?php echo ui::make_upload_box("FASTA File:", "fasta-file", "progress-bar-fasta", "progress-num-fasta"); ?>
                 </div>
