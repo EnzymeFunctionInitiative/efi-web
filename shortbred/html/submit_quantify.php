@@ -42,18 +42,10 @@ if (isset($_POST["key"]) && isset($_POST["id"]) && isset($_POST["hmp-ids"])) {
     }
 }
 
-//// This resets the expiration date of the cookie so that frequent users don"t have to login in every X days as long
-//// as they keep using the app.
-//if ($valid && global_settings::is_recent_jobs_enabled() && user_auth::has_token_cookie()) {
-//    $cookieInfo = user_auth::get_cookie_shared(user_auth::get_user_token());
-//    $returnData["cookieInfo"] = $cookieInfo;
-//}
-
 $output = array(
     "valid" => $valid,
     "quantify_id" => $quantify_id,
     "message" => $message,
-    //"cookieInfo" => $cookieInfo
 );
 
 echo json_encode($output);

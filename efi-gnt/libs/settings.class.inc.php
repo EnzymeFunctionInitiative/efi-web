@@ -91,21 +91,12 @@ class settings extends global_settings {
         return defined("__CGFP_WEB_ROOT__") ? __CGFP_WEB_ROOT__ : "";
     }
 
-    public static function get_timeout() {
-        return __MAX_TIMEOUT__;
-
-    }
-
     public static function get_retention_days() {
         return __RETENTION_DAYS__;
     }
 
     public static function get_default_cooccurrence() {
         return __COOCCURRENCE__;
-    }
-
-    public static function get_cluster_user() {
-        return __CLUSTER_USER__;
     }
 
     public static function get_gnn_module() {

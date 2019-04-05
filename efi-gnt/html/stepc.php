@@ -6,14 +6,14 @@ require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
     $gnn = new gnn($db,$_GET['id']);
     if ($gnn->get_key() != $_GET['key']) {
-        prettyError404();
+        error500("Unable to find the requested job.");
     }
     elseif (time() < $gnn->get_time_completed() + settings::get_retention_days()) {
-        prettyError404("That job has expired and doesn't exist anymore.");
+        error404("That job has expired and doesn't exist anymore.");
     }
 }
 else {
-    prettyError404();
+    error500("Unable to find the requested job.");
 }
 
 $gnnId = $gnn->get_id();

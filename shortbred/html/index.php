@@ -30,7 +30,7 @@ if (user_auth::has_token_cookie()) {
         //$job_manager = new job_manager($db, job_types::Identify);
         $is_enabled = $IsAdminUser || functions::is_shortbred_authorized($db, $user_token);
 
-        if (settings::is_recent_jobs_enabled()) {
+        if (settings::get_recent_jobs_enabled()) {
             $jobs = $job_manager->get_jobs_by_user($user_token);
             $training_jobs = $job_manager->get_training_jobs($user_token);
             $show_previous_jobs = count($jobs) > 0 || count($training_jobs) > 0;

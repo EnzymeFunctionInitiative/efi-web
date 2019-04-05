@@ -83,15 +83,19 @@ class global_settings {
             return false;
     }
 
-    public static function is_recent_jobs_enabled() {
+    public static function get_recent_jobs_enabled() {
         return __ENABLE_RECENT_JOBS__;
+    }
+
+    public static function get_website_enabled() {
+        return __ENABLE_WEBSITE__; 
     }
 
     public static function get_release_status() {
         return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? __BETA_RELEASE__ . " " : "";
     }
 
-    public static function is_beta_release() {
+    public static function get_is_beta_release() {
         return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? true : false;
     }
 
