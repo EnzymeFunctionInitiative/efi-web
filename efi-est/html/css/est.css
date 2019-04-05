@@ -72,3 +72,11 @@ table.attributes td {
 }
 
 
+.input-error {
+    color: red;
+}
+
+.input-warning {
+    color: orange;
+}
+
