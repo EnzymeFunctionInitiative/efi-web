@@ -33,10 +33,7 @@ if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie())
 }
 $showTrainingJobsTab = false; // currently we don't want it to be displayed since we put the training jobs below the previous jobs.
 
-$showJobGroups = $IsAdminUser && global_settings::get_job_groups_enabled();
-
-$maxSeqNum = functions::get_max_seq();
-$maxSeqFormatted = number_format($maxSeqNum, 0);
+$max_full_family = number_format(functions::get_maximum_full_family_count(), 0);
 
 $useAdvancedFamilyInputs = global_settings::advanced_options_enabled();
 
@@ -670,7 +667,7 @@ the <a href="family_list.php">Family Information page</a>.
 <div id="family-warning" class="hidden" title="UniRef Family Warning">
 <div style="color:red;" id="family-warning-size-info">
 The family(ies) selected has <span id="family-warning-total-size"> </span> proteins&mdash;this is greater than
-the maximum allowed (<?php echo $maxFullFamily; ?>). To reduce computing time and the size of
+the maximum allowed (<?php echo $max_full_family; ?>). To reduce computing time and the size of
 output SSN, UniRef<span class="family-warning-uniref">90</span> cluster ID sequences will automatically be used.
 </div>
 
@@ -689,7 +686,7 @@ SSNs are compatible with the Color SSN utility as well as the EFI-GNT tool.
 <?php /* ?>
     The family(ies) selected has <span id="family-warning-total-size"> </span> 
     proteins<span id="family-warning-fraction-size"></span>, which is greater
-    than the maximum allowed (<?php echo $maxFullFamily; ?>) for full family
+    than the maximum allowed (<?php echo $max_full_family; ?>) for full family
     inclusion.  UniRef<span class="family-warning-uniref">90</span> cluster IDs will automatically be 
     used instead of the full number of proteins in the family(ies).  Press OK to continue with UniRef<span class="family-warning-uniref">90</span>
     or Cancel to enter a different family, or option.
