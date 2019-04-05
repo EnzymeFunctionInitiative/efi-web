@@ -58,7 +58,7 @@ $returnData = array(
 
 // This resets the expiration date of the cookie so that frequent users don't have to login in every X days as long
 // as they keep using the app.
-if ($valid && settings::is_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
+if ($valid && settings::get_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $cookieInfo = user_jobs::get_cookie_shared(user_jobs::get_user_token());
     $returnData["cookieInfo"] = $cookieInfo;
 }

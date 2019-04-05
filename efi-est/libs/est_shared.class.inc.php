@@ -120,12 +120,12 @@ abstract class est_shared {
     }
 
     public function email_error_admin() {
-        $to = functions::get_error_admin_email();
+        $to = global_settings::get_error_admin_email();
         if (!$to)
             return;
 
         $subject = $this->beta . "EFI-EST - Pipeline error";
-        $from = "EFI-EST <" .functions::get_admin_email() . ">";
+        $from = "EFI-EST <" . global_settings::get_admin_email() . ">";
 
         $body_data = "There was an error in the pipeline and the job failed before completing." . PHP_EOL;
         $this->send_email($subject, $body_data, $to);
@@ -148,13 +148,13 @@ abstract class est_shared {
         $plain_email .= "Submission Summary:" . PHP_EOL . PHP_EOL;
         $plain_email .= $this->get_email_job_info() . PHP_EOL . PHP_EOL;
         $plain_email .= $extra_footer;
-        $plain_email .= functions::get_email_footer();
+        $plain_email .= global_settings::get_email_footer();
 
         $html_email = nl2br($plain_email, false);
         
         if (!$to)
             $to = $this->get_email();
-        $from = "EFI EST <" . functions::get_admin_email() . ">";
+        $from = "EFI EST <" . global_settings::get_admin_email() . ">";
 
         if ($full_url) {
             if (!is_array($full_url))

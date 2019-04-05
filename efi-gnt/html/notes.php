@@ -36,7 +36,7 @@ Users can now submit GNT jobs directly from the EST download page.
 To improve usability of the GNT, the various tools have been separated into separate tabs.
 </p>
 
-<?php if (settings::is_recent_jobs_enabled()) { ?>
+<?php if (settings::get_recent_jobs_enabled()) { ?>
 <p>
 Recently-ran jobs are now listed on the first tab of the GNT. This feature is enabled
 the first time a new job is submitted.
