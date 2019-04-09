@@ -8,10 +8,7 @@
     var handleTabPress = function(masterId, elemObj) {
         var curAttrValue = elemObj.attr("href");
         var tabPage = $(masterId + " " + curAttrValue);
-        //tabPage.show().siblings().hide();
-        //tabPage.fadeIn(300).show().siblings().hide();
-        //elemObj.parent("li").addClass("active").siblings().removeClass("active");
-        var theFrame = tabPage.children().first();
+        var theFrame = $(masterId + " " + curAttrValue + " iframe");
         if (!theFrame.data("shown")) {
             theFrame.attr("src", function() {
                 return $(this).data("src");
@@ -46,4 +43,14 @@
     //$(".stats-row").hide();
     $(".tabs").tabs();
 
+    var boxplotWindow;
+
+    $(".open-boxplots").click(function(evt) {
+        if (typeof boxplotWindow !== "undefined")
+            return;
+        var windowSize = ["width=600,height=" + (window.outerHeight-150)];
+        var url = "boxplots.php?<?php echo $hm_parm_string; ?>";
+        boxplotWindow = window.open(url, "BoxplotWindow", windowSize);
+        evt.preventDefault();
+    });
 
