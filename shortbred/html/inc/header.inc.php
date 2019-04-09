@@ -4,13 +4,13 @@ $Title = "EFI - Computationally-Guided Functional Profiling";
 if (isset($ExtraTitle) && $ExtraTitle)
     $title = "$Title: $ExtraTitle";
 
-$StyleAdditional = array('<link rel="stylesheet" type="text/css" href="css/shortbred.css">',
-    '<link rel="stylesheet" type="text/css" href="css/popup.css">');
+$StyleAdditional = array('<link rel="stylesheet" type="text/css" href="css/shortbred.css?v=2">',
+    '<link rel="stylesheet" type="text/css" href="css/popup.css?v=2">');
 if (isset($ExtraCssLinks)) {
     $func = function($value) { return "<link rel=\"stylesheet\" type=\"text/css\" href=\"$value\">\n"; };
     $StyleAdditional = array_merge($StyleAdditional, array_map($func, $ExtraCssLinks));
 }
-$JsAdditional = array('<script src="js/submit.js" type="text/javascript"></script>',
+$JsAdditional = array('<script src="js/submit.js?v=2" type="text/javascript"></script>',
     '<script src="js/multiselect.min.js" type="text/javascript"></script>');
 
 $BannerImagePath = "images/efi_cgfp_logo.png";

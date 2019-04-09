@@ -10,7 +10,7 @@ form {
     top: 10px;
 }
 
-.hidden-placeholder {
+.hidden {
     visibility: hidden;
 }
 
@@ -21,18 +21,13 @@ form {
 }
 
 #filter-box {
-//    overflow: hidden;
-//    display: none;
-//    position: fixed;
-//    bottom: 0px;
-//    left: 0px;
     margin: 0;
     width: calc(100% - 20px);
     padding-left: 9px;
     padding-top: 10px;
     padding-bottom: 10px;
     background-color: white;
-    border-top: 1px solid black;
+    //border-top: 1px solid black;
 }
 
 #filter-hide {
@@ -54,5 +49,4 @@ input.min-max-default {
     color: #999;
     font-style: italic;
 }
-
 

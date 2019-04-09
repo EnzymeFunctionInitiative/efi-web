@@ -39,7 +39,7 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 <!--<div id="filter-show"><button class="small dark" type="button">Show Filters</button></div>-->
 
 <div style="margin-top:50px;width:100%;position:fixed;bottom:0;height:50px;margin-bottom:150px">
-    <i id="progress-loader" class="fas fa-sync black fa-spin fa-4x fa-fw hidden-placeholder"></i>
+    <i id="progress-loader" class="fas fa-sync black fa-spin fa-4x fa-fw hidden"></i>
 </div>
 
 <div id="boxplot" title="Box Plot" class="hidden">
@@ -79,7 +79,7 @@ $(document).ready(function() {
         CdHitSid: "<?php echo (isset($_GET["cdhit-sid"]) ? $_GET["cdhit-sid"] : ""); ?>",
     };
 
-    var useBoxplots = <?php echo (global_settings::advanced_options_enabled() ? "true" : "false"); ?>;
+    var useBoxplots = false; //<?php echo (global_settings::advanced_options_enabled() ? "true" : "false"); ?>;
 
     var app = new HeatmapApp(data, "#progress-loader", useBoxplots);
 
