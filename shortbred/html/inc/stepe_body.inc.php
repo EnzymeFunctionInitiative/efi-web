@@ -262,56 +262,62 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
             
                 <div class="tab-content">
                     <div id="heatmap-clusters" class="tab active">
+                        <button type="button" class="small dark open-boxplots" style="float: right">View boxplots showing per-site abundance</button>
                         This heatmap presents information for SSN cluster/metagenome hit pairs.
+                        <div style="clear: both"></div>
                         <iframe src="heatmap.php?<?php echo $hm_parm_string; ?>&res=c&g=q&w=<?php echo $HeatmapWidth; ?>" width="<?php echo $HeatmapIframeWidth; ?>" height="840" style="border: none"></iframe>
                     </div>
             
                     <div id="heatmap-singletons" class="tab">
+                        <button type="button" class="small dark open-boxplots" style="float: right">View boxplots showing per-site abundance</button>
                         This heatmap presents information for SSN singleton/metagenome hit pairs instead of SSN cluster/metagenome hit pairs.
+                        <div style="clear: both"></div>
                         <iframe src="heatmap.php?<?php echo $hm_parm_string; ?>&res=s&g=q&w=<?php echo $HeatmapWidth; ?>" width="<?php echo $HeatmapIframeWidth; ?>" height="840" style="border: none"></iframe>
                     </div>
             
                     <div id="heatmap-combined" class="tab">
+                        <button type="button" class="small dark open-boxplots" style="float: right">View boxplots showing per-site abundance</button>
                         This heatmap combines the information obtained for SSN cluster and singleton/metagenome hit pairs.
+                        <div style="clear: both"></div>
                         <iframe src="heatmap.php?<?php echo $hm_parm_string; ?>&res=m&g=q&w=<?php echo $HeatmapWidth; ?>" width="<?php echo $HeatmapIframeWidth; ?>" height="840" style="border: none"></iframe>
                     </div>
                 </div>
             </div>
 
-            <p>
-            Tools for downloading and manipulating the heat map can be accessed by hovering and
-            clicking above and to the right of the plot.
-            </p>
-
-            <p>
-            Several filters are available for manipulating the heatmap. 
-            <ul>
-                <li>
-                    <b>Show specific clusters</b>: input individual cluster numbers separated by
-                    commas and/or a range of cluster numbers.  Only these input clusters are displayed
-                    in the heatmap.
-                </li>
-                <li>
-                    <b>Abundance to display</b>: hide any data values that are outside of the minimum
-                    and/or maximum. These hidden values appear as a zero value cell (i.e. the lowest
-                    color range).
-                </li>
-                <li>
-                    <b>Use mean</b>:
-                    display the heatmap using the mean method for reporting abundances instead of
-                    the defaut median method.
-                </li>
-                <li>
-                    <b>Display hits only</b>: show a black and white heatmap showing presence/absence
-                    of "hits" (which makes it easier to see low abundance hits).
-                </li>
-                <li>
-                    <b>Body Sites</b>: checkboxes are provided for each body site in the heatmap;
-                    selecting one or more of these checkboxes will show data for those body sites only.
-                </li>
-            </ul>
-            </p>
-
+            <div>
+                <p>
+                Tools for downloading and manipulating the heat map can be accessed by hovering and
+                clicking above and to the right of the plot.
+                </p>
+                <p>
+                Several filters are available for manipulating the heatmap. 
+                <ul>
+                    <li>
+                        <b>Show specific clusters</b>: input individual cluster numbers separated by
+                        commas and/or a range of cluster numbers.  Only these input clusters are displayed
+                        in the heatmap.
+                    </li>
+                    <li>
+                        <b>Abundance to display</b>: hide any data values that are outside of the minimum
+                        and/or maximum. These hidden values appear as a zero value cell (i.e. the lowest
+                        color range).
+                    </li>
+                    <li>
+                        <b>Use mean</b>:
+                        display the heatmap using the mean method for reporting abundances instead of
+                        the defaut median method.
+                    </li>
+                    <li>
+                        <b>Display hits only</b>: show a black and white heatmap showing presence/absence
+                        of "hits" (which makes it easier to see low abundance hits).
+                    </li>
+                    <li>
+                        <b>Body Sites</b>: checkboxes are provided for each body site in the heatmap;
+                        selecting one or more of these checkboxes will show data for those body sites only.
+                    </li>
+                </ul>
+                </p>
+            </div>
         </div>
     </div>
 </div>
