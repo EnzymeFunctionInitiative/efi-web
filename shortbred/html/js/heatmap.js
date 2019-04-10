@@ -199,7 +199,7 @@ class BoxplotApp extends QuantifyResults {
                 title: plotName,
                 showlegend: false,
                 margin: {
-                    l: 50,
+                    l: 70,
                     t: 50,
                     r: 30,
                     b: 50,
@@ -210,6 +210,41 @@ class BoxplotApp extends QuantifyResults {
                         size: 10,
                     },
                 },
+                yaxis: {
+                    title: {
+                        text: "Copies per microbial genome",
+                    },
+                    ticksuffix: "  ",
+
+                },
+                shapes: [
+                    {
+                        type: 'line',
+                        xref: 'paper',
+                        yref: 'paper',
+                        x0: 0,
+                        y0: 0.05,
+                        x1: 0,
+                        y1: 1,
+                        line: {
+                            color: "#000",
+                            width: 0.5,
+                        },
+                    },
+                ],
+                annotations: [
+                    {
+                        xref: 'paper',
+                        yref: 'paper',
+                        x: -0.17,
+                        y: 0.5,
+                        xanchor: 'left',
+                        yanchor: 'center',
+                        text: "Copies per microbial genome",
+                        showarrow: false,
+                        textangle: 270,
+                    },
+                ],
             };
 
             var divId = "boxplot-" + rawData.clusters[ci].number;

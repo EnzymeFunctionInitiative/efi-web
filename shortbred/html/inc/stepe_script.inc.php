@@ -46,9 +46,9 @@
     var boxplotWindow;
 
     $(".open-boxplots").click(function(evt) {
-        if (typeof boxplotWindow !== "undefined")
-            return;
-        var windowSize = ["width=600,height=" + (window.outerHeight-150)];
+        //if (typeof boxplotWindow !== "undefined")
+        //    return;
+        var windowSize = ["width=500,height=" + (window.outerHeight-150)];
         var url = "boxplots.php?<?php echo $hm_parm_string; ?>";
         boxplotWindow = window.open(url, "BoxplotWindow", windowSize);
         evt.preventDefault();
