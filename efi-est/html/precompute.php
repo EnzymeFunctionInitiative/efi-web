@@ -1,4 +1,8 @@
 <?php
+header("Cache-Control: no-cache");
+header("Location: index.php");
+exit(0);
+
 require_once "../includes/main.inc.php";
 require_once "../libs/user_jobs.class.inc.php";
 require_once "../libs/ui.class.inc.php";
