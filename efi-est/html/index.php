@@ -591,8 +591,12 @@ the <a href="family_list.php">Family Information page</a>.
         $(".archive-btn").click(function() {
             var id = $(this).data("id");
             var key = $(this).data("key");
+            var aid = $(this).data("analysis-id");
             var requestType = "archive";
             var jobType = "generate";
+
+            if (!aid)
+                aid = 0;
 
             $("#archive-confirm").dialog({
                 resizable: false,
@@ -601,7 +605,7 @@ the <a href="family_list.php">Family Information page</a>.
                 modal: true,
                 buttons: {
                     "Archive Job": function() {
-                        requestJobUpdate(id, key, requestType, jobType);
+                        requestJobUpdate(id, aid, key, requestType, jobType);
                         $( this ).dialog("close");
                     },
                     Cancel: function() {
@@ -1107,11 +1111,11 @@ function output_colorssn_row($id, $job, $bg_color, $show_archive) {
 }
 
 function output_nested_colorssn_row($id, $job, $bg_color) {
-    return output_row(RT_NESTED_COLOR, $id, NULL, $job["key"], $job, $bg_color, false);
+    return output_row(RT_NESTED_COLOR, $id, NULL, $job["key"], $job, $bg_color, true);
 }
 
 function output_analysis_row($id, $key, $job, $bg_color) {
-    return output_row(RT_ANALYSIS, $id, $job["analysis_id"], $key, $job, $bg_color, false);
+    return output_row(RT_ANALYSIS, $id, $job["analysis_id"], $key, $job, $bg_color, true);
 }
 
 // $aid = NULL to not output an analysis (nested) job
@@ -1126,16 +1130,22 @@ function output_row($row_type, $id, $aid, $key, $job, $bg_color, $show_archive) 
     $link_start = "";
     $link_end = "";
     $name_style = "";
+    $data_aid = "";
+    $archive_icon = "fa-stop-circle cancel-btn";
     if ($is_completed) {
         $aid_param = $row_type == RT_ANALYSIS ? "&analysis_id=$aid" : "";
         $link_start = "<a href='$script?id=$id&key=${key}${aid_param}' class='$link_class'>";
         $link_end = "</a>";
+        $archive_icon = "fa-trash-alt";
+    } elseif ($date_completed == __FAILED__) {
+        $archive_icon = "fa-trash-alt";
     }
     $id_text = "$link_start${id}$link_end";
 
     if ($row_type == RT_ANALYSIS) {
         $name_style = "style=\"padding-left: 35px;\"";
         $id_text = "";
+        $data_aid = "data-analysis-id='$aid'";
     } elseif ($row_type == RT_NESTED_COLOR) {
         $name_style = "style=\"padding-left: 70px;\"";
         $id_text = "";
@@ -1144,7 +1154,7 @@ function output_row($row_type, $id, $aid, $key, $job, $bg_color, $show_archive) 
 
     $status_update_html = "";
     if ($show_archive)
-        $status_update_html = "<div style='float:right' class='archive-btn' data-type='gnn' data-id='$id' data-key='$key' title='Archive Job'><i class='fas fa-trash-alt'></i></div>";
+        $status_update_html = "<div style='float:right' class='archive-btn' data-type='gnn' data-id='$id' data-key='$key' $data_aid title='Archive Job'><i class='fas $archive_icon'></i></div>";
 
     return <<<HTML
                     <tr style="background-color: $bg_color">

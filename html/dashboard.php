@@ -557,14 +557,14 @@ function retrieve_and_display($start_date, $user_email, $user_groups) {
     $color_jobs_db = get_job_list($results, "generate", LEVEL2, GET_IDS_FROM_DB);
     
     
-    $est_sql = "SELECT generate.generate_id, generate_key, generate_params, generate_type, generate_time_completed, analysis_id, analysis_name, analysis_min_length, analysis_max_length, analysis_evalue, analysis_time_completed FROM $est_db.generate LEFT JOIN $est_db.analysis ON generate.generate_id = analysis.analysis_generate_id";
+    $est_sql = "SELECT generate.generate_id, generate_key, generate_params, generate_type, generate_time_completed, analysis_id, analysis_name, analysis_min_length, analysis_max_length, analysis_evalue, analysis_time_completed, analysis_status FROM $est_db.generate LEFT JOIN $est_db.analysis ON generate.generate_id = analysis.analysis_generate_id";
     if ($group_clause)
         $est_sql .= " LEFT OUTER JOIN $est_db.job_group ON generate.generate_id = job_group.generate_id WHERE $group_clause";
     else
         $est_sql .= " WHERE generate_email = '$user_email'";
     if ($additional_ids_clause)
         $additional_ids_clause = " OR " . $additional_ids_clause;
-    $est_sql .= " AND generate_type != 'COLORSSN' AND generate_status = 'FINISH' AND " .
+    $est_sql .= " AND generate_type != 'COLORSSN' AND generate_status = 'FINISH' AND analysis_status != 'ARCHIVED' AND " .
         "(generate_time_completed >= '$start_date' OR analysis_time_completed >= '$start_date' $additional_ids_clause) ORDER BY generate_id";
     if ($recent_first)
         $est_sql .= " DESC";
