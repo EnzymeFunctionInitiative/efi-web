@@ -225,14 +225,16 @@ function submitStepEColorSsnForm(analysisId, ssnIndex) {
 }
 
 
-function requestJobUpdate(generateId, jobKey, requestType, jobType) {
+function requestJobUpdate(generateId, analysisId, jobKey, requestType, jobType) {
     var fd = new FormData();
     fd.append("id", generateId);
     fd.append("key", jobKey);
-    if (requestType == "cancel")
+    if (requestType == "cancel") {
         fd.append("rt", "c");
-    else if (requestType == "archive")
+    } else if (requestType == "archive") {
         fd.append("rt", "a");
+        fd.append("aid", analysisId);
+    }
 
     var fileHandler = function(xhr) { };
     var completionHandler = function(jsonObj) { window.location.href = "index.php"; };
