@@ -318,10 +318,10 @@ else {
         }
         $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "'><button class='file_download'>Download <img src='images/download.svg' /></button></a>\n";
         if ($preview_img) {
-            $html .= "<button class='panel-toggle'>Preview</button>\n";
-            $html .= "<div class='panel-toggle'>\n";
+            //$html .= "<button class='panel-toggle'>Preview</button>\n";
+            //$html .= "<div class='panel-toggle'>\n";
             $html .= "<img src='$preview_img' />\n";
-            $html .= "</div>\n";
+            //$html .= "</div>\n";
         } else {
             $html .= "<a href='$download_img'><button class='file_download'>Preview</button></a>\n";
         }
@@ -341,8 +341,9 @@ else {
 
         $html = <<<HTML
                 <span class="plot-header">$hdr</span>
-                <button class="panel-toggle" type="button">View</button>
-                <div class="panel-toggle">
+<!--                <button class="panel-toggle" type="button">View</button>
+                <div class="panel-toggle">-->
+<div>
                     <div id="$plot_div"></div>
                     <script>
                         $data
@@ -462,20 +463,67 @@ sequence pairs.
             applied for SSN finalization.
             More information on this process is described <a href="tutorial_analysis.php">in the tutorial</a>.
             </p>
-            
+
+            <div class="option-panels">
+                <div>
+                    <h3>Edge Count vs Alignment Score Plot</h3>
+                    <div>
             <?php 
                     make_interactive_plot($generate, "Edge Count vs Alignment Score Plot", "edge-evalue-plot", "edge_evalue");
             ?>
-            
+                    </div>
+                </div>
+                <div>
+                    <h3>Number of Edges at Alignment Score</h3>
+                    <div>
             <?php echo make_plot_download($generate, "Number of Edges at Alignment Score", "EDGES", $generate->get_number_edges_plot_sm(), $generate->get_number_edges_plot(1), $generate->number_edges_plot_exists()); ?>
-            
+                    </div>
+                </div>
+                <div>
+                    <h3>Number of Sequences at Each Length</h3>
+                    <div>
             <?php echo make_plot_download($generate, "Number of Sequences at Each Length", "HISTOGRAM", $generate->get_length_histogram_plot_sm(), $generate->get_length_histogram_plot(1), $generate->length_histogram_plot_exists()); ?>
-            
-            <?php if ($uniref) { echo make_plot_download($generate, "Number of Sequences at Each Length (Full UniProt)", "HISTOGRAM_UNIPROT", $generate->get_uniprot_length_histogram_plot_sm(), $generate->get_uniprot_length_histogram_plot(1), $generate->uniprot_length_histogram_plot_exists()); } ?>
-            
+                    </div>
+                </div>
+<?php if ($uniref) { ?>
+                <div>
+                    <h3>Number of Sequences at Each Length (Full UniProt)</h3>
+                    <div>
+            <?php echo make_plot_download($generate, "Number of Sequences at Each Length (Full UniProt)", "HISTOGRAM_UNIPROT", $generate->get_uniprot_length_histogram_plot_sm(), $generate->get_uniprot_length_histogram_plot(1), $generate->uniprot_length_histogram_plot_exists()); ?>
+                    </div>
+                </div>
+<?php } ?>
+                <div>
+                    <h3>Alignment Length vs Alignment Score</h3>
+                    <div>
             <?php echo make_plot_download($generate, "Alignment Length vs Alignment Score", "ALIGNMENT", $generate->get_alignment_plot_sm(), $generate->get_alignment_plot(1), $generate->alignment_plot_exists()); ?>
-            
+                    </div>
+                </div>
+                <div>
+                    <h3>Percent Identity vs Alignment Score</h3>
+                    <div>
             <?php echo make_plot_download($generate, "Percent Identity vs Alignment Score", "IDENTITY", $generate->get_percent_identity_plot_sm(), $generate->get_percent_identity_plot(1), $generate->percent_identity_plot_exists()); ?>
+                    </div>
+                </div>
+<?php if ($generate->alignment_plot_new_exists()) { ?>
+                <div>
+                    <h3>Alignment Length vs Alignment Score (dynamic)</h3>
+                    <div>
+            <?php echo make_plot_download($generate, "Alignment Length vs Alignment Score", "ALIGNMENT", $generate->get_alignment_plot_new(1), $generate->get_alignment_plot_new(1), $generate->alignment_plot_new_exists()); ?>
+                    <iframe src="<?php echo $generate->get_alignment_length_plot_new_html(1); ?>"></iframe>
+                    </div>
+                </div>
+<?php } ?>
+<?php if ($generate->percent_identity_plot_new_exists()) { ?>
+                <div>
+                    <h3>Percent Identity vs Alignment Score (dynamic)</h3>
+                    <div>
+            <?php echo make_plot_download($generate, "Percent Identity vs Alignment Score", "IDENTITY", $generate->get_percent_identity_plot_new(1), $generate->get_percent_identity_plot_new(1), $generate->percent_identity_plot_new_exists()); ?>
+                    <iframe src="<?php echo $generate->get_percent_identity_plot_new_html(1); ?>" border="0" width="100%" height="500"></iframe>
+                    </div>
+                </div>
+<?php } ?>
+            </div>
 
             <p>
             Enter chosen <b>Sequence Length Restriction</b> and <b>Alignment Score Threshold</b> in the <a href="#" id="final-link">SSN Finalization tab</a>.

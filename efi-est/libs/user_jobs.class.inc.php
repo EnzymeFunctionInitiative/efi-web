@@ -171,7 +171,7 @@ class user_jobs extends user_auth {
             $analysis_jobs = array();
             if ($is_completed && $includeAnalysisJobs) {
                 $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter FROM analysis " .
-                    "WHERE analysis_generate_id = $id ";
+                    "WHERE analysis_generate_id = $id AND analysis_status != 'ARCHIVED' ";
                 if (!$includeFailedAnalysisJobs)
                     $sql .= "AND analysis_status = 'FINISH'";
                 $arows = $db->query($sql); // Analysis Rows
