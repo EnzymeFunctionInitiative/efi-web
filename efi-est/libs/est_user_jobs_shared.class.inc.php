@@ -59,7 +59,7 @@ class est_user_jobs_shared {
         $unirefStr = "";
         if (array_key_exists("generate_uniref", $data)) {
             if ($data["generate_uniref"])
-                $unirefStr = "UniRef " . $data["generate_uniref"];
+                $unirefStr = "UniRef" . $data["generate_uniref"];
         }
         return $unirefStr;
     }

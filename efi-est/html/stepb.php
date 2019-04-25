@@ -6,9 +6,9 @@ require_once 'inc/header.inc.php';
 
 ?>
 
-	<h2>Fetching information and generating data set</h2>
+	<h2>Fetching information and generating dataset</h2>
 	<p>&nbsp;</p>
-	<p>An e-mail will be sent when your data set generation is complete.</p>
+	<p>An e-mail will be sent when your dataset generation is complete.</p>
 	<p>For large datasets (more than 50,000 sequences), it may take more than 24 hours.</p>
 	<p>&nbsp;</p>
 	<p>&nbsp;</p>

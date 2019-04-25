@@ -61,7 +61,7 @@ class user_jobs extends user_auth {
         $past_dt = $dt->sub(new DateInterval("PT${limit_period}H"));
         $mysql_date = $past_dt->format("Y-m-d H:i:s");
         
-        $sql = "SELECT COUNT(*) AS count FROM generate WHERE generate_time_created >= '$mysql_date' AND generate_email = '$email'";
+        $sql = "SELECT COUNT(*) AS count FROM generate WHERE generate_time_created >= '$mysql_date' AND generate_email = '$email' AND (generate_status = '" . __RUNNING__ . "' OR generate_status = '" . __NEW__ . "')";
         $results = $db->query($sql);
 
         $num_job_limit = global_settings::get_num_job_limit();

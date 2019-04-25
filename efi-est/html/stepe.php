@@ -44,9 +44,24 @@ $network_name = $analysis->get_name();
 $job_name = $generate->get_job_name();
 $legacy = empty($db_version); // Indicates if we are looking at old jobs.
 
+$use_advanced_options = global_settings::advanced_options_enabled();
 
 $gen_type = $generate->get_type();
 $formatted_gen_type = functions::format_job_type($gen_type);
+
+$table->add_row("Network Name", $network_name);
+$table->add_row("Alignment Score", $analysis->get_filter_value());
+if ($use_advanced_options)
+    $table->add_row("Filter", $analysis->get_filter_name());
+$table->add_row("Minimum Length", number_format($analysis->get_min_length()));
+$table->add_row("Maximum Length", number_format($analysis->get_max_length()));
+if ($use_advanced_options)
+    $table->add_row("CD-HIT Method", $analysis->get_cdhit_method_nice());
+$table->add_row("Total Number of Sequences After Length Filtering", "TODO"); //TODO
+
+
+
+$table->add_html('</table><br><h4>Dataset Summary</h4><table width="100%" class="pretty">');
 
 $table->add_row_with_html("EST Job Number", "$generate_id (<a href='stepc.php?id=$generate_id&key=$key'>Original Dataset</a>)");
 $table->add_row("Time Started -- Finished", $time_window);
@@ -71,11 +86,11 @@ if ($gen_type == "BLAST") {
     if ($table_format == "html") {
         $code = "<a href='blast.php?blast=$code' target='_blank'>View Sequence</a>";
     }
-    $table->add_row("Blast Sequence", $code);
+    $table->add_row("BLAST Sequence", $code);
     $table->add_row("E-Value", $generate->get_evalue());
     $included_family = $generate->get_families_comma();
     if ($included_family != "")
-        $table->add_row("PFam/Interpro Families", $included_family);
+        $table->add_row("Pfam/InterPro Families", $included_family);
     $table->add_row("Maximum Retrieved Sequences", number_format($generate->get_submitted_max_sequences()));
 }
 elseif ($gen_type == "FAMILIES") {
@@ -86,7 +101,7 @@ elseif ($gen_type == "FAMILIES") {
     $unirefVersion = $generate->get_uniref_version();
 
     if ($included_family != "")
-        $table->add_row("PFam/Interpro Families", $included_family);
+        $table->add_row("Pfam/InterPro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
     $table->add_row("Domain", $generate->get_domain());
@@ -104,10 +119,10 @@ elseif ($gen_type == "ACCESSION") {
         $table->add_row("Uploaded Accession ID File", $uploaded_file);
     $included_family = $generate->get_families_comma();
     if ($included_family != "")
-        $table->add_row("PFam/Interpro Families", $included_family);
+        $table->add_row("Pfam/InterPro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
-    if (global_settings::advanced_options_enabled())
+    if ($use_advanced_options)
         $table->add_row("Domain", $generate->get_domain());
     $unirefVersion = $generate->get_uniref_version();
     if ($unirefVersion)
@@ -120,7 +135,7 @@ elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
         $table->add_row("Uploaded Fasta File", $uploaded_file);
     $included_family = $generate->get_families_comma();
     if ($included_family != "")
-        $table->add_row("PFam/Interpro Families", $included_family);
+        $table->add_row("Pfam/InterPro Families", $included_family);
     $table->add_row("E-Value", $generate->get_evalue());
     $table->add_row("Fraction", $generate->get_fraction());
     $unirefVersion = $generate->get_uniref_version();
@@ -153,13 +168,6 @@ if ($included_family && !empty($num_full_family_nodes))
     $table->add_row("Number of Sequences in Pfam/InterPro Family", number_format($num_full_family_nodes));
 $table->add_row("Total Number of Sequences $extra_nodes_ast", number_format($total_num_nodes));
 
-$table->add_row("Network Name", $network_name);
-$table->add_row("Alignment Score", $analysis->get_filter_value());
-$table->add_row("Filter", $analysis->get_filter_name());
-$table->add_row("Minimum Length", number_format($analysis->get_min_length()));
-$table->add_row("Maximum Length", number_format($analysis->get_max_length()));
-if (functions::custom_clustering_enabled())
-    $table->add_row("CD-HIT Method", $analysis->get_cdhit_method_nice());
 $conv_ratio = $generate->get_convergence_ratio();
 $convergence_ratio_string = "";
 if ($conv_ratio > -0.5) {
@@ -291,7 +299,7 @@ else {
     }
 
     $IncludeSubmitJs = true;
-    require_once 'inc/header.inc.php'; 
+    require_once("inc/header.inc.php");
 
 
     $stepa_link = functions::get_web_root() . "/index.php#colorssn";
@@ -301,24 +309,22 @@ else {
 
 <h2>Download Network Files</h2>
 
-<?php if ($job_name || $network_name) { ?>
-<h4 class="job-display">
-    <?php if ($job_name) { ?>Submission Name: <b><?php echo $job_name; ?></b><?php } ?>
-    <?php if ($job_name && $network_name) { ?>/<?php } ?>
-    <?php if ($network_name) { ?>Network Name: <b><?php echo $network_name; ?></b><?php } ?>
-</h4>
-<?php } ?>
+<?php if ($job_name) { ?><h4 class="job-display">Submission Name: <b><?php echo $job_name; ?></b></h4><?php } ?>
+<?php if ($network_name) { ?><h4 class="job-display">Network Name: <b><?php echo $network_name; ?></b></h4><?php } ?>
 
 <div class="tabs-efihdr tabs">
     <ul>
-        <li><a href="#info">SSN Overview</a></li>
-        <li class="ui-tabs-active"><a href="#results">Network Files</a></li>
+        <li class="ui-tabs-active"><a href="#info">SSN Overview</a></li>
+        <li><a href="#results">Network Files</a></li>
     </ul>
 
     <div>
         <div id="info">
-            <h4>SSN Generation and Analysis Summary Table</h4>
+            <p>
+            The parameters used for the initial submission and the finalization are summarized in the table below.
+            </p>
         
+            <h4>Analysis Summary</h4>
             <table width="100%" class="pretty">
                 <?php echo $table_string; ?>
             </table>
@@ -340,7 +346,7 @@ else {
 
 
         <div id="results">
-            <h3>Full Network <a href="tutorial_download.php" class="question" target="_blank">?</a></h3>
+            <h4>Full Network <a href="tutorial_download.php" class="question" target="_blank">?</a></h4>
             <p>Each node in the network represents a single protein sequence. Large files (&gt;500MB) may not open in Cytoscape.</p>
             <?php if (!$full_network_html) { ?>
                 <p><b>The output file was too large (edges=<?php echo $full_edge_count; ?>) to be generated by EST.  Please use a repnode below or choose a different alignment score.</b></p>
@@ -363,7 +369,7 @@ else {
         
             <p>&nbsp;</p>
             <div class="align_left">
-                <h3>Representative Node Networks <a href="tutorial_download.php" class="question" target="_blank">?</a></h3>
+                <h4>Representative Node Networks <a href="tutorial_download.php" class="question" target="_blank">?</a></h4>
                 <p>
                     In representative node (RepNode) networks, each node in the network represents a collection of proteins grouped
                     according to percent identity. For example, for a 75% identity RepNode network, all connected sequences
@@ -443,7 +449,7 @@ Would you like to color the SSN?
 
 <?php
 
-    require_once 'inc/footer.inc.php';
+    require_once("inc/footer.inc.php");
 
 } // as-table block
 
