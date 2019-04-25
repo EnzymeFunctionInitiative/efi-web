@@ -7,7 +7,6 @@ if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
     $gnn = new gnn($db,$_GET['id']);
     $gnnId = $gnn->get_id();
     $gnnKey = $gnn->get_key();
-    print "$gnnKey";
     if ($gnnKey != $_GET['key']) {
         error500("Unable to find the requested job.");
     }
@@ -188,7 +187,7 @@ require_once('inc/header.inc.php');
 
         <!-- NETWORK INFORMATION -->
         <div id="info" class="">
-            <h4>Submission Summary Table</h4>
+            <p>The parameters for computing the GNN and associated files are summarized in the table.</p>
             <table width="100%" style="margin-top: 10px" class="pretty">
                 <tbody>
                     <?php echo $tableString; ?>
