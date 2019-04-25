@@ -63,7 +63,6 @@ class gnn extends gnn_shared {
     public function get_filename() { return $this->filename; }
     public function get_ssn_nodes() { return $this->ssn_nodes; }
     public function get_ssn_edges() { return $this->ssn_edges; }
-    public function get_gnn_pfams() { return $this->gnn_pfams; }
     public function get_gnn_nodes() { return $this->gnn_nodes; }
     public function get_gnn_edges() { return $this->gnn_edges; }
     public function get_source_id() { return $this->est_id; }
@@ -683,12 +682,11 @@ class gnn extends gnn_shared {
 
     public function set_gnn_stats() {
         $result = $this->count_nodes_edges($this->get_gnn());
-        $data = array("gnn_edges" => $result["edges"], "gnn_nodes" => $result["nodes"], "gnn_pfams" => $result["pfams"]);
+        $data = array("gnn_edges" => $result["edges"], "gnn_nodes" => $result["nodes"]);
         $result = $this->update_results_object($data);
         if ($result) {
             $this->gnn_nodes = $result['nodes'];
             $this->gnn_edges = $result['edges'];
-            $this->gnn_pfams = $result['pfams'];
         }
     }
 
@@ -743,7 +741,6 @@ class gnn extends gnn_shared {
             $this->ssn_edges = isset($results_obj['ssn_edges']) ? $results_obj['ssn_edges'] : "";
             $this->gnn_nodes = isset($results_obj['gnn_nodes']) ? $results_obj['gnn_nodes'] : "";
             $this->gnn_edges = isset($results_obj['gnn_edges']) ? $results_obj['gnn_edges'] : "";
-            $this->gnn_pfams = isset($results_obj['gnn_pfams']) ? $results_obj['gnn_pfams'] : "";
 
             if (isset($result['gnn_parent_id']) && isset($result['gnn_child_type'])) {
                 $this->gnn_parent_id = $result['gnn_parent_id'];
@@ -795,22 +792,36 @@ class gnn extends gnn_shared {
 
 
     public function count_nodes_edges($xgmml_file) {
-        $result = array('nodes'=>0,
-            'edges'=>0,
-            'pfams'=>0);
+        $result = array('nodes' => 0, 'edges' => 0);
         if (file_exists($xgmml_file)) {
-            $xml = simplexml_load_file($xgmml_file);
-            foreach ($xml->edge as $edge) {
-                $result['edges']++;
-            }
-            foreach($xml->node as $node) {
-                $result['nodes']++;
-                foreach ($node->att as $att) {
-                    if ($att->attributes()->name == 'pfam') {
-                        $result['pfams']++;
-                    }
-                }
-            }	
+            // For now we use grep and wc to count how many edges and nodes there are in the network.
+            // Some of the files we are using are very large (e.g. 22GB) and it's impossible to load
+            // those into memory.
+            $exec = "grep '<node' $xgmml_file | wc -l";
+            $output = exec($exec);
+            $output = trim(rtrim($output));
+            list($num_nodes,) = explode(" ",$output);
+
+            $exec = "grep '<edge' $xgmml_file | wc -l";
+            $output = exec($exec);
+            $output = trim(rtrim($output));
+            list($num_edges,) = explode(" ",$output);
+
+            $result['nodes'] = $num_nodes;
+            $result['edges'] = $num_edges;
+
+            //$xml = simplexml_load_file($xgmml_file);
+            //foreach ($xml->edge as $edge) {
+            //    $result['edges']++;
+            //}
+            //foreach($xml->node as $node) {
+            //    $result['nodes']++;
+            //    foreach ($node->att as $att) {
+            //        if ($att->attributes()->name == 'pfam') {
+            //            $result['pfams']++;
+            //        }
+            //    }
+            //}	
         }
         return $result;
 
