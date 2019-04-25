@@ -11,6 +11,10 @@ class table_builder {
         $this->is_html = $format != "tab";
     }
 
+    public function is_html() {
+        return $this->is_html;
+    }
+
     public function add_row_with_class($col1, $col2, $css_row_class) {
         $this->add_row($col1, $col2, false, false, $css_row_class);
     }
