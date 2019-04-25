@@ -23,6 +23,13 @@ class table_builder {
         $this->add_row($col1, $col2, false, false, $css_row_class);
     }
 
+    // Add arbitrary HTML
+    public function add_html($html) {
+        if ($this->is_html) {
+            $this->buffer .= $html;
+        }
+    }
+
     public function add_row($col1, $col2, $col3 = false, $col4 = false, $css_row_class = "") {
         if ($this->is_html) {
             if ($css_row_class)
