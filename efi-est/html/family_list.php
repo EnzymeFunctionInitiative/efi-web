@@ -175,8 +175,8 @@ if ($isPfamClanMap) { ?>
                     <th><?php echo $hdr; ?> ID</th>
                     <th><?php echo $hdr; ?> Short Name</th>
                     <th><?php echo $hdr; ?> Size</th>
-                    <th>UniRef 90 Size</th>
-                    <th>UniRef 50 Size</th>
+                    <th>UniRef90 Size</th>
+                    <th>UniRef50 Size</th>
                 </thead>
                 <tbody>
 <?php

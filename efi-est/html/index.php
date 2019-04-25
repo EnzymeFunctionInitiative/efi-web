@@ -317,7 +317,7 @@ the <a href="family_list.php">Family Information page</a>.
                 <div class="tabs tabs-efihdr" id="optionD-src-tabs">
                     <ul class="tab-headers">
                         <li class="ui-tabs-active"><a href="#optionD-source-uniprot">Use UniProt IDs</a></li>
-                        <li><a href="#optionD-source-uniref">Use UniRef 50 or 90 Cluster IDs</a></li>
+                        <li><a href="#optionD-source-uniref">Use UniRef50 or UniRef90 Cluster IDs</a></li>
                     </ul>
                     <div class="tab-content" style="min-height: 250px">
                         <div id="optionD-source-uniprot" class="tab ui-tabs-active">
@@ -830,8 +830,8 @@ HTML;
             Select Program to use:
         </span><span class="input-field">
         <select name="program-$option_id" id="program-$option_id">
-            <option value="BLAST">Blast</option>
-            <option value="BLAST+">Blast+</option>
+            <option value="BLAST">BLAST</option>
+            <option value="BLAST+">BLAST+</option>
             <option selected="selected" value="DIAMOND">Diamond</option>
         	<option value="DIAMONDSENSITIVE">Diamond Sensitive</option>
         </select>

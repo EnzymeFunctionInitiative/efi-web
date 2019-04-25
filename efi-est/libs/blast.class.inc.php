@@ -22,10 +22,11 @@ class blast extends family_shared {
     }
 
     public function get_submitted_max_sequences() { return $this->blast_sequence_max; }
-        public function get_blast_input() { return $this->blast_input; }
-        public function get_finish_file() { 
-            return $this->get_output_dir() . "/" . $this->finish_file; 
-        }
+    public function get_blast_input() { return $this->blast_input; }
+    public function get_blast_evalue() { return $this->blast_evalue; }
+    public function get_finish_file() { 
+        return $this->get_output_dir() . "/" . $this->finish_file; 
+    }
     public function get_fail_file() {
         return $this->get_output_dir() . "/" . $this->fail_file;
     }
@@ -128,15 +129,15 @@ class blast extends family_shared {
 
     protected function get_email_job_info() {
         $message = parent::get_email_job_info();
-        $message .= "Blast Sequence: " . PHP_EOL;
+        $message .= "BLAST Sequence: " . PHP_EOL;
         $message .= $this->get_formatted_blast() . PHP_EOL;
         $message .= "E-Value: " . $this->blast_evalue . PHP_EOL;
         $fams = $this->get_families_comma();
         if ($fams) {
-            $message .= "Pfam/Interpro Families: " . $fams . PHP_EOL;
-            $message .= "Pfam/Interpro Families BLAST E-Value: " . $this->get_evalue() . PHP_EOL;
+            $message .= "Pfam/InterPro Families: " . $fams . PHP_EOL;
+            $message .= "Pfam/InterPro Families BLAST E-Value: " . $this->get_evalue() . PHP_EOL;
         }
-        $message .= "Maximum Blast Sequences: " . $this->get_submitted_max_sequences() . PHP_EOL;
+        $message .= "Maximum BLAST Sequences: " . $this->get_submitted_max_sequences() . PHP_EOL;
         //$message .= "Selected Program: " . $this->get_program() . PHP_EOL;
         
         return $message;

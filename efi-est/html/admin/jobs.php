@@ -132,7 +132,7 @@ $month_name = date("F", mktime(0, 0, 0, $month, 10));
 <?php if ($job_type == "generate") { ?>
     <th>Email</th>
     <th>Type</th>
-    <th>Blast</th>
+    <th>BLAST</th>
     <th>Family</th>
     <th>E-Value</th>
     <th>UniRef</th>

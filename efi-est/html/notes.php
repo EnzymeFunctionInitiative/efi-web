@@ -51,7 +51,7 @@ sequences with a 90% sequence identity<sup>&dagger;</sup> will be used isntead. 
 UniRef50 is used, 552 cluster ID sequences that represent the set of UniRef90 seed sequences with a 50%
 sequence identity<sup>&dagger;</sup> will
 be used in the computations.  The sequences represented by a cluster ID sequence are listed
-as a node attribute in the SSN.  To use UniRef, the user must select the "Use UniRef 50/UniRef 90
+as a node attribute in the SSN.  To use UniRef, the user must select the "Use UniRef50/UniRef90
 cluster ID sequences instead of the full family" option.
 </p>
 
