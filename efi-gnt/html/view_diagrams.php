@@ -23,7 +23,7 @@ $blastSequence = "";
 $jobTypeText = "";
 
 $isBigscapeEnabled = settings::get_bigscape_enabled();
-$isInterproEnabled = settings::get_interpro_enabled();
+$isInterProEnabled = settings::get_interpro_enabled();
 $numDiagrams = settings::get_num_diagrams_per_page();
 $isUploadedDiagram = false;
 $supportsDownload = true;
@@ -255,7 +255,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     </li>
                     <li>
                         <div class="initial-hidden">
-                            <i class="fas fa-filter" aria-hidden="true"> </i> <span class="sidebar-header">PFam Filtering</span>
+                            <i class="fas fa-filter" aria-hidden="true"> </i> <span class="sidebar-header">Pfam Filtering</span>
                             <div class="filter-cb-div filter-cb-toggle-div" id="filter-container-toggle">
                                 <input id="filter-cb-toggle" type="checkbox" />
                                 <label for="filter-cb-toggle"><span id="filter-cb-toggle-text">Show Pfam Numbers</span></label>
@@ -547,7 +547,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
             } 
         </script>
 
-<?php $hideInterpro = $isInterproEnabled ? "" : 'style="display:none"'; ?>
+<?php $hideInterPro = $isInterProEnabled ? "" : 'style="display:none"'; ?>
         <div id="info-popup" class="info-popup hidden">
             <div id="copy-info"><i class="far fa-copy"></i></div>
             <div id="info-popup-id">UniProt ID: <a href="https://www.uniprot.org/uniprot" target="_blank"><span class="popup-id"></span></a></div>
@@ -558,7 +558,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                 <div id="info-popup-fam"><span class="popup-pfam"></span></div>
                 <div id="info-popup-fam-desc"><span class="popup-pfam"></span></div>
             </div>
-            <div class="info-popup-group" <?php echo $hideInterpro; ?>>
+            <div class="info-popup-group" <?php echo $hideInterPro; ?>>
                 <div class="info-hdr">InterPro</div>
                 <div id="info-popup-ipro-fam"><span class="popup-pfam"></span></div>
                 <div id="info-popup-ipro-fam-desc"><span class="popup-pfam"></span></div>
