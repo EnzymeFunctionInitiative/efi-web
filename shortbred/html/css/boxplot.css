@@ -42,3 +42,12 @@ html, body {
     font-size: 120%;
 }
 
+.search-container div {
+    text-align: center;
+}
+
+.search-container .title {
+    margin-bottom: 10px;
+    font-size: 95%;
+}
+

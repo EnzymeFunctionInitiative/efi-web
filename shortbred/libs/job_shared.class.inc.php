@@ -437,7 +437,7 @@ abstract class job_shared {
                 $pos = $pos_start + 1;
             } elseif ($key == "is_uniref") {
                 $attr = "SSN sequence source";
-                $value = $value ? "UniRef $value" : "UniProt";
+                $value = $value ? "UniRef$value" : "UniProt";
                 $pos = $pos_start + 2;
             } elseif ($key == "num_metanodes") {
                 $attr = "Number of SSN (meta)nodes";
