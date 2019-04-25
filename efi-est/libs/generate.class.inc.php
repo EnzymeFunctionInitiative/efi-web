@@ -5,7 +5,7 @@ require_once('family_shared.class.inc.php');
 class generate extends family_shared {
 
     private $domain;
-    public $subject = "EFI-EST Pfam/Interpro";
+    public $subject = "EFI-EST Pfam/InterPro";
     
     public function __construct($db,$id = 0) {
         parent::__construct($db, $id);
@@ -71,12 +71,12 @@ class generate extends family_shared {
 
     protected function get_email_job_info() {
         $message = parent::get_email_job_info();
-        $message .= "Pfam/Interpro Families: " . $this->get_families_comma() . PHP_EOL;
+        $message .= "Pfam/InterPro Families: " . $this->get_families_comma() . PHP_EOL;
         $message .= "E-Value: " . $this->get_evalue() . PHP_EOL;
         $message .= "Fraction: " . $this->get_fraction() . PHP_EOL;
         $message .= "Enable Domain: " . $this->get_domain() . PHP_EOL;
         if ($this->uniref_version)
-            $message .= "Using UniRef " . $this->uniref_version . PHP_EOL;
+            $message .= "Using UniRef" . $this->uniref_version . PHP_EOL;
         //$message .= "Selected Program: " . $this->get_program() . PHP_EOL;
         
         return $message;

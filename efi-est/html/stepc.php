@@ -20,12 +20,12 @@ if ($generate->get_key() != $_GET['key']) {
 }
 
 if ($generate->is_expired()) {
-    require_once 'inc/header.inc.php'; 
+    require_once("inc/header.inc.php");
     echo "<p class='center'><br>Your job results are only retained for a period of " . functions::get_retention_days(). " days";
     echo "<br>Your job was completed on " . $generate->get_time_completed();
     echo "<br>Please go back to the <a href='" . functions::get_server_name() . "'>homepage</a></p>";
+    require_once("inc/footer.inc.php");
     exit;
-    require_once 'inc/footer.inc.php';
 }
 
 
@@ -156,29 +156,50 @@ $num_full_family_nodes = $generate->get_num_full_family_sequences();
 if (empty($num_full_family_nodes))
     $num_full_family_nodes = $num_family_nodes;
 $total_num_nodes = $generate->get_num_sequences();
-$extra_nodes_string = "";
+$extra_nodes_string = ""; //TODO not shared?
 $extra_nodes_ast = "";
 $uniref = "";
+
+$family_label = "Added Pfam / InterPro Family";
+$fraction_label = "Fraction Option for Added Family";
+$total_label = "Total Number of Sequences in Dataset";
+$domain_label = "Domain Option";
+$blast_total_label = "";
+
+
+$fraction = $generate->get_fraction();
+$default_fraction = functions::get_fraction();
+if ($fraction == $default_fraction)
+    $fraction = "off";
+
+$evalue_option = $generate->get_evalue();
+$default_evalue = functions::get_evalue();
+$show_evalue = $evalue_option != $default_evalue;
 
 if ($gen_type == "BLAST") {
     $generate = new blast($db,$_GET['id']);
     $code = $generate->get_blast_input();
-    if ($table_format == "html") {
-        $code = "<a href='blast.php?blast=$code'>View Sequence</a>";
-    }
-    $table->add_row("Blast Sequence", $code);
-    $table->add_row("E-Value", $generate->get_evalue());
     $included_family = $generate->get_families_comma();
+    $evalue_blast = $generate->get_blast_evalue();
+    if ($evalue_blast != $default_evalue)
+        $table->add_row("E-Value for UniProt BLAST Retrieval", $evalue_blast);
+    if ($show_evalue)
+        $table->add_row("E-Value for SSN Edge Calculation", $evalue_option);
+    
+    if ($table_format == "html")
+        $code = "<a href='blast.php?blast=$code'>View Sequence</a>";
+    $table->add_row("Sequence Submitted for BLAST", $code);
+    
+    $table->add_row("Maximum Number of Retrieved Sequences", number_format($generate->get_submitted_max_sequences()));
+    $table->add_row("Actual Number of Retrieved Sequences", "TODO");//TODO
+    $blast_total_label = " (includes sequence submitted for BLAST)";
     if ($included_family != "") {
+        $table->add_row($family_label, $included_family);
+        $table->add_row($fraction_label, $fraction);
         $uniref = $generate->get_uniref_version();
-        $fraction = $generate->get_fraction();
-        $table->add_row("PFam/Interpro Families", $included_family);
         if ($uniref)
             $table->add_row("UniRef Version", $uniref);
-        if ($fraction)
-            $table->add_row("Fraction", $fraction);
     }
-    $table->add_row("Maximum Retrieved Sequences", number_format($generate->get_submitted_max_sequences()));
 }
 elseif ($gen_type == "FAMILIES") {
     $generate = new generate($db,$_GET['id']);
@@ -187,72 +208,68 @@ elseif ($gen_type == "FAMILIES") {
     $overlap = $generate->get_length_overlap();
     $uniref = $generate->get_uniref_version();
 
-    $table->add_row("PFam/Interpro Families", $included_family);
-    $table->add_row("E-Value", $generate->get_evalue());
-    $table->add_row("Fraction", $generate->get_fraction());
-    $table->add_row("Domain", $generate->get_domain());
+    $fraction_label = "Fraction Option";
+    $family_label = "Pfam / InterPro Family";
+
+    if ($show_evalue)
+        $table->add_row("E-Value for SSN Edge Calculation", $evalue_option);
+    $table->add_row($family_label, $included_family);
+    $table->add_row($fraction_label, $fraction);
+    $table->add_row($domain_label, $generate->get_domain());
     if ($uniref)
         $table->add_row("UniRef Version", $uniref);
-    if ($seqid)
-        $table->add_row("Sequence Identity", $seqid);
-    if ($overlap)
-        $table->add_row("Sequence Overlap", $overlap);
+    if ($use_advanced_options) {
+        if ($seqid)
+            $table->add_row("Sequence Identity", $seqid);
+        if ($overlap)
+            $table->add_row("Sequence Overlap", $overlap);
+    }
 }
-elseif ($gen_type == "ACCESSION") {
-    $generate = new accession($db,$_GET['id']);
+elseif ($gen_type == "ACCESSION" || $gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+    $file_label = "";
+    if ($gen_type == "ACCESSION") {
+        $generate = new accession($db,$_GET['id']);
+        $file_label = "Accession ID";
+    } else {
+        $generate = new fasta($db,$_GET['id']);
+        $file_label = "FASTA";
+    }
+
+    if ($show_evalue)
+        $table->add_row("E-Value for SSN Edge Calculation", $evalue_option);
     $uploaded_file = $generate->get_uploaded_filename();
     if ($uploaded_file)
-        $table->add_row("Uploaded Accession ID File", $uploaded_file);
-    $table->add_row_html_only("No matches file", "<a href=\"" . $generate->get_no_matches_download_path() . "\"><button class=\"mini\">Download</button></a>");
+        $table->add_row("Uploaded $file_label File", $uploaded_file);
+    if ($gen_type == "ACCESSION")
+        $table->add_row_html_only("No matches file", "<a href=\"" . $generate->get_no_matches_download_path() . "\"><button class=\"mini\">Download</button></a>");
+
     $included_family = $generate->get_families_comma();
-    if ($included_family != "")
-        $table->add_row("PFam/Interpro Families", $included_family);
-    $table->add_row("E-Value", $generate->get_evalue());
-    $table->add_row("Fraction", $generate->get_fraction());
+    if ($included_family != "") {
+        $table->add_row($family_label, $included_family);
+        $table->add_row($fraction_label, $fraction);
+    }
     if (global_settings::advanced_options_enabled())
-        $table->add_row("Domain", $generate->get_domain());
+        $table->add_row($domain_label, $generate->get_domain());
     $uniref = $generate->get_uniref_version();
     if ($uniref)
         $table->add_row("UniRef Version", $uniref);
 
-    $term = "IDs";
-    $table->add_row("Number of $term in Uploaded File", number_format($generate->get_total_num_file_sequences()));
-    $table->add_row("Number of $term in Uploaded File with UniProt Match", number_format($generate->get_num_matched_file_sequences()));
-    $table->add_row("Number of $term in Uploaded File without UniProt Match", number_format($generate->get_num_unmatched_file_sequences()));
-}
-elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
-    $generate = new fasta($db,$_GET['id']);
-    $uploaded_file = $generate->get_uploaded_filename();
-    if ($uploaded_file)
-        $table->add_row("Uploaded Fasta File", $uploaded_file);
-    $included_family = $generate->get_families_comma();
-    if ($included_family != "")
-        $table->add_row("PFam/Interpro Families", $included_family);
-    $table->add_row("E-Value", $generate->get_evalue());
-    $table->add_row("Fraction", $generate->get_fraction());
-    $uniref = $generate->get_uniref_version();
-    if ($uniref)
-        $table->add_row("UniRef Version", $uniref);
-
+    $term = "";
+    if ($gen_type == "ACCESSION")
+        $term = "IDs";
+    else
+        $term = "Sequences";
+    
     $num_file_seq = $generate->get_total_num_file_sequences();
     $num_matched = $generate->get_num_matched_file_sequences();
     $num_unmatched = $generate->get_num_unmatched_file_sequences();
-    
-    if (!empty($num_file_seq))
-        $table->add_row("Number of Sequences in Uploaded File", number_format($num_file_seq));
-    if (!empty($num_matched) && !empty($num_unmatched))
-        $table->add_row("Number of FASTA Headers in Uploaded File", number_format($num_matched + $num_unmatched));
-    if (!empty($num_matched))
-        $table->add_row("Number of SSN Nodes with UniProt IDs from Uploaded File", number_format($num_matched));
-    if (!empty($num_unmatched))
-        $table->add_row("Number of SSN Nodes without UniProt IDs from Uploaded File", number_format($num_unmatched));
+    $both = $num_matched + $num_unmatched;
 
-    if (!empty($num_family_nodes) && !empty($num_file_seq)) {
-        $extra_num_nodes = $total_num_nodes - $num_family_nodes - $num_file_seq;
-        if ($extra_num_nodes > 0) {
-            $extra_nodes_string = "<div>* $extra_num_nodes additional nodes have been added since multiple UniProt IDs were found for a single sequence with more than one header in one or more cases.</div>";
-            $extra_nodes_ast = "*";
-        }
+    $table->add_row("Number of $term in Uploaded File", number_format($num_file_seq));
+    if ($gen_type == "FASTA_ID") {
+        //add this when we deal with the multi-species NCBI issue $table->add_row("Number of FASTA Headers in Uploaded File", number_format($both));
+        $table->add_row("Number of $term in Uploaded File with UniProt Match", number_format($num_matched));
+        $table->add_row("Number of $term in Uploaded File without UniProt Match", number_format($num_unmatched));
     }
 }
 elseif ($gen_type == "COLORSSN") {
@@ -267,10 +284,15 @@ if ($gen_type != "COLORSSN") {
         $table->add_row("Program Used", $generate->get_program());
 }
 
-if ($included_family && !empty($num_family_nodes))
-    $table->add_row("Number of IDs in Pfam/InterPro Family", number_format($num_full_family_nodes));
+if ($included_family && !empty($num_family_nodes)) {
+    if ($uniref)
+        $table->add_row("Number of Cluster IDs in UniRef$uniref", "TODO"); //TODO
+    else
+        $table->add_row("Number of IDs in Pfam / InterPro Family", number_format($num_full_family_nodes));
+}
 
-$table->add_row("Total Number of Nodes $extra_nodes_ast", number_format($total_num_nodes));
+$table->add_row($total_label . " " . $extra_nodes_ast, number_format($total_num_nodes) . $blast_total_label);
+    
 $conv_ratio = $generate->get_convergence_ratio();
 $convergence_ratio_string = "";
 if ($conv_ratio > -0.5) {
@@ -301,7 +323,7 @@ if (isset($_GET["as-table"])) {
 else {
 
     $IncludePlotlyJs = true;
-    require_once 'inc/header.inc.php'; 
+    require_once("inc/header.inc.php");
 
 
     $date_completed = $generate->get_time_completed_formatted();
@@ -311,17 +333,22 @@ else {
         'key'=>$generate->get_key()));
 
     function make_plot_download($gen, $hdr, $type, $preview_img, $download_img, $plot_exists) {
-        $html = "<span class='plot-header'>$hdr</span> \n";
+        $html = ""; //"<span class='plot-header'>$hdr</span> \n";
         if (!$plot_exists) {
             $html .= "Unable to be generated";
             return;
         }
-        $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "'><button class='file_download'>Download <img src='images/download.svg' /></button></a>\n";
         if ($preview_img) {
-            //$html .= "<button class='panel-toggle'>Preview</button>\n";
-            //$html .= "<div class='panel-toggle'>\n";
-            $html .= "<img src='$preview_img' />\n";
-            //$html .= "</div>\n";
+            $html .= <<<HTML
+<div>
+    <center>
+        <img src='$preview_img' />
+HTML;
+            $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
+            $html .= <<<HTML
+    </center>
+</div>
+HTML;
         } else {
             $html .= "<a href='$download_img'><button class='file_download'>Preview</button></a>\n";
         }
@@ -340,11 +367,10 @@ else {
         $layout_var = $plot->get_layout_var();
 
         $html = <<<HTML
-                <span class="plot-header">$hdr</span>
-<!--                <button class="panel-toggle" type="button">View</button>
-                <div class="panel-toggle">-->
-<div>
+                <div>
+                    <center>
                     <div id="$plot_div"></div>
+                </center>
                     <script>
                         $data
                         $plotly
@@ -356,35 +382,41 @@ HTML;
     }
 
 
+$ssn_jobs = $generate->get_analysis_jobs();
 
 ?>	
 
 
-<h2>Data set Completed</h2>
+<h2>Dataset Completed</h2>
 
 <?php if ($job_name) { ?>
 <h4 class="job-display">Submission Name: <b><?php echo $job_name; ?></b></h4>
 <?php } ?>
 <p>
-To finalize the SSN, a similarity threshold that defines which 
-sequence pairs should be connected in a network is needed. This threshold will 
-determine the segregation of proteins into clusters. The threshold is applied 
-to the Alignment Score, an edge attribute that measures the similarity between 
-sequence pairs.
+A minimum sequence similarity threshold that specifies the sequence pairs 
+connected by edges is needed to generate the SSN. This threshold also 
+determines the segregation of proteins into clusters. The threshold is applied 
+to the edges in the SSN using the alignment score, an edge node attribute that 
+is a measure of the similarity between sequence pairs.
 </p>
 
 <div style="margin:20px;color:red"><?php if (isset($result['MESSAGE'])) { echo $result['MESSAGE']; } ?></div>
 
 <div class="tabs-efihdr tabs">
     <ul class="">
-        <li><a href="#info">Submission Overview</a></li>
-        <li class="ui-tabs-active"><a href="#graphs">Data Set Analysis</a></li>
+        <li class="ui-tabs-active"><a href="#info">Dataset Summary</a></li>
+        <li><a href="#graphs">Dataset Analysis</a></li>
         <li><a href="#final">SSN Finalization</a></li>
+        <?php if (count($ssn_jobs) > 0) { ?>
+        <li><a href="#jobs">SSNs Created From this Dataset</a></li>
+        <?php } ?>
     </ul>
     <div>
         <!-- JOB INFORMATION -->
         <div id="info">
-            <h4>Submission Summary Table</h4>
+            <p>
+            The parameters for generating the initial dataset are summarized in the table. 
+            </p>
             
             <table width="100%" class="pretty">
                 <?php echo $table_string; ?>
@@ -393,38 +425,6 @@ sequence pairs.
             <div style="clear: both"></div>
             <?php echo $extra_nodes_string; ?>
             <?php echo $convergence_ratio_string; ?>
-
-            <?php
-                $ssn_jobs = $generate->get_analysis_jobs();
-                if (count($ssn_jobs) > 0) {
-            ?>
-
-            <h3>SSNs Created from this Job</h3>
-
-            <?php
-                    foreach ($ssn_jobs as $job_id => $job_info) {
-                        $ssn_name = $job_info["name"];
-                        $ssn_ascore = $job_info["ascore"];
-                        $ssn_min = $job_info["min_len"];
-                        $ssn_max = $job_info["max_len"];
-                        $min_text = $max_text = "";
-                        if ($ssn_min)
-                            $min_text = "Min=$ssn_min";
-                        if ($ssn_max)
-                            $max_text = "Max=$ssn_max";
-                        $status = $job_info["status"];
-                        echo "<p>";
-                        if ($status == __FINISH__)
-                            echo "<a href=\"stepe.php?id=$gen_id&key=$key&analysis_id=$job_id\">";
-                        echo "$ssn_name AS=$ssn_ascore $min_text $max_text (Analysis ID=$job_id)";
-                        if ($status == __FINISH__)
-                            echo "</a>";
-                        else
-                            echo " ($status)";
-                        echo "</p>\n";
-                    }
-                }
-            ?>
         </div>
 
 
@@ -451,60 +451,165 @@ sequence pairs.
 
         <!-- GRAPHS -->
         <div id="graphs">
+<p>
+This tab provides histograms and box plots with statistics about the sequences 
+in the input dataset as well as the BLAST all-by-all pairwise comparisons that 
+were computed. 
+</p>
+<p>
+The descriptions for the histograms and plots guide the choice of the values 
+for the "Alignment Score Threshold" and the Minimum and Maximum "Sequence 
+Length Restrictions" that are applied to the sequences and edges to generate 
+the SSN.  These values are entered using the "SSN Finalization" tab on this 
+page.
+</p>
 
-            <p>
-            Statistics about the sequences subjected to the analysis as well as 
-            about the BLAST all-by-all pairwise comparisons have been computed.
-            </p>
-
-            <p>
-            Examine the plots and histograms provided to choose the appropriate
-            Sequence Length Restriction and Alignment Score Threshold to be
-            applied for SSN finalization.
-            More information on this process is described <a href="tutorial_analysis.php">in the tutorial</a>.
-            </p>
-
-            <div class="option-panels">
-                <div>
-                    <h3>Edge Count vs Alignment Score Plot</h3>
-                    <div>
-            <?php 
-                    make_interactive_plot($generate, "Edge Count vs Alignment Score Plot", "edge-evalue-plot", "edge_evalue");
-            ?>
-                    </div>
-                </div>
-                <div>
-                    <h3>Number of Edges at Alignment Score</h3>
-                    <div>
-            <?php echo make_plot_download($generate, "Number of Edges at Alignment Score", "EDGES", $generate->get_number_edges_plot_sm(), $generate->get_number_edges_plot(1), $generate->number_edges_plot_exists()); ?>
-                    </div>
-                </div>
-                <div>
-                    <h3>Number of Sequences at Each Length</h3>
+            <div class="option-panels stepc-graphs">
+                <div class="initial-open">
+                    <h3>Sequences as a Function of Length Histogram (First Step for Alignment Score Threshold Selection)</h3>
                     <div>
             <?php echo make_plot_download($generate, "Number of Sequences at Each Length", "HISTOGRAM", $generate->get_length_histogram_plot_sm(), $generate->get_length_histogram_plot(1), $generate->length_histogram_plot_exists()); ?>
+                        <div>
+                            <p>
+                            This histogram describes the length distribution of the all of the sequences 
+                            (e.g., UniProt accession IDs) in the input dataset. Inspection of the histogram 
+                            permits identification of fragments, single domain proteins, and multidomain 
+                            fusion proteins. The dataset can be length-filtered using the Minimum and 
+                            Maximum "Sequence Length Restrictions" in the "SSN Finalization" tab to remove 
+                            fragments, select single domain proteins, or select multidomain fusion 
+                            proteins. 
+                            </p>
+                        </div>
                     </div>
                 </div>
-<?php if ($uniref) { ?>
-                <div>
-                    <h3>Number of Sequences at Each Length (Full UniProt)</h3>
+                <div class="initial-open">
+                    <h3>Alignment Length vs Alignment Score Box Plot (Second Step for Alignment Score Threshold Selection)</h3>
                     <div>
-            <?php echo make_plot_download($generate, "Number of Sequences at Each Length (Full UniProt)", "HISTOGRAM_UNIPROT", $generate->get_uniprot_length_histogram_plot_sm(), $generate->get_uniprot_length_histogram_plot(1), $generate->uniprot_length_histogram_plot_exists()); ?>
+            <?php echo make_plot_download($generate, "Alignment Length vs Alignment Score", "ALIGNMENT", $generate->get_alignment_plot_sm(), $generate->get_alignment_plot(1), $generate->alignment_plot_exists()); ?>
+                        <div>
+                            <p>
+                            This box plot describes the relationship between the query-subject alignment 
+                            lengths used by BLAST (y-axis) to calculate the alignment scores  (x-axis). The 
+                            minimum alignment score threshold for generating the SSN should be determined 
+                            using an alignment length that is &ge; the minimum length of single domain 
+                            proteins in the dataset (determined by inspection of the "Sequences as a 
+                            Function of Length Histogram"). The "Alignment Score Threshold" entered in the 
+                            "SSN Finalization" tab is selected using the "Percent Identity vs Alignment 
+                            Score Box Plot" (see following box plot). 
+                            </p>
+                            <p>
+                            In the box plot, the mean values of alignment lengths are highlighted, with the 
+                            "boxes" containing the 2nd and 3rd quartiles of the values. The 1st quartile of 
+                            the values are shown below the box, and the 4th quartile of the values are 
+                            shown above the box. 
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="initial-open">
+                    <h3>Percent Identity vs Alignment Score Box Plot (Third Step for Alignment Score Threshold Selection)</h3>
+                    <div>
+            <?php echo make_plot_download($generate, "Percent Identity vs Alignment Score", "IDENTITY", $generate->get_percent_identity_plot_sm(), $generate->get_percent_identity_plot(1), $generate->percent_identity_plot_exists()); ?>
+                        <div>
+                            <p>
+                            This box plot describes the pairwise percent sequence identity as a function of 
+                            alignment score. This plot will describe a monophasic increase in sequence 
+                            identity for single domain proteins or multiphasic increases in sequence 
+                            identity for datasets with multiple domain architectures (one phase for each 
+                            architecture).  In the "Alignment Length vs Alignment Score" box plot (previous 
+                            box plot), monophasic increases in sequence identity will be described by an 
+                            increase to a constant alignment length; multiphasic increases in sequence 
+                            identity will be described by step functions to increasing alignment lengths.
+                            </p>
+                            <p>
+                            For the initial SSN, we recommend that an alignment score corresponding to 35 
+                            to 40% pairwise identity be entered in the "SSN Finalization" tab (from the 
+                            first phase for multiphasic datasets). 
+                            </p>
+                            <p>
+                            In the box plot, the mean values of percent identity are highlighted, with the 
+                            "boxes" containing the 2nd and 3rd quartiles of the values. The 1st quartile of 
+                            the values are shown below the box, and the 4th quartile of the values are 
+                            shown above the box.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3>Edge Count vs Alignment Score Plot (Preview of Full SSN Size)</h3>
+                    <div>
+            <?php make_interactive_plot($generate, "Edge Count vs Alignment Score Plot", "edge-evalue-plot", "edge_evalue"); ?>
+                        <div>
+                            <p>
+                            This plot shows the number of edges in the full SSN for the input dataset (a 
+                            node of each sequence) as a function of alignment score. By moving the cursor 
+                            over the plot, the number of edges for each alignment score is displayed.
+                            </p>
+                            <p>
+                            This plot helps determine if the full SSN generated using the initial alignment 
+                            score (selected using the length histogram and sequence identity box plots) can 
+                            be opened with Cytoscape on the user’s computer. As a rough guide, SSNs with 
+                            ~1M edges can be opened with 16GB RAM, ~2.5 M edges with 32GB RAM, ~5M edges 
+                            with 64GB RAM, and ~10M edges with 128GB RAM. 
+                            </p>
+                            <p>
+                            If the number of edges for the full SSN is too large to be opened, a 
+                            representative node (rep node) SSN can be opened. In a rep node SSN, sequences 
+                            are grouped into metanodes based on pairwise sequence identity (from 40 to 100% 
+                            identity, in 5% intervals).  The download tables on the "Download Network 
+                            Files" page provide the numbers of metanodes and edges in rep node SSNs.  The 
+                            rep node SSNs are lower resolution than full SSNs; clusters of interest in rep 
+                            node SSNs can be expanded to provide the full SSNs.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3>Edges as a Function of Alignment Score Histogram (Preview of SSN Diversity)</h3>
+                    <div>
+            <?php echo make_plot_download($generate, "Number of Edges at Alignment Score", "EDGES", $generate->get_number_edges_plot_sm(), $generate->get_number_edges_plot(1), $generate->number_edges_plot_exists()); ?>
+                        <div>
+                           <p>
+                           This histogram describes the number of edges calculated at each alignment score. This plot is not
+                           used to select the alignment score for the initial SSN; however, it provides an
+                           overview of the functional diversity within the input dataset.
+                           </p>
+                           <p>
+                           In the histogram, edges with low alignment scores typically are those between
+                           isofunctional clusters; edges with large alignment scores typically are those
+                           connecting nodes within isofunctional clusters.  
+                           </p>
+                           <p>
+                           The histogram for a dataset with a single isofunctional SSN cluster is single
+                           distribution centered at a "large" alignment score; the histogram for a dataset
+                           with many isofunctional SSN clusters will be dominated by the edges that
+                           connect the clusters, with the number of edges decreasing as the alignment
+                           score increases. 
+                           </p>
+                        </div>
+                    </div>
+                </div>
+<?php if ($uniref && $generate->uniref_length_histogram_plot_exists()) { ?>
+                <div>
+                    <h3>UniRef Cluster IDs as a Function of Length Histogram (Additional Information for UniRef SSNs)</h3>
+                    <div>
+            <?php echo make_plot_download($generate, "Number of Sequences at Each Length (UniRef Cluster IDs)", "HISTOGRAM_UNIREF", $generate->get_uniref_length_histogram_plot_sm(), $generate->get_uniref_length_histogram_plot(1), $generate->uniref_length_histogram_plot_exists()); ?>
+                        <div>
+                            <p>
+                            This histogram describes the length distribution of the UniRef cluster IDs in 
+                            the input dataset if UniRef90 or UniRef50 clusters are used as the dataset. The 
+                            sequences of the cluster IDs displayed in this histogram were used to calculate 
+                            the edges for the SSN; however, the cluster IDs do not accurately reflect the 
+                            distribution of fragments, single domain proteins, and multidomain proteins in 
+                            the input dataset that is necessary to choose the alignment score for 
+                            generating the SSN. The length distribution of the total set of sequences in 
+                            the "Sequences as a Function of Length Histogram" should be used to choose the 
+                            initial minimum alignment score threshold. 
+                            </p>
+                        </div>
                     </div>
                 </div>
 <?php } ?>
-                <div>
-                    <h3>Alignment Length vs Alignment Score</h3>
-                    <div>
-            <?php echo make_plot_download($generate, "Alignment Length vs Alignment Score", "ALIGNMENT", $generate->get_alignment_plot_sm(), $generate->get_alignment_plot(1), $generate->alignment_plot_exists()); ?>
-                    </div>
-                </div>
-                <div>
-                    <h3>Percent Identity vs Alignment Score</h3>
-                    <div>
-            <?php echo make_plot_download($generate, "Percent Identity vs Alignment Score", "IDENTITY", $generate->get_percent_identity_plot_sm(), $generate->get_percent_identity_plot(1), $generate->percent_identity_plot_exists()); ?>
-                    </div>
-                </div>
 <?php if ($generate->alignment_plot_new_exists()) { ?>
                 <div>
                     <h3>Alignment Length vs Alignment Score (dynamic)</h3>
@@ -548,9 +653,11 @@ sequence pairs.
             <?php } ?>
                     <div id="threshold-eval" class="tab active">
                         <p>
-                        Define the threshold which determines the connection of proteins with each other.
-                        All pairs of proteins with an alignment score below this number will not be connected.
-                        Sets of connected proteins will form clusters. 
+                        This tab is used to specify the minimum "Alignment Score Threshold" (that is a 
+                        measure of the minimum sequence similarity threshold) for drawing the edges 
+                        that connect the proteins (nodes)  in the SSN.  This tab also is used to 
+                        specify Minimum and Maximum "Sequence Length Restriction Options" that exclude 
+                        fragments and/or domain architectures.
                         </p>
 
                         <p>
@@ -612,7 +719,7 @@ Protein_ID_3,Cluster#
             <input type="hidden" name="filter" id="filter-type" value="eval" />
             
             <div class="option-panels">
-                <div>
+                <div class="initial-open">
                     <h3>Sequence Length Restriction Options</h3>
                     <div>
                         <p>
@@ -657,6 +764,46 @@ Protein_ID_3,Cluster#
             
             </form>
         </div>
+
+
+        <?php if (count($ssn_jobs) > 0) { ?>
+        <div id="jobs">
+            <p>
+            A list of the SSNs generated from this initial dataset.
+            </p>
+
+            <ul>
+
+            <?php
+                    foreach ($ssn_jobs as $job_id => $job_info) {
+                        $ssn_name = $job_info["name"];
+                        $ssn_ascore = $job_info["ascore"];
+                        $ssn_min = $job_info["min_len"];
+                        $ssn_max = $job_info["max_len"];
+                        $min_text = $max_text = "";
+                        if ($ssn_min)
+                            $min_text = "Min=$ssn_min";
+                        if ($ssn_max)
+                            $max_text = "Max=$ssn_max";
+                        $status = $job_info["status"];
+
+                        if ($status != __FINISH__)
+                            continue;
+
+                        echo "<li>";
+                        if ($status == __FINISH__)
+                            echo "<a href=\"stepe.php?id=$gen_id&key=$key&analysis_id=$job_id\">";
+                        echo "$ssn_name AS=$ssn_ascore $min_text $max_text (Analysis ID=$job_id)";
+                        if ($status == __FINISH__)
+                            echo "</a>";
+                        else
+                            echo " ($status)";
+                        echo "</li>\n";
+                    }
+            ?>
+            </ul>
+        </div>
+        <?php } ?>
     </div>
 </div>
 
@@ -747,7 +894,7 @@ for (var i = 0; i < acc.length; i++) {
 <?php } ?>
 <?php
 
-    require_once 'inc/footer.inc.php';
+    require_once("inc/footer.inc.php");
 }
 
 ?>

@@ -10,7 +10,7 @@
 	  <li><a href='index.php'>Options for Generating Sequence Similarity Networks</a></li>
           <li><a href="tutorial.php">What is a Sequence Similarity Network?</a></li>
           <li><a href="tutorial_startscreen.php">EFI-EST Start Screen</a></li>
-          <li><a href="tutorial_analysis.php">Data Set Analysis</a>
+          <li><a href="tutorial_analysis.php">Dataset Analysis</a>
           <ul>
           	<li><a href="tutorial_analysis.php#ex1">Example 1: a &quot;simple&quot; case</a></li>
             <li><a href="tutorial_analysis.php#ex2">Example 2: multidomain proteins</a></li>

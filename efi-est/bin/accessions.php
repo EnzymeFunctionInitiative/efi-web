@@ -25,7 +25,7 @@ else {
 	}
 	}
 	else {
-		$msg = "No New PFAM/Interpro Generate Jobs";
+		$msg = "No New PFAM/InterPro Generate Jobs";
 		//functions::log_message($msg);
 	}
 
