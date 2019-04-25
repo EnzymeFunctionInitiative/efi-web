@@ -7,8 +7,8 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 <head>
 <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="../font-awesome/css/fontawesome-all.min.css">
-    <link rel="stylesheet" type="text/css" href="css/heatmap.css">
-    <link rel="stylesheet" type="text/css" href="../css/buttons.css">
+    <link rel="stylesheet" type="text/css" href="css/heatmap.css?v=2">
+    <link rel="stylesheet" type="text/css" href="../css/buttons.css?v=2">
 
     <!--<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>-->
     <script src="js/plotly-1.42.5.min.js"></script>
@@ -50,7 +50,7 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 <script src="../js/jquery-3.2.1.min.js"></script>
 <script src="../js/jquery-ui-1.12.1/jquery-ui.min.js"></script>
 <script src="../bs/js/bootstrap.min.js"></script>
-<script src="js/heatmap.js"></script>
+<script src="js/heatmap.js?v=3"></script>
 
 <script>
 $(document).ready(function() {

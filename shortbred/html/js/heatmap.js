@@ -1,10 +1,11 @@
 
 
 class QuantifyResults {
-    constructor(paramData, progLoaderId) {
+    constructor(paramData, progLoaderId, useLogScale = true) {
         this.params = paramData;
         this.progLoaderObj = $(progLoaderId);
         this.formAction = "get_sbq_data.php";
+        this.useLogScale = useLogScale;
         
         this.mgColors = [
             "RoyalBlue",
@@ -18,9 +19,7 @@ class QuantifyResults {
             "LightSteelBlue",
         ];
         
-        var logScale = true;
-    
-        if (logScale) {
+        if (this.useLogScale) {
             this.convertRawValueFn = function(rawVal) {
                 var minLog = 4;
                 var minLogVal = Math.pow(10, -minLog);
@@ -123,7 +122,7 @@ class QuantifyResults {
 
 class BoxplotApp extends QuantifyResults {
     constructor(paramData, progressLoaderId) {
-        super(paramData, progressLoaderId);
+        super(paramData, progressLoaderId, false);
         this.containerId = "#master-plot-container";
     }
 
@@ -269,7 +268,7 @@ class BoxplotApp extends QuantifyResults {
 
 class HeatmapApp extends QuantifyResults {
     constructor(paramData, progLoaderId, useBoxplots) {
-        super(paramData, progLoaderId);
+        super(paramData, progLoaderId, true);
 
         if (typeof this.params.Width === 'undefined')
             this.Width = 950;

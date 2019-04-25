@@ -24,9 +24,9 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
 
 <div class="tabs-efihdr tabs">
     <ul>
-        <li><a href="#info">Submission Summary</a></li>
+        <li class="ui-tabs-active"><a href="#info">Submission Summary</a></li>
         <li><a href="#data">Quantify Results</a></li>
-        <li class="ui-tabs-active"><a href="#hm">Heatmaps</a></li>
+        <li><a href="#hm">Heatmaps and Boxplots</a></li>
     </ul>
 
     <div>
@@ -255,9 +255,9 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
                 -->
 
                 <ul class="tab-headers">
-                    <li class="active"><a href="#heatmap-clusters">Cluster Heatmap</a></li>
-                    <li><a href="#heatmap-singletons">Singleton Heatmap</a></li>
-                    <li><a href="#heatmap-combined">Combined Heatmap</a></li>
+                    <li class="active"><a href="#heatmap-clusters">Cluster Heatmap and Boxplots</a></li>
+                    <li><a href="#heatmap-singletons">Singleton Heatmap and Boxplots</a></li>
+                    <li><a href="#heatmap-combined">Combined Heatmap and Boxplots</a></li>
                 </ul>
             
                 <div class="tab-content">
@@ -265,21 +265,21 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
                         <button type="button" class="small dark open-boxplots" style="float: right">View boxplots showing per-site abundance</button>
                         This heatmap presents information for SSN cluster/metagenome hit pairs.
                         <div style="clear: both"></div>
-                        <iframe src="heatmap.php?<?php echo $hm_parm_string; ?>&res=c&g=q&w=<?php echo $HeatmapWidth; ?>" width="<?php echo $HeatmapIframeWidth; ?>" height="840" style="border: none"></iframe>
+                        <iframe src="heatmap.php?<?php echo $hm_parm_string; ?>&res=c&g=q&w=<?php echo $HeatmapWidth; ?>&filename=<?php echo urlencode($JobName); ?>" width="<?php echo $HeatmapIframeWidth; ?>" height="840" style="border: none"></iframe>
                     </div>
             
                     <div id="heatmap-singletons" class="tab">
                         <button type="button" class="small dark open-boxplots" style="float: right">View boxplots showing per-site abundance</button>
                         This heatmap presents information for SSN singleton/metagenome hit pairs instead of SSN cluster/metagenome hit pairs.
                         <div style="clear: both"></div>
-                        <iframe src="heatmap.php?<?php echo $hm_parm_string; ?>&res=s&g=q&w=<?php echo $HeatmapWidth; ?>" width="<?php echo $HeatmapIframeWidth; ?>" height="840" style="border: none"></iframe>
+                        <iframe src="heatmap.php?<?php echo $hm_parm_string; ?>&res=s&g=q&w=<?php echo $HeatmapWidth; ?>&filename=<?php echo urlencode($JobName); ?>" width="<?php echo $HeatmapIframeWidth; ?>" height="840" style="border: none"></iframe>
                     </div>
             
                     <div id="heatmap-combined" class="tab">
                         <button type="button" class="small dark open-boxplots" style="float: right">View boxplots showing per-site abundance</button>
                         This heatmap combines the information obtained for SSN cluster and singleton/metagenome hit pairs.
                         <div style="clear: both"></div>
-                        <iframe src="heatmap.php?<?php echo $hm_parm_string; ?>&res=m&g=q&w=<?php echo $HeatmapWidth; ?>" width="<?php echo $HeatmapIframeWidth; ?>" height="840" style="border: none"></iframe>
+                        <iframe src="heatmap.php?<?php echo $hm_parm_string; ?>&res=m&g=q&w=<?php echo $HeatmapWidth; ?>&filename=<?php echo urlencode($JobName); ?>" width="<?php echo $HeatmapIframeWidth; ?>" height="840" style="border: none"></iframe>
                     </div>
                 </div>
             </div>

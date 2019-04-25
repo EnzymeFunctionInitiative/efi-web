@@ -1,37 +1,49 @@
 <?php
 include(__DIR__ . "/../includes/main.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
+
+$filename = "";
+if (isset($_GET["filename"])) {
+    $filename = pathinfo(global_functions::safe_filename($_GET["filename"]), PATHINFO_FILENAME);
+}
+    
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="../font-awesome/css/fontawesome-all.min.css">
-    <link rel="stylesheet" type="text/css" href="css/heatmap.css">
-    <link rel="stylesheet" type="text/css" href="css/boxplot.css">
-    <link rel="stylesheet" type="text/css" href="../css/buttons.css">
-    <link rel="stylesheet" type="text/css" href="../css/form.css">
+    <link rel="stylesheet" type="text/css" href="css/heatmap.css?v=2">
+    <link rel="stylesheet" type="text/css" href="css/boxplot.css?v=2">
+    <link rel="stylesheet" type="text/css" href="../css/buttons.css?v=2">
+    <link rel="stylesheet" type="text/css" href="../css/form.css?v=2">
 
     <!--<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>-->
     <script src="js/plotly-1.42.5.min.js"></script>
     <script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
-    <script src="js/heatmap.js"></script>
+    <script src="js/heatmap.js?v=2"></script>
+
+    <title>Boxplots for <?php echo $filename; ?></title>
 </head>
 <body>
 
 <div id="search-container" class="search-container fill">
     <div>
-        <div>
-        <div class="search-help bigger">
-            Boxplots showing per-site abundance can be generated for the clusters that are contained
-            in the SSN.
+        <div class="title">
+            Submitted SSN: <b><?php echo $filename; ?></b>
         </div>
-           <input type="text" name="cluster-input" id="cluster-input" class="bigger" />
-           <button type="button" id="add-btn" class="normal">Add Clusters</button>
-       </div>
+        <div>
+            <div class="search-help bigger">
+                Boxplots showing per-site abundance can be generated for clusters and/or singletons 
+                in the SSN.
+            </div>
+            <input type="text" name="cluster-input" id="cluster-input" class="bigger" />
+            <button type="button" id="add-btn" class="normal">Add Clusters</button>
+        </div>
         <div class="search-help">
-            Enter a comma-separated list or numeric range of cluster numbers
-            (e.g. <i>1, 2, 3-9, 15</i>).
+            Enter a comma-separated list or numeric range of cluster and/or singleton numbers
+            (e.g. <i>1, 2, 3-9, 15, S1, S100-S500</i> would be an acceptable input).
         </div>
     </div>
 </div>
@@ -70,7 +82,7 @@ $(document).ready(function() {
         ResType: "<?php echo isset($_GET["res"]) ? $_GET["res"] : ""; ?>",
         RefDb: "<?php echo (isset($_GET["ref-db"]) ? $_GET["ref-db"] : ""); ?>",
         SearchType: "<?php echo (isset($_GET["search-type"]) ? $_GET["search-type"] : ""); ?>",
-        FileName: "<?php echo (isset($_GET["filename"]) ? $_GET["filename"] : ""); ?>",
+        FileName: "<?php echo $filename; ?>",
         DiamondSens: "<?php echo (isset($_GET["d-sens"]) ? $_GET["d-sens"] : ""); ?>",
         CdHitSid: "<?php echo (isset($_GET["cdhit-sid"]) ? $_GET["cdhit-sid"] : ""); ?>",
     };
