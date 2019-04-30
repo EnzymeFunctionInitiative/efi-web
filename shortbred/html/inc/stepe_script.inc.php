@@ -21,11 +21,6 @@
         e.preventDefault();
         handleTabPress("#heatmap-tabs", $(this));
     });
-<?php if (!$IsExample) { ?>
-    handleTabPress("#heatmap-tabs", $("#heatmap-tabs .tab-headers .active a").first());
-<?php } else { ?>
-//    var firstHmTab = $("#heatmap-tabs .tab-headers .active a").first();
-<?php } ?>
     
     $("#download-tabs .tab-headers a").on("click", function(e) {
         e.preventDefault();
@@ -52,5 +47,10 @@
         var url = "boxplots.php?<?php echo $hm_parm_string; ?>";
         boxplotWindow = window.open(url, "BoxplotWindow", windowSize);
         evt.preventDefault();
+    });
+
+    $("#click-to-load-heatmap a").on("click", function(e) {
+        e.preventDefault();
+        handleTabPress("#heatmap-tabs", $("#heatmap-tabs .tab-headers .active a").first());
     });
 
