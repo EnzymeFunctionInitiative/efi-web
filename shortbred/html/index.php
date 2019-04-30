@@ -96,7 +96,7 @@ nares (nasal cavity), tongue dorsum (surface), and posterior fornix (vagina)].
 </div>
 <?php } ?>
 
-<div class="tabs-efihdr tabs">
+<div class="tabs-efihdr tabs" id="tab-container">
     <ul class="tab-headers">
         <?php if ($show_previous_jobs) { ?>
             <li class="active"><a href="#jobs">Previous Jobs</a></li>
@@ -490,7 +490,7 @@ HTML;
     $(document).ready(function() {
         <?php include("inc/stepe_script.inc.php"); ?>
 
-        $(".tabs .tab-headers a").on("click", function(e) {
+        $("#tab-container .tabs .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");
             if (curAttrValue == "#example")
                 handleTabPress("#heatmap-tabs", $("#heatmap-tabs .tab-headers .active a").first());

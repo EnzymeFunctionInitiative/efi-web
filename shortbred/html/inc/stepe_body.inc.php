@@ -26,7 +26,7 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
     <ul>
         <li class="ui-tabs-active"><a href="#info">Submission Summary</a></li>
         <li><a href="#data">Quantify Results</a></li>
-        <li><a href="#hm">Heatmaps and Boxplots</a></li>
+        <li id="click-to-load-heatmap"><a href="#hm">Heatmaps and Boxplots</a></li>
     </ul>
 
     <div>
