@@ -86,7 +86,7 @@ if (!$IsDisabled || $IsAdminUser)
         <div class="content-holder">
             <h1 class="ruled"><?php echo $title; ?></h1>
 <?php if (global_settings::get_is_beta_release()) { ?>
-            <div class="beta">Beta</div>
+            <div class="beta"><?php echo global_settings::get_release_status(); ?></div>
 <?php } ?>
 <?php
 if ($IsDisabled && !$IsAdminUser && !$IsLoginPage) {
