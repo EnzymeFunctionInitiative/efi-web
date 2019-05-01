@@ -18,7 +18,9 @@ else {
             $finish_file_exists = $gnn->check_finish_file();
             $job_running = $gnn->check_pbs_running();
             if ((!$job_running) && ($finish_file_exists)) {
+            print "JOB\n";
                 $gnn->complete_gnn();
+            print "JOB\n";
                 $msg = "GNN ID: " . $job['gnn_id'] . " - Job Completed Successfully";
                 functions::log_message($msg);
             } else if (!$finish_file_exists && !$job_running) {
@@ -26,6 +28,7 @@ else {
                 $msg = "GNN ID: " . $job['gnn_id'] . " - Job Failed";
                 functions::log_message($msg);
             }
+            print "JOBend\n";
         }
     }
 }

@@ -96,7 +96,7 @@ nares (nasal cavity), tongue dorsum (surface), and posterior fornix (vagina)].
 </div>
 <?php } ?>
 
-<div class="tabs-efihdr tabs">
+<div class="tabs-efihdr tabs" id="tab-container">
     <ul class="tab-headers">
         <?php if ($show_previous_jobs) { ?>
             <li class="active"><a href="#jobs">Previous Jobs</a></li>
@@ -214,8 +214,8 @@ nares (nasal cavity), tongue dorsum (surface), and posterior fornix (vagina)].
                                     ?>
                                     <select name="ssn_ref_db" id="ssn_ref_db">
                                         <option value="uniprot" <?php echo $ref_db_uniprot; ?>>Full UniProt</option>
-                                        <option value="uniref90" <?php echo $ref_db_uniref90; ?>>UniRef 90</option>
-                                        <option value="uniref50" <?php echo $ref_db_uniref50; ?>>UniRef 50</option>
+                                        <option value="uniref90" <?php echo $ref_db_uniref90; ?>>UniRef90</option>
+                                        <option value="uniref50" <?php echo $ref_db_uniref50; ?>>UniRef50</option>
                                     </select>
                                 </span>
                                 <div class="input-desc">
@@ -460,6 +460,7 @@ HTML;
                 to EFI-CGFP for analysis.
             </p>
             <?php $HeatmapWidth = 860; ?>
+            <?php $JobName = "Example"; ?>
             <?php include("stepe_example.php"); ?>
         </div>
     </div> <!-- tab-content -->
@@ -489,7 +490,7 @@ HTML;
     $(document).ready(function() {
         <?php include("inc/stepe_script.inc.php"); ?>
 
-        $(".tabs .tab-headers a").on("click", function(e) {
+        $("#tab-container .tabs .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");
             if (curAttrValue == "#example")
                 handleTabPress("#heatmap-tabs", $("#heatmap-tabs .tab-headers .active a").first());

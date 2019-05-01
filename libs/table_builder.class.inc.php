@@ -11,6 +11,10 @@ class table_builder {
         $this->is_html = $format != "tab";
     }
 
+    public function is_html() {
+        return $this->is_html;
+    }
+
     public function add_row_with_class($col1, $col2, $css_row_class) {
         $this->add_row($col1, $col2, false, false, $css_row_class);
     }
@@ -21,6 +25,13 @@ class table_builder {
             $col2 = preg_replace('/<[^>]+>/', "", $col2);
         }
         $this->add_row($col1, $col2, false, false, $css_row_class);
+    }
+
+    // Add arbitrary HTML
+    public function add_html($html) {
+        if ($this->is_html) {
+            $this->buffer .= $html;
+        }
     }
 
     public function add_row($col1, $col2, $col3 = false, $col4 = false, $css_row_class = "") {

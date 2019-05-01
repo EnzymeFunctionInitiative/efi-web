@@ -8,10 +8,7 @@
     var handleTabPress = function(masterId, elemObj) {
         var curAttrValue = elemObj.attr("href");
         var tabPage = $(masterId + " " + curAttrValue);
-        //tabPage.show().siblings().hide();
-        //tabPage.fadeIn(300).show().siblings().hide();
-        //elemObj.parent("li").addClass("active").siblings().removeClass("active");
-        var theFrame = tabPage.children().first();
+        var theFrame = $(masterId + " " + curAttrValue + " iframe");
         if (!theFrame.data("shown")) {
             theFrame.attr("src", function() {
                 return $(this).data("src");
@@ -24,11 +21,6 @@
         e.preventDefault();
         handleTabPress("#heatmap-tabs", $(this));
     });
-<?php if (!$IsExample) { ?>
-    handleTabPress("#heatmap-tabs", $("#heatmap-tabs .tab-headers .active a").first());
-<?php } else { ?>
-//    var firstHmTab = $("#heatmap-tabs .tab-headers .active a").first();
-<?php } ?>
     
     $("#download-tabs .tab-headers a").on("click", function(e) {
         e.preventDefault();
@@ -46,4 +38,19 @@
     //$(".stats-row").hide();
     $(".tabs").tabs();
 
+    var boxplotWindow;
+
+    $(".open-boxplots").click(function(evt) {
+        //if (typeof boxplotWindow !== "undefined")
+        //    return;
+        var windowSize = ["width=500,height=" + (window.outerHeight-150)];
+        var url = "boxplots.php?<?php echo $hm_parm_string; ?>";
+        boxplotWindow = window.open(url, "BoxplotWindow", windowSize);
+        evt.preventDefault();
+    });
+
+    $("#click-to-load-heatmap a").on("click", function(e) {
+        e.preventDefault();
+        handleTabPress("#heatmap-tabs", $("#heatmap-tabs .tab-headers .active a").first());
+    });
 

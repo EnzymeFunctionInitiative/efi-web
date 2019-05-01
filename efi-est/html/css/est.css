@@ -80,3 +80,8 @@ table.attributes td {
     color: orange;
 }
 
+.stepc-graphs div.ui-helper-reset {
+    line-height: inherit;
+}
+
+

@@ -64,7 +64,7 @@ else {
 <h2>Download Network Files</h2>
 	<p>&nbsp;</p>
 	<h3>Full Network <a href="tutorial_download.php" class="question" target="_blank">?</a></h3>
-	<p>Each node in the network is a single protein from the data set. Large files (&gt;500MB) may not open.</p>
+	<p>Each node in the network is a single protein from the dataset. Large files (&gt;500MB) may not open.</p>
 
     <table width="100%" border="1">
 	<tr>

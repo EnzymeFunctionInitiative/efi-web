@@ -270,9 +270,9 @@ function getFamilyCountsTableHandler(data, countOutputId) {
     }
 
 //    if (data.use_uniref50)
-//        document.getElementById(countOutputId + "-ur-hdr").innerHTML = "UniRef 50 Size";
+//        document.getElementById(countOutputId + "-ur-hdr").innerHTML = "UniRef50 Size";
 //    else if (data.use_uniref90)
-//        document.getElementById(countOutputId + "-ur-hdr").innerHTML = "UniRef 90 Size";
+//        document.getElementById(countOutputId + "-ur-hdr").innerHTML = "UniRef90 Size";
 
     // Insert individual totals
     var cellIdx = 0;

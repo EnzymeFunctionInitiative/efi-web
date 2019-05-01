@@ -61,7 +61,7 @@ class user_jobs extends user_auth {
         $past_dt = $dt->sub(new DateInterval("PT${limit_period}H"));
         $mysql_date = $past_dt->format("Y-m-d H:i:s");
         
-        $sql = "SELECT COUNT(*) AS count FROM generate WHERE generate_time_created >= '$mysql_date' AND generate_email = '$email'";
+        $sql = "SELECT COUNT(*) AS count FROM generate WHERE generate_time_created >= '$mysql_date' AND generate_email = '$email' AND (generate_status = '" . __RUNNING__ . "' OR generate_status = '" . __NEW__ . "')";
         $results = $db->query($sql);
 
         $num_job_limit = global_settings::get_num_job_limit();
@@ -171,7 +171,7 @@ class user_jobs extends user_auth {
             $analysis_jobs = array();
             if ($is_completed && $includeAnalysisJobs) {
                 $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter FROM analysis " .
-                    "WHERE analysis_generate_id = $id ";
+                    "WHERE analysis_generate_id = $id AND analysis_status != 'ARCHIVED' ";
                 if (!$includeFailedAnalysisJobs)
                     $sql .= "AND analysis_status = 'FINISH'";
                 $arows = $db->query($sql); // Analysis Rows

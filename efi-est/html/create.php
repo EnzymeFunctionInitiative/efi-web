@@ -51,7 +51,7 @@ if (!isset($_POST['submit'])) {
 } elseif ($option != "colorssn" && (!isset($_POST['job-name']) || !$_POST['job-name'])) {
     $result["MESSAGE"] = "Job name is required.";
 } elseif ($is_job_limited) {
-    $result["MESSAGE"] = "Due to finite computational resource constraints, you can only submit $num_job_limit jobs within a 24 hour period.  Please try again in 24 hours.";
+    $result["MESSAGE"] = "Due to finite computational resource constraints, you can only have $num_job_limit active or pending jobs within a 24 hour period.  Please try again when some of your jobs have completed.";
 } elseif (isset($_POST['blast_input']) && !preg_match('/\S/', $_POST['blast_input'])) {
     $result["MESSAGE"] = "Please enter a valid BLAST sequence.";
 } else {
@@ -78,7 +78,7 @@ if (!isset($_POST['submit'])) {
         $input->cpu_x2 = $_POST['cpu-x2'] == "true" ? true : false;
 
     switch($option) {
-        //Option A - Blast Input
+        //Option A - BLAST Input
         case 'A':
             $blast = new blast($db);
 
@@ -100,7 +100,7 @@ if (!isset($_POST['submit'])) {
             $result = $blast->create($input);
             break;
     
-        //Option B - PFam/Interpro
+        //Option B - Pfam/InterPro
         case 'B':
         case 'E':
             $generate = new generate($db);

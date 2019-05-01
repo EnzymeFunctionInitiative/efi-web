@@ -48,7 +48,7 @@ if (count($databases)) {
 <table class='table table-condensed table-bordered span8'>
 <tr>
 	<th>EFI-EST Date</th>
-	<th>Interpro Version</th>
+	<th>InterPro Version</th>
 	<th>Uniprot Version</th>
 	<th>Date Added</th>
 	<th>Module Name</th>
@@ -64,11 +64,11 @@ if (count($databases)) {
 	<input type='text' name='db_date' class='form-control' id='db_date'>
 </div>
 <div class='form-group'>
-	<label for='db_interpro'>Interpro Version</label>
+	<label for='db_interpro'>InterPro Version</label>
 	<input type='text' name='db_interpro' class='form-control' id='db_interpro'>
 </div>
 <div class='form-group'>
-	<label for='db_unipro'>Unipro Version</label>
+	<label for='db_unipro'>UniProt Version</label>
 	<input type='text' name='db_unipro' class='form-control' id='db_unipro'>
 </div>
 <div class='form-group'>

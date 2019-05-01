@@ -5,7 +5,9 @@ require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
 if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
     $gnn = new gnn($db,$_GET['id']);
-    if ($gnn->get_key() != $_GET['key']) {
+    $gnnId = $gnn->get_id();
+    $gnnKey = $gnn->get_key();
+    if ($gnnKey != $_GET['key']) {
         error500("Unable to find the requested job.");
     }
     elseif (time() < $gnn->get_time_completed() + settings::get_retention_days()) {
@@ -16,8 +18,6 @@ else {
     error500("Unable to find the requested job.");
 }
 
-$gnnId = $gnn->get_id();
-$gnnKey = $gnn->get_key();
 $baseUrl = settings::get_web_address();
 
 
@@ -175,8 +175,8 @@ require_once('inc/header.inc.php');
 
 <div class="tabs-efihdr tabs">
     <ul class="tab-headers">
-        <li><a href="#info">Submission Summary</a></li>
-        <li class="ui-tabs-active"><a href="#results">Networks and GND</a></li>
+        <li class="ui-tabs-active"><a href="#info">Submission Summary</a></li>
+        <li><a href="#results">Networks and GND</a></li>
         <li><a href="#other">Other Files</a></li>
 <?php if ($allow_regenerate) { ?>
         <li><a href="#regenerate">Regenerate GNN</a></li>
@@ -187,7 +187,7 @@ require_once('inc/header.inc.php');
 
         <!-- NETWORK INFORMATION -->
         <div id="info" class="">
-            <h4>Submission Summary Table</h4>
+            <p>The parameters for computing the GNN and associated files are summarized in the table.</p>
             <table width="100%" style="margin-top: 10px" class="pretty">
                 <tbody>
                     <?php echo $tableString; ?>

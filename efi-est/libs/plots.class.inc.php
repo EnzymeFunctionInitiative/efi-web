@@ -113,7 +113,7 @@ var $layoutvar = {
     title: 'Edge Count vs Alignment Score',
     xaxis: { title: 'Alignment Score', },
     yaxis: { title: 'Number of Edges', },
-//    width: 700,
+    width: 800,
 //    height: 500,
 };
 JS;

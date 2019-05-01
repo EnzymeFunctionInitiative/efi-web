@@ -72,10 +72,10 @@ Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639,
         <a href="efi-est/">
             <span class="block-hdr">SSN Creation</span>
             <img src="images/about_ssn.png" width="450">
-            SSN creation from sequences, PFam or InterPro famil(ies), and
+            SSN creation from sequences, Pfam or InterPro famil(ies), and
             UniProt and/or NCBI protein accession IDs.
         </a>
-<!--        SSN creation from sequence BLAST, PFam or InterPro famil(ies), FASTA sequences, and
+<!--        SSN creation from sequence BLAST, Pfam or InterPro famil(ies), FASTA sequences, and
         UniProt and/or NCBI protein accession IDs.</a>-->
     </td>
     <td>
