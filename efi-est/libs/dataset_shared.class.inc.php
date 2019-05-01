@@ -158,6 +158,7 @@ class dataset_shared {
             $num_file_seq = $generate->get_total_num_file_sequences();
             $num_matched = $generate->get_num_matched_file_sequences();
             $num_unmatched = $generate->get_num_unmatched_file_sequences();
+            $num_unique = $generate->get_num_unique_file_sequences();
             $both = $num_matched + $num_unmatched;
         
             $table->add_row("Number of $term in Uploaded File", number_format($num_file_seq));
@@ -165,6 +166,8 @@ class dataset_shared {
                 //add this when we deal with the multi-species NCBI issue $table->add_row("Number of FASTA Headers in Uploaded File", number_format($both));
                 $table->add_row("Number of $term in Uploaded File with UniProt Match", number_format($num_matched));
                 $table->add_row("Number of $term in Uploaded File without UniProt Match", number_format($num_unmatched));
+                if ($num_unique !== false && $uniref)
+                    $table->add_row("Number of Unique $term in Uploaded File", number_format($num_unique));
             }
         }
         elseif ($gen_type == "COLORSSN") {
