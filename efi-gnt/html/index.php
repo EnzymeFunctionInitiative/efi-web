@@ -107,7 +107,7 @@ A listing of new features and other information pertaining to GNT is available o
         <li <?php if ($est_id) echo "class=\"ui-tabs-active\""; ?>><a href="#create">GNT Submission</a></li>
         <li><a href="#create-diagrams">Retrieve Neighborhood Diagrams</a></li>
         <li><a href="#diagrams">View Saved Diagrams</a></li>
-        <li <?php if (! $showPreviousJobs) echo "class=\"active\""; ?>><a href="#tutorial">Tutorial</a></li>
+        <li <?php if (! $showPreviousJobs) echo "class=\"ui-tabs-active\""; ?>><a href="#tutorial">Tutorial</a></li>
     </ul>
 
     <div class="tab-content">
@@ -325,7 +325,7 @@ HTML;
                             <table>
 <?php add_job_title_option("option-a-title"); ?>
                             <tr>
-                                <td><b><label for="max-seqs">Maximum Blast Sequences:</label></b></td>
+                                <td><b><label for="max-seqs">Maximum BLAST Sequences:</label></b></td>
                                 <td>
                                      <input type="text" id="option-a-max-seqs" class="small" name="max-seqs" value="<?php echo $default_seq; ?>">
                                 </td>

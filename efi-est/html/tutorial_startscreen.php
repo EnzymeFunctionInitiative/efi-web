@@ -111,10 +111,10 @@ Urbana Champaign as well as assistance in using the scripts.
 <p>
 <b>Networks for close homologs to a user-supplied sequence.</b> Paste a protein 
 sequence (without a FASTA header) into the input box (red arrow). A sequence 
-data set will be built containing the most closely related sequences retrieved 
+dataset will be built containing the most closely related sequences retrieved 
 from the UniProtKB database using a BLAST e value upper limit threshold of 
 10<sup>-5</sup>. A default of  <?php echo functions::get_default_blast_seq(1); ?>
-sequences is used, but the data set may be smaller if 
+sequences is used, but the dataset may be smaller if 
 &lt; <?php echo functions::get_default_blast_seq(1); ?> sequences are found
 using a BLAST alignment score upper limit of 10<sup>-5</sup>. 
 A default of &le; <?php echo functions::get_default_blast_seq(1); ?> sequences
@@ -163,7 +163,7 @@ determined on the <a href="http://pfam.xfam.org/search">Pfam</a> and
 </p>
 
 <p>
-More than one <b>Pfam and/or Interpro family number(s) can be entered as the input 
+More than one <b>Pfam and/or InterPro family number(s) can be entered as the input 
 for Option B, in a comma-separated list (red arrow)</b>. The number of sequences 
 that can be used in Option B is limited to &le;<?php echo functions::get_max_seq(1); ?>.
 This limit is set to 
@@ -180,7 +180,7 @@ count (there may be redundancy between families) are displayed (blue box).
 </p>
 
 <p>
-Option B usually will result in a much larger data set than Option A because 
+Option B usually will result in a much larger dataset than Option A because 
 all of the members of families are included. Full networks may be problematic 
 to open in Cytoscape on memory limited computers when large families are 
 analyzed. As an alternative to full networks, representative node networks are 

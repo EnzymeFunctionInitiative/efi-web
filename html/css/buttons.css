@@ -128,3 +128,7 @@ div.panel-toggle {
 //    transition: max-height 0.2s ease-out;
 }
 
+.cancel-btn {
+    color: red;
+}
+

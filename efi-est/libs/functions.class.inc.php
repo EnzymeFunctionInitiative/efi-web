@@ -161,7 +161,7 @@ class functions {
         if (!$db_name)
             return false;
 
-        $sql = "SELECT gnn_id, gnn_key FROM $db_name.gnn WHERE gnn_est_source_id = $analysis_id";
+        $sql = "SELECT gnn_id, gnn_key FROM $db_name.gnn WHERE gnn_est_source_id = $analysis_id AND gnn_status = '" . __FINISH__ . "'";
         $result = $db->query($sql);
         if ($result) {
             $info = array();
@@ -490,7 +490,7 @@ class functions {
         $ipv = $ver % 1000;
         $upvYear = intval($ver / 1000000);
         $upvMon = intval(intval($ver / 10000) % 100);
-        return sprintf("UniProt: %d-%02d / Interpro: %.0f", $upvYear, $upvMon, $ipv);
+        return sprintf("UniProt: %d-%02d / InterPro: %.0f", $upvYear, $upvMon, $ipv);
     }
 
 

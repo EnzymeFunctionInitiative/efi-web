@@ -91,7 +91,9 @@ abstract class family_shared extends option_base {
     
     protected function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
-        $formatted_families = $this->format_families($data->families);
+        $families = family_size::parse_family_query($data->families);
+        $formatted_families = implode(",", $families);
+        //$formatted_families = $this->format_families($data->families);
 
         $insert_array['generate_families'] = $formatted_families;
         if (isset($data->seq_id))
@@ -116,7 +118,7 @@ abstract class family_shared extends option_base {
 
         if (($data->families != "") && (!$this->verify_families($data->families))) {
             $result->errors = true;
-            $result->message .= "<br><b>Please enter valid Interpro and PFam numbers</b></br>";
+            $result->message .= "<br><b>Please enter valid InterPro and Pfam numbers</b></br>";
         }
 
         return $result;
@@ -208,16 +210,17 @@ abstract class family_shared extends option_base {
 
     private function verify_families($families) {
         $family_array = family_size::parse_family_query($families);
+
         $valid = 0;
         foreach ($family_array as $family) {
             $family = trim(rtrim($family));
             $family = strtolower($family);
-            //Test if Interpro Number
+            //Test if InterPro Number
             if ((substr($family,0,3) == "ipr") && (is_numeric(substr($family,3))) && (strlen(substr($family,3)) == 6)) {
                 $valid = 1;
 
             }
-            //Test if PFam Number
+            //Test if Pfam Number
             elseif ((substr($family,0,2) == "pf") && (is_numeric(substr($family,2))) && (strlen(substr($family,2)) == 5)) {
                 $valid = 1;
             }
@@ -234,14 +237,14 @@ abstract class family_shared extends option_base {
 
     }
 
-    private function format_families($families) {
-        $search = array(" ");
-        $replace = "";
-        $formatted_families = str_ireplace($search,$replace,$families);
-        $formatted_families = strtoupper($formatted_families);
-        return $formatted_families;
+    //private function format_families($families) {
+    //    $search = array(" ");
+    //    $replace = "";
+    //    $formatted_families = str_ireplace($search,$replace,$families);
+    //    $formatted_families = strtoupper($formatted_families);
+    //    return $formatted_families;
 
-    }
+    //}
 
 }
 

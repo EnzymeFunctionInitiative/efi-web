@@ -5,12 +5,12 @@ include_once 'inc/header.inc.php';
 include_once 'inc/tutorial_nav.inc.php';
 ?>
 
-<h3>Data Set Analysis and providing a filtering score</h3>
+<h3>Dataset Analysis and providing a filtering score</h3>
 
 <p>
-The information needed for the generation of the data set has been fetched and 
+The information needed for the generation of the dataset has been fetched and 
 processed. The similarity between the sequences retrieved has been calculated. 
-Now the Data Set Analysis page provides a summary about the input used, and the 
+Now the Dataset Analysis page provides a summary about the input used, and the 
 returned calculations for the all-by-all BLAST. You must interpret the provided 
 information in order to choose an alignment score that will be used for the 
 final step of the SSN generation. 
@@ -256,7 +256,7 @@ displayed in Cytoscape.
 
 <p>
 After the alignment score and length limits, if desired, are entered, EFI-EST 
-generates the output network. As with data set creation, this step may take 
+generates the output network. As with dataset creation, this step may take 
 awhile so you may close the running window in the meantime. When the network 
 files are finished, you’ll receive an e-mail with a link to the file download 
 page. This link will be active for 14 days so that you may return at your 

@@ -32,6 +32,7 @@ class analysis extends est_shared {
     private $parent_id = 0; // The parent ID of the generate job that this analysis job is associated with
     private $cdhit_opt = "";
     private $job_type = "";
+    private $uniref = 0;
     protected $is_sticky = false;
 
     ///////////////Public Functions///////////
@@ -337,8 +338,10 @@ class analysis extends est_shared {
                 }
                 if ($cdhit_opt)
                     $exec .= " -cdhit-opt $cdhit_opt";
+                if ($this->uniref)
+                    $exec .= " -uniref-version " . $this->uniref;
                 if ($this->length_overlap)
-                    $exec .= "-lengthdif " . $this->length_overlap . " ";
+                    $exec .= " -lengthdif " . $this->length_overlap . " ";
                 if ($sched)
                     $exec .= " -scheduler " . $sched . " ";
                 if ($parent_id > 0)
@@ -421,6 +424,12 @@ class analysis extends est_shared {
             $this->is_sticky = functions::is_job_sticky($this->db, $this->generate_id, $email);
             $this->set_email($email);
             $this->key = $key;
+
+            $gen_params = global_functions::decode_object($result[0]['generate_params']);
+            if (isset($gen_params["generate_uniref"]))
+                $this->uniref = $gen_params["generate_uniref"];
+            else
+                $this->uniref = 0;
         }
     }
 

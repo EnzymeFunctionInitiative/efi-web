@@ -4,6 +4,7 @@ require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
 require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
+require_once(__DIR__ . "/../libs/dataset_shared.class.inc.php");
 
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
@@ -30,166 +31,39 @@ if ($mig_info !== false) {
     $gnn_key = $mig_info["gnn_key"];
 }
 
+$web_address = dirname($_SERVER['PHP_SELF']);
+
+$use_advanced_options = global_settings::advanced_options_enabled();
+
 $table_format = "html";
 if (isset($_GET["as-table"])) {
     $table_format = "tab";
 }
+
+
 $table = new table_builder($table_format);
 
-
-$web_address = dirname($_SERVER['PHP_SELF']);
-$time_window = $analysis->get_time_period();
-$db_version = $generate->get_db_version();
-$network_name = $analysis->get_name();
-$job_name = $generate->get_job_name();
-$legacy = empty($db_version); // Indicates if we are looking at old jobs.
-
-
 $gen_type = $generate->get_type();
-$formatted_gen_type = functions::format_job_type($gen_type);
+$generate = dataset_shared::create_generate_object($gen_type, $db);
+$stats = $analysis->get_network_stats();
 
-$table->add_row_with_html("EST Job Number", "$generate_id (<a href='stepc.php?id=$generate_id&key=$key'>Original Dataset</a>)");
-$table->add_row("Time Started -- Finished", $time_window);
-if (!empty($db_version)) {
-    $table->add_row("Database Version", $db_version);
-}
-$table->add_row("Input Option", $formatted_gen_type);
-if ($generate->get_job_name())
-    $table->add_row("Submission Name", $generate->get_job_name());
+$table = new table_builder($table_format);
 
-$uploaded_file = "";
-$included_family = "";
-$num_family_nodes = $generate->get_num_family_sequences();
-$num_full_family_nodes = $generate->get_num_full_family_sequences();
-$total_num_nodes = $generate->get_num_sequences();
-$extra_nodes_string = "";
-$extra_nodes_ast = "";
+add_analysis_summary_table($analysis, $stats, $table);
 
-if ($gen_type == "BLAST") {
-    $generate = new blast($db,$_GET['id']);
-    $code = $generate->get_blast_input();
-    if ($table_format == "html") {
-        $code = "<a href='blast.php?blast=$code' target='_blank'>View Sequence</a>";
-    }
-    $table->add_row("Blast Sequence", $code);
-    $table->add_row("E-Value", $generate->get_evalue());
-    $included_family = $generate->get_families_comma();
-    if ($included_family != "")
-        $table->add_row("PFam/Interpro Families", $included_family);
-    $table->add_row("Maximum Retrieved Sequences", number_format($generate->get_submitted_max_sequences()));
-}
-elseif ($gen_type == "FAMILIES") {
-    $generate = new generate($db,$_GET['id']);
-    $included_family = $generate->get_families_comma();
-    $seqid = $generate->get_sequence_identity();
-    $overlap = $generate->get_length_overlap();
-    $unirefVersion = $generate->get_uniref_version();
+$table->add_html('</table><br><h4>Dataset Summary</h4><table width="100%" class="pretty">');
 
-    if ($included_family != "")
-        $table->add_row("PFam/Interpro Families", $included_family);
-    $table->add_row("E-Value", $generate->get_evalue());
-    $table->add_row("Fraction", $generate->get_fraction());
-    $table->add_row("Domain", $generate->get_domain());
-    if ($unirefVersion)
-        $table->add_row("UniRef Version", $unirefVersion);
-    if ($seqid)
-        $table->add_row("Sequence Identity", $seqid);
-    if ($overlap)
-        $table->add_row("Sequence Overlap", $overlap);
-}
-elseif ($gen_type == "ACCESSION") {
-    $generate = new accession($db,$_GET['id']);
-    $uploaded_file = $generate->get_uploaded_filename();
-    if ($uploaded_file)
-        $table->add_row("Uploaded Accession ID File", $uploaded_file);
-    $included_family = $generate->get_families_comma();
-    if ($included_family != "")
-        $table->add_row("PFam/Interpro Families", $included_family);
-    $table->add_row("E-Value", $generate->get_evalue());
-    $table->add_row("Fraction", $generate->get_fraction());
-    if (global_settings::advanced_options_enabled())
-        $table->add_row("Domain", $generate->get_domain());
-    $unirefVersion = $generate->get_uniref_version();
-    if ($unirefVersion)
-        $table->add_row("UniRef Version", $unirefVersion);
-}
-elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
-    $generate = new fasta($db,$_GET['id']);
-    $uploaded_file = $generate->get_uploaded_filename();
-    if ($uploaded_file)
-        $table->add_row("Uploaded Fasta File", $uploaded_file);
-    $included_family = $generate->get_families_comma();
-    if ($included_family != "")
-        $table->add_row("PFam/Interpro Families", $included_family);
-    $table->add_row("E-Value", $generate->get_evalue());
-    $table->add_row("Fraction", $generate->get_fraction());
-    $unirefVersion = $generate->get_uniref_version();
-    if ($unirefVersion)
-        $table->add_row("UniRef Version", $unirefVersion);
-
-    $num_file_seq = $generate->get_total_num_file_sequences();
-    $num_matched = $generate->get_num_matched_file_sequences();
-    $num_unmatched = $generate->get_num_unmatched_file_sequences();
-    
-    if (!empty($num_file_seq))
-        $table->add_row("Number of Sequences in Uploaded File", number_format($num_file_seq));
-    if (!empty($num_matched) && !empty($num_unmatched))
-        $table->add_row("Number of FASTA Headers in Uploaded File", number_format($num_matched + $num_unmatched));
-    if (!empty($num_matched))
-        $table->add_row("Number of SSN Nodes with UniProt IDs from Uploaded File", number_format($num_matched));
-    if (!empty($num_unmatched))
-        $table->add_row("Number of SSN Nodes without UniProt IDs from Uploaded File", number_format($num_unmatched));
-
-    if (!empty($num_family_nodes) && !empty($num_file_seq)) {
-        $extra_num_nodes = $total_num_nodes - $num_family_nodes - $num_file_seq;
-        if ($extra_num_nodes > 0) {
-            $extra_nodes_string = "* $extra_num_nodes additional nodes have been added since multiple UniProt IDs were found for a single sequence with more than one header in one or more cases.";
-            $extra_nodes_ast = "*";
-        }
-    }
-}
-
-if ($included_family && !empty($num_full_family_nodes))
-    $table->add_row("Number of Sequences in Pfam/InterPro Family", number_format($num_full_family_nodes));
-$table->add_row("Total Number of Sequences $extra_nodes_ast", number_format($total_num_nodes));
-
-$table->add_row("Network Name", $network_name);
-$table->add_row("Alignment Score", $analysis->get_filter_value());
-$table->add_row("Filter", $analysis->get_filter_name());
-$table->add_row("Minimum Length", number_format($analysis->get_min_length()));
-$table->add_row("Maximum Length", number_format($analysis->get_max_length()));
-if (functions::custom_clustering_enabled())
-    $table->add_row("CD-HIT Method", $analysis->get_cdhit_method_nice());
-$conv_ratio = $generate->get_convergence_ratio();
-$convergence_ratio_string = "";
-if ($conv_ratio > -0.5) {
-    $table->add_row("Convergence Ratio<sup>+</sup>", number_format($conv_ratio, 3));
-    $convergence_ratio_string = <<<STR
-<div><sup>+</sup>
-The convergence ratio is a measure of the similarity of the sequences used in the BLAST.  It is the
-ratio of the total number of edges retained from the BLAST (e-values less than the specified threshold;
-default 5) to the total number of sequence pairs.  The value decreases from 1.0 for sequences that are
-very similar (identical) to 0.0 for sequences that are very different (unrelated).</div>
-STR;
-}
+dataset_shared::add_generate_summary_table($generate, $table, true);
 
 $table_string = $table->as_string();
+
+
 
 if (isset($_GET["as-table"])) {
     $table_filename = functions::safe_filename($analysis->get_name()) . "_SSN_overview.txt";
 
-    send_table($table_filename, $table_string);
-
-//    header('Pragma: public');
-//    header('Expires: 0');
-//    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-//    header('Content-Type: application/octet-stream');
-//    header('Content-Disposition: attachment; filename="' . $table_filename . '"');
-//    header('Content-Length: ' . strlen($table_string));
-//    ob_clean();
-//    echo $table_string;
-}
-elseif (isset($_GET["stats-as-table"])) {
+    dataset_shared::send_table($table_filename, $table_string);
+} elseif (isset($_GET["stats-as-table"])) {
 
     $stats = $analysis->get_network_stats();
     $stats_table = new table_builder("tab");
@@ -199,7 +73,7 @@ elseif (isset($_GET["stats-as-table"])) {
         $percent_id = "Full";
         if ($i > 0) {
             $percent_id = substr($stats[$i]['File'], strrpos($stats[$i]['File'],'-') + 1);
-            $sep_char = $legacy ? "." : "_";
+            $sep_char = "_";
             $percent_id = substr($percent_id, 0, strrpos($percent_id, $sep_char));
             $percent_id = str_replace(".","",$percent_id);
         }
@@ -210,7 +84,7 @@ elseif (isset($_GET["stats-as-table"])) {
     $table_string = $stats_table->as_string();
     $table_filename = functions::safe_filename($analysis->get_name()) . "_stats.txt";
 
-    send_table($table_filename, $table_string);
+    dataset_shared::send_table($table_filename, $table_string);
 }
 else {
 
@@ -221,7 +95,7 @@ else {
         exit;
     }
 
-    $stats = $analysis->get_network_stats();
+    // $stats is set above
     $rep_network_html = "";
     $full_network_html = "";
     $full_edge_count = 0;
@@ -243,8 +117,7 @@ else {
             $path = functions::get_web_root() . "/results/" . $rel_path;
             $full_network_html = "<tr>";
             $full_network_html .= "<td style='text-align:center;'><a href='$path'><button class='mini'>Download</button></a>";
-            if (!$legacy)
-                $full_network_html .= "  <a href='$path.zip'><button class='mini'>Download ZIP</button></a>";
+            $full_network_html .= "  <a href='$path.zip'><button class='mini'>Download ZIP</button></a>";
             $full_network_html .= "</td>\n";
             $full_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Nodes'],0) . "</td>\n";
             $full_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
@@ -258,7 +131,7 @@ else {
         }
         else {
             $percent_identity = substr($stats[$i]['File'], strrpos($stats[$i]['File'],'-') + 1);
-            $sep_char = $legacy ? "." : "_";
+            $sep_char = "_";
             $percent_identity = substr($percent_identity, 0, strrpos($percent_identity, $sep_char));
             $percent_identity = str_replace(".","",$percent_identity);
             $rel_path = $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
@@ -268,8 +141,7 @@ else {
                 $rep_network_html .= "<td style='text-align:center;'></a>";
             } else {
                 $rep_network_html .= "<td style='text-align:center;'><a href='$path'><button class='mini'>Download</button></a>";
-                if (!$legacy)
-                    $rep_network_html .= "  <a href='$path.zip'><button class='mini'>Download ZIP</button></a>";
+                $rep_network_html .= "  <a href='$path.zip'><button class='mini'>Download ZIP</button></a>";
                 $rep_network_html .= "</td>\n";
             }
             $rep_network_html .= "<td style='text-align:center;'>" . $percent_identity . "</td>\n";
@@ -291,41 +163,40 @@ else {
     }
 
     $IncludeSubmitJs = true;
-    require_once 'inc/header.inc.php'; 
+    require_once("inc/header.inc.php");
 
 
     $stepa_link = functions::get_web_root() . "/index.php#colorssn";
     $gnt_link = functions::get_gnt_web_root();
 
+    $job_name = $generate->get_job_name();
+    $network_name = $analysis->get_name();
+
 ?>	
 
 <h2>Download Network Files</h2>
 
-<?php if ($job_name || $network_name) { ?>
-<h4 class="job-display">
-    <?php if ($job_name) { ?>Submission Name: <b><?php echo $job_name; ?></b><?php } ?>
-    <?php if ($job_name && $network_name) { ?>/<?php } ?>
-    <?php if ($network_name) { ?>Network Name: <b><?php echo $network_name; ?></b><?php } ?>
-</h4>
-<?php } ?>
+<?php if ($job_name) { ?><h4 class="job-display">Submission Name: <b><?php echo $job_name; ?></b></h4><?php } ?>
+<?php if ($network_name) { ?><h4 class="job-display">Network Name: <b><?php echo $network_name; ?></b></h4><?php } ?>
 
 <div class="tabs-efihdr tabs">
     <ul>
-        <li><a href="#info">SSN Overview</a></li>
-        <li class="ui-tabs-active"><a href="#results">Network Files</a></li>
+        <li class="ui-tabs-active"><a href="#info">SSN Overview</a></li>
+        <li><a href="#results">Network Files</a></li>
     </ul>
 
     <div>
         <div id="info">
-            <h4>SSN Generation and Analysis Summary Table</h4>
+            <p>
+            The parameters used for the initial submission and the finalization are summarized in the table below.
+            </p>
         
+            <h4>Analysis Summary</h4>
             <table width="100%" class="pretty">
                 <?php echo $table_string; ?>
             </table>
             <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=" . $_GET['key'] . "&analysis_id=" . $_GET['analysis_id'] . "&as-table=1" ?>'><button class='normal'>Download Information</button></a></div>
             <div style="clear: both"></div>
-            <?php echo $extra_nodes_string; ?>
-            <?php echo $convergence_ratio_string; ?>
             <?php if ($is_migrated) { ?>
                 <div style="margin-top: 20px;">
                     <center>
@@ -340,7 +211,7 @@ else {
 
 
         <div id="results">
-            <h3>Full Network <a href="tutorial_download.php" class="question" target="_blank">?</a></h3>
+            <h4>Full Network <a href="tutorial_download.php" class="question" target="_blank">?</a></h4>
             <p>Each node in the network represents a single protein sequence. Large files (&gt;500MB) may not open in Cytoscape.</p>
             <?php if (!$full_network_html) { ?>
                 <p><b>The output file was too large (edges=<?php echo $full_edge_count; ?>) to be generated by EST.  Please use a repnode below or choose a different alignment score.</b></p>
@@ -363,7 +234,7 @@ else {
         
             <p>&nbsp;</p>
             <div class="align_left">
-                <h3>Representative Node Networks <a href="tutorial_download.php" class="question" target="_blank">?</a></h3>
+                <h4>Representative Node Networks <a href="tutorial_download.php" class="question" target="_blank">?</a></h4>
                 <p>
                     In representative node (RepNode) networks, each node in the network represents a collection of proteins grouped
                     according to percent identity. For example, for a 75% identity RepNode network, all connected sequences
@@ -443,23 +314,36 @@ Would you like to color the SSN?
 
 <?php
 
-    require_once 'inc/footer.inc.php';
+    require_once("inc/footer.inc.php");
 
 } // as-table block
 
 
 
 
-function send_table($table_filename, $table_string) {
-    header('Pragma: public');
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="' . $table_filename . '"');
-    header('Content-Length: ' . strlen($table_string));
-    ob_clean();
-    echo $table_string;
+
+
+function add_analysis_summary_table($analysis, $stats, $table) {
+    $use_advanced_options = global_settings::advanced_options_enabled();
+    
+    $network_name = $analysis->get_name();
+    $time_window = $analysis->get_time_period();
+    $a_id = $analysis->get_id();
+    $num_filt_seq = isset($stats[0]["Nodes"]) ? $stats[0]["Nodes"] : 0;
+
+    $table->add_row("Analysis Job Number", $a_id);
+    $table->add_row("Network Name", $network_name);
+    $table->add_row("Alignment Score", $analysis->get_filter_value());
+    if ($use_advanced_options)
+        $table->add_row("Filter", $analysis->get_filter_name());
+    $table->add_row("Minimum Length", number_format($analysis->get_min_length()));
+    $table->add_row("Maximum Length", number_format($analysis->get_max_length()));
+    if ($use_advanced_options)
+        $table->add_row("CD-HIT Method", $analysis->get_cdhit_method_nice());
+    if ($num_filt_seq)
+        $table->add_row("Total Number of Sequences After Length Filtering", number_format($num_filt_seq));
 }
+
 
 ?>
 

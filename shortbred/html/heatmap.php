@@ -7,8 +7,8 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 <head>
 <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="../font-awesome/css/fontawesome-all.min.css">
-    <link rel="stylesheet" type="text/css" href="css/heatmap.css">
-    <link rel="stylesheet" type="text/css" href="../css/buttons.css">
+    <link rel="stylesheet" type="text/css" href="css/heatmap.css?v=2">
+    <link rel="stylesheet" type="text/css" href="../css/buttons.css?v=2">
 
     <!--<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>-->
     <script src="js/plotly-1.42.5.min.js"></script>
@@ -39,7 +39,7 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 <!--<div id="filter-show"><button class="small dark" type="button">Show Filters</button></div>-->
 
 <div style="margin-top:50px;width:100%;position:fixed;bottom:0;height:50px;margin-bottom:150px">
-    <i id="progress-loader" class="fas fa-sync black fa-spin fa-4x fa-fw hidden-placeholder"></i>
+    <i id="progress-loader" class="fas fa-sync black fa-spin fa-4x fa-fw hidden"></i>
 </div>
 
 <div id="boxplot" title="Box Plot" class="hidden">
@@ -50,7 +50,7 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 <script src="../js/jquery-3.2.1.min.js"></script>
 <script src="../js/jquery-ui-1.12.1/jquery-ui.min.js"></script>
 <script src="../bs/js/bootstrap.min.js"></script>
-<script src="js/heatmap.js"></script>
+<script src="js/heatmap.js?v=3"></script>
 
 <script>
 $(document).ready(function() {
@@ -79,7 +79,7 @@ $(document).ready(function() {
         CdHitSid: "<?php echo (isset($_GET["cdhit-sid"]) ? $_GET["cdhit-sid"] : ""); ?>",
     };
 
-    var useBoxplots = <?php echo (global_settings::advanced_options_enabled() ? "true" : "false"); ?>;
+    var useBoxplots = false; //<?php echo (global_settings::advanced_options_enabled() ? "true" : "false"); ?>;
 
     var app = new HeatmapApp(data, "#progress-loader", useBoxplots);
 

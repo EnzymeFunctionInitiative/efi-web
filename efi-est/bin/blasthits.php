@@ -26,7 +26,7 @@ else {
 		}
 	}
 	else {
-		$msg = "No New Blast Jobs";
+		$msg = "No New BLAST Jobs";
 		//functions::log_message($msg);	
 	}
 	
