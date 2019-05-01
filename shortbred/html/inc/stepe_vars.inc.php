@@ -50,7 +50,7 @@ foreach ($metadata as $order => $row) {
 }
 
 
-$hm_parm_string = $id_query_string . "&filename=$filename&search-type=$id_search_type&ref-db=$ref_db&d-sens=$diamond_sens&cdhit-sid=$cdhit_sid";
+$hm_parm_string = $id_query_string . "&search-type=$id_search_type&ref-db=$ref_db&d-sens=$diamond_sens&cdhit-sid=$cdhit_sid";
 
 $use_mean = true;
 $mean_cluster_file = $job_obj->get_cluster_file_path($use_mean);

@@ -157,9 +157,9 @@ require_once "inc/header.inc.php";
 
 <div class="tabs-efihdr tabs">
     <ul>
-        <li><a href="#info">Submission Summary</a></li>
+        <li class="ui-tabs-active"><a href="#info">Submission Summary</a></li>
         <li><a href="#data">Identified Markers</a></li>
-        <li class="ui-tabs-active"><a href="#mg">Select Metagenomes for Marker Quantification</a></li>
+        <li><a href="#mg">Select Metagenomes for Marker Quantification</a></li>
         <li><a href="#filter">Resubmit SSN</a></li>
     </ul>
 

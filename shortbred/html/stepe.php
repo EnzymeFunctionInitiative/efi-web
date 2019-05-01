@@ -48,7 +48,8 @@ if (isset($_GET["as-table"])) {
     exit(0);
 }
 
-$job_name = pathinfo($filename, PATHINFO_FILENAME);
+$JobName = pathinfo($filename, PATHINFO_FILENAME);
+$quantify_job_name = $job_obj->get_job_name();
 
 $HeatmapWidth = 900;
 
@@ -59,7 +60,8 @@ include("inc/header.inc.php");
 <h2><?php echo $ExtraTitle; ?></h2>
 
 
-<h4 class="job-display">Submitted SSN: <b><?php echo $job_name; ?></b></h4>
+<h4 class="job-display">Submitted SSN: <b><?php echo $JobName; ?></b></h4>
+<?php if ($quantify_job_name) { ?><h4 class="job-display">Job Name: <b><?php echo $quantify_job_name; ?></b></h4><?php } ?>
 
 <?php include("inc/stepe_body.inc.php"); ?>
 

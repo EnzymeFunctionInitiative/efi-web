@@ -39,7 +39,7 @@ The generation of a SNN involves two steps. First, a set of sequences to
 analyze is chosen, and an all-by-all 
 <a href="http://www.ncbi.nlm.nih.gov/books/NBK21097/">BLAST</a>
 is performed to determine, for each 
-pair of sequences in the data set, their similarity as a consideration of their 
+pair of sequences in the dataset, their similarity as a consideration of their 
 relatedness. The second step involves filtering the sequences into clusters, 
 based on a similarity threshold that is user defined.
 </p>
@@ -118,7 +118,7 @@ network displayed in
 </p>
 
 <p><a id='ex3'></a><img src="images/tutorial/intro_figure_3.jpg" alt="Figure 3" width="518" height="570">
-<br><i>Figure 3.</i> Representative node attributes for the example data set as seen in a Cytoscape session.</p>
+<br><i>Figure 3.</i> Representative node attributes for the example dataset as seen in a Cytoscape session.</p>
 
 <h4>Publication proven use of SSN</h4>
 

@@ -54,7 +54,7 @@ abstract class est_shared {
         $this->time_completed = $current_time;
     }
 
-    private static function get_current_datetime() {
+    protected static function get_current_datetime() {
         $current_time = date("Y-m-d H:i:s",time());
         return $current_time;
     }

@@ -176,7 +176,7 @@ class accession extends family_shared {
         }
 
         if (count($this->get_families())) {
-            $message .= "Pfam/Interpro Families: " . $this->get_families_comma() . PHP_EOL;
+            $message .= "Pfam/InterPro Families: " . $this->get_families_comma() . PHP_EOL;
         }
 
         $message .= "E-Value: " . $this->get_evalue() . PHP_EOL;
