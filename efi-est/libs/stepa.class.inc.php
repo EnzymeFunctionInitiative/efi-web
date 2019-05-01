@@ -23,6 +23,7 @@ class stepa extends est_shared {
     protected $total_num_file_sequences;
     protected $num_matched_file_sequences;
     protected $num_unmatched_file_sequences;
+    protected $num_unique_file_sequences = false;
     protected $num_family_sequences;
     protected $num_full_family_sequences;
     protected $num_blast_sequences;
@@ -73,6 +74,7 @@ class stepa extends est_shared {
     public function get_total_num_file_sequences() { return $this->total_num_file_sequences; }
     public function get_num_matched_file_sequences() { return $this->num_matched_file_sequences; }
     public function get_num_unmatched_file_sequences() { return $this->num_unmatched_file_sequences; }
+    public function get_num_unique_file_sequences() { return $this->num_unique_file_sequences; }  // may return false if this isn't set (legacy jobs)
     public function get_num_family_sequences() { return $this->num_family_sequences; }  // UniRef size if option is for UniRef.
     public function get_num_full_family_sequences() { return $this->num_full_family_sequences; }
     public function get_num_blast_sequences() { return $this->num_blast_sequences; }
@@ -171,6 +173,8 @@ class stepa extends est_shared {
                     $num_seq['full_family'] = intval($val);
                 else if ($key == "BLAST")
                     $num_seq['blast'] = intval($val);
+                else if ($key == "FileUnique")
+                    $num_seq['file_unique'] = intval($val);
             }
         } else if (file_exists($full_path)) {
             $exec = "grep '>' " . $full_path . " | sort | uniq | wc -l ";
@@ -198,6 +202,10 @@ class stepa extends est_shared {
             else
                 $update["generate_num_full_family_seq"] = $num_seq['family'];
             $update["generate_num_blast_seq"] = $num_seq['blast'];
+            if (isset($num_seq['file_unique']))
+                $update["generate_num_unique_file_seq"] = $num_seq['file_unique'];
+            else
+                $update["generate_num_unique_file_seq"] = 0;
         } else {
             $update["generate_num_seq"] = $num_seq;
         }
@@ -216,6 +224,7 @@ class stepa extends est_shared {
                 else
                     $this->num_full_family_sequences = $num_seq['family'];
                 $this->num_blast_sequences = $num_seq['blast'];
+                $this->num_unique_file_sequences = $num_seq['file_unique'];
             }
             else {
                 $this->num_sequences = $num_seq;
@@ -225,6 +234,7 @@ class stepa extends est_shared {
                 $this->num_family_sequences = 0;
                 $this->num_full_family_sequences = 0;
                 $this->num_blast_sequences = 0;
+                $this->num_unique_file_sequences = 0;
             }
             return true;
         }
@@ -581,6 +591,10 @@ class stepa extends est_shared {
                 $this->num_full_family_sequences = $results_obj['generate_num_full_family_seq'];
             if (array_key_exists('generate_num_blast_seq', $results_obj))
                 $this->num_blast_sequences = $results_obj['generate_num_blast_seq'];
+            if (array_key_exists('generate_num_unique_file_seq', $results_obj))
+                $this->num_unique_file_sequences = $results_obj['generate_num_unique_file_seq'];
+            else
+                $this->num_unique_file_sequences = false;
             
             $this->is_sticky = functions::is_job_sticky($this->db, $this->id, $this->email);
         }
