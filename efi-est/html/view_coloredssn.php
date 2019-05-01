@@ -120,7 +120,7 @@ else {
 
 <div class="tabs-efihdr tabs">
     <ul class="">
-        <li><a href="#info">Submission Overview</a></li>
+        <li><a href="#info">Submission Summary</a></li>
         <li class="ui-tabs-active"><a href="#data">Data File Download</a></li>
     </ul>
     <div>
