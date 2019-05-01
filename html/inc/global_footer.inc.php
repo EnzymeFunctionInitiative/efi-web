@@ -14,7 +14,7 @@ if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPag
 ?>
 
 <?php if (global_settings::get_is_beta_release()) { ?>
-            <div class="beta">Beta</div>
+            <div class="beta"><?php echo global_settings::get_release_status(); ?></div>
 <?php } ?>
 
 <?php if (!$IsDisabled || $IsAdminUser) { // set in global_header ?>
