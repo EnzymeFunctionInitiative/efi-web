@@ -63,6 +63,14 @@ class functions extends global_functions {
         return $valid;
     }
 
+    public static function remove_blast_header($blast_input) {
+        $parts = preg_split('/[\r\n]+/', $blast_input);
+        if (preg_match('/^\s*>/', $blast_input))
+            $parts = array_slice($parts, 1);
+        $blast_input = implode("", $parts);
+        return $blast_input;
+    }
+
     public static function verify_blast_input($blast_input) {
         $blast_input = strtolower($blast_input);
         $valid = 1;
