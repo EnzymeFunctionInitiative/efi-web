@@ -53,7 +53,8 @@ tools for functional assignment</b>, Current Opinion in Chemical Biology, Volume
 <p>
 John A. Gerlt,
 <b>Genomic enzymology: Web tools for leveraging protein family sequence–function space and genome context to discover novel functions</b>,
-Biochemistry, 2017 - ACS Publications
+<a href="https://www.ncbi.nlm.nih.gov/pubmed/28826221">Biochemistry</a>. Volume 56, 2017, Pages 4293-4308.
+<a href="https://doi.org/10.1021/acs.biochem.7b00614">https://doi.org/10.1021/acs.biochem.7b00614</a>
 </p>
 
 <p>

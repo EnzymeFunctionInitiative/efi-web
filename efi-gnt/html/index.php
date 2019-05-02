@@ -686,7 +686,7 @@ function add_submit_button($type, $email_id, $message_id, $btn_text) {
     </span>
 </p>
 <p>You will receive an e-mail when your network has been processed.</p>
-<div id="$message_id" style="color: red">
+<div id="$message_id" class="error-message"> 
     $message
 </div>
 <center>
