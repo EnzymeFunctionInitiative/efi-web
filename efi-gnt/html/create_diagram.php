@@ -72,6 +72,8 @@ function create_blast_job($db, $email, $title, $dbMod) {
 
     $retval = array("id" => 0, "key" => "", "valid" => false, "message" => "");
 
+    $blast_input = functions::remove_blast_header($_POST["sequence"]);
+
     if (!isset($_POST["evalue"]) || !functions::verify_evalue($_POST["evalue"])) {
     
         $retval["message"] = "The given e-value is invalid.";
@@ -84,14 +86,14 @@ function create_blast_job($db, $email, $title, $dbMod) {
 
         $retval["message"] = "The neighborhood size is invalid.";
 
-    } elseif (!isset($_POST["sequence"]) || !functions::verify_blast_input($_POST["sequence"])) {
+    } elseif (!isset($_POST["sequence"]) || !functions::verify_blast_input($blast_input)) {
 
         $retval["message"] = "The BLAST sequence is not valid.";
 
     } else {
 
         $retval["valid"] = true;
-        $jobInfo = diagram_jobs::create_blast_job($db, $email, $title, $_POST["evalue"], $_POST["max-seqs"], $_POST["nb-size"], $_POST["sequence"], $dbMod);
+        $jobInfo = diagram_jobs::create_blast_job($db, $email, $title, $_POST["evalue"], $_POST["max-seqs"], $_POST["nb-size"], $blast_input, $dbMod);
     
         if ($jobInfo === false) {
             $retval["message"] .= " The job was unable to be created.";
