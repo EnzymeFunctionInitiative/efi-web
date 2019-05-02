@@ -53,7 +53,8 @@ if (!$IsLoggedIn) {
 }
 $update_message = 
     "The EFI web tool interface has been updated to improve user experience.<br>" .
-    "<b>All functions remain unchanged.</b><br><br>" . 
+    "<b>All functions remain unchanged.</b><br>" . 
+    "EFI-CGFP now supports boxplots to assist in quantitative analysis of marker abundance.<br><br>" . 
     "<small>" . functions::get_update_message() . "</small>";
 $update_message = ($login_banner_msg ? "$login_banner_msg<br>" : "") . $update_message;
 
