@@ -65,7 +65,7 @@ foreach ($jobs as $job) {
             $job_list_html .= "<td><a href='../blast.php?blast=" . $job['Blast'] . "' target='_blank' ><span class='glyphicon glyphicon-ok'></span></a>";
             $job_list_html .= "</td>";
         } elseif ($job['Option Selected'] == 'FASTA' or $job['Option Selected'] == 'FASTA_ID') {
-            $job_list_html .= "<td><a href='fasta.php?id=" . $job['Generate ID'] . "' target='_blank' ><span class='glyphicon glyphicon-ok'></span></a>";
+            $job_list_html .= "<td><a href='../fasta.php?id=" . $job['Generate ID'] . "' target='_blank' ><span class='glyphicon glyphicon-ok'></span></a>";
             $job_list_html .= "</td>";
         } elseif ($job['Option Selected'] == 'ACCESSION') {
             $job_list_html .= "<td><a href='accession.php?id=" . $job['Generate ID'] . "' target='_blank' ><span class='glyphicon glyphicon-ok'></span></a>";
@@ -132,7 +132,7 @@ $month_name = date("F", mktime(0, 0, 0, $month, 10));
 <?php if ($job_type == "generate") { ?>
     <th>Email</th>
     <th>Type</th>
-    <th>BLAST</th>
+    <th>Blast</th>
     <th>Family</th>
     <th>E-Value</th>
     <th>UniRef</th>
