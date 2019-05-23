@@ -26,8 +26,7 @@ else {
         $job_running = $job_obj->check_pbs_running();
 
         if (!$job_running && $finish_file_exists) {
-            $num_seq = $job_obj->get_num_sequence_from_file();
-            $job_obj->set_num_sequences($num_seq);
+            $job_obj->load_num_sequence_from_file();
             $job_obj->finish_job_complete();
             $job_obj->email_complete();
             $msg = "Generate ID: " . $job['generate_id'] . " - Job Completed Successfully";
