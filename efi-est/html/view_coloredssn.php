@@ -120,8 +120,8 @@ else {
 
 <div class="tabs-efihdr tabs">
     <ul class="">
-        <li><a href="#info">Submission Summary</a></li>
-        <li class="ui-tabs-active"><a href="#data">Data File Download</a></li>
+        <li class="ui-tabs-active"><a href="#info">Submission Summary</a></li>
+        <li><a href="#data">Data File Download</a></li>
     </ul>
     <div>
         <!-- JOB INFORMATION -->
