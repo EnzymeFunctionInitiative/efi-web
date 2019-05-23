@@ -159,7 +159,9 @@ require_once "inc/header.inc.php";
     <ul>
         <li class="ui-tabs-active"><a href="#info">Submission Summary</a></li>
         <li><a href="#data">Identified Markers</a></li>
+        <?php if ($is_enabled) { ?>
         <li><a href="#mg">Select Metagenomes for Marker Quantification</a></li>
+        <?php } ?>
         <li><a href="#filter">Resubmit SSN</a></li>
     </ul>
 
@@ -243,10 +245,10 @@ HTML;
         </div>
 
 
-        <div id="mg">
         <?php
         if ($is_enabled) {
         ?>
+        <div id="mg">
             <h4>Select Metagenomes from the Human Microbiome Project</h4>
             
             <p>
@@ -346,8 +348,8 @@ HTML;
             </form>
             
             
-        <?php } ?>
         </div>
+        <?php } ?>
 
 
     <?php if ($user_email) { ?>
