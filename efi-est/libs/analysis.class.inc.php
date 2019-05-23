@@ -33,6 +33,7 @@ class analysis extends est_shared {
     private $cdhit_opt = "";
     private $job_type = "";
     private $uniref = 0;
+    private $db_mod = "";
     protected $is_sticky = false;
 
     ///////////////Public Functions///////////
@@ -321,7 +322,7 @@ class analysis extends est_shared {
                 chdir($job_dir);
                 $exec = "source /etc/profile\n";
                 $exec .= "module load " . functions::get_efi_module() . "\n";
-                $exec .= "module load " . functions::get_efidb_module() . "\n";
+                $exec .= "module load " . $this->db_mod . "\n";
                 $exec .= "analyzedata.pl ";
                 $exec .= "-maxlen " . $this->get_max_length() . " ";
                 $exec .= "-minlen " . $this->get_min_length() . " ";
@@ -430,6 +431,18 @@ class analysis extends est_shared {
                 $this->uniref = $gen_params["generate_uniref"];
             else
                 $this->uniref = 0;
+
+            $db_mod = isset($gen_params["generate_db_mod"]) ? $gen_params["generate_db_mod"] : functions::get_efidb_module();
+            if ($db_mod) {
+                // Get the actual module not the alias.
+                $mod_info = global_settings::get_database_modules();
+                foreach ($mod_info as $mod) {
+                    if ($mod[1] == $db_mod) {
+                        $db_mod = $mod[0];
+                    }
+                }
+            }
+            $this->db_mod = $db_mod;
         }
     }
 
