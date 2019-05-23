@@ -52,9 +52,9 @@ foreach ($jobs as $job) {
 
     $job_list_html .= "<tr>";
 
-    if (time() < $job['Time Completed'] + __RETENTION_DAYS__ || $job['Status'] != __FINISH__)
-        $job_list_html .= "<td>&nbsp</td>";
-    else
+//    if (time() < $job['Time Completed'] + __RETENTION_DAYS__ || $job['Status'] != __FINISH__)
+//        $job_list_html .= "<td>&nbsp</td>";
+//    else
         $job_list_html .= "<td><a href='" . $url ."'><span class='glyphicon glyphicon-share'></span></a></td>";
     $job_list_html .= "<td>$id</td>";
 
