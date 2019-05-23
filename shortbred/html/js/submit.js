@@ -4,7 +4,7 @@ function submitQuantify(formId, selectId, searchTypeId, jobNameId, messageId, sb
     var datasetType = "";
 
     if (!selectId) {
-        var selTab = $(".tabs .tab-headers li.active a").attr("href");
+        var selTab = $("#download-tabs .tab-headers li.ui-tabs-active a").attr("href");
         selTab = selTab.substr(4);
         selectId = selTab + "_search_to";
         datasetType = $("#" + selTab + "-dt").val();
