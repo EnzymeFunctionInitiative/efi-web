@@ -44,7 +44,7 @@
         //if (typeof boxplotWindow !== "undefined")
         //    return;
         var windowSize = ["width=500,height=" + (window.outerHeight-150)];
-        var url = "boxplots.php?<?php echo $hm_parm_string; ?>";
+        var url = "boxplots.php?<?php echo "$hm_parm_string&filename=$filename"; ?>";
         boxplotWindow = window.open(url, "BoxplotWindow", windowSize);
         evt.preventDefault();
     });
