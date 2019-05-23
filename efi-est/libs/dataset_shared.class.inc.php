@@ -51,12 +51,18 @@ class dataset_shared {
     
     
         $uploaded_file = "";
-        $included_family = "";
-        $num_family_nodes = $generate->get_num_family_sequences();
-        $num_full_family_nodes = $generate->get_num_full_family_sequences();
+        $included_family = $generate->get_families_comma();
+        $num_family_nodes = $generate->get_counts("num_family");
+        $num_full_family_nodes = $generate->get_counts("num_full_family");
         if (empty($num_full_family_nodes))
             $num_full_family_nodes = $num_family_nodes;
-        $total_num_nodes = $generate->get_num_sequences();
+        $total_num_nodes = $generate->get_counts("num_seq");
+        $num_overlap = $generate->get_counts("num_family_overlap");
+        $num_user = $generate->get_counts("num_user");
+        $num_uniref_overlap = $generate->get_counts("num_uniref_overlap");
+        $num_matched = $generate->get_counts("num_user_matched");
+        $num_unmatched = $generate->get_counts("num_user_unmatched");
+        $num_file_seq = $num_matched + $num_unmatched;
         
         $family_label = "Added Pfam / InterPro Family";
         $fraction_label = "Fraction Option for Added Family";
@@ -69,51 +75,76 @@ class dataset_shared {
         $default_fraction = functions::get_fraction();
         if ($fraction == $default_fraction)
             $fraction = "off";
-        
+
+//        $generate->print_raw_counts();
         $evalue_option = $generate->get_evalue();
         $default_evalue = functions::get_evalue();
         $show_evalue = $evalue_option != $default_evalue;
+
+        $add_fam_rows_fn = function() {};
+        $add_fam_overlap_rows_fn = function() {};
+        if ($included_family) {
+            $add_fam_rows_fn = function($family_label, $fraction_label, $domain_label)
+                use ($included_family, $uniref, $table, $num_family_nodes, $num_full_family_nodes, $generate, $fraction)
+                {
+                    $table->add_row($family_label, $included_family);
+                    $table->add_row("Number of IDs in Pfam / InterPro Family", number_format($num_full_family_nodes));
+                    if (!$uniref)
+                        $table->add_row($fraction_label, $fraction);
+                    if ($domain_label)
+                        $table->add_row($domain_label, $generate->get_domain());
+                    if ($uniref) {
+                        $table->add_row("UniRef Version", $uniref);
+                        $table->add_row("Number of Cluster IDs in UniRef$uniref Family", number_format($num_family_nodes));
+                    }
+                };
+            $add_fam_overlap_rows_fn = function($label)
+                use ($num_user, $num_overlap, $num_uniref_overlap, $table)
+                {
+                    $uniref_text = "";
+                    $overlap = $num_overlap;
+                    if ($num_uniref_overlap)
+                        $overlap = $num_uniref_overlap;
+#                        $uniref_text = " (" . number_format($num_uniref_overlap) . " sequences were mapped to UniRef clusters)";
+                    $table->add_row("Number of $label Matched in Family", number_format($overlap) . $uniref_text);
+                    $table->add_row("Number of $label not in Family", number_format($num_user));
+                };
+        }
+
+        $total_note = "";
         
         if ($gen_type == "BLAST") {
-            $code = $generate->get_blast_input();
-            $included_family = $generate->get_families_comma();
+            $blast_total_label = " (includes sequence submitted for BLAST)";
             $evalue_blast = $generate->get_blast_evalue();
-            $retrieved_seq = $generate->get_num_blast_sequences();
+            $code = $generate->get_blast_input();
+            if ($table->is_html())
+                $code = "<a href='blast.php?blast=$code'>View Sequence</a>";
+            
+            $retrieved_seq = $generate->get_counts("num_blast_retr");
+
+
             if ($evalue_blast != $default_evalue)
                 $table->add_row("E-Value for UniProt BLAST Retrieval", $evalue_blast);
             if ($show_evalue)
                 $table->add_row("E-Value for SSN Edge Calculation", $evalue_option);
-            
-            if ($table->is_html())
-                $code = "<a href='blast.php?blast=$code'>View Sequence</a>";
             $table->add_row("Sequence Submitted for BLAST", $code);
-            
             $table->add_row("Maximum Number of Retrieved Sequences", number_format($generate->get_submitted_max_sequences()));
             if ($use_advanced_options || $retrieved_seq) // If this number is not set, only show this row if we're on the dev site.
                 $table->add_row("Actual Number of Retrieved Sequences", number_format($retrieved_seq));
-            $blast_total_label = " (includes sequence submitted for BLAST)";
-            if ($included_family != "") {
-                $table->add_row($family_label, $included_family);
-                $table->add_row($fraction_label, $fraction);
-                if ($uniref)
-                    $table->add_row("UniRef Version", $uniref);
-            }
+            $add_fam_rows_fn($family_label, $fraction_label, "");
+            $add_fam_overlap_rows_fn("Retrieved Sequences");
         }
         elseif ($gen_type == "FAMILIES") {
-            $included_family = $generate->get_families_comma();
             $seqid = $generate->get_sequence_identity();
             $overlap = $generate->get_length_overlap();
         
             $fraction_label = "Fraction Option";
             $family_label = "Pfam / InterPro Family";
-        
+
+
             if ($show_evalue)
                 $table->add_row("E-Value for SSN Edge Calculation", $evalue_option);
-            $table->add_row($family_label, $included_family);
-            $table->add_row($fraction_label, $fraction);
-            $table->add_row($domain_label, $generate->get_domain());
-            if ($uniref)
-                $table->add_row("UniRef Version", $uniref);
+            $add_fam_rows_fn($family_label, $fraction_label, $domain_label, "");
             if ($use_advanced_options) {
                 if ($seqid)
                     $table->add_row("Sequence Identity", $seqid);
@@ -122,53 +153,36 @@ class dataset_shared {
             }
         }
         elseif ($gen_type == "ACCESSION" || $gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+            $term = "";
             $file_label = "";
             $domain_opt = "off";
+            $table_dom_label = "";
             if ($gen_type == "ACCESSION") {
                 $file_label = "Accession ID";
                 $domain_opt = $generate->get_domain();
+                $term = "IDs";
+                $table_dom_label = global_settings::advanced_options_enabled() ? $domain_label : "";
             } else {
                 $file_label = "FASTA";
+                $term = "Sequences";
             }
-        
+            
+            $uploaded_file = $generate->get_uploaded_filename();
+            $match_text = "";
+            if ($gen_type == "FASTA_ID" || $gen_type == "ACCESSION")
+                $match_text = " (" . number_format($num_matched) . " UniProt ID matches and " . number_format($num_unmatched) . " unmatched)";
+
+            if ($domain_opt == "on" && !$included_family)
+                $table->add_row($domain_label, $generate->get_domain());
             if ($show_evalue)
                 $table->add_row("E-Value for SSN Edge Calculation", $evalue_option);
-            $uploaded_file = $generate->get_uploaded_filename();
             if ($uploaded_file)
                 $table->add_row("Uploaded $file_label File", $uploaded_file);
             if ($gen_type == "ACCESSION")
                 $table->add_row_html_only("No matches file", "<a href=\"" . $generate->get_no_matches_download_path() . "\"><button class=\"mini\">Download</button></a>");
-        
-            $included_family = $generate->get_families_comma();
-            if ($included_family != "") {
-                $table->add_row($family_label, $included_family);
-                $table->add_row($fraction_label, $fraction);
-            }
-            if (global_settings::advanced_options_enabled())
-                $table->add_row($domain_label, $domain_opt);
-            if ($uniref)
-                $table->add_row("UniRef Version", $uniref);
-        
-            $term = "";
-            if ($gen_type == "ACCESSION")
-                $term = "IDs";
-            else
-                $term = "Sequences";
-            
-            $num_file_seq = $generate->get_total_num_file_sequences();
-            $num_matched = $generate->get_num_matched_file_sequences();
-            $num_unmatched = $generate->get_num_unmatched_file_sequences();
-            $num_unique = $generate->get_num_unique_file_sequences();
-            $both = $num_matched + $num_unmatched;
-        
-            $table->add_row("Number of $term in Uploaded File", number_format($num_file_seq));
-            if ($gen_type == "FASTA_ID") {
-                //add this when we deal with the multi-species NCBI issue $table->add_row("Number of FASTA Headers in Uploaded File", number_format($both));
-                $table->add_row("Number of $term in Uploaded File with UniProt Match", number_format($num_matched));
-                $table->add_row("Number of $term in Uploaded File without UniProt Match", number_format($num_unmatched));
-                if ($num_unique !== false && $uniref)
-                    $table->add_row("Number of Unique $term in Uploaded File", number_format($num_unique));
-            }
+            $add_fam_rows_fn($family_label, $fraction_label, $table_dom_label);
+            $table->add_row("Number of $term in Uploaded File", number_format($num_file_seq) . $match_text);
+            $add_fam_overlap_rows_fn("Input $term");
         }
         elseif ($gen_type == "COLORSSN") {
             $table->add_row("Uploaded XGMML File", $generate->get_uploaded_filename());
@@ -181,15 +195,12 @@ class dataset_shared {
                 $table->add_row("Program Used", $generate->get_program());
         }
         
-        if ($included_family && !empty($num_family_nodes)) {
-            if ($uniref)
-                $table->add_row("Number of Cluster IDs in UniRef$uniref", number_format($num_family_nodes));
-            else
-                $table->add_row("Number of IDs in Pfam / InterPro Family", number_format($num_full_family_nodes));
-        }
-        
-        $table->add_row($total_label, number_format($total_num_nodes) . $blast_total_label);
-            
+        $table->add_row_with_html($total_label, number_format($total_num_nodes) . $blast_total_label . $total_note);
+
+        $num_edges = $generate->get_counts("num_edges");
+        if ($num_edges)
+            $table->add_row("Total Number of Edges", number_format($num_edges));
+
         $conv_ratio = $generate->get_convergence_ratio();
         $convergence_ratio_string = "";
         if ($conv_ratio > -0.5) {

@@ -604,10 +604,6 @@ class functions {
         return __CDHIT_STATS_FILE__;
     }
 
-    public static function get_convergence_ratio_filename() {
-        return __CONVERGENCE_RATIO_FILENAME__;
-    }
-
     public static function get_update_message() {
         $msg = 
             "The EST database has been updated to use UniProt " . 
