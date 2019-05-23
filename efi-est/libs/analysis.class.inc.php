@@ -323,7 +323,7 @@ class analysis extends est_shared {
                 $exec = "source /etc/profile\n";
                 $exec .= "module load " . functions::get_efi_module() . "\n";
                 $exec .= "module load " . $this->db_mod . "\n";
-                $exec .= "analyzedata.pl ";
+                $exec .= "create_analysis_job.pl ";
                 $exec .= "-maxlen " . $this->get_max_length() . " ";
                 $exec .= "-minlen " . $this->get_min_length() . " ";
                 $exec .= "-filter " . $this->get_filter() . " ";

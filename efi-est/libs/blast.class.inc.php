@@ -90,7 +90,7 @@ class blast extends family_shared {
     }
 
     protected function get_run_script() {
-        return "blasthits-new.pl";
+        return "create_blast_job.pl";
     }
 
     protected function get_run_script_args($outDir) {
