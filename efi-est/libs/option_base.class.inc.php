@@ -270,6 +270,8 @@ abstract class option_base extends stepa {
             $exec .= " $key $value";
         }
         $exec .= " -job-id " . $this->id;
+        if (!global_settings::advanced_options_enabled())
+            $exec .= " -remove-temp";
         $exec .= " 2>&1";
 
         $exit_status = 1;
