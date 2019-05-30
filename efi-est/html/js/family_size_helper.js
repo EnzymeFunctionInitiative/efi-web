@@ -68,6 +68,31 @@ FamilySizeHelper.prototype.setupFamilyInput = function(optionName, inputIds, out
 }
 
 
+FamilySizeHelper.prototype.resetInput = function(optionName) {
+    var opt = this.options[optionName];
+    var inputIds = opt.inputIds;
+    var outputIds = opt.outputIds;
+
+    $("#" + inputIds.family).val("");
+    $("#" + inputIds.fraction).val(1);
+    $("#" + inputIds.unirefCb).prop("checked", false);
+    
+    var container = $("#" + outputIds.container);
+    container.hide();
+}
+
+
+FamilySizeHelper.prototype.setDisabledState = function(optionName, disabled) {
+    var opt = this.options[optionName];
+    var inputIds = opt.inputIds;
+    var outputIds = opt.outputIds;
+
+    $("#" + inputIds.family).prop("disabled", disabled);
+    $("#" + inputIds.fraction).prop("disabled", disabled);
+    $("#" + inputIds.unirefCb).prop("disabled", disabled);
+}
+
+
 FamilySizeHelper.prototype.checkFamilyInput = function (optionName) {
     //TODO: check validity
     var opt = this.options[optionName];

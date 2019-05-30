@@ -647,11 +647,12 @@ the <a href="family_list.php">Family Information page</a>.
         });
 
         $("#domain-optd").change(function() {
-            var status = $("#accession-input-domain-family").prop("disabled");
-            if (status)
-                $("#accession-input-domain-family").prop("disabled", false);
-            else
-                $("#accession-input-domain-family").prop("disabled", true);
+            var status = $(this).prop("checked");
+            var disableFamilyInput = status;
+            $("#accession-input-domain-family").prop("disabled", !status);
+            familySizeHelper.setDisabledState("optd", disableFamilyInput);
+            if (disableFamilyInput)
+                familySizeHelper.resetInput("optd");
         });
 
         $(".option-panels > div").accordion({
