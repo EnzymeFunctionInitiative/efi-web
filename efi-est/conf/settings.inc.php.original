@@ -41,7 +41,6 @@ define("__GENERATE_QUEUE__","");
 define("__ANALYSE_QUEUE__","");
 define("__CLUSTER_PROCS__","48");
 define("__BLASTHITS_PROCS__",12);
-define("__RESULTS_DIR__","");
 define("__RESULTS_DIRNAME__","results");
 define("__EFI_MODULE__","");
 define("__EFI_DB_MODULE__","");
