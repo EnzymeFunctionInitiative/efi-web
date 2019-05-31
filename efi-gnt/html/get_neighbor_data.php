@@ -70,10 +70,24 @@ $pageSize = 20;
 if (isset($_GET["pagesize"]) && is_numeric($_GET["pagesize"])) {
     $pageSize = $_GET["pagesize"];
 }
+if (isset($_GET["sidx"]) && isset($_GET["eidx"]) && is_numeric($_GET["sidx"]) && is_numeric($_GET["eidx"]))
+    $pageSize = array($_GET["sidx"], $_GET["eidx"]);
 
 $output["message"] = "";
 $output["error"] = false;
 $output["eod"] = false;
+
+if (isset($_GET["stats"])) {
+    $resultsDb = new SQLite3($dbFile);
+    $orderData = getDefaultOrder();
+    $S = microtime(true);
+    $stats = getStats($_GET["query"], $resultsDb, $window, $orderData);
+    $T = microtime(true) - $S;
+    $stats["totaltime"] = $T;
+    $output["stats"] = $stats;
+    echo json_encode($output);
+    exit;
+}
 
 if ($message) {
     $output["message"] = $message;
@@ -83,21 +97,19 @@ if ($message) {
 }
 
 if (array_key_exists("query", $_GET)) {
-    $queryString = strtoupper($_GET["query"]);
-    $queryString = str_replace("\n", ",", $queryString);
-    $queryString = str_replace("\r", ",", $queryString);
-    $queryString = str_replace(" ", ",", $queryString);
-    $items = explode(",", $queryString);
+    $items = parseQueryString($_GET["query"]);
 
     $blastId = getBlastId();
     //$orderData = getOrder($blastId, $items, $dbFile, $blastCacheDir, $gnn);
     $orderData = getDefaultOrder();
 
+    $S = microtime(true);
     $arrowData = getArrowData($items, $dbFile, $orderData, $window, $scaleFactor, $isDirectJob, $pageSize);
+    $T = microtime(true) - $S;
     $output["scale_factor"] = $arrowData["scale_factor"];
+    $output["time"] = $arrowData["time"] . " Total=$T";
     $output["eod"] = $arrowData["eod"];
     $output["counts"] = $arrowData["counts"];
-    $output["IDS"] = $arrowData["IDS"];
     $output["data"] = $arrowData["data"];
     $output["min_bp"] = $arrowData["min_bp"];
     $output["max_bp"] = $arrowData["max_bp"];
@@ -164,8 +176,31 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $scaleFactor, 
     $resultsDb = new SQLite3($dbFile);
     $orderByClause = getOrderByClause($resultsDb);
 
+    $S = microtime(true);
     $ids = parseIds($items, $orderDataStruct, $resultsDb, $orderByClause);
-    $output["IDS"] = $ids;
+    $parseTime = microtime(true) - $S;
+
+    $sidx = $eidx = 0;
+    $useIndex = false;
+    $isEod = false;
+    if (is_array($pageSize)) {
+        $sidx = $pageSize[0];
+        $eidx = $pageSize[1];
+        if ($sidx < 0)
+            $sidx = 0;
+        if ($eidx < $sidx)
+            $eidx = $sidx;
+        if ($eidx >= count($ids))
+            $eidx = count($ids) - 1;
+
+        $len = $eidx - $sidx + 1;
+        $isEod = $eidx == count($ids) - 1;
+        if ($sidx >= count($ids))
+            $ids = array();
+        else
+            $ids = array_slice($ids, $sidx, $len);
+        $useIndex = true;
+    }
 
     $pageBounds = getPageLimits($pageSize);
     $startCount = $pageBounds['start'];
@@ -176,6 +211,12 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $scaleFactor, 
     $minBp = 999999999999;
     $maxBp = -999999999999;
     $maxQueryWidth = -1;
+
+    $queryTime = 0;
+    $queryCount = 0;
+    $nbTime = 0;
+    $nbCount = 0;
+    $procTime = 0;
     
     $output["data"] = array();
     $idCount = 0;
@@ -184,19 +225,24 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $scaleFactor, 
         $evalue = $ids[$i][1];
 
         $attrSql = "SELECT * FROM attributes WHERE accession = '$id' $orderByClause";
+        $S = microtime(true); //TIME
         $dbQuery = $resultsDb->query($attrSql);
+        $queryTime += microtime(true) - $S; //TIME
+        $queryCount++; //TIME
         $row = $dbQuery->fetchArray(SQLITE3_ASSOC);
         if (!$row) {
             array_push($output["counts"]["invalid"], $id);
             continue;
         }
-    
-        if ($idCount++ < $startCount)
-            continue;
-    
-        if (++$startCount > $maxCount)
-            break;
 
+        if (!$useIndex) {
+            if ($idCount++ < $startCount)
+                continue;
+            if (++$startCount > $maxCount)
+                break;
+        }
+
+        $S = microtime(true);
         $attr = getQueryAttributes($row, $orderData, $isDirectJob);
         if ($attr['rel_start_coord'] < $minBp)
             $minBp = $attr['rel_start_coord'];
@@ -205,6 +251,7 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $scaleFactor, 
         $queryWidth = $attr['rel_stop_coord'] - $attr['rel_start_coord'];
         if ($queryWidth > $maxQueryWidth)
             $maxQueryWidth = $queryWidth;
+        $procTime += microtime(true) - $S;
 
         $nbSql = "SELECT * FROM neighbors WHERE gene_key = '" . $row['sort_key'] . "'";
         if ($window !== NULL) {
@@ -213,16 +260,21 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $scaleFactor, 
             $nbSql .= " AND " . $numClause;
         }
         $dbQuery = $resultsDb->query($nbSql);
-    
+
+        $S = microtime(true); //TIME
         $neighbors = array();
         while ($row = $dbQuery->fetchArray()) {
+            $S = microtime(true);
             $nb = getNeighborAttributes($row);
+            $procTime += microtime(true) - $S;
             if ($nb['rel_start_coord'] < $minBp)
                 $minBp = $nb['rel_start_coord'];
             if ($nb['rel_stop_coord'] > $maxBp)
                 $maxBp = $nb['rel_stop_coord'];
             array_push($neighbors, $nb);
         }
+        $nbTime += microtime(true) - $S; //TIME
+        $nbCount++;
 
         array_push($output["data"],
             array(
@@ -233,8 +285,9 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $scaleFactor, 
 
     $resultsDb->close();
 
-    $output["eod"] = $startCount < $maxCount;
+    $output["eod"] = $useIndex ? $isEod : $startCount < $maxCount;
     $output["counts"]["displayed"] = $startCount;
+    $output["time"] = "#Q=$queryCount TQ=$queryTime #N=$nbCount TN=$nbTime PROC=$procTime PARSE=$parseTime";
     if (!$output["eod"])
         $output["counts"]["displayed"]--;
 
@@ -270,26 +323,35 @@ function sortNodes($a, $b) {
 }
 
 
+function computeScaleFactor($minBp, $maxBp, $maxQueryWidth, $widthCap = 0) {
+
+    $maxSide = (abs($maxBp) > abs($minBp)) ? abs($maxBp) : abs($minBp);
+    $maxWidth = $maxSide * 2 + $maxQueryWidth;
+    $actualMaxWidth = $maxWidth;
+    if ($widthCap > 0 && $maxWidth > $widthCap)
+        $maxWidth = $widthCap;
+    if ($maxWidth < 0.000001)
+        $maxWidth = 1;
+    $scaleFactor = 300000 / $maxWidth;
+
+    $legendScale = $maxBp - $minBp;
+
+    return array($scaleFactor, $legendScale, $maxSide, $maxWidth, $actualMaxWidth);
+}
+
+
 function computeRelativeCoordinates($output, $minBp, $maxBp, $maxQueryWidth, $scaleFactor) {
 
     if ($scaleFactor !== NULL) {
         $maxWidth = 300000 / $scaleFactor; // scale factor is between 1 and 100 (specifying the scale factor as a percentage of the screen width = 1000AA) the data points in the file are given in bp so we x3 to get the factor in bp
         $maxQueryWidth = 0;
         $maxSide = $maxWidth / 2;
+        $legendScale = $maxWidth;
     } else {
-        $maxSide = (abs($maxBp) > abs($minBp)) ? abs($maxBp) : abs($minBp);
-        $maxWidth = $maxSide * 2 + $maxQueryWidth;
-        if ($maxWidth < 0.000001)
-            $maxWidth = 1;
-        $scaleFactor = 300000 / $maxWidth;
+        list($scaleFactor, $legendScale, $maxSide, $maxWidth) = computeScaleFactor($minBp, $maxBp, $maxQueryWidth);
     }
     $minBp = -$maxSide;
     $maxBp = $maxSide + $maxQueryWidth;
-
-    $legendScale = $maxWidth; //100 / ($maxBp - $minBp);
-//    $legendScale = ($maxBp - $minBp) / 100;
-//    die("$maxBp $minBp $maxSide $maxQueryWidth $maxWidth");
-//    die($legendScale);
 
     $minPct = 2;
     $maxPct = -2;
@@ -323,7 +385,7 @@ function computeRelativeCoordinates($output, $minBp, $maxBp, $maxQueryWidth, $sc
         }
     }
 
-    $output["legend_scale"] = ($maxBp - $minBp);
+    $output["legend_scale"] = $legendScale;
     $output["min_pct"] = $minPct;
     $output["max_pct"] = $maxPct;
     $output["min_bp"] = $minBp;
@@ -334,26 +396,46 @@ function computeRelativeCoordinates($output, $minBp, $maxBp, $maxQueryWidth, $sc
 }
 
 
-function parseIds($items, $orderDataStruct, $resultsDb, $sortOrderClause) {
+function parseQueryString($queryString) {
+    $queryString = strtoupper($queryString);
+    $queryString = str_replace("\n", ",", $queryString);
+    $queryString = str_replace("\r", ",", $queryString);
+    $queryString = str_replace(" ", ",", $queryString);
+    $items = explode(",", $queryString);
+    return $items;
+}
+
+
+function parseIds($items, $orderDataStruct, $resultsDb, $sortOrderClause, $countOnly = false) {
 
     $orderData = $orderDataStruct['order'];
     $centralId = $orderDataStruct['central_id'];
 
     $ids = array();
+    $count = 0;
 
     foreach ($items as $item) {
         if (is_numeric($item)) {
-            $clusterIds = getIdsFromDatabase($item, $resultsDb, $sortOrderClause);
-            foreach ($clusterIds as $clusterId) {
-                $evalue = array_key_exists($clusterId, $orderData) ? $orderData[$clusterId][0] : -1;
-                $pctId = array_key_exists($clusterId, $orderData) ? $orderData[$clusterId][1] : -1;
-                array_push($ids, array($clusterId, $evalue, $pctId));
+            $clusterIds = getIdsFromDatabase($item, $resultsDb, $sortOrderClause, $countOnly);
+            if ($countOnly) {
+                $count += $clusterIds;
+            } else {
+                foreach ($clusterIds as $clusterId) {
+                    $evalue = array_key_exists($clusterId, $orderData) ? $orderData[$clusterId][0] : -1;
+                    $pctId = array_key_exists($clusterId, $orderData) ? $orderData[$clusterId][1] : -1;
+                    array_push($ids, array($clusterId, $evalue, $pctId));
+                }
+                $count += count($clusterIds);
             }
-        }
-        else if ($item) {
-            $evalue = array_key_exists($item, $orderData) ? $orderData[$item][0] : -1;
-            $pctId = array_key_exists($item, $orderData) ? $orderData[$clusterId][1] : -1;
-            array_push($ids, array($item, $evalue, $pctId));
+        } else if ($item) {
+            if (idExists($item, $resultsDb)) {
+                if (!$countOnly) {
+                    $evalue = array_key_exists($item, $orderData) ? $orderData[$item][0] : -1;
+                    $pctId = array_key_exists($item, $orderData) ? $orderData[$clusterId][1] : -1;
+                    array_push($ids, array($item, $evalue, $pctId));
+                }
+                $count++;
+            }
         }
     }
 
@@ -362,7 +444,10 @@ function parseIds($items, $orderDataStruct, $resultsDb, $sortOrderClause) {
     //if ($centralId)
     //    array_unshift($ids, array($centralId, 0));
 
-    return $ids;
+    if ($countOnly)
+        return $count;
+    else
+        return $ids;
 }
 
 
@@ -387,6 +472,110 @@ function getPageLimits($pageSize) {
     }
 
     return array('start' => $startCount, 'end' => $maxCount);
+}
+
+
+function getStats($query, $resultsDb, $window, $orderDataStruct) {
+    $orderByClause = getOrderByClause($resultsDb);
+
+    $items = parseQueryString($query);
+    $S = microtime(true);
+    $allIdsInCluster = parseIds($items, $orderDataStruct, $resultsDb, $orderByClause, false); // true = countOnly
+    $parseTime = microtime(true) - $S;
+    $mapFn = function($e) { return $e[0]; };
+    $count = count($allIdsInCluster);
+
+    $ids = array_slice($allIdsInCluster, 0, 100);
+    $numToCheck = max(1, round(intval($count/200)/10)*10);
+    if ($count > 100) {
+        for ($i = 100; $i < $count; $i++) {
+            if (!(rand(1, $count) % $numToCheck))
+                array_push($ids, $allIdsInCluster[$i]);
+        }
+    }
+
+    $scaleCap = 40000; // Limit the scale cap by default to 40000 bp. The user can zoom out.
+    $S = microtime(true); //TIME
+    list($scaleFactor, $legendScale, $min, $max, $qWidth, $actualMaxWidth, $timeData) = computeClusterScaleFactor($ids, $resultsDb, $window, $scaleCap);
+    $procTime = microtime(true) - $S;
+
+    $stats = array("max_index" => $count - 1, "scale_factor" => $scaleFactor, "legend_scale" => $legendScale,
+        "min_bp" => $min, "max_bp" => $max, "query_width" => $qWidth, "actual_max_width" => $actualMaxWidth, "time_data" => $timeData . " PROC=$procTime PARSE=$parseTime",
+        "num_checked" => count($ids));
+
+    return $stats;
+}
+
+
+function coordCompare($row, &$minBp, &$maxBp) {
+    if ($row["start"] < $minBp)
+        $minBp = $row["start"];
+    if ($row["stop"] > $maxBp)
+        $maxBp = $row["stop"];
+}
+
+
+function computeClusterScaleFactor($ids, $resultsDb, $window, $scaleCap) {
+    
+    $minBp = 999999999999;
+    $maxBp = -999999999999;
+    $maxQueryWidth = -1;
+
+    $start = microtime(true); //TIME
+    $dbQueryTime = 0; //TIME
+    $dbFetchTime = 0; //TIME
+    $dbQueries = 0; //TIME
+    $dbFetch = 0; //TIME
+
+    for ($i = 0; $i < count($ids); $i++) {
+        $id = $ids[$i][0];
+        $first = true;
+        $attrSql = "SELECT A.rel_start AS start, A.rel_stop AS stop, A.sort_key AS key, A.num AS num FROM attributes AS A WHERE A.accession = '$id'";
+        $dbStart = microtime(true); //TIME
+        $dbQuery = $resultsDb->query($attrSql);
+        $dbQueryTime += microtime(true) - $dbStart; //TIME
+        $dbQueries++; //TIME
+
+        $dbStart = microtime(true); //TIME
+        $row = $dbQuery->fetchArray(SQLITE3_ASSOC);
+        $dbFetchTime += microtime(true) - $dbStart; //TIME
+        $dbFetch++; //TIME
+        $key = "";
+        if ($row) {
+            coordCompare($row, $minBp, $maxBp);
+            $key = $row["key"];
+            $queryWidth = $row["stop"] - $row["start"];
+            if ($queryWidth > $maxQueryWidth)
+                $maxQueryWidth = $queryWidth;
+        }
+
+        if (!$key)
+            continue;
+
+        $nbSql = "SELECT N.rel_start AS start, N.rel_stop AS stop, N.accession AS id FROM neighbors AS N WHERE N.gene_key = '$key'";
+        if ($window !== NULL) {
+            $numClause = "num >= " . ($row["num"] - $window) . " AND num <= " . ($row["num"] + $window);
+            $nbSql .= " AND " . $numClause;
+        }
+        $dbStart = microtime(true); //TIME
+        $dbQuery = $resultsDb->query($nbSql);
+        $dbQueryTime += microtime(true) - $dbStart; //TIME
+        $dbQueries++; //TIME
+        $dbStart = microtime(true); //TIME
+        while ($row = $dbQuery->fetchArray(SQLITE3_ASSOC)) {
+            $dbFetchTime += microtime(true) - $dbStart; //TIME
+            $dbFetch++; //TIME
+            coordCompare($row, $minBp, $maxBp);
+            $dbStart = microtime(true); //TIME
+        }
+    }
+
+    $total = microtime(true) - $start;
+
+    $timeData = "#Ids: " . count($ids) . ", #Queries: $dbQueries, QueryTime: $dbQueryTime, #Fetch: $dbFetch, FetchTime: $dbFetchTime, Total: $total";
+
+    list ($scaleFactor, $legendScale, $maxSide, $maxWidth, $actualMaxWidth) = computeScaleFactor($minBp, $maxBp, $maxQueryWidth, $scaleCap);
+    return array($scaleFactor, $legendScale, $minBp, $maxBp, $maxQueryWidth, $actualMaxWidth, $timeData);
 }
 
 
@@ -436,7 +625,7 @@ function getQueryAttributes($row, $orderData, $isDirectJob) {
         else
             $attr['family_desc'] = array_fill(0, $familyCount, "none");
     }
-    
+
     $iproFamilyCount = isset($attr['ipro_family']) ? count($attr['ipro_family']) : 0;
     $iproFamilyDesc = isset($row['ipro_family_desc']) ? explode(";", $row['ipro_family_desc']) : array();
     if (count($iproFamilyDesc) == 1) {
@@ -451,6 +640,11 @@ function getQueryAttributes($row, $orderData, $isDirectJob) {
         else
             $attr['ipro_family_desc'] = array_fill(0, $iproFamilyCount, "none");
     }
+    
+    $attr['pfam'] = $attr['family']; // will migrate to this eventually
+    $attr['interpro'] = $attr['ipro_family'];
+    $attr['pfam_desc'] = $attr['family_desc'];
+    $attr['interpro_desc'] = $attr['ipro_family_desc'];
     
     if (array_key_exists("color", $row))
         $attr['color'] = explode(",", $row['color']);
@@ -535,23 +729,51 @@ function getNeighborAttributes($row) {
             $nb['color'] = array_fill(0, count($nb['family']), "grey");
     }
     
+    $nb['pfam'] = $nb['family']; // will migrate to this eventually
+    $nb['interpro'] = $nb['ipro_family'];
+    $nb['pfam_desc'] = $nb['family_desc'];
+    $nb['interpro_desc'] = $nb['ipro_family_desc'];
+    
     return $nb;
 }
 
 
-function getIdsFromDatabase($clusterId, $resultsDb, $sortOrderClause) {
+function getIdsFromDatabase($clusterId, $resultsDb, $sortOrderClause, $countOnly = false) {
     if (!is_numeric($clusterId))
         return array();
 
-    $sql = "SELECT accession FROM attributes WHERE cluster_num = '$clusterId' $sortOrderClause";
+    if ($countOnly)
+        $sql = "SELECT COUNT(accession) FROM attributes WHERE cluster_num = $clusterId AND accession IS NOT NULL";
+    else
+        $sql = "SELECT accession FROM attributes WHERE cluster_num = $clusterId AND accession IS NOT NULL $sortOrderClause";
     $dbQuery = $resultsDb->query($sql);
 
     $ids = array();
-    while ($row = $dbQuery->fetchArray()) {
-        array_push($ids, $row['accession']);
+    if (!$dbQuery)
+        return $ids;
+
+    if ($countOnly) {
+        $result = $dbQuery->fetchArray();
+        if ($result) {
+            $ids = $result[0];
+        } else {
+            $ids = -1;
+        }
+    } else {
+        $ids = array();
+        while ($row = $dbQuery->fetchArray()) {
+            array_push($ids, $row['accession']);
+        }
     }
     
     return $ids;
+}
+
+
+function idExists($id, $resultsDb) {
+    $sql = "SELECT accession FROM attributes WHERE accession = '$id' AND accession IS NOT NULL";
+    $dbQuery = $resultsDb->query($sql);
+    return $dbQuery ? true : false;
 }
 
 
