@@ -215,11 +215,9 @@ class colorssn extends option_base {
         return functions::get_results_dir() . "/" . $this->get_output_dir();
     }
     private function get_base_filename() {
-        $parts = pathinfo($this->get_uploaded_filename());
-        if (substr_compare($parts['filename'], ".xgmml", -strlen(".xgmml")) === 0) {
-            $parts = pathinfo($parts['filename']);
-        }
-        return $this->get_id() . "_" . $parts['filename'] . "_coloredssn";
+        $id = $this->get_id();
+        $filename = $this->get_uploaded_filename();
+        return global_functions::get_est_colorssn_filename($id, $filename, false);
     }
     private function shared_get_web_path($filename) {
         $rel_path = $this->get_web_output_dir() . "/" . $filename;

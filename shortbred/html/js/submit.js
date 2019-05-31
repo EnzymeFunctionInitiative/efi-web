@@ -44,7 +44,15 @@ function submitQuantify(formId, selectId, searchTypeId, jobNameId, messageId, sb
     doFormPost(script, fd, messageId, fileHandler, completionHandler);
 }
 
+function submitFromESTJob(estId, estKey) {
+    uploadInitialSSNFileShared(estId, estKey);
+}
+
 function uploadInitialSSNFile() {
+    uploadInitialSSNFileShared(0, "");
+}
+
+function uploadInitialSSNFileShared(estId, estKey) {
     fileInputId = "ssn_file";
     formId = "upload_form";
     progressNumId = "progress_number";
@@ -62,19 +70,31 @@ function uploadInitialSSNFile() {
     addParam(fd, "diamond-sens", "ssn_diamond_sens");
     addParam(fd, "db-mod", "ssn_db_mod");
 
-    var files = document.getElementById(fileInputId).files;
-    var completionHandler = function(jsonObj) {
-        enableForm(formId);
-        var nextStepScript = "stepb.php";
-        window.location.href = nextStepScript + "?id=" + jsonObj.id + "&key=" + jsonObj.key;
-    };
+    var fileHandler;
+    var completionHandler;
 
-    fd.append("file", files[0]);
-    var fileHandler = function(xhr) {
-        addUploadStuff(xhr, progressNumId, progressBarId);
-    };
-
-    disableForm(formId);
+    if (estId && estKey) {
+        fd.append("est-id", estId);
+        fd.append("est-key", estKey);
+        completionHandler = function(jsonObj) {
+            var nextStepScript = "stepb.php";
+            window.location.href = nextStepScript + "?id=" + jsonObj.id + "&key=" + jsonObj.key;
+        };
+    } else {
+        var files = document.getElementById(fileInputId).files;
+        var completionHandler = function(jsonObj) {
+            enableForm(formId);
+            var nextStepScript = "stepb.php";
+            window.location.href = nextStepScript + "?id=" + jsonObj.id + "&key=" + jsonObj.key;
+        };
+    
+        fd.append("file", files[0]);
+        fileHandler = function(xhr) {
+            addUploadStuff(xhr, progressNumId, progressBarId);
+        };
+    
+        disableForm(formId);
+    }
 
     var script = "upload_ssn.php";
     doFormPost(script, fd, messageId, fileHandler, completionHandler);

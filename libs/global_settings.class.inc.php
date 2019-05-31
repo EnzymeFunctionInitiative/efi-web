@@ -153,6 +153,11 @@ class global_settings {
     public static function get_gnt_version() {
         return defined("__GNT_VERSION__") && __GNT_VERSION__ ? __GNT_VERSION__ : "-";
     }
+    
+    public static function get_est_database() {
+        return defined("__EFI_EST_DB_NAME__") ? __EFI_EST_DB_NAME__ : "";
+    }
+
 
 }
 ?>
