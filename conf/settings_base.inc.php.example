@@ -74,4 +74,8 @@ define("__JPGRAPH_SRC__",__BASE_DIR__."/libs/jpgraph-3.5.0b1/src");
 define("__PHPEXCEL_SRC__",__BASE_DIR__."/libs/PHPExcel/Classes");
 define("__PEAR_SRC__",__BASE_DIR__."/includes/pear");
 
+define("__EST_RESULTS_DIR__","");
+define("__EST_JOB_RESULTS_DIRNAME__","output");
+define("__EST_COLORSSN_SUFFIX__","_coloredssn");
+
 ?>
