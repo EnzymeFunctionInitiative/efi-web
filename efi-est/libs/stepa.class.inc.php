@@ -17,7 +17,6 @@ class stepa extends est_shared {
     protected $evalue;
     protected $pbs_number;
     protected $finish_file = "1.out.completed";
-    protected $output_dir = "output";
     protected $type;
     protected $accession_file = "allsequences.fa";
     protected $counts_file;
@@ -31,17 +30,14 @@ class stepa extends est_shared {
     private $alignment_length_filename = "alignment_length.png";
     private $alignment_length_new = "alignment_length_new.png";
     private $alignment_length_new_html = "alignment_length_new.html";
-    private $length_histogram_filename = "length_histogram.png";
-    private $length_histogram_uniref_filename = "length_histogram_uniref.png";
     private $percent_identity_filename = "percent_identity.png";
     private $percent_identity_new = "percent_identity_new.png";
     private $percent_identity_new_html = "percent_identity_new.html";
     private $number_of_edges_filename = "number_of_edges.png";
     private $alignment_length_sm_filename = "alignment_length_sm.png";
-    private $length_histogram_sm_filename = "length_histogram_sm.png";
-    private $length_histogram_uniref_sm_filename = "length_histogram_uniref_sm.png";
     private $percent_identity_sm_filename = "percent_identity_sm.png";
     private $number_of_edges_sm_filename = "number_of_edges_sm.png";
+    private $length_histogram_filename = "length_histogram.png";
     ///////////////Public Functions///////////
 
     public function __construct($db, $id = 0) {
@@ -86,11 +82,11 @@ class stepa extends est_shared {
 
     public function get_program() { return $this->program; }
     public function get_fraction() { return $this->fraction; }
-    public function get_finish_file() { return $this->get_output_dir() . "/" . $this->finish_file; }
+    public function get_finish_file() { return global_functions::get_est_job_results_path($this->get_id()) . "/" . $this->finish_file; }
     public function get_accession_file() {return $this->get_output_dir() . "/".  $this->accession_file;}
     public function get_accession_counts_file() {return $this->get_output_dir() . "/".  $this->counts_file;}
     public function get_accession_counts_file_full_path() {return functions::get_results_dir() . "/" . $this->get_output_dir() . "/".  $this->counts_file;}
-    public function get_output_dir() {return $this->get_id() . "/" . $this->output_dir;}
+    public function get_output_dir() { return global_functions::get_est_job_results_relative_path($this->get_id()); }
     public function get_blast_input() { return ""; }
     public function get_families() { return array(); }
     public function get_db_version() { return $this->db_version; }
@@ -136,8 +132,7 @@ class stepa extends est_shared {
     }
 
     public function check_finish_file() {
-        $results_path = functions::get_results_dir();
-        $full_path = $results_path . "/" . $this->get_finish_file();
+        $full_path = $this->get_finish_file();
         return file_exists($full_path);
 
     }
@@ -259,12 +254,6 @@ class stepa extends est_shared {
     public function length_histogram_plot_exists() {
         return file_exists($this->get_length_histogram_plot(0));
     }
-    public function get_uniref_length_histogram_plot($for_web = 0) {
-        return $this->get_plot_path_shared($for_web, $this->length_histogram_uniref_filename);
-    }
-    public function uniref_length_histogram_plot_exists() {
-        return file_exists($this->get_uniref_length_histogram_plot(0));
-    }
     public function get_percent_identity_plot($for_web = 0) {
         return $this->get_plot_path_shared($for_web, $this->percent_identity_filename);
     }
@@ -298,12 +287,6 @@ class stepa extends est_shared {
     public function get_alignment_plot_sm() {
         return $this->get_plot_webpath_sm_shared($this->alignment_length_sm_filename);
     }
-    public function get_length_histogram_plot_sm() {
-        return $this->get_plot_webpath_sm_shared($this->length_histogram_sm_filename);
-    }
-    public function get_uniref_length_histogram_plot_sm() {
-        return $this->get_plot_webpath_sm_shared($this->length_histogram_uniref_sm_filename);
-    }
     public function get_percent_identity_plot_sm() {
         return $this->get_plot_webpath_sm_shared($this->percent_identity_sm_filename);
     }
@@ -311,23 +294,61 @@ class stepa extends est_shared {
         return $this->get_plot_webpath_sm_shared($this->number_of_edges_sm_filename);
     }
 
+    public function get_length_histogram_filename($type, $small = false) {
+        if ($type)
+            $type = "_$type";
+        else
+            $type = "";
+        $filename = "length_histogram$type";
+        if ($small)
+            $filename .= "_sm";
+        $filename .= ".png";
+        return $filename;
+    }
+    public function get_length_histogram_download_type($type) {
+        if ($type)
+            return "HISTOGRAM_" . strtoupper($type);
+        else
+            return "HISTOGRAM";
+    }
+    public function get_length_histogram($type, $for_web = false, $small = false) {
+        $filename = $this->get_length_histogram_filename($type, $small);
+        if ($for_web)
+            $path = $this->get_plot_webpath_sm_shared($filename);
+        else
+            $path = $this->get_plot_path_shared(0, $filename);
+        return $path;
+    }
+
+    public function get_graphs_version() {
+        $path = $this->get_plot_webpath_sm_shared($this->length_histogram_filename);
+        return strlen($path) > 0 ? 1 : 2;
+    }
+
     public function download_graph($type) {
         $filename = "";
         if ($type == "ALIGNMENT") {
             $full_path = $this->get_alignment_plot(0);
             $filename = $this->alignment_length_filename;
-        } elseif ($type == "HISTOGRAM_UNIREF") {
-            $full_path = $this->get_uniref_length_histogram_plot(0);
-            if ($this->uniref_length_histogram_plot_exists()) {
-                $full_path = $this->get_uniref_length_histogram_plot(0);
-                $filename = $this->length_histogram_uniref_filename;
-            } else {
-                $full_path = $this->get_length_histogram_plot(0);
-                $filename = $this->length_histogram_filename;
+        } elseif (strlen($type) > 9 && substr($type, 0, 9) == "HISTOGRAM") {
+            $histo = substr($type, 10);
+            if ($histo == "UNIPROT")
+                $histo = "uniprot";
+            elseif ($histo == "UNIREF")
+                $histo = "uniref";
+            elseif ($histo == "UNIPROT_DOMAIN")
+                $histo = "uniprot_domain";
+            elseif ($histo == "UNIREF_DOMAIN")
+                $histo = "uniref_domain";
+            else
+                $histo = "";
+            if ($histo) {
+                $full_path = $this->get_length_histogram($histo, false);
+                $filename = $this->get_length_histogram_filename($histo);
             }
         } elseif ($type == "HISTOGRAM") {
-            $full_path = $this->get_length_histogram_plot(0);
-            $filename = $this->length_histogram_filename;
+            $full_path = $this->get_length_histogram("", false, false);
+            $filename = $this->get_length_histogram_filename("", false);
         } elseif ($type == "IDENTITY") {
             $full_path = $this->get_percent_identity_plot(0);
             $filename = $this->percent_identity_filename;

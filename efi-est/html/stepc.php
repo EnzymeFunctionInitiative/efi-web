@@ -135,6 +135,7 @@ $generate = dataset_shared::create_generate_object($gen_type, $db);
 
 $uniref = dataset_shared::get_uniref_version($gen_type, $generate);
 $job_name = $generate->get_job_name();
+$use_domain = dataset_shared::get_domain($gen_type, $generate) == "on";
 
 
 $table = new table_builder($table_format);
@@ -182,6 +183,22 @@ HTML;
         return $html;
     }
 
+    function make_histo_plot_download($gen, $hdr, $plot_type) {
+        $download_type = $gen->get_length_histogram_download_type($plot_type);
+        $web_path = $gen->get_length_histogram($plot_type, true, true);
+        $large_web_path = $gen->get_length_histogram($plot_type, true, false);
+        $plot_exists = $web_path ? true : false;
+        if (!$plot_exists) {
+            $plot_type = "";
+            $use_v2 = false;
+            $download_type = $gen->get_length_histogram_download_type($plot_type, $use_v2);
+            $web_path = $gen->get_length_histogram($plot_type, true, true, $use_v2);
+            $large_web_path = $gen->get_length_histogram($plot_type, true, false, $use_v2);
+            $plot_exists = $large_web_path ? true : false;
+        }
+        return make_plot_download($gen, $hdr, $download_type, $web_path, $large_web_path, $plot_exists); 
+    }
+
     function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {
         $plot = plots::get_plot($gen, $plot_id);
         if (!$plot || !$plot->has_data())
@@ -208,9 +225,12 @@ HTML;
     }
 
 
-$ssn_jobs = $generate->get_analysis_jobs();
+    $ssn_jobs = $generate->get_analysis_jobs();
+
+    $use_v2_graphs = $generate->get_graphs_version() >= 2;
 
 ?>	
+
 
 
 <h2>Dataset Completed</h2>
@@ -290,18 +310,31 @@ page.
 
             <div class="option-panels stepc-graphs">
                 <div class="initial-open">
-                    <h3>Sequences as a Function of Length Histogram (First Step for Alignment Score Threshold Selection)</h3>
+<?php
+    $length_text = $use_domain ? "Domain" : "Full";
+?>
+                    <h3>Sequences as a Function of <?php echo $length_text; ?> Length Histogram (First Step for Alignment Score Threshold Selection)</h3>
                     <div>
-            <?php echo make_plot_download($generate, "Number of Sequences at Each Length", "HISTOGRAM", $generate->get_length_histogram_plot_sm(), $generate->get_length_histogram_plot(1), $generate->length_histogram_plot_exists()); ?>
+<?php
+    $plot_type = $use_domain ? "uniprot_domain" : "uniprot";
+    echo make_histo_plot_download($generate, "Number of Sequences at Each Length", $plot_type);
+?>
                         <div>
                             <p>
+<?php if ($use_domain) { ?>
+                            This histogram describes the length distribution for all of the trimmed domains 
+                            in the input dataset.  The domain dataset for the BLAST (nodes in the SSN) 
+                            can be length-filtered using the Minimum and Maximum "Sequence Length 
+                            Restrictions" in the "SSN Finalization" tab to select desired domain lengths.
+<?php } else { ?>
                             This histogram describes the length distribution of the all of the sequences 
                             (e.g., UniProt accession IDs) in the input dataset. Inspection of the histogram 
                             permits identification of fragments, single domain proteins, and multidomain 
                             fusion proteins. The dataset can be length-filtered using the Minimum and 
                             Maximum "Sequence Length Restrictions" in the "SSN Finalization" tab to remove 
                             fragments, select single domain proteins, or select multidomain fusion 
-                            proteins. 
+                            proteins.
+<?php } ?>
                             </p>
                         </div>
                     </div>
@@ -312,13 +345,28 @@ page.
             <?php echo make_plot_download($generate, "Alignment Length vs Alignment Score", "ALIGNMENT", $generate->get_alignment_plot_sm(), $generate->get_alignment_plot(1), $generate->alignment_plot_exists()); ?>
                         <div>
                             <p>
+<?php if ($use_domain) { ?>
+                            This box plot describes the relationship between the query-subject alignment 
+                            lengths (for the trimmed domains; y-axis) used by BLAST to calculate the 
+                            alignment scores (x-axis). 
+                            The value of the "Alignment Score Threshold" for generating the SSN (entered in 
+                            the "SSN Finalization" tab) should be selected at an "Alignment Length" that is 
+                            &ge; the minimum length of the domain in the input domain dataset (determined by 
+                            inspection of the previous "Sequences as a Function of Length Histogram").  In 
+                            this region of the box plot, the value of the "Alignment Length" should 
+                            independent of the "Alignment Score".
+<?php } else { ?>
                             This box plot describes the relationship between the query-subject alignment 
                             lengths used by BLAST (y-axis) to calculate the alignment scores  (x-axis). The 
                             minimum alignment score threshold for generating the SSN should be determined 
                             using an alignment length that is &ge; the minimum length of single domain 
                             proteins in the dataset (determined by inspection of the "Sequences as a 
-                            Function of Length Histogram"). The "Alignment Score Threshold" entered in the 
-                            "SSN Finalization" tab is selected using the "Percent Identity vs Alignment 
+                            Function of Length Histogram").
+<?php } ?>
+                            </p>
+                            <p>
+                            The value of the "Alignment Score Threshold" (entered in the 
+                            "SSN Finalization" tab) is selected using the "Percent Identity vs Alignment 
                             Score Box Plot" (see following box plot). 
                             </p>
                             <p>
@@ -336,19 +384,31 @@ page.
             <?php echo make_plot_download($generate, "Percent Identity vs Alignment Score", "IDENTITY", $generate->get_percent_identity_plot_sm(), $generate->get_percent_identity_plot(1), $generate->percent_identity_plot_exists()); ?>
                         <div>
                             <p>
-                            This box plot describes the pairwise percent sequence identity as a function of 
-                            alignment score. This plot will describe a monophasic increase in sequence 
+                            This box plot describes the pairwise percent sequence identity as a function of alignment score.
+                            </p>
+                            <p>
+<?php if ($use_domain) { ?>
+                            This plot should describe a monophasic increase in pairwise sequence identity 
+                            if the trimmed domains are full-length, i.e., not interrupted by insertions 
+                            (domains interrupted by insertions will be represented by multiple partial 
+                            sequences/nodes in the SSN).   In the "Alignment Length vs Alignment Score" box 
+                            plot (previous box plot), the monophasic increase in sequence identity as a 
+                            function of alignment score used to select the "Alignment Score Threshold" 
+                            should correspond to a constant value of alignment length as a function of 
+                            alignment score. 
+<?php } else { ?>
+                            This plot should describe a monophasic increase in sequence 
                             identity for single domain proteins or multiphasic increases in sequence 
                             identity for datasets with multiple domain architectures (one phase for each 
                             architecture).  In the "Alignment Length vs Alignment Score" box plot (previous 
                             box plot), monophasic increases in sequence identity will be described by an 
                             increase to a constant alignment length; multiphasic increases in sequence 
                             identity will be described by step functions to increasing alignment lengths.
+<?php } ?>
                             </p>
                             <p>
                             For the initial SSN, we recommend that an alignment score corresponding to 35 
-                            to 40% pairwise identity be entered in the "SSN Finalization" tab (from the 
-                            first phase for multiphasic datasets). 
+                            to 40% pairwise identity be entered in the "SSN Finalization" tab. 
                             </p>
                             <p>
                             In the box plot, the mean values of percent identity are highlighted, with the 
@@ -413,26 +473,66 @@ page.
                         </div>
                     </div>
                 </div>
-<?php if ($uniref && $generate->uniref_length_histogram_plot_exists()) { ?>
+<?php if ($use_v2_graphs) { ?>
+<?php if ($use_domain) { ?>
                 <div>
-                    <h3>UniRef Cluster IDs as a Function of Length Histogram (Additional Information for UniRef SSNs)</h3>
+                    <h3>Sequences as a Function of Full Length Histogram (UniProt IDs)</h3>
                     <div>
-            <?php echo make_plot_download($generate, "Number of Sequences at Each Length (UniRef Cluster IDs)", "HISTOGRAM_UNIREF", $generate->get_uniref_length_histogram_plot_sm(), $generate->get_uniref_length_histogram_plot(1), $generate->uniref_length_histogram_plot_exists()); ?>
+<?php 
+        $plot_type = "uniprot";
+        echo make_histo_plot_download($generate, "Number of Sequences at Each Full Length (UniProt IDs)", $plot_type);
+?>
                         <div>
                             <p>
-                            This histogram describes the length distribution of the UniRef cluster IDs in 
-                            the input dataset if UniRef90 or UniRef50 clusters are used as the dataset. The 
-                            sequences of the cluster IDs displayed in this histogram were used to calculate 
-                            the edges for the SSN; however, the cluster IDs do not accurately reflect the 
-                            distribution of fragments, single domain proteins, and multidomain proteins in 
-                            the input dataset that is necessary to choose the alignment score for 
-                            generating the SSN. The length distribution of the total set of sequences in 
-                            the "Sequences as a Function of Length Histogram" should be used to choose the 
-                            initial minimum alignment score threshold. 
+                            This histogram describes the full-length distribution of the all of the 
+                            sequences (e.g., UniProt accession IDs) in the input dataset. 
+                            </p>
+                            <p>
+                            Inspection of this histogram permits identification of fragments and the 
+                            lengths of both single domain and multidomain fusion proteins in the input 
+                            dataset before domain trimming.
                             </p>
                         </div>
                     </div>
                 </div>
+<?php } ?>
+<?php if ($uniref) { ?>
+                <div>
+                    <h3>Sequences as a Function of Full Length Histogram (UniRef<?php echo $uniref; ?> Cluster IDs)</h3>
+                    <div>
+<?php 
+        $plot_type = "uniref";
+        echo make_histo_plot_download($generate, "Number of Sequences at Each Full Length (UniRef Cluster IDs)", $plot_type);
+?>
+                        <div>
+                            <p>
+                            This histogram describes the full-length distribution of the UniRef cluster IDs 
+                            in the input dataset. The sequences of the cluster IDs displayed do not 
+                            accurately reflect the distribution of fragments, single domain proteins, and 
+                            multidomain full-length proteins in the input dataset.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+<?php } ?>
+<?php if ($uniref && $use_domain) { ?>
+                <div>
+                    <h3>Sequences as a Function of Domain Length Histogram (UniRef<?php echo $uniref; ?> Cluster IDs)</h3>
+                    <div>
+<?php 
+        $plot_type = "uniref_domain";
+        echo make_histo_plot_download($generate, "Number of Sequences at Each Domain Length (UniRef Cluster IDs)", $plot_type);
+?>
+                        <div>
+                            <p>
+                            This histogram describes the domain length distribution of the UniRef cluster
+                            IDs in the input dataset.  The domains of the cluster IDs displayed do not
+                            accurately reflect the distribution of domains in the input dataset.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+<?php } ?>
 <?php } ?>
 <?php if ($generate->alignment_plot_new_exists()) { ?>
                 <div>
