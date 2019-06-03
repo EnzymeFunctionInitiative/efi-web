@@ -24,15 +24,9 @@ class blast extends family_shared {
     public function get_submitted_max_sequences() { return $this->blast_sequence_max; }
     public function get_blast_input() { return $this->blast_input; }
     public function get_blast_evalue() { return $this->blast_evalue; }
-    public function get_finish_file() { 
-        return $this->get_output_dir() . "/" . $this->finish_file; 
-    }
-    public function get_fail_file() {
-        return $this->get_output_dir() . "/" . $this->fail_file;
-    }
     public function check_fail_file() {
         $results_path = functions::get_results_dir();
-        $full_path = $results_path . "/" . $this->get_fail_file();
+        $full_path = $results_path . "/" . $this->get_output_dir() . "/" . $this->fail_file;
         return file_exists($full_path);
     }
     public function get_formatted_blast() {
