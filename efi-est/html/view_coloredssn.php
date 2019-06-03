@@ -10,7 +10,8 @@ if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
 
 $obj = new colorssn($db,$_GET['id']);
 
-if ($obj->get_key() != $_GET['key']) {
+$key = $obj->get_key();
+if ($key != $_GET['key']) {
     header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
     //echo "No EFI-EST Selected. Please go back";
     exit;
@@ -22,10 +23,10 @@ if (isset($_GET["as-table"])) {
 }
 $table = new table_builder($table_format);
 
-$jobNumber = $obj->get_id();
+$est_id = $obj->get_id();
 $uploadedFilename = $obj->get_uploaded_filename();
 
-$url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$obj->get_id(), 'key'=>$obj->get_key()));
+$url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$obj->get_id(), 'key' => $key));
 $baseUrl = functions::get_web_root() . "/results/" . $obj->get_output_dir();
 
 
@@ -83,7 +84,7 @@ foreach ($metadata as $row) {
 #    $table->add_row("Database Version", $dbVersion);
 #}
 #$table->add_row("Input Option", "Color SSN");
-#$table->add_row("Job Number", $jobNumber);
+#$table->add_row("Job Number", $est_id);
 #$table->add_row("Uploaded XGMML File", $uploadedFilename);
 
 $table_string = $table->as_string();
@@ -120,8 +121,8 @@ else {
 
 <div class="tabs-efihdr tabs">
     <ul class="">
-        <li><a href="#info">Submission Summary</a></li>
-        <li class="ui-tabs-active"><a href="#data">Data File Download</a></li>
+        <li class="ui-tabs-active"><a href="#info">Submission Summary</a></li>
+        <li><a href="#data">Data File Download</a></li>
     </ul>
     <div>
         <!-- JOB INFORMATION -->
@@ -130,7 +131,7 @@ else {
             <table width="100%" class="pretty">
             <?php echo $table_string ?>
             </table>
-            <div style="float:right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=" . $_GET['key'] . "&as-table=1" ?>'><button class='normal'>Download Information</button></a></div>
+            <div style="float:right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$est_id&key=$key&as-table=1" ?>'><button class='normal'>Download Information</button></a></div>
             <div style="clear:both;margin-bottom:20px"></div>
         </div>
         <div id="data">
@@ -161,6 +162,11 @@ HTML;
                }
             ?>
             </table>
+
+            <center>
+                <a href="../efi-cgfp/index.php?<?php echo "est-id=$est_id&est-key=$key"; ?>"><button type="button" name="analyze_data" class="dark white">Run CGFP on Colored SSN</button></a>
+            </center>
+            
         </div>
     </div>
 </div>

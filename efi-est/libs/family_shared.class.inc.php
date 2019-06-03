@@ -125,7 +125,7 @@ abstract class family_shared extends option_base {
     }
 
     protected function get_run_script() {
-        return "generatedata.pl";
+        return "create_generate_job.pl";
     }
 
     protected function get_run_script_args($outDir) {
@@ -165,7 +165,6 @@ abstract class family_shared extends option_base {
             $parms["-max-seq-len"] = $this->max_seq_len;
 
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
-        $parms["-conv-ratio-file"] = functions::get_convergence_ratio_filename();
 
         return $parms;
     }

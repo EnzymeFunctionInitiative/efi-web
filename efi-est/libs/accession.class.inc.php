@@ -8,14 +8,12 @@ require_once('file_helper.class.inc.php');
 class accession extends family_shared {
 
 
-    private $change_fasta_exec = "formatcustomfasta.pl";
     private $file_helper;
     public $subject = "EFI-EST FASTA";
 
 
     private $domain;
     private $domain_family;
-    private $expand_homologs = false;
 
 
     public function __construct($db,$id = 0) {
@@ -93,10 +91,6 @@ class accession extends family_shared {
             return;
         }
 
-        if (array_key_exists('generate_expand_homologs', $result))
-            $this->expand_homologs = $result['generate_expand_homologs'];
-        else
-            $this->expand_homologs = false;
         if (isset($result['generate_domain']) && isset($result['generate_domain_family'])) {
             $this->domain = $result['generate_domain'];
             $this->domain_family = $result['generate_domain_family'];
@@ -127,10 +121,7 @@ class accession extends family_shared {
             $insert_array['generate_domain'] = 1;
         }
         
-        $insert_array['generate_expand_homologs'] = $data->expand_homologs;
         // We don't want to override this in case the user specifies a family to use with uniref
-        //if (!$data->expand_homologs)
-        //$insert_array['generate_uniref'] = "";
         $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
 
         return $insert_array;
@@ -149,15 +140,13 @@ class accession extends family_shared {
     }
 
     protected function get_run_script() {
-        return "generatedata.pl";
+        return "create_generate_job.pl";
     }
 
     protected function get_run_script_args($out) {
         $parms = parent::get_run_script_args($out);
         $parms["-useraccession"] = $this->file_helper->get_results_input_file();
         $parms["-no-match-file"] = $this->get_no_matches_job_file();
-        if ($this->expand_homologs)
-            $parms["-uniref-expand"] = "";
         $parms["-domain"] = $this->get_domain();
         if ($this->get_domain() == "on") {
             $parms["-domain-family"] = $this->get_domain_family();

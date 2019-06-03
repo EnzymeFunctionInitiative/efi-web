@@ -147,10 +147,6 @@ class settings extends global_settings {
         return defined("__ENABLE_BIGSCAPE__") && __ENABLE_BIGSCAPE__ ? true : false;
     }
 
-    public static function get_est_database() {
-        return defined("__MYSQL_EST_DATABASE__") ? __MYSQL_EST_DATABASE__ : "";
-    }
-
     public static function get_est_output_dir() {
         if (is_dir(__EST_OUTPUT_DIR__)) {
             return __EST_OUTPUT_DIR__;

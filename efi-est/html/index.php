@@ -28,7 +28,7 @@ if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie())
     $userEmail = $userJobs->get_email();
     $userGroups = $userJobs->get_groups();
     $IsAdminUser = $userJobs->is_admin();
-    $showJobsTab = count($jobs) > 0 || count($tjobs) > 0;
+    $showJobsTab = has_jobs($jobs) || has_jobs($tjobs);
     $showTrainingJobsTab = count($tjobs) > 0;
 }
 $showTrainingJobsTab = false; // currently we don't want it to be displayed since we put the training jobs below the previous jobs.
@@ -120,7 +120,7 @@ the <a href="family_list.php">Family Information page</a>.
     $show_archive = true;
     output_job_list($jobs, $show_archive);
 
-    if (count($tjobs)) {
+    if (has_jobs($tjobs)) {
         echo "            <h4>Training Resources</h4>\n";
         output_job_list($tjobs);
     }
@@ -578,7 +578,9 @@ the <a href="family_list.php">Family Information page</a>.
 
         $(".cb-use-uniref").click(function() {
             if (this.checked) {
-                $(".fraction").val("1");
+                $(".fraction").val("1").prop("disabled", true);
+            } else {
+                $(".fraction").prop("disabled", false);
             }
         });
 
@@ -645,11 +647,12 @@ the <a href="family_list.php">Family Information page</a>.
         });
 
         $("#domain-optd").change(function() {
-            var status = $("#accession-input-domain-family").prop("disabled");
-            if (status)
-                $("#accession-input-domain-family").prop("disabled", false);
-            else
-                $("#accession-input-domain-family").prop("disabled", true);
+            var status = $(this).prop("checked");
+            var disableFamilyInput = status;
+            $("#accession-input-domain-family").prop("disabled", !status);
+            familySizeHelper.setDisabledState("optd", disableFamilyInput);
+            if (disableFamilyInput)
+                familySizeHelper.resetInput("optd");
         });
 
         $(".option-panels > div").accordion({
@@ -1048,6 +1051,12 @@ HTML;
                 </tbody>
             </table>
 HTML;
+}
+
+
+function has_jobs($jobs) {
+    $order = $jobs["order"];
+    return count($order) > 0;
 }
 
 
