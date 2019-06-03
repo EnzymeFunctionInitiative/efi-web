@@ -171,5 +171,24 @@ class functions extends global_functions {
         $groups = user_auth::get_user_groups($db, $user_id);
         return in_array($sb_group, $groups);
     }
+
+    public static function get_est_job_filename($db, $est_id, $est_key) {
+        if (!is_numeric($est_id))
+            return false;
+        $est_key = preg_replace("/[^A-Za-z0-9]/", "", $est_key);
+
+        $est_db = global_settings::get_est_database();
+        $sql = "SELECT generate_params FROM $est_db.generate WHERE generate_id = $est_id AND generate_key = '$est_key'";
+        $result = $db->query($sql);
+        if ($result) {
+            $params = global_functions::decode_object($result[0]["generate_params"]);
+            $filename = isset($params["generate_fasta_file"]) ? $params["generate_fasta_file"] :
+                (isset($params["file"]) ? $params["file"] : "");
+            $filename = global_functions::get_est_colorssn_filename($est_id, $filename);
+            return $filename;
+        } else {
+            return false;
+        }
+    }
 }
 ?>

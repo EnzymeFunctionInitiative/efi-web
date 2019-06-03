@@ -6,7 +6,6 @@ require_once('file_helper.class.inc.php');
 class fasta extends family_shared {
 
 
-    private $change_fasta_exec = "formatcustomfasta.pl";
     private $userdat_file = "output.dat";
     private $file_helper;
     private $option;
@@ -26,7 +25,6 @@ class fasta extends family_shared {
     // ACCESSOR FUNCTIONS SPECIFIC TO FASTA
 
     public function get_fasta_file() { return $this->get_id() . $this->file_helper->get_file_extension(); }
-    public function get_change_fasta_exec() { return $this->change_fasta_exec; }
     public function get_uploaded_filename() { return $this->file_helper->get_uploaded_filename(); }
     public function get_userdat_file() { return $this->userdat_file; }
     public function get_userdat_file_path() {
@@ -179,36 +177,6 @@ class fasta extends family_shared {
         header("Content-Transfer-Encoding: Binary"); 
         header("Content-disposition: attachment; filename=\"" . basename($full_path) . "\""); 
         readfile($full_path);
-
-    }
-
-    private function reformat_fasta_to_results_dir() {
-        $filename = $this->get_id() . $this->file_helper->get_file_extension();
-        $start_path = functions::get_uploads_dir() . "/" . $filename;
-        $end_path = functions::get_results_dir() . "/" . $this->get_id() . "/" . $filename;
-        $dat_path = $this->get_userdat_file_path();
-        if ((file_exists($start_path)) && (file_exists(dirname($end_path)))) {
-            $result = $this->fix_fasta($start_path,$end_path,$dat_path);
-            return $result;
-        }
-        return false;
-    }
-
-    private function fix_fasta($start_path,$end_path,$dat_path) {
-        $exec = "source /etc/profile\n";
-        $exec .= "module load " . functions::get_efi_module() . "\n";
-        $exec .= $this->get_change_fasta_exec() . " -in " .  $start_path;
-        $exec .= " -out " . $end_path;
-        $exec .= " -dat " . $dat_path;
-        $exit_status = 1;
-        $output_array = array();
-        
-        $output = exec($exec,$output_array,$exit_status);
-       
-        if (!$exit_status) {
-            return true;
-        }
-        return false;
 
     }
 

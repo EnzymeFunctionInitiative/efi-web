@@ -7,6 +7,7 @@ class family_size {
 
     public static function parse_family_query($query) {
         $query = strtoupper($query);
+        $query = trim($query);
         $families = preg_split("/[\n\r ,]+/", $query);
         return $families;
     }

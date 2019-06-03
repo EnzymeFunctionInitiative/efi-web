@@ -42,6 +42,11 @@ foreach ($jobs as $job) {
         $tco = "<span title=\"$tco // " . $job['PBS Number'] . "\">" . $job['Status'] . "</span>";
     else
         $tco = str_replace(" ", "&nbsp;", global_functions::format_short_date($tco));
+    $tst = $job['Time Started'];
+    if (strpos($tst, "0000") !== FALSE)
+        $tst = "";
+    else
+        $tst = global_functions::format_short_date($tst);
 	$gnn_html .= "<td>" . $job['ID'] . "</td>\n";
     $gnn_html .= "<td>" . $job['Email'] . "</td>\n";
     $filename = "";
@@ -66,7 +71,7 @@ foreach ($jobs as $job) {
 	    $gnn_html .= "<td>$cooc</td>";
     $gnn_html .= "<td>" . $type_field . "</td>\n";
 	$gnn_html .= "<td>" . str_replace(" ", "&nbsp;", global_functions::format_short_date($job['Time Created'])) . "</td>\n";
-	$gnn_html .= "<td>" . str_replace(" ", "&nbsp;", global_functions::format_short_date($job['Time Started'])) . "</td>\n";
+	$gnn_html .= "<td>" . str_replace(" ", "&nbsp;", $tst) . "</td>\n";
 	$gnn_html .= "<td class='" . strtolower($job['Status']) . "'>" . $tco . "</td>\n";
 	$gnn_html .= "</tr>";
 }
