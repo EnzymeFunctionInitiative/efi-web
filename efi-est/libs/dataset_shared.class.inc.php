@@ -24,6 +24,13 @@ class dataset_shared {
         else
             return "";
     }
+
+    public static function get_domain($gen_type, $generate) {
+        if ($gen_type == "FAMILIES" || $gen_type == "ACCESSION")
+            return $generate->get_domain();
+        else
+            return "";
+    }
     
     public static function add_generate_summary_table($generate, $table, $is_analysis) {
 
