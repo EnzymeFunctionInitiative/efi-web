@@ -106,6 +106,31 @@ class global_functions {
         $mysqlDate = $pastDt->format("Y-m-d");
         return $mysqlDate;
     }
+
+    public static function get_est_results_path() {
+        return defined("__EST_RESULTS_DIR__") ? __EST_RESULTS_DIR__ : "";
+    }
+
+    public static function get_est_job_results_path($id) {
+        $out_dir = self::get_est_job_results_relative_path($id);
+        return self::get_est_results_path() . "/$out_dir";
+    }
+
+    public static function get_est_job_results_relative_path($id) {
+        $out_dir = defined("__EST_JOB_RESULTS_DIRNAME__") ? __EST_JOB_RESULTS_DIRNAME__ : "output";
+        return "$id/$out_dir";
+    }
+
+    public static function get_est_colorssn_filename($id, $filename, $include_ext = true) {
+        $suffix = defined("__EST_COLORSSN_SUFFIX__") ? __EST_COLORSSN_SUFFIX__ : "_coloredssn";
+        $parts = pathinfo($filename);
+        if (substr_compare($parts['filename'], ".xgmml", -strlen(".xgmml")) === 0) { // Ends in .zip
+            $parts = pathinfo($parts['filename']);
+        }
+        $filename = $parts['filename'];
+        $ext = $include_ext ? ".xgmml" : "";
+        return "${id}_$filename$suffix$ext";
+    }
 }
 
 ?>

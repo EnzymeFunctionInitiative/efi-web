@@ -20,7 +20,6 @@ class input_data {
     public $blast_input_id; // For Option A, if the user provides a header, we store it.
 
     // For option D
-    public $expand_homologs;
     public $domain_family;
 
     // For option B, and E

@@ -17,6 +17,7 @@ class identify extends job_shared {
     private $cons_thresh = "";
     private $diamond_sens = "";
     private $db_mod = "";
+    private $est_id = 0;
 
 
     public function get_cdhit_sid() {
@@ -129,12 +130,17 @@ class identify extends job_shared {
                 $parms_array['identify_db_mod'] = $db_mod;
         }
 
+        if (isset($create_params['est_id'])) {
+            $est_id = $create_params['est_id'];
+            $parms_array['est_id'] = $est_id;
+        }
+
         $insert_array['identify_params'] = global_functions::encode_object($parms_array);
 
         $new_id = $db->build_insert('identify', $insert_array);
 
         if ($new_id) {
-            if (!$parent_id || $tmp_filename) {
+            if (!$parent_id && $tmp_filename) {
                 global_functions::copy_to_uploads_dir($tmp_filename, $filename, $new_id);
             }
         } else {
@@ -173,6 +179,16 @@ class identify extends job_shared {
         $search_type = $params['identify_search_type'];
 
         $info = self::create_shared($db, $email, "", $filename, $parent_id, true, "", "", $search_type);
+        return $info;
+    }
+
+    public static function create_from_est($db, $email, $create_params, $est_id, $est_key) {
+        // EST job is verified at this point
+        
+        $create_params["est_id"] = $est_id;
+        $filename = functions::get_est_job_filename($db, $est_id, $est_key);
+
+        $info = self::create_shared($db, $email, "", $filename, "", false, $create_params);
         return $info;
     }
 
@@ -224,6 +240,7 @@ class identify extends job_shared {
 
 
         if (!$this->is_debug) {
+            print $this->est_id . " " . $ssn_path . "\n";
             if ((!$parent_id || file_exists($ssn_path)) && !file_exists($out_dir)) {
                 mkdir($out_dir);
                 chdir($out_dir);
@@ -337,6 +354,7 @@ class identify extends job_shared {
         $this->cdhit_sid = isset($params['identify_cdhit_sid']) ? $params['identify_cdhit_sid'] : "";
         $this->cons_thresh = isset($params['identify_cons_thresh']) ? $params['identify_cons_thresh'] : "";
         $this->diamond_sens = ($this->get_search_type() == "diamond" && isset($params['identify_diamond_sens'])) ? $params['identify_diamond_sens'] : "";
+        $this->est_id = isset($params['est_id']) ? $params['est_id'] : "";
         
         $db_mod = isset($params['identify_db_mod']) ? $params['identify_db_mod'] : "";
         if ($db_mod) {
@@ -538,8 +556,14 @@ class identify extends job_shared {
     }
 
     public function get_full_ssn_path() {
-        $uploads_dir = settings::get_uploads_dir();
-        return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->get_filename(), PATHINFO_EXTENSION);
+        if ($this->est_id) {
+            $dir = global_functions::get_est_job_results_path($this->est_id);
+            $file_path = $dir . "/" . $this->get_filename();
+            return $file_path;
+        } else {
+            $uploads_dir = settings::get_uploads_dir();
+            return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->get_filename(), PATHINFO_EXTENSION);
+        }
     }
 
     public function get_output_ssn_file_size() {

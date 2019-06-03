@@ -169,14 +169,6 @@ if (!isset($_POST['submit'])) {
                     $obj = new accession($db);
                     $input->field_input = $_POST['accession_input'];
                     $input->families = $_POST['families_input'];
-                    if (isset($_POST['accession_use_uniref'])) {
-                        $input->expand_homologs = $_POST['accession_use_uniref'] == "true" ? true : false;
-                        if ($input->expand_homologs) {
-                            $input->uniref_version = $_POST['accession_uniref_version'];
-                        }
-                    } else {
-                        $input->expand_homologs = false;
-                    }
                     if (isset($_POST["accession_use_dom"]) && $_POST["accession_use_dom"])
                         $input->domain = $_POST["accession_use_dom"];
                     if (isset($_POST["accession_dom_fam"]) && $_POST["accession_dom_fam"])

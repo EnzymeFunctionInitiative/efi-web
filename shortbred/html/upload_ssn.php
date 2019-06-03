@@ -11,33 +11,41 @@ $cookie_info = "";
 if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     $valid = 0;
     $displayMaxSize = ini_get('post_max_size');
-    $message = "<br><b>The file was too large.  Please upload a file smaller than $displayMaxSize.</b>";
+    $message = "The file was too large.  Please upload a file smaller than $displayMaxSize.";
 } elseif (isset($_POST['submit'])) {
 
     $valid = 1;
     $file_type = "";
     //Sets default % Co-Occurrence value if nothing was inputted.
 
+    $est_id = isset($_POST['est-id']) ? $_POST['est-id'] : 0;
+    $est_key = isset($_POST['est-key']) ? $_POST['est-key'] : "";
+
     if (isset($_FILES['file'])) {
         $file_type = strtolower(pathinfo($_FILES['file']['name'],PATHINFO_EXTENSION));
     }
 
-    if (!isset($_FILES['file'])) {
-        $valid = 0;
-        $message .= "<br><b>Please select a file to upload</b>";
-    }
-    elseif (isset($_FILES['file']['error']) && ($_FILES['file']['error'] != 0)) {
-        $valid = 0;
-        $message .= "<br><b>Error uploading file: " . functions::get_upload_error($_FILES['file']['error']) . "</b>" . $_POST['MAX_FILE_SIZE'];
-    }
-    elseif (!functions::is_valid_file_type($file_type)) {
-        $valid = 0;
-        $message .= "<br><b>Invalid filetype ($file_type).  The file has to be an " . settings::get_valid_file_types() . " filetype.</b>";
+    if ($est_id && $est_key) {
+        if (!functions::get_est_job_filename($db, $est_id, $est_key)) {
+            $valid = 0;
+            $message .= "Invalid EST job.";
+        }
+    } else {
+        if (!isset($_FILES['file'])) {
+            $valid = 0;
+            $message .= "Please select a file to upload";
+        } elseif (isset($_FILES['file']['error']) && ($_FILES['file']['error'] != 0)) {
+            $valid = 0;
+            $message .= "Error uploading file: " . functions::get_upload_error($_FILES['file']['error']) . "" . $_POST['MAX_FILE_SIZE'];
+        } elseif (!$est_id && !functions::is_valid_file_type($file_type)) {
+            $valid = 0;
+            $message .= "Invalid filetype ($file_type).  The file has to be an " . settings::get_valid_file_types() . " filetype.";
+        }
     }
 
     if (!functions::verify_email($_POST['email'])) {
         $valid = 0;
-        $message .= "<br><b>Please verify your e-mail address</b>";
+        $message .= "Please verify your e-mail address";
     }
 
     $email          = $_POST['email'];
@@ -64,7 +72,11 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
                 'diamond_sens' => $diamond_sens,
                 'db_mod' => $db_mod,
             );
-            $new_info = identify::create($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $create_params);
+            if ($est_id && $est_key) {
+                $new_info = identify::create_from_est($db, $email, $create_params, $est_id, $est_key);
+            } else {
+                $new_info = identify::create($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $create_params);
+            }
         }
 
         if ($new_info === false) {

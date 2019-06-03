@@ -17,16 +17,7 @@ class stepa extends est_shared {
     protected $evalue;
     protected $pbs_number;
     protected $finish_file = "1.out.completed";
-    protected $output_dir = "output";
     protected $type;
-    protected $num_sequences;
-    protected $total_num_file_sequences;
-    protected $num_matched_file_sequences;
-    protected $num_unmatched_file_sequences;
-    protected $num_unique_file_sequences = false;
-    protected $num_family_sequences;
-    protected $num_full_family_sequences;
-    protected $num_blast_sequences;
     protected $accession_file = "allsequences.fa";
     protected $counts_file;
     protected $num_pbs_jobs = 1;
@@ -39,17 +30,14 @@ class stepa extends est_shared {
     private $alignment_length_filename = "alignment_length.png";
     private $alignment_length_new = "alignment_length_new.png";
     private $alignment_length_new_html = "alignment_length_new.html";
-    private $length_histogram_filename = "length_histogram.png";
-    private $length_histogram_uniref_filename = "length_histogram_uniref.png";
     private $percent_identity_filename = "percent_identity.png";
     private $percent_identity_new = "percent_identity_new.png";
     private $percent_identity_new_html = "percent_identity_new.html";
     private $number_of_edges_filename = "number_of_edges.png";
     private $alignment_length_sm_filename = "alignment_length_sm.png";
-    private $length_histogram_sm_filename = "length_histogram_sm.png";
-    private $length_histogram_uniref_sm_filename = "length_histogram_uniref_sm.png";
     private $percent_identity_sm_filename = "percent_identity_sm.png";
     private $number_of_edges_sm_filename = "number_of_edges_sm.png";
+    private $length_histogram_filename = "length_histogram.png";
     ///////////////Public Functions///////////
 
     public function __construct($db, $id = 0) {
@@ -70,21 +58,35 @@ class stepa extends est_shared {
     public function get_key() { return $this->key; }
     public function get_evalue() { return $this->evalue; }
     public function get_pbs_number() { return $this->pbs_number; }
-    public function get_num_sequences() { return $this->num_sequences; }
-    public function get_total_num_file_sequences() { return $this->total_num_file_sequences; }
-    public function get_num_matched_file_sequences() { return $this->num_matched_file_sequences; }
-    public function get_num_unmatched_file_sequences() { return $this->num_unmatched_file_sequences; }
-    public function get_num_unique_file_sequences() { return $this->num_unique_file_sequences; }  // may return false if this isn't set (legacy jobs)
-    public function get_num_family_sequences() { return $this->num_family_sequences; }  // UniRef size if option is for UniRef.
-    public function get_num_full_family_sequences() { return $this->num_full_family_sequences; }
-    public function get_num_blast_sequences() { return $this->num_blast_sequences; }
+
+    // Acceptable inputs:
+    //      num_seq
+    //      total_num_file_seq
+    //      num_matched_file_seq
+    //      num_unmatched_file_seq
+    //      num_family_seq
+    //      num_full_family_seq
+    //      num_blast_seq
+    //      num_file_replicated
+    //      num_unique_seq
+
+    public function get_counts($key) {
+        return isset($this->counts["generate_$key"]) ? $this->counts["generate_$key"] :
+            (isset($this->counts[$key]) ? $this->counts[$key] : false);
+    }
+    public function print_raw_counts() {
+        print "<pre>";
+        var_dump($this->counts);
+        print "</pre>";
+    }
+
     public function get_program() { return $this->program; }
     public function get_fraction() { return $this->fraction; }
-    public function get_finish_file() { return $this->get_output_dir() . "/" . $this->finish_file; }
+    public function get_finish_file() { return global_functions::get_est_job_results_path($this->get_id()) . "/" . $this->finish_file; }
     public function get_accession_file() {return $this->get_output_dir() . "/".  $this->accession_file;}
     public function get_accession_counts_file() {return $this->get_output_dir() . "/".  $this->counts_file;}
     public function get_accession_counts_file_full_path() {return functions::get_results_dir() . "/" . $this->get_output_dir() . "/".  $this->counts_file;}
-    public function get_output_dir() {return $this->get_id() . "/" . $this->output_dir;}
+    public function get_output_dir() { return global_functions::get_est_job_results_relative_path($this->get_id()); }
     public function get_blast_input() { return ""; }
     public function get_families() { return array(); }
     public function get_db_version() { return $this->db_version; }
@@ -130,8 +132,7 @@ class stepa extends est_shared {
     }
 
     public function check_finish_file() {
-        $results_path = functions::get_results_dir();
-        $full_path = $results_path . "/" . $this->get_finish_file();
+        $full_path = $this->get_finish_file();
         return file_exists($full_path);
 
     }
@@ -146,116 +147,66 @@ class stepa extends est_shared {
         }
     }
 
-    public function get_num_sequence_from_file() {
+    public function load_num_sequence_from_file() {
         $results_path = functions::get_results_dir();
         $full_count_path = $results_path . "/" . $this->get_accession_counts_file();
         $full_path = $results_path . "/" . $this->get_accession_file();
 
+        $update = array("num_seq" => 0);
         if (file_exists($full_count_path)) {
-            $num_seq = array('total_ssn_nodes' => 0, 'file_seq' => 0, 'file_matched' => 0, 'file_unmatched' => 0,
-                             'family' => 0, 'full_family' => 0, 'blast' => 0);
             $lines = file($full_count_path);
             foreach ($lines as $line) {
                 list($key, $val) = explode("\t", rtrim($line));
-                if (!$val)
-                    $num_seq['total_ssn_nodes'] = intval($key);
-                else if ($key == "Total")
-                    $num_seq['total_ssn_nodes'] = intval($val);
-                else if($key == "FileTotal")
-                    $num_seq['file_seq'] = intval($val);
-                else if($key == "FileMatched")
-                    $num_seq['file_matched'] = intval($val);
-                else if($key == "FileUnmatched")
-                    $num_seq['file_unmatched'] = intval($val);
-                else if ($key == "Family")
-                    $num_seq['family'] = intval($val);
-                else if ($key == "FullFamily")
-                    $num_seq['full_family'] = intval($val);
-                else if ($key == "BLAST")
-                    $num_seq['blast'] = intval($val);
-                else if ($key == "FileUnique")
-                    $num_seq['file_unique'] = intval($val);
+                if ($key == "Total")
+                    $update["num_seq"] = intval($val);
+
+                // New style
+                elseif ($key == "BlastRetrieved")
+                    $update["num_blast_retr"] = intval($val);
+                elseif ($key == "Family")
+                    $update["num_family"] = intval($val);
+                elseif ($key == "FullFamily")
+                    $update["num_full_family"] = intval($val);
+                elseif ($key == "FamilyOverlap")
+                    $update["num_family_overlap"] = intval($val);
+                elseif ($key == "UniRefOverlap")
+                    $update["num_uniref_overlap"] = intval($val);
+                elseif ($key == "User")
+                    $update["num_user"] = intval($val);
+                elseif ($key == "UserMatched")
+                    $update["num_user_matched"] = intval($val);
+                elseif ($key == "UserUnmatched")
+                    $update["num_user_unmatched"] = intval($val);
+                elseif ($key == "FastaNumHeaders")
+                    $update["num_user_fasta_headers"] = intval($val);
+                elseif ($key == "ConvergenceRatio")
+                    $update["convergence_ratio"] = floatval($val);
+                elseif ($key == "EdgeCount")
+                    $update["num_edges"] = intval($val);
             }
-        } else if (file_exists($full_path)) {
-            $exec = "grep '>' " . $full_path . " | sort | uniq | wc -l ";
-            $output = exec($exec);
-            $output = trim(rtrim($output));
-            list($num_seq,) = explode(" ",$output);
         } else {
-            $num_seq = 0;
-        }
-
-        return $num_seq;
-    }
-
-    public function set_num_sequences($num_seq) {
-        $update = array();
-
-        if (is_array($num_seq)) {
-            $update["generate_num_seq"] = $num_seq['total_ssn_nodes'];
-            $update["generate_total_num_file_seq"] = $num_seq['file_seq'];
-            $update["generate_num_matched_file_seq"] = $num_seq['file_matched'];
-            $update["generate_num_unmatched_file_seq"] = $num_seq['file_unmatched'];
-            $update["generate_num_family_seq"] = $num_seq['family'];
-            if (isset($num_seq['full_family']))
-                $update["generate_num_full_family_seq"] = $num_seq['full_family'];
-            else
-                $update["generate_num_full_family_seq"] = $num_seq['family'];
-            $update["generate_num_blast_seq"] = $num_seq['blast'];
-            if (isset($num_seq['file_unique']))
-                $update["generate_num_unique_file_seq"] = $num_seq['file_unique'];
-            else
-                $update["generate_num_unique_file_seq"] = 0;
-        } else {
+            if (file_exists($full_path)) {
+                $exec = "grep '>' " . $full_path . " | sort | uniq | wc -l ";
+                $output = exec($exec);
+                $output = trim(rtrim($output));
+                list($num_seq,) = explode(" ",$output);
+            } else {
+                $num_seq = 0;
+            }
             $update["generate_num_seq"] = $num_seq;
         }
 
         $result = $this->update_results_object($this->get_id(), $update);
+        $this->set_counts($update);
+    }
 
-        if ($result) {
-            if (is_array($num_seq)) {
-                $this->num_sequences = $num_seq['total_ssn_nodes'];
-                $this->total_num_file_sequences = $num_seq['file_seq'];
-                $this->num_matched_file_sequences = $num_seq['file_matched'];
-                $this->num_unmatched_file_sequences = $num_seq['file_unmatched'];
-                $this->num_family_sequences = $num_seq['family'];
-                if (isset($num_seq['full_family']))
-                    $this->num_full_family_sequences = $num_seq['full_family'];
-                else
-                    $this->num_full_family_sequences = $num_seq['family'];
-                $this->num_blast_sequences = $num_seq['blast'];
-                $this->num_unique_file_sequences = $num_seq['file_unique'];
-            }
-            else {
-                $this->num_sequences = $num_seq;
-                $this->total_num_file_sequences = 0;
-                $this->num_matched_file_sequences = 0;
-                $this->num_unmatched_file_sequences = 0;
-                $this->num_family_sequences = 0;
-                $this->num_full_family_sequences = 0;
-                $this->num_blast_sequences = 0;
-                $this->num_unique_file_sequences = 0;
-            }
-            return true;
-        }
-        return false;
+    private function set_counts($results) {
+        $this->counts = $results;
     }
 
     public function get_convergence_ratio() {
-        $results_dir = functions::get_results_dir();
-        $file = $results_dir . "/" . $this->get_output_dir();
-        $file .= "/" . functions::get_convergence_ratio_filename();
-        if (!file_exists($file))
-            return -1;
-        
-        $file_handle = @fopen($file,"r") or die("Error opening " . $file . "\n");
-        $ratio = fgets($file_handle);
-        fclose($file_handle);
-
-        if ($ratio)
-            return floatval($ratio);
-        else
-            return -1;
+        $cr = $this->get_counts("convergence_ratio");
+        return $cr !== false ? $cr : 0;
     }
 
     protected function update_results_object($id, $data) {
@@ -303,12 +254,6 @@ class stepa extends est_shared {
     public function length_histogram_plot_exists() {
         return file_exists($this->get_length_histogram_plot(0));
     }
-    public function get_uniref_length_histogram_plot($for_web = 0) {
-        return $this->get_plot_path_shared($for_web, $this->length_histogram_uniref_filename);
-    }
-    public function uniref_length_histogram_plot_exists() {
-        return file_exists($this->get_uniref_length_histogram_plot(0));
-    }
     public function get_percent_identity_plot($for_web = 0) {
         return $this->get_plot_path_shared($for_web, $this->percent_identity_filename);
     }
@@ -342,12 +287,6 @@ class stepa extends est_shared {
     public function get_alignment_plot_sm() {
         return $this->get_plot_webpath_sm_shared($this->alignment_length_sm_filename);
     }
-    public function get_length_histogram_plot_sm() {
-        return $this->get_plot_webpath_sm_shared($this->length_histogram_sm_filename);
-    }
-    public function get_uniref_length_histogram_plot_sm() {
-        return $this->get_plot_webpath_sm_shared($this->length_histogram_uniref_sm_filename);
-    }
     public function get_percent_identity_plot_sm() {
         return $this->get_plot_webpath_sm_shared($this->percent_identity_sm_filename);
     }
@@ -355,23 +294,61 @@ class stepa extends est_shared {
         return $this->get_plot_webpath_sm_shared($this->number_of_edges_sm_filename);
     }
 
+    public function get_length_histogram_filename($type, $small = false) {
+        if ($type)
+            $type = "_$type";
+        else
+            $type = "";
+        $filename = "length_histogram$type";
+        if ($small)
+            $filename .= "_sm";
+        $filename .= ".png";
+        return $filename;
+    }
+    public function get_length_histogram_download_type($type) {
+        if ($type)
+            return "HISTOGRAM_" . strtoupper($type);
+        else
+            return "HISTOGRAM";
+    }
+    public function get_length_histogram($type, $for_web = false, $small = false) {
+        $filename = $this->get_length_histogram_filename($type, $small);
+        if ($for_web)
+            $path = $this->get_plot_webpath_sm_shared($filename);
+        else
+            $path = $this->get_plot_path_shared(0, $filename);
+        return $path;
+    }
+
+    public function get_graphs_version() {
+        $path = $this->get_plot_webpath_sm_shared($this->length_histogram_filename);
+        return strlen($path) > 0 ? 1 : 2;
+    }
+
     public function download_graph($type) {
         $filename = "";
         if ($type == "ALIGNMENT") {
             $full_path = $this->get_alignment_plot(0);
             $filename = $this->alignment_length_filename;
-        } elseif ($type == "HISTOGRAM_UNIREF") {
-            $full_path = $this->get_uniref_length_histogram_plot(0);
-            if ($this->uniref_length_histogram_plot_exists()) {
-                $full_path = $this->get_uniref_length_histogram_plot(0);
-                $filename = $this->length_histogram_uniref_filename;
-            } else {
-                $full_path = $this->get_length_histogram_plot(0);
-                $filename = $this->length_histogram_filename;
+        } elseif (strlen($type) > 9 && substr($type, 0, 9) == "HISTOGRAM") {
+            $histo = substr($type, 10);
+            if ($histo == "UNIPROT")
+                $histo = "uniprot";
+            elseif ($histo == "UNIREF")
+                $histo = "uniref";
+            elseif ($histo == "UNIPROT_DOMAIN")
+                $histo = "uniprot_domain";
+            elseif ($histo == "UNIREF_DOMAIN")
+                $histo = "uniref_domain";
+            else
+                $histo = "";
+            if ($histo) {
+                $full_path = $this->get_length_histogram($histo, false);
+                $filename = $this->get_length_histogram_filename($histo);
             }
         } elseif ($type == "HISTOGRAM") {
-            $full_path = $this->get_length_histogram_plot(0);
-            $filename = $this->length_histogram_filename;
+            $full_path = $this->get_length_histogram("", false, false);
+            $filename = $this->get_length_histogram_filename("", false);
         } elseif ($type == "IDENTITY") {
             $full_path = $this->get_percent_identity_plot(0);
             $filename = $this->percent_identity_filename;
@@ -577,24 +554,7 @@ class stepa extends est_shared {
             $this->job_name = isset($params_obj['generate_job_name']) ? $params_obj['generate_job_name'] : "";
             
             $results_obj = $this->decode_object($result['generate_results']);
-            if (array_key_exists('generate_num_seq', $results_obj))
-                $this->num_sequences = $results_obj['generate_num_seq'];
-            if (array_key_exists('generate_total_num_file_seq', $results_obj))
-                $this->total_num_file_sequences = $results_obj['generate_total_num_file_seq'];
-            if (array_key_exists('generate_num_matched_file_seq', $results_obj))
-                $this->num_matched_file_sequences = $results_obj['generate_num_matched_file_seq'];
-            if (array_key_exists('generate_num_unmatched_file_seq', $results_obj))
-                $this->num_unmatched_file_sequences = $results_obj['generate_num_unmatched_file_seq'];
-            if (array_key_exists('generate_num_family_seq', $results_obj))
-                $this->num_family_sequences = $results_obj['generate_num_family_seq'];
-            if (array_key_exists('generate_num_full_family_seq', $results_obj))
-                $this->num_full_family_sequences = $results_obj['generate_num_full_family_seq'];
-            if (array_key_exists('generate_num_blast_seq', $results_obj))
-                $this->num_blast_sequences = $results_obj['generate_num_blast_seq'];
-            if (array_key_exists('generate_num_unique_file_seq', $results_obj))
-                $this->num_unique_file_sequences = $results_obj['generate_num_unique_file_seq'];
-            else
-                $this->num_unique_file_sequences = false;
+            $this->set_counts($results_obj);
             
             $this->is_sticky = functions::is_job_sticky($this->db, $this->id, $this->email);
         }
@@ -658,55 +618,6 @@ class stepa extends est_shared {
 
     }
 
-
-//    public function shared_get_full_file_path($infix_type, $ext) {
-//        $filename = $this->get_file_prefix() . $infix_type . $ext;
-//        $output_dir = $this->get_output_dir();
-//        $full_path = $output_dir . "/" . $filename;
-//        return $full_path;
-//    }
-//
-//    public function shared_get_relative_file_path($infix_type, $ext) {
-//        $filename = $this->get_file_prefix() . $infix_type . "_co" . $this->get_cooccurrence() . "_ns" . $this->get_size() . $ext;
-//        $output_dir = $this->get_output_dir();
-//        $full_path = $output_dir . "/" . $this->get_id() . "/".  $filename;
-//        return $full_path;
-//    }
-//    protected function get_shared_name() {
-//    }
-
-    //	private function available_pbs_slots() {
-    //                $queue = new queue(functions::get_generate_queue());
-    //                $num_queued = $queue->get_num_queued();
-    //                $max_queuable = $queue->get_max_queuable();
-    //                $num_user_queued = $queue->get_num_queued(functions::get_cluster_user());
-    //                $max_user_queuable = $queue-> get_max_user_queuable();
-    //
-    //               	$result = false; 
-    //		if ($max_queuable - $num_queued < $this->num_pbs_jobs) {
-    //			$result = false;
-    //			$msg = "ERROR: Queue " . functions::get_generate_queue() . " is full.  Number in the queue: " . $num_queued;
-    //		}
-    //		elseif ($max_user_queuable - $num_user_queued < $this->num_pbs_jobs) {
-    //			$result = false;
-    //			$msg = "ERROR: Number of Queued Jobs for user " . functions::get_cluster_user() . " is full.  Number in the queue: " . $num_user_queued;	
-    //                }
-    //		else {
-    //			$result = true;
-    //			$msg = "Number of queued jobs in queue " . functions::get_generate_queue() . ": " . $num_queued . ", Number of queued user jobs: " . $num_user_queued;
-    //		}
-    //		functions::log_message($msg);
-    //		return $result;
-    //        }
-
-
-    //private function get_job_info() {
-    //
-    //	$message = "EFI-EST ID: " . $this->get_id() . "\r\n";
-    //	$message .= "E-Value: " . $this->get_evalue() . "\r\n";	
-    //            return $message;
-    //}
-    
     public function is_expired() {
         if (!$this->is_sticky && time() > $this->get_unixtime_completed() + functions::get_retention_secs()) {
             return true;
