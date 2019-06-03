@@ -322,18 +322,44 @@ page.
                         <div>
                             <p>
 <?php if ($use_domain) { ?>
-                            This histogram describes the length distribution for all of the trimmed domains 
-                            in the input dataset.  The domain dataset for the BLAST (nodes in the SSN) 
-                            can be length-filtered using the Minimum and Maximum "Sequence Length 
-                            Restrictions" in the "SSN Finalization" tab to select desired domain lengths.
+<?php     if ($uniref) { ?>
+<p>This histogram describes the length distribution for all trimmed domains 
+(from all UniProt IDs) in the input dataset.  </p>
+<p>Inspection of the histogram permits identification of fragments and 
+full-length domains.  This histogram is used to select Minimum and Maximum 
+"Sequence Length Restrictions" in the "SSN Finalization" tab to remove 
+fragments and select desired domain lengths in the input UniRef dataset.  The 
+sequences in the "Sequences as a Function of Domain-Length Histogram (UniRef90 
+Cluster IDs" (last plot) are used to calculate the edges.</p>
+<?php     } else { ?>
+<p>This histogram describes the length distribution for all of the trimmed 
+domains (from all UniProt IDs) in the input dataset; the sequences in this 
+histogram are used to calculate the edges. </p>
+<p>Inspection of the histogram permits identification of fragments and 
+full-length domains.  The domain dataset for the BLAST can be length-filtered 
+using the Minimum and Maximum "Sequence Length Restrictions" in the "SSN 
+Finalization" tab to select desired domain lengths. </p>
+<?php     } ?>
 <?php } else { ?>
-                            This histogram describes the length distribution of the all of the sequences 
-                            (e.g., UniProt accession IDs) in the input dataset. Inspection of the histogram 
-                            permits identification of fragments, single domain proteins, and multidomain 
-                            fusion proteins. The dataset can be length-filtered using the Minimum and 
-                            Maximum "Sequence Length Restrictions" in the "SSN Finalization" tab to remove 
-                            fragments, select single domain proteins, or select multidomain fusion 
-                            proteins.
+<?php     if ($uniref) { ?>
+<p>This histogram describes the length distribution for all trimmed domains 
+(from all UniProt IDs) in the input dataset.  </p>
+<p>Inspection of the histogram permits identification of fragments and 
+full-length domains.  This histogram is used to select Minimum and Maximum 
+"Sequence Length Restrictions" in the "SSN Finalization" tab to remove 
+fragments and select desired domain lengths in the input UniRef dataset.  The 
+sequences in the "Sequences as a Function of Domain-Length Histogram (UniRef90 
+Cluster IDs" (last plot) are used to calculate the edges.</p>
+<?php     } else { ?>
+<p>This histogram describes the length distribution for all sequences (UniProt 
+IDs) in the input dataset; the sequences in this histogram are used to 
+calculate the edges.  </p>
+<p>Inspection of the histogram permits identification of fragments, single 
+domain proteins, and multidomain fusion proteins. The dataset can be 
+length-filtered using the Minimum and Maximum "Sequence Length Restrictions" in 
+the "SSN Finalization" tab to remove fragments, select single domain proteins, 
+or select multidomain fusion proteins. </p>
+<?php     } ?>
 <?php } ?>
                             </p>
                         </div>
@@ -344,37 +370,31 @@ page.
                     <div>
             <?php echo make_plot_download($generate, "Alignment Length vs Alignment Score", "ALIGNMENT", $generate->get_alignment_plot_sm(), $generate->get_alignment_plot(1), $generate->alignment_plot_exists()); ?>
                         <div>
-                            <p>
 <?php if ($use_domain) { ?>
-                            This box plot describes the relationship between the query-subject alignment 
-                            lengths (for the trimmed domains; y-axis) used by BLAST to calculate the 
-                            alignment scores (x-axis). 
-                            The value of the "Alignment Score Threshold" for generating the SSN (entered in 
-                            the "SSN Finalization" tab) should be selected at an "Alignment Length" that is 
-                            &ge; the minimum length of the domain in the input domain dataset (determined by 
-                            inspection of the previous "Sequences as a Function of Length Histogram").  In 
-                            this region of the box plot, the value of the "Alignment Length" should 
-                            independent of the "Alignment Score".
+<p>This box plot describes the relationship between the query-subject alignment 
+lengths (for the trimmed domains) used by BLAST (y-axis) to calculate the 
+alignment scores (x-axis). </p>
+<p>The value of the "Alignment Score Threshold" for generating the SSN (entered 
+in the "SSN Finalization" tab) should be selected (from the "Percent Identity 
+vs Alignment Score Box Plot"; next box plot) at an "Alignment Length" &ge; the 
+minimum length of full-length domains in the input dataset (determined by 
+inspection of the "Sequences as a Function of Length Histogram"; first 
+histogram).  In that region, the "Alignment Length" should independent of the 
+"Alignment Score" in this box plot. </p>
 <?php } else { ?>
-                            This box plot describes the relationship between the query-subject alignment 
-                            lengths used by BLAST (y-axis) to calculate the alignment scores  (x-axis). The 
-                            minimum alignment score threshold for generating the SSN should be determined 
-                            using an alignment length that is &ge; the minimum length of single domain 
-                            proteins in the dataset (determined by inspection of the "Sequences as a 
-                            Function of Length Histogram").
+<p>This box plot describes the relationship between the query-subject alignment 
+lengths used by BLAST (y-axis) to calculate the alignment scores (x-axis). </p>
+<p>This plot shows a monophasic increase in alignment length to a constant 
+value for single domain proteins; this plot shows multiphasic increases in 
+alignment length for datasets with multidomain proteins (one phase for each 
+fusion length).  The value of the "Alignment Score Threshold" for generating 
+the SSN (entered in the "SSN Finalization" tab) should be selected (from the 
+"Percent Identity vs Alignment Score Box Plot"; next box plot) at an alignment 
+length &ge; the minimum length of single domain proteins in the dataset 
+(determined by inspection of the "Sequences as a Function of Full-Length 
+Histogram"; previous histogram). In this region of this box plot, the 
+"Alignment Length" should be independent of the "Alignment Score".</p>
 <?php } ?>
-                            </p>
-                            <p>
-                            The value of the "Alignment Score Threshold" (entered in the 
-                            "SSN Finalization" tab) is selected using the "Percent Identity vs Alignment 
-                            Score Box Plot" (see following box plot). 
-                            </p>
-                            <p>
-                            In the box plot, the mean values of alignment lengths are highlighted, with the 
-                            "boxes" containing the 2nd and 3rd quartiles of the values. The 1st quartile of 
-                            the values are shown below the box, and the 4th quartile of the values are 
-                            shown above the box. 
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -388,34 +408,30 @@ page.
                             </p>
                             <p>
 <?php if ($use_domain) { ?>
-                            This plot should describe a monophasic increase in pairwise sequence identity 
-                            if the trimmed domains are full-length, i.e., not interrupted by insertions 
-                            (domains interrupted by insertions will be represented by multiple partial 
-                            sequences/nodes in the SSN).   In the "Alignment Length vs Alignment Score" box 
-                            plot (previous box plot), the monophasic increase in sequence identity as a 
-                            function of alignment score used to select the "Alignment Score Threshold" 
-                            should correspond to a constant value of alignment length as a function of 
-                            alignment score. 
+<p>This box plot describes the pairwise percent sequence identity as a function 
+of alignment score. </p>
+<p>Complementing the "Alignment Length vs Alignment Score Box Plot" (previous 
+box plot), this plot describes a monophasic increase in sequence identity with 
+full-length domains.  Referring to the " Alignment Length vs Alignment Score 
+Box Plot" (previous box plot), the monophasic increase in sequence identity 
+occurs as the alignment score increases at a constant alignment length.</p>
+<p>For the initial SSN, we recommend that an alignment score corresponding to 
+35 to 40% pairwise identity be entered in the "SSN Finalization" tab. </p>
 <?php } else { ?>
-                            This plot should describe a monophasic increase in sequence 
-                            identity for single domain proteins or multiphasic increases in sequence 
-                            identity for datasets with multiple domain architectures (one phase for each 
-                            architecture).  In the "Alignment Length vs Alignment Score" box plot (previous 
-                            box plot), monophasic increases in sequence identity will be described by an 
-                            increase to a constant alignment length; multiphasic increases in sequence 
-                            identity will be described by step functions to increasing alignment lengths.
+<p>This box plot describes the pairwise percent sequence identity as a function 
+of alignment score. </p>
+<p>Complementing the "Alignment Length vs Alignment Score Box Plot" (previous 
+box plot), this box plot describes a monophasic increase in sequence identity 
+for single domain proteins or a multiphasic increase in sequence identity for 
+datasets with multidomain proteins (one phase for each fusion length). In the 
+"Alignment Length vs Alignment Score" box plot (previous box plot), a 
+monophasic increase in sequence identity occurs as the alignment score 
+increases at a constant alignment length; multiphasic occur as the alignment 
+score increases at additional longer constant alignment lengths. </p>
+<p>For the initial SSN, we recommend that an alignment score corresponding to 
+35 to 40% pairwise identity be entered in the "SSN Finalization" tab (for the 
+first phase in multiphasic plots). </p>
 <?php } ?>
-                            </p>
-                            <p>
-                            For the initial SSN, we recommend that an alignment score corresponding to 35 
-                            to 40% pairwise identity be entered in the "SSN Finalization" tab. 
-                            </p>
-                            <p>
-                            In the box plot, the mean values of percent identity are highlighted, with the 
-                            "boxes" containing the 2nd and 3rd quartiles of the values. The 1st quartile of 
-                            the values are shown below the box, and the 4th quartile of the values are 
-                            shown above the box.
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -424,27 +440,22 @@ page.
                     <div>
             <?php make_interactive_plot($generate, "Edge Count vs Alignment Score Plot", "edge-evalue-plot", "edge_evalue"); ?>
                         <div>
-                            <p>
-                            This plot shows the number of edges in the full SSN for the input dataset (a 
-                            node of each sequence) as a function of alignment score. By moving the cursor 
-                            over the plot, the number of edges for each alignment score is displayed.
-                            </p>
-                            <p>
-                            This plot helps determine if the full SSN generated using the initial alignment 
-                            score (selected using the length histogram and sequence identity box plots) can 
-                            be opened with Cytoscape on the user’s computer. As a rough guide, SSNs with 
-                            ~1M edges can be opened with 16GB RAM, ~2.5 M edges with 32GB RAM, ~5M edges 
-                            with 64GB RAM, and ~10M edges with 128GB RAM. 
-                            </p>
-                            <p>
-                            If the number of edges for the full SSN is too large to be opened, a 
-                            representative node (rep node) SSN can be opened. In a rep node SSN, sequences 
-                            are grouped into metanodes based on pairwise sequence identity (from 40 to 100% 
-                            identity, in 5% intervals).  The download tables on the "Download Network 
-                            Files" page provide the numbers of metanodes and edges in rep node SSNs.  The 
-                            rep node SSNs are lower resolution than full SSNs; clusters of interest in rep 
-                            node SSNs can be expanded to provide the full SSNs.
-                            </p>
+<p>This plot shows the number of edges in the full SSN for the input dataset (a 
+node of each sequence) as a function of alignment score. By moving the cursor 
+over the plot, the number of edges for each alignment score is displayed. </p>
+<p>This plot helps determine if the full SSN generated using the initial 
+alignment score (selected using the length histogram and sequence identity box 
+plots) can be opened with Cytoscape on the user’s computer. As a rough guide, 
+SSNs with ~2M edges can be opened with 16GB RAM, ~4 M edges with 32GB RAM, ~8M 
+edges with 64GB RAM, ~15M edges with 128GB RAM, and ~30M edges with 256GB RAM. 
+</p>
+<p>If the number of edges for the full SSN is too large to be opened, a 
+representative node (rep node) SSN can be opened. In a rep node SSN, sequences 
+are grouped into metanodes based on pairwise sequence identity (from 40 to 100% 
+identity, in 5% intervals). The download tables on the "Download Network Files" 
+page provide the numbers of metanodes and edges in rep node SSNs. The rep node 
+SSNs are lower resolution than full SSNs; clusters of interest in rep node SSNs 
+can be expanded to provide the full SSNs. </p>
                         </div>
                     </div>
                 </div>
@@ -453,23 +464,18 @@ page.
                     <div>
             <?php echo make_plot_download($generate, "Number of Edges at Alignment Score", "EDGES", $generate->get_number_edges_plot_sm(), $generate->get_number_edges_plot(1), $generate->number_edges_plot_exists()); ?>
                         <div>
-                           <p>
-                           This histogram describes the number of edges calculated at each alignment score. This plot is not
-                           used to select the alignment score for the initial SSN; however, it provides an
-                           overview of the functional diversity within the input dataset.
-                           </p>
-                           <p>
-                           In the histogram, edges with low alignment scores typically are those between
-                           isofunctional clusters; edges with large alignment scores typically are those
-                           connecting nodes within isofunctional clusters.  
-                           </p>
-                           <p>
-                           The histogram for a dataset with a single isofunctional SSN cluster is single
-                           distribution centered at a "large" alignment score; the histogram for a dataset
-                           with many isofunctional SSN clusters will be dominated by the edges that
-                           connect the clusters, with the number of edges decreasing as the alignment
-                           score increases. 
-                           </p>
+<p>This histogram describes the number of edges calculated at each alignment 
+score. This plot is not used to select the alignment score for the initial SSN; 
+however, it provides an overview of the functional diversity within the input 
+dataset. </p>
+<p>In the histogram, edges with low alignment scores typically are those 
+between isofunctional clusters; edges with large alignment scores typically are 
+those connecting nodes within isofunctional clusters. </p>
+<p>The histogram for a dataset with a single isofunctional SSN cluster is 
+single distribution centered at a "large" alignment score; the histogram for a 
+dataset with many isofunctional SSN clusters will be dominated by the edges 
+that connect the clusters, with the number of edges decreasing as the alignment 
+score increases. </p>
                         </div>
                     </div>
                 </div>
@@ -483,15 +489,10 @@ page.
         echo make_histo_plot_download($generate, "Number of Sequences at Each Full Length (UniProt IDs)", $plot_type);
 ?>
                         <div>
-                            <p>
-                            This histogram describes the full-length distribution of the all of the 
-                            sequences (e.g., UniProt accession IDs) in the input dataset. 
-                            </p>
-                            <p>
-                            Inspection of this histogram permits identification of fragments and the 
-                            lengths of both single domain and multidomain fusion proteins in the input 
-                            dataset before domain trimming.
-                            </p>
+<p>This histogram describes the length distribution of tall sequences (UniProt 
+IDs) in the input dataset.  Inspection of this histogram permits identification 
+of fragments and the lengths of both single domain and multidomain fusion 
+proteins in the input dataset before domain trimming. </p>
                         </div>
                     </div>
                 </div>
@@ -505,12 +506,10 @@ page.
         echo make_histo_plot_download($generate, "Number of Sequences at Each Full Length (UniRef Cluster IDs)", $plot_type);
 ?>
                         <div>
-                            <p>
-                            This histogram describes the full-length distribution of the UniRef cluster IDs 
-                            in the input dataset. The sequences of the cluster IDs displayed do not 
-                            accurately reflect the distribution of fragments, single domain proteins, and 
-                            multidomain full-length proteins in the input dataset.
-                            </p>
+<p>This histogram describes the distribution of the full-length UniRef cluster 
+IDs in the input dataset. The sequences of the cluster IDs displayed do not 
+accurately reflect the distribution of fragments, single domain proteins, and 
+multidomain full-length proteins in the input dataset. </p>
                         </div>
                     </div>
                 </div>
@@ -524,11 +523,15 @@ page.
         echo make_histo_plot_download($generate, "Number of Sequences at Each Domain Length (UniRef Cluster IDs)", $plot_type);
 ?>
                         <div>
-                            <p>
-                            This histogram describes the domain length distribution of the UniRef cluster
-                            IDs in the input dataset.  The domains of the cluster IDs displayed do not
-                            accurately reflect the distribution of domains in the input dataset.
-                            </p>
+<p>This histogram describes the domain length distribution of the UniRef 
+cluster IDs in the input dataset; the sequences in this histogram are used to 
+calculate the edges. </p>
+<p>The domains of the cluster IDs displayed do not accurately reflect the 
+distribution of domains in the input dataset (diverse sequences and lengths are 
+over-represented).  Therefore, this histogram is not used to determine the 
+lengths of full-length domains in the input dataset; these are determined from 
+the "Sequences as a Function of Domain Length Histogram for UniProt IDs" (first 
+histogram).</p>
                         </div>
                     </div>
                 </div>
