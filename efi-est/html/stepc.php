@@ -330,7 +330,7 @@ full-length domains.  This histogram is used to select Minimum and Maximum
 "Sequence Length Restrictions" in the "SSN Finalization" tab to remove 
 fragments and select desired domain lengths in the input UniRef dataset.  The 
 sequences in the "Sequences as a Function of Domain-Length Histogram (UniRef90 
-Cluster IDs" (last plot) are used to calculate the edges.</p>
+Cluster IDs)" (last plot) are used to calculate the edges.</p>
 <?php     } else { ?>
 <p>This histogram describes the length distribution for all of the trimmed 
 domains (from all UniProt IDs) in the input dataset; the sequences in this 
@@ -342,14 +342,15 @@ Finalization" tab to select desired domain lengths. </p>
 <?php     } ?>
 <?php } else { ?>
 <?php     if ($uniref) { ?>
-<p>This histogram describes the length distribution for all trimmed domains 
-(from all UniProt IDs) in the input dataset.  </p>
-<p>Inspection of the histogram permits identification of fragments and 
-full-length domains.  This histogram is used to select Minimum and Maximum 
-"Sequence Length Restrictions" in the "SSN Finalization" tab to remove 
-fragments and select desired domain lengths in the input UniRef dataset.  The 
-sequences in the "Sequences as a Function of Domain-Length Histogram (UniRef90 
-Cluster IDs" (last plot) are used to calculate the edges.</p>
+<p>This histogram describes the length distribution for all sequences (UniProt 
+IDs) in the input dataset.  </p>
+<p>Inspection of the histogram permits identification of fragments, single 
+domain proteins, and multidomain fusion proteins. This histogram is used to 
+select Minimum and Maximum "Sequence Length Restrictions" in the "SSN 
+Finalization" tab to remove fragments, select only single domain proteins, or 
+select multidomain proteins.  The sequences in the "Sequences as a Function of 
+Full-Length Histogram (UniRef90 Cluster IDs)" (last histogram) are used to 
+calculate the edges.</p>
 <?php     } else { ?>
 <p>This histogram describes the length distribution for all sequences (UniProt 
 IDs) in the input dataset; the sequences in this histogram are used to 
@@ -403,10 +404,6 @@ Histogram"; previous histogram). In this region of this box plot, the
                     <div>
             <?php echo make_plot_download($generate, "Percent Identity vs Alignment Score", "IDENTITY", $generate->get_percent_identity_plot_sm(), $generate->get_percent_identity_plot(1), $generate->percent_identity_plot_exists()); ?>
                         <div>
-                            <p>
-                            This box plot describes the pairwise percent sequence identity as a function of alignment score.
-                            </p>
-                            <p>
 <?php if ($use_domain) { ?>
 <p>This box plot describes the pairwise percent sequence identity as a function 
 of alignment score. </p>
