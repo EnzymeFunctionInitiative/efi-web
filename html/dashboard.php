@@ -375,7 +375,7 @@ function get_gnt_html($gnt_jobs, $child_jobs, $sb_jobs, $indent = "        ", $l
         $cooc = isset($gnt_job["info"]["cooc"]) ? $gnt_job["info"]["cooc"] : "";
         $date = $gnt_job["date"]; //(isset($child_jobs) && $child_jobs !== false) ? $gnt_job["date"] : "";
         $date_str = $date ? " <span class='date'>-- $date</span>" : "";
-        $jobName = "<span class='job-name'>$file</span><br><span class='job-metadata'>Neighborhood Size=$nb Co-occurrence=$cooc</span>";
+        $jobName = "<span class='job-name'>$file</span><br><span class='job-metadata'>GNN Neighborhood Size=$nb Co-occurrence=$cooc</span>";
         
         $chtml = "";
         if (isset($child_jobs) && $child_jobs !== false && isset($child_jobs[$id])) {
@@ -449,14 +449,14 @@ function get_cgfp_html($jobs, $indent, $parent_id = -1) {
                 $job_name = "$mgs";
                 $meta = "Quantification";
             }
-            $job_name = "<span class='job-name'>$job_name</span><br><span class='job-metadata'>$meta</span>";
+            $job_name = "<span class='job-name'>$job_name</span><br><span class='job-metadata'>CGFP $meta</span>";
             $extra_info = make_extra(" (CGFP Quantify Job #$q_id; Parent=$sb_id)");
             $q_html .= "$indent    <li><a href='efi-cgfp/stepe.php?id=$sb_id&key=$sb_key&quantify-id=$q_id' class='hl-cgfp cgfp' title='CGFP Quantify Job #$q_id'>$job_name</a> $qdate_str\n";
         }
         
         $parent_str = $parent_id >= 0 ? "; Parent=$parent_id" : "";
         $extra_info = make_extra(" (CGFP Job #$sb_id$parent_str)");
-        $job_name = "<span class='job-name'>$file</span><br><span class='job-metadata'>Identification</span>";
+        $job_name = "<span class='job-name'>$file</span><br><span class='job-metadata'>CGFP Identification</span>";
         $sb_html .= "$indent<li><a href='efi-cgfp/stepc.php?id=$sb_id&key=$sb_key' class='hl-cgfp cgfp' title='CGFP Identify Job #$sb_id'>$job_name</a> $date_str";
         if ($q_html)
             $sb_html .= "$indent  <ul>\n$q_html$indent  </ul>\n";
