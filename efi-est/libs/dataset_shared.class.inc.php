@@ -181,6 +181,8 @@ class dataset_shared {
 
             if ($domain_opt == "on" && !$included_family)
                 $table->add_row($domain_label, $generate->get_domain());
+            if ($uniref && !$included_family)
+                $table->add_row("Input Sequence Source", "UniRef$uniref");
             if ($show_evalue)
                 $table->add_row("E-Value for SSN Edge Calculation", $evalue_option);
             if ($uploaded_file)
