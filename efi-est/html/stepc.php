@@ -393,7 +393,7 @@ the SSN (entered in the "SSN Finalization" tab) should be selected (from the
 "Percent Identity vs Alignment Score Box Plot"; next box plot) at an alignment 
 length &ge; the minimum length of single domain proteins in the dataset 
 (determined by inspection of the "Sequences as a Function of Full-Length 
-Histogram"; previous histogram). In this region of this box plot, the 
+Histogram"; previous histogram). In that region, the 
 "Alignment Length" should be independent of the "Alignment Score".</p>
 <?php } ?>
                         </div>
@@ -423,7 +423,7 @@ for single domain proteins or a multiphasic increase in sequence identity for
 datasets with multidomain proteins (one phase for each fusion length). In the 
 "Alignment Length vs Alignment Score" box plot (previous box plot), a 
 monophasic increase in sequence identity occurs as the alignment score 
-increases at a constant alignment length; multiphasic occur as the alignment 
+increases at a constant alignment length; multiphasic increases occur as the alignment 
 score increases at additional longer constant alignment lengths. </p>
 <p>For the initial SSN, we recommend that an alignment score corresponding to 
 35 to 40% pairwise identity be entered in the "SSN Finalization" tab (for the 
@@ -441,8 +441,7 @@ first phase in multiphasic plots). </p>
 node of each sequence) as a function of alignment score. By moving the cursor 
 over the plot, the number of edges for each alignment score is displayed. </p>
 <p>This plot helps determine if the full SSN generated using the initial 
-alignment score (selected using the length histogram and sequence identity box 
-plots) can be opened with Cytoscape on the user’s computer. As a rough guide, 
+alignment score can be opened with Cytoscape on the user’s computer. As a rough guide, 
 SSNs with ~2M edges can be opened with 16GB RAM, ~4 M edges with 32GB RAM, ~8M 
 edges with 64GB RAM, ~15M edges with 128GB RAM, and ~30M edges with 256GB RAM. 
 </p>
