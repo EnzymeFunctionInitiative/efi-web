@@ -306,18 +306,6 @@ class functions {
         return $db_name;
     }
 
-    public static function get_efi_database_config() {
-        if (!defined("__EFI_DB_CONFIG__") || !file_exists(__EFI_DB_CONFIG__))
-            return false;
-
-        $config = parse_ini_file(__EFI_DB_CONFIG__, true);
-        if (isset($config["database"])) {
-            return $config["database"];
-        } else {
-            return false;
-        }
-    }
-
     public static function get_lengths_for_family($db_name, $db_config, $fam, $uniref_ver = "") {
         $db_name = "efi_201809";
         $anno_table = "annotations2";
