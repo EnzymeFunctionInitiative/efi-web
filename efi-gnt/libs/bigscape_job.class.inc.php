@@ -87,6 +87,10 @@ class bigscape_job {
         return $this->bigscape_status;
     }
 
+    public function is_finished() {
+        return $this->bigscape_status == self::STATUS_FINISH;
+    }
+
     public static function create_bigscape_job($db, $diagram_id, $key, $job_type) {
         $checkSql = "";
         if ($job_type == DiagramJob::GNN) {
