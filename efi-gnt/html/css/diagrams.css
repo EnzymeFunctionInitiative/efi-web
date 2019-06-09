@@ -95,6 +95,7 @@ body {
 
 .disabled {
     color: #999;
+    cursor: not-allowed;
 }
 
 .col-centered {
@@ -197,6 +198,36 @@ input.filter-cb {
     font-weight: normal;
 }
 
+.filter-tabs {
+    overflow: hidden;
+    border: 1px solid #999;
+    background-color: #333;
+}
+
+.filter-tabs button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    transition 0.1s;
+    font-size: 85%;
+    font-weight: bold;
+}
+
+.filter-tabs button:hover {
+    background-color: #999;
+}
+
+.filter-tabs button.filter-tab-active {
+    background-color: #666;
+}
+
+.filter-small {
+    font-size: 65%;
+}
+
 .tooltip.top .tooltip-inner {
     background-color: #999;
 }
@@ -259,6 +290,13 @@ input.filter-cb {
     opacity: 1.0;
     stroke: #000;
     stroke-width: 3;
+}
+
+.an-arrow-bold {
+    opacity: 1.0;
+    stroke: red;
+/*    stroke-dasharray: 1;*/
+    stroke-width: 5;
 }
 
 .dashed-arrow {
@@ -346,6 +384,21 @@ input.filter-cb {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+#loader-message {
+    padding: 10px;
+    background-color: white;
+}
+
+.progress {
+    margin-top: 10px;
+    height: 20px;
+    width: 70%;
+}
+
+.progress-bar {
+    color: black;
 }
 
 
