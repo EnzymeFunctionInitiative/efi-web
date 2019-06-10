@@ -5,12 +5,12 @@ const DISPLAY_ID = 101;
 
 
 class GndFilterUi {
-    constructor(gndRouter, gndFilter, gndColor, filterContainerId, legendContainerId) {
-        this.filterContainer = $(filterContainerId);
+    constructor(gndRouter, gndFilter, gndColor, pfamFilterContainerId, interproFilterContainerId, legendContainerId) {
+        this.pfamFilterContainer = $(pfamFilterContainerId);
+        this.interproFilterContainer = $(interproFilterContainerId);
         this.legendContainer = $(legendContainerId);
         this.filter = gndFilter;
         this.color = gndColor;
-        this.families = [];
         this.nameMap = {};
         this.annoToggleId = "";
         this.legendList = {};
@@ -24,7 +24,7 @@ class GndFilterUi {
     onMessage(payload) {
         if (payload.MessageType == "DataRetrievalStatus") {
             if (!payload.Data.Retrieving) {
-                this.addFamiliesToLegend();
+                this.addAllFamiliesToLegend();
             }
         } else if (payload.MessageType == "FilterUpdate") {
             for (var i = 0; i < payload.Data.Family.length; i++) {
@@ -44,6 +44,16 @@ class GndFilterUi {
     }
 
 
+    // valid input: pfam, interpro
+    setFamilySelection(familyType) {
+        if (familyType == "pfam") {
+            this.filter.setFilterByPfam();
+        } else if (familyType == "interpro") {
+            this.filter.setFilterByInterPro();
+        }
+    }
+
+
     setAnnotationToggle(id) {
         this.annoToggleId = id;
     }
@@ -59,46 +69,55 @@ class GndFilterUi {
             this.displayMode = DISPLAY_ID;
         else
             this.displayMode = DISPLAY_NAME;
-        this.addFamiliesToLegend();
+        this.addAllFamiliesToLegend();
     }
 
 
-    addFamiliesToLegend(fams) {
-        this.filterContainer.empty();
-        this.legendContainer.empty();
+    addAllFamiliesToLegend() {
         this.legendList = {};
+        this.legendContainer.empty();
+        this.addFamiliesToLegend(this.pfamFilterContainer, FILTER_PFAM);
+        this.addFamiliesToLegend(this.interproFilterContainer, FILTER_INTERPRO);
+    }
+    addFamiliesToLegend(filterContainer, filterMode) {
+        filterContainer.empty();
 
         var showFamsById = this.displayMode == DISPLAY_ID;
-        this.families = this.filter.getFamilies(showFamsById);
+        var families = [];
+        if (filterMode == FILTER_PFAM)
+            families = this.filter.getPfamFamilies(showFamsById);
+        else if (filterMode == FILTER_INTERPRO)
+            families = this.filter.getInterProFamilies(showFamsById);
 
         var that = this;
 
-        $.each(this.families, function(i, fam) {
+        $.each(families, function(i, fam) {
+            var legendIndex = filterMode + "-" + i;
             var famId = fam.Id;
             var famName = fam.Name;
             var famText = that.displayMode == DISPLAY_ID ? famId : famName;
             var tooltipText = that.displayMode == DISPLAY_ID ? famName : famId;
             var isChecked = fam.Selected ? "checked" : "";
-            that.nameMap[fam.Id] = [i, famName];
+            that.nameMap[fam.Id] = [legendIndex, famName];
     
-            var entry = $("<div class='filter-cb-div' title='" + tooltipText + "'></div>").appendTo(that.filterContainer);
-            $("<input id='filter-cb-" + i + "' class='filter-cb' type='checkbox' value='" + i + "' " + isChecked + "/>")
+            var entry = $("<div class='filter-cb-div' title='" + tooltipText + "'></div>").appendTo(filterContainer);
+            $("<input id='filter-cb-" + legendIndex + "' class='filter-cb' type='checkbox' value='" + legendIndex + "' " + isChecked + "/>")
                 .appendTo(entry)
                 .click(function(e) {
                     $(that.annoToggleId).prop("checked", false);
                     if (this.checked) {
                         that.filter.addFamilyFilter(famId);
-                        that.addSelectedLegendItem(i, famId, famName, famText);
+                        that.addSelectedLegendItem(legendIndex, famId, famName, famText);
                     } else {
                         that.filter.removeFamilyFilter(famId);
-                        $("#legend-" + i).remove();
+                        $("#legend-" + legendIndex).remove();
                     }
                 });
-            $("<span id='filter-cb-text-" + i + "' class='filter-cb-number'><label for='filter-cb-" + i + "'>" + famText + " <span class='filter-small'>(" + tooltipText + ")</span></label></span>") .
+            $("<span id='filter-cb-text-" + legendIndex + "' class='filter-cb-number'><label for='filter-cb-" + legendIndex + "'>" + famText + " <span class='filter-small'>(" + tooltipText + ")</span></label></span>") .
                 appendTo(entry);
             
             if (fam.Selected)
-                that.addSelectedLegendItem(i, famId, famName, famText);
+                that.addSelectedLegendItem(legendIndex, famId, famName, famText);
         });
     
         $('.filter-cb-div').tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
@@ -122,7 +141,7 @@ class GndFilterUi {
     clearFilter() {
         $("input.filter-cb:checked").prop("checked", false);
         this.legendContainer.empty();
-        this.legendList.empty();
+        this.legendList = {};
         this.filter.clearFilters();
         $(this.annoToggleId).prop("checked", false);
     }

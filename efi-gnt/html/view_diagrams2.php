@@ -263,17 +263,24 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                                 </div>
                             -->
                             </div>
+
+<div class="panel-group" id="filter-accordion">
                             <div class="filter-cb-div filter-cb-toggle-div" id="filter-container-toggle">
                                 <input id="filter-cb-toggle" type="checkbox" />
                                 <label for="filter-cb-toggle"><span id="filter-cb-toggle-text">Show Family Numbers</span></label>
                             </div>
+<?php createFamilyAccordionPanel("PFam Families", "pfam"); ?>
+<?php createFamilyAccordionPanel("InterPro Families", "interpro"); ?>
+<!--
                             <div style="width:100%;height:12em;" class="filter-container" id="filter-container">
                             </div>
-                            <button type="button" id="filter-clear"><i class="fas fa-times" aria-hidden="true"></i> Clear Filter</button>
+-->
                             <!--<div>
                                 <input id="filter-cb-toggle-dashes" type="checkbox" />
                                 <label for="filter-cb-toggle-dashes"><span id="filter-cb-toggle-dashes-text">Dashed lines</span></label>
                             </div>-->
+</div>
+                            <button type="button" id="filter-clear"><i class="fas fa-times" aria-hidden="true"></i> Clear Filter</button>
                             <div class="active-filter-list" id="active-filter-list">
                             </div>
                         </div>
@@ -424,6 +431,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     <div class="col-md-5">
                         <div class="button-wrapper col-centered initial-hidden">
                             Showing <span id="diagrams-displayed-count">0</span> of <span id="diagrams-total-count">0</span> diagrams.
+                        <a href="view_diagrams.php?gnn-id=<?php echo "$gnnId&key=$gnnKey"; ?>">legacy version</a>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -475,7 +483,8 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                 if (checkBrowserSupport()) {
 
                     var svgCanvasId = "#arrow-canvas";
-                    var filterContainerId = "#filter-container";
+                    var pfamFilterContainerId = "#filter-container-pfam";
+                    var interproFilterContainerId = "#filter-container-interpro";
                     var legendContainerId = "#active-filter-list";
 
                     // Create objects
@@ -496,7 +505,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     var gndView = new GndView(gndRouter, gndDb, gndFilter, gndPopup, svgCanvasId);
 
                     var control = new GndController(gndRouter, gndDb, gndHttp, gndVars, gndView);
-                    var filterUi = new GndFilterUi(gndRouter, gndFilter, gndColor, filterContainerId, legendContainerId);
+                    var filterUi = new GndFilterUi(gndRouter, gndFilter, gndColor, pfamFilterContainerId, interproFilterContainerId, legendContainerId);
                     var ui = new GndUi(gndRouter, control, filterUi);
 
                     // Add callbacks
@@ -511,6 +520,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     ui.registerFilterControl("#filter-cb-toggle");
                     ui.registerFilterClear("#filter-clear");
                     ui.registerFilterAnnotation("#filter-anno-toggle", "#filter-anno-toggle-text");
+                    ui.registerFilterFamilyGroup("#filter-accordion-panel-pfam", "#filter-accordion-panel-interpro");
                     ui.registerDiagramCountField("#diagrams-displayed-count", "#diagrams-total-count");
                     ui.registerLoaderMessage("#loader-message");
                     ui.registerProgressBar("#progress-bar");
@@ -589,7 +599,6 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     });
 
                 $(".tooltip-text").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
-
             });
 
             function showAlertMsg() {
@@ -769,4 +778,26 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
     </body>
 </html>
 
+
+<?php
+
+function createFamilyAccordionPanel($panelTitle, $idSuffix) {
+    echo <<<HTML
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title" data-toggle="collapse" data-parent="#filter-accordion" data-target="#filter-accordion-panel-$idSuffix">
+              <span class="accordion-arrow glyphicon glyphicon-triangle-right" aria-hidden="true"></span> <a class="accordion-toggle">$panelTitle</a>
+            </h4>
+        </div>
+        <div id="filter-accordion-panel-$idSuffix" class="panel-collapse collapse">
+          <div class="filter-panel panel-body">
+                            <div style="width:100%;height:12em;" class="filter-container" id="filter-container-$idSuffix">
+                            </div>
+          </div>
+        </div>
+    </div>
+HTML;
+}
+
+?>
 

@@ -152,8 +152,8 @@ body {
 /* Filter Controls */
 
 .filter-container {
-    border-top: 1px gray dashed;
-    border-bottom: 1px gray dashed;
+/*    border-top: 1px gray dashed;*/
+/*    border-bottom: 1px gray dashed;*/
     text-align: left;
     overflow: auto;
     line-height: 1em;
@@ -424,3 +424,25 @@ input.filter-cb {
     width: 600px;
     left: 350px;
 }
+
+.panel-default > .panel-heading {
+    cursor: pointer;
+    background-color: #51453d;
+}
+a.accordion-toggle:hover {
+    text-decoration: none;
+}
+a.accordion-toggle {
+    font-weight: bold;
+    color: #fff;
+}
+.filter-panel.panel-body {
+    padding: 2px 2px;
+    background: #312A25;
+    color: white;
+}
+.accordion-arrow {
+    color: white;
+    font-size: 80%;
+}
+

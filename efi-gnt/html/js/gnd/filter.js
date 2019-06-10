@@ -10,7 +10,8 @@ class GndFilter {
         this.gndRouter = gndRouter;
         this.db = gndDb;
 
-        this.filterMode = FILTER_PFAM; //TODO:
+        this.filterMode = FILTER_PFAM;
+        this.saveFilterMode = FILTER_PFAM;
 
         this.familyMap = {};
         this.familyNames = {};
@@ -26,7 +27,7 @@ class GndFilter {
     // Public
     clearFilters() {
         this.currentFamilies = {};
-        this.filterMode = FILTER_PFAM;
+        this.filterMode = this.saveFilterMode = FILTER_PFAM;
         $(".an-arrow").removeClass("an-arrow-mute").removeClass("an-arrow-selected").removeClass("an-arrow-bold");
     }
     // Private
@@ -51,12 +52,13 @@ class GndFilter {
     setFilterByPfam() {
         this.filterMode = FILTER_PFAM;
     }
-    setFilterByInterpro() {
+    setFilterByInterPro() {
         this.filterMode = FILTER_INTERPRO;
     }
     setFilterBySwissProt(show) {
         if (show) {
             this.muteAll();
+            this.saveFilterMode = this.filterMode;
             this.filterMode = FILTER_SWISSPROT;
         }
 
@@ -65,7 +67,7 @@ class GndFilter {
         }
 
         if (!show) {
-            this.filterMode = FILTER_PFAM;
+            this.filterMode = this.saveFilterMode;
             this.checkForClearingFilter();
             if (Object.keys(this.currentFamilies).length > 0)
                 this.muteAll();
@@ -118,14 +120,14 @@ class GndFilter {
     //
     addFamilyFilter(family) {
         // If this is the first time we add a filter, then we mute all the arrows.
-        this.filterMode = FILTER_PFAM;
+//        this.filterMode = FILTER_PFAM;
         if (Object.keys(this.currentFamilies).length == 0)
             this.muteAll();
         this.updateCurrentFamilies(family, true);
         this.updateClasses(this.familyMap[family], true);
     }
     removeFamilyFilter(family) {
-        this.filterMode = FILTER_PFAM;
+//        this.filterMode = FILTER_PFAM;
         this.updateCurrentFamilies(family, false);
         this.updateClasses(this.familyMap[family], false);
         this.checkForClearingFilter();
@@ -137,11 +139,11 @@ class GndFilter {
         var data = this.db.getData(arrowId);
 
         var addFilter = !isActive;
-        var pfamOnly = true;
 
         var list = [];
-        this.addFamilyListFilter(data.Pfam, addFilter, list);
-        if (!pfamOnly)
+        if (this.filterMode == FILTER_PFAM)
+            this.addFamilyListFilter(data.Pfam, addFilter, list);
+        else if (this.filterMode == FILTER_INTERPRO)
             this.addFamilyListFilter(data.InterPro, addFilter, list);
 
         // Send a message to the user interface to check/uncheck the corresponding family boxes.
@@ -156,18 +158,20 @@ class GndFilter {
     getFamilies(sortById = true) { // All families, both types
         return this.getFamiliesFromMap(this.familyMap, this.familyNames, sortById);
     }
-//    getPfamFamilies(sortById = true) {
-//        return this.getFamiliesFromMap(this.pfamList, sortById);
-//    }
-//    getInterProFamilies(sortById = true) {
-//        return this.getFamiliesFromMap(this.interproList,  sortById);
-//    }
+    getPfamFamilies(sortById = true) {
+        var fams = this.getFamiliesFromMap(this.pfamList, this.familyNames, sortById);
+        return fams;
+    }
+    getInterProFamilies(sortById = true) {
+        var fams = this.getFamiliesFromMap(this.interproList, this.familyNames, sortById);
+        return fams;
+    }
     //Private
-    getFamiliesFromMap(list, nameList, sortById) {
+    getFamiliesFromMap(listMap, nameList, sortById) {
+        var list = Object.keys(listMap);
         var fams = [];
-        var keys = Object.keys(list);
-        for (var i = 0; i < keys.length; i++) {
-            var famId = keys[i];
+        for (var i = 0; i < list.length; i++) {
+            var famId = list[i];
             var famName = "";
             if (famId == "none")
                 famName = "None";
