@@ -126,6 +126,29 @@ class GndUi {
             that.uiFilter.toggleAnnotationFilter(this.checked);
         });
     }
+    registerFilterFamilyGroup(pfamId, interproId) {
+        var that = this;
+        var toggleIndicator = function(e) {
+            var obj = $(e)
+                .prev(".panel-heading")
+                .find(".accordion-arrow")
+                .toggleClass("glyphicon-triangle-right glyphicon-triangle-bottom");
+        };
+        $(pfamId).on("show.bs.collapse", function() {
+            that.uiFilter.setFamilySelection("pfam");
+            toggleIndicator(this);
+        });
+        $(interproId).on("show.bs.collapse", function() {
+            that.uiFilter.setFamilySelection("interpro");
+            toggleIndicator(this);
+        });
+        $(pfamId).on("hide.bs.collapse", function() {
+            toggleIndicator(this);
+        });
+        $(interproId).on("hide.bs.collapse", function() {
+            toggleIndicator(this);
+        });
+    }
     registerFilterClear(id) {
         var that = this;
         $(id).click(function(e) {
