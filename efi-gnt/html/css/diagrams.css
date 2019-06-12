@@ -389,6 +389,9 @@ input.filter-cb {
 #loader-message {
     padding: 10px;
     background-color: white;
+    font-size: 120%;
+    font-weight: bold;
+    font-style: italic;
 }
 
 .progress {

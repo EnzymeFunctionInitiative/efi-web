@@ -709,7 +709,7 @@ class gnn extends gnn_shared {
         $out_dir = $this->get_output_dir();
         $ver_file = "$out_dir/" . self::DIAGRAM_VERSION_FILE;
         if (file_exists($ver_file)) {
-            $ver = file_get_contents($ver_file);
+            $ver = trim(file_get_contents($ver_file));
             if (is_numeric($ver) && $ver >= self::DEFAULT_DIAGRAM_VERSION) {
                 $data = array("diagram_version" => $ver);
                 $result = $this->update_results_object($data);
@@ -758,7 +758,8 @@ class gnn extends gnn_shared {
             $this->ssn_edges = isset($results_obj['ssn_edges']) ? $results_obj['ssn_edges'] : "";
             $this->gnn_nodes = isset($results_obj['gnn_nodes']) ? $results_obj['gnn_nodes'] : "";
             $this->gnn_edges = isset($results_obj['gnn_edges']) ? $results_obj['gnn_edges'] : "";
-            $this->diagram_version = isset($results_obj['gnn_diagram_version']) ? $results_obj['gnn_diagram_version'] : self::DEFAULT_DIAGRAM_VERSION;
+            $this->diagram_version = isset($results_obj['diagram_version']) ? $results_obj['diagram_version'] :
+                                        (isset($results_obj['gnn_diagram_version']) ? $results_obj['gnn_diagram_version'] : self::DEFAULT_DIAGRAM_VERSION);
 
             if (isset($result['gnn_parent_id']) && isset($result['gnn_child_type'])) {
                 $this->gnn_parent_id = $result['gnn_parent_id'];

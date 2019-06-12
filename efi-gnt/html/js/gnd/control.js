@@ -87,7 +87,7 @@ class GndController {
     }
     // Updates the scale factor based on the zoom factor.  Refreshes the view.
     setZoom(zoomFactor) {
-        this.scaleFactor *= zoomFactor;
+        this.scaleFactor = this.scaleFactor * zoomFactor;
         this.scaleType = SCALE_TYPE_FACTOR;
         this.reload();
     }
@@ -175,8 +175,8 @@ class GndController {
     // PRIVATE
     reload() {
         this.View.clearCanvas();
-        this.onLoad(this.query);
-        //this.doLoad(LOAD_RELOAD);
+        //this.onLoad(this.query);
+        this.doLoad(LOAD_RELOAD);
     }
 
     loadAll() {
