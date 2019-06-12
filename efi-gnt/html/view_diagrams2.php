@@ -400,6 +400,9 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                                 </button>
                                 </a>
                             </div>
+                            <div>
+                                <button type="button" class="btn btn-default tool-button" id="help-modal-button"><i class="fas fa-question"></i> Usage Summary</button>
+                            </div>
                         </div>
                     </li>
                 </ul>
@@ -431,7 +434,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     <div class="col-md-5">
                         <div class="button-wrapper col-centered initial-hidden">
                             Showing <span id="diagrams-displayed-count">0</span> of <span id="diagrams-total-count">0</span> diagrams.
-                        <a href="view_diagrams.php?gnn-id=<?php echo "$gnnId&key=$gnnKey"; ?>">legacy version</a>
+                        <a href="view_diagrams.php?gnn-id=<?php echo "$gnnId&key=$gnnKey"; ?>">previous version</a>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -597,6 +600,9 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         var svg = escape($("#arrow-canvas")[0].outerHTML);
                         //TODO: arrowApp.downloadSvg(svg, "<?php echo $gnnName ?>");
                     });
+                $("#help-modal-button").click(function(e) {
+                    $("#help-modal").modal("show");
+                });
 
                 $(".tooltip-text").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
             });
@@ -775,6 +781,53 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
             information in the box onto the clipboard.
         </div>
 <?php } ?>
+        <div id="help-modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Usage Summary</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                        <div><b>Interactive Filtering</b></div>
+                        The mouse can be used to select families to filter.  To
+                        do this, press and hold the Ctrl key on the keyboard
+                        and click on a protien.  All of the PFam families that
+                        are associated with the protein will be highlighted.
+                        </p>
+                        <p>
+                        <div><b>Viewing Metadata</b></div>
+                        Moving the mouse over a specific protein will show a
+                        popup box containing metadata.  As soon as the mouse is
+                        moved away from the protein, the box disappears.  To
+                        keep the box open, click on the protein, and the box
+                        will remain visible until the mouse is moved over a
+                        different protein.
+                        </p>
+                        <p>
+                        <div><b>Copying Metadata</b></div>
+                        Clicking the copy <i class="far fa-copy"></i> icon when
+                        the metadata popup box is visible will copy the
+                        metadata to the clipboard.  This information can be
+                        pasted into another document for further use.
+                        </p>
+                        <p>
+                        Changing <div><b>the Window</b></div>
+                        By default a maximum of 40 kbp are shown.  This window
+                        can be increased <i class="fas fa-search-minus"></i> or
+                        decreased <i class="fas fa-search-plus"
+                        title="1.125x"></i> by using the zoom buttons.  All
+                        visible diagrams wil be reloaded when using the zoom
+                        buttons.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div>
     </body>
 </html>
 

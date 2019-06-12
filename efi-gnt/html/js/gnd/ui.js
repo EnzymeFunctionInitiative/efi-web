@@ -55,11 +55,15 @@ class GndUi {
                 this.progressLoader.removeClass("hidden-placeholder");
                 if (!payload.Data.Initial) {
                     this.updateProgressBar(payload.Data.PercentCompleted);
+                    $(this.loaderMessageId).hide();
+                } else {
+                    $(this.loaderMessageId).text(payload.Data.Message).show();
                 }
                 $(".zoom-btn").attr("disabled", true).addClass("disabled");
                 this.showMoreBtn.attr("disabled", "true").addClass("disabled");
                 this.showAllBtn.attr("disabled", "true").addClass("disabled");
             } else {
+                $(this.loaderMessageId).hide();
                 this.progressLoader.addClass("hidden-placeholder");
                 this.updateProgressBar(-1);
                 $(".zoom-btn").attr("disabled", false).removeClass("disabled");
@@ -78,9 +82,7 @@ class GndUi {
                 $(this.diagramCountId).text(payload.Data.DiagramCount);
             }
             if (payload.Data.Message) {
-                //$(this.loaderMessageId).text(payload.Data.Message).show();
             } else {
-                $(this.loaderMessageId).hide();
             }
         } else if (payload.MessageType == "InitDataRetrieved") {
             this.setTotalCount(payload.Data.TotalCount);
@@ -196,7 +198,6 @@ class GndUi {
         });
     }
     registerZoom(outLarge, outSmall, inSmall, inLarge) {
-        //TODO: fix this
         var that = this;
         var factors = [];
         this.zoomOutLarge = $(outLarge);
