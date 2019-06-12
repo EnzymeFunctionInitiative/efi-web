@@ -107,6 +107,7 @@ class GndDb {
     getViewData(jsonData) {
         var vd = new GndViewData();
         vd.EndOfData = jsonData.eod;
+        vd.LegendScale = jsonData.legend_scale;
         return vd;
     }
 }
