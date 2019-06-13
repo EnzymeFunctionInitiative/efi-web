@@ -208,7 +208,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 
     <body>
 
-        <header class="header" style="background-color: #abc">
+        <header class="header">
             <table style="width:100%;height:70px">
                 <tr>
                     <td style="width: 175px">
@@ -223,6 +223,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         <?php echo $jobIdDiv; ?>
                         <?php echo $cooccurrenceDiv; ?>
                         <?php echo $nbSizeDiv; ?>
+                        <div style="font-size:50%">GND Explorer V3 (<a href="view_diagrams.php?gnn-id=<?php echo "$gnnId&key=$gnnKey"; ?>">previous version</a>)</div>
                     </td>
                 </tr>
             </table>
@@ -431,10 +432,14 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     </div>
                     <div class="col-md-1">
                     </div>
-                    <div class="col-md-5">
-                        <div class="button-wrapper col-centered initial-hidden">
-                            Showing <span id="diagrams-displayed-count">0</span> of <span id="diagrams-total-count">0</span> diagrams.
-                        <a href="view_diagrams.php?gnn-id=<?php echo "$gnnId&key=$gnnKey"; ?>">previous version</a>
+                    <div class="col-md-5 align-middle">
+                        <div class="diagram-count initial-hidden">
+                            <div>
+                                Showing <span id="diagrams-displayed-count">0</span> of <span id="diagrams-total-count">0</span> diagrams.
+                            </div>
+                            <div id="diagram-filter-count-container" style="display: none"> 
+                                Number of Diagrams Selected: <span>0</div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -489,6 +494,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     var pfamFilterContainerId = "#filter-container-pfam";
                     var interproFilterContainerId = "#filter-container-interpro";
                     var legendContainerId = "#active-filter-list";
+                    var numDiagramsFilteredId = "#diagram-filter-count-container";
 
                     // Create objects
                     var gndVars = new GndVars();
@@ -508,7 +514,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     var gndView = new GndView(gndRouter, gndDb, gndFilter, gndPopup, svgCanvasId);
 
                     var control = new GndController(gndRouter, gndDb, gndHttp, gndVars, gndView);
-                    var filterUi = new GndFilterUi(gndRouter, gndFilter, gndColor, pfamFilterContainerId, interproFilterContainerId, legendContainerId);
+                    var filterUi = new GndFilterUi(gndRouter, gndFilter, gndColor, pfamFilterContainerId, interproFilterContainerId, legendContainerId, numDiagramsFilteredId);
                     var ui = new GndUi(gndRouter, control, filterUi);
 
                     // Add callbacks
