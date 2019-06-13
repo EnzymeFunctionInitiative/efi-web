@@ -114,7 +114,8 @@ class gnd_v2 extends gnd {
                 $query_result = $this->db->query($sql);
                 if ($query_result) {
                     $result = $query_result->fetchArray(SQLITE3_ASSOC);
-                    array_push($ranges, array($result["start_index"], $result["end_index"]));
+                    if ($result)
+                        array_push($ranges, array($result["start_index"], $result["end_index"]));
                 }
             } else {
                 $sql = "SELECT cluster_index FROM attributes WHERE accession = '$item'";
