@@ -329,17 +329,11 @@ class GndView {
 
         var legendScale = this.legendScale; // This comes in base-pair units, whereas the GUI displays things in terms of AA position.
         var l1 = Math.log10(legendScale);
-        console.log(l1);
         var l2 = Math.ceil(l1) - 2;
-        console.log(l2);
         var legendLength = Math.pow(10, l2); // In AA
-        console.log(legendLength);
         var legendBp = legendLength * 3;
-        console.log(legendBp);
         var legendScaleFactor = drawingWidth / legendScale;
-        console.log(legendScaleFactor);
         var lineLength = legendBp * legendScaleFactor;
-        console.log(lineLength);
         var legendText = legendLength * 3 / 1000;
 
         var group = this.S.paper.group();
