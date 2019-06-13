@@ -596,15 +596,27 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 <?php     } ?>
 <?php } ?>
 
-                $("#save-canvas-button").click(function(e) {
-                        var svg = escape($("#arrow-canvas")[0].outerHTML);
-                        //TODO: arrowApp.downloadSvg(svg, "<?php echo $gnnName ?>");
-                    });
                 $("#help-modal-button").click(function(e) {
                     $("#help-modal").modal("show");
                 });
 
                 $(".tooltip-text").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
+
+                $("#save-canvas-button").click(function(e) {
+                        var svg = escape($("#arrow-canvas")[0].outerHTML);
+                        var data = filterUi.getLegendSvg();//TODO
+                        var legendSvgMarkup = escape(data[1]);
+                    
+                        var dlForm = $("<form></form>");
+                        dlForm.attr("method", "POST");
+                        dlForm.attr("action", "download_diagram_image.php");
+                        dlForm.append('<input type="hidden" name="type" value="svg">');
+                        dlForm.append('<input type="hidden" name="name" value="<?php echo $gnnName; ?>">');
+                        dlForm.append('<input type="hidden" name="svg" value="' + svg + '">');
+                        dlForm.append('<input type="hidden" name="legend1-svg" value="' + legendSvgMarkup + '">');
+                        $("#download-forms").append(dlForm);
+                        dlForm.submit();
+                    });
             });
 
             function showAlertMsg() {
