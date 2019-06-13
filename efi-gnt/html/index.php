@@ -193,7 +193,7 @@ for ($i = 0; $i < count($diagramJobs); $i++) {
     $isActive = $dateCompleted == "PENDING" || $dateCompleted == "RUNNING";
 
     $version = isset($diagramJobs[$i]["db_version"]) ? $diagramJobs[$i]["db_version"] : 0;
-    $script = $version >= 3 ? "view_diagrams2.php" : "view_diagrams.php";
+    $script = $version >= 3 ? "view_diagrams_v3.php" : "view_diagrams.php";
 
     $idField = $diagramJobs[$i]["id_field"];
     $jobType = $diagramJobs[$i]["verbose_type"];
