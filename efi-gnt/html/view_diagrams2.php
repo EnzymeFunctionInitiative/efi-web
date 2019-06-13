@@ -527,9 +527,8 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     ui.registerDiagramCountField("#diagrams-displayed-count", "#diagrams-total-count");
                     ui.registerLoaderMessage("#loader-message");
                     ui.registerProgressBar("#progress-bar");
-<?php if (!$isDirectJob) { ?>
                     ui.registerSearchBtn("#advanced-search-cluster-button", "#advanced-search-input", "#start-info");
-<?php } else { ?>
+<?php if ($isDirectJob) { ?>
                     ui.registerSearchResetBtn("#advanced-search-reset-button");
 <?php } ?>
 
@@ -540,19 +539,16 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 
 <?php if (!$isDirectJob) { ?>
                     $("#start-info").show();
-<?php } else { /* TODO ?>
-                arrowApp.showDefaultDiagrams();
-                $("#advanced-search-reset-button").click(function(e) {
-                        arrowApp.showDefaultDiagrams();
-                    });
-                $("#show-uniprot-ids").click(function(e) {
+<?php } else { ?>
+                    ui.initialDirectJobLoad();
+                    $("#show-uniprot-ids").click(function(e) {
                         $("#uniprot-ids-modal").modal("show");
                     });
 <?php if ($isBlast) { ?>
-                $("#show-blast-sequence").click(function(e) { $("#blast-sequence-modal").modal("show"); });
+                    $("#show-blast-sequence").click(function(e) { $("#blast-sequence-modal").modal("show"); });
 <?php } ?>
                     
-<?php */} ?>
+<?php } ?>
                 } else {
                     //TODO: nicer message
                     alert("Your browser is not supported.");

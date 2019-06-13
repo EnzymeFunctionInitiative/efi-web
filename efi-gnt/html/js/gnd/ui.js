@@ -90,6 +90,16 @@ class GndUi {
     }
 
 
+    doSearch(query) {
+        this.uiFilter.clearFilter();
+        this.XT.search(query);
+        $(".initial-hidden").removeClass("initial-hidden");
+    }
+    initialDirectJobLoad() {
+        this.doSearch("1");
+    }
+
+
     updateProgressBar(pct) {
         if (!this.progressBarId)
             return;
@@ -168,9 +178,14 @@ class GndUi {
         $(id).click(function(e) {
             var input = $(inputId).val();
             var query = input.replace(/\n/g, " ").replace(/\r/g, " ");
-            that.XT.search(query);
             $(startInfoId).hide();
-            $(".initial-hidden").removeClass("initial-hidden");
+            that.doSearch(query);
+        });
+    }
+    registerSearchResetBtn(id) {
+        var that = this;
+        $(id).click(function(e) {
+            that.initialDirectJobLoad();
         });
     }
     registerWindowUpdateBtn(id, inputId) {
