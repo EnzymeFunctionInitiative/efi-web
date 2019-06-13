@@ -112,6 +112,8 @@ class GndFilter {
 
         if (updateFams.length > 0 || (data.IsSwissProt && this.filterMode & FILTER_SWISSPROT))
             this.updateArrowClass(arrowGroup, true);
+        else if (Object.keys(this.currentFamilies).length > 0)
+            this.updateArrowClass(arrowGroup, false);
     }
 
 
@@ -240,7 +242,7 @@ class GndFilter {
     }
 
 
-    // Private helper
+    // Private helper. Return true if the arrow is in the current filter selection.
     addArrowHelper(fam, famName, secondaryMap, arrowGroup) {
         if (!(fam in this.familyMap)) {
             this.familyMap[fam] = [];
