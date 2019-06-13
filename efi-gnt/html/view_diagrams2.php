@@ -801,7 +801,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         <div><b>Interactive Filtering</b></div>
                         The mouse can be used to select families to filter.  To
                         do this, press and hold the Ctrl key on the keyboard
-                        and click on a protien.  All of the PFam families that
+                        and click on a protein.  All of the PFam families that
                         are associated with the protein will be highlighted.
                         </p>
                         <p>
@@ -821,13 +821,25 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         pasted into another document for further use.
                         </p>
                         <p>
-                        Changing <div><b>the Window</b></div>
+                        <div><b>Direct Link to UniProt Data</b></div>
+                        The UniProt ID in the metadata popup box is a link that
+                        can be used to access the UniProt website for the given protein.
+                        </p>
+                        <p>
+                        <div><b>Changing the Window (Scale)</b></div>
                         By default a maximum of 40 kbp are shown.  This window
-                        can be increased <i class="fas fa-search-minus"></i> or
+                        scale factor can be increased <i class="fas fa-search-minus"></i> or
                         decreased <i class="fas fa-search-plus"
                         title="1.125x"></i> by using the zoom buttons.  All
                         visible diagrams wil be reloaded when using the zoom
                         buttons.
+                        </p>
+                        <p>
+                        <div><b>Changing the Window (Gene)</b></div>
+                        The GND explorer can display from 1 to 20 genes on
+                        either side of the query gene (center, red).  This can be
+                        changed by clicking the "genes" drop down menu in the
+                        Genome Window section, and clicking the Apply button.
                         </p>
                     </div>
                     <div class="modal-footer">
