@@ -5,10 +5,11 @@ const DISPLAY_ID = 101;
 
 
 class GndFilterUi {
-    constructor(gndRouter, gndFilter, gndColor, pfamFilterContainerId, interproFilterContainerId, legendContainerId) {
+    constructor(gndRouter, gndFilter, gndColor, pfamFilterContainerId, interproFilterContainerId, legendContainerId, numDiagramsFilteredId) {
         this.pfamFilterContainer = $(pfamFilterContainerId);
         this.interproFilterContainer = $(interproFilterContainerId);
         this.legendContainer = $(legendContainerId);
+        this.numDiagramsFilteredId = numDiagramsFilteredId;
         this.filter = gndFilter;
         this.color = gndColor;
         this.nameMap = {};
@@ -25,6 +26,9 @@ class GndFilterUi {
         if (payload.MessageType == "DataRetrievalStatus") {
             if (!payload.Data.Retrieving) {
                 this.addAllFamiliesToLegend();
+            } else if (payload.Data.Initial) {
+                this.filter.reset();
+                this.toggleAnnotationFilter(false);
             }
         } else if (payload.MessageType == "FilterUpdate") {
             for (var i = 0; i < payload.Data.Family.length; i++) {
@@ -35,12 +39,14 @@ class GndFilterUi {
                     this.addSelectedLegendItem(data[0], famId, data[1], text);
                 }
             }
+            this.updateNumDiagramsFiltered();
         }
     }
 
 
     toggleAnnotationFilter(checked) {
         this.filter.setFilterBySwissProt(checked);
+        this.updateNumDiagramsFiltered();
     }
 
 
@@ -70,6 +76,17 @@ class GndFilterUi {
         else
             this.displayMode = DISPLAY_NAME;
         this.addAllFamiliesToLegend();
+    }
+
+
+    updateNumDiagramsFiltered() {
+        var numDiagrams = this.filter.getNumDiagramsFiltered();
+        if (numDiagrams >= 0) {
+            $(this.numDiagramsFilteredId).show();
+            $(this.numDiagramsFilteredId + " span").text(numDiagrams);
+        } else {
+            $(this.numDiagramsFilteredId).hide();
+        }
     }
 
 
@@ -108,9 +125,11 @@ class GndFilterUi {
                     if (this.checked) {
                         that.filter.addFamilyFilter(famId);
                         that.addSelectedLegendItem(legendIndex, famId, famName, famText);
+                        that.updateNumDiagramsFiltered();
                     } else {
                         that.filter.removeFamilyFilter(famId);
                         $("#legend-" + legendIndex).remove();
+                        that.updateNumDiagramsFiltered();
                     }
                 });
             $("<span id='filter-cb-text-" + legendIndex + "' class='filter-cb-number'><label for='filter-cb-" + legendIndex + "'>" + famText + " <span class='filter-small'>(" + tooltipText + ")</span></label></span>") .

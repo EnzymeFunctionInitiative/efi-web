@@ -102,7 +102,7 @@ class GndView {
         // Always face to the right which is why isComplement isn't provided, rather false is given in this call.
         var queryIsComplement = this.orientSameDir ? false : data.Query.IsComplement;
         var arrow = this.drawArrow(group, geneXpos, ypos, geneWidth, queryIsComplement, drawingWidth, data.Query);
-        this.filter.addArrow(arrow, data.Query);
+        this.filter.addArrow(arrow, data.Query, index);
 
         var minXpct = 1.1, maxXpct = -0.1;
         minXpct = (geneXpos < minXpct) ? geneXpos : minXpct;
@@ -124,7 +124,7 @@ class GndView {
             maxXpct = (neighborXpos+neighborWidth > maxXpct) ? neighborXpos+neighborWidth : maxXpct;
 
             var arrow = this.drawArrow(group, neighborXpos, ypos, neighborWidth, nIsComplement, drawingWidth, N);
-            this.filter.addArrow(arrow, N);
+            this.filter.addArrow(arrow, N, index);
         }
 
         this.drawAxis(group, ypos, drawingWidth, minXpct, maxXpct, data.Query.IsBound, data.Query.IsComplement);
