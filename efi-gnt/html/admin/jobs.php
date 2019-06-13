@@ -21,7 +21,7 @@ if (isset($_GET['year'])) {
     $year = $_GET['year'];
 }
 $stepc_page = $job_type == "diagram" ? "../view_diagrams.php" : "../stepc.php";
-$stepc_page_diagram_v2 = "../view_diagrams2.php";
+$stepc_page_diagram_v2 = "../view_diagrams_v3.php";
 $jobs = statistics::get_jobs($db, $month, $year, $job_type);
 
 $id_field = "$job_text";

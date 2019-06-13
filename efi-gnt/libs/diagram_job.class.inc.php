@@ -277,7 +277,7 @@ class diagram_job extends arrow_api {
         $to = $this->email;
         $from = "EFI GNT <" . settings::get_admin_email() . ">";
         if ($this->get_diagram_version() >= 3)
-            $url = settings::get_web_root() . "/view_diagrams2.php";
+            $url = settings::get_web_root() . "/view_diagrams_v3.php";
         else
             $url = settings::get_web_root() . "/view_diagrams.php";
         $full_url = $url . "?" . http_build_query(array($queryType => $this->id, 'key' => $this->key));
