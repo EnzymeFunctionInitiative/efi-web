@@ -33,7 +33,7 @@ $hasUnmatchedIds = false;
 $isBlast = false;
 $bigscapeStatus = 0; # 0 = no bigscape, 1 = running bigscape, 2 = bigscape completed
 $bigscapeType = "";
-$showNewFeatures = !isset($_COOKIE["newfeatures1"]);
+$showNewFeatures = false;
 
 if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
     $gnnKey = $_GET['key'];
