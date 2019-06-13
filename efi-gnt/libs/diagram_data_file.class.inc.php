@@ -5,8 +5,6 @@ require_once('arrow_api.class.inc.php');
 
 class diagram_data_file extends arrow_api {
 
-//    private $gnn_name;
-//    private $db_file;
     private $loaded;
     private $nb_size;
     private $cooccurrence;
@@ -98,11 +96,9 @@ class diagram_data_file extends arrow_api {
 
             $this->nb_size = $row["neighborhood_size"];
             $gnnName = $row["name"];
-//            $this->gnn_name = $row["name"];
         } else {
             $this->cooccurrence = "";
             $this->nb_size = "";
-//            $this->gnn_name = "";
             $this->is_direct = false;
             $this->job_type = "";
             $this->blast_sequence = "";
@@ -115,61 +111,6 @@ class diagram_data_file extends arrow_api {
 
         return true;
     }
-
-//    private static function get_diagram_title_from_file($file) {
-//        $file = preg_replace("/\.sqlite$/", "", $file);
-//        $file = preg_replace("/_arrow_data/", "", $file);
-//        return $file;
-//        /*
-//        try {
-//            $db = new SQLite3($file);
-//
-//            $sql = "SELECT * FROM metadata";
-//            $dbQuery = $db->query($sql);
-//
-//            $row = $dbQuery->fetchArray();
-//            if (!$row)
-//            {
-//                $db->close();
-//                return "";
-//            }
-//            $gnn_name = $row['name'];
-//
-//            $db->close();
-//
-//            return $gnn_name;
-//        } catch (Exception $e) {
-//            return "";
-//        }
-//         */
-//    }
-
-//    public function get_diagram_data_file($useBigscape = false) {
-//        $file = $this->db_file . ($useBigscape ? ".bigscape" : "");
-//        return $file;
-//    }
-
-//    public function get_bigscape_cluster_file() {
-//        $file = $this->get_diagram_data_file() . ".bigscape-clusters";
-//        if (file_exists($file))
-//            return $file;
-//        else
-//            return FALSE;
-//    }
-
-    //public function get_bigscape_status() {
-    //    if (file_exists($this->get_diagram_data_file() . ".bigscape")) {
-    //        return 2; // Bigscape is already run
-    //    } elseif (false) {
-    //        return 1; // Pending or running bigscape
-    //    } else {
-    //        return 0; // Nothing done yet
-    //    }
-    //}
-
-//    public function get_name() {
-//        return $this->gnn_name;
-//    }
 
     public function get_neighborhood_size() {
         return $this->nb_size;
