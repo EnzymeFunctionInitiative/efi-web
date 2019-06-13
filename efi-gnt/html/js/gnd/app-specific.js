@@ -11,22 +11,3 @@ function GndInfoPopupIds() {
     this.CopyId = "copy-info";
 }
 
-
-//var svgCanvasId = "";
-//
-//// TODO: initialize vars
-//var gndVars = new GndVars();
-//var gndColor = new GndColor();
-//var gndRouter = new GndMessageRouter();
-//var gndHttp = new GndHttp(gndRouter);
-//var popupIds = new GndInfoPopupIds();
-//
-//var gndDb = new GndDb(gndColor);
-//var gndFilter = new GndFilter(gndRouter, gndDb);
-//var gndPopup = new GndInfoPopup(gndRouter, gndDb, popupIds);
-//var gndView = new GndView(gndRouter, gndDb, gndFilter, gndPopup, svgCanvasId);
-//
-//var control = new GndController(gndRouter, gndDb, gndHttp, gndVars, gndView);
-
-
-
