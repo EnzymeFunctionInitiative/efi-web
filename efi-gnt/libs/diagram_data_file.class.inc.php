@@ -213,6 +213,9 @@ class diagram_data_file extends arrow_api {
     public function get_message() {
         return $this->message;
     }
+
+    public function get_output_dir($id = 0) {}
+    protected function update_results_object($data) {}
 }
 
 ?>
