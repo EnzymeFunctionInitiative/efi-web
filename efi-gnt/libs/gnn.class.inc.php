@@ -11,8 +11,6 @@ class gnn extends gnn_shared {
     const SEQ_UNIREF50 = 2;
     const SEQ_UNIREF90 = 3;
     const SEQ_UNIPROT_DOMAIN = 4;
-    const DEFAULT_DIAGRAM_VERSION = 2;
-    const DIAGRAM_VERSION_FILE = "diagram.version";
 
     ////////////////Private Variables//////////
 
@@ -39,7 +37,6 @@ class gnn extends gnn_shared {
     // the existing job data.
     protected $child_filter_only = false; 
     protected $db_mod = "";
-    protected $diagram_version = self::DEFAULT_DIAGRAM_VERSION;
 
     private $is_sync = false;
 
@@ -71,7 +68,6 @@ class gnn extends gnn_shared {
     public function get_source_id() { return $this->est_id; }
     public function get_gnn_name() { return $this->basefilename; }
     public function has_parent() { return $this->gnn_parent_id > 0; }
-    public function get_diagram_version() { return $this->diagram_version; }
 
     private function get_full_input_ssn_path() {
         // If we are originating from an EST job, this field contains the full filename.
@@ -705,20 +701,7 @@ class gnn extends gnn_shared {
         }
     }
 
-    private function set_diagram_version() {
-        $out_dir = $this->get_output_dir();
-        $ver_file = "$out_dir/" . self::DIAGRAM_VERSION_FILE;
-        if (file_exists($ver_file)) {
-            $ver = trim(file_get_contents($ver_file));
-            if (is_numeric($ver) && $ver >= self::DEFAULT_DIAGRAM_VERSION) {
-                $data = array("diagram_version" => $ver);
-                $result = $this->update_results_object($data);
-                $this->diagram_version = $ver;
-            }
-        }
-    }
-
-    private function update_results_object($data) {
+    protected function update_results_object($data) {
         $result = global_functions::update_results_object_tmpl($this->db, "gnn", "gnn", "results", $this->get_id(), $data);
         return $result;
     }
@@ -759,7 +742,7 @@ class gnn extends gnn_shared {
             $this->gnn_nodes = isset($results_obj['gnn_nodes']) ? $results_obj['gnn_nodes'] : "";
             $this->gnn_edges = isset($results_obj['gnn_edges']) ? $results_obj['gnn_edges'] : "";
             $this->diagram_version = isset($results_obj['diagram_version']) ? $results_obj['diagram_version'] :
-                                        (isset($results_obj['gnn_diagram_version']) ? $results_obj['gnn_diagram_version'] : self::DEFAULT_DIAGRAM_VERSION);
+                                        (isset($results_obj['gnn_diagram_version']) ? $results_obj['gnn_diagram_version'] : arrow_api::DEFAULT_DIAGRAM_VERSION);
 
             if (isset($result['gnn_parent_id']) && isset($result['gnn_child_type'])) {
                 $this->gnn_parent_id = $result['gnn_parent_id'];
