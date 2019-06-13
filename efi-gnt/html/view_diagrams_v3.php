@@ -425,15 +425,13 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
         </div>
 
         <footer class="footer">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-2">
-                        <img src="images/efi_logo45.png" width="150" height="45" alt="EFI Logo" style="margin-top:5px" />
-                    </div>
-                    <div class="col-md-1">
-                    </div>
-                    <div class="col-md-5 align-middle">
-                        <div class="diagram-count initial-hidden">
+            <table style="width:100%;height:60px">
+                <tr>
+                    <td style="width: 275px;">
+                        <img src="images/efi_logo45.png" width="150" height="45" alt="EFI Logo" style="margin-left:45px" />
+                    </td>
+                    <td>
+                        <div class="initial-hidden">
                             <div>
                                 Showing <span id="diagrams-displayed-count">0</span> of <span id="diagrams-total-count">0</span> diagrams.
                             </div>
@@ -441,16 +439,13 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                                 Number of Diagrams Selected: <span>0</div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="button-wrapper pull-right">
-                            <button type="button" class="btn btn-default" id="show-all-arrows-button">Show All</button>
-                            <button type="button" class="btn btn-default" id="show-more-arrows-button">Show <?php echo $numDiagrams; ?> More</button>
-<!--                            <button type="button" class="btn btn-default" id="show-more-arrows-button-100">Show 100 More</button>-->
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    </td>
+                    <td style="width:250px">
+                        <button type="button" class="btn btn-default" id="show-all-arrows-button">Show All</button>
+                        <button type="button" class="btn btn-default" id="show-more-arrows-button">Show <?php echo $numDiagrams; ?> More</button>
+                    </td>
+                </tr>
+            </table>
         </footer>
 
         <div id="alert-msg">Unable to show reqeuested diagrams.</div> 
