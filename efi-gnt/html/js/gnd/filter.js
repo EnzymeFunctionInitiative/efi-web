@@ -18,6 +18,11 @@ class GndFilter {
         this.swissProtMap = {}; // arrows with SwissProt annotation
 
         this.currentFamilies = {}; // families currently highlighted
+
+        this.diagramFamilies = {}; // map diagram index to list of families highlighted
+        this.familyDiagrams = {}; // map all families to diagrams that have the family
+        this.numDiagramFilters = 0;
+        this.diagramSwissProt = {}; // map arrow ID to diagram index for SwissProt purposes
         
         this.pfamList = {};
         this.interproList = {};
@@ -27,6 +32,8 @@ class GndFilter {
     // Public
     clearFilters() {
         this.currentFamilies = {};
+        this.diagramFamilies = {};
+        this.numDiagramFilters = -1;
         this.filterMode = this.saveFilterMode = FILTER_PFAM;
         $(".an-arrow").removeClass("an-arrow-mute").removeClass("an-arrow-selected").removeClass("an-arrow-bold");
     }
@@ -39,10 +46,12 @@ class GndFilter {
     reset() {
         this.familyMap = {};
         this.familyNames = {};
-        this.currentFamilies = {}; // families currently highlighted
+        this.familyDiagrams = {}; // map all families to diagrams that have the family
         this.pfamList = {};
         this.interproList = {};
         this.swissProtMap = {};
+        this.diagramSwissProt = {}; // map arrow ID to diagram index for SwissProt purposes
+        this.clearFilters();
     }
 
 
@@ -73,7 +82,10 @@ class GndFilter {
                 this.muteAll();
             for (var family in this.currentFamilies) {
                 this.updateClasses(this.familyMap[family], true);
+                this.updateDiagramCount(family, true);
             }
+        } else {
+            this.numDiagramFilters = Object.keys(this.diagramSwissProt).length;
         }
         // This code is for when we add functionality to show SwissProt and highlight by family at the same time.
         //if (show)
@@ -81,6 +93,9 @@ class GndFilter {
         //else
         //    this.filterMode = this.filterMode ^ FILTER_SWISSPROT;
         //this.setArrowFilterBySwissProt();
+    }
+    getNumDiagramsFiltered() {
+        return this.numDiagramFilters;
     }
 
 
@@ -94,21 +109,23 @@ class GndFilter {
     // The arrow parameter is a jQuery/SnapSVG object.
     // The data parameter is a GndDrawableArrow
     // family-specific colors to the arrow.
-    addArrow(arrowGroup, data) {
+    addArrow(arrowGroup, data, diagramIndex = 0) {
         var updateFams = [];
         for (var i = 0; i < data.Pfam.length; i++) {
             var fam = data.Pfam[i];
-            if (this.addArrowHelper(fam, data.PfamDesc[i], this.pfamList, arrowGroup))
+            if (this.addArrowHelper(fam, data.PfamDesc[i], this.pfamList, arrowGroup, diagramIndex))
                 updateFams.push(fam);
         }
         for (var i = 0; i < data.InterPro.length; i++) {
             var fam = data.InterPro[i];
-            if (this.addArrowHelper(fam, data.InterProDesc[i], this.interproList, arrowGroup))
+            if (this.addArrowHelper(fam, data.InterProDesc[i], this.interproList, arrowGroup, diagramIndex))
                 updateFams.push(fam);
         }
 
-        if (data.IsSwissProt)
+        if (data.IsSwissProt) {
             this.swissProtMap[data.Id] = arrowGroup;
+            this.diagramSwissProt[diagramIndex] = 1;
+        }
 
         if (updateFams.length > 0 || (data.IsSwissProt && this.filterMode & FILTER_SWISSPROT))
             this.updateArrowClass(arrowGroup, true);
@@ -126,11 +143,13 @@ class GndFilter {
         if (Object.keys(this.currentFamilies).length == 0)
             this.muteAll();
         this.updateCurrentFamilies(family, true);
+        this.updateDiagramCount(family, true);
         this.updateClasses(this.familyMap[family], true);
     }
     removeFamilyFilter(family) {
 //        this.filterMode = FILTER_PFAM;
         this.updateCurrentFamilies(family, false);
+        this.updateDiagramCount(family, false);
         this.updateClasses(this.familyMap[family], false);
         this.checkForClearingFilter();
     }
@@ -208,6 +227,39 @@ class GndFilter {
         else if (family in this.currentFamilies)
             delete this.currentFamilies[family];
     }
+    updateDiagramCount(family, addFilter) {
+        // Wow. This is crazy complicated.
+        //TODO: optimize this
+        var diagrams = Object.keys(this.familyDiagrams[family]);
+        for (var i = 0; i < diagrams.length; i++) {
+            var diagram = diagrams[i];
+            if (diagram in this.diagramFamilies) {
+                if (family in this.diagramFamilies[diagram]) {
+                    if (!addFilter)
+                        delete this.diagramFamilies[diagram][family];
+                } else if (addFilter) {
+                    this.diagramFamilies[diagram][family] = 1;
+                }
+            } else if (addFilter) {
+                this.diagramFamilies[diagram] = {};
+                this.diagramFamilies[diagram][family] = 1;
+            }
+        }
+
+        var numFilters = Object.keys(this.currentFamilies).length;
+        var selDiagrams = Object.keys(this.diagramFamilies);
+        if (numFilters > 0) {
+            this.numDiagramFilters = 0;
+            for (var i = 0; i < selDiagrams.length; i++) {
+                console.log(selDiagrams[i]);
+                var numFams = Object.keys(this.diagramFamilies[selDiagrams[i]]).length;
+                if (numFams == numFilters)
+                    this.numDiagramFilters++;
+            }
+        } else {
+            this.numDiagramFilters = -1; // Don't show the text on the main UI
+        }
+    }
     addFamilyListFilter(families, addFilter, list) {
         for (var i = 0; i < families.length; i++) {
             var family = families[i];
@@ -243,12 +295,19 @@ class GndFilter {
 
 
     // Private helper. Return true if the arrow is in the current filter selection.
-    addArrowHelper(fam, famName, secondaryMap, arrowGroup) {
+    addArrowHelper(fam, famName, secondaryMap, arrowGroup, diagramIndex) {
         if (!(fam in this.familyMap)) {
             this.familyMap[fam] = [];
             this.familyNames[fam] = famName;
         }
+
+        if (!(fam in this.familyDiagrams))
+            this.familyDiagrams[fam] = {};
+        if (!(diagramIndex in this.familyDiagrams[fam]))
+            this.familyDiagrams[fam][diagramIndex] = 1;
+
         this.familyMap[fam].push(arrowGroup);
+
         if (!(fam in secondaryMap))
             secondaryMap[fam] = [];
         secondaryMap[fam].push(arrowGroup);
