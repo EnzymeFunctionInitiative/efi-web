@@ -26,6 +26,8 @@ class GndFilterUi {
         if (payload.MessageType == "DataRetrievalStatus") {
             if (!payload.Data.Retrieving) {
                 this.addAllFamiliesToLegend();
+                this.filter.refreshNumDiagramsFiltered();
+                this.updateNumDiagramsFiltered();
             } else if (payload.Data.Initial) {
                 this.filter.reset();
                 this.toggleAnnotationFilter(false);
@@ -35,8 +37,13 @@ class GndFilterUi {
                 var famId = payload.Data.Family[i];
                 if (famId in this.nameMap) {
                     var data = this.nameMap[famId];
-                    var text = this.displayMode == DISPLAY_ID ? famId : data[1];
-                    this.addSelectedLegendItem(data[0], famId, data[1], text);
+                    var legendIndex = data[0];
+                    if (payload.Data.IsActive) { // Remove
+                        this.deleteLegendItem(legendIndex);
+                    } else {
+                        this.addSelectedLegendItem(legendIndex, famId, data[1]);
+                        $("#filter-cb-" + legendIndex).prop("checked", true);
+                    }
                 }
             }
             this.updateNumDiagramsFiltered();
@@ -124,35 +131,56 @@ class GndFilterUi {
                     $(that.annoToggleId).prop("checked", false);
                     if (this.checked) {
                         that.filter.addFamilyFilter(famId);
-                        that.addSelectedLegendItem(legendIndex, famId, famName, famText);
+                        that.addSelectedLegendItem(legendIndex, famId, famName);
                         that.updateNumDiagramsFiltered();
                     } else {
-                        that.filter.removeFamilyFilter(famId);
-                        $("#legend-" + legendIndex).remove();
-                        that.updateNumDiagramsFiltered();
+                        that.removeFamilyFilter(famId, legendIndex);
                     }
                 });
             $("<span id='filter-cb-text-" + legendIndex + "' class='filter-cb-number'><label for='filter-cb-" + legendIndex + "'>" + famText + " <span class='filter-small'>(" + tooltipText + ")</span></label></span>") .
                 appendTo(entry);
             
             if (fam.Selected)
-                that.addSelectedLegendItem(legendIndex, famId, famName, famText);
+                that.addSelectedLegendItem(legendIndex, famId, famName);
         });
     
         $('.filter-cb-div').tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
     }
 
 
-    addSelectedLegendItem(index, id, famName, displayText) {
+    removeFamilyFilter(famId, legendIndex) {
+        this.filter.removeFamilyFilter(famId);
+        this.deleteLegendItem(legendIndex);
+        this.updateNumDiagramsFiltered();
+    }
+    deleteLegendItem(legendIndex) {
+        $("#filter-cb-" + legendIndex).prop("checked", false);
+        $("#legend-" + legendIndex).remove();
+        delete this.legendList[legendIndex];
+    }
+
+
+    addSelectedLegendItem(index, famId, famName, displayText) {
+        var displayText = this.displayMode == DISPLAY_ID ? (famId + " (" + famName + ")") : (famName + " (" + famId + ")");
         if (!(index in this.legendList)) {
-            var color = this.color.getPfamColor(id);
+            var that = this;
+            var color = this.color.getPfamColor(famId);
             var activeFilter = $("<div id='legend-" + index + "' title='" + famName + "'>" +
-                "<span class='active-filter-icon' style='background-color:" + color + "'> </span> " + displayText + "</div>")
+                "<span class='active-filter-icon' style='background-color:" +
+                color +
+                "'><i class='fas fa-times active-filter-icon-clear' aria-hidden='true' style='visibility:hidden;'></i></span> " +
+                displayText + "</div>")
                 .appendTo(this.legendContainer);
-            this.legendList[index] = id;
-        } else {
-            $("#legend-" + index).remove();
-            delete this.legendList[index];
+            $(activeFilter).find("span").mouseover(function(e) {
+                $(this).css("background-color", "transparent");
+                $(this).find("i").css("visibility", "visible");
+            }).mouseout(function(e) {
+                $(this).css("background-color", color);
+                $(this).find("i").css("visibility", "hidden");
+            }).click(function(e) {
+                that.removeFamilyFilter(famId, index);
+            });
+            this.legendList[index] = famId;
         }
     }
 
@@ -162,6 +190,7 @@ class GndFilterUi {
         this.legendContainer.empty();
         this.legendList = {};
         this.filter.clearFilters();
+        this.updateNumDiagramsFiltered();
         $(this.annoToggleId).prop("checked", false);
     }
 
