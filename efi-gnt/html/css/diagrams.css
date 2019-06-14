@@ -240,8 +240,10 @@ input.filter-cb {
 }
 
 #active-filter-list {
+    padding-bottom: 5px;
     padding-left: 5px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     max-height: 10em;
     width: 100%;
 }
@@ -255,6 +257,12 @@ input.filter-cb {
     display: inline-block;
     width: 15px;
     height: 15px;
+}
+i.active-filter-icon-clear {
+    display: inline-block;
+}
+#filter-clear i {
+    color: #aaa;
 }
 
 .tool-button {
