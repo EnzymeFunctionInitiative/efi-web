@@ -153,6 +153,7 @@ $nbSizeDiv = "";
 $cooccurrenceDiv = "";
 $jobTypeDiv = "";
 $jobIdDiv = "";
+$js_version = "?v=2";
 
 if ($isDirectJob) {
     $jobTypeDiv = $jobTypeText ? "<div>Job Type: $jobTypeText</div>" : "";
@@ -465,19 +466,19 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 
         <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
         <script src="/bs/js/ie10-viewport-bug-workaround.js"></script>
-        <script src="js/gnd/color.js" content-type="text/javascript"></script>
-        <script src="js/gnd/control.js" content-type="text/javascript"></script>
-        <script src="js/gnd/data.js" content-type="text/javascript"></script>
-        <script src="js/gnd/filter.js" content-type="text/javascript"></script>
-        <script src="js/gnd/http.js" content-type="text/javascript"></script>
-        <script src="js/gnd/message.js" content-type="text/javascript"></script>
-        <script src="js/gnd/popup.js" content-type="text/javascript"></script>
-        <script src="js/gnd/ui.js" content-type="text/javascript"></script>
-        <script src="js/gnd/vars.js" content-type="text/javascript"></script>
-        <script src="js/gnd/view.js" content-type="text/javascript"></script>
-        <script src="js/gnd/ui-filter.js" content-type="text/javascript"></script>
-        <script src="js/gnd/app-specific.js" content-type="text/javascript"></script>
-        <script src="js/gnd/svg-util.js" content-type="text/javascript"></script>
+        <script src="js/gnd/color.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/control.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/data.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/filter.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/http.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/message.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/popup.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/ui.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/vars.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/view.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/ui-filter.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/app-specific.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/svg-util.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
         <script type="application/javascript">
             $(document).ready(function() {
                 $("#filter-cb-toggle").prop("checked", false);
@@ -841,6 +842,16 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         either side of the query gene (center, red).  This can be
                         changed by clicking the "genes" drop down menu in the
                         Genome Window section, and clicking the Apply button.
+                        </p>
+                        <p>
+                        <div><b>Updating the Filter Legend</b></div>
+                        Selecting a family filter makes that family, along with its
+                        assigned color, appear in a legend box below the "Clear Filter"
+                        button.  Individual families can be removed from the legend
+                        by moving the mouse over the color box and pressing the X
+                        button that appears in the color box.  For InterPro
+                        families, the color is not assigned, but the functionality
+                        is the same.
                         </p>
                     </div>
                     <div class="modal-footer">
