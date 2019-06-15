@@ -153,7 +153,7 @@ $nbSizeDiv = "";
 $cooccurrenceDiv = "";
 $jobTypeDiv = "";
 $jobIdDiv = "";
-$js_version = "?v=2";
+$js_version = "?v=3";
 
 if ($isDirectJob) {
     $jobTypeDiv = $jobTypeText ? "<div>Job Type: $jobTypeText</div>" : "";
@@ -403,7 +403,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                                 </a>
                             </div>
                             <div>
-                                <button type="button" class="btn btn-default tool-button" id="help-modal-button"><i class="fas fa-question"></i> Usage Summary</button>
+                                <button type="button" class="btn btn-default tool-button" id="help-modal-button"><i class="fas fa-question"></i> Quick Tips</button>
                             </div>
                         </div>
                     </li>
@@ -796,7 +796,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Usage Summary</h4>
+                        <h4 class="modal-title">Tips for Exploring</h4>
                     </div>
                     <div class="modal-body">
                         <p>

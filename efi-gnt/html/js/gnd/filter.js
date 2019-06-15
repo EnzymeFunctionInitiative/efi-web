@@ -162,10 +162,12 @@ class GndFilter {
         var addFilter = !isActive;
 
         var list = [];
-        if (this.filterMode == FILTER_PFAM)
-            this.addFamilyListFilter(data.Pfam, addFilter, list);
-        else if (this.filterMode == FILTER_INTERPRO)
-            this.addFamilyListFilter(data.InterPro, addFilter, list);
+        // Only do PFam. InterPro complicates the filtering.
+        this.addFamilyListFilter(data.Pfam, addFilter, list);
+        //if (this.filterMode == FILTER_PFAM)
+        //    this.addFamilyListFilter(data.Pfam, addFilter, list);
+        //else if (this.filterMode == FILTER_INTERPRO)
+        //    this.addFamilyListFilter(data.InterPro, addFilter, list);
 
         // Send a message to the user interface to check/uncheck the corresponding family boxes.
         var msg = new Payload(); msg.MessageType = "FilterUpdate"; msg.Data = {Family: list, IsActive: isActive};
@@ -294,10 +296,13 @@ class GndFilter {
             var arrowId = arrowGroups[ai][0];
             var group = arrowGroups[ai][1];
             if (!addFilter) {
+                var atLeastOneOfTheArrowFusionFamiliesIsCurrentlySelected = false;
                 for (var i = 0; i < this.idMap[arrowId].length; i++) {
-                    if (!(this.idMap[arrowId][0] in this.currentFamilies))
-                        this.updateArrowClass(group, false);
+                    if (this.idMap[arrowId][i] in this.currentFamilies)
+                        atLeastOneOfTheArrowFusionFamiliesIsCurrentlySelected = true;
                 }
+                if (!atLeastOneOfTheArrowFusionFamiliesIsCurrentlySelected)
+                    this.updateArrowClass(group, false);
             } else {
                 this.updateArrowClass(group, addFilter);
             }
