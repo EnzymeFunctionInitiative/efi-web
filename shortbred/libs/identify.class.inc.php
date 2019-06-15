@@ -130,6 +130,7 @@ class identify extends job_shared {
                 $parms_array['identify_db_mod'] = $db_mod;
         }
 
+        $est_id = 0;
         if (isset($create_params['est_id'])) {
             $est_id = $create_params['est_id'];
             $parms_array['est_id'] = $est_id;
@@ -140,7 +141,7 @@ class identify extends job_shared {
         $new_id = $db->build_insert('identify', $insert_array);
 
         if ($new_id) {
-            if (!$parent_id && $tmp_filename) {
+            if (!$est_id && (!$parent_id || $tmp_filename)) {
                 global_functions::copy_to_uploads_dir($tmp_filename, $filename, $new_id);
             }
         } else {
@@ -237,7 +238,6 @@ class identify extends job_shared {
         }
 
         $parent_id = $this->get_parent_id();
-
 
         if (!$this->is_debug) {
             print $this->est_id . " " . $ssn_path . "\n";
@@ -343,6 +343,8 @@ class identify extends job_shared {
             $sql = "SELECT identify_params FROM identify WHERE identify_id='" . $result['identify_parent_id'] . "'";
             $parent_result = $this->db->query($sql);
             $params2 = global_functions::decode_object($parent_result[0]['identify_params']);
+            if (isset($params2['est_id']))
+                unset($params2['est_id']);
             $params = array_merge($params2, $params);
         }
 
