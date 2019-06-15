@@ -52,16 +52,27 @@ FamilySizeHelper.prototype.setupFamilyInput = function(optionName, inputIds, out
 
     var that = this;
     //familyInputId, containerOutputId, countOutputId, unirefCbId, unirefVerId, fractionId, dbVerId) {
-    $("#" + inputIds.family).on("input", function() { that.checkFamilyInput(optionName); });
-    $("#" + inputIds.fraction).on("input", function() { that.checkFamilyInput(optionName); });
+    $("#" + inputIds.family).on("input", function() {
+        $("#" + inputIds.fraction).val(1);
+        $("#" + inputIds.unirefCb).prop("checked", false);
+        that.checkFamilyInput(optionName);
+    });
+    $("#" + inputIds.fraction).on("input", function() {
+        $("#" + inputIds.unirefCb).prop("checked", false);
+        that.checkFamilyInput(optionName);
+    });
     $("#" + inputIds.dbVer).on("input", function() { that.checkFamilyInput(optionName); });
-    $("#" + inputIds.unirefCb).change(function() { that.checkFamilyInput(optionName); });
+    $("#" + inputIds.unirefCb).change(function() {
+        $("#" + inputIds.fraction).val(1);
+        that.checkFamilyInput(optionName);
+    });
     $("#" + inputIds.unirefVer).change(function() {
+        $("#" + inputIds.fraction).val(1);
         if ($("#" + inputIds.unirefCb).prop("checked") == false) {
             $("#" + inputIds.unirefCb).prop("checked", true);
-            $("#" + inputIds.fraction).prop("disabled", true);
+//            $("#" + inputIds.fraction).prop("disabled", true);
         } else {
-            $("#" + inputIds.fraction).prop("disabled", false);
+//            $("#" + inputIds.fraction).prop("disabled", false);
         }
         that.checkFamilyInput(optionName);
     });
@@ -126,7 +137,7 @@ FamilySizeHelper.prototype.checkFamilyInput = function (optionName) {
         inputField.removeClass("input-warning");
         unirefCbElem.prop("disabled", false);
         unirefCbElem.prop("checked", false);
-        fractionElem.prop("disabled", false);
+        //fractionElem.prop("disabled", false);
         unirefVerElem.val("90");
         $("#" + inputIds.unirefVer + " option").removeAttr("disabled");
         return;
@@ -157,9 +168,9 @@ FamilySizeHelper.prototype.checkFamilyInput = function (optionName) {
             }
             if (!unirefCbElem.prop("checked")) {
                 unirefCbElem.prop("checked", true);
-                fractionElem.prop("disabled", true);
+//                fractionElem.prop("disabled", true);
             } else {
-                fractionElem.prop("disabled", false);
+//                fractionElem.prop("disabled", false);
             }
             if (!isUnirefCbDisabled) {
                 unirefCbElem.prop("disabled", true);
