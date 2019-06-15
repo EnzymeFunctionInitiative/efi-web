@@ -72,6 +72,11 @@ A listing of new features and other information pertaining to EST is available o
 </p>
 
 <p>
+<a href="https://www.ebi.ac.uk/interpro/search/sequence-search">InterProScan sequence search</a> can be used to
+find matches within the InterPro database for a given sequence.
+</p>
+
+<p>
 Information on Pfam families and clans and InterPro family sizes is available on
 the <a href="family_list.php">Family Information page</a>.
 </p>
@@ -219,11 +224,6 @@ the <a href="family_list.php">Family Information page</a>.
             <p>
             The sequences from the Pfam families, InterPro families, and/or Pfam clans (superfamilies) input are retrieved.
             <?php add_blast_calc_desc(); ?>
-            </p>
-
-            <p>
-            <a href="https://www.ebi.ac.uk/interpro/search/sequence-search">InterProScan sequence search</a> can be used to
-            find matches within the InterPro database for a given sequence.
             </p>
 
             <form name="optionBform" id="optionBform" method="post" action="">
@@ -578,9 +578,10 @@ the <a href="family_list.php">Family Information page</a>.
 
         $(".cb-use-uniref").click(function() {
             if (this.checked) {
-                $(".fraction").val("1").prop("disabled", true);
+//                $(".fraction").val("1").prop("disabled", true);
+                $(".fraction").val("1");
             } else {
-                $(".fraction").prop("disabled", false);
+//                $(".fraction").prop("disabled", false);
             }
         });
 

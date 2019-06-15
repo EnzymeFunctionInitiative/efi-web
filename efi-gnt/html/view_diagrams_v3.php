@@ -153,6 +153,7 @@ $nbSizeDiv = "";
 $cooccurrenceDiv = "";
 $jobTypeDiv = "";
 $jobIdDiv = "";
+$js_version = "?v=3";
 
 if ($isDirectJob) {
     $jobTypeDiv = $jobTypeText ? "<div>Job Type: $jobTypeText</div>" : "";
@@ -186,10 +187,10 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
         <!-- Custom styles for this template -->
         <link href="css/diagrams.css" rel="stylesheet">
         <link href="css/alert.css" rel="stylesheet">
-
+<!--
         <script src="js/app.js" type="application/javascript"></script>
         <script src="js/arrows.js" type="application/javascript"></script>
-
+-->
         <style>
             #header-logo { float: left; width: 175px; }
             #header-body { margin-left: 185px; overflow: hidden; height: 70px; }
@@ -223,6 +224,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         <?php echo $jobIdDiv; ?>
                         <?php echo $cooccurrenceDiv; ?>
                         <?php echo $nbSizeDiv; ?>
+                        <div style="font-size:50%">GND Explorer V3 (<a href="view_diagrams.php?gnn-id=<?php echo "$gnnId&key=$gnnKey"; ?>">previous version</a>)</div>
                     </td>
                 </tr>
             </table>
@@ -232,12 +234,6 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
         <div id="wrapper" class="">
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
-                    <!--<li class="sidebar-brand">
-                        <a href="#menu-toggle" id="menu-toggle" style="margin-top:20px;float:right;" >
-                            <i class="fas fa-caret-square-o-right fa-toggle-size hidden" id="toggle-icon-right" aria-hidden="true"></i>
-                            <i class="fas fa-caret-square-o-left fa-toggle-size" id="toggle-icon-left" aria-hidden="true"></i>
-                        </a> 
-                    </li>-->
                     <li>
                         <i class="fas fa-search" aria-hidden="true"> </i> <span class="sidebar-header">Search</span>
                         <div id="advanced-search-panel">
@@ -255,18 +251,38 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     </li>
                     <li>
                         <div class="initial-hidden">
-                            <i class="fas fa-filter" aria-hidden="true"> </i> <span class="sidebar-header">Pfam Filtering</span>
+                            <i class="fas fa-filter" aria-hidden="true"> </i> <span class="sidebar-header">Filtering</span>
+                            <div class="filter-cb-div" id="filter-container-tabs">
+                                <div class="tooltip-text" id="filter-anno-toggle-text">
+                                    <input id="filter-anno-toggle" type="checkbox" />
+                                    <label for="filter-anno-toggle"><span>Show SwissProt Annotations</span></label>
+                                </div>
+                            <!--
+                                <div class="filter-tabs">
+                                    <button id="filter-tab-pfam" class="filter-tab-active">Pfam</button>
+                                    <button id="filter-tab-interpro">InterPro</button>
+                                    <button id="filter-tab-swissprot">Annotation</button>
+                                </div>
+                            -->
+                            </div>
+
+<div class="panel-group" id="filter-accordion">
                             <div class="filter-cb-div filter-cb-toggle-div" id="filter-container-toggle">
                                 <input id="filter-cb-toggle" type="checkbox" />
-                                <label for="filter-cb-toggle"><span id="filter-cb-toggle-text">Show Pfam Numbers</span></label>
+                                <label for="filter-cb-toggle"><span id="filter-cb-toggle-text">Show Family Numbers</span></label>
                             </div>
+<?php createFamilyAccordionPanel("PFam Families", "pfam"); ?>
+<?php createFamilyAccordionPanel("InterPro Families", "interpro"); ?>
+<!--
                             <div style="width:100%;height:12em;" class="filter-container" id="filter-container">
                             </div>
-                            <button type="button" id="filter-clear"><i class="fas fa-times" aria-hidden="true"></i> Clear Filter</button>
+-->
                             <!--<div>
                                 <input id="filter-cb-toggle-dashes" type="checkbox" />
                                 <label for="filter-cb-toggle-dashes"><span id="filter-cb-toggle-dashes-text">Dashed lines</span></label>
                             </div>-->
+</div>
+                            <button type="button" id="filter-clear"><i class="fas fa-times" aria-hidden="true"></i> Clear Filter</button>
                             <div class="active-filter-list" id="active-filter-list">
                             </div>
                         </div>
@@ -275,7 +291,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         <div id="window-tools" class="initial-hidden">
                             <i class="fas fa-window-maximize" aria-hidden="true"></i> <span class="sidebar-header">Genome Window</span>
                             <div>
-                                <select id="window-size" class="light">
+                                <select id="window-size" class="light zoom-btn">
 <?php
     for ($i = 1; $i <= $maxNbSize; $i++) {
         $sel = $i == $nbSize ? "selected" : "";
@@ -283,7 +299,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
     }
 ?>
                                 </select> genes
-                                <button type="button" class="btn btn-default tool-button auto" id="refresh-window">
+                                <button type="button" class="btn btn-default tool-button auto zoom-btn" id="refresh-window">
                                     <i class="fas fa-refresh" aria-hidden="true"></i> Apply
                                 </button>
                             </div>
@@ -386,6 +402,9 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                                 </button>
                                 </a>
                             </div>
+                            <div>
+                                <button type="button" class="btn btn-default tool-button" id="help-modal-button"><i class="fas fa-question"></i> Quick Tips</button>
+                            </div>
                         </div>
                     </li>
                 </ul>
@@ -397,33 +416,37 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     <svg id="arrow-canvas" width="100%" style="height:70px" viewBox="0 0 10 70" preserveAspectRatio="xMinYMin"></svg>
                     <div style="margin-top:50px;width:100%;position:fixed;bottom:0;height:50px;margin-bottom:100px">
                         <i id="progress-loader" class="fas fa-sync black fa-spin fa-4x fa-fw hidden-placeholder"></i>
+                        <span id="loader-message"></span><br>
+                        <div class="progress hidden">
+                            <div class="progress-bar" style="width: 10%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-bar"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <footer class="footer">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-2">
-                        <img src="images/efi_logo45.png" width="150" height="45" alt="EFI Logo" style="margin-top:5px" />
-                    </div>
-                    <div class="col-md-1">
-                    </div>
-                    <div class="col-md-5">
-                        <div class="button-wrapper col-centered initial-hidden">
-                            Showing <span id="diagrams-displayed-count">0</span> of <span id="diagrams-total-count">0</span> diagrams.
+            <table style="width:100%;height:60px">
+                <tr>
+                    <td style="width: 275px;">
+                        <img src="images/efi_logo45.png" width="150" height="45" alt="EFI Logo" style="margin-left:45px" />
+                    </td>
+                    <td>
+                        <div class="initial-hidden">
+                            <div>
+                                Showing <span id="diagrams-displayed-count">0</span> of <span id="diagrams-total-count">0</span> diagrams.
+                            </div>
+                            <div id="diagram-filter-count-container" style="display: none"> 
+                                Number of Diagrams Selected: <span>0</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="button-wrapper pull-right">
-                            <button type="button" class="btn btn-default" id="show-all-arrows-button">Show All</button>
-                            <button type="button" class="btn btn-default" id="show-more-arrows-button">Show <?php echo $numDiagrams; ?> More</button>
-<!--                            <button type="button" class="btn btn-default" id="show-more-arrows-button-100">Show 100 More</button>-->
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    </td>
+                    <td style="width:250px">
+                        <button type="button" class="btn btn-default" id="show-all-arrows-button">Show All</button>
+                        <button type="button" class="btn btn-default" id="show-more-arrows-button">Show <?php echo $numDiagrams; ?> More</button>
+                    </td>
+                </tr>
+            </table>
         </footer>
 
         <div id="alert-msg">Unable to show reqeuested diagrams.</div> 
@@ -443,69 +466,114 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 
         <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
         <script src="/bs/js/ie10-viewport-bug-workaround.js"></script>
+        <script src="js/gnd/color.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/control.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/data.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/filter.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/http.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/message.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/popup.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/ui.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/vars.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/view.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/ui-filter.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/app-specific.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/svg-util.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
         <script type="application/javascript">
             $(document).ready(function() {
-                var popupIds = new PopupIds();
+                $("#filter-cb-toggle").prop("checked", false);
+                $("#filter-anno-toggle").prop("checked", false);
+                $("#window-size").val(<?php echo $nbSize; ?>);
+                if (checkBrowserSupport()) {
 
-                var arrowDiagrams = new ArrowDiagram("arrow-canvas", "", "arrow-container", popupIds, <?php echo $numDiagrams; ?>);
-                var arrowApp = new ArrowApp(arrowDiagrams);
+                    var svgCanvasId = "#arrow-canvas";
+                    var pfamFilterContainerId = "#filter-container-pfam";
+                    var interproFilterContainerId = "#filter-container-interpro";
+                    var legendContainerId = "#active-filter-list";
+                    var numDiagramsFilteredId = "#diagram-filter-count-container";
 
-                var filterUpdateCb = function(fam, doRemove) {
-                    arrowApp.uiFilterUpdate(fam, doRemove);
-                };
-                arrowDiagrams.setUiFilterUpdateCb(filterUpdateCb);
+                    // Create objects
+                    var gndVars = new GndVars();
+                    // Initialize constant vars
+                    gndVars.setPageSize(200);
+                    gndVars.setUrlPath("get_gnd_data.php");
+                    gndVars.setAuthString("<?php echo $idKeyQueryString; ?>");
 
-                //arrowDiagrams.setJobInfo("<?php echo $idKeyQueryString; ?>");
-                arrowApp.setQueryString("<?php echo $idKeyQueryString; ?>");
+                    var gndColor = new GndColor();
+                    var gndRouter = new GndMessageRouter();
+                    var gndHttp = new GndHttp(gndRouter);
+                    var popupIds = new GndInfoPopupIds();
+                    
+                    var gndDb = new GndDb(gndColor);
+                    var gndFilter = new GndFilter(gndRouter, gndDb);
+                    var gndPopup = new GndInfoPopup(gndRouter, gndDb, popupIds);
+                    var gndView = new GndView(gndRouter, gndDb, gndFilter, gndPopup, svgCanvasId);
 
-                $("#menu-toggle").click(function(e) {
-                        e.preventDefault();
-                        $("#wrapper").toggleClass("toggled");
-                        $("#filter-container").toggleClass("hidden");
-                        $("#toggle-icon-left").toggleClass("hidden");
-                        $("#toggle-icon-right").toggleClass("hidden");
-                        $("#advanced-search-panel").toggleClass("hidden");
-                    });
-                $("#filter-cb-toggle").click(function(e) {
-                        arrowApp.togglePfamNamesNumbers(this.checked);
-                    });
+                    var control = new GndController(gndRouter, gndDb, gndHttp, gndVars, gndView);
+                    var filterUi = new GndFilterUi(gndRouter, gndFilter, gndColor, pfamFilterContainerId, interproFilterContainerId, legendContainerId, numDiagramsFilteredId);
+                    var ui = new GndUi(gndRouter, control, filterUi);
 
-                $("#save-canvas-button").click(function(e) {
-                        var svg = escape($("#arrow-canvas")[0].outerHTML);
-                        arrowApp.downloadSvg(svg, "<?php echo $gnnName ?>");
-                    });
+                    // Add callbacks
+                    //gndRouter.addListener(uiFilterUpdate); //TODO
+    
+                    // Register hooks to UI
+                    ui.registerZoom("#scale-zoom-out-large", "#scale-zoom-out-small", "#scale-zoom-in-small", "#scale-zoom-in-large");
+                    ui.registerShowMoreBtn("#show-more-arrows-button");
+                    ui.registerShowAllBtn("#show-all-arrows-button");
+                    ui.registerWindowUpdateBtn("#refresh-window", "#window-size");
+                    ui.registerProgressLoader("#progress-loader");
+                    ui.registerFilterControl("#filter-cb-toggle");
+                    ui.registerFilterClear("#filter-clear");
+                    ui.registerFilterAnnotation("#filter-anno-toggle", "#filter-anno-toggle-text");
+                    ui.registerFilterFamilyGroup("#filter-accordion-panel-pfam", "#filter-accordion-panel-interpro");
+                    ui.registerDiagramCountField("#diagrams-displayed-count", "#diagrams-total-count");
+                    ui.registerLoaderMessage("#loader-message");
+                    ui.registerProgressBar("#progress-bar");
+                    ui.registerSearchBtn("#advanced-search-cluster-button", "#advanced-search-input", "#start-info");
 <?php if ($isDirectJob) { ?>
-                arrowApp.showDefaultDiagrams();
-                $("#advanced-search-reset-button").click(function(e) {
-                        arrowApp.showDefaultDiagrams();
-                    });
-                $("#show-uniprot-ids").click(function(e) {
+                    ui.registerSearchResetBtn("#advanced-search-reset-button");
+<?php } ?>
+
+                    $(".zoom-btn").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
+                    $("#download-data").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
+
+
+
+<?php if (!$isDirectJob) { ?>
+                    $("#start-info").show();
+<?php } else { ?>
+                    ui.initialDirectJobLoad();
+                    $("#show-uniprot-ids").click(function(e) {
                         $("#uniprot-ids-modal").modal("show");
                     });
+<?php if ($isBlast) { ?>
+                    $("#show-blast-sequence").click(function(e) { $("#blast-sequence-modal").modal("show"); });
+<?php } ?>
+                    
+<?php } ?>
+                } else {
+                    //TODO: nicer message
+                    alert("Your browser is not supported.");
+                }
+
 <?php if ($hasUnmatchedIds) { ?>
                 $("#show-unmatched-ids").click(function(e) {
                         $("#unmatched-ids-modal").modal("show");
                     });
 <?php } ?>
-<?php if ($isBlast) { ?>
-                $("#show-blast-sequence").click(function(e) { $("#blast-sequence-modal").modal("show"); });
-<?php } ?>
-<?php } else { ?>
-                $("#start-info").show();
-<?php } ?>
 <?php if ($isBigscapeEnabled) { ?>
-<?php if ($bigscapeStatus == bigscape_job::STATUS_FINISH) { ?>
+<?php     if ($bigscapeStatus == bigscape_job::STATUS_FINISH) { ?>
                 $("#run-bigscape-btn").click(function(e) {
-                    arrowApp.toggleUseBigscape();
+                    //TODO: arrowApp.toggleUseBigscape();
                     //if (arrowApp.isOrderingBigscape()) {
                     //    $("#bigscape-ordering-btn-text").text("Default Ordering");
                     //} else {
                     //    $("#bigscape-ordering-btn-text").text("BiG-SCAPE Ordering");
                     //}
                 });
-<?php } elseif ($bigscapeStatus == bigscape_job::STATUS_NONE || $bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
+<?php     } elseif ($bigscapeStatus == bigscape_job::STATUS_NONE || $bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
                 $("#run-bigscape-btn").click(function(e) { $("#run-bigscape-modal").modal("show"); });
-<?php       if ($bigscapeStatus == bigscape_job::STATUS_NONE) { // only activate the confirm button if we haven't even started a bigscape run ?>
+<?php         if ($bigscapeStatus == bigscape_job::STATUS_NONE) { // only activate the confirm button if we haven't even started a bigscape run ?>
                 $("#run-bigscape-confirm-btn").click(function(e) {
                     var completionHandler = function(status, message) {
                         $("#run-bigscape-body").hide();
@@ -520,16 +588,32 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         $("#run-bigscape-btn-label").text("BiG-SCAPE Pending");
                     };
                     
-                    arrowApp.runBigscape(<?php echo $gnnId; ?>, "<?php echo $gnnKey; ?>", "<?php echo $bigscapeType; ?>", completionHandler);
+                    //TODO: arrowApp.runBigscape(<?php echo $gnnId; ?>, "<?php echo $gnnKey; ?>", "<?php echo $bigscapeType; ?>", completionHandler);
                 });
-<?php       } ?>
+<?php         } ?>
+<?php     } ?>
 <?php } ?>
-<?php } ?>
-                arrowApp.setNeighborhoodWindow(<?php echo $nbSize; ?>);
 
-                $(".new-features-alert .close").click(
-                    function() {
-                        document.cookie = "newfeatures1=1";
+                $("#help-modal-button").click(function(e) {
+                    $("#help-modal").modal("show");
+                });
+
+                $(".tooltip-text").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
+
+                $("#save-canvas-button").click(function(e) {
+                        var svg = escape($("#arrow-canvas")[0].outerHTML);
+                        var data = filterUi.getLegendSvg();//TODO
+                        var legendSvgMarkup = escape(data[1]);
+                    
+                        var dlForm = $("<form></form>");
+                        dlForm.attr("method", "POST");
+                        dlForm.attr("action", "download_diagram_image.php");
+                        dlForm.append('<input type="hidden" name="type" value="svg">');
+                        dlForm.append('<input type="hidden" name="name" value="<?php echo $gnnName; ?>">');
+                        dlForm.append('<input type="hidden" name="svg" value="' + svg + '">');
+                        dlForm.append('<input type="hidden" name="legend1-svg" value="' + legendSvgMarkup + '">');
+                        $("#download-forms").append(dlForm);
+                        dlForm.submit();
                     });
             });
 
@@ -707,7 +791,98 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
             information in the box onto the clipboard.
         </div>
 <?php } ?>
+        <div id="help-modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Tips for Exploring</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                        <div><b>Interactive Filtering</b></div>
+                        The mouse can be used to select families to filter.  To
+                        do this, press and hold the Ctrl key on the keyboard
+                        and click on a protein.  All of the PFam families that
+                        are associated with the protein will be highlighted.
+                        </p>
+                        <p>
+                        <div><b>Viewing Metadata</b></div>
+                        Moving the mouse over a specific protein will show a
+                        popup box containing metadata.  As soon as the mouse is
+                        moved away from the protein, the box disappears.  To
+                        keep the box open, click on the protein, and the box
+                        will remain visible until the mouse is moved over a
+                        different protein.
+                        </p>
+                        <p>
+                        <div><b>Copying Metadata</b></div>
+                        Clicking the copy <i class="far fa-copy"></i> icon when
+                        the metadata popup box is visible will copy the
+                        metadata to the clipboard.  This information can be
+                        pasted into another document for further use.
+                        </p>
+                        <p>
+                        <div><b>Direct Link to UniProt Data</b></div>
+                        The UniProt ID in the metadata popup box is a link that
+                        can be used to access the UniProt website for the given protein.
+                        </p>
+                        <p>
+                        <div><b>Changing the Window (Scale)</b></div>
+                        By default a maximum of 40 kbp are shown.  This window
+                        scale factor can be increased <i class="fas fa-search-minus"></i> or
+                        decreased <i class="fas fa-search-plus"
+                        title="1.125x"></i> by using the zoom buttons.  All
+                        visible diagrams wil be reloaded when using the zoom
+                        buttons.
+                        </p>
+                        <p>
+                        <div><b>Changing the Window (Gene)</b></div>
+                        The GND explorer can display from 1 to 20 genes on
+                        either side of the query gene (center, red).  This can be
+                        changed by clicking the "genes" drop down menu in the
+                        Genome Window section, and clicking the Apply button.
+                        </p>
+                        <p>
+                        <div><b>Updating the Filter Legend</b></div>
+                        Selecting a family filter makes that family, along with its
+                        assigned color, appear in a legend box below the "Clear Filter"
+                        button.  Individual families can be removed from the legend
+                        by moving the mouse over the color box and pressing the X
+                        button that appears in the color box.  For InterPro
+                        families, the color is not assigned, but the functionality
+                        is the same.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div>
     </body>
 </html>
 
+
+<?php
+
+function createFamilyAccordionPanel($panelTitle, $idSuffix) {
+    echo <<<HTML
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title" data-toggle="collapse" data-parent="#filter-accordion" data-target="#filter-accordion-panel-$idSuffix">
+              <span class="accordion-arrow glyphicon glyphicon-triangle-right" aria-hidden="true"></span> <a class="accordion-toggle">$panelTitle</a>
+            </h4>
+        </div>
+        <div id="filter-accordion-panel-$idSuffix" class="panel-collapse collapse">
+          <div class="filter-panel panel-body">
+                            <div style="width:100%;height:12em;" class="filter-container" id="filter-container-$idSuffix">
+                            </div>
+          </div>
+        </div>
+    </div>
+HTML;
+}
+
+?>
 

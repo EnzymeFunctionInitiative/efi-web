@@ -79,6 +79,10 @@ class settings extends global_settings {
         return __RELATIVE_OUTPUT_DIR__;		
     }
 
+    public static function get_rel_diagram_output_dir() {
+        return __RELATIVE_DIAGRAM_OUTPUT_DIR__;
+    }
+
     public static function get_legacy_rel_output_dir() {
         return __LEGACY_RELATIVE_OUTPUT_DIR__;		
     }

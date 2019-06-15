@@ -341,7 +341,7 @@ function add_quantify_jobs($sb_jobs_file, $db, $sb_db) {
         for ($i = 0; $i < count($job_list); $i++) {
             $id_id = $sb_jobs_file[$est_id][$i]["id"];
     
-            $q_sql = "SELECT * FROM $sb_db.quantify WHERE quantify_identify_id = $id_id";
+            $q_sql = "SELECT * FROM $sb_db.quantify WHERE quantify_identify_id = $id_id AND quantify_status = 'FINISH'";
             $results = $db->query($q_sql);
     
             $q_jobs = array();
