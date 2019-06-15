@@ -15,7 +15,6 @@ body {
     width: 100%;
     /* Set the fixed height of the footer here */
     height: 60px;
-    line-height: 30px; /* Vertically center the text there */
     background-color: #f5f5f5;
     border-top: 1px solid #312A25;
 }
@@ -95,6 +94,7 @@ body {
 
 .disabled {
     color: #999;
+    cursor: not-allowed;
 }
 
 .col-centered {
@@ -151,8 +151,8 @@ body {
 /* Filter Controls */
 
 .filter-container {
-    border-top: 1px gray dashed;
-    border-bottom: 1px gray dashed;
+/*    border-top: 1px gray dashed;*/
+/*    border-bottom: 1px gray dashed;*/
     text-align: left;
     overflow: auto;
     line-height: 1em;
@@ -197,6 +197,36 @@ input.filter-cb {
     font-weight: normal;
 }
 
+.filter-tabs {
+    overflow: hidden;
+    border: 1px solid #999;
+    background-color: #333;
+}
+
+.filter-tabs button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    transition 0.1s;
+    font-size: 85%;
+    font-weight: bold;
+}
+
+.filter-tabs button:hover {
+    background-color: #999;
+}
+
+.filter-tabs button.filter-tab-active {
+    background-color: #666;
+}
+
+.filter-small {
+    font-size: 65%;
+}
+
 .tooltip.top .tooltip-inner {
     background-color: #999;
 }
@@ -210,8 +240,10 @@ input.filter-cb {
 }
 
 #active-filter-list {
+    padding-bottom: 5px;
     padding-left: 5px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     max-height: 10em;
     width: 100%;
 }
@@ -225,6 +257,12 @@ input.filter-cb {
     display: inline-block;
     width: 15px;
     height: 15px;
+}
+i.active-filter-icon-clear {
+    display: inline-block;
+}
+#filter-clear i {
+    color: #aaa;
 }
 
 .tool-button {
@@ -259,6 +297,13 @@ input.filter-cb {
     opacity: 1.0;
     stroke: #000;
     stroke-width: 3;
+}
+
+.an-arrow-bold {
+    opacity: 1.0;
+    stroke: red;
+/*    stroke-dasharray: 1;*/
+    stroke-width: 5;
 }
 
 .dashed-arrow {
@@ -348,6 +393,24 @@ input.filter-cb {
   100% { transform: rotate(360deg); }
 }
 
+#loader-message {
+    padding: 10px;
+    background-color: white;
+    font-size: 120%;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.progress {
+    margin-top: 10px;
+    height: 20px;
+    width: 70%;
+}
+
+.progress-bar {
+    color: black;
+}
+
 
 /* Overloads */
 
@@ -371,3 +434,25 @@ input.filter-cb {
     width: 600px;
     left: 350px;
 }
+
+.panel-default > .panel-heading {
+    cursor: pointer;
+    background-color: #51453d;
+}
+a.accordion-toggle:hover {
+    text-decoration: none;
+}
+a.accordion-toggle {
+    font-weight: bold;
+    color: #fff;
+}
+.filter-panel.panel-body {
+    padding: 2px 2px;
+    background: #312A25;
+    color: white;
+}
+.accordion-arrow {
+    color: white;
+    font-size: 80%;
+}
+

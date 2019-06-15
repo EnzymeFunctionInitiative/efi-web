@@ -10,7 +10,7 @@ if (isset($ExtraCssLinks)) {
     $func = function($value) { return "<link rel=\"stylesheet\" type=\"text/css\" href=\"$value\">\n"; };
     $StyleAdditional = array_merge($StyleAdditional, array_map($func, $ExtraCssLinks));
 }
-$JsAdditional = array('<script src="js/submit.js?v=2" type="text/javascript"></script>',
+$JsAdditional = array('<script src="js/submit.js?v=3" type="text/javascript"></script>',
     '<script src="js/multiselect.min.js" type="text/javascript"></script>');
 
 $BannerImagePath = "images/efi_cgfp_logo.png";

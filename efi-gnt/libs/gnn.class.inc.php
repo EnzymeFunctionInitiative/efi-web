@@ -304,6 +304,7 @@ class gnn extends gnn_shared {
     public function complete_gnn() {
         $this->set_gnn_stats();
         $this->set_ssn_stats();
+        $this->set_diagram_version();
 
         $this->set_status(__FINISH__);
         $this->set_time_completed();
@@ -680,7 +681,7 @@ class gnn extends gnn_shared {
         } 
     }
 
-    public function set_gnn_stats() {
+    private function set_gnn_stats() {
         $result = $this->count_nodes_edges($this->get_gnn());
         $data = array("gnn_edges" => $result["edges"], "gnn_nodes" => $result["nodes"]);
         $result = $this->update_results_object($data);
@@ -690,7 +691,7 @@ class gnn extends gnn_shared {
         }
     }
 
-    public function set_ssn_stats() {
+    private function set_ssn_stats() {
         $result = $this->count_nodes_edges($this->get_color_ssn());
         $data = array("ssn_edges" => $result["edges"], "ssn_nodes" => $result["nodes"]);
         $result = $this->update_results_object($data);
@@ -698,10 +699,9 @@ class gnn extends gnn_shared {
             $this->ssn_nodes = $result['nodes'];
             $this->ssn_edges = $result['edges'];
         }
-
     }
 
-    private function update_results_object($data) {
+    protected function update_results_object($data) {
         $result = global_functions::update_results_object_tmpl($this->db, "gnn", "gnn", "results", $this->get_id(), $data);
         return $result;
     }
@@ -741,6 +741,8 @@ class gnn extends gnn_shared {
             $this->ssn_edges = isset($results_obj['ssn_edges']) ? $results_obj['ssn_edges'] : "";
             $this->gnn_nodes = isset($results_obj['gnn_nodes']) ? $results_obj['gnn_nodes'] : "";
             $this->gnn_edges = isset($results_obj['gnn_edges']) ? $results_obj['gnn_edges'] : "";
+            $this->diagram_version = isset($results_obj['diagram_version']) ? $results_obj['diagram_version'] :
+                                        (isset($results_obj['gnn_diagram_version']) ? $results_obj['gnn_diagram_version'] : arrow_api::DEFAULT_DIAGRAM_VERSION);
 
             if (isset($result['gnn_parent_id']) && isset($result['gnn_child_type'])) {
                 $this->gnn_parent_id = $result['gnn_parent_id'];
