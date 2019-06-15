@@ -5,9 +5,9 @@ require_once "functions.class.inc.php";
 require_once "Mail.php";
 require_once "Mail/mime.php";
 require_once "const.class.inc.php";
-require_once "job_shared.class.inc.php";
+require_once "arrow_api.class.inc.php";
 
-class diagram_job extends job_shared {
+class diagram_job extends arrow_api {
 
     private $beta;
     private $key;
@@ -53,9 +53,7 @@ class diagram_job extends job_shared {
 
     public function process() {
 
-        if ($this->type == DiagramJob::Uploaded) {
-            return $this->process_direct_job();
-        } elseif ($this->type == DiagramJob::UploadedZip) {
+        if ($this->type == DiagramJob::Uploaded || $this->type == DiagramJob::UploadedZip) {
             return $this->process_direct_zip_job();
         } elseif ($this->type == DiagramJob::BLAST) {
             return $this->process_blast_job();
@@ -105,19 +103,6 @@ class diagram_job extends job_shared {
         $args = " -zip-file \"$target\"";
 
         return $this->execute_job($args);
-    }
-
-    private function process_direct_job() {
-        $isUploaded = true;
-        $this->handle_upload($isUploaded);
-
-        $status = __FINISH__;
-        $currentTime = date("Y-m-d H:i:s", time());
-        $this->db->non_select_query("UPDATE diagram SET diagram_status = '$status', " .
-                                    "diagram_time_completed = '$currentTime' WHERE diagram_id = " . $this->id);
-        $this->email_complete();
-
-        return true;
     }
 
     private function process_blast_job() {
@@ -233,13 +218,19 @@ class diagram_job extends job_shared {
             print $this->id . " has completed and has status = $status.\n";
 
             $this->db->non_select_query("UPDATE diagram SET diagram_status = '$status', " .
-                                        "diagram_time_completed = '$currentTime' WHERE diagram_id = " . $this->id);
+                "diagram_time_completed = '$currentTime' WHERE diagram_id = " . $this->id);
+            $this->set_diagram_version();
 
             if ($isError)
                 $this->email_failed();
             else
                 $this->email_complete();
         }
+    }
+
+    protected function update_results_object($data) {
+        $result = global_functions::update_results_object_tmpl($this->db, "diagram", "diagram", "results", $this->get_id(), $data);
+        return $result;
     }
 
     private function email_failed() {
@@ -285,7 +276,10 @@ class diagram_job extends job_shared {
         $subject = $this->beta . "EFI-GNT - GNN diagrams $titleBit";
         $to = $this->email;
         $from = "EFI GNT <" . settings::get_admin_email() . ">";
-        $url = settings::get_web_root() . "/view_diagrams.php";
+        if ($this->get_diagram_version() >= 3)
+            $url = settings::get_web_root() . "/view_diagrams_v3.php";
+        else
+            $url = settings::get_web_root() . "/view_diagrams.php";
         $full_url = $url . "?" . http_build_query(array($queryType => $this->id, 'key' => $this->key));
 
         $plain_email = "";
@@ -343,7 +337,7 @@ class diagram_job extends job_shared {
         return $target;
     }
 
-    private function get_output_dir() {
+    public function get_output_dir($id = 0) {
         $outDir = settings::get_diagram_output_dir() . "/" . $this->id;
         return $outDir;
     }

@@ -21,6 +21,7 @@ if (isset($_GET['year'])) {
     $year = $_GET['year'];
 }
 $stepc_page = $job_type == "diagram" ? "../view_diagrams.php" : "../stepc.php";
+$stepc_page_diagram_v2 = "../view_diagrams_v3.php";
 $jobs = statistics::get_jobs($db, $month, $year, $job_type);
 
 $id_field = "$job_text";
@@ -28,8 +29,32 @@ $query_id_field = $job_type == "gnt" ? "id" : "direct-id";
 
 $gnn_html = "";
 foreach ($jobs as $job) {
-	$get_array = array($query_id_field=>$job['ID'],'key'=>$job['Key']);
-	$url = $stepc_page . "?" . http_build_query($get_array);
+    $get_array = array($query_id_field=>$job['ID'],'key'=>$job['Key']);
+
+    $filename = "";
+    $nb_size = "";
+    $type_field = "";
+    $params = global_functions::decode_object($job['params']);
+    if ($job_type == "diagram") {
+        $type_field = $job['type'];
+        if (isset($params["neighborhood_size"]))
+            $nb_size = $params["neighborhood_size"];
+        $filename = $job['Title'];
+    } else {
+        $filename = $params["filename"];
+        $nb_size = $params["neighborhood_size"];
+        $type_field = isset($params["db_mod"]) ? $params["db_mod"] : "";
+        $cooc = $params["cooccurrence"];
+    }
+
+    $script = $stepc_page;
+    if ($job_type == "diagram") {
+        $results = isset($job['results']) ? global_functions::decode_object($job['params']) : array();
+        $version = isset($results["diagram_version"]) ? $results["diagram_version"] : 0;
+        $script = $version >= 3 ? $stepc_page_diagram_v2 : $stepc_page;
+    }
+
+	$url = $script . "?" . http_build_query($get_array);
 	$gnn_html .= "<tr>";
 	if (time() < $job['Time Completed'] + __RETENTION_DAYS__) {
 		$gnn_html .= "<td>&nbsp</td>";
@@ -49,22 +74,6 @@ foreach ($jobs as $job) {
         $tst = global_functions::format_short_date($tst);
 	$gnn_html .= "<td>" . $job['ID'] . "</td>\n";
     $gnn_html .= "<td>" . $job['Email'] . "</td>\n";
-    $filename = "";
-    $nb_size = "";
-    $type_field = "";
-    $params = global_functions::decode_object($job['params']);
-    if ($job_type == "gnt") {
-        $filename = $params["filename"];
-        $nb_size = $params["neighborhood_size"];
-        $type_field = isset($params["db_mod"]) ? $params["db_mod"] : "";
-        $cooc = $params["cooccurrence"];
-    } else {
-        $type_field = $job['type'];
-
-        if (isset($params["neighborhood_size"]))
-            $nb_size = $params["neighborhood_size"];
-        $filename = $job['Title'];
-    }
     $gnn_html .= "<td class='file_col'>" . $filename . "</td>\n";
     $gnn_html .= "<td>" . $nb_size . "</td>\n";
     if ($job_type == "gnt")

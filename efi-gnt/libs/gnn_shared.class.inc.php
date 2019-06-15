@@ -3,7 +3,7 @@
 require_once('arrow_api.class.inc.php');
 require_once(__DIR__.'/../../libs/global_functions.class.inc.php');
 
-class gnn_shared extends arrow_api {
+abstract class gnn_shared extends arrow_api {
 
     public function __construct($db, $id, $db_field_prefix) {
         parent::__construct($db, $id, $db_field_prefix);

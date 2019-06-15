@@ -192,10 +192,12 @@ for ($i = 0; $i < count($diagramJobs); $i++) {
     $dateCompleted = $diagramJobs[$i]["completed"];
     $isActive = $dateCompleted == "PENDING" || $dateCompleted == "RUNNING";
 
+    $version = isset($diagramJobs[$i]["db_version"]) ? $diagramJobs[$i]["db_version"] : 0;
+    $script = $version >= 3 ? "view_diagrams_v3.php" : "view_diagrams.php";
+
     $idField = $diagramJobs[$i]["id_field"];
     $jobType = $diagramJobs[$i]["verbose_type"];
-    $linkStart = $isActive ? "" : "<a href=\"view_diagrams.php?$idField=$id&key=$key\">";
-    //$linkStart = $isActive ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
+    $linkStart = $isActive ? "" : "<a href=\"$script?$idField=$id&key=$key\">";
     $linkEnd = $isActive ? "" : "</a>";
 
     echo <<<HTML

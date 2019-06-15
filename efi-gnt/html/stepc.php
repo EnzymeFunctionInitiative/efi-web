@@ -164,6 +164,7 @@ if ($swissprotSinglesDescFileSize !== false)
     array_push($otherFiles, array($swissprotSinglesDescFile, format_file_size($swissprotSinglesDescFileSize), "SwissProt annotations by singleton"));
 
 $gnn_name = $gnn->get_gnn_name();
+$useDiagramsV3 = $gnn->get_diagram_version() >= 3;
 
 require_once('inc/header.inc.php'); 
 
@@ -308,7 +309,11 @@ require_once('inc/header.inc.php');
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
+<?php if ($useDiagramsV3) { ?>
+                            <a href="view_diagrams_v3.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?>" target="_blank"><button class="mini">View diagrams (V3)</button></a>
+<?php } else { ?>
                             <a href="view_diagrams.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?>" target="_blank"><button class="mini">View diagrams</button></a>
+<?php } ?>
                         </td>
                         <td colspan="2">
                             Opens GND explorer in a new tab.

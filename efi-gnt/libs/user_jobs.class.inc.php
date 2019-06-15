@@ -145,7 +145,7 @@ class user_jobs extends user_auth {
                 $groupClause = "OR $groupClause";
         $expDate = self::get_start_date_window();
 
-        $sql = "SELECT diagram.diagram_id, diagram_key, diagram_title, diagram_status, diagram_type, diagram_time_completed FROM diagram " .
+        $sql = "SELECT diagram.diagram_id, diagram_key, diagram_title, diagram_status, diagram_type, diagram_time_completed, diagram_results FROM diagram " .
             "LEFT OUTER JOIN job_group ON diagram.diagram_id = job_group.diagram_id " .
             "WHERE (diagram_email='$email' $groupClause) AND " .
             "(diagram_time_completed >= '$expDate' OR diagram_status='RUNNING' OR diagram_status = 'NEW') " . 
@@ -170,9 +170,12 @@ class user_jobs extends user_auth {
 
             $isDirect = $row["diagram_type"] != DiagramJob::Uploaded && $row["diagram_type"] != DiagramJob::UploadedZip;
             $idField = functions::get_diagram_id_field($row["diagram_type"]);
+            
+            $results = isset($row["diagram_results"]) ? global_functions::decode_object($row["diagram_results"]) : array();
+            $version = isset($results["diagram_version"]) ? $results["diagram_version"] : 0;
 
             array_push($this->diagram_jobs, array("id" => $row["diagram_id"], "key" => $row["diagram_key"],
-                "filename" => $title, "completed" => $theDate, "id_field" => $idField,
+                "filename" => $title, "completed" => $theDate, "id_field" => $idField, "db_version" => $version,
                 "verbose_type" => functions::get_verbose_job_type($row["diagram_type"])));
         }
     }

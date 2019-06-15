@@ -116,13 +116,11 @@ if (array_key_exists("query", $_GET)) {
     $output["min_pct"] = $arrowData["min_pct"];
     $output["max_pct"] = $arrowData["max_pct"];
     $output["legend_scale"] = $arrowData["legend_scale"]; // the base unit for the legend. the client can draw however many units they want for the legend.
-}
-else if (array_key_exists("fams", $_GET)) {
+} elseif (isset($_GET["fams"])) {
     $famData = getFamilies($dbFile);
     $output["families"] = $famData["pfam"];
     $output["ipro_families"] = $famData["ipro"];
-}
-else {
+} else {
     $output["error"] = true;
     $output["message"] = "No query is selected.";
     echo json_encode($output);
@@ -141,6 +139,7 @@ echo json_encode($output);
 function getBlastId() {
     return "test";
 }
+
 
 function getFamilies($dbFile) {
     $output = array("pfam" => array(), "ipro" => array());
@@ -166,6 +165,18 @@ function getFamilies($dbFile) {
     return $output;
 }
 
+
+function hasClusterIndex($dbFile) {
+    $resultsDb = new SQLite3($dbFile);
+    $result = $resultsDb->query("PRAGMA TABLE_INFO(attributes)");
+    
+    $hasClusterIndex = false;
+    while ($result && $row = $result->fetchArray()) {
+        $hasClusterIndex = $row["name"] == "cluster_index";
+    }
+
+    return $hasClusterIndex;
+}
 
 
 function getArrowData($items, $dbFile, $orderDataStruct, $window, $scaleFactor, $isDirectJob, $pageSize) {
@@ -224,7 +235,8 @@ function getArrowData($items, $dbFile, $orderDataStruct, $window, $scaleFactor, 
         $id = $ids[$i][0];
         $evalue = $ids[$i][1];
 
-        $attrSql = "SELECT * FROM attributes WHERE accession = '$id' $orderByClause";
+        $idCol = is_numeric($id) ? "cluster_index" : "accession";
+        $attrSql = "SELECT * FROM attributes WHERE $idCol = '$id' $orderByClause";
         $S = microtime(true); //TIME
         $dbQuery = $resultsDb->query($attrSql);
         $queryTime += microtime(true) - $S; //TIME
@@ -406,6 +418,31 @@ function parseQueryString($queryString) {
 }
 
 
+// Get the start and ending ID indexes for the given cluster inputs
+function getClusterIndices($items, $resultsDb) {
+    $ranges = array();
+    foreach ($items as $item) {
+        if (is_numeric($item)) {
+            $sql = "SELECT start_index, end_index FROM cluster_index WHERE cluster_num = $item";
+            $queryResult = $resultsDb->query($sql);
+            if ($queryResult) {
+                $result = $queryResult->fetchArray(SQLITE3_ASSOC);
+                array_push($ranges, array($result["start_index"], $result["end_index"]));
+            }
+        } else {
+            //TODO: lookup the cluster_index field in the database for the given prot ID
+            $sql = "SELECT cluster_index FROM attributes WHERE accession = '$item'";
+            $queryResult = $resultsDb->query($sql);
+            if ($queryResult) {
+                $result = $queryResult->fetchArray(SQLITE3_ASSOC);
+                array_push($ranges, array($result["cluster_index"], $result["cluster_index"]));
+            }
+        }
+    }
+    return $ranges;
+}
+
+
 function parseIds($items, $orderDataStruct, $resultsDb, $sortOrderClause, $countOnly = false) {
 
     $orderData = $orderDataStruct['order'];
@@ -476,34 +513,42 @@ function getPageLimits($pageSize) {
 
 
 function getStats($query, $resultsDb, $window, $orderDataStruct) {
-    $orderByClause = getOrderByClause($resultsDb);
-
-    $items = parseQueryString($query);
+    $queryItems = parseQueryString($query);
     $S = microtime(true);
-    $allIdsInCluster = parseIds($items, $orderDataStruct, $resultsDb, $orderByClause, false); // true = countOnly
+    $indexRange = getClusterIndices($queryItems, $resultsDb); // true = countOnly
     $parseTime = microtime(true) - $S;
     $mapFn = function($e) { return $e[0]; };
-    $count = count($allIdsInCluster);
+    $allIds = expandRange($indexRange);
+    $count = count($allIds);
 
-    $ids = array_slice($allIdsInCluster, 0, 100);
-    $numToCheck = max(1, round(intval($count/200)/10)*10);
+    $idx = array_slice($allIds, 0, 100);
+    $numToCheck = max(1, round(intval($count / 200) / 10) * 10);
     if ($count > 100) {
         for ($i = 100; $i < $count; $i++) {
             if (!(rand(1, $count) % $numToCheck))
-                array_push($ids, $allIdsInCluster[$i]);
+                array_push($idx, $allIds[$i]);
         }
     }
 
     $scaleCap = 40000; // Limit the scale cap by default to 40000 bp. The user can zoom out.
     $S = microtime(true); //TIME
-    list($scaleFactor, $legendScale, $min, $max, $qWidth, $actualMaxWidth, $timeData) = computeClusterScaleFactor($ids, $resultsDb, $window, $scaleCap);
+    list($scaleFactor, $legendScale, $min, $max, $qWidth, $actualMaxWidth, $timeData) = computeClusterScaleFactor($idx, $resultsDb, $window, $scaleCap);
     $procTime = microtime(true) - $S;
 
     $stats = array("max_index" => $count - 1, "scale_factor" => $scaleFactor, "legend_scale" => $legendScale,
         "min_bp" => $min, "max_bp" => $max, "query_width" => $qWidth, "actual_max_width" => $actualMaxWidth, "time_data" => $timeData . " PROC=$procTime PARSE=$parseTime",
-        "num_checked" => count($ids));
+        "num_checked" => count($idx), "index_range" => $indexRange);
 
     return $stats;
+}
+
+
+function expandRange($range) {
+    $idx = array();
+    for ($i = 0; $i < count($range); $i++) {
+        $idx = array_merge($idx, range($range[$i][0], $range[$i][1]));
+    }
+    return $idx;
 }
 
 
@@ -515,7 +560,7 @@ function coordCompare($row, &$minBp, &$maxBp) {
 }
 
 
-function computeClusterScaleFactor($ids, $resultsDb, $window, $scaleCap) {
+function computeClusterScaleFactor($idx, $resultsDb, $window, $scaleCap) {
     
     $minBp = 999999999999;
     $maxBp = -999999999999;
@@ -527,10 +572,10 @@ function computeClusterScaleFactor($ids, $resultsDb, $window, $scaleCap) {
     $dbQueries = 0; //TIME
     $dbFetch = 0; //TIME
 
-    for ($i = 0; $i < count($ids); $i++) {
-        $id = $ids[$i][0];
+    for ($i = 0; $i < count($idx); $i++) {
+        $clIndex = $idx[$i];
         $first = true;
-        $attrSql = "SELECT A.rel_start AS start, A.rel_stop AS stop, A.sort_key AS key, A.num AS num FROM attributes AS A WHERE A.accession = '$id'";
+        $attrSql = "SELECT A.rel_start AS start, A.rel_stop AS stop, A.sort_key AS key, A.num AS num FROM attributes AS A WHERE A.cluster_index = $clIndex";
         $dbStart = microtime(true); //TIME
         $dbQuery = $resultsDb->query($attrSql);
         $dbQueryTime += microtime(true) - $dbStart; //TIME
@@ -572,7 +617,7 @@ function computeClusterScaleFactor($ids, $resultsDb, $window, $scaleCap) {
 
     $total = microtime(true) - $start;
 
-    $timeData = "#Ids: " . count($ids) . ", #Queries: $dbQueries, QueryTime: $dbQueryTime, #Fetch: $dbFetch, FetchTime: $dbFetchTime, Total: $total";
+    $timeData = "#Ids: " . count($idx) . ", #Queries: $dbQueries, QueryTime: $dbQueryTime, #Fetch: $dbFetch, FetchTime: $dbFetchTime, Total: $total";
 
     list ($scaleFactor, $legendScale, $maxSide, $maxWidth, $actualMaxWidth) = computeScaleFactor($minBp, $maxBp, $maxQueryWidth, $scaleCap);
     return array($scaleFactor, $legendScale, $minBp, $maxBp, $maxQueryWidth, $actualMaxWidth, $timeData);
