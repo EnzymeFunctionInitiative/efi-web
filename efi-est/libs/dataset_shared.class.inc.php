@@ -60,15 +60,25 @@ class dataset_shared {
         $uploaded_file = "";
         $included_family = $generate->get_families_comma();
         $num_family_nodes = $generate->get_counts("num_family");
+        if (!$num_family_nodes)  //LEGACY
+            $num_family_nodes = $generate->get_counts("num_family_seq");
         $num_full_family_nodes = $generate->get_counts("num_full_family");
+        if (!$num_full_family_nodes)  //LEGACY
+            $num_full_family_nodes = $generate->get_counts("num_full_family_seq");
         if (empty($num_full_family_nodes))
             $num_full_family_nodes = $num_family_nodes;
         $total_num_nodes = $generate->get_counts("num_seq");
         $num_overlap = $generate->get_counts("num_family_overlap");
         $num_user = $generate->get_counts("num_user");
+        if (!$num_user)  //LEGACY
+            $num_user = $generate->get_counts("total_num_file_seq");
         $num_uniref_overlap = $generate->get_counts("num_uniref_overlap");
         $num_matched = $generate->get_counts("num_user_matched");
+        if (!$num_matched)  //LEGACY
+            $num_matched = $generate->get_counts("num_matched_file_seq");
         $num_unmatched = $generate->get_counts("num_user_unmatched");
+        if (!$num_unmatched)  //LEGACY
+            $num_unmatched = $generate->get_counts("num_unmatched_file_seq");
         $num_file_seq = $num_matched + $num_unmatched;
         
         $family_label = "Added Pfam / InterPro Family";
