@@ -16,6 +16,7 @@ $IsExample = true;
 $user_token = "";
 $is_enabled = false;
 $is_sb_enabled = false;
+$use_advanced_options = global_settings::advanced_options_enabled();
 
 if (user_auth::has_token_cookie()) {
     $user_token = user_auth::get_user_token();
@@ -30,7 +31,8 @@ if (user_auth::has_token_cookie()) {
         //$job_manager = new job_manager($db, job_types::Identify);
         $is_enabled = $IsAdminUser || functions::is_shortbred_authorized($db, $user_token);
 
-        if (settings::get_recent_jobs_enabled()) {
+        // if $job_manager is a bit of a hack.  we're trying to track down an issue.
+        if ($job_manager && settings::get_recent_jobs_enabled()) {
             $jobs = $job_manager->get_jobs_by_user($user_token);
             $training_jobs = $job_manager->get_training_jobs($user_token);
             $show_previous_jobs = count($jobs) > 0 || count($training_jobs) > 0;
@@ -39,7 +41,6 @@ if (user_auth::has_token_cookie()) {
 }
 
 $db_modules = global_settings::get_database_modules();
-$use_advanced_options = global_settings::advanced_options_enabled();
 $default_cdhit_id = settings::get_default_cdhit_id();
 $default_ref_db = settings::get_default_ref_db();
 $default_search = settings::get_default_identify_search();
