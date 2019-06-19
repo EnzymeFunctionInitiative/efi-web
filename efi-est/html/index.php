@@ -1056,8 +1056,7 @@ HTML;
 
 
 function has_jobs($jobs) {
-    $order = $jobs["order"];
-    return count($order) > 0;
+    return (isset($jobs["order"]) && count($jobs["order"]) > 0);
 }
 
 
