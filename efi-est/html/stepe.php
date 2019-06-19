@@ -211,6 +211,13 @@ else {
 
 
         <div id="results">
+            <p>
+            The panels below provide files for full and representative node SSNs for 
+            download with the indicated numbers of nodes and edges.  As an approximate guide, SSNs 
+            with ~2M edges can be opened with 16 GB RAM, ~4 M edges can be opened with 32 
+            GB RAM, ~8M edges can be opened with 64 GB RAM, ~15M edges can be opened with 
+            128 GB RAM, and ~30M edges can be opened with 256 GB RAM. 
+            </p>
             <h4>Full Network <a href="tutorial_download.php" class="question" target="_blank">?</a></h4>
             <p>Each node in the network represents a single protein sequence. Large files (&gt;500MB) may not open in Cytoscape.</p>
             <?php if (!$full_network_html) { ?>
