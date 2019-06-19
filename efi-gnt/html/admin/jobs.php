@@ -49,7 +49,7 @@ foreach ($jobs as $job) {
 
     $script = $stepc_page;
     if ($job_type == "diagram") {
-        $results = isset($job['results']) ? global_functions::decode_object($job['params']) : array();
+        $results = isset($job["results"]) ? global_functions::decode_object($job["results"]) : array();
         $version = isset($results["diagram_version"]) ? $results["diagram_version"] : 0;
         $script = $version >= 3 ? $stepc_page_diagram_v2 : $stepc_page;
     }
