@@ -224,7 +224,6 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         <?php echo $jobIdDiv; ?>
                         <?php echo $cooccurrenceDiv; ?>
                         <?php echo $nbSizeDiv; ?>
-                        <div style="font-size:50%">GND Explorer V3 (<a href="view_diagrams.php?gnn-id=<?php echo "$gnnId&key=$gnnKey"; ?>">previous version</a>)</div>
                     </td>
                 </tr>
             </table>
@@ -437,7 +436,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                                 Showing <span id="diagrams-displayed-count">0</span> of <span id="diagrams-total-count">0</span> diagrams.
                             </div>
                             <div id="diagram-filter-count-container" style="display: none"> 
-                                Number of Diagrams Selected: <span>0</div>
+                                Number of Diagrams with Selected Families: <span>0</div>
                             </div>
                         </div>
                     </td>
