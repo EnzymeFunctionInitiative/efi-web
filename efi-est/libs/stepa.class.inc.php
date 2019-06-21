@@ -385,6 +385,8 @@ class stepa extends est_shared {
     protected function get_email_job_info() {
         $message = "EFI-EST Job ID: " . $this->get_id() . PHP_EOL;
         $message .= "Computation Type: " . functions::format_job_type($this->get_type()) . PHP_EOL;
+        if ($this->get_job_name())
+            $message .= "Job Name: " . $this->get_job_name() . PHP_EOL;
         return $message;
     }
     
