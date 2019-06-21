@@ -144,6 +144,8 @@ else {
 }
 
 
+$supportsGeneGraphics = isset($_GET["gene-graphics"]);
+
 if ($isBigscapeEnabled) {
     $bss = new bigscape_job($db, $gnnId, $bigscapeType);
     $bigscapeStatus = $bss->get_status();
@@ -338,6 +340,13 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                             <div>
                                 <button type="button" class="btn btn-default tool-button" id="save-canvas-button">
                                     <i class="far fa-image" aria-hidden="true"></i> Save as SVG
+                                </button>
+                            </div>
+<?php } ?>
+<?php if ($supportsGeneGraphics) { ?>
+                            <div>
+                                <button type="button" class="btn btn-default tool-button" id="export-gene-graphics-button">
+                                    <i class="far fa-image" aria-hidden="true"></i> Save as GeneGraphics
                                 </button>
                             </div>
 <?php } ?>
@@ -600,20 +609,25 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                 $(".tooltip-text").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
 
                 $("#save-canvas-button").click(function(e) {
-                        var svg = escape($("#arrow-canvas")[0].outerHTML);
-                        var data = filterUi.getLegendSvg();//TODO
-                        var legendSvgMarkup = escape(data[1]);
+                    var svg = escape($("#arrow-canvas")[0].outerHTML);
+                    var data = filterUi.getLegendSvg();//TODO
+                    var legendSvgMarkup = escape(data[1]);
                     
-                        var dlForm = $("<form></form>");
-                        dlForm.attr("method", "POST");
-                        dlForm.attr("action", "download_diagram_image.php");
-                        dlForm.append('<input type="hidden" name="type" value="svg">');
-                        dlForm.append('<input type="hidden" name="name" value="<?php echo $gnnName; ?>">');
-                        dlForm.append('<input type="hidden" name="svg" value="' + svg + '">');
-                        dlForm.append('<input type="hidden" name="legend1-svg" value="' + legendSvgMarkup + '">');
-                        $("#download-forms").append(dlForm);
-                        dlForm.submit();
-                    });
+                    var dlForm = $("<form></form>");
+                    dlForm.attr("method", "POST");
+                    dlForm.attr("action", "download_diagram_image.php");
+                    dlForm.append('<input type="hidden" name="type" value="svg">');
+                    dlForm.append('<input type="hidden" name="name" value="<?php echo $gnnName; ?>">');
+                    dlForm.append('<input type="hidden" name="svg" value="' + svg + '">');
+                    dlForm.append('<input type="hidden" name="legend1-svg" value="' + legendSvgMarkup + '">');
+                    $("#download-forms").append(dlForm);
+                    dlForm.submit();
+                });
+                $("#export-gene-graphics-button").click(function(e) {
+                    var url = control.getUrl(0, control.getMaxIndex());
+                    url = url.replace("get_gnd_data.php", "get_gene_graphics.php");
+                    window.location = url;
+                });
             });
 
             function showAlertMsg() {
