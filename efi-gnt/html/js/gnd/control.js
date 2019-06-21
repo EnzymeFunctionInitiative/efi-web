@@ -20,8 +20,16 @@ class GndController {
         this.query = "";
         this.indexRange = [];
         this.useRange = true;
+        this.maxIndex = 0;
 
         this.reset(false);
+    }
+
+    getUrl(start, end) {
+        return this.getUrlFn(start, end);
+    }
+    getMaxIndex() {
+        return this.maxIndex;
     }
 
     // The input to this function is the diagram index (e.g. the view).  This function computes
@@ -143,6 +151,7 @@ class GndController {
                 that.Http.initialize(jsonData.stats.max_index, that.getUrlFn);
                 that.scaleFactor = jsonData.stats.scale_factor;
                 that.View.setLegendScale(jsonData.stats.legend_scale);
+                that.maxIndex = jsonData.stats.max_index;
                 that.indexRange = jsonData.stats.index_range;
                 if (typeof jsonData.totaltime !== "undefined")
                     console.log("Init load duration: " + jsonData.totaltime);
