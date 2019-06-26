@@ -345,8 +345,12 @@ function add_analysis_summary_table($analysis, $stats, $table) {
         $table->add_row("Filter", $analysis->get_filter_name());
     $table->add_row("Minimum Length", number_format($analysis->get_min_length()));
     $table->add_row("Maximum Length", number_format($analysis->get_max_length()));
-    if ($use_advanced_options)
+    if ($use_advanced_options) {
         $table->add_row("CD-HIT Method", $analysis->get_cdhit_method_nice());
+        $min_method = $analysis->get_min_option_nice();
+        if ($min_method)
+            $table->add_row("Minimize", $min_method);
+    }
     if ($num_filt_seq)
         $table->add_row("Total Number of Sequences After Length Filtering", number_format($num_filt_seq));
 }
