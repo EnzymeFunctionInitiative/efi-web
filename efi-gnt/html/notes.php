@@ -7,7 +7,15 @@ require_once "inc/header.inc.php";
 
 <h2>Release Notes</h2>
 
-<h3>April 6, 2019</h4>
+<h3>June 19, 2019</h3>
+
+<p>
+The genome network diagram (GND) explorer has been updated.  InterPro families can now
+be added as genome filters, and SwissProt annotations can be highlighted. The ability
+to zoom in and out by scale (rather than genome window) is also present.
+</p>
+
+<h3>April 6, 2019</h3>
 
 <p>
 The GNT user interface has been updated.  The results page contains a tab-style interface
