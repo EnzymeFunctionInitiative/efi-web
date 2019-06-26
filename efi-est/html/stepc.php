@@ -100,6 +100,9 @@ if (isset($_POST['analyze_data'])) {
             $cdhitOpt = $opt;
     }
 
+    $min_node_attr = isset($_POST['min_node_attr']) ? 1 : 0;
+    $min_edge_attr = isset($_POST['min_edge_attr']) ? 1 : 0;
+
     $result = $analysis->create(
         $job_id,
         $filter_value,
@@ -108,7 +111,9 @@ if (isset($_POST['analyze_data'])) {
         $max,
         $customFile,
         $cdhitOpt,
-        $filter
+        $filter,
+        $min_node_attr,
+        $min_edge_attr
     );
 
     if ($result['RESULT']) {
@@ -666,6 +671,15 @@ Protein_ID_3,Cluster#
                         </p>
                     </div>
                 </div>
+                <?php if ($use_advanced_options) { ?>
+                <div>
+                    <h3>Dev Site Options</h3>
+                    <div>
+                        <div><label><input type="checkbox" name="min_edge_attr" id="min_edge_attr" /> Use mimimum number of edge attributes</label></div>
+                        <div><label><input type="checkbox" name="min_node_attr" id="min_node_attr" /> Use mimimum number of node attributes</label></div>
+                    </div>
+                </div>
+                <?php } ?>
             </div>
             <div>
                 <p>
