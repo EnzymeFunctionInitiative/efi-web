@@ -24,10 +24,12 @@ abstract class gnd {
     private $factory;
     private $message = "";
     private $scale_factor = null;
+    private $job_name = "";
 
     public function get_error_message() { return $this->message; }
     public function parse_error() { return $this->message; }
     protected function append_error($msg) { $this->message .= ($this->message ? "; " : "") . $msg; }
+    public function get_job_name() { return $this->job_name; }
 
 
     function __construct($db, $params, $factory) {
@@ -64,6 +66,7 @@ abstract class gnd {
                 $this->db_file = $gnn->get_diagram_data_file($has_bigscape);
                 if (!file_exists($this->db_file))
                     $this->db_file = $gnn->get_diagram_data_file_legacy();
+                $this->job_name = $gnn->get_gnn_name();
             }
         } else if (isset($params['upload-id']) && functions::is_diagram_upload_id_valid($params['upload-id'])) {
             $gnn_id = $params['upload-id'];
@@ -73,6 +76,7 @@ abstract class gnd {
                 $has_bigscape = $bss->is_finished() && isset($params['bigscape']) && $params['bigscape']=="1";
             }
             $this->db_file = $arrows->get_diagram_data_file($has_bigscape);
+            $this->job_name = $arrows->get_gnn_name();
         } else if (isset($params['direct-id']) && functions::is_diagram_upload_id_valid($params['direct-id'])) {
             $gnn_id = $params['direct-id'];
             $arrows = $this->factory->new_diagram_data_file($gnn_id);
@@ -81,6 +85,7 @@ abstract class gnd {
                 $has_bigscape = $bss->is_finished() && isset($params['bigscape']) && $params['bigscape']=="1";
             }
             $this->db_file = $arrows->get_diagram_data_file($has_bigscape);
+            $this->job_name = $arrows->get_gnn_name();
             $this->is_direct_job = true;
         } else {
             $message = "No GNN selected.";

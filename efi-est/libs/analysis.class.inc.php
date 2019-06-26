@@ -34,6 +34,8 @@ class analysis extends est_shared {
     private $job_type = "";
     private $uniref = 0;
     private $db_mod = "";
+    private $use_min_edge_attr = false;
+    private $use_min_node_attr = false;
     protected $is_sticky = false;
 
     ///////////////Public Functions///////////
@@ -65,6 +67,16 @@ class analysis extends est_shared {
     public function get_sequence_file() { return $this->sequence_file; }
     public function get_db_version() { return $this->db_version; }
     public function get_output_dir() { return $this->get_generate_id() . "/" . $this->output_dir; }
+    public function get_min_option_nice() {
+        if ($this->use_min_node_attr && $this->use_min_edge_attr)
+            return "Node + Edge";
+        elseif ($this->use_min_node_attr)
+            return "Node";
+        elseif ($this->use_min_edge_attr)
+            return "Edge";
+        else
+            return "";
+    }
     public function get_cdhit_method_nice() {
         if ($this->cdhit_opt == "sb")
             return "ShortBRED";
@@ -122,7 +134,7 @@ class analysis extends est_shared {
         }
     }
 
-    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval") {
+    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0) {
         $errors = false;
         $message = "";		
 
@@ -166,6 +178,11 @@ class analysis extends est_shared {
         }
 
         if (!$errors) {
+            $params = array();
+            if ($min_node_attr)
+                $params['use_min_node_attr'] = 1;
+            if ($min_edge_attr)
+                $params['use_min_edge_attr'] = 1;
             $insert_array = array(
                 'analysis_generate_id'=>$generate_id,
                 'analysis_status' => __NEW__,
@@ -178,6 +195,7 @@ class analysis extends est_shared {
             );
             if ($cdhitOpt)
                 $insert_array['analysis_cdhit_opt'] = $cdhitOpt;
+            $insert_array['analysis_params'] = global_functions::encode_object($params);
 
             $result = $this->db->build_insert("analysis",$insert_array);
             if ($result) {
@@ -323,16 +341,16 @@ class analysis extends est_shared {
                 $exec = "source /etc/profile\n";
                 $exec .= "module load " . functions::get_efi_module() . "\n";
                 $exec .= "module load " . $this->db_mod . "\n";
-                $exec .= "create_analysis_job.pl ";
-                $exec .= "-maxlen " . $this->get_max_length() . " ";
-                $exec .= "-minlen " . $this->get_min_length() . " ";
-                $exec .= "-filter " . $this->get_filter() . " ";
-                $exec .= "-title " . $this->get_name() . " ";
-                $exec .= "-minval " . $this->get_filter_value() . " ";
-                $exec .= "-maxfull " . functions::get_maximum_number_ssn_nodes() . " ";
-                $exec .= "-tmp " . $relative_output_dir . " ";
-                $exec .= "-job-id " . $this->get_generate_id() . " ";
-                $exec .= "-queue " . functions::get_analyse_queue() . " ";
+                $exec .= "create_analysis_job.pl";
+                $exec .= " -maxlen " . $this->get_max_length();
+                $exec .= " -minlen " . $this->get_min_length();
+                $exec .= " -filter " . $this->get_filter();
+                $exec .= " -title " . $this->get_name();
+                $exec .= " -minval " . $this->get_filter_value();
+                $exec .= " -maxfull " . functions::get_maximum_number_ssn_nodes();
+                $exec .= " -tmp " . $relative_output_dir;
+                $exec .= " -job-id " . $this->get_generate_id();
+                $exec .= " -queue " . functions::get_analyse_queue();
                 if ($this->custom_clustering) {
                     $exec .= " -custom-cluster-file " . $this->custom_filename;
                     $exec .= " -custom-cluster-dir " . $network_dir;
@@ -348,7 +366,11 @@ class analysis extends est_shared {
                 if ($parent_id > 0)
                     $exec .= " " . $parent_dir_opt;
                 if ($this->job_type == "FASTA_ID" || $this->job_type == "FASTA")
-                    $exec .= "-include-sequences ";
+                    $exec .= " -include-sequences";
+                if ($this->use_min_edge_attr)
+                    $exec .= " -use-min-edge-attr";
+                if ($this->use_min_node_attr)
+                    $exec .= " -use-anno-spec";
 
                 $exec .= " 2>&1 ";
 
@@ -432,6 +454,10 @@ class analysis extends est_shared {
             else
                 $this->uniref = 0;
 
+            $a_params = global_functions::decode_object($result[0]['analysis_params']);
+            $this->use_min_edge_attr = isset($a_params["use_min_edge_attr"]) && $a_params["use_min_edge_attr"];
+            $this->use_min_node_attr = isset($a_params["use_min_node_attr"]) && $a_params["use_min_node_attr"];
+
             $db_mod = isset($gen_params["generate_db_mod"]) ? $gen_params["generate_db_mod"] : functions::get_efidb_module();
             if ($db_mod) {
                 // Get the actual module not the alias.
@@ -455,6 +481,10 @@ class analysis extends est_shared {
             $path .= "-" . $this->get_min_length() . "-" . $this->get_max_length();
             if ($this->cdhit_opt == "sb" || $this->cdhit_opt == "est+")
                 $path .= "-" . $this->cdhit_opt;
+            if ($this->use_min_node_attr)
+                $path .= "-minn";
+            if ($this->use_min_edge_attr)
+                $path .= "-mine";
         }
         return $path;
     }
