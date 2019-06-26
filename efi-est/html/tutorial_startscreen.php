@@ -1,7 +1,10 @@
 <?php 
-include_once '../includes/main.inc.php';
-include_once 'inc/header.inc.php'; 
-include_once 'inc/tutorial_nav.inc.php';
+require_once("../includes/main.inc.php");
+require_once("inc/header.inc.php");
+require_once("inc/tutorial_nav.inc.php");
+
+$feedback_url = global_settings::get_base_web_root() . "/feedback.php";
+
 ?>
 
 <h3>SSN input -- General considerations</h3>
@@ -86,12 +89,9 @@ inferences about divergent evolution of protein function are possible.
 <p>
 <b>If you are interested in detailed exploration of sequence-function 
 relationships in families with more than <?php echo functions::get_max_seq(1); ?> 
-sequences, please send an 
-e-mail to <a href="mailto:efi@enzymefunction.org">efi@enzymefunction.org</a>
-with a brief summary of your interests.</b> We 
-will provide access to the Unix terminal scripts for generating networks on 
-Biocluster at the Institute for Genomic Biology at the University of Illinois, 
-Urbana Champaign as well as assistance in using the scripts.
+sequences, please submit a summary of your interests via the feedback form
+at <a href="<?php echo $feedback_url; ?>"><?php echo $feedback_url; ?></a>
+and we may be able to assist.
 </p>
 
 <p>

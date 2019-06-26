@@ -442,7 +442,7 @@ node of each sequence) as a function of alignment score. By moving the cursor
 over the plot, the number of edges for each alignment score is displayed. </p>
 <p>This plot helps determine if the full SSN generated using the initial 
 alignment score can be opened with Cytoscape on the user’s computer. As a rough guide, 
-SSNs with ~2M edges can be opened with 16GB RAM, ~4 M edges with 32GB RAM, ~8M 
+SSNs with ~2M edges can be opened with 16GB RAM, ~4M edges with 32GB RAM, ~8M 
 edges with 64GB RAM, ~15M edges with 128GB RAM, and ~30M edges with 256GB RAM. 
 </p>
 <p>If the number of edges for the full SSN is too large to be opened, a 

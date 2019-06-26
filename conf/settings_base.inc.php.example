@@ -20,6 +20,7 @@ define("__INTERPRO_WEBSITE__","http://www.ebi.ac.uk/interpro/");
 define("__TIMEZONE__","America/Chicago");
 define("__ADMIN_EMAIL__","");
 define("__ERROR_ADMIN_EMAIL__","");
+define("__FEEDBACK_EMAIL__","");
 define("__UNIPROT_VERSION__","");
 define("__ENA_VERSION__","");
 define("__GNT_VERSION__","");

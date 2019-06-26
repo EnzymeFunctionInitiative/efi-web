@@ -434,6 +434,8 @@ class stepa extends est_shared {
         $full_url = functions::get_web_root();
         $max_seq = functions::get_max_seq();
 
+        $url = global_settings::get_base_web_root() . "/feedback.php";
+
         $plain_email = "";
         $plain_email .= "This computation will use " . number_format($this->get_num_sequences()) . "." . PHP_EOL;
         $plain_email .= "This number is too large--you are limited to ";
@@ -441,12 +443,8 @@ class stepa extends est_shared {
         $plain_email .= "Return to THE_URL" . PHP_EOL;
         $plain_email .= "to start a new job with a different set of Pfam/InterPro families.";
         $plain_email .= "Or, if you would like to generate a network with the Pfam/InterPro";
-        $plain_email .= " families you have chosen, send an e-mail to efi@enzymefunction.org and";
-        $plain_email .= " request an account on Biocluster.  We will provide you with instructions";
-        $plain_email .= " to use our Unix scripts for network generation.  These scripts allow you";
-        $plain_email .= " to use a larger number of processors and, also, provide more options for";
-        $plain_email .= " generating the network files.  Your e-mail should provide a brief ";
-        $plain_email .= "description of your project so that the EFI can assist you." . PHP_EOL . PHP_EOL;
+        $plain_email .= " families you have chosen, submit feedback at $url and we may be able to assist you.";
+        $plain_email .= PHP_EOL . PHP_EOL;
 
         $this->email_error($subject, array("body" => $plain_email, "url" => $full_url));
     }
