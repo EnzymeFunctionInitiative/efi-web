@@ -21,9 +21,11 @@ if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPag
 <?php if (!isset($HideCiteUs)) { ?>
             <p><center>If you use the EFI web tools, please <a href="../#citeus">cite us</a>.</center></p>
 <?php } ?>
+<?php if (!isset($HideFeedback)) {?>
             <p class="suggestions">
-                <a href="http://enzymefunction.org/content/sequence-similarity-networks-tool-feedback"><?php echo $feedback_msg; ?></a>
+                <a href="<?php echo $siteUrlPrefix; ?>/feedback.php"><?php echo $feedback_msg; ?></a>
             </p>
+<?php } ?>
 <?php } ?>
         </div> <!-- content-holder -->
 

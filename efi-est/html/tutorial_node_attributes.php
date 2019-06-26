@@ -25,10 +25,9 @@ actions or access external links via LinkOut, such as to UniProtKB.
 <p>
 Note that the EFI-EST web server uses data available in the UniProtKB database 
 to populate node attribute fields.  Therefore, only information that is stored 
-in UniProtKB is included in EFI-EST networks.  To load and map your own node 
-attributes, click <a 
-href='http://enzymefunction.org/sites/enzymefunction.org/files/uploads/EFI_Quick_Help_Cytoscape-Apply_Node_Attribute.pdf' 
-target='_blank'>here</a> to view a tutorial.  Adding your own node attributes 
+in UniProtKB is included in EFI-EST networks.  
+Additional node attributes can be added within Cytoscape by using the BridgeDB
+add-on.  Adding your own node attributes 
 is useful for mapping annotations or other information that you have at hand, 
 which is otherwise not available in UniProtKB.
 </p>
