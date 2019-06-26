@@ -60,6 +60,10 @@ class global_settings {
         return __ERROR_ADMIN_EMAIL__;
     }
 
+    public static function get_feedback_email() {
+        return __FEEDBACK_EMAIL__;
+    }
+
     public static function get_memory_queue() {
         return __MEMORY_QUEUE__;
     }

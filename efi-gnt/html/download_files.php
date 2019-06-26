@@ -60,7 +60,7 @@ if (isset($_GET["type"])) {
         $is_error = true;
     } elseif ($is_gnn == false && $type == "uniprot") {
         $gnn_name = $arrows->get_gnn_name();
-        $dl_filename = "${theId}_${gnnName}_UniProt_IDs.txt";
+        $dl_filename = "${id}_${gnn_name}_UniProt_IDs.txt";
         $ids = $arrows->get_uniprot_ids();
         $content = "UniProt ID\tQuery ID\n";
         foreach ($ids as $upId => $otherId) {
@@ -72,7 +72,7 @@ if (isset($_GET["type"])) {
         exit(0);
     } elseif ($is_gnn == false && $type == "unmatched") {
         $gnn_name = $arrows->get_gnn_name();
-        $dl_filename = "${theId}_${gnnName}_Unmatched_IDs.txt";
+        $dl_filename = "${id}_${gnn_name}_Unmatched_IDs.txt";
         $ids = $arrows->get_unmatched_ids();
         $content = implode("\n", $ids);
         send_headers($dl_filename, strlen($content));
@@ -80,7 +80,7 @@ if (isset($_GET["type"])) {
         exit(0);
     } elseif ($is_gnn == false && $type == "blast") {
         $gnn_name = $arrows->get_gnn_name();
-        $dl_filename = "${theId}_${gnnName}_BLAST_Sequence.txt";
+        $dl_filename = "${id}_${gnn_name}_BLAST_Sequence.txt";
         $content = $arrows->get_blast_sequence();
         send_headers($dl_filename, strlen($content));
         print $content;
@@ -89,7 +89,7 @@ if (isset($_GET["type"])) {
         $cluster_file = $arrows->get_bigscape_cluster_file();
         if ($cluster_file !== FALSE) {
             $gnn_name = $arrows->get_gnn_name();
-            $dl_filename = "${theId}_${gnnName}_BiG-SCAPE_clusters.txt";
+            $dl_filename = "${id}_${gnn_name}_BiG-SCAPE_clusters.txt";
             $content_size = filesize($cluster_file);
             send_headers($dl_filename, $content_size);
             readfile($cluster_file);
