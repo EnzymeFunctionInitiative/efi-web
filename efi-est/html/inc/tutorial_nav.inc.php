@@ -18,7 +18,7 @@
           </li>
           <li><a href="tutorial_download.php">Network File Download</a></li>
           <li><a href="tutorial_node_attributes.php">Node Attributes</a></li>
-	  <li><a href='http://enzymefunction.org/resources/tutorials/efi-and-cytoscape3'>Introduction to Cytoscape 3.X.X</a>
+	  <li><a href='tutorial_cytoscape.php'>Introduction to Cytoscape</a>
 		<!--<ul>
 			<li><a href='tutorial_cytoscape.php#ex1'>Download Cytoscape</a></li>
 			<li><a href='tutorial_cytoscape.php#ex2'>Initial Steps</li>
