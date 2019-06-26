@@ -17,6 +17,12 @@ require_once "inc/header.inc.php";
 </p>
 -->
 
+<h3>May 20, 2019</h3>
+
+<p>
+<?php echo get_db_size_text("2019_04", "74", 158257522, 560292); ?>
+</p>
+
 <h3>April 6, 2019</h3>
 
 <p>

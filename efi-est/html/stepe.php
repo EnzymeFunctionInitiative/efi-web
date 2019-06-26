@@ -214,7 +214,7 @@ else {
             <p>
             The panels below provide files for full and representative node SSNs for 
             download with the indicated numbers of nodes and edges.  As an approximate guide, SSNs 
-            with ~2M edges can be opened with 16 GB RAM, ~4 M edges can be opened with 32 
+            with ~2M edges can be opened with 16 GB RAM, ~4M edges can be opened with 32 
             GB RAM, ~8M edges can be opened with 64 GB RAM, ~15M edges can be opened with 
             128 GB RAM, and ~30M edges can be opened with 256 GB RAM. 
             </p>
@@ -276,7 +276,7 @@ else {
             </div>
             <div style="clear:both"></div>
 
-            <center><p><a href='http://enzymefunction.org/resources/tutorials/efi-and-cytoscape3'>New to Cytoscape?</a></p></center>
+            <center><p><a href="tutorial_cytoscape.php">New to Cytoscape?</a></p></center>
         </div>
     </div>
 </div>
@@ -345,8 +345,12 @@ function add_analysis_summary_table($analysis, $stats, $table) {
         $table->add_row("Filter", $analysis->get_filter_name());
     $table->add_row("Minimum Length", number_format($analysis->get_min_length()));
     $table->add_row("Maximum Length", number_format($analysis->get_max_length()));
-    if ($use_advanced_options)
+    if ($use_advanced_options) {
         $table->add_row("CD-HIT Method", $analysis->get_cdhit_method_nice());
+        $min_method = $analysis->get_min_option_nice();
+        if ($min_method)
+            $table->add_row("Minimize", $min_method);
+    }
     if ($num_filt_seq)
         $table->add_row("Total Number of Sequences After Length Filtering", number_format($num_filt_seq));
 }
