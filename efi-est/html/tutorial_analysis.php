@@ -21,7 +21,7 @@ final step of the SSN generation.
 <p>
 Networks are best interpreted with an alignment score upper limit that gathers 
 the sequences into clusters that represent families with only a single function 
-(termed “isofunctional”). If the alignment score is too large, the network may 
+(termed "isofunctional"). If the alignment score is too large, the network may 
 be overly fractured, and isofunctional families will be split into multiple 
 subfamilies. If the alignment score is too small, multiple families will be 
 merged into a single cluster.
@@ -33,12 +33,11 @@ is determined empirically by mapping known functions onto the network (using
 functional annotations/node attributes included with network files and/or those 
 that can be added by the user) and observing how they partition into separate 
 clusters as the alignment score is decreased.
-This can be done by increasing the alignment score using Cytoscape’s
-<A HREF="http://enzymefunction.org/sites/enzymefunction.org/files/uploads/EFI Quick Help Cytoscape - More Stringent Evalues2.pdf">filter function</A>.
-With this in mind, <b>the
-recommended procedure is to output the initial SSN with a “low” alignment score 
+This can be done by increasing the alignment score using Cytoscape's
+filter function. With this in mind, <b>the
+recommended procedure is to output the initial SSN with a "low" alignment score 
 so that isofunctional families are not separated</b>. Although this alignment score 
-will depend on the family, a useful “rule-of-thumb” is that isofunctional 
+will depend on the family, a useful "rule-of-thumb" is that isofunctional 
 families often share &gt;40% sequence identity. Thus, we recommend that the 
 alignment score used to output the initial SSN should correspond to a lower 
 sequence identity, e.g., 35%.
@@ -128,7 +127,7 @@ a family that contains both single and multiple domain proteins</a>.
 <h4>Example 1: a family of single domain proteins</h4>
 
 <p>
-For a “simple” case, the length histogram for the proline racemase superfamily 
+For a "simple" case, the length histogram for the proline racemase superfamily 
 (IPR008794), (Example 1B) shows that almost all of the proteins have roughly 
 similar lengths within +/- 30 residues (a single domain). 
 </p>
@@ -137,9 +136,9 @@ similar lengths within +/- 30 residues (a single domain).
 The alignment length versus alignment score quartile plot (Example 1C) shows 
 that as the alignment score increases, the length of the sequence that is 
 included in the calculation of the alignment score increases to the full length 
-of the proteins (~300 residues). For “small” alignment scores, when the 
+of the proteins (~300 residues). For "small" alignment scores, when the 
 alignment length is significantly less than the full length, both the alignment 
-length and percent identity (Example 1D) plots show considerable “scatter” 
+length and percent identity (Example 1D) plots show considerable "scatter" 
 because short stretches of residues are responsible for the alignment score. 
 The scatter is normal. [Some of the short alignment stretches may be caused by 
 the presence of fragments that always are present as a result of sequencing 
@@ -154,7 +153,7 @@ alignment score calculation results from alignment of the full length of the
 sequence (in this case at alignment scores > ~20). For cases such as this, use 
 the monotonic increase in percent identity as a function of increasing 
 alignment scores to guide your initial selection of the alignment score to be 
-used in generating the network file. <b>Although there is no quantitative “rule” 
+used in generating the network file. <b>Although there is no quantitative "rule" 
 as to how function diverges as percent identity decreases, we recommend that 
 your initial networks should be generated with an alignment score threshold 
 that corresponds to ~35% sequence identity.</b> Thus, in this example, an alignment 
@@ -215,7 +214,7 @@ In the percent identity vs. alignment score quartile plot, the percent identity
 increases as the alignment score increases (Example 2D). However, when the 
 alignment length increases to include the two-domain polypeptides, the percent 
 identity decreases and then increases to again approach 100%. Notice that the 
-interpretations of the quartile plots are inter-related: the “breaks” in the 
+interpretations of the quartile plots are inter-related: the "breaks" in the 
 alignment length versus alignment score and percent identity versus alignment 
 score plots occur at the same alignment score(s).
 </p>
