@@ -173,6 +173,8 @@ if (!isset($_POST['submit'])) {
                         $input->domain = $_POST["accession_use_dom"];
                     if (isset($_POST["accession_dom_fam"]) && $_POST["accession_dom_fam"])
                         $input->domain_family = $_POST["accession_dom_fam"];
+                    if (isset($_POST["accession_dom_reg"]) && $_POST["accession_dom_reg"])
+                        $input->domain_region = $_POST["accession_dom_reg"];
                 } else if ($option == "colorssn") {
                     $obj = new colorssn($db);
                     if (isset($_POST['ssn-source-id']))

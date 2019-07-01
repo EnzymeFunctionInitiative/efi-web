@@ -21,6 +21,7 @@ class input_data {
 
     // For option D
     public $domain_family;
+    public $domain_region;
 
     // For option B, and E
     public $domain;

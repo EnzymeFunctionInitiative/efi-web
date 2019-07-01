@@ -144,6 +144,7 @@ function submitOptionDForm(famHelper, outputIds) {
         if ($("#domain-optd").prop("checked")) {
             fd.append("accession_use_dom", true);
             addParam(fd, "accession_dom_fam", "accession-input-domain-family");
+            addRadioParam(fd, "accession_dom_reg", "accession-input-domain-region");
         }
     
         var completionHandler = getDefaultCompletionHandler();
@@ -324,6 +325,11 @@ function addCbParam(fd, param, id) {
         fd.append(param, val);
 }
 
+function addRadioParam(fd, param, groupName) {
+    var value = $("input[name='" + groupName + "']:checked").val();
+    if (value)
+        fd.append(param, value);
+}
 
 function addParam(fd, param, id) {
     var val = $("#" + id).val();
