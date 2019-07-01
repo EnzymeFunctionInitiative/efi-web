@@ -675,8 +675,8 @@ Protein_ID_3,Cluster#
                 <div>
                     <h3>Dev Site Options</h3>
                     <div>
-                        <div><label><input type="checkbox" name="min_edge_attr" id="min_edge_attr" /> Use mimimum number of edge attributes</label></div>
-                        <div><label><input type="checkbox" name="min_node_attr" id="min_node_attr" /> Use mimimum number of node attributes</label></div>
+                        <div><label><input type="checkbox" name="min_edge_attr" id="min_edge_attr" /> Use minimum number of edge attributes</label></div>
+                        <div><label><input type="checkbox" name="min_node_attr" id="min_node_attr" /> Use minimum number of node attributes</label></div>
                     </div>
                 </div>
                 <?php } ?>
