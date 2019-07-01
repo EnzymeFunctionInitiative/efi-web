@@ -189,8 +189,13 @@ class dataset_shared {
             if ($gen_type == "FASTA_ID" || $gen_type == "ACCESSION")
                 $match_text = " (" . number_format($num_matched) . " UniProt ID matches and " . number_format($num_unmatched) . " unmatched)";
 
-            if ($domain_opt == "on" && !$included_family)
-                $table->add_row($domain_label, $generate->get_domain());
+            if ($domain_opt == "on" && !$included_family) {
+                $term_opt = $generate->get_domain_region_pretty();
+                $row_val = $generate->get_domain();
+                if ($term_opt)
+                    $row_val .= " ($term_opt)";
+                $table->add_row($domain_label, $row_val);
+            }
             if ($uniref && !$included_family)
                 $table->add_row("Input Sequence Source", "UniRef$uniref");
             if ($show_evalue)
