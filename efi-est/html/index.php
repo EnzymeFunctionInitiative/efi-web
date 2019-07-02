@@ -366,7 +366,7 @@ the <a href="family_list.php">Family Information page</a>.
 
                 <div class="option-panels">
                     <div>
-                        <?php add_domain_option("optd", true); ?>
+                        <?php add_domain_option("optd", true, $useAdvancedFamilyInputs); ?>
                     </div>
 
                     <div>
@@ -887,7 +887,7 @@ HTML;
 }
 
 
-function add_domain_option($option_id, $specify_family = false) {
+function add_domain_option($option_id, $specify_family = false, $use_advanced_options = false) {
     $option_text = $specify_family ? "Options" : "Option";
     echo <<<HTML
 <h3>Family Domain Boundary $option_text</h3>
@@ -913,6 +913,9 @@ HTML;
             <input type="text" name="accession-input-domain-family" id="accession-input-domain-family" style="width: 100px" disabled />
             Use domain boundaries from the specified family (enter only one family).
         </span>
+HTML;
+        if ($use_advanced_options) {
+            echo <<<HTML
         <div>
             <input type="radio" id="accession-input-domain-region-nterminal" name="accession-input-domain-region" value="nterminal" class="accession-input-domain-region">
             <label for="accession-input-domain-region-nterminal">N-Terminal</label>
@@ -921,6 +924,9 @@ HTML;
             <input type="radio" id="accession-input-domain-region-cterminal" name="accession-input-domain-region" value="cterminal" class="accession-input-domain-region">
             <label for="accession-input-domain-region-cterminal">C-Terminal</label>
         </div>
+HTML;
+        }
+        echo <<<HTML
     </div>
 HTML;
     }
