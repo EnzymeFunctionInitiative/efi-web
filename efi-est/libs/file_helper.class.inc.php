@@ -65,7 +65,6 @@ class file_helper {
             $start_path = functions::get_uploads_dir() . "/" . $this->id . $ext;
         }
         $end_path = $this->get_results_input_file($this->id);
-        error_log("Copying $start_path to $end_path");
         return copy($start_path, $end_path);
     }
 

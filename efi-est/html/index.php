@@ -690,9 +690,11 @@ the <a href="family_list.php">Family Information page</a>.
             document.forms[i].reset();
         }
         document.getElementById("accession-input-domain-family").disabled = true;
+<?php if ($useAdvancedFamilyInputs) { ?>
         document.getElementById("accession-input-domain-region-nterminal").disabled = true;
         document.getElementById("accession-input-domain-region-domain").disabled = true;
         document.getElementById("accession-input-domain-region-cterminal").disabled = true;
+<?php } ?>
     }
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
