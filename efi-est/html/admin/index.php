@@ -226,7 +226,7 @@ $(document).ready(function() {
 </script>
 
 <?php
-include_once '../includes/stats_footer.inc.php';
+include_once 'inc/stats_footer.inc.php';
 
 function format_time($t) {
     $t = round($t);

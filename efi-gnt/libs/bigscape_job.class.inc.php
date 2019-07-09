@@ -204,10 +204,6 @@ class bigscape_job {
         if ($queue)
             $exec .= " -queue $queue";
 
-        //TODO: remove this debug message
-        error_log("Job ID: " . $this->bigscape_id);
-        error_log("Exec: " . $exec);
-
         $exit_status = 1;
         $output_array = array();
         $output = exec($exec, $output_array, $exit_status);
@@ -219,7 +215,6 @@ class bigscape_job {
             $pbs_job_number = substr($output, 0, strpos($output, "."));
 
         if (!$exit_status) {
-            error_log("Job running with job # $pbs_job_number");
             $update_sql = "UPDATE bigscape " .
                 "SET bigscape_status = '" . __RUNNING__ . "', bigscape_pbs_number = $pbs_job_number " .
                 "WHERE bigscape_id = " . $this->bigscape_id;
