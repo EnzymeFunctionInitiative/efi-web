@@ -108,7 +108,6 @@ class db {
 		$values_sql .= ")";
 		$columns_sql .= ")";
 		$sql = $sql . $columns_sql . " " . $values_sql;
-		error_log($sql);
 		return $this->insert_query($sql);
 	}
 	

@@ -454,7 +454,7 @@ class analysis extends est_shared {
             else
                 $this->uniref = 0;
 
-            $a_params = global_functions::decode_object($result[0]['analysis_params']);
+            $a_params = isset($result[0]['analysis_params']) ? global_functions::decode_object($result[0]['analysis_params']) : array();
             $this->use_min_edge_attr = isset($a_params["use_min_edge_attr"]) && $a_params["use_min_edge_attr"];
             $this->use_min_node_attr = isset($a_params["use_min_node_attr"]) && $a_params["use_min_node_attr"];
 
