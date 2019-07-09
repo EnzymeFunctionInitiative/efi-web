@@ -67,6 +67,8 @@ $size_data = array(
 );
 if ($job_obj->get_ssn_file_size())
     $size_data["ssn"] = $job_obj->get_ssn_file_size();
+else
+    $size_data["ssn"] = 0;
 
 $gn_file = $job_obj->get_genome_normalized_cluster_file_path();
 if (file_exists($gn_file)) {

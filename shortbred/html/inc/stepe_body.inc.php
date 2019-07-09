@@ -85,10 +85,13 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
                             <thead><th></th><th>File</th><th>Size</th></thead>
                             <tbody>
                             <?php 
+                                $ssn_row_file_array = $size_data["ssn"] ? array($file_types["ssn"], $file_types["ssn_zip"]) : $file_types["ssn_zip"];
+                                $ssn_row_label_array = $size_data["ssn"] ? array("Download", "Download (ZIP)") : "Download (ZIP)";
+                                $ssn_row_size_array = $size_data["ssn"] ? array($size_data["ssn"], $size_data["ssn_zip"]) : $size_data["ssn_zip"];
                                 make_results_row($id_query_string,
-                                    array($file_types["ssn"], $file_types["ssn_zip"]),
-                                    array("Download", "Download (ZIP)"),
-                                    array($size_data["ssn"], $size_data["ssn_zip"]),
+                                    $ssn_row_file_array,
+                                    $ssn_row_label_array,
+                                    $ssn_row_size_array,
                                     $html_labels["ssn"]);
                             ?>
                             </tbody>
