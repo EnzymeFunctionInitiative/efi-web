@@ -429,6 +429,23 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
                 </div>
 
+                <?php if ($useAdvancedFamilyInputs) { ?>
+                <div class="option-panels">
+                    <div>
+                        <h3>Dev Site Options</h3>
+                        <div>
+                            <div>
+                                <span class="input-name">
+                                    Extra RAM:
+                                </span><span class="input-field">
+                                    <input type="checkbox" id="colorssn-extra-ram" name="colorssn-extra-ram" value="1">
+                                    <label for="colorssn-extra-ram">Check to use additional RAM (800GB) [default: off (350GB)]</label>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>
                 <?php add_submit_html("colorssn", "", $userEmail); ?>
             </form>
         </div>
