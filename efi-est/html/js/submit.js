@@ -204,6 +204,7 @@ function submitColorSsnForm() {
     var fd = new FormData();
     fd.append("option_selected", "colorssn");
     addParam(fd, "email", "email-colorssn");
+    addCbParam(fd, "extra_ram", "colorssn-extra-ram");
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
     var files = document.getElementById("colorssn-file").files;

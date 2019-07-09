@@ -181,6 +181,7 @@ if (!isset($_POST['submit'])) {
                         $input->color_ssn_source_id = $_POST['ssn-source-id'];
                     if (isset($_POST['ssn-source-idx']))
                         $input->color_ssn_source_idx = $_POST['ssn-source-idx'];
+                    $input->extra_ram = (isset($_POST['extra_ram']) && $_POST['extra_ram'] == "true");
                 }
 
                 if (isset($_FILES['file'])) {
