@@ -66,6 +66,11 @@ function submitOptionAForm(famHelper, outputIds) { // familySizeHelper
         doFormPost(FORM_ACTION, fd, outputIds.warningMsg, fileHandler, completionHandler);
     };
 
+    if (!checkSequence($("#blast-input").val())) {
+        $("#blast-input").addClass("input-error");
+        $("#" + outputIds.warningMsg).text("Invalid Query Sequence.  Please input a protein sequence.");
+        return false;
+    }
     if (!famHelper.checkUnirefRequirement(optionId, submitFn)) {
         return false;
     }
@@ -144,6 +149,7 @@ function submitOptionDForm(famHelper, outputIds) {
         if ($("#domain-optd").prop("checked")) {
             fd.append("accession_use_dom", true);
             addParam(fd, "accession_dom_fam", "accession-input-domain-family");
+            addRadioParam(fd, "accession_dom_reg", "accession-input-domain-region");
         }
     
         var completionHandler = getDefaultCompletionHandler();
@@ -198,6 +204,7 @@ function submitColorSsnForm() {
     var fd = new FormData();
     fd.append("option_selected", "colorssn");
     addParam(fd, "email", "email-colorssn");
+    addCbParam(fd, "extra_ram", "colorssn-extra-ram");
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
     var files = document.getElementById("colorssn-file").files;
@@ -324,6 +331,11 @@ function addCbParam(fd, param, id) {
         fd.append(param, val);
 }
 
+function addRadioParam(fd, param, groupName) {
+    var value = $("input[name='" + groupName + "']:checked").val();
+    if (value)
+        fd.append(param, value);
+}
 
 function addParam(fd, param, id) {
     var val = $("#" + id).val();
