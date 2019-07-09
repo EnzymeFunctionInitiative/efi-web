@@ -161,8 +161,6 @@ $output = array(
     'cookieInfo' => $cookieInfo
 );
 
-error_log(print_r($output, true));
-
 echo json_encode($output);
 
 ?>

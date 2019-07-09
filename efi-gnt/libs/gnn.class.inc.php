@@ -124,8 +124,6 @@ class gnn extends gnn_shared {
             $output = exec($exec, $output_array, $exit_status);
         }
 
-        error_log($outfile);
-
         return $outfile; 
     }
 
@@ -140,9 +138,6 @@ class gnn extends gnn_shared {
         $target_ssnin = $this->do_run_file_actions($ssnin, $is_debug);
 
         $exec = $this->get_run_exec_cmd($target_ssnin);
-
-        error_log("Job ID: " . $id);
-        error_log("Exec: " . $exec);
 
         $output_array = array();
         $output = exec($exec,$output_array,$exit_status);
@@ -178,9 +173,6 @@ class gnn extends gnn_shared {
 
         $exec = $this->get_run_exec_cmd($target_ssnin);
 
-        //error_log("Job ID: " . $this->get_id());
-        //error_log("Exec: " . $exec);
-
         $exit_status = 1;
 
         file_put_contents($this->get_log_file(), $exec . "\n");
@@ -206,13 +198,9 @@ class gnn extends gnn_shared {
                 }
             }
 
-            //TODO: remove this debug message
-            error_log("Job ID: " . $this->get_id() . ", Exit Status: " . $exit_status);
-
             return array('RESULT' => true, 'PBS_NUMBER' => $pbs_job_number, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => 'Job Successfully Submitted');
         }
         else {
-            error_log("There was an error submitting the GNN job: $output  // exit status: $exit_status  " . join(',', $output_array));
             return array('RESULT' => false, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => $output_array[18]);
         }
     }

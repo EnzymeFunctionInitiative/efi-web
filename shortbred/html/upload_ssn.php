@@ -103,7 +103,6 @@ $output = array(
     'cookie_info' => $cookie_info
 );
 
-error_log(print_r($output, true));
 
 echo json_encode($output);
 
