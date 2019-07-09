@@ -171,10 +171,6 @@ class diagram_job extends arrow_api {
             $exec .= " -scheduler $sched";
         $exec .= " -job-id " . $this->id;
 
-        //TODO: remove this debug message
-        error_log("Job ID: " . $this->id);
-        error_log("Exec: " . $exec);
-
         $exit_status = 1;
         $output_array = array();
         $output = exec($exec, $output_array, $exit_status);
@@ -186,7 +182,6 @@ class diagram_job extends arrow_api {
             $pbs_job_number = substr($output, 0, strpos($output, "."));
 
         if (!$exit_status) {
-            error_log("Job running with job # $pbs_job_number");
             $update_sql = "UPDATE diagram " .
                 "SET diagram_status = '" . __RUNNING__ . "', diagram_pbs_number = $pbs_job_number " .
                 "WHERE diagram_id = " . $this->id;
