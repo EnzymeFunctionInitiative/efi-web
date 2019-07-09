@@ -366,7 +366,7 @@ the <a href="family_list.php">Family Information page</a>.
 
                 <div class="option-panels">
                     <div>
-                        <?php add_domain_option("optd", true); ?>
+                        <?php add_domain_option("optd", true, $useAdvancedFamilyInputs); ?>
                     </div>
 
                     <div>
@@ -429,6 +429,23 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
                 </div>
 
+                <?php if ($useAdvancedFamilyInputs) { ?>
+                <div class="option-panels">
+                    <div>
+                        <h3>Dev Site Options</h3>
+                        <div>
+                            <div>
+                                <span class="input-name">
+                                    Extra RAM:
+                                </span><span class="input-field">
+                                    <input type="checkbox" id="colorssn-extra-ram" name="colorssn-extra-ram" value="1">
+                                    <label for="colorssn-extra-ram">Check to use additional RAM (800GB) [default: off (350GB)]</label>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>
                 <?php add_submit_html("colorssn", "", $userEmail); ?>
             </form>
         </div>
@@ -651,9 +668,14 @@ the <a href="family_list.php">Family Information page</a>.
             var status = $(this).prop("checked");
             var disableFamilyInput = status;
             $("#accession-input-domain-family").prop("disabled", !status);
+            $(".accession-input-domain-region").prop("disabled", !status);
             familySizeHelper.setDisabledState("optd", disableFamilyInput);
             if (disableFamilyInput)
                 familySizeHelper.resetInput("optd");
+            if (status)
+                $("#accession-input-domain-region-domain").prop("checked", true);
+            else
+                $("#accession-input-domain-region-domain").prop("checked", false);
         });
 
         $(".option-panels > div").accordion({
@@ -668,6 +690,9 @@ the <a href="family_list.php">Family Information page</a>.
             document.forms[i].reset();
         }
         document.getElementById("accession-input-domain-family").disabled = true;
+        document.getElementById("accession-input-domain-region-nterminal").disabled = true;
+        document.getElementById("accession-input-domain-region-domain").disabled = true;
+        document.getElementById("accession-input-domain-region-cterminal").disabled = true;
     }
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
@@ -879,7 +904,7 @@ HTML;
 }
 
 
-function add_domain_option($option_id, $specify_family = false) {
+function add_domain_option($option_id, $specify_family = false, $use_advanced_options = false) {
     $option_text = $specify_family ? "Options" : "Option";
     echo <<<HTML
 <h3>Family Domain Boundary $option_text</h3>
@@ -896,7 +921,7 @@ function add_domain_option($option_id, $specify_family = false) {
         </span>
     </div>
 HTML;
-    if ($specify_family) {
+    if ($specify_family) { // Option D only
         echo <<<HTML
     <div>
         <span class="input-name">
@@ -905,6 +930,20 @@ HTML;
             <input type="text" name="accession-input-domain-family" id="accession-input-domain-family" style="width: 100px" disabled />
             Use domain boundaries from the specified family (enter only one family).
         </span>
+HTML;
+        if ($use_advanced_options) {
+            echo <<<HTML
+        <div>
+            <input type="radio" id="accession-input-domain-region-nterminal" name="accession-input-domain-region" value="nterminal" class="accession-input-domain-region">
+            <label for="accession-input-domain-region-nterminal">N-Terminal</label>
+            <input type="radio" id="accession-input-domain-region-domain" name="accession-input-domain-region" value="domain" class="accession-input-domain-region">
+            <label for="accession-input-domain-region-domain">Domain</label>
+            <input type="radio" id="accession-input-domain-region-cterminal" name="accession-input-domain-region" value="cterminal" class="accession-input-domain-region">
+            <label for="accession-input-domain-region-cterminal">C-Terminal</label>
+        </div>
+HTML;
+        }
+        echo <<<HTML
     </div>
 HTML;
     }

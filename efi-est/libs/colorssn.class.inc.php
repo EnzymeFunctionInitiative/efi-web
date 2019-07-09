@@ -13,6 +13,7 @@ class colorssn extends option_base {
     private $ssn_source_analysis_idx;
     private $ssn_source_key;
     private $ssn_source_id;
+    private $extra_ram = false;
 
 
     public function __construct($db, $id = 0) {
@@ -134,6 +135,8 @@ class colorssn extends option_base {
         $parms["-cluster-sizes"] = "\"" . $this->get_cluster_sizes_filename() . "\"";
         $parms["-sp-clusters-desc"] = "\"" . $this->get_swissprot_desc_filename($want_clusters_file) . "\"";
         $parms["-sp-singletons-desc"] = "\"" . $this->get_swissprot_desc_filename($want_singles_file) . "\"";
+        if ($this->extra_ram)
+            $parms["-extra-ram"] = "";
 
         return $parms;
     }
@@ -157,6 +160,8 @@ class colorssn extends option_base {
                 }
             }
         }
+
+        $this->extra_ram = (isset($result["extra_ram"]) && $result["extra_ram"] === true);
 
         $this->file_helper->on_load_generate($id, $result);
 
@@ -191,6 +196,7 @@ class colorssn extends option_base {
         } else {
             $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
         }
+        $insert_array["extra_ram"] = (isset($data->extra_ram) && $data->extra_ram === true);
         return $insert_array;
     }
 
