@@ -193,4 +193,4 @@ $(document).ready(function() {
 </script>
 
 
-<?php include_once '../includes/stats_footer.inc.php' ?>
+<?php include_once 'inc/stats_footer.inc.php' ?>
