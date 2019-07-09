@@ -28,4 +28,4 @@ $output = file_get_contents("$tmp_file");
 
 </div>
 
-<?php include_once '../includes/stats_footer.inc.php' ?>
+<?php include_once 'inc/stats_footer.inc.php' ?>
