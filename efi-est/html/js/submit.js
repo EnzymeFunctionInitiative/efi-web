@@ -66,6 +66,11 @@ function submitOptionAForm(famHelper, outputIds) { // familySizeHelper
         doFormPost(FORM_ACTION, fd, outputIds.warningMsg, fileHandler, completionHandler);
     };
 
+    if (!checkSequence($("#blast-input").val())) {
+        $("#blast-input").addClass("input-error");
+        $("#" + outputIds.warningMsg).text("Invalid Query Sequence.  Please input a protein sequence.");
+        return false;
+    }
     if (!famHelper.checkUnirefRequirement(optionId, submitFn)) {
         return false;
     }
