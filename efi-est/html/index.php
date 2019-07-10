@@ -1057,6 +1057,9 @@ function get_fraction_html($option_id) {
             Selects every Nth sequence in the family; the sequences are assumed to be
             added randomly to UniProt, so the selected sequences are assumed to be a
             representative sampling of the family. This allows reduction of the size of the SSN.
+            Sequences in the family with Swiss-Prot annotations will always be included;
+            this may result in the size of the resulting data set being slightly larger than
+            the fraction specified.
         </div>
     </div>
 HTML;
