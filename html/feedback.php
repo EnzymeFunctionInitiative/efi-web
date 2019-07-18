@@ -24,7 +24,7 @@ $param_spec = array(
 );
 
 $params = filter_input_array(INPUT_POST, $param_spec);
-$is_all_set = $params !== false && $params !== NULL && $params["name"] && $params["inst"] && $params["email"] && $params["feedback"];
+$is_all_set = (!isset($_POST["address"]) || !$_POST["address"]) && $params !== false && $params !== NULL && $params["name"] && $params["inst"] && $params["email"] && $params["feedback"];
 
 
 if ($is_all_set) {
@@ -72,6 +72,7 @@ To submit feedback, please provide the following information.
     <div id="submit-error" style="display: none;">
         <b>Please fill in all fields.</b>
     </div>
+    <input type="hidden" name="address" value="">
 </form>
 
     <script>
