@@ -8,6 +8,8 @@ class colorssn extends option_base {
     const SEQ_UNIPROT = 1;
     const SEQ_UNIREF50 = 2;
     const SEQ_UNIREF90 = 3;
+    const SEQ_DOMAIN = 1;
+    const SEQ_NO_DOMAIN = 2;
 
     private $ssn_source_analysis_id;
     private $ssn_source_analysis_idx;
@@ -232,6 +234,12 @@ class colorssn extends option_base {
             return "";
         return $rel_path;
     }
+    public function get_file_size($web_path) {
+        $full_path = functions::get_results_dir() . "/../" . $web_path;
+        if (!file_exists($full_path))
+            return 0;
+        return round(filesize($full_path) / 1048576, 5);
+    }
 
     // Relative for HTTP paths
     public function get_stats_web_path() {
@@ -273,8 +281,8 @@ class colorssn extends option_base {
         $filename = $this->get_node_files_zip_filename($seq_type);
         return $this->shared_get_web_path($filename);
     }
-    public function get_fasta_files_zip_web_path() {
-        $filename = $this->get_fasta_files_zip_filename();
+    public function get_fasta_files_zip_web_path($domain_type, $seq_type) {
+        $filename = $this->get_fasta_files_zip_filename($domain_type, $seq_type);
         return $this->shared_get_web_path($filename);
     }
     public function get_table_file_web_path($want_domain = false) {
@@ -304,8 +312,10 @@ class colorssn extends option_base {
         $filename = $seq_type == colorssn::SEQ_UNIPROT ? "UniProt" : ($seq_type == colorssn::SEQ_UNIREF50 ? "UniRef50" : "UniRef90");
         return $this->get_base_filename() . "_${filename}_IDs.zip";
     }
-    private function get_fasta_files_zip_filename() {
-        return $this->get_base_filename() . "_FASTA.zip";
+    private function get_fasta_files_zip_filename($domain_type, $seq_type) {
+        $dom_suffix = $domain_type == self::SEQ_DOMAIN ? "_Domain" : "";
+        $type_suffix = $seq_type == self::SEQ_UNIREF50 ? "_UniRef50" : ($seq_type == self::SEQ_UNIREF90 ? "_UniRef90" : "");
+        return $this->get_base_filename() . "_FASTA$type_suffix$dom_suffix.zip";
     }
     private function get_table_file_filename($want_domain = false) {
         $name = $want_domain ? functions::get_colorssn_domain_map_filename() : functions::get_colorssn_map_filename();

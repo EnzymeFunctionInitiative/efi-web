@@ -34,37 +34,62 @@ $want_clusters_file = true;
 $want_singles_file = false;
 $baseSsnName = $obj->get_colored_xgmml_filename_no_ext();
 $ssnFile = $obj->get_colored_ssn_web_path();
+$ssnFileSize = format_file_size($obj->get_file_size($ssnFile));
 $ssnFileZip = $obj->get_colored_ssn_zip_web_path();
+$ssnFileZipSize = format_file_size($obj->get_file_size($ssnFileZip));
 $uniprotNodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_UNIPROT);
+$uniprotNodeFilesZipSize = format_file_size($obj->get_file_size($uniprotNodeFilesZip));
 $uniref50NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_UNIREF50);
+$uniref50NodeFilesZipSize = format_file_size($obj->get_file_size($uniref50NodeFilesZip));
 $uniref90NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_UNIREF90);
-$fastaFilesZip = $obj->get_fasta_files_zip_web_path();
+$uniref90NodeFilesZipSize = format_file_size($obj->get_file_size($uniref90NodeFilesZip));
+$fastaFilesUniProtZip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIPROT);
+$fastaFilesUniProtZipSize = format_file_size($obj->get_file_size($fastaFilesUniProtZip));
+$fastaFilesUniProtDomainZip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIPROT);
+$fastaFilesUniProtDomainZipSize = format_file_size($obj->get_file_size($fastaFilesUniProtDomainZip));
+$fastaFilesUniRef90Zip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIREF90);
+$fastaFilesUniRef90ZipSize = format_file_size($obj->get_file_size($fastaFilesUniRef90Zip));
+$fastaFilesUniRef90DomainZip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIREF90);
+$fastaFilesUniRef90DomainZipSize = format_file_size($obj->get_file_size($fastaFilesUniRef90DomainZip));
+$fastaFilesUniRef50Zip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIREF50);
+$fastaFilesUniRef50ZipSize = format_file_size($obj->get_file_size($fastaFilesUniRef50Zip));
+$fastaFilesUniRef50DomainZip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIREF50);
+$fastaFilesUniRef50DomainZipSize = format_file_size($obj->get_file_size($fastaFilesUniRef50DomainZip));
 $tableFile = $obj->get_table_file_web_path();
+$tableFileSize = format_file_size($obj->get_file_size($tableFile));
 $tableFileDomain = $obj->get_table_file_web_path(true); // true = for domain file
+$tableFileDomainSize = format_file_size($obj->get_file_size($tableFileDomain));
 $statsFile = $obj->get_stats_web_path();
+$statsFileSize = format_file_size($obj->get_file_size($statsFile));
 $clusterSizesFile = $obj->get_cluster_sizes_web_path();
+$clusterSizesFileSize = format_file_size($obj->get_file_size($clusterSizesFile));
 $swissprotClustersDescFile = $obj->get_swissprot_desc_web_path($want_clusters_file);
+$swissprotClustersDescFileSize = format_file_size($obj->get_file_size($swissprotClustersDescFile));
 $swissprotSinglesDescFile = $obj->get_swissprot_desc_web_path($want_singles_file);
+$swissprotSinglesDescFileSize = format_file_size($obj->get_file_size($swissprotSinglesDescFile));
 
 
 $fileInfo = array();
-array_push($fileInfo, array("Colored SSN", array($ssnFile, $ssnFileZip)));
-array_push($fileInfo, array("UniProt ID-Color-Cluster number mapping table", $tableFile));
+array_push($fileInfo, array("UniProt ID-Color-Cluster number mapping table", $tableFile, $tableFileSize));
 if ($tableFileDomain)
-    array_push($fileInfo, array("UniProt ID-Color-Cluster number mapping table with domain", $tableFileDomain));
+    array_push($fileInfo, array("UniProt ID-Color-Cluster number mapping table with domain", $tableFileDomain, $tableFileDomainSize));
+array_push($fileInfo, array("ID Lists and FASTA Files per Cluster"));
 if ($uniprotNodeFilesZip)
-    array_push($fileInfo, array("UniProt ID lists per cluster", $uniprotNodeFilesZip));
+    array_push($fileInfo, array("UniProt ID lists per cluster", $uniprotNodeFilesZip, $uniprotNodeFilesZipSize));
 if ($uniref50NodeFilesZip)
-    array_push($fileInfo, array("UniRef50 ID lists per cluster", $uniref50NodeFilesZip));
+    array_push($fileInfo, array("UniRef50 ID lists per cluster", $uniref50NodeFilesZip, $uniref50NodeFilesZipSize));
 if ($uniref90NodeFilesZip)
-    array_push($fileInfo, array("UniRef90 ID lists per cluster", $uniref90NodeFilesZip));
-array_push($fileInfo, array("FASTA files per cluster", $fastaFilesZip));
+    array_push($fileInfo, array("UniRef90 ID lists per cluster", $uniref90NodeFilesZip, $uniref90NodeFilesZipSize));
+array_push($fileInfo, array("FASTA files per cluster", $fastaFilesUniProtZip, $fastaFilesUniProtZipSize));
+if ($fastaFilesUniProtDomainZip)
+    array_push($fileInfo, array("FASTA files per cluster (with domain)", $fastaFilesUniProtDomainZip, $fastaFilesUniProtDomainZipSize));
+array_push($fileInfo, array("Miscellaneous Files"));
 if ($clusterSizesFile)
-    array_push($fileInfo, array("Cluster sizes", $clusterSizesFile));
+    array_push($fileInfo, array("Cluster sizes", $clusterSizesFile, $clusterSizesFileSize));
 if ($swissprotClustersDescFile)
-    array_push($fileInfo, array("SwissProt annotations by cluster", $swissprotClustersDescFile));
+    array_push($fileInfo, array("SwissProt annotations by cluster", $swissprotClustersDescFile, $swissprotClustersDescFileSize));
 if ($swissprotSinglesDescFile)
-    array_push($fileInfo, array("SwissProt annotations by singletons", $swissprotSinglesDescFile));
+    array_push($fileInfo, array("SwissProt annotations by singletons", $swissprotSinglesDescFile, $swissprotSinglesDescFileSize));
 
 
 $metadata = $obj->get_metadata();
@@ -135,32 +160,71 @@ else {
             <div style="clear:both;margin-bottom:20px"></div>
         </div>
         <div id="data">
-            <h4>Colored SSN and Supplementary Files</h4>
+            <h4>Colored SSN</h4>
+            <p>Each cluster in the submitted SSN has been identified and assigned a unique number and color.</p>
+
             <table width="100%" class="pretty">
-            <?php
-               foreach ($fileInfo as $info) {
-                   echo <<<HTML
-            <tr>
-                <td>$info[0]</td>
+                <thead>
+                    <th></th>
+                    <th>File Size (Unzipped/Zipped MB)</th>
+                </thead>
+                <tbody>
+                    <tr style='text-align:center;'>
+                        <td class="button-col">
+                            <a href="<?php echo "$ssnFile"; ?>"><button class="mini">Download</button></a>
+                            <a href="<?php echo "$ssnFileZip"; ?>"><button class="mini">Download ZIP</button></a>
+                        </td>
+                        <td>
+                            <?php echo "$ssnFileSize MB / $ssnFileZipSize MB"; ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <h4>Supplementary Files</h4>
+            <table width="100%" class="pretty">
+                <tbody>
+                <?php
+                    $first = false;
+                    foreach ($fileInfo as $info) {
+                        if (count($info) == 1) {
+                            $first_class = $first ? "file-header-row-first" : "";
+                            echo <<<HTML
+                    <tr style="text-align:center;">
+                        <td colspan="3" class="file-header-row $first_class">
+                            $info[0]
+                        </td>
+                    </tr>
 HTML;
-                   if (is_array($info[1])) {
-                       $f1 = $info[1][0];
-                       $f2 = $info[1][1];
-                       echo <<<HTML
-                <td>
-                    <a href="$f1"><button class='mini'>Download</button></a>
-                    <a href="$f2"><button class='mini'>Download (ZIP)</button></a>
-                </td>
+                        } else {
+                            echo <<<HTML
+                    <tr class="file-row" style="text-align:center;">
 HTML;
-                   } else {
-                       $text = substr($info[1], -4) == ".zip" ? "Download All (ZIP)" : "Download";
-                       echo <<<HTML
-                <td><a href="$info[1]"><button class='mini'>$text</button></a></td>
+                            if (is_array($info[1])) {
+                                $f1 = $info[1][0];
+                                $f2 = $info[1][1];
+                                echo <<<HTML
+                        <td>
+                            <a href="$f1"><button class='mini'>Download</button></a>
+                            <a href="$f2"><button class='mini'>Download (ZIP)</button></a>
+                        </td>
 HTML;
-                   }
-                   echo "</tr>\n";
-               }
-            ?>
+                            } else {
+                                $text = substr($info[1], -4) == ".zip" ? "Download All (ZIP)" : "Download";
+                                echo <<<HTML
+                        <td><a href="$info[1]"><button class='mini'>$text</button></a></td>
+HTML;
+                            }
+                            echo <<<HTML
+                        <td>$info[0]</td>
+                        <td>$info[2] MB</td>
+                    </tr>
+HTML;
+                        }
+                    }
+                ?>
+                </tbody>
             </table>
 
             <center>
@@ -178,10 +242,18 @@ $(document).ready(function() {
 </script>
 
 <?php
-    
     include_once 'inc/footer.inc.php';
 
 }
+
+
+function format_file_size($size) {
+    $mb = round($size, 0);
+    if ($mb == 0)
+        return "<1";
+    return $mb;
+}
+
 
 ?>
 
