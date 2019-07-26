@@ -37,12 +37,18 @@ $ssnFile = $obj->get_colored_ssn_web_path();
 $ssnFileSize = format_file_size($obj->get_file_size($ssnFile));
 $ssnFileZip = $obj->get_colored_ssn_zip_web_path();
 $ssnFileZipSize = format_file_size($obj->get_file_size($ssnFileZip));
-$uniprotNodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_UNIPROT);
+$uniprotNodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIPROT);
 $uniprotNodeFilesZipSize = format_file_size($obj->get_file_size($uniprotNodeFilesZip));
-$uniref50NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_UNIREF50);
+$uniprotDomainNodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIPROT);
+$uniprotDomainNodeFilesZipSize = format_file_size($obj->get_file_size($uniprotDomainNodeFilesZip));
+$uniref50NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIREF50);
 $uniref50NodeFilesZipSize = format_file_size($obj->get_file_size($uniref50NodeFilesZip));
-$uniref90NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_UNIREF90);
+$uniref50DomainNodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIREF50);
+$uniref50DomainNodeFilesZipSize = format_file_size($obj->get_file_size($uniref50DomainNodeFilesZip));
+$uniref90NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIREF90);
 $uniref90NodeFilesZipSize = format_file_size($obj->get_file_size($uniref90NodeFilesZip));
+$uniref90DomainNodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIREF90);
+$uniref90DomainNodeFilesZipSize = format_file_size($obj->get_file_size($uniref90DomainNodeFilesZip));
 $fastaFilesUniProtZip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIPROT);
 $fastaFilesUniProtZipSize = format_file_size($obj->get_file_size($fastaFilesUniProtZip));
 $fastaFilesUniProtDomainZip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIPROT);
@@ -70,19 +76,38 @@ $swissprotSinglesDescFileSize = format_file_size($obj->get_file_size($swissprotS
 
 
 $fileInfo = array();
+array_push($fileInfo, array("Mapping Tables"));
 array_push($fileInfo, array("UniProt ID-Color-Cluster number mapping table", $tableFile, $tableFileSize));
 if ($tableFileDomain)
-    array_push($fileInfo, array("UniProt ID-Color-Cluster number mapping table with domain", $tableFileDomain, $tableFileDomainSize));
+    array_push($fileInfo, array("UniProt ID-Color-Cluster number mapping table (with domain)", $tableFileDomain, $tableFileDomainSize));
+
 array_push($fileInfo, array("ID Lists and FASTA Files per Cluster"));
 if ($uniprotNodeFilesZip)
     array_push($fileInfo, array("UniProt ID lists per cluster", $uniprotNodeFilesZip, $uniprotNodeFilesZipSize));
-if ($uniref50NodeFilesZip)
-    array_push($fileInfo, array("UniRef50 ID lists per cluster", $uniref50NodeFilesZip, $uniref50NodeFilesZipSize));
+if ($uniprotDomainNodeFilesZip)
+    array_push($fileInfo, array("UniProt ID lists per cluster (with domain)", $uniprotDomainNodeFilesZip, $uniprotDomainNodeFilesZipSize));
 if ($uniref90NodeFilesZip)
     array_push($fileInfo, array("UniRef90 ID lists per cluster", $uniref90NodeFilesZip, $uniref90NodeFilesZipSize));
-array_push($fileInfo, array("FASTA files per cluster", $fastaFilesUniProtZip, $fastaFilesUniProtZipSize));
+if ($uniref90DomainNodeFilesZip)
+    array_push($fileInfo, array("UniRef90 ID lists per cluster (with domain)", $uniref90DomainNodeFilesZip, $uniref90DomainNodeFilesZipSize));
+if ($uniref50NodeFilesZip)
+    array_push($fileInfo, array("UniRef50 ID lists per cluster", $uniref50NodeFilesZip, $uniref50NodeFilesZipSize));
+if ($uniref50DomainNodeFilesZip)
+    array_push($fileInfo, array("UniRef50 ID lists per cluster (with domain)", $uniref50DomainNodeFilesZip, $uniref50DomainNodeFilesZipSize));
+
+$uniprotText = ($fastaFilesUniRef90ZipSize || $fastaFilesUniRef50ZipSize) ? "UniProt" : "";
+array_push($fileInfo, array("FASTA files per $uniprotText cluster", $fastaFilesUniProtZip, $fastaFilesUniProtZipSize));
 if ($fastaFilesUniProtDomainZip)
-    array_push($fileInfo, array("FASTA files per cluster (with domain)", $fastaFilesUniProtDomainZip, $fastaFilesUniProtDomainZipSize));
+    array_push($fileInfo, array("FASTA files per $uniprotText cluster (with domain)", $fastaFilesUniProtDomainZip, $fastaFilesUniProtDomainZipSize));
+if ($fastaFilesUniRef90Zip)
+    array_push($fileInfo, array("FASTA files per UniRef90 cluster", $fastaFilesUniRef90Zip, $fastaFilesUniRef90ZipSize));
+if ($fastaFilesUniRef90DomainZip)
+    array_push($fileInfo, array("FASTA files per UniRef90 cluster (with domain)", $fastaFilesUniRef90DomainZip, $fastaFilesUniRef90DomainZipSize));
+if ($fastaFilesUniRef50Zip)
+    array_push($fileInfo, array("FASTA files per UniRef50 cluster", $fastaFilesUniRef50Zip, $fastaFilesUniRef50ZipSize));
+if ($fastaFilesUniRef50DomainZip)
+    array_push($fileInfo, array("FASTA files per UniRef50 cluster (with domain)", $fastaFilesUniRef50DomainZip, $fastaFilesUniRef50DomainZipSize));
+
 array_push($fileInfo, array("Miscellaneous Files"));
 if ($clusterSizesFile)
     array_push($fileInfo, array("Cluster sizes", $clusterSizesFile, $clusterSizesFileSize));
@@ -183,23 +208,29 @@ else {
 
 
             <h4>Supplementary Files</h4>
-            <table width="100%" class="pretty">
-                <tbody>
-                <?php
-                    $first = false;
+            <table width="100%" class="pretty no-border">
+<?php
+                    $first = true;
                     foreach ($fileInfo as $info) {
                         if (count($info) == 1) {
-                            $first_class = $first ? "file-header-row-first" : "";
+                            if (!$first)
+                                echo "                </tbody>\n";
+                            $first = false;
                             echo <<<HTML
+                <tbody>
                     <tr style="text-align:center;">
-                        <td colspan="3" class="file-header-row $first_class">
+                        <td colspan="3" class="file-header-row">
                             $info[0]
                         </td>
                     </tr>
+                </tbody>
+                <tbody class="file-group">
+
 HTML;
                         } else {
                             echo <<<HTML
-                    <tr class="file-row" style="text-align:center;">
+                    <tr style="text-align:center;">
+
 HTML;
                             if (is_array($info[1])) {
                                 $f1 = $info[1][0];
@@ -209,17 +240,20 @@ HTML;
                             <a href="$f1"><button class='mini'>Download</button></a>
                             <a href="$f2"><button class='mini'>Download (ZIP)</button></a>
                         </td>
+
 HTML;
                             } else {
                                 $text = substr($info[1], -4) == ".zip" ? "Download All (ZIP)" : "Download";
                                 echo <<<HTML
                         <td><a href="$info[1]"><button class='mini'>$text</button></a></td>
+
 HTML;
                             }
                             echo <<<HTML
                         <td>$info[0]</td>
                         <td>$info[2] MB</td>
                     </tr>
+
 HTML;
                         }
                     }
@@ -250,7 +284,7 @@ $(document).ready(function() {
 function format_file_size($size) {
     $mb = round($size, 0);
     if ($mb == 0)
-        return "<1";
+        return "&lt;1";
     return $mb;
 }
 
