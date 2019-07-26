@@ -224,6 +224,9 @@ class dataset_shared {
         $num_edges = $generate->get_counts("num_edges");
         if ($num_edges)
             $table->add_row("Total Number of Edges", number_format($num_edges));
+        $num_unique = $generate->get_counts("num_unique");
+        if ($num_unique)
+            $table->add_row("Number of Unique Sequences", number_format($num_unique));
 
         $conv_ratio = $generate->get_convergence_ratio();
         $convergence_ratio_string = "";
