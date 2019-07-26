@@ -33,29 +33,3 @@ a, .ui-widget-content a {
 
 
 
-table.pretty td.file-header-row {
-    font-weight: bold;
-    height: 40px;
-    font-size: 1.15em;
-    border-left: 0;
-    border-right: 0;
-    border-bottom: 1px solid #aaa;
-    border-top: 1px solid #aaa;
-}
-
-table.pretty td.file-header-row-first {
-    border-top: 0;
-}
-
-table.no-border {
-    border-left: 0;
-    border-right: 0;
-    border-top: 0;
-}
-
-tr.file-row {
-    border-left: 1px solid #aaa;
-    border-right: 1px solid #aaa;
-}
-
-
