@@ -12,34 +12,32 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
 require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
-$userEmail = "Enter your e-mail address";
+$user_email = "Enter your e-mail address";
 
-$showJobsTab = false;
-$showTrainingJobsTab = false;
+$show_jobs_tab = false;
+$show_training_jobs_tab = false;
 $jobs = array();
 $tjobs = array(); // training jobs
-$userGroups = array();
 $IsAdminUser = false;
 if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie()) {
-    $userJobs = new user_jobs();
-    $userJobs->load_jobs($db, user_auth::get_user_token());
-    $jobs = $userJobs->get_jobs();
-    $tjobs = $userJobs->get_training_jobs();
-    $userEmail = $userJobs->get_email();
-    $userGroups = $userJobs->get_groups();
-    $IsAdminUser = $userJobs->is_admin();
-    $showJobsTab = has_jobs($jobs) || has_jobs($tjobs);
-    $showTrainingJobsTab = count($tjobs) > 0;
+    $user_jobs = new user_jobs();
+    $user_jobs->load_jobs($db, user_auth::get_user_token());
+    $jobs = $user_jobs->get_jobs();
+    $tjobs = $user_jobs->get_training_jobs();
+    $user_email = $user_jobs->get_email();
+    $IsAdminUser = $user_jobs->is_admin();
+    $show_jobs_tab = has_jobs($jobs) || has_jobs($tjobs);
+    $show_training_jobs_tab = count($tjobs) > 0;
 }
-$showTrainingJobsTab = false; // currently we don't want it to be displayed since we put the training jobs below the previous jobs.
+$show_training_jobs_tab = false; // currently we don't want it to be displayed since we put the training jobs below the previous jobs.
 
 $max_full_family = number_format(functions::get_maximum_full_family_count(), 0);
 
-$useAdvancedFamilyInputs = global_settings::advanced_options_enabled();
+$use_advanced_options = global_settings::advanced_options_enabled();
 
 $db_modules = global_settings::get_database_modules();
 
-$updateMessage =
+$update_msg =
     "The EFI web tool interface has been updated to improve user experience.<br>" .
     "<b>All functions remain unchanged.</b><br><br>" . 
     "<small>" . functions::get_update_message() . "</small>";
@@ -62,7 +60,7 @@ The Enzyme Similarity Tool (EFI-EST) makes it possible to easily generate SSNs.
 
 
 <div id="update-message" class="update-message">
-<?php if (isset($updateMessage)) echo $updateMessage; ?>
+<?php if (isset($update_msg)) echo $update_msg; ?>
 </div>
 
 
@@ -83,10 +81,10 @@ the <a href="family_list.php">Family Information page</a>.
 
 <div class="tabs-efihdr ui-tabs ui-widget-content" id="main-tabs"> <!-- style="display:none">-->
     <ul class="ui-tabs-nav ui-widget-header">
-<?php if ($showJobsTab) { ?>
+<?php if ($show_jobs_tab) { ?>
         <li class="ui-tabs-active"><a href="#jobs">Previous Jobs</a></li>
 <?php } ?>
-<?php if ($showTrainingJobsTab) { ?>
+<?php if ($show_training_jobs_tab) { ?>
         <li><a href="#tjobs">Training</a></li>
 <?php } ?>
 <?php if (functions::option_a_enabled()) { ?>
@@ -107,11 +105,11 @@ the <a href="family_list.php">Family Information page</a>.
 <?php if (functions::colorssn_enabled()) { ?>
         <li><a href="#colorssntab">Color SSNs</a></li>
 <?php } ?>
-        <li <?php echo ($showJobsTab ? "" : 'class="ui-tabs-active"') ?>><a href="#tutorial">Tutorial</a></li>
+        <li <?php echo ($show_jobs_tab ? "" : 'class="ui-tabs-active"') ?>><a href="#tutorial">Tutorial</a></li>
     </ul>
 
     <div>
-<?php if ($showJobsTab) { ?>
+<?php if ($show_jobs_tab) { ?>
         <div id="jobs" class="ui-tabs-panel ui-widget-content">
 
 <?php /*
@@ -134,7 +132,7 @@ the <a href="family_list.php">Family Information page</a>.
 <?php
 } ?>
 
-<?php if ($showTrainingJobsTab) {
+<?php if ($show_training_jobs_tab) {
     echo "        <div id=\"tjobs\" class=\"tab\">\n";
     output_job_list($tjobs);
     echo "        </div>\n";
@@ -203,14 +201,14 @@ the <a href="family_list.php">Family Information page</a>.
                         <?php add_ssn_calc_option("opta") ?>
                     </div>
 
-                    <?php if ($useAdvancedFamilyInputs) { ?>
+                    <?php if ($use_advanced_options) { ?>
                     <div>
                         <?php add_dev_site_option("opta", $db_modules); ?>
                     </div>
                     <?php } ?>
                 </div>
 
-                <?php add_submit_html("opta", "optAoutputIds", $userEmail); ?>
+                <?php add_submit_html("opta", "optAoutputIds", $user_email); ?>
             </form>
         </div>
 <?php } ?>
@@ -240,18 +238,18 @@ the <a href="family_list.php">Family Information page</a>.
                     <div>
                         <?php add_ssn_calc_option("optb") ?>
                     </div>
-                    <?php if ($useAdvancedFamilyInputs) { ?>
+                    <?php if ($use_advanced_options) { ?>
                     <div>
                         <?php add_dev_site_option("optb", $db_modules, get_advanced_seq_html("optb")); ?>
                     </div>
                     <?php } ?>
-                    <?php if (!$useAdvancedFamilyInputs) { ?>
+                    <?php if (!$use_advanced_options) { ?>
                         <input type="hidden" id="seqid-optb" value="">
                         <input type="hidden" id="length-overlap-optb" value="">
                     <?php } ?>
                 </div>
 
-                <?php add_submit_html("optb", "optBoutputIds", $userEmail); ?>
+                <?php add_submit_html("optb", "optBoutputIds", $user_email); ?>
             </form>
         </div>
 <?php } ?>
@@ -291,14 +289,14 @@ the <a href="family_list.php">Family Information page</a>.
                     <div>
                         <?php add_ssn_calc_option("optc") ?>
                     </div>
-                    <?php if ($useAdvancedFamilyInputs) { ?>
+                    <?php if ($use_advanced_options) { ?>
                     <div>
                         <?php add_dev_site_option("optc", $db_modules); ?>
                     </div>
                     <?php } ?>
                 </div>
 
-                <?php add_submit_html("optc", "optCoutputIds", $userEmail); ?>
+                <?php add_submit_html("optc", "optCoutputIds", $user_email); ?>
             </form>
         </div>
 <?php    } ?>
@@ -366,7 +364,7 @@ the <a href="family_list.php">Family Information page</a>.
 
                 <div class="option-panels">
                     <div>
-                        <?php add_domain_option("optd", true, $useAdvancedFamilyInputs); ?>
+                        <?php add_domain_option("optd", true, $use_advanced_options); ?>
                     </div>
 
                     <div>
@@ -375,14 +373,14 @@ the <a href="family_list.php">Family Information page</a>.
                     <div>
                         <?php add_ssn_calc_option("optd") ?>
                     </div>
-                    <?php if ($useAdvancedFamilyInputs) { ?>
+                    <?php if ($use_advanced_options) { ?>
                     <div>
                         <?php add_dev_site_option("optd", $db_modules); ?>
                     </div>
                     <?php } ?>
                 </div>
 
-                <?php add_submit_html("optd", "optDoutputIds", $userEmail); ?>
+                <?php add_submit_html("optd", "optDoutputIds", $user_email); ?>
             </form>
         </div>
 <?php    } ?>
@@ -408,7 +406,7 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
                 </div>
     
-                <?php add_submit_html("opte", "optEoutputIds", $userEmail); ?>
+                <?php add_submit_html("opte", "optEoutputIds", $user_email); ?>
             </form>
         </div>
 <?php } ?>
@@ -429,7 +427,7 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
                 </div>
 
-                <?php if ($useAdvancedFamilyInputs) { ?>
+                <?php if ($use_advanced_options) { ?>
                 <div class="option-panels">
                     <div>
                         <h3>Dev Site Options</h3>
@@ -446,12 +444,12 @@ the <a href="family_list.php">Family Information page</a>.
                     </div>
                 </div>
                 <?php } ?>
-                <?php add_submit_html("colorssn", "", $userEmail); ?>
+                <?php add_submit_html("colorssn", "", $user_email); ?>
             </form>
         </div>
 <?php    } ?>
 
-        <div id="tutorial" class="tab <?php echo (!$showJobsTab ? "ui-tabs-active" : "") ?>">
+        <div id="tutorial" class="tab <?php echo (!$show_jobs_tab ? "ui-tabs-active" : "") ?>">
 
             <h3>Overview of possible inputs for EFI-EST</h3>
             
@@ -690,7 +688,7 @@ the <a href="family_list.php">Family Information page</a>.
             document.forms[i].reset();
         }
         document.getElementById("accession-input-domain-family").disabled = true;
-<?php if ($useAdvancedFamilyInputs) { ?>
+<?php if ($use_advanced_options) { ?>
         document.getElementById("accession-input-domain-region-nterminal").disabled = true;
         document.getElementById("accession-input-domain-region-domain").disabled = true;
         document.getElementById("accession-input-domain-region-cterminal").disabled = true;
