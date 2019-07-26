@@ -277,8 +277,8 @@ class colorssn extends option_base {
         $filename = $this->get_colored_ssn_zip_filename();
         return $this->shared_get_web_path($filename);
     }
-    public function get_node_files_zip_web_path($seq_type) {
-        $filename = $this->get_node_files_zip_filename($seq_type);
+    public function get_node_files_zip_web_path($domain_type, $seq_type) {
+        $filename = $this->get_node_files_zip_filename($domain_type, $seq_type);
         return $this->shared_get_web_path($filename);
     }
     public function get_fasta_files_zip_web_path($domain_type, $seq_type) {
@@ -308,9 +308,10 @@ class colorssn extends option_base {
     private function get_colored_ssn_zip_filename() {
         return $this->get_base_filename() . ".zip";
     }
-    private function get_node_files_zip_filename($seq_type) {
-        $filename = $seq_type == colorssn::SEQ_UNIPROT ? "UniProt" : ($seq_type == colorssn::SEQ_UNIREF50 ? "UniRef50" : "UniRef90");
-        return $this->get_base_filename() . "_${filename}_IDs.zip";
+    private function get_node_files_zip_filename($domain_type, $seq_type) {
+        $type_suffix = $seq_type == self::SEQ_UNIPROT ? "UniProt" : ($seq_type == self::SEQ_UNIREF50 ? "UniRef50" : "UniRef90");
+        $dom_suffix = $domain_type == self::SEQ_DOMAIN ? "_Domain" : "";
+        return $this->get_base_filename() . "_${type_suffix}${dom_suffix}_IDs.zip";
     }
     private function get_fasta_files_zip_filename($domain_type, $seq_type) {
         $dom_suffix = $domain_type == self::SEQ_DOMAIN ? "_Domain" : "";
