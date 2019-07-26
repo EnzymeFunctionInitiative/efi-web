@@ -12,6 +12,7 @@ class GndVars {
         this.authString = "";
         this.urlPath = "";
         this.pageSize = DEFAULT_PAGE_SIZE;
+        this.window = DEFAULT_WINDOW;
     }
 
 
@@ -38,15 +39,19 @@ class GndVars {
         this.pageSize = value;
     }
 
+    getWindow() {
+        return this.window;
+    }
+    setWindow(value) {
+        this.window = value;
+    }
+
 
     getDefaultScaleType() {
         return SCALE_TYPE_WINDOW;
     }
     getDefaultScaleFactor() {
         return DEFAULT_SCALE_FACTOR;
-    }
-    getDefaultWindow() {
-        return DEFAULT_WINDOW;
     }
 }
 

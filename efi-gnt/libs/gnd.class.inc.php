@@ -257,6 +257,7 @@ abstract class gnd {
             $num_clause = "num >= " . ($attr['num'] - $this->window) . " AND num <= " . ($attr['num'] + $this->window);
             $nb_sql .= " AND " . $num_clause;
         }
+        $nb_sql .= " ORDER BY num";
         return $nb_sql;
     }
 
