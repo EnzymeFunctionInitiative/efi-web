@@ -183,6 +183,8 @@ class stepa extends est_shared {
                     $update["convergence_ratio"] = floatval($val);
                 elseif ($key == "EdgeCount")
                     $update["num_edges"] = intval($val);
+                elseif ($key == "UniqueSeq")
+                    $update["num_unique"] = intval($val);
             }
         } else {
             if (file_exists($full_path)) {
