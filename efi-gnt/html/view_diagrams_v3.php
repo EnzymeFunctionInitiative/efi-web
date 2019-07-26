@@ -144,8 +144,6 @@ else {
 }
 
 
-$supportsGeneGraphics = isset($_GET["gene-graphics"]);
-
 if ($isBigscapeEnabled) {
     $bss = new bigscape_job($db, $gnnId, $bigscapeType);
     $bigscapeStatus = $bss->get_status();
@@ -187,7 +185,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 
 
         <!-- Custom styles for this template -->
-        <link href="css/diagrams.css" rel="stylesheet">
+        <link href="css/diagrams.css?v=2" rel="stylesheet">
         <link href="css/alert.css" rel="stylesheet">
 <!--
         <script src="js/app.js" type="application/javascript"></script>
@@ -325,28 +323,25 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     <li>
                         <div id="page-tools" class="initial-hidden">
                             <i class="fas fa-wrench" aria-hidden="true"></i> <span class="sidebar-header">Tools</span>
-
+                            <div class="btn-group" style="width: 100%; margin-button: 30px">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    Export Data <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#" id="export-gene-graphics-button"><i class="far fa-image" aria-hidden="true"></i> Export to Gene Graphics</a></li>
 <?php if ($supportsDownload && !$isUploadedDiagram) { ?>
-                            <div>
-                                <a id="download-data" href="download_files.php?<?php echo $idKeyQueryString; ?>&type=data-file"
-                                    title="Download the data to upload it for future analysis using this tool.">
-                                        <button type="button" class="btn btn-default tool-button">
-                                            <i class="fas fa-download" aria-hidden="true"></i> Download Data
-                                        </button>
-                                </a>
-                            </div>
+                                    <li><a id="download-data" href="download_files.php?<?php echo $idKeyQueryString; ?>&type=data-file"
+                                        title="Download the data to upload it for future analysis using this tool.">
+                                                <i class="fas fa-download" aria-hidden="true"></i> Download Data as SQLite
+                                            </a></li>
 <?php } ?>
+                                </ul>
+                            </div>
+
 <?php if ($supportsExport) { ?>
                             <div>
                                 <button type="button" class="btn btn-default tool-button" id="save-canvas-button">
                                     <i class="far fa-image" aria-hidden="true"></i> Save as SVG
-                                </button>
-                            </div>
-<?php } ?>
-<?php if ($supportsGeneGraphics) { ?>
-                            <div>
-                                <button type="button" class="btn btn-default tool-button" id="export-gene-graphics-button">
-                                    <i class="far fa-image" aria-hidden="true"></i> Save as GeneGraphics
                                 </button>
                             </div>
 <?php } ?>
@@ -524,7 +519,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 
                     // Add callbacks
                     //gndRouter.addListener(uiFilterUpdate); //TODO
-    
+
                     // Register hooks to UI
                     ui.registerZoom("#scale-zoom-out-large", "#scale-zoom-out-small", "#scale-zoom-in-small", "#scale-zoom-in-large");
                     ui.registerShowMoreBtn("#show-more-arrows-button");
@@ -625,7 +620,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     dlForm.submit();
                 });
                 $("#export-gene-graphics-button").click(function(e) {
-                    var url = control.getUrl(0, control.getMaxIndex());
+                    var url = control.getUrl(0, control.getMaxViewIndex());
                     url = url.replace("get_gnd_data.php", "get_gene_graphics.php");
                     window.location = url;
                 });
@@ -866,6 +861,24 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         button that appears in the color box.  For InterPro
                         families, the color is not assigned, but the functionality
                         is the same.
+                        </p>
+                        <p>
+                        <div><b>Data Export</b></div>
+                        <?php if ($supportsDownload && !$isUploadedDiagram) { ?>
+                        It is possible to export a file that provides the data used to generate the diagrams.
+                        The data file format is SQLite, and it can be uploaded to the EFI-GNT
+                        tool and viewed again in the future via the <i>View Saved Diagrams</i>
+                        option.
+                        For advanced use, the file can also be opened with
+                        <a href="https://sqlitebrowser.org/" target="_blank">DB Browser for SQLite</a>
+                        to manually extract data.
+                        <?php } ?>
+                        </p>
+                        <p>
+                        The currently displayed diagrams can be exported to the Gene Graphics
+                        format and displayed using the
+                        <a href="https://katlabs.cc/genegraphics/" target="_blank">Gene Graphics</a>
+                        comparative genomics visualization tool.
                         </p>
                     </div>
                     <div class="modal-footer">
