@@ -31,6 +31,9 @@ class GndController {
     getMaxIndex() {
         return this.maxIndex;
     }
+    getMaxViewIndex() {
+        return this.View.getDiagramCount();
+    }
 
     // The input to this function is the diagram index (e.g. the view).  This function computes
     // the actual arrow data index from the diagram index start and end.  This is used in
@@ -169,8 +172,6 @@ class GndController {
 
         var payload = new Payload(); payload.MessageType = "DataRetrievalStatus"; payload.Data = { Retrieving: true, Message: "Retrieving initial data...", Initial: true };
         that.msgRouter.sendMessage(payload);
-//        var payload = new Payload(); payload.MessageType = "UpdateShowButtonStatus"; payload.Data = { Disabled: true };
-//        this.msgRouter.sendMessage(payload);
 
         this.Http.fetchInit(this.initUrlFn, handleInitRequest);
     }
@@ -183,9 +184,10 @@ class GndController {
 
     // PRIVATE
     reload() {
-        this.View.clearCanvas();
-        //this.onLoad(this.query);
-        this.doLoad(LOAD_RELOAD);
+        if (this.maxIndex > 0) {
+            this.View.clearCanvas();
+            this.doLoad(LOAD_RELOAD);
+        }
     }
 
     loadAll() {
@@ -200,7 +202,7 @@ class GndController {
     reset(fullReset) {
         this.scaleFactor = this.Vars.getDefaultScaleFactor();
         this.scaleType = this.Vars.getDefaultScaleType();
-        this.window = this.Vars.getDefaultWindow();
+        this.window = this.Vars.getWindow();
 
         // fullReset = true if this isn't the first load of the app.
         if (fullReset) {
