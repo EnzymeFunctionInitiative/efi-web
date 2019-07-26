@@ -69,14 +69,18 @@ $pfamZipFile = $gnn->get_relative_pfam_hub_zip_file();
 $pfamFilesize = format_file_size($gnn->get_pfam_hub_filesize());
 $pfamZipFilesize = format_file_size($gnn->get_pfam_hub_zip_filesize());
 
-$uniprotIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIPROT);
-$uniprotIdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIPROT));
-$uniprotDomIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIPROT_DOMAIN);
-$uniprotDomIdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIPROT_DOMAIN));
-$uniref50IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIREF50);
-$uniref50IdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIREF50));
-$uniref90IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_UNIREF90);
-$uniref90IdDataZipFilesize = format_file_size($gnn->get_cluster_data_zip_filesize(gnn::SEQ_UNIREF90));
+$uniprotIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIPROT);
+$uniprotIdDataZipFilesize = format_file_size($gnn->get_file_size($uniprotIdDataZip));
+$uniprotDomIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIPROT_DOMAIN);
+$uniprotDomIdDataZipFilesize = format_file_size($gnn->get_file_size($uniprotDomIdDataZip));
+$uniref50IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF50);
+$uniref50IdDataZipFilesize = format_file_size($gnn->get_file_size($uniref50IdDataZip));
+$uniref50DomainIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIREF50);
+$uniref50DomainIdDataZipFilesize = format_file_size($gnn->get_file_size($uniref50DomainIdDataZip));
+$uniref90IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF90);
+$uniref90IdDataZipFilesize = format_file_size($gnn->get_file_size($uniref90IdDataZip));
+$uniref90DomainIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIREF90);
+$uniref90DomainIdDataZipFilesize = format_file_size($gnn->get_file_size($uniref90DomainIdDataZip));
 
 $pfamDataZip = $gnn->get_relative_pfam_data_zip_file();
 $pfamDataZipFilesize = $gnn->get_pfam_data_zip_filesize();
@@ -94,10 +98,20 @@ $idDomTableFile = $gnn->get_relative_id_table_file(true);
 $idDomTableFilesize = $gnn->get_id_table_filesize(true);
 $pfamNoneZip = $gnn->get_relative_pfam_none_zip_file();
 $pfamNoneZipFilesize = $gnn->get_pfam_none_zip_filesize();
-$fastaZip = $gnn->get_relative_fasta_zip_file();
-$fastaDomainZip = $gnn->get_relative_fasta_zip_file(true);
-$fastaZipFilesize = $gnn->get_fasta_zip_filesize();
-$fastaDomainZipFilesize = $gnn->get_fasta_zip_filesize(true);
+
+$fastaUniProtZip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIPROT);
+$fastaUniProtZipFilesize = $gnn->get_file_size($fastaUniProtZip);
+$fastaUniProtDomainZip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIPROT);
+$fastaUniProtDomainZipFilesize = $gnn->get_file_size($fastaUniProtDomainZip);
+$fastaUniRef90Zip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF90);
+$fastaUniRef90ZipFilesize = $gnn->get_file_size($fastaUniRef90Zip);
+$fastaUniRef90DomainZip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIREF90);
+$fastaUniRef90DomainZipFilesize = $gnn->get_file_size($fastaUniRef90DomainZip);
+$fastaUniRef50Zip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF50);
+$fastaUniRef50ZipFilesize = $gnn->get_file_size($fastaUniRef50Zip);
+$fastaUniRef50DomainZip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIREF50);
+$fastaUniRef50DomainZipFilesize = $gnn->get_file_size($fastaUniRef50DomainZip);
+
 $coocTableFile = $gnn->get_relative_cooc_table_file();
 $coocTableFilesize = $gnn->get_cooc_table_filesize();
 $hubCountFile = $gnn->get_relative_hub_count_file();
@@ -131,20 +145,34 @@ if ($allPfamDataZip)
 if ($allSplitPfamDataZip)
     array_push($otherFiles, array($allSplitPfamDataZip, format_file_size($allSplitPfamDataZipFilesize), "Neighbor Pfam domains at 0% minimal co-occurrence frequency"));
 
-if ($uniprotIdDataZip or $uniref50IdDataZip or $uniref90IdDataZip or $fastaZip or $pfamNoneZip)
+if ($uniprotIdDataZip or $uniref50IdDataZip or $uniref90IdDataZip or $fastaUniProtZip or $pfamNoneZip)
     array_push($otherFiles, array("Data Files per SSN Cluster"));
 if ($uniprotIdDataZip)
-    array_push($otherFiles, array($uniprotIdDataZip, format_file_size($uniprotIdDataZipFilesize), "UniProt ID lists"));
+    array_push($otherFiles, array($uniprotIdDataZip, format_file_size($uniprotIdDataZipFilesize), "UniProt ID lists per cluster"));
 if ($uniprotDomIdDataZip)
-    array_push($otherFiles, array($uniprotDomIdDataZip, format_file_size($uniprotDomIdDataZipFilesize), "UniProt ID (domain) lists"));
-if ($uniref50IdDataZip)
-    array_push($otherFiles, array($uniref50IdDataZip, format_file_size($uniref50IdDataZipFilesize), "UniRef50 ID lists"));
+    array_push($otherFiles, array($uniprotDomIdDataZip, format_file_size($uniprotDomIdDataZipFilesize), "UniProt ID lists per cluster (with domain_"));
 if ($uniref90IdDataZip)
-    array_push($otherFiles, array($uniref90IdDataZip, format_file_size($uniref90IdDataZipFilesize), "UniRef90 ID lists"));
-if ($fastaZip)
-    array_push($otherFiles, array($fastaZip, format_file_size($fastaZipFilesize), "FASTA Files"));
-if ($fastaDomainZipFilesize)
-    array_push($otherFiles, array($fastaDomainZip, format_file_size($fastaDomainZipFilesize), "FASTA files (with domain)"));
+    array_push($otherFiles, array($uniref90IdDataZip, format_file_size($uniref90IdDataZipFilesize), "UniRef90 ID lists per cluster"));
+if ($uniref90DomainIdDataZip)
+    array_push($otherFiles, array($uniref90DomainIdDataZip, format_file_size($uniref90DomainIdDataZipFilesize), "UniRef90 ID lists per cluster (with domain)"));
+if ($uniref50IdDataZip)
+    array_push($otherFiles, array($uniref50IdDataZip, format_file_size($uniref50IdDataZipFilesize), "UniRef50 ID lists per cluster"));
+if ($uniref50DomainIdDataZip)
+    array_push($otherFiles, array($uniref50DomainIdDataZip, format_file_size($uniref50DomainIdDataZipFilesize), "UniRef50 ID lists per cluster (with domain)"));
+
+$uniprotText = ($fastaUniRef90ZipFilesize || $fastaUniRef50ZipFilesize) ? "UniProt" : "";
+if ($fastaUniProtZipFilesize)
+    array_push($otherFiles, array($fastaUniProtZip, format_file_size($fastaUniProtZipFilesize), "FASTA files per $uniprotText cluster"));
+if ($fastaUniProtDomainZipFilesize)
+    array_push($otherFiles, array($fastaUniProtDomainZip, format_file_size($fastaUniProtDomainZipFilesize), "FASTA files per $uniprotText cluster (with domain)"));
+if ($fastaUniRef90ZipFilesize)
+    array_push($otherFiles, array($fastaUniRef90Zip, format_file_size($fastaUniRef90ZipFilesize), "FASTA files per UniRef90 cluster"));
+if ($fastaUniRef90DomainZipFilesize)
+    array_push($otherFiles, array($fastaUniRef90DomainZip, format_file_size($fastaUniRef90DomainZipFilesize), "FASTA files per UniRef90 cluster (with domain)"));
+if ($fastaUniRef50ZipFilesize)
+    array_push($otherFiles, array($fastaUniRef50Zip, format_file_size($fastaUniRef50ZipFilesize), "FASTA files per UniRef50 cluster"));
+if ($fastaUniRef50DomainZipFilesize)
+    array_push($otherFiles, array($fastaUniRef50DomainZip, format_file_size($fastaUniRef50DomainZipFilesize), "FASTA files per UniRef50 cluster (with domain)"));
 if ($pfamNoneZip)
     array_push($otherFiles, array($pfamNoneZip, format_file_size($pfamNoneZipFilesize), "Neighbors without Pfam assigned"));
 
@@ -344,40 +372,37 @@ require_once('inc/header.inc.php');
         <div id="other" class="">
             <h4>Mapping Tables, FASTA Files, ID Lists, and Supplementary Files</h4>
             <table width="100%" class="pretty no-border">
-                <!--
-                <thead>
-                    <th></th>
-                    <th>File</th>
-                    <th>File Size (MB)</th>
-                </thead>
-                -->
-                <tbody>
-                    <?php
+<?php
                     $first = true;
                     foreach ($otherFiles as $info) {
                         if (count($info) == 1) {
-                            $first_class = $first ? "file-header-row-first" : "";
+                            if (!$first)
+                                echo "                </tbody>\n";
+                            $first = false;
                             echo <<<HTML
+                <tbody>
                     <tr style="text-align:center;">
-                        <td colspan="3" class="file-header-row $first_class">
+                        <td colspan="3" class="file-header-row">
                             $info[0]
                         </td>
                     </tr>
+                </tbody>
+                <tbody class="file-group">
+
 HTML;
                         } else {
                             $btnText = strpos($info[0], ".zip") > 0 ? "Download All (ZIP)" : "Download";
                             echo <<<HTML
-                    <tr class="file-row" style="text-align:center;">
+                    <tr style="text-align:center;">
                         <td>
                             <a href="$baseUrl/$info[0]"><button class="mini">$btnText</button></a>
                         </td>
                         <td>$info[2]</td>
                         <td>$info[1] MB</td>
                     </tr>
+
 HTML;
                         }
-                        if ($first)
-                            $first = false;
                     }
                     ?>
                 </tbody>
@@ -517,7 +542,7 @@ Please change parameters or select a new file to upload before refiltering.
 function format_file_size($size) {
     $mb = round($size, 0);
     if ($mb == 0)
-        return "<1";
+        return "&lt;1";
     return $mb;
 }
 ?>

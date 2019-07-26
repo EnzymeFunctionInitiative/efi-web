@@ -11,6 +11,8 @@ class gnn extends gnn_shared {
     const SEQ_UNIREF50 = 2;
     const SEQ_UNIREF90 = 3;
     const SEQ_UNIPROT_DOMAIN = 4;
+    const SEQ_DOMAIN = 1;
+    const SEQ_NO_DOMAIN = 2;
 
     ////////////////Private Variables//////////
 
@@ -269,13 +271,19 @@ class gnn extends gnn_shared {
             $exec .= " -all-pfam-zip \"" . $this->get_all_pfam_data_zip_file() . "\"";
             $exec .= " -split-pfam-zip \"" . $this->get_split_pfam_data_zip_file() . "\"";
             $exec .= " -all-split-pfam-zip \"" . $this->get_all_split_pfam_data_zip_file() . "\"";
-            $exec .= " -uniprot-id-zip \"" . $this->get_cluster_data_zip_file(gnn::SEQ_UNIPROT) . "\"";
-            $exec .= " -uniprot-id-domain-zip \"" . $this->get_cluster_data_zip_file(gnn::SEQ_UNIPROT_DOMAIN) . "\"";
-            $exec .= " -uniref50-id-zip \"" . $this->get_cluster_data_zip_file(gnn::SEQ_UNIREF50) . "\"";
-            $exec .= " -uniref90-id-zip \"" . $this->get_cluster_data_zip_file(gnn::SEQ_UNIREF90) . "\"";
+            $exec .= " -uniprot-id-zip \"" . $this->get_cluster_data_zip_file(self::SEQ_NO_DOMAIN, self::SEQ_UNIPROT) . "\"";
+            $exec .= " -uniprot-domain-id-zip \"" . $this->get_cluster_data_zip_file(gnn::SEQ_DOMAIN, self::SEQ_UNIPROT) . "\"";
+            $exec .= " -uniref50-id-zip \"" . $this->get_cluster_data_zip_file(self::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF50) . "\"";
+            $exec .= " -uniref50-domain-id-zip \"" . $this->get_cluster_data_zip_file(self::SEQ_DOMAIN, gnn::SEQ_UNIREF50) . "\"";
+            $exec .= " -uniref90-id-zip \"" . $this->get_cluster_data_zip_file(self::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF90) . "\"";
+            $exec .= " -uniref90-domain-id-zip \"" . $this->get_cluster_data_zip_file(self::SEQ_DOMAIN, gnn::SEQ_UNIREF90) . "\"";
             $exec .= " -none-zip \"" . $this->get_pfam_none_zip_file() . "\"";
-            $exec .= " -fasta-zip \"" . $this->get_fasta_zip_file() . "\"";
-            $exec .= " -fasta-domain-zip \"" . $this->get_fasta_zip_file(true) . "\"";
+            $exec .= " -fasta-zip \"" . $this->get_fasta_zip_file(self::SEQ_NO_DOMAIN, self::SEQ_UNIPROT) . "\"";
+            $exec .= " -fasta-domain-zip \"" . $this->get_fasta_zip_file(self::SEQ_DOMAIN, self::SEQ_UNIPROT) . "\"";
+            $exec .= " -fasta-uniref90-zip \"" . $this->get_fasta_zip_file(self::SEQ_NO_DOMAIN, self::SEQ_UNIREF90) . "\"";
+            $exec .= " -fasta-uniref90-domain-zip \"" . $this->get_fasta_zip_file(self::SEQ_DOMAIN, self::SEQ_UNIREF90) . "\"";
+            $exec .= " -fasta-uniref50-zip \"" . $this->get_fasta_zip_file(self::SEQ_NO_DOMAIN, self::SEQ_UNIREF50) . "\"";
+            $exec .= " -fasta-uniref50-domain-zip \"" . $this->get_fasta_zip_file(self::SEQ_DOMAIN, self::SEQ_UNIREF50) . "\"";
             $exec .= " -arrow-file \"" . $this->get_diagram_data_file() . "\"";
             $exec .= " -cooc-table \"" . $this->get_cooc_table_file() . "\"";
             $exec .= " -hub-count-file \"" . $this->get_hub_count_file() . "\"";
@@ -376,35 +384,34 @@ class gnn extends gnn_shared {
         $pfamFile = $this->get_relative_pfam_hub();
         return preg_replace("/\.xgmml$/", ".zip", $pfamFile);
     }
-    public function get_cluster_data_zip_file($seq_type) {
-        $filename = self::get_data_zip_file_name($seq_type);
+    public function get_cluster_data_zip_file($domain_type, $seq_type) {
+        $filename = self::get_data_zip_file_name($domain_type, $seq_type);
         return $this->shared_get_full_file_path("_${filename}_IDs", ".zip");
     }
-    private static function get_data_zip_file_name($seq_type) {
-        $filename =
-            $seq_type == gnn::SEQ_UNIREF50 ?
-                "UniRef50" :
-                ($seq_type == gnn::SEQ_UNIREF90 ?
-                    "UniRef90" :
-                    ($seq_type == gnn::SEQ_UNIPROT_DOMAIN ? 
-                        "UniProt_Domain" :
-                        "UniProt"));
-        return $filename;
+    private static function get_data_zip_file_name($domain_type, $seq_type) {
+        $type_suffix = $seq_type == self::SEQ_UNIREF50 ? "UniRef50" : ($seq_type == self::SEQ_UNIREF90 ? "UniRef90" : "UniProt");
+        $dom_suffix = $domain_type == self::SEQ_DOMAIN ? "_Domain" : "";
+        return "$type_suffix$dom_suffix";
     }
-    public function get_relative_cluster_data_zip_file($seq_type) {
-        if (!file_exists($this->get_cluster_data_zip_file($seq_type)))
+    public function get_relative_cluster_data_zip_file($domain_type, $seq_type) {
+        if (!file_exists($this->get_cluster_data_zip_file($domain_type, $seq_type)))
             return "";
-        $filename = self::get_data_zip_file_name($seq_type);
+        $filename = self::get_data_zip_file_name($domain_type, $seq_type);
         return $this->shared_get_relative_file_path("_${filename}_IDs", ".zip");
     }
 
-    public function get_fasta_zip_file($want_domain = false) {
-        $dom_suffix = $want_domain ? "_Domain" : "";
-        return $this->shared_get_full_file_path("_FASTA$dom_suffix", ".zip");
+    public function get_fasta_zip_file($dom_type, $seq_type) {
+        $suffix = $this->get_fasta_file_suffix($dom_type, $seq_type);
+        return $this->shared_get_full_file_path("_FASTA$suffix", ".zip");
     }
-    public function get_relative_fasta_zip_file($want_domain = false) {
-        $dom_suffix = $want_domain ? "_Domain" : "";
-        return $this->shared_get_relative_file_path("_FASTA$dom_suffix", ".zip");
+    private function get_fasta_file_suffix($dom_type, $seq_type) {
+        $dom_suffix = $dom_type == self::SEQ_DOMAIN ? "_Domain" : "";
+        $type_suffix = $seq_type == self::SEQ_UNIREF90 ? "_UniRef90" : ($seq_type == self::SEQ_UNIREF50 ? "_UniRef50" : "");
+        return "$type_suffix$dom_suffix";
+    }
+    public function get_relative_fasta_zip_file($dom_type, $seq_type) {
+        $suffix = $this->get_fasta_file_suffix($dom_type, $seq_type);
+        return $this->shared_get_relative_file_path("_FASTA$suffix", ".zip");
     }
 
     public function get_pfam_none_zip_file() {
@@ -547,12 +554,8 @@ class gnn extends gnn_shared {
         $file = $this->get_warning_file();
         return $this->get_shared_file_size($file);
     }
-    public function get_cluster_data_zip_filesize($seq_type) {
-        $file = $this->get_cluster_data_zip_file($seq_type);
-        return $this->get_shared_file_size($file);
-    }
-    public function get_fasta_zip_filesize($want_domain = false) {
-        $file = $this->get_fasta_zip_file($want_domain);
+    public function get_cluster_data_zip_filesize($domain_type, $seq_type) {
+        $file = $this->get_cluster_data_zip_file($domain_type, $seq_type);
         return $this->get_shared_file_size($file);
     }
     public function get_pfam_none_zip_filesize() {
@@ -621,6 +624,14 @@ class gnn extends gnn_shared {
             return round(filesize($file) / 1048576, 5);
         else
             return false;
+    }
+
+    public function get_file_size($web_path) {
+        if (!$web_path)
+            return 0;
+        $web_path = str_replace("results/", "", $web_path);
+        $full_path = settings::get_output_dir() . "/" . $web_path;
+        return $this->get_shared_file_size($full_path);
     }
 
     // Legacy Jobs
