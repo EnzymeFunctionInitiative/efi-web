@@ -506,6 +506,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     gndVars.setPageSize(200);
                     gndVars.setUrlPath("get_gnd_data.php");
                     gndVars.setAuthString("<?php echo $idKeyQueryString; ?>");
+                    gndVars.setWindow(<?php echo $nbSize; ?>);
 
                     var gndColor = new GndColor();
                     var gndRouter = new GndMessageRouter();
