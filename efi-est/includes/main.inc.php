@@ -1,6 +1,6 @@
 <?php
 
-require_once("../conf/settings.inc.php");
+require_once(__DIR__ . "/../conf/settings.inc.php");
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -22,6 +22,6 @@ if (defined("__BASE_WEB_PATH__"))
 else
     $SiteUrlPrefix = "";
 
-require_once("../../includes/error_helpers.inc.php");
+require_once(__BASE_DIR__ . "/includes/error_helpers.inc.php");
 
 ?>
