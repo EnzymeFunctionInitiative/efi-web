@@ -4,8 +4,8 @@ require_once("../includes/main.inc.php");
 require_once("Mail.php");
 require_once("Mail/mime.php");
 
+$StyleAdditional = array('<style>.hideme { display: none; }</style>');
 require_once(__DIR__ . "/inc/header.inc.php");
-
 
 
 // Remove beginning and ending spaces.
@@ -14,6 +14,8 @@ function trim_val(&$val) {
 }
 array_filter($_POST, "trim_val");
 
+if (!empty($_POST["url"]))
+    exit();
 
 // Specify parameters to validate/sanitize.
 $param_spec = array(
@@ -24,7 +26,7 @@ $param_spec = array(
 );
 
 $params = filter_input_array(INPUT_POST, $param_spec);
-$is_all_set = (!isset($_POST["address"]) || !$_POST["address"]) && $params !== false && $params !== NULL && $params["name"] && $params["inst"] && $params["email"] && $params["feedback"];
+$is_all_set = $params !== false && $params !== NULL && $params["name"] && $params["inst"] && $params["email"] && $params["feedback"];
 
 
 if ($is_all_set) {
@@ -72,7 +74,8 @@ To submit feedback, please provide the following information.
     <div id="submit-error" style="display: none;">
         <b>Please fill in all fields.</b>
     </div>
-    <input type="hidden" name="address" value="">
+    <input type="text" name="url" value="" class="hideme">
+    <input type="hidden" name="token" value="<?php echo $token; ?>">
 </form>
 
     <script>
