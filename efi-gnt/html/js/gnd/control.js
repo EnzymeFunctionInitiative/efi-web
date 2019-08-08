@@ -9,7 +9,7 @@ const LOAD_RELOAD = 3;  // Reload what's present on the screen (scale factor/win
 
 
 class GndController {
-    constructor(msgRouter, gndDb, gndHttp, gndVars, gndView) {
+    constructor(msgRouter, gndDb, gndHttp, gndVars, gndView, bigscape) {
         this.Http = gndHttp;
         this.Vars = gndVars;
         this.Db = gndDb;
@@ -21,6 +21,7 @@ class GndController {
         this.indexRange = [];
         this.useRange = true;
         this.maxIndex = 0;
+        this.bigscape = bigscape;
 
         this.reset(false);
     }
@@ -111,6 +112,7 @@ class GndController {
         //TODO: move these methods to a different class?
         var authString = this.Vars.getAuthString();
         var urlPath = this.Vars.getUrlPath();
+        var useBigscape = this.bigscape.getUseBigScape() ? "&bigscape=1" : "";
 
         var that = this;
         this.getUrlFn = function(start, end) {
@@ -133,6 +135,7 @@ class GndController {
                 url += sep + "sidx=" + start;
                 url += sep + "eidx=" + end;
             }
+            url += useBigscape;
             return url;
         };
 
@@ -145,6 +148,7 @@ class GndController {
             url += sep + "window=" + win;
             url += sep + "query=" + queryEscaped;
             url += sep + "stats=1";
+            url += useBigscape;
             return url;
         };
 
@@ -182,7 +186,12 @@ class GndController {
         this.onLoad(query);
     }
 
-    // PRIVATE
+    reloadForBigScape() {
+        this.reset(true);
+        this.onLoad(this.query);
+    }
+
+    // Private
     reload() {
         if (this.maxIndex > 0) {
             this.View.clearCanvas();
