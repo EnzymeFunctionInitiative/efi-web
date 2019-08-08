@@ -187,7 +187,6 @@ function submitOptionEForm(famHelper, outputIds) {
     
         var fileHandler = function(xhr) {};
         var completionHandler = getDefaultCompletionHandler();
-        var unirefVer = getUnirefVersion(fd);
     
         doFormPost(FORM_ACTION, fd, outputIds.warningMsg, fileHandler, completionHandler);
     };
