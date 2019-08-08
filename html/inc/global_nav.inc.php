@@ -15,6 +15,7 @@ if (isset($SiteUrlPrefix))
 
 $useDashboard = defined("__USE_DASHBOARD__") && __USE_DASHBOARD__;
 $IncludeShortBred = global_settings::get_shortbred_enabled();
+$useTraining = defined("__USE_TRAINING__") && __USE_TRAINING__;
 
 ?>
 
@@ -33,11 +34,14 @@ if ($IsAdminUser) { ?>
     if (!isset($NoAdmin)) { ?>
                 <li><a href="admin/" class="about">Admin</a></li>
 <?php } ?>
-                <li><a href="<?php echo $UrlPrefix; ?>/users/" class="user-mgmt">User Management</a></li>
+                <li><a href="<?php echo $UrlPrefix; ?>/users/" class="user-mgmt">Users</a></li>
 <?php } ?>
                 <li style="float:right"><?php echo $LoginText; ?></li>
 <?php if ($isLoggedIn && $useDashboard) { ?>
                 <li style="float:right"><a href="<?php echo $UrlPrefix; ?>/dashboard.php" class="about" title="Consolidated list of jobs across the EFI tools"><i class="fas fa-history"></i> Job History</a></li>
+<?php } ?>
+<?php if ($useTraining) { ?>
+                <li style="float:right"><a href="<?php echo $UrlPrefix; ?>/training/" class="about" title="Training Resources"><i class="fas fa-question"></i> Training</a></li>
 <?php } ?>
             </ul>
         </div>

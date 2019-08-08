@@ -30,6 +30,7 @@ define("__EMAIL_FOOTER__","");
 //define("__BETA_RELEASE__","BETA --");
 define("__SHORTBRED_USER_GROUP__","");
 define("__USE_DASHBOARD__",true);
+define("__USE_TRAINING__",true);
 define("__ENABLE_WEBSITE__",true);
 define("__ENABLE_EMAILS__",true);
 define("__ENABLE_ADVANCED_OPTIONS__",true);
