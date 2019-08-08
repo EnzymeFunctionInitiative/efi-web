@@ -119,17 +119,26 @@ class metagenome_db_manager {
         } else {
             return false;
         }
-    
+
+        $version = 1;
+        $cats = array();
+
         while (($data = fgetcsv($fh, 1000, "\t")) !== false) {
             if (isset($data[0]) && $data[0] && $data[0][0] == "#")
                 continue; // skip comments
 
             if ($data[0] == "DB_NAME") {
                 $info["db_name"] = $data[1];
+            } elseif ($data[0] == "VERSION") {
+                $version = $data[1];
+            } elseif ($data[0] == "CATEGORIES") {
+                $cats = explode(",", $data[1]);
             } else {
                 $site = str_replace("_", " ", $data[0]);
                 $color = $data[1];
                 $order = isset($data[2]) ? $data[2] : 0;
+                if (strpos($order, ",") !== false)
+                    $order = explode(",", $order);
                 $info["sites"][$site] = array('color' => $color, 'order' => $order);
             }
         }
@@ -147,12 +156,14 @@ class metagenome_db_manager {
             fclose($dfh);
         }
         $info["db_desc"] = $desc;
+        $info["version"] = $version;
+        $info["categories"] = $cats;
 
         return $info;
     }
 
     // Load specific metagenome database
-    public static function get_metagenome_db_site_info($db_id, $bodysites = array()) { // Array to filter for specific body sites
+    public static function get_metagenome_db_site_info($db_id, $bodysites = array(), $group_cat = 0) { // Array to filter for specific body sites
         $mg_dbs = self::get_valid_dbs();
         if (!self::is_valid_id($db_id) || !isset($mg_dbs[$db_id]))
             return false;
@@ -161,15 +172,27 @@ class metagenome_db_manager {
         $meta = self::get_metagenome_db_metadata($mg_db);
         $db_info = self::load_db($mg_db);
 
-        $info = array("site" => array(), "gender" => array());
+        $info = array("site" => array(), "secondary" => array(), "categories" => $meta["categories"]);
 
         foreach ($db_info as $mg_id => $data) {
             $site = $data["name"];
+            if ($meta["version"] > 1)
+                $site .= "; " . $data["desc"];
             if (count($bodysites) == 0 || in_array($site, $bodysites)) {
                 $info["site"][$mg_id] = $site;
-                $info["gender"][$mg_id] = $data["desc"];
-                $info["color"][$mg_id] = isset($meta["sites"][$site]) ? $meta["sites"][$site]["color"] : "";
-                $info["order"][$mg_id] = isset($meta["sites"][$site]) ? $meta["sites"][$site]["order"] : "";
+                $info["secondary"][$mg_id] = $data["desc"];
+                if (isset($meta["sites"][$site])) {
+                    $info["color"][$mg_id] = $meta["sites"][$site]["color"];
+                    if (is_array($meta["sites"][$site]["order"]) && isset($meta["sites"][$site]["order"][$group_cat]))
+                        $info["order"][$mg_id] = $meta["sites"][$site]["order"][$group_cat];
+                    else
+                        $info["order"][$mg_id] = is_array($meta["sites"][$site]["order"]) ?
+                                                        $meta["sites"][$site]["order"][0] :
+                                                        $meta["sites"][$site]["order"];
+                } else {
+                    $info["color"][$mg_id] = "";
+                    $info["order"][$mg_id] = "";
+                }
             }
         }
 
