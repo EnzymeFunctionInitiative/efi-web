@@ -36,7 +36,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
             $message .= "Please select a file to upload";
         } elseif (isset($_FILES['file']['error']) && ($_FILES['file']['error'] != 0)) {
             $valid = 0;
-            $message .= "Error uploading file: " . functions::get_upload_error($_FILES['file']['error']) . "" . $_POST['MAX_FILE_SIZE'];
+            $message .= "Error uploading file: " . functions::get_upload_error($_FILES['file']['error']);
         } elseif (!$est_id && !functions::is_valid_file_type($file_type)) {
             $valid = 0;
             $message .= "Invalid filetype ($file_type).  The file has to be an " . settings::get_valid_file_types() . " filetype.";
