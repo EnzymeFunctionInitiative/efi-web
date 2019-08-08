@@ -57,5 +57,6 @@ define("__SHORTBRED_DIAMOND_MODULE__","shortbred/diamond/devlocal");
 define("__EFI_DB_MODULE__","");
 define("__ENABLE_LOG__",true);
 define("__NUM_PROCESSORS__",24);
+define("__NUM_QUANTIFY_PROCESSORS__",24);
 
 ?>
