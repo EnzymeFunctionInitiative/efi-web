@@ -16,7 +16,7 @@ class settings extends global_settings {
         return __QUANTIFY_SCRIPT__;
     }
 
-    public static function get_valid_file_type() {
+    public static function get_valid_file_types() {
         return __VALID_FILE_TYPE__;
     }
 
@@ -43,6 +43,10 @@ class settings extends global_settings {
 
     public static function get_num_processors() {
         return __NUM_PROCESSORS__;
+    }
+
+    public static function get_num_quantify_processors() {
+        return __NUM_QUANTIFY_PROCESSORS__;
     }
 
     public static function get_shortbred_blast_module() {

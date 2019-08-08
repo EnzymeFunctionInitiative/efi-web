@@ -150,6 +150,7 @@ class quantify extends quantify_shared {
         if (isset($mg_db_list[$this->mg_db_id]))
             $mg_db = $mg_db_list[$this->mg_db_id];
 
+        $np = settings::get_num_quantify_processors() ? settings::get_num_quantify_processors() : settings::get_num_processors();
         $exec = "source /etc/profile\n";
         $exec .= "module load " . settings::get_efidb_module() . "\n";
         $exec .= "module load $sb_module\n";
@@ -167,7 +168,7 @@ class quantify extends quantify_shared {
         $exec .= " -cluster-norm " . self::get_normalized_cluster_file_name();
         $exec .= " -protein-genome-norm " . self::get_genome_normalized_protein_file_name();
         $exec .= " -cluster-genome-norm " . self::get_genome_normalized_cluster_file_name();
-        $exec .= " -np " . settings::get_num_processors();
+        $exec .= " -np $np";
         $exec .= " -queue $queue";
         $exec .= " -mem-queue $memQueue";
         if ($sched)
