@@ -79,4 +79,6 @@ define("__COLORSSN_DOMAIN_MAP_FILE_NAME__","domain_mapping_table.txt");
 define("__ACC_COUNT_FILENAME__","acc_counts.txt");
 define("__CDHIT_STATS_FILE__","");
 
+define("__USER_LIST_KEY__","");
+
 ?>
