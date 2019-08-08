@@ -71,7 +71,7 @@ abstract class family_shared extends option_base {
         $file_handle = @fopen($file,"r") or die("Error opening " . $this->stats_file . "\n");
         $i = 0; 
         $stats_array = array();
-        $keys = array('SequenceId','SequenceLength','Nodes');
+        $keys = array("SequenceId","SequenceLength","Nodes");
         while (($data = fgetcsv($file_handle,0,"\t")) !== FALSE) {
             $data[0] = number_format(floatval($data[0]) * 100, 0) . "%";
             $data[1] = number_format(floatval($data[1]) * 100, 0) . "%";
@@ -95,21 +95,21 @@ abstract class family_shared extends option_base {
         $formatted_families = implode(",", $families);
         //$formatted_families = $this->format_families($data->families);
 
-        $insert_array['generate_families'] = $formatted_families;
+        $insert_array["generate_families"] = $formatted_families;
         if (isset($data->seq_id))
-            $insert_array['generate_sequence_identity'] = $data->seq_id;
+            $insert_array["generate_sequence_identity"] = $data->seq_id;
         if (isset($data->length_overlap))
-            $insert_array['generate_length_overlap'] = $data->length_overlap;
+            $insert_array["generate_length_overlap"] = $data->length_overlap;
         if (isset($data->uniref_version) && $data->uniref_version && ($data->uniref_version == "50" || $data->uniref_version == "90"))
-            $insert_array['generate_uniref'] = $data->uniref_version;
+            $insert_array["generate_uniref"] = $data->uniref_version;
         if (isset($data->no_demux))
-            $insert_array['generate_no_demux'] = $data->no_demux;
+            $insert_array["generate_no_demux"] = $data->no_demux;
         if (isset($data->random_fraction))
-            $insert_array['generate_random_fraction'] = $data->random_fraction;
+            $insert_array["generate_random_fraction"] = $data->random_fraction;
         if (isset($data->min_seq_len))
-            $insert_array['generate_min_seq_len'] = $data->min_seq_len;
+            $insert_array["generate_min_seq_len"] = $data->min_seq_len;
         if (isset($data->max_seq_len))
-            $insert_array['generate_max_seq_len'] = $data->max_seq_len;
+            $insert_array["generate_max_seq_len"] = $data->max_seq_len;
         return $insert_array;
     }
 
@@ -175,31 +175,31 @@ abstract class family_shared extends option_base {
             return;
         }
 
-        if ($result['generate_families'] != "") {
-            $families = explode(",", $result['generate_families']);
+        if (isset($result["generate_families"]) && $result["generate_families"]) {
+            $families = explode(",", $result["generate_families"]);
             $this->families = $families;
         }
 
-        if (array_key_exists('generate_sequence_identity', $result) && $result['generate_sequence_identity'])
-            $this->seq_id = $result['generate_sequence_identity'];
-        if (array_key_exists('generate_length_overlap', $result) && $result['generate_length_overlap'])
-            $this->length_overlap = $result['generate_length_overlap'];
-        if (array_key_exists('generate_uniref', $result) && $result['generate_uniref'] != "--")
-            $this->uniref_version = $result['generate_uniref'];
+        if (isset($result["generate_sequence_identity"]) && $result["generate_sequence_identity"])
+            $this->seq_id = $result["generate_sequence_identity"];
+        if (isset($result["generate_length_overlap"]) && $result["generate_length_overlap"])
+            $this->length_overlap = $result["generate_length_overlap"];
+        if (isset($result["generate_uniref"]) && $result["generate_uniref"] != "--")
+            $this->uniref_version = $result["generate_uniref"];
         else
             $this->uniref_version = "";
-        if (array_key_exists('generate_no_demux', $result) && $result['generate_no_demux'])
+        if (isset($result["generate_no_demux"]) && $result["generate_no_demux"])
             $this->no_demux = 1;
         else
             $this->no_demux = 0;
-        if (array_key_exists('generate_random_fraction', $result) && $result['generate_random_fraction'])
+        if (isset($result["generate_random_fraction"]) && $result["generate_random_fraction"])
             $this->random_fraction = 1;
         else
             $this->random_fraction = 0;
-        if (array_key_exists('generate_min_seq_len', $result))
-            $this->min_seq_len = $result['generate_min_seq_len'];
-        if (array_key_exists('generate_max_seq_len', $result))
-            $this->max_seq_len = $result['generate_max_seq_len'];
+        if (isset($result["generate_min_seq_len"]))
+            $this->min_seq_len = $result["generate_min_seq_len"];
+        if (isset($result["generate_max_seq_len"]))
+            $this->max_seq_len = $result["generate_max_seq_len"];
 
         return $result;
     }
