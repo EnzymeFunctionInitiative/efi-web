@@ -35,11 +35,13 @@ if (isset($_GET["filename"])) {
         </div>
         <div>
             <div class="search-help bigger">
-                Boxplots showing per-site abundance can be generated for clusters and/or singletons 
+                Boxplots showing per-site abundance (using the median method)
+                can be generated for clusters and/or singletons 
                 in the SSN.
             </div>
             <input type="text" name="cluster-input" id="cluster-input" class="bigger" />
-            <button type="button" id="add-btn" class="normal">Add Clusters</button>
+            <button type="button" id="add-btn" class="normal">Add Clusters</button><br>
+            Abundances are computed using the median method.
         </div>
         <div class="search-help">
             Enter a comma-separated list or numeric range of cluster and/or singleton numbers
