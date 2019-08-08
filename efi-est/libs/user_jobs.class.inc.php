@@ -125,6 +125,7 @@ class user_jobs extends user_auth {
 
         $map_fn = function ($row) { return $row["generate_id"]; };
         $id_order = array_map($map_fn, $rows);
+        $date_order = array();
 
         // First process all of the color SSN jobs.  This allows us to link them to SSN jobs.
         $child_color_jobs = array();
@@ -139,6 +140,8 @@ class user_jobs extends user_auth {
             $is_completed = $comp_result[0];
             $id = $row["generate_id"];
             $key = $row["generate_key"];
+            if ($row["generate_time_completed"])
+                $date_order[$id] = $row["generate_time_completed"];
 
             $params = global_functions::decode_object($row["generate_params"]);
             if (isset($params["generate_color_ssn_source_id"]) && $params["generate_color_ssn_source_id"]) {
@@ -167,13 +170,17 @@ class user_jobs extends user_auth {
             $key = $row["generate_key"];
             
             $job_data = array("key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
+            if ($row["generate_time_completed"])
+                $date_order[$id] = $row["generate_time_completed"];
 
             $analysis_jobs = array();
+            $has_analysis_date_order = false;
             if ($is_completed && $includeAnalysisJobs) {
-                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter FROM analysis " .
-                    "WHERE analysis_generate_id = $id AND analysis_status != 'ARCHIVED' ";
+                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter FROM analysis" .
+                    " WHERE analysis_generate_id = $id AND analysis_status != 'ARCHIVED'";
                 if (!$includeFailedAnalysisJobs)
-                    $sql .= "AND analysis_status = 'FINISH'";
+                    $sql .= " AND analysis_status = 'FINISH'";
+                $sql .= " ORDER BY analysis_time_completed DESC";
                 $arows = $db->query($sql); // Analysis Rows
     
                 foreach ($arows as $arow) {
@@ -203,6 +210,10 @@ class user_jobs extends user_auth {
                         unset($child_color_jobs[$aid]);
                     }
                     array_push($analysis_jobs, $a_job);
+                    if ($arow["analysis_status"] == __FINISH__ && $arow["analysis_time_completed"] && !$has_analysis_date_order) {
+                        $date_order[$id] = $arow["analysis_time_completed"];
+                        $has_analysis_date_order = true;
+                    }
                 }
             }
 
@@ -223,7 +234,7 @@ class user_jobs extends user_auth {
                 array_push($id_order_new, $id_order[$i]);
         }
 
-        $retval = array("generate_jobs" => $jobs, "color_jobs" => $color_jobs, "order" => $id_order_new);
+        $retval = array("generate_jobs" => $jobs, "color_jobs" => $color_jobs, "order" => $id_order_new, "date_order" => $date_order);
         return $retval;
     }
 
