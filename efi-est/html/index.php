@@ -46,6 +46,23 @@ $update_msg =
 $IncludeSubmitJs = true;
 require_once "inc/header.inc.php";
 
+$sort_by_group = true;
+if (isset($_GET["sb"]) && $_GET["sb"] == 1) {
+    $sort_by_group = false;
+
+    $sort_fn = function($a, $b) use ($jobs) {
+        if (isset($jobs["date_order"][$a]) && isset($jobs["date_order"][$b])) {
+            $tm1 = strtotime($jobs["date_order"][$a]);
+            $tm2 = strtotime($jobs["date_order"][$b]);
+            return $tm1 > $tm2 ? -1 : ($tm1 < $tm2 ? 1 : 0);
+        } else {
+            return $a < $b ? 1 : ($a > $b ? -1 : 0);
+        }
+    };
+
+    usort($jobs["order"], $sort_fn);
+}    
+
 ?>
 
 
@@ -121,7 +138,7 @@ the <a href="family_list.php">Family Information page</a>.
             <h4>EST Jobs</h4>
 <?php 
     $show_archive = true;
-    output_job_list($jobs, $show_archive);
+    output_job_list($jobs, $show_archive, "sort-jobs-toggle");
 
     if (has_jobs($tjobs)) {
         echo "            <h4>Training Resources</h4>\n";
@@ -555,6 +572,8 @@ the <a href="family_list.php">Family Information page</a>.
 </div>
 
 <script>
+    const SORT_DATE_DESC = 1;
+    const SORT_DATE_GROUP = 3;
     var AutoCheckedUniRef = false;
     var FamilySizeOk = true;
     var familySizeHelper = new FamilySizeHelper();
@@ -569,6 +588,8 @@ the <a href="family_list.php">Family Information page</a>.
     var optDoutputIds = getOutputIds("optd");
     var optEinputIds = getInputIds("opte");
     var optEoutputIds = getOutputIds("opte");
+
+    var sortMethod = <?php echo $sort_by_group ? "SORT_DATE_GROUP" : "SORT_DATE_DESC"; ?>;
 
     $(document).ready(function() {
         $("#main-tabs").tabs();
@@ -660,6 +681,21 @@ the <a href="family_list.php">Family Information page</a>.
             fileName = e.target.value.split( '\\' ).pop();
             if (fileName && !$("#job-name-optd").val())
                 $("#job-name-optd").val(fileName);
+        });
+
+
+        var updateSortIcon = function() {
+            var sortIcon = sortMethod == SORT_DATE_DESC ? "<i class='fas fa-chevron-down'></i>" : "<i class='fas fa-list-alt'></i>";
+            $("#sort-jobs-toggle").html(sortIcon);
+        };
+        var toggleSortIcon = function() {
+            sortMethod = sortMethod == SORT_DATE_DESC ? SORT_DATE_GROUP : SORT_DATE_DESC;
+            updateSortIcon();
+        };
+        updateSortIcon();
+        $("#sort-jobs-toggle").click(function() {
+            toggleSortIcon();
+            window.location.replace("<?php echo $_SERVER['PHP_SELF']; ?>" + (sortMethod == SORT_DATE_DESC ? "?sb=1" : ""));
         });
 
         $("#domain-optd").change(function() {
@@ -1064,13 +1100,19 @@ HTML;
 }
 
 
-function output_job_list($jobs, $show_archive = false) {
+function output_job_list($jobs, $show_archive = false, $toggle_id = "") {
+    $up = "&#x25B2;";
+    $down = "&#x25BC;";
+    if ($toggle_id)
+        $toggle_id = <<<HTML
+<span id="$toggle_id" class="sort-toggle" title="Click to toggle between primary job ordering (with analysis jobs grouped with primary job), or by most recent job activity from newest to oldest."><i class="fas fa-list-alt"></i></span> 
+HTML;
     echo <<<HTML
             <table class="pretty-nested" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
                     <th>Job Name</th>
-                    <th class="date-col">Date Completed</th>
+                    <th class="date-col">$toggle_id Date Completed</th>
                 </thead>
                 <tbody>
 HTML;
