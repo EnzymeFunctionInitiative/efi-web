@@ -1,6 +1,6 @@
 <?php
 
-include_once '../conf/settings.inc.php';
+require_once("../conf/settings.inc.php");
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -12,9 +12,10 @@ function __autoload($class_name) {
     }
 }
 
+require_once(__BASE_DIR__ . "/libs/database.class.inc.php");
 
 date_default_timezone_set(__TIMEZONE__);
-$db = new db(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
+$db = new database(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
 
 if (defined("__BASE_WEB_PATH__"))
     $SiteUrlPrefix = __BASE_WEB_PATH__;
