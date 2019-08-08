@@ -3,7 +3,7 @@
 class statistics 
 {
 
-    public static function num_per_month($db, $recentOnly = false) {
+    public static function num_per_month($db, $recent_only = false) {
         $sql = "SELECT count(1) as count, ";
         $sql .= "MONTHNAME(gnn_time_created) as month, ";
         $sql .= "YEAR(gnn_time_created) as year ";

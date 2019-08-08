@@ -1,31 +1,31 @@
 <?php
 
-include_once 'inc/stats_main.inc.php';
-include_once 'inc/stats_admin_header.inc.php';
+require_once("inc/stats_main.inc.php");
+require_once("inc/stats_admin_header.inc.php");
 
-$month = date('n');
-if (isset($_POST['month'])) {
-	$month = $_POST['month'];
+$month = date("n");
+if (isset($_POST["month"])) {
+	$month = $_POST["month"];
 }
-$year = date('Y');
-if (isset($_POST['year'])) {
-	$year = $_POST['year'];
+$year = date("Y");
+if (isset($_POST["year"])) {
+	$year = $_POST["year"];
 }
 
-$graph_type = "daily_jobs";
-$get_array  = array('graph_type'=>$graph_type,
-                'month'=>$month,
-                'year'=>$year);
-$graph_image = "<img src='daily_graph.php?" . http_build_query($get_array) . "'>";
+$get_array  = array("graph_type" => "daily", "month" => $month, "year" => $year);
+$graph_image = "<img src='stats_graph.php?" . http_build_query($get_array) . "'>";
 
-$recentOnly = true;
-$generate_per_month = statistics::num_per_month($db, $recentOnly);
-$generate_per_month_html = "";
-foreach ($generate_per_month as $value) {
-	$generate_per_month_html .= "<tr><td>" . $value['month'] . "</td>";
-	$generate_per_month_html .= "<td>" . $value['year'] . "</td>";
-	$generate_per_month_html .= "<td>" . $value['count'] . "</td>";
-	$generate_per_month_html .= "</tr>";
+$all_get_array  = array("graph_type" => "monthly");
+$all_graph_image = "<img src='stats_graph.php?" . http_build_query($all_get_array) . "'>";
+
+$recent_only = true;
+$jobs_per_month = statistics::num_per_month($db, $recent_only);
+$jobs_per_month_html = "";
+foreach ($jobs_per_month as $value) {
+	$jobs_per_month_html .= "<tr><td>" . $value["month"] . "</td>";
+	$jobs_per_month_html .= "<td>" . $value["year"] . "</td>";
+	$jobs_per_month_html .= "<td>" . $value["count"] . "</td>";
+	$jobs_per_month_html .= "</tr>";
 
 }
 
@@ -54,8 +54,7 @@ for ($i=2014;$i<=date('Y');$i++) {
 $year_html .= "</select>";
 ?>
 
-
-
+<br><br><br>
 <h3>EFI-GNT Statistics</h3>
 
 <h4>Statistics</h4>
@@ -65,7 +64,7 @@ $year_html .= "</select>";
 	<th>Year</th>
 	<th>Total Jobs</th>
 </tr>
-<?php echo $generate_per_month_html; ?>
+<?php echo $jobs_per_month_html; ?>
 </table>
 
 <form class='form-inline' method='post' action='report.php'>
@@ -107,5 +106,9 @@ $year_html .= "</select>";
 <hr>
 <?php echo $graph_image; ?>
 
+<br>
+<hr>
+<?php echo $all_graph_image; ?>
 
-<?php include_once '../inc/stats_footer.inc.php'; ?>
+
+<?php require_once("inc/stats_footer.inc.php"); ?>
