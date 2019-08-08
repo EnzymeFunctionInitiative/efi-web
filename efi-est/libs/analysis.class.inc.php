@@ -692,7 +692,7 @@ class analysis extends est_shared {
         $plain_email .= $this->get_email_job_info() . PHP_EOL . PHP_EOL;
 
         $plain_email .= "The coloring utility recently developed will help downstream analysis of your SSN. Try it! ";
-        $plain_email .= "It can be found at the bottom of the $web_root/stepa.php#colorssn page." . PHP_EOL . PHP_EOL;
+        $plain_email .= "It can be found at the bottom of the $web_root/#colorssn page." . PHP_EOL . PHP_EOL;
         $plain_email .= "Have you tried exploring Genome Neighborhood Networks (GNTs) from your favorite SSNs? ";
         $plain_email .= "GNT_URL" . PHP_EOL . PHP_EOL;
 
