@@ -528,12 +528,12 @@ class identify extends job_shared {
     }
 
     public function get_ssn_http_path() {
-        $test_path = settings::get_output_dir() . "/" . $this->identify_id . "/" . settings::get_rel_output_dir();
+        $id = $this->get_id();
+        $test_path = settings::get_output_dir() . "/$id/" . settings::get_rel_output_dir();
         $res_dir = settings::get_rel_output_dir();
         //TODO: remove for production
         if (!file_exists($test_path))
             $res_dir = settings::get_rel_output_dir_legacy();
-        $id = $this->get_id();
         return "$id/$res_dir/" . $this->get_ssn_name();
     }
     
