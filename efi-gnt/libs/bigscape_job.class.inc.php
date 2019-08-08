@@ -1,5 +1,6 @@
 <?php
 
+require_once(__DIR__ . "/../../conf/settings_base.inc.php");
 require_once("Mail.php");
 require_once("Mail/mime.php");
 require_once("const.class.inc.php");
@@ -9,8 +10,8 @@ require_once("functions.class.inc.php");
 class bigscape_job {
 
     const STATUS_NONE = 0;
-    const STATUS_RUNNING = 1;
-    const STATUS_FINISH = 2;
+    const STATUS_RUNNING = __RUNNING__;
+    const STATUS_FINISH = __FINISH__;
 
     private $job_completed = "job.completed";
     private $job_error = "job.error";

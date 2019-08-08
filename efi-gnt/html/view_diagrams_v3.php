@@ -147,13 +147,17 @@ else {
 if ($isBigscapeEnabled) {
     $bss = new bigscape_job($db, $gnnId, $bigscapeType);
     $bigscapeStatus = $bss->get_status();
+    $bigscape_btn_icon = $bigscapeStatus == bigscape_job::STATUS_FINISH ? "fa-sort-amount-down" : "fa-magic";
+    $bigscape_btn_text = $bigscapeStatus == bigscape_job::STATUS_FINISH ? "Use BiG-SCAPE Synteny" : 
+        ($bigscapeStatus == bigscape_job::STATUS_RUNNING ? "Big-SCAPE Pending" : "Run BiG-SCAPE");
+    $bigscape_modal_close_text = $bigscapeStatus == bigscape_job::STATUS_RUNNING ? "Close" : "No";
 }
 
 $nbSizeDiv = "";
 $cooccurrenceDiv = "";
 $jobTypeDiv = "";
 $jobIdDiv = "";
-$js_version = "?v=3";
+$js_version = "?v=4";
 
 if ($isDirectJob) {
     $jobTypeDiv = $jobTypeText ? "<div>Job Type: $jobTypeText</div>" : "";
@@ -377,13 +381,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
 <?php if ($isBigscapeEnabled) { ?>
                             <div>
                                 <button type="button" class="btn btn-default tool-button" id="run-bigscape-btn" <?php if ($bigscapeStatus == bigscape_job::STATUS_FINISH) echo "data-toggle=\"button\""; ?>>
-<?php if ($bigscapeStatus == bigscape_job::STATUS_NONE) { ?>
-                                    <i class="fas fa-magic" aria-hidden="true"></i> <span id="run-bigscape-btn-label">Run BiG-SCAPE</span>
-<?php } elseif ($bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
-                                    <i class="fas fa-magic" aria-hidden="true"></i> BiG-SCAPE Pending
-<?php } elseif ($bigscapeStatus == bigscape_job::STATUS_FINISH) { ?>
-                                    <i class="fas fa-sort-amount-down" aria-hidden="true"></i> <span id="bigscape-ordering-btn-text">Use BLAST Ordering</span>
-<?php } ?>
+                                    <i class="fas <?php echo $bigscape_btn_icon; ?>"></i> <span id="run-bigscape-btn-text"><?php echo $bigscape_btn_text; ?></span>
                                 </button>
                             </div>
 
@@ -482,6 +480,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
         <script src="js/gnd/ui-filter.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
         <script src="js/gnd/app-specific.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
         <script src="js/gnd/svg-util.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/bigscape.js?v=2" content-type="text/javascript"></script>
         <script type="application/javascript">
             $(document).ready(function() {
                 $("#filter-cb-toggle").prop("checked", false);
@@ -507,15 +506,19 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                     var gndRouter = new GndMessageRouter();
                     var gndHttp = new GndHttp(gndRouter);
                     var popupIds = new GndInfoPopupIds();
+                    var bigscape = new BigScape(<?php echo $gnnId; ?>, "<?php echo $gnnKey; ?>", "<?php echo $bigscapeType; ?>", "<?php echo $bigscapeStatus; ?>");
                     
                     var gndDb = new GndDb(gndColor);
                     var gndFilter = new GndFilter(gndRouter, gndDb);
                     var gndPopup = new GndInfoPopup(gndRouter, gndDb, popupIds);
                     var gndView = new GndView(gndRouter, gndDb, gndFilter, gndPopup, svgCanvasId);
 
-                    var control = new GndController(gndRouter, gndDb, gndHttp, gndVars, gndView);
+                    var control = new GndController(gndRouter, gndDb, gndHttp, gndVars, gndView, bigscape);
                     var filterUi = new GndFilterUi(gndRouter, gndFilter, gndColor, pfamFilterContainerId, interproFilterContainerId, legendContainerId, numDiagramsFilteredId);
                     var ui = new GndUi(gndRouter, control, filterUi);
+<?php if ($isBigscapeEnabled) { ?>
+                    ui.registerBigScape(bigscape, "#run-bigscape-btn", "#run-bigscape-btn-text", "#run-bigscape-modal");
+<?php } ?>
 
                     // Add callbacks
                     //gndRouter.addListener(uiFilterUpdate); //TODO
@@ -564,38 +567,6 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                 $("#show-unmatched-ids").click(function(e) {
                         $("#unmatched-ids-modal").modal("show");
                     });
-<?php } ?>
-<?php if ($isBigscapeEnabled) { ?>
-<?php     if ($bigscapeStatus == bigscape_job::STATUS_FINISH) { ?>
-                $("#run-bigscape-btn").click(function(e) {
-                    //TODO: arrowApp.toggleUseBigscape();
-                    //if (arrowApp.isOrderingBigscape()) {
-                    //    $("#bigscape-ordering-btn-text").text("Default Ordering");
-                    //} else {
-                    //    $("#bigscape-ordering-btn-text").text("BiG-SCAPE Ordering");
-                    //}
-                });
-<?php     } elseif ($bigscapeStatus == bigscape_job::STATUS_NONE || $bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
-                $("#run-bigscape-btn").click(function(e) { $("#run-bigscape-modal").modal("show"); });
-<?php         if ($bigscapeStatus == bigscape_job::STATUS_NONE) { // only activate the confirm button if we haven't even started a bigscape run ?>
-                $("#run-bigscape-confirm-btn").click(function(e) {
-                    var completionHandler = function(status, message) {
-                        $("#run-bigscape-body").hide();
-                        if (!status) {
-                            $("#run-bigscape-error-msg").text(message);
-                            $("#run-bigscape-error-msg").show();
-                        } else {
-                            $("#run-bigscape-confirm-msg").show();
-                        }
-                        $("#run-bigscape-confirm-btn").hide();
-                        $("#run-bigscape-reject-btn").text("Close");
-                        $("#run-bigscape-btn-label").text("BiG-SCAPE Pending");
-                    };
-                    
-                    //TODO: arrowApp.runBigscape(<?php echo $gnnId; ?>, "<?php echo $gnnKey; ?>", "<?php echo $bigscapeType; ?>", completionHandler);
-                });
-<?php         } ?>
-<?php     } ?>
 <?php } ?>
 
                 $("#help-modal-button").click(function(e) {
@@ -755,8 +726,7 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                         <h4 class="modal-title">Run BiG-SCAPE</h4>
                     </div>
                     <div class="modal-body">
-<?php if ($bigscapeStatus == bigscape_job::STATUS_NONE) { ?>
-                        <div id="run-bigscape-body">
+                        <div>
                             The <a href="https://git.wageningenur.nl/medema-group/BiG-SCAPE">Biosynthetic Genes
                             Similarity Clustering and Prospecting (BiG-SCAPE)</a> tool can be used to cluster the individual
                             diagrams based on their genomic context.  This can take several hours to complete, depending on
@@ -764,28 +734,13 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
                             completed, and your arrow diagrams will be updated to reflect the new ordering.  You can continue
                             to use the tool as before while BiG-SCAPE is running.  Do you wish to continue?
                         </div>
-                        <div id="run-bigscape-confirm-msg" style="display:none">
-                            The BiG-SCAPE clustering is currently pending or
-                            executing.  You will receive an email when the clustering has begun and completed.
-                        </div>
-                        <div id="run-bigscape-error-msg" style="display:none">
-                            There was an error running BiG-SCAPE.
-                        </div>
-<?php } elseif ($bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
-                        <div id="run-bigscape-confirm-msg">
-                            The BiG-SCAPE clustering is currently pending or
-                            executing.  You will receive an email when the clustering has begun and completed.
-                        </div>
-<?php } ?>
                     </div>
                     <div class="modal-footer">
                         <div id="run-bigscape-footer">
 <?php if ($bigscapeStatus == bigscape_job::STATUS_NONE) { ?>
-                            <button type="button" class="btn btn-default" id="run-bigscape-confirm-btn">Yes</button>
-                            <button type="button" class="btn btn-default" id="run-bigscape-reject-btn" data-dismiss="modal">No</button>
-<?php } elseif ($bigscapeStatus == bigscape_job::STATUS_RUNNING) { ?>
-                            <button type="button" class="btn btn-default" id="run-bigscape-reject-btn" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-default" class="btn-confirm">Yes</button>
 <?php } ?>
+                            <button type="button" class="btn btn-default" class="btn-reject" data-dismiss="modal"><?php echo $bigscape_modal_close_text; ?></button>
                         </div>
                     </div>
                 </div><!-- /.modal-content -->

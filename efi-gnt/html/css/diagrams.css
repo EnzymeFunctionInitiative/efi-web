@@ -461,3 +461,7 @@ a.accordion-toggle {
     font-size: 80%;
 }
 
+#run-bigscape-btn.active {
+    background-color: #adadad;
+}
+
