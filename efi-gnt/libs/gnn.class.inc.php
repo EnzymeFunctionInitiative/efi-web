@@ -683,8 +683,8 @@ class gnn extends gnn_shared {
     private function set_gnn_stats() {
         $result = $this->count_nodes_edges($this->get_gnn());
         $data = array("gnn_edges" => $result["edges"], "gnn_nodes" => $result["nodes"]);
-        $result = $this->update_results_object($data);
-        if ($result) {
+        $query_result = $this->update_results_object($data);
+        if ($query_result) {
             $this->gnn_nodes = $result['nodes'];
             $this->gnn_edges = $result['edges'];
         }
@@ -693,8 +693,8 @@ class gnn extends gnn_shared {
     private function set_ssn_stats() {
         $result = $this->count_nodes_edges($this->get_color_ssn());
         $data = array("ssn_edges" => $result["edges"], "ssn_nodes" => $result["nodes"]);
-        $result = $this->update_results_object($data);
-        if ($result) {
+        $query_result = $this->update_results_object($data);
+        if ($query_result) {
             $this->ssn_nodes = $result['nodes'];
             $this->ssn_edges = $result['edges'];
         }
