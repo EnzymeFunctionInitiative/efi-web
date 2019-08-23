@@ -5,10 +5,15 @@ $Title = "EFI - Enzyme Similarity Tool";
 if (isset($EstId))
     $JobId = $EstId;
 
-$StyleAdditional = array('<link rel="stylesheet" type="text/css" href="css/est.css?v=3">');
-$JsAdditional = array();
+if (isset($StyleAdditional))
+    array_push($StyleAdditional, '<link rel="stylesheet" type="text/css" href="css/est.css?v=3">');
+else
+    $StyleAdditional = array('<link rel="stylesheet" type="text/css" href="css/est.css?v=3">');
+
+if (!isset($JsAdditional))
+    $JsAdditional = array();
 if (isset($IncludeSubmitJs)) {
-    array_push($JsAdditional, '<script src="js/submit.js?v=4" type="text/javascript"></script>',
+    array_push($JsAdditional, '<script src="js/submit.js?v=5" type="text/javascript"></script>',
         '<script src="js/family_size_helper.js?v=3" type="text/javascript"></script>',
         '<script src="js/nas.js?v=1" type="text/javascript"></script>');
 }

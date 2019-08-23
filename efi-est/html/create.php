@@ -182,6 +182,8 @@ if (!isset($_POST['submit'])) {
                     if (isset($_POST['ssn-source-idx']))
                         $input->color_ssn_source_idx = $_POST['ssn-source-idx'];
                     $input->extra_ram = (isset($_POST['extra_ram']) && $_POST['extra_ram'] == "true");
+                    $input->make_hmm = (isset($_POST['make_hmm']) && $_POST['make_hmm'] == "true");
+                    $input->fast_hmm = (isset($_POST['fast_hmm']) && $_POST['fast_hmm'] == "true");
                 }
 
                 if (isset($_FILES['file'])) {

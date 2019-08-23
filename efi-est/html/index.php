@@ -454,7 +454,18 @@ the <a href="family_list.php">Family Information page</a>.
                                     Extra RAM:
                                 </span><span class="input-field">
                                     <input type="checkbox" id="colorssn-extra-ram" name="colorssn-extra-ram" value="1">
-                                    <label for="colorssn-extra-ram">Check to use additional RAM (800GB) [default: off (350GB)]</label>
+                                    <label for="colorssn-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="input-name">
+                                    Make HMMs:
+                                </span><span class="input-field">
+                                    <input type="checkbox" id="colorssn-make-hmm" name="colorssn-make-hmm" value="1">
+                                    <label for="colorssn-make-hmm">Make HMMs [default: off]</label>
+                                    <input type="checkbox" id="colorssn-fast-hmm" name="colorssn-fast-hmm" value="1">
+                                    <label for="colorssn-fast-hmm">Also make Fast HMMs [default: off]</label>
+                                    <a class="question" title="Fast HMMs are HMMs built using a MSA generated using fast MUSCLE options.">?</a>
                                 </span>
                             </div>
                         </div>
