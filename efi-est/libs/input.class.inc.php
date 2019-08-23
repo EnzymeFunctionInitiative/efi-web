@@ -51,6 +51,8 @@ class input_data {
     public $color_ssn_source_id;  // analysis ID
     public $color_ssn_source_idx; // SSN index
     public $extra_ram; // use extra RAM (dev site)
+    public $make_hmm; // make HMMs
+    public $fast_hmm; // make HMMs and fast MUSCLE HMMs
 
     //public $cooccurrence;
     //public $neighborhood_size;

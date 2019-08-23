@@ -16,6 +16,8 @@ class colorssn extends option_base {
     private $ssn_source_key;
     private $ssn_source_id;
     private $extra_ram = false;
+    private $make_hmm = false;
+    private $fast_hmm = false;
 
 
     public function __construct($db, $id = 0) {
@@ -139,6 +141,8 @@ class colorssn extends option_base {
         $parms["-sp-singletons-desc"] = "\"" . $this->get_swissprot_desc_filename($want_singles_file) . "\"";
         if ($this->extra_ram)
             $parms["-extra-ram"] = "";
+        if ($this->make_hmm)
+            $parms["-generate-hmm"] = $this->fast_hmm ? "fast" : "normal";
 
         return $parms;
     }
@@ -152,6 +156,7 @@ class colorssn extends option_base {
         if (isset($result["generate_color_ssn_source_id"]) && isset($result["generate_color_ssn_source_idx"])) {
             $this->ssn_source_analysis_id = $result["generate_color_ssn_source_id"];
             $this->ssn_source_analysis_idx = $result["generate_color_ssn_source_idx"];
+
             $info = functions::get_analysis_job_info($this->db, $this->ssn_source_analysis_id);
             if ($info) {
                 $this->ssn_source_key = $info["generate_key"];
@@ -164,6 +169,8 @@ class colorssn extends option_base {
         }
 
         $this->extra_ram = (isset($result["extra_ram"]) && $result["extra_ram"] === true);
+        $this->make_hmm = (isset($result["make_hmm"]) && $result["make_hmm"] === true);
+        $this->fast_hmm = (isset($result["fast_hmm"]) && $result["fast_hmm"] === true);
 
         $this->file_helper->on_load_generate($id, $result);
 
@@ -199,6 +206,8 @@ class colorssn extends option_base {
             $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
         }
         $insert_array["extra_ram"] = (isset($data->extra_ram) && $data->extra_ram === true);
+        $insert_array["make_hmm"] = (isset($data->make_hmm) && $data->make_hmm === true);
+        $insert_array["fast_hmm"] = (isset($data->fast_hmm) && $data->fast_hmm === true);
         return $insert_array;
     }
 
@@ -222,7 +231,7 @@ class colorssn extends option_base {
     public function get_full_output_dir() {
         return functions::get_results_dir() . "/" . $this->get_output_dir();
     }
-    private function get_base_filename() {
+    public function get_base_filename() {
         $id = $this->get_id();
         $filename = $this->get_uploaded_filename();
         return global_functions::get_est_colorssn_filename($id, $filename, false);
@@ -288,6 +297,54 @@ class colorssn extends option_base {
     public function get_table_file_web_path($want_domain = false) {
         $filename = $this->get_table_file_filename($want_domain);
         return $this->shared_get_web_path($filename);
+    }
+    public function get_hmm_zip_web_path() {
+        $filename = $this->get_base_filename() . "_HMMs.zip";
+        return $this->shared_get_web_path($filename);
+    }
+    public function get_hmm_graphics() {
+        $base_dir = $this->get_full_output_dir();
+        $full_path = $base_dir . "/hmm_logos.txt";
+        if (!file_exists($full_path))
+            return array();
+
+        $graphics = array();
+
+        $lines = file($full_path);
+        foreach ($lines as $line) {
+            list($cluster_num, $seq_type, $quality, $path) = explode("\t", rtrim($line));
+            $hmm_path = "$base_dir/$path.hmm";
+            $data = self::parse_hmm($hmm_path);
+            $data["path"] = $path;
+            $graphics[$cluster_num][$seq_type][$quality] = $data;
+        }
+
+        return $graphics;
+    }
+    public function get_hmm_graphics_dir() {
+        return $this->get_web_output_dir();
+    }
+    // Read HMM length and number of sequences used to generate HMM.
+    private static function parse_hmm($path) {
+        $fh = fopen($path, "r");
+        if (!$fh)
+            return array();
+
+        $stats = array();
+        while (!feof($fh)) {
+            $line = fgets($fh);
+            $parts = preg_split('/\s+/', $line);
+            if (isset($parts[0]) && $parts[0] === "HMM")
+                break;
+            if (count($parts) >= 2) {
+                if ($parts[0] === "LENG")
+                    $stats["length"] = $parts[1];
+                elseif ($parts[0] === "NSEQ")
+                    $stats["num_seq"] = $parts[1];
+            }
+        }
+
+        return $stats;
     }
 
 
