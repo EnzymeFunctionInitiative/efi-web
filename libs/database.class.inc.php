@@ -39,6 +39,7 @@ class database {
             error_log("Unable to connect to database $dsn: " . $ex->getMessage() . " " . $ex->getCode());
             return false;
         }
+        $this->link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return true;
     }
 
@@ -46,12 +47,17 @@ class database {
     public function close() {
         $this->link = null;
     }
+    
+    public function escape_string($str) {
+        return $this->link->quote($str);
+    }
 
     // Insert with placeholders.
     // Returns the id number of the new record, 0 if it fails
     public function insert($sql, $params) {
         $this->link->prepare($sql)->execute($params);
-        return $this->link->lastInsertId();
+        $last_id = $this->link->lastInsertId();
+        return $last_id;
     }
 
     // Insert a brand new row into the table, with the first column being an integer primary key auto_incremement, thus NULL.
@@ -61,11 +67,13 @@ class database {
     public function build_insert($table, $data) {
         $values_sql = "";
         $count = 0;
+        $cols_sql = "";
         foreach ($data as $key => $value) {
             $values_sql .= ($count ? ", " : "") . ":$key";
+            $cols_sql .= ($count ? ", " : "") . $key;
             $count++;
         }
-        $sql = "INSERT INTO $table VALUES (NULL, $values_sql)";
+        $sql = "INSERT INTO $table ($cols_sql) VALUES ($values_sql)";
         return $this->insert($sql, $data);
     }
     
@@ -83,7 +91,7 @@ class database {
     // Returns an array of associative arrays.
     public function query($sql, $params = []) {
         if (empty($params)) {
-            return $this->link->query($sql)->fetchAll();
+            return $this->link->query($sql)->fetchAll(PDO::FETCH_ASSOC);
         } else {
             return $this->link->prepare($sql)->execute($params)->fetchAll();
         }
