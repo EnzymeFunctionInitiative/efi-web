@@ -136,7 +136,7 @@ class functions extends global_functions {
 
     public static function get_update_message() {
         $msg =
-            "The EST database has been updated to use UniProt " . 
+            "The EFI-CGFP database has been updated to use UniProt " . 
             settings::get_uniprot_version() . ".";
         return $msg;
     }
