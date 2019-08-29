@@ -9,7 +9,7 @@ class functions extends global_functions {
     //Possible errors when you upload a file
     private static $upload_errors = array(
         1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-        2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
+        2 => 'The uploaded file exceeds the maximum file size.',
         3 => 'The uploaded file was only partially uploaded.',
         4 => 'No file was uploaded.',
         6 => 'Missing a temporary folder.',
@@ -136,7 +136,7 @@ class functions extends global_functions {
 
     public static function get_update_message() {
         $msg =
-            "The EST database has been updated to use UniProt " . 
+            "The EFI-CGFP database has been updated to use UniProt " . 
             settings::get_uniprot_version() . ".";
         return $msg;
     }

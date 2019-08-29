@@ -59,9 +59,9 @@ abstract class gnd {
             }
 
             if (!$message) {
-                if (settings::get_bigscape_enabled()) {
+                if (settings::get_bigscape_enabled() && isset($params['bigscape']) && $params['bigscape']=="1") {
                     $bss = $this->factory->new_gnn_bigscape_job($db, $gnn_id);
-                    $has_bigscape = $bss->is_finished() && isset($params['bigscape']) && $params['bigscape']=="1";
+                    $has_bigscape = $bss->is_finished();
                 }
                 $this->db_file = $gnn->get_diagram_data_file($has_bigscape);
                 if (!file_exists($this->db_file))
@@ -71,18 +71,18 @@ abstract class gnd {
         } else if (isset($params['upload-id']) && functions::is_diagram_upload_id_valid($params['upload-id'])) {
             $gnn_id = $params['upload-id'];
             $arrows = $this->factory->new_diagram_data_file($gnn_id);
-            if (settings::get_bigscape_enabled()) {
+            if (settings::get_bigscape_enabled() && isset($params['bigscape']) && $params['bigscape']=="1") {
                 $bss = $this->factory->new_uploaded_bigscape_job($db, $gnn_id);
-                $has_bigscape = $bss->is_finished() && isset($params['bigscape']) && $params['bigscape']=="1";
+                $has_bigscape = $bss->is_finished();
             }
             $this->db_file = $arrows->get_diagram_data_file($has_bigscape);
             $this->job_name = $arrows->get_gnn_name();
         } else if (isset($params['direct-id']) && functions::is_diagram_upload_id_valid($params['direct-id'])) {
             $gnn_id = $params['direct-id'];
             $arrows = $this->factory->new_diagram_data_file($gnn_id);
-            if (settings::get_bigscape_enabled()) {
+            if (settings::get_bigscape_enabled() && isset($params['bigscape']) && $params['bigscape']=="1") {
                 $bss = $this->factory->new_uploaded_bigscape_job($db, $gnn_id);
-                $has_bigscape = $bss->is_finished() && isset($params['bigscape']) && $params['bigscape']=="1";
+                $has_bigscape = $bss->is_finished();
             }
             $this->db_file = $arrows->get_diagram_data_file($has_bigscape);
             $this->job_name = $arrows->get_gnn_name();
@@ -257,6 +257,7 @@ abstract class gnd {
             $num_clause = "num >= " . ($attr['num'] - $this->window) . " AND num <= " . ($attr['num'] + $this->window);
             $nb_sql .= " AND " . $num_clause;
         }
+        $nb_sql .= " ORDER BY num";
         return $nb_sql;
     }
 

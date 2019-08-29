@@ -183,6 +183,8 @@ class stepa extends est_shared {
                     $update["convergence_ratio"] = floatval($val);
                 elseif ($key == "EdgeCount")
                     $update["num_edges"] = intval($val);
+                elseif ($key == "UniqueSeq")
+                    $update["num_unique"] = intval($val);
             }
         } else {
             if (file_exists($full_path)) {
@@ -223,7 +225,7 @@ class stepa extends est_shared {
         $json = $this->encode_object($results_obj);
         
         $sql = "UPDATE generate SET generate_results=";
-        $sql .= "'" . $this->db->escape_string($json) . "'";
+        $sql .= $this->db->escape_string($json);
         $sql .= " WHERE generate_id='" . $this->get_id() . "' LIMIT 1";
         $result = $this->db->non_select_query($sql);
 

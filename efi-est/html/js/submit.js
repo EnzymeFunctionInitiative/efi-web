@@ -187,7 +187,6 @@ function submitOptionEForm(famHelper, outputIds) {
     
         var fileHandler = function(xhr) {};
         var completionHandler = getDefaultCompletionHandler();
-        var unirefVer = getUnirefVersion(fd);
     
         doFormPost(FORM_ACTION, fd, outputIds.warningMsg, fileHandler, completionHandler);
     };
@@ -205,6 +204,8 @@ function submitColorSsnForm() {
     fd.append("option_selected", "colorssn");
     addParam(fd, "email", "email-colorssn");
     addCbParam(fd, "extra_ram", "colorssn-extra-ram");
+    addCbParam(fd, "make_hmm", "colorssn-make-hmm");
+    addCbParam(fd, "fast_hmm", "colorssn-fast-hmm");
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
     var files = document.getElementById("colorssn-file").files;

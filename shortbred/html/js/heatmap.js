@@ -293,6 +293,7 @@ class HeatmapApp extends QuantifyResults {
         ];
     
         this.bodySites = [];
+        this.categories = [];
     
         this.useBoxplots = useBoxplots;
     }
@@ -300,6 +301,10 @@ class HeatmapApp extends QuantifyResults {
 
     getBodySites() {
         return this.bodySites;
+    }
+
+    getCategories() {
+        return this.categories;
     }
 
     linspace(a,b,n) {
@@ -341,7 +346,7 @@ class HeatmapApp extends QuantifyResults {
     
         var upperThresh = $("#max").val();
         if (upperThresh && !isNaN(upperThresh))
-            params.append("upper_thresh", upperThresh);
+            params.append("upper-thresh", upperThresh);
     
         var bodysites = [];
         $(".filter-bs-item").each(function(i) {
@@ -351,6 +356,13 @@ class HeatmapApp extends QuantifyResults {
         var bodysitesStr = bodysites.join("|");
         if (bodysitesStr)
             params.append("bodysites", bodysitesStr);
+
+        var selectedCat = 0;
+        $(".filter-cat-item").each(function(i) {
+            if ($(this).prop("checked"))
+                selectedCat = i;
+        });
+        params.append("group-cat", selectedCat);
     
         var that = this;
         super.doFormPost(params, function(jsonObj) {
@@ -404,7 +416,7 @@ class HeatmapApp extends QuantifyResults {
             y = this.linspace(1, numClusters),
             z = [],
             bodysiteMgLabels = [],
-            gender = [],
+            secondary = [],
             label = [],
             bodySiteMap = [];
         var regions = [];
@@ -417,7 +429,7 @@ class HeatmapApp extends QuantifyResults {
             var regionColor = this.getColor(data.site_info, regions.length, mg);
             x.push(mg);
             bodysiteMgLabels.push(bodysite);
-            gender.push(data.site_info.gender[mg]);
+            secondary.push(data.site_info.secondary[mg]);
     
             if (i == 0)
                 lastBodysite = bodysite;
@@ -439,6 +451,9 @@ class HeatmapApp extends QuantifyResults {
                 this.bodySites[bodysiteMgLabels[i]] = 1;
             }
         }
+
+        this.categories = data.site_info.categories;
+        console.log(this.categories);
     
         for (var i = 0; i < numClusters; i++) {
             z.push([]);
@@ -449,7 +464,7 @@ class HeatmapApp extends QuantifyResults {
                 // <0.000001 = -6, 0.00001 = -5, 0.0001 = -4, 0.001 = -3, 0.01 = -2, 0.1 = -1, 1 = 0
                 var posVal = convertRawValue(rawVal);
                 z[i].push(posVal);
-                label[i].push(x[j] + ", " + y[i] + " = " + rawVal + "<br>" + bodysiteMgLabels[j] + ", " + gender[j]);
+                label[i].push(x[j] + ", " + y[i] + " = " + rawVal + "<br>" + bodysiteMgLabels[j] + ", " + secondary[j]);
             }
         }
     
@@ -587,7 +602,7 @@ class HeatmapApp extends QuantifyResults {
         var exportFileName = "abundance_I" + this.params.Id + "_Q" + this.params.QuantifyId;
         if (titleFileName)
             exportFileName += "_" + titleFileName.replace(/[^A-Za-z0-9_\-]+/g, "_");
-    
+   
         var layout = {
             title: title,
             width: this.Width,
@@ -623,15 +638,12 @@ class HeatmapApp extends QuantifyResults {
                 var clusterId = point.data.y[clusterIdx];
                 var mgType = bodysiteMgLabels[mgIdx];
                 
-                console.log(point);
-                
                 if (!(clusterIdx in point.data.z)) {
                     console.log("Not found: " + clusterId + "/" + clusterIdx + " " + mg + " " + mgType);
                     return;
                 }
         
                 var clusterData = point.data.z[clusterIdx];
-                console.log(clusterData);
                 var groupedData = [];
                 var groupMap = {};
                 var groupCount = 0;
@@ -648,8 +660,6 @@ class HeatmapApp extends QuantifyResults {
                     width: 550,
                     height: 550
                 };
-        
-                console.log(groupedData);
         
                 Plotly.newPlot("boxplot-plot", groupedData, layout);
                 //$("#boxplot").data("data", groupedData);

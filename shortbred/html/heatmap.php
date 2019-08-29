@@ -27,8 +27,11 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
     <input type="checkbox" name="mean-cb" value="1" class="form-cb" id="mean-cb"><label for="mean-cb">Use mean</label>
     <input type="checkbox" name="hits-only-cb" value="1" class="form-cb" id="hits-only-cb"><label for="hits-only-cb">Display hits only</label>
 </div>
-<div style="clear: both" class="filter-bs-group" id="filter-bs-group">
-    <b>Body Sites:</b>
+<div style="clear: both" id="filter-bs-group">
+    <b>Metagenome Type:</b>
+</div>
+<div id="filter-cat-group" style="display:none">
+    <b>Group By:</b>
 </div>
 <div>
     <button type="button" class="small dark" id="filter-btn">Apply Filter</button>
@@ -50,7 +53,7 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 <script src="../js/jquery-3.2.1.min.js"></script>
 <script src="../js/jquery-ui-1.12.1/jquery-ui.min.js"></script>
 <script src="../bs/js/bootstrap.min.js"></script>
-<script src="js/heatmap.js?v=3"></script>
+<script src="js/heatmap.js?v=5"></script>
 
 <script>
 $(document).ready(function() {
@@ -87,12 +90,25 @@ $(document).ready(function() {
         var bs = app.getBodySites();
         var group = $("#filter-bs-group");
         for (var i = 0; i < bs.length; i++) {
-            var lbl = group.append('<label>' +
+            group.append('<label>' +
                 '<input type="checkbox" id="filter-bs-' + i + '" value="' + bs[i] + '" class="filter-bs-item"> ' + bs[i] +
                 '</label>');
             $("#filter-bs-" + i).click(function() { app.doFormPost(); });
         }
         $("#filter-box").show();
+        var cats = app.getCategories();
+        if (typeof cats !== "undefined") {
+            var group = $("#filter-cat-group");
+            for (var i = 0; i < cats.length; i++) {
+                var checked = i == 0 ? "checked" : "";
+                group.append('<label>' +
+                    '<input type="radio" name="category" id="filter-cat-' + i + '" value="' + cats[i] + '" ' + checked + ' class="filter-cat-item"> ' + cats[i] +
+                    '</label>');
+                $("#filter-cat-" + i).click(function() { app.doFormPost(); });
+            }
+            if (cats.length > 0)
+                $("#filter-cat-group").show();
+        }
     };
 
     app.doFormPost(bodySiteFn);
