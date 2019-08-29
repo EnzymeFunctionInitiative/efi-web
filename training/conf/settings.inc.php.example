@@ -1,0 +1,18 @@
+<?php
+
+require_once(__DIR__ . "/../../conf/settings_base.inc.php");
+
+//
+// PATHS
+define("__WEB_PATH__",__BASE_WEB_PATH__."/");
+define("__WEB_ROOT__",__BASE_WEB_ROOT__."".__WEB_PATH__);
+
+//
+// DATABASE
+define("__MYSQL_HOST__","");
+define("__MYSQL_USER__","");
+define("__MYSQL_PASSWORD__","");
+define("__MYSQL_DATABASE__","");
+define("__MYSQL_AUTH_DATABASE__","");
+
+?>

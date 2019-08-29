@@ -266,8 +266,9 @@ abstract class quantify_shared extends job_shared {
     
         if (!file_exists($clust_file)) {
             $mgs = $this->get_metagenome_ids();
+            $site_info = metagenome_db_manager::get_metagenome_db_site_info($this->mg_db_id);
             foreach ($mgs as $mg_id) {
-                array_push($mg_data, array($mg_id, ""));
+                array_push($mg_data, array($mg_id, $site_info["site"][$mg_id]));
             }
             return $mg_data;
         }

@@ -4,8 +4,8 @@ require_once("../includes/main.inc.php");
 require_once("Mail.php");
 require_once("Mail/mime.php");
 
+$StyleAdditional = array('<style>.hideme { display: none; }</style>');
 require_once(__DIR__ . "/inc/header.inc.php");
-
 
 
 // Remove beginning and ending spaces.
@@ -14,6 +14,8 @@ function trim_val(&$val) {
 }
 array_filter($_POST, "trim_val");
 
+if (!empty($_POST["url"]))
+    exit();
 
 // Specify parameters to validate/sanitize.
 $param_spec = array(
@@ -72,6 +74,8 @@ To submit feedback, please provide the following information.
     <div id="submit-error" style="display: none;">
         <b>Please fill in all fields.</b>
     </div>
+    <input type="text" name="url" value="" class="hideme">
+    <input type="hidden" name="token" value="<?php echo $token; ?>">
 </form>
 
     <script>

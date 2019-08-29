@@ -12,38 +12,16 @@ function __autoload($class_name) {
 
 
 require_once(__DIR__ . "/../conf/settings.inc.php");
+require_once(__BASE_DIR__ . "/libs/database.class.inc.php");
 
 date_default_timezone_set(__TIMEZONE__);
-$db = new db(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
+$db = new database(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
 
 if (defined("__BASE_WEB_PATH__"))
     $SiteUrlPrefix = __BASE_WEB_PATH__;
 else
     $SiteUrlPrefix = "";
 
-require_once("error_helpers.inc.php");
-
-//function error404($message = "") {
-//    errorBase($message, false, true, false);
-//}
-//
-//function errorBase($message, $IsPretty, $Is404Page, $IsExpiredPage) {
-//    header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
-//    if ($IsPretty)
-//        include("inc/header.inc.php");
-//    include("not_found.php");
-//    if ($IsPretty)
-//        include("inc/footer.inc.php");
-//    die();
-//}
-//
-//function prettyError404($message = "") {
-//    errorBase($message, true, true, false);
-//}
-//
-//function prettyErrorExpired($message = "") {
-//    errorBase($message, true, false, true);
-//}
+require_once(__DIR__ . "/error_helpers.inc.php");
 
 ?>
-

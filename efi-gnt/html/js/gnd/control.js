@@ -9,7 +9,7 @@ const LOAD_RELOAD = 3;  // Reload what's present on the screen (scale factor/win
 
 
 class GndController {
-    constructor(msgRouter, gndDb, gndHttp, gndVars, gndView) {
+    constructor(msgRouter, gndDb, gndHttp, gndVars, gndView, bigscape) {
         this.Http = gndHttp;
         this.Vars = gndVars;
         this.Db = gndDb;
@@ -21,6 +21,7 @@ class GndController {
         this.indexRange = [];
         this.useRange = true;
         this.maxIndex = 0;
+        this.bigscape = bigscape;
 
         this.reset(false);
     }
@@ -30,6 +31,9 @@ class GndController {
     }
     getMaxIndex() {
         return this.maxIndex;
+    }
+    getMaxViewIndex() {
+        return this.View.getDiagramCount();
     }
 
     // The input to this function is the diagram index (e.g. the view).  This function computes
@@ -108,6 +112,7 @@ class GndController {
         //TODO: move these methods to a different class?
         var authString = this.Vars.getAuthString();
         var urlPath = this.Vars.getUrlPath();
+        var useBigscape = this.bigscape.getUseBigScape() ? "&bigscape=1" : "";
 
         var that = this;
         this.getUrlFn = function(start, end) {
@@ -130,6 +135,7 @@ class GndController {
                 url += sep + "sidx=" + start;
                 url += sep + "eidx=" + end;
             }
+            url += useBigscape;
             return url;
         };
 
@@ -142,6 +148,7 @@ class GndController {
             url += sep + "window=" + win;
             url += sep + "query=" + queryEscaped;
             url += sep + "stats=1";
+            url += useBigscape;
             return url;
         };
 
@@ -169,8 +176,6 @@ class GndController {
 
         var payload = new Payload(); payload.MessageType = "DataRetrievalStatus"; payload.Data = { Retrieving: true, Message: "Retrieving initial data...", Initial: true };
         that.msgRouter.sendMessage(payload);
-//        var payload = new Payload(); payload.MessageType = "UpdateShowButtonStatus"; payload.Data = { Disabled: true };
-//        this.msgRouter.sendMessage(payload);
 
         this.Http.fetchInit(this.initUrlFn, handleInitRequest);
     }
@@ -181,11 +186,17 @@ class GndController {
         this.onLoad(query);
     }
 
-    // PRIVATE
+    reloadForBigScape() {
+        this.reset(true);
+        this.onLoad(this.query);
+    }
+
+    // Private
     reload() {
-        this.View.clearCanvas();
-        //this.onLoad(this.query);
-        this.doLoad(LOAD_RELOAD);
+        if (this.maxIndex > 0) {
+            this.View.clearCanvas();
+            this.doLoad(LOAD_RELOAD);
+        }
     }
 
     loadAll() {
@@ -200,7 +211,7 @@ class GndController {
     reset(fullReset) {
         this.scaleFactor = this.Vars.getDefaultScaleFactor();
         this.scaleType = this.Vars.getDefaultScaleType();
-        this.window = this.Vars.getDefaultWindow();
+        this.window = this.Vars.getWindow();
 
         // fullReset = true if this isn't the first load of the app.
         if (fullReset) {

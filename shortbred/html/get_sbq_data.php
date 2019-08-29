@@ -97,12 +97,16 @@ if (isset($_POST["lower_thresh"]) && is_numeric($_POST["lower_thresh"]))
     $lower_thresh = $_POST["lower_thresh"];
 
 $upper_thresh = 1000000;
-if (isset($_POST["upper_thresh"]) && is_numeric($_POST["upper_thresh"]))
-    $upper_thresh = $_POST["upper_thresh"];
+if (isset($_POST["upper-thresh"]) && is_numeric($_POST["upper-thresh"]))
+    $upper_thresh = $_POST["upper-thresh"];
 
 $bodysites = array();
 if (isset($_POST["bodysites"]))
     $bodysites = explode("|", $_POST["bodysites"]);
+
+$group_cat = 0;
+if (isset($_POST["group-cat"]) && is_numeric($_POST["group-cat"]))
+    $group_cat = $_POST["group-cat"];
 
 $fh = fopen($clust_file, "r");
 
@@ -114,7 +118,7 @@ if ($fh) {
         $start_idx = 2;
 
     $mg_db_index = $job_obj->get_metagenome_db_id();
-    $site_info = metagenome_db_manager::get_metagenome_db_site_info($mg_db_index, $bodysites);
+    $site_info = metagenome_db_manager::get_metagenome_db_site_info($mg_db_index, $bodysites, $group_cat);
     $metagenomes_hdr = array_slice($headers, $start_idx);
     $metagenomes = array();
     foreach ($metagenomes_hdr as $mg_id) {
@@ -134,7 +138,7 @@ if ($fh) {
         if ($cmp != 0) return $cmp;
         $cmp = strcmp($site_info["site"][$a], $site_info["site"][$b]);
         if ($cmp != 0) return $cmp;
-        $cmp = strcmp($site_info["gender"][$a], $site_info["gender"][$b]);
+        $cmp = strcmp($site_info["secondary"][$a], $site_info["secondary"][$b]);
         if ($cmp != 0) return $cmp;
         $cmp = strcmp($a, $b);
         return $cmp;

@@ -148,7 +148,8 @@ class user_jobs extends user_auth {
         $sql = "SELECT diagram.diagram_id, diagram_key, diagram_title, diagram_status, diagram_type, diagram_time_completed, diagram_results FROM diagram " .
             "LEFT OUTER JOIN job_group ON diagram.diagram_id = job_group.diagram_id " .
             "WHERE (diagram_email='$email' $groupClause) AND " .
-            "(diagram_time_completed >= '$expDate' OR diagram_status='RUNNING' OR diagram_status = 'NEW') " . 
+            "(diagram_time_completed >= '$expDate' OR diagram_status='RUNNING' OR diagram_status = 'NEW') " .
+            "AND diagram_status != 'ARCHIVED' " .
             "ORDER BY diagram_time_completed DESC, diagram.diagram_id DESC";
         $rows = $db->query($sql);
 

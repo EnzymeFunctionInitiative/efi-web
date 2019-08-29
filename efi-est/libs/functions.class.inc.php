@@ -6,7 +6,7 @@ class functions {
     //Possible errors when you upload a file
     private static $upload_errors = array(
         1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-        2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
+        2 => 'The uploaded file exceeds the maximu file size.',
         3 => 'The uploaded file was only partially uploaded.',
         4 => 'No file was uploaded.',
         6 => 'Missing a temporary folder.',
@@ -304,35 +304,6 @@ class functions {
         fclose($fh);
 
         return $db_name;
-    }
-
-    public static function get_lengths_for_family($db_name, $db_config, $fam, $uniref_ver = "") {
-        $db_name = "efi_201809";
-        $anno_table = "annotations2";
-        $fam_field = preg_match("/^PF/", $fam) ? "Pfam" : "IPRO";
-
-        $sql = "";
-        if ($uniref_ver) {
-            $seed_field = "uniref${uniref_ver}_seed";
-            $sql = "SELECT " .
-                "$anno_table.Sequence_Length AS length, " .
-//                "COUNT($anno_table.Sequence_Length) AS count, " .
-                "$seed_field AS uniref_seed " . 
-                "FROM uniref LEFT JOIN $anno_table ON uniref.$seed_field = $anno_table.accession " .
-                "WHERE $anno_table.$fam_field = '$fam'";
-        } else {
-            //$sql = "SELECT Sequence_Length FROM $anno_table WHERE $fam_field = '$fam'";
-            $sql = "SELECT Sequence_Length AS length FROM $anno_table WHERE $fam_field = '$fam' ORDER BY Sequence_Length";
-        }
-
-//        die($sql . "\n");
-
-        $db = new db($db_config["host"], $db_name, $db_config["user"], $db_config["password"], $db_config["port"]);
-        $rows = $db->query($sql);
-
-        foreach ($rows as $row) {
-            print $row["length"] . "\n";
-        }
     }
 
     public static function get_efignn_module() {
