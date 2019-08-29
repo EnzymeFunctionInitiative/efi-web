@@ -434,7 +434,6 @@ $jobIdDiv = $gnnId ? "<div>Job ID: $gnnId</div>" : "";
         <!-- Placed at the end of the document so the pages load faster -->
 
         <script src="js/snap.svg-min.js" content-type="text/javascript"></script>
-        <script src="js/Queue.js" content-type="text/javascript"></script>
 
         <!-- jQuery -->
         <script src="js/jquery-3.2.1.min.js"></script>
