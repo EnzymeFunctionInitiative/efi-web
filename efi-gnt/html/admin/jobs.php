@@ -37,6 +37,7 @@ foreach ($jobs as $job) {
     $params = global_functions::decode_object($job['params']);
     if ($job_type == "diagram") {
         $type_field = $job['type'];
+        $type_field = ($type_field == "DIRECT" || $type_field == "DIRECT_ZIP") ? "VIEW_SAVED" : $type_field;
         if (isset($params["neighborhood_size"]))
             $nb_size = $params["neighborhood_size"];
         $filename = $job['Title'];

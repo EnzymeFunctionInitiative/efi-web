@@ -23,7 +23,7 @@ if (isset($_GET["graph_type"])) {
 
 //Jobs Per Month
 if ($graph_type == "daily") {
-    $data = statistics::get_daily_jobs($db, $month, $year);
+    $data = statistics::get_daily_jobs_aggregated($db, $month, $year);
     $xaxis = "day";
     $yaxis = "count";
     $title = "Daily Jobs - " . date("F", mktime(0, 0, 0, $month, 10)) . " - " . $year;
@@ -31,12 +31,12 @@ if ($graph_type == "daily") {
 
 // Jobs by month
 } elseif ($graph_type == "monthly") {
-    $raw_data = statistics::num_per_month($db, false);
+    $raw_data = statistics::num_per_month_aggregated($db);
     $data = array();
     foreach ($raw_data as $row) {
         $month = substr($row['month'], 0, 3);
         $year = $row['year'];
-        $count = $row['count'];
+        $count = $row['total'];
         array_push($data, array("month" => "$month $year", "count" => $count));
     }
     $xaxis = "month";
