@@ -18,15 +18,24 @@ $graph_image = "<img src='stats_graph.php?" . http_build_query($get_array) . "'>
 $all_get_array  = array("graph_type" => "monthly");
 $all_graph_image = "<img src='stats_graph.php?" . http_build_query($all_get_array) . "'>";
 
-$recent_only = true;
-$jobs_per_month = statistics::num_per_month($db, $recent_only);
-$jobs_per_month_html = "";
-foreach ($jobs_per_month as $value) {
-	$jobs_per_month_html .= "<tr><td>" . $value["month"] . "</td>";
-	$jobs_per_month_html .= "<td>" . $value["year"] . "</td>";
-	$jobs_per_month_html .= "<td>" . $value["count"] . "</td>";
-	$jobs_per_month_html .= "</tr>";
-
+$jobs_per_month = statistics::num_per_month_aggregated($db);
+$recent_start = count($jobs_per_month) - 9;
+$table_html = "";
+for ($i = 0; $i < count($jobs_per_month); $i++) {
+    $value = $jobs_per_month[$i];
+    $class = "";
+    if ($i < $recent_start)
+        $class = "old-month";
+    $table_html .= "<tr class=\"$class\">\n";
+    $table_html .= "<td>" . $value["month"] . "</td>\n";
+	$table_html .= "<td>" . $value["year"] . "</td>\n";
+    $table_html .= "<td>" . $value["total"] . "</td>\n";
+    $table_html .= "<td>" . $value["gnn"] . "</td>\n";
+    $table_html .= "<td>" . $value["direct"] . "</td>\n";
+    $table_html .= "<td>" . $value["blast"] . "</td>\n";
+    $table_html .= "<td>" . $value["id_lookup"] . "</td>\n";
+    $table_html .= "<td>" . $value["fasta"] . "</td>\n";
+    $table_html .= "</tr>\n";
 }
 
 
@@ -58,13 +67,19 @@ $year_html .= "</select>";
 <h3>EFI-GNT Statistics</h3>
 
 <h4>Statistics</h4>
+<button class="btn btn-primary" id="toggle-recent" type="button">Show All Months</button>
 <table class='table table-condensed table-bordered table-striped'>
 <tr>
 	<th>Month</th>
 	<th>Year</th>
-	<th>Total Jobs</th>
+    <th>Total Jobs</th>
+    <th>GNN</th>
+    <th>D/Saved</th>
+    <th>D/BLAST</th>
+    <th>D/ID Lookup</th>
+    <th>D/FASTA</th>
 </tr>
-<?php echo $jobs_per_month_html; ?>
+<?php echo $table_html; ?>
 </table>
 
 <form class='form-inline' method='post' action='report.php'>
@@ -110,5 +125,27 @@ $year_html .= "</select>";
 <hr>
 <?php echo $all_graph_image; ?>
 
+<script>
+$(document).ready(function() {
+    var oldVisible = false;
+    $("#toggle-recent").click(function() {
+        oldVisible = !oldVisible;
+        if (oldVisible) {
+            $(".old-month").show();
+            $(this).text("Hide Older Months");
+        } else {
+            $(".old-month").hide();
+            $(this).text("Show All Months");
+        }
+    });
+    $(".old-month").hide();
+});
 
-<?php require_once("inc/stats_footer.inc.php"); ?>
+</script>
+
+<?php
+
+require_once("inc/stats_footer.inc.php");
+
+
+?>
