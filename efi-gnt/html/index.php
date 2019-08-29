@@ -66,8 +66,8 @@ if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])
 $use_advanced_options = global_settings::advanced_options_enabled();
 
 $updateMessage = 
-    "The EFI web tool interface has been updated to improve user experience.<br>" .
-    "<b>All functions remain unchanged.</b><br><br>" . 
+    "Videos about the use of Cytoscape for viewing and manipulating SSNs are now available.<br>" .
+    "Access the videos by the <i class='fas fa-question'></i> <b>Training</b> button at the top of the page.<br>" .
     "<small>" . functions::get_update_message() . "</small>";
 
 require_once "inc/header.inc.php";
@@ -92,6 +92,7 @@ Neighorhood Diagrams</b> option, only GNDs will be created.
 
 
 <div id="update-message" class="update-message initial-hidden">
+<div class="new-feature"></div>
 <?php if (isset($updateMessage)) echo $updateMessage; ?>
 </div>
 

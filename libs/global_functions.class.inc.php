@@ -73,7 +73,7 @@ class global_functions {
 
         $json = self::encode_object($results_obj);
 
-        $sql = "UPDATE $table SET $theCol = '" . $db->escape_string($json) . "'";
+        $sql = "UPDATE $table SET $theCol = " . $db->escape_string($json) . "";
         $sql .= " WHERE ${prefix}_id='$id' LIMIT 1";
         $result = $db->non_select_query($sql);
 

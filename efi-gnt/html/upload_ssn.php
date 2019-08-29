@@ -71,7 +71,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     }
     elseif ($file_is_error) {
         $valid = 0;
-        $message .= "<br><b>Error uploading file: " . functions::get_upload_error($file_is_error) . "</b>" . $_POST['MAX_FILE_SIZE'];
+        $message .= "<br><b>Error uploading file: " . functions::get_upload_error($file_is_error) . "</b>";
     }
     elseif (!functions::is_valid_file_type($file_type)) {
         $valid = 0;

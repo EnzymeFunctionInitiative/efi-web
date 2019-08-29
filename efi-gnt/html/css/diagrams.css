@@ -141,6 +141,11 @@ body {
     margin-top: 15px;
 }
 
+.sidebar-nav ul.dropdown-menu li {
+    margin-top: 0px;
+    padding-left: 0px;
+}
+
 .sidebar-header {
     font-weight: bold;
     text-transform: uppercase;
@@ -454,5 +459,9 @@ a.accordion-toggle {
 .accordion-arrow {
     color: white;
     font-size: 80%;
+}
+
+#run-bigscape-btn.active {
+    background-color: #adadad;
 }
 

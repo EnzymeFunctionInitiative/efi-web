@@ -37,9 +37,9 @@ class gnd_v2 extends gnd {
         $subranges = preg_split("/,+/", $range);
         foreach ($subranges as $subrange) {
             $parts = explode("-", $subrange);
-            if (count($parts) > 1)
+            if (count($parts) > 1 && is_numeric($parts[0]) && is_numeric($parts[1]))
                 array_push($ranges, array(intval($parts[0]), intval($parts[1])));
-            elseif (count($parts) > 0)
+            elseif (count($parts) > 0 && is_numeric($parts[0]))
                 array_push($ranges, array(intval($parts[0]), intval($parts[0])));
         }
         return $ranges;
@@ -114,7 +114,7 @@ class gnd_v2 extends gnd {
                 $query_result = $this->db->query($sql);
                 if ($query_result) {
                     $result = $query_result->fetchArray(SQLITE3_ASSOC);
-                    if ($result)
+                    if ($result && isset($result["start_index"]))
                         array_push($ranges, array($result["start_index"], $result["end_index"]));
                 }
             } else {
@@ -122,7 +122,8 @@ class gnd_v2 extends gnd {
                 $query_result = $this->db->query($sql);
                 if ($query_result) {
                     $result = $query_result->fetchArray(SQLITE3_ASSOC);
-                    array_push($ranges, array($result["cluster_index"], $result["cluster_index"]));
+                    if (isset($result["cluster_index"]))
+                        array_push($ranges, array($result["cluster_index"], $result["cluster_index"]));
                 }
             }
         }

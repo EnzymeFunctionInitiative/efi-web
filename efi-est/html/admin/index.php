@@ -1,12 +1,12 @@
 <?php
 
-include_once 'inc/stats_main.inc.php';
+require_once("inc/stats_main.inc.php");
 
 
 $NumWaitingJobs = efi_statistics::get_num_jobs($db, __NEW__);
 $NumRunningJobs = efi_statistics::get_num_jobs($db, __RUNNING__);
 
-include_once 'inc/stats_admin_header.inc.php';
+require_once("inc/stats_admin_header.inc.php");
 
 $month = date('n');
 if (isset($_POST['month'])) {
@@ -226,7 +226,7 @@ $(document).ready(function() {
 </script>
 
 <?php
-include_once 'inc/stats_footer.inc.php';
+require_once("inc/stats_footer.inc.php");
 
 function format_time($t) {
     $t = round($t);

@@ -176,9 +176,9 @@ class GndUi {
     registerSearchBtn(id, inputId, startInfoId) {
         var that = this;
         $(id).click(function(e) {
+            $(startInfoId).hide();
             var input = $(inputId).val();
             var query = input.replace(/\n/g, " ").replace(/\r/g, " ");
-            $(startInfoId).hide();
             that.doSearch(query);
         });
     }
@@ -223,6 +223,29 @@ class GndUi {
         this.zoomOutSmall.click(function(e) { that.XT.setZoom(ZOOM_FACTOR_OUT_SMALL); });
         this.zoomInSmall.click(function(e) { that.XT.setZoom(ZOOM_FACTOR_IN_SMALL); });
         this.zoomInLarge.click(function(e) { that.XT.setZoom(ZOOM_FACTOR_IN_LARGE); });
+    }
+    registerBigScape(bigscape, buttonId, buttonLabelId, modalId, confirmId, rejectId) {
+        var that = this;
+        $(buttonId).click(function(e) {
+            if (bigscape.getStatus() == "FINISH") {
+                var bigscapeOn = bigscape.toggleUseBigScape();
+                $(buttonLabelId).text( bigscapeOn ? "Use BiG-SCAPE Synteny" : "Use BiG-SCAPE Synteny" );
+                that.XT.reloadForBigScape();
+            } else {
+                $(modalId).modal("show");
+                if (!bigscape.getStatus() || bigscape.getStatus() == 0) {
+                    $(confirmId).click(function (e) {
+                        var completionHandler = function(status, message) {
+                            $(modalId + " .modal-body div").text(bigscape.getConfirmText(status, message));
+                            $(confirmId).hide();
+                            $(rejectId).text("Close");
+                            $(buttonLabelId).text("BiG-SCAPE Pending");
+                        };
+                        bigscape.run(completionHandler);
+                    });
+                }
+            }
+        });
     }
 }
 

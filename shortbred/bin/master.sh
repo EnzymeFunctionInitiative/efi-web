@@ -3,6 +3,7 @@ DATE=$(date +"%Y-%m-%d %H:%M:%S")
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "$DATE: Start EFI-ShortBRED Master script"
 
+if [[ "`ps -ef | grep $0 | grep -v grep | wc -l`" -gt 3 ]]; then echo "Already running; exiting"; exit; fi
 #export EFI_DEBUG=1
 
 echo "CHECKING UP ON IDENTIFY JOBS"
