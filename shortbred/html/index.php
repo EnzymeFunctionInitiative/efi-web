@@ -53,9 +53,8 @@ if (!$IsLoggedIn) {
     $login_banner_msg = "To use EFI-CGFP, submit a request on the 'Run CGFP/ShortBRED' tab.";
 }
 $update_message = 
-    "The EFI web tool interface has been updated to improve user experience.<br>" .
-    "<b>All functions remain unchanged.</b><br>" . 
-    "EFI-CGFP now supports boxplots to assist in quantitative analysis of marker abundance.<br><br>" . 
+    "Videos about the use of Cytoscape for viewing and manipulating SSNs are now available.<br>" .
+    "Access the videos by the <i class='fas fa-question'></i> <b>Training</b> button at the top of the page.<br>" .
     "<small>" . functions::get_update_message() . "</small>";
 $update_message = ($login_banner_msg ? "$login_banner_msg<br>" : "") . $update_message;
 
@@ -102,6 +101,7 @@ nares (nasal cavity), tongue dorsum (surface), and posterior fornix (vagina)].
 
 <?php if ($update_message) { ?>
 <div id="update-message" class="update-message initial-hidden">
+<div class="new-feature"></div>
 <?php echo $update_message; ?>
 </div>
 <?php } ?>

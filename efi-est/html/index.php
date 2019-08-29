@@ -38,8 +38,8 @@ $use_advanced_options = global_settings::advanced_options_enabled();
 $db_modules = global_settings::get_database_modules();
 
 $update_msg =
-    "The EFI web tool interface has been updated to improve user experience.<br>" .
-    "<b>All functions remain unchanged.</b><br><br>" . 
+    "Videos about the use of Cytoscape for viewing and manipulating SSNs are now available.<br>" .
+    "Access the videos by the <i class='fas fa-question'></i> <b>Training</b> button at the top of the page.<br>" .
     "<small>" . functions::get_update_message() . "</small>";
 
 
@@ -77,6 +77,7 @@ The Enzyme Similarity Tool (EFI-EST) makes it possible to easily generate SSNs.
 
 
 <div id="update-message" class="update-message">
+<div class="new-feature"></div>
 <?php if (isset($update_msg)) echo $update_msg; ?>
 </div>
 
