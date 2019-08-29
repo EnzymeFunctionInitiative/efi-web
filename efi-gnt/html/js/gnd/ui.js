@@ -224,24 +224,25 @@ class GndUi {
         this.zoomInSmall.click(function(e) { that.XT.setZoom(ZOOM_FACTOR_IN_SMALL); });
         this.zoomInLarge.click(function(e) { that.XT.setZoom(ZOOM_FACTOR_IN_LARGE); });
     }
-    registerBigScape(bigscape, buttonId, buttonLabelId, modalId) {
+    registerBigScape(bigscape, buttonId, buttonLabelId, modalId, confirmId, rejectId) {
         var that = this;
         $(buttonId).click(function(e) {
-            console.log(bigscape.getStatus())
             if (bigscape.getStatus() == "FINISH") {
                 var bigscapeOn = bigscape.toggleUseBigScape();
                 $(buttonLabelId).text( bigscapeOn ? "Use BiG-SCAPE Synteny" : "Use BiG-SCAPE Synteny" );
                 that.XT.reloadForBigScape();
             } else {
                 $(modalId).modal("show");
-                if (!bigscape.getStatus()) {
-                    var completionHandler = function(status, message) {
-                        $(modalId + " .modal-body div").text(bigscape.getConfirmText(status, message));
-                        $(modalId + " .btn-confirm").hide();
-                        $(modalId + " .btn-reject").text("Close");
-                        $(buttonLabelId).text("BiG-SCAPE Pending");
-                    };
-                    bigscape.run(completionHandler);
+                if (!bigscape.getStatus() || bigscape.getStatus() == 0) {
+                    $(confirmId).click(function (e) {
+                        var completionHandler = function(status, message) {
+                            $(modalId + " .modal-body div").text(bigscape.getConfirmText(status, message));
+                            $(confirmId).hide();
+                            $(rejectId).text("Close");
+                            $(buttonLabelId).text("BiG-SCAPE Pending");
+                        };
+                        bigscape.run(completionHandler);
+                    });
                 }
             }
         });

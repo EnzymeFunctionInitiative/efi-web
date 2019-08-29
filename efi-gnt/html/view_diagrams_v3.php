@@ -147,10 +147,10 @@ else {
 if ($is_bigscape_enabled) {
     $bss = new bigscape_job($db, $gnn_id, $bigscape_type);
     $bigscape_status = $bss->get_status();
-    $bigscape_btn_icon = $bigscape_status == bigscape_job::STATUS_FINISH ? "fa-sort-amount-down" : "fa-magic";
-    $bigscape_btn_text = $bigscape_status == bigscape_job::STATUS_FINISH ? "Use BiG-SCAPE Synteny" : 
-        ($bigscape_status == bigscape_job::STATUS_RUNNING ? "Big-SCAPE Pending" : "Run BiG-SCAPE");
-    $bigscape_modal_close_text = $bigscape_status == bigscape_job::STATUS_RUNNING ? "Close" : "No";
+    $bigscape_btn_icon = $bigscape_status === bigscape_job::STATUS_FINISH ? "fa-sort-amount-down" : "fa-magic";
+    $bigscape_btn_text = $bigscape_status === bigscape_job::STATUS_FINISH ? "Use BiG-SCAPE Synteny" : 
+        ($bigscape_status === bigscape_job::STATUS_RUNNING ? "Big-SCAPE Pending" : "Run BiG-SCAPE");
+    $bigscape_modal_close_text = $bigscape_status === bigscape_job::STATUS_RUNNING ? "Close" : "No";
 }
 
 $nb_size_div = "";
@@ -380,12 +380,12 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
 <?php } ?>
 <?php if ($is_bigscape_enabled) { ?>
                             <div>
-                                <button type="button" class="btn btn-default tool-button" id="run-bigscape-btn" <?php if ($bigscape_status == bigscape_job::STATUS_FINISH) echo "data-toggle=\"button\""; ?>>
+                                <button type="button" class="btn btn-default tool-button" id="run-bigscape-btn" <?php if ($bigscape_status === bigscape_job::STATUS_FINISH) echo "data-toggle=\"button\""; ?>>
                                     <i class="fas <?php echo $bigscape_btn_icon; ?>"></i> <span id="run-bigscape-btn-text"><?php echo $bigscape_btn_text; ?></span>
                                 </button>
                             </div>
 
-<?php if ($bigscape_status == bigscape_job::STATUS_FINISH) { ?>
+<?php if ($bigscape_status === bigscape_job::STATUS_FINISH) { ?>
                             <div>
                                 <a href="download_files.php?<?php echo $id_key_query_string; ?>&type=bigscape"
                                     title="Download the BiG-SCAPE clan data.">
@@ -458,7 +458,6 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
         <!-- Placed at the end of the document so the pages load faster -->
 
         <script src="js/snap.svg-min.js" content-type="text/javascript"></script>
-        <script src="js/Queue.js" content-type="text/javascript"></script>
 
         <!-- jQuery -->
         <script src="js/jquery-3.2.1.min.js"></script>
@@ -517,7 +516,7 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     var filterUi = new GndFilterUi(gndRouter, gndFilter, gndColor, pfamFilterContainerId, interproFilterContainerId, legendContainerId, numDiagramsFilteredId);
                     var ui = new GndUi(gndRouter, control, filterUi);
 <?php if ($is_bigscape_enabled) { ?>
-                    ui.registerBigScape(bigscape, "#run-bigscape-btn", "#run-bigscape-btn-text", "#run-bigscape-modal");
+                    ui.registerBigScape(bigscape, "#run-bigscape-btn", "#run-bigscape-btn-text", "#run-bigscape-modal", "#run-bigscape-confirm", "#run-bigscape-reject");
 <?php } ?>
 
                     // Add callbacks
@@ -584,7 +583,7 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     dlForm.attr("method", "POST");
                     dlForm.attr("action", "download_diagram_image.php");
                     dlForm.append('<input type="hidden" name="type" value="svg">');
-                    dlForm.append('<input type="hidden" name="name" value="<?php echo $gnn_name; ?>">');
+                    dlForm.append('<input type="hidden" name="name" value="<?php echo str_replace("'", "\\'", $gnnName); ?>">');
                     dlForm.append('<input type="hidden" name="svg" value="' + svg + '">');
                     dlForm.append('<input type="hidden" name="legend1-svg" value="' + legendSvgMarkup + '">');
                     $("#download-forms").append(dlForm);
@@ -727,18 +726,23 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     </div>
                     <div class="modal-body">
                         <div>
+<?php if ($bigscape_status === bigscape_job::STATUS_NONE) { ?>
                             The <a href="https://git.wageningenur.nl/medema-group/BiG-SCAPE">Biosynthetic Genes
                             Similarity Clustering and Prospecting (BiG-SCAPE)</a> tool can be used to cluster the individual
                             diagrams based on their genomic context.  This can take several hours to complete, depending on
                             the size of the clusters.  If you proceed, you will to notified when the clustering has been
                             completed, and your arrow diagrams will be updated to reflect the new ordering.  You can continue
                             to use the tool as before while BiG-SCAPE is running.  Do you wish to continue?
+<?php } else { ?>
+                            The BiG-SCAPE clustering is currently pending or
+                            executing.  You will receive an email when the clustering has begun and completed.
+<?php } ?>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <div id="run-bigscape-footer">
-<?php if ($bigscape_status == bigscape_job::STATUS_NONE) { ?>
-                            <button type="button" class="btn btn-default" class="btn-confirm">Yes</button>
+<?php if ($bigscape_status === bigscape_job::STATUS_NONE) { ?>
+                            <button type="button" class="btn btn-default" class="btn-confirm" id="run-bigscape-confirm">Yes</button>
 <?php } ?>
                             <button type="button" class="btn btn-default" class="btn-reject" data-dismiss="modal"><?php echo $bigscape_modal_close_text; ?></button>
                         </div>
