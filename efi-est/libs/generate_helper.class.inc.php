@@ -11,7 +11,7 @@ class generate_helper {
             $parms["-np"] = functions::get_cluster_procs();
         $parms["-evalue"] = $obj->get_evalue();
         $parms["-tmp"] = $out->relative_output_dir;
-        $parms["-maxsequence"] = functions::get_max_seq();
+        $parms["-maxsequence"] = est_settings::get_max_seq();
         $parms["-queue"] = functions::get_generate_queue();
         $parms["-memqueue"] = functions::get_memory_queue();
         return $parms;

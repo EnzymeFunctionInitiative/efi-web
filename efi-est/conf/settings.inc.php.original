@@ -51,17 +51,7 @@ define("__EFI_DB_CONFIG__","");
 
 //
 // UI SETTINGS
-define("__MAX_SEQ__",100000);
-define("__MAX_BLAST_SEQ__",10000);
-define("__DEFAULT_BLAST_SEQ__",5000);
-define("__MAX_FULL_FAMILY_COUNT__",30000);
 define("__MAX_NUM_SNN_NODES__",10000000);
-define("__ENABLE_A__",true);
-define("__ENABLE_B__",true);
-define("__ENABLE_C__",true);
-define("__ENABLE_D__",true);
-define("__ENABLE_E__",false);
-define("__ENABLE_COLORSSN__",true);
 define("__ENABLE_PROGRAM_SELECTION__",false);
 define("__ENABLE_OPTION_A_FAMILIES__",false);
 define("__FASTA_FILETYPES__","txt fasta fa zip");

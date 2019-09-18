@@ -1,4 +1,5 @@
 <?php
+require_once(__DIR__ . "/../../libs/global_settings.class.inc.php");
 
 class functions {
 
@@ -210,12 +211,8 @@ class functions {
 
     }
 
-    public static function get_retention_days() {
-        return __RETENTION_DAYS__;
-    }
-
     public static function get_retention_secs() {
-        return self::get_retention_days() * 24 * 60 * 60;
+        return global_settings::get_retention_days() * 24 * 60 * 60;
     }
     public static function get_results_dir() {
         return __EST_RESULTS_DIR__; // set in the global conf file
@@ -225,28 +222,6 @@ class functions {
     }
     public static function get_example_dir() {
         return "examples";
-    }
-    public static function get_evalue() {
-        return __EVALUE__;
-    }
-
-    public static function get_max_seq($format = 0) {
-        if ($format) {
-            return number_format(__MAX_SEQ__,0);
-        }
-        return __MAX_SEQ__;
-    }
-    public static function get_max_blast_seq($format = 0) {
-        if ($format) {
-            return number_format(__MAX_BLAST_SEQ__,0);
-        }
-        return __MAX_BLAST_SEQ__;
-    }
-    public static function get_default_blast_seq($format = 0) {
-        if ($format) {
-            return number_format(__DEFAULT_BLAST_SEQ__,0);
-        }
-        return __DEFAULT_BLAST_SEQ__;
     }
 
     public static function get_web_root() {
@@ -386,25 +361,6 @@ class functions {
 
     public static function get_interpro_website() {
         return __INTERPRO_WEBSITE__;
-    }
-
-    public static function option_a_enabled() {
-        return __ENABLE_A__;
-    }
-    public static function option_b_enabled() {
-        return __ENABLE_B__;
-    }
-    public static function option_c_enabled() {
-        return __ENABLE_C__;
-    }
-    public static function option_d_enabled() {
-        return __ENABLE_D__;
-    }
-    public static function option_e_enabled() {
-        return __ENABLE_E__;
-    }
-    public static function colorssn_enabled() {
-        return __ENABLE_COLORSSN__;
     }
 
     public static function get_uploads_dir() {
@@ -592,10 +548,6 @@ class functions {
 
     public static function option_a_families_enabled() {
         return defined("__ENABLE_OPTION_A_FAMILIES__") && __ENABLE_OPTION_A_FAMILIES__ ? true : false;
-    }
-
-    public static function get_maximum_full_family_count() {
-        return defined("__MAX_FULL_FAMILY_COUNT__") ? __MAX_FULL_FAMILY_COUNT__ : 0;
     }
 
     public static function get_maximum_number_ssn_nodes() {

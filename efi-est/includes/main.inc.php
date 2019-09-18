@@ -23,5 +23,6 @@ else
     $SiteUrlPrefix = "";
 
 require_once(__BASE_DIR__ . "/includes/error_helpers.inc.php");
+require_once(__DIR__ . "/../libs/est_settings.class.inc.php");
 
 ?>

@@ -248,7 +248,7 @@ abstract class option_base extends stepa {
         chdir($out->job_dir);
 
         $sched = functions::get_cluster_scheduler();
-        $max_full_fam = functions::get_maximum_full_family_count();
+        $max_full_fam = est_settings::get_maximum_full_family_count();
 
         $parms = $this->get_run_script_args($out);
 
