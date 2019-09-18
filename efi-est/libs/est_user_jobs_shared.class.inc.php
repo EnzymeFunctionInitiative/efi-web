@@ -2,6 +2,7 @@
 
 require_once(__DIR__ . "/../conf/settings_shared.inc.php");
 require_once(__DIR__ . "/functions.class.inc.php");
+require_once(__DIR__ . "/est_settings.class.inc.php");
 
 class est_user_jobs_shared {
 
@@ -39,7 +40,7 @@ class est_user_jobs_shared {
         $evalueStr = "";
         if (array_key_exists("generate_evalue", $data)) {
             $evalue = $data["generate_evalue"];
-            if ($evalue && $evalue != functions::get_evalue())
+            if ($evalue && $evalue != est_settings::get_evalue())
                 $evalueStr = "E-value=" . $evalue;
         }
         return $evalueStr;

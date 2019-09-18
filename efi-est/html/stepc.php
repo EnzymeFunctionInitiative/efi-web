@@ -22,7 +22,7 @@ if ($generate->get_key() != $_GET['key']) {
 
 if ($generate->is_expired()) {
     require_once("inc/header.inc.php");
-    echo "<p class='center'><br>Your job results are only retained for a period of " . functions::get_retention_days(). " days";
+    echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days(). " days";
     echo "<br>Your job was completed on " . $generate->get_time_completed();
     echo "<br>Please go back to the <a href='" . functions::get_server_name() . "'>homepage</a></p>";
     require_once("inc/footer.inc.php");

@@ -7,7 +7,6 @@ const RT_NESTED_COLOR = 4;
 
 require_once("../includes/main.inc.php");
 require_once("../libs/user_jobs.class.inc.php");
-require_once("../libs/est_ui.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
 require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
@@ -27,11 +26,9 @@ if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie())
     $user_email = $user_jobs->get_email();
     $IsAdminUser = $user_jobs->is_admin();
     $show_jobs_tab = has_jobs($jobs) || has_jobs($tjobs);
-    $show_training_jobs_tab = count($tjobs) > 0;
 }
-$show_training_jobs_tab = false; // currently we don't want it to be displayed since we put the training jobs below the previous jobs.
 
-$max_full_family = number_format(functions::get_maximum_full_family_count(), 0);
+$max_full_family = est_settings::get_maximum_full_family_count(1);
 
 $use_advanced_options = global_settings::advanced_options_enabled();
 

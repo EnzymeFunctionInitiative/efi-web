@@ -1,7 +1,8 @@
 <?php
 
-require_once("../../libs/global_settings.class.inc.php");
-require_once("functions.class.inc.php");
+require_once(__DIR__ . "/../../libs/global_settings.class.inc.php");
+require_once(__DIR__ . "/functions.class.inc.php");
+require_once(__DIR__ . "/est_settings.class.inc.php");
 
 class family_size {
 
@@ -73,8 +74,8 @@ class family_size {
             }
         }
         
-        $maxFull = functions::get_maximum_full_family_count();
-        $maxSeq = functions::get_max_seq();
+        $maxFull = est_settings::get_maximum_full_family_count();
+        $maxSeq = est_settings::get_max_seq();
         
         $totalFraction = floor($totalFull / $fraction);
 
