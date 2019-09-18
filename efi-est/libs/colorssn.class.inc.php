@@ -310,12 +310,19 @@ class colorssn extends option_base {
 
         $graphics = array();
 
+        $sizes = $this->parse_cluster_sizes();
+
         $lines = file($full_path);
         foreach ($lines as $line) {
             list($cluster_num, $seq_type, $quality, $path) = explode("\t", rtrim($line));
             $hmm_path = "$base_dir/$path.hmm";
             $data = self::parse_hmm($hmm_path);
             $data["path"] = $path;
+            if (isset($sizes[$cluster_num])) {
+                $data["num_uniprot"] = $sizes[$cluster_num]["uniprot"];
+                $data["num_uniref90"] = $sizes[$cluster_num]["uniref90"];
+                $data["num_uniref50"] = $sizes[$cluster_num]["uniref50"];
+            }
             $graphics[$cluster_num][$seq_type][$quality] = $data;
         }
 
@@ -323,6 +330,21 @@ class colorssn extends option_base {
     }
     public function get_hmm_graphics_dir() {
         return $this->get_web_output_dir();
+    }
+    private function parse_cluster_sizes() {
+        $filename = $this->get_cluster_sizes_filename();
+        $full_path = $this->get_full_output_dir() . "/" . $filename;
+        $lines = file($full_path);
+        $sizes = array();
+        foreach ($lines as $line) {
+            $data = explode("\t", rtrim($line));
+            $cluster_num = $data[0];
+            $uniprot_size = $data[1];
+            $uniref90_size = count($data) > 2 ? $data[2] : 0;
+            $uniref50_size = count($data) > 3 ? $data[3] : 0;
+            $sizes[$cluster_num] = array("uniprot" => $uniprot_size, "uniref90" => $uniref90_size, "uniref50" => $uniref50_size);
+        }
+        return $sizes;
     }
     // Read HMM length and number of sequences used to generate HMM.
     private static function parse_hmm($path) {

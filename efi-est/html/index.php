@@ -14,7 +14,6 @@ require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 $user_email = "Enter your e-mail address";
 
 $show_jobs_tab = false;
-$show_training_jobs_tab = false;
 $jobs = array();
 $tjobs = array(); // training jobs
 $IsAdminUser = false;
@@ -94,484 +93,13 @@ Information on Pfam families and clans and InterPro family sizes is available on
 the <a href="family_list.php">Family Information page</a>.
 </p>
 
-<div class="tabs-efihdr ui-tabs ui-widget-content" id="main-tabs"> <!-- style="display:none">-->
-    <ul class="ui-tabs-nav ui-widget-header">
-<?php if ($show_jobs_tab) { ?>
-        <li class="ui-tabs-active"><a href="#jobs">Previous Jobs</a></li>
-<?php } ?>
-<?php if ($show_training_jobs_tab) { ?>
-        <li><a href="#tjobs">Training</a></li>
-<?php } ?>
-<?php if (functions::option_a_enabled()) { ?>
-        <li><a href="#optionAtab" title="Option A">Sequence BLAST</a></li>
-<?php } ?>
-<?php if (functions::option_b_enabled()) { ?>
-        <li><a href="#optionBtab" title="Option B">Families</a></li> <!-- Pfam and/or InterPro families</a></li>-->
-<?php } ?>
-<?php if (functions::option_c_enabled()) { ?>
-        <li><a href="#optionCtab" title="Option C">FASTA</a></li>
-<?php } ?>
-<?php if (functions::option_d_enabled()) { ?>
-        <li><a href="#optionDtab" title="Option D">Accession IDs</a></li>
-<?php } ?>
-<?php if (functions::option_e_enabled()) { ?>
-        <li><a href="#optionEtab" title="Option E">OptE</a></li>
-<?php } ?>
-<?php if (functions::colorssn_enabled()) { ?>
-        <li><a href="#colorssntab">Color SSNs</a></li>
-<?php } ?>
-        <li <?php echo ($show_jobs_tab ? "" : 'class="ui-tabs-active"') ?>><a href="#tutorial">Tutorial</a></li>
-    </ul>
-
-    <div>
-<?php if ($show_jobs_tab) { ?>
-        <div id="jobs" class="ui-tabs-panel ui-widget-content">
-
-<?php /*
-            <h3>Precomputed Option B Jobs</h3>
-            Precomputed jobs for selected families are available 
-            <a href="precompute.php">here</a>.
-            <!--<a href="precompute.php"><button type="button" class="mini">Precomputed Option B Jobs</button></a>-->
-*/?>
-            <h4>EST Jobs</h4>
-<?php 
-    $show_archive = true;
-    output_job_list($jobs, $show_archive, "sort-jobs-toggle");
-
-    if (has_jobs($tjobs)) {
-        echo "            <h4>Training Resources</h4>\n";
-        output_job_list($tjobs);
-    }
-?>
-         </div>
 <?php
-} ?>
-
-<?php if ($show_training_jobs_tab) {
-    echo "        <div id=\"tjobs\" class=\"tab\">\n";
-    output_job_list($tjobs);
-    echo "        </div>\n";
-} ?>
-
-<?php if (functions::option_a_enabled()) { ?>
-        <div id="optionAtab" class="ui-tabs-panel ui-widget-content">
-            <p class="p-heading">
-            Generate a SSN for a single protein and its closest homologues in the UniProt database.
-            </p>
-
-            <p>
-            The input sequence is used as the query for a search of the UniProt database using BLAST.
-            Sequences that are similar to the query in UniProt are retrieved.
-            <?php add_blast_calc_desc(); ?>
-            </p>
-
-            <form name="optionAform" id="optionAform" method="post" action="" enctype="multipart/form-data">
-                <div class="primary-input">
-                    <div class="secondary-name">
-                        Query Sequence:
-                    </div>
-                    <textarea id="blast-input" name="blast-input"></textarea>
-                    Input a single <b>protein sequence</b> only.
-            The default maximum number of  retrieved sequences is
-            <?php echo number_format(functions::get_default_blast_seq(),0); ?>.
-                </div>
-
-                <div class="option-panels">
-                    <div>
-                        <h3>BLAST Retrieval Options</h3>
-                        <div>
-                            <div>
-                                <span class="input-name">
-                                    UniProt BLAST query e-value:
-                                </span><span class="input-field">
-                                    <input type="text" class="small" id="blast-evalue" name="blast-evalue" size="5"
-                                        value="<?php echo functions::get_evalue(); ?>">
-                                    Negative log of e-value for retrieving similar sequences (&ge; 1; default: <?php echo functions::get_evalue(); ?>)
-                                </span>
-                                <div class="input-desc">
-                                    Input an alternative e-value for BLAST to retrieve sequences from the
-                                    UniProt database. We suggest using a larger e-value
-                                    (smaller negative log) for retrieving homologues if the query
-                                    sequence is short and a smaller e-value (larger negative log) if there
-                                    is no need to retrieve divergent homologues.
-                                </div>
-                            </div>
-                            <div>
-                                <span class="input-name">
-                                    Maximum number of sequences retrieved:
-                                </span><span class="input-field">
-                                    <input type="text" id="blast-max-seqs" class="small" name="blast-max-seqs" value="<?php  echo functions::get_default_blast_seq(); ?>" size="5">
-                                    (&le; <?php echo number_format(functions::get_max_blast_seq()); ?>,
-                                    default: <?php echo number_format(functions::get_default_blast_seq()); ?>)
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div>
-                        <?php add_family_input_option("opta"); ?>
-                    </div>
-
-                    <div>
-                        <?php add_ssn_calc_option("opta") ?>
-                    </div>
-
-                    <?php if ($use_advanced_options) { ?>
-                    <div>
-                        <?php add_dev_site_option("opta", $db_modules); ?>
-                    </div>
-                    <?php } ?>
-                </div>
-
-                <?php add_submit_html("opta", "optAoutputIds", $user_email); ?>
-            </form>
-        </div>
-<?php } ?>
-
-<?php if (functions::option_b_enabled()) { ?>
-        <div id="optionBtab" class="ui-tabs-panel ui-widget-content">
-            <p class="p-heading">
-            Generate a SSN for a protein family.
-            </p>
-
-            <p>
-            The sequences from the Pfam families, InterPro families, and/or Pfam clans (superfamilies) input are retrieved.
-            <?php add_blast_calc_desc(); ?>
-            </p>
-
-            <form name="optionBform" id="optionBform" method="post" action="">
-                <?php add_family_input_option_family_only("optb"); ?>
-
-                <div class="option-panels">
-                    <div>
-                        <?php add_domain_option("optb"); ?>
-                    </div>
-                    <div>
-                        <h3>Protein Family Option</h3>
-                        <?php echo get_fraction_html("optb"); ?>
-                    </div>
-                    <div>
-                        <?php add_ssn_calc_option("optb") ?>
-                    </div>
-                    <?php if ($use_advanced_options) { ?>
-                    <div>
-                        <?php add_dev_site_option("optb", $db_modules, get_advanced_seq_html("optb")); ?>
-                    </div>
-                    <?php } ?>
-                    <?php if (!$use_advanced_options) { ?>
-                        <input type="hidden" id="seqid-optb" value="">
-                        <input type="hidden" id="length-overlap-optb" value="">
-                    <?php } ?>
-                </div>
-
-                <?php add_submit_html("optb", "optBoutputIds", $user_email); ?>
-            </form>
-        </div>
-<?php } ?>
-
-<?php    if (functions::option_c_enabled()) { ?>
-        <div id="optionCtab" class="ui-tabs-panel ui-widget-content">
-            <p class="p-heading">
-            Generate a SSN from provided sequences. 
-            </p>
-
-            <p>
-            <?php add_blast_calc_desc(); ?>
-            </p>
-
-            <p>
-            Input a list of protein sequences in FASTA format or upload a FASTA-formatted sequence file.
-            </p>
-            
-            <form name="optionCform" id="optionCform" method="post" action="">
-                <div class="primary-input">
-                    <div class="secondary-name">
-                        Sequences:
-                    </div>
-                    <textarea id="fasta-input" name="fasta-input"></textarea>
-                    <div>
-                        <input type="checkbox" id="fasta-use-headers" name="fasta-use-headers" value="1"> <label for="fasta-use-headers"><b>Read FASTA headers</b></label><br>
-                        When selected, recognized UniProt or Genbank identifiers from FASTA headers are used to retrieve
-                        node attributes from the UniProt database.
-                    </div>
-                    <?php echo ui::make_upload_box("FASTA File:", "fasta-file", "progress-bar-fasta", "progress-num-fasta"); ?>
-                </div>
-
-                <div class="option-panels">
-                    <div>
-                        <?php add_family_input_option("optc"); ?>
-                    </div>
-                    <div>
-                        <?php add_ssn_calc_option("optc") ?>
-                    </div>
-                    <?php if ($use_advanced_options) { ?>
-                    <div>
-                        <?php add_dev_site_option("optc", $db_modules); ?>
-                    </div>
-                    <?php } ?>
-                </div>
-
-                <?php add_submit_html("optc", "optCoutputIds", $user_email); ?>
-            </form>
-        </div>
-<?php    } ?>
-
-<?php    if (functions::option_d_enabled()) { ?>
-        <div id="optionDtab" class="ui-tabs-panel ui-widget-content">
-            <p class="p-heading">
-            Generate a SSN from a list of UniProt, UniRef, NCBI, or Genbank IDs.
-            </p>
-
-            <p>
-            <?php add_blast_calc_desc(); ?>
-            </p>
-
-            <form name="optionDform" id="optionDform" method="post" action="">
-                <div class="tabs tabs-efihdr" id="optionD-src-tabs">
-                    <ul class="tab-headers">
-                        <li class="ui-tabs-active"><a href="#optionD-source-uniprot">Use UniProt IDs</a></li>
-                        <li><a href="#optionD-source-uniref">Use UniRef50 or UniRef90 Cluster IDs</a></li>
-                    </ul>
-                    <div class="tab-content" style="min-height: 250px">
-                        <div id="optionD-source-uniprot" class="tab ui-tabs-active">
-                            <p>
-                            Input a list of UniProt, NCBI, or Genbank (protein) accession IDs, or upload a text
-                            file.
-                            </p>
-                            <div class="primary-input">
-                                <div class="secondary-name">
-                                    Accession IDs:
-                                </div>
-                                <textarea id="accession-input-uniprot" name="accession-input-uniprot"></textarea>
-                                <div>
-<?php echo ui::make_upload_box("Accession ID File:", "accession-file-uniprot", "progress-bar-accession-uniprot", "progress-num-accession-uniprot"); ?>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="optionD-source-uniref" class="ui-tabs-panel ui-widget-content">
-                            <p>
-                            Input a list of UniRef50 or UniRef90 cluster accession IDs, or upload a text
-                            file.
-                            </p>
-                            <div class="primary-input">
-                                <div class="secondary-name">
-                                    Accession IDs:
-                                </div>
-                                <textarea id="accession-input-uniref" name="accession-input-uniref"></textarea>
-                                <div>
-<?php echo ui::make_upload_box("Accession ID File:", "accession-file-uniref", "progress-bar-accession-uniref", "progress-num-accession-uniref"); ?>
-                                </div>
-                                <div id="accession-seq-type-container" style="margin-top:15px">
-                                    <span class="input-name">Input accession IDs are:</span>
-                                    <select id="accession-seq-type">
-                                        <option value="uniref90">UniRef90 cluster IDs</option>
-                                        <option value="uniref50">UniRef50 cluster IDs</option>
-                                    </select>
-                                    <a class="question" title="
-                                        The list of sequences that is put into
-                                        the tool will be end up being the node IDs, and node attributes with the UniRef clusters
-                                        will be included in the output SSN.">?</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="option-panels">
-                    <div>
-                        <?php add_domain_option("optd", true, $use_advanced_options); ?>
-                    </div>
-
-                    <div>
-                        <?php add_family_input_option("optd"); ?>
-                    </div>
-                    <div>
-                        <?php add_ssn_calc_option("optd") ?>
-                    </div>
-                    <?php if ($use_advanced_options) { ?>
-                    <div>
-                        <?php add_dev_site_option("optd", $db_modules); ?>
-                    </div>
-                    <?php } ?>
-                </div>
-
-                <?php add_submit_html("optd", "optDoutputIds", $user_email); ?>
-            </form>
-        </div>
-<?php    } ?>
-
-<?php if (functions::option_e_enabled()) { ?>
-        <div id="optionEtab" class="ui-tabs-panel ui-widget-content">
-            <form name="optionEform" id="optionEform" method="post" action="">
-                <?php add_family_input_option_family_only("opte"); ?>
-
-                <div class="option-panels">
-                    <div>
-                        <?php add_domain_option("opte"); ?>
-                    </div>
-                    <div>
-                        <?php add_ssn_calc_option("opte") ?>
-                    </div>
-                    <div>
-                        <h3>Protein Family Option</h3>
-                        <?php echo get_fraction_html("opte"); ?>
-                    </div>
-                    <div>
-                        <?php add_dev_site_option("opte", $db_modules, get_advanced_seq_html("opte")); ?>
-                    </div>
-                </div>
-    
-                <?php add_submit_html("opte", "optEoutputIds", $user_email); ?>
-            </form>
-        </div>
-<?php } ?>
-
-<?php    if (functions::colorssn_enabled()) { ?>
-        <div id="colorssntab" class="ui-tabs-panel ui-widget-content">
-            <p>
-                <b>Clusters in the submitted SSN are identified, numbered and colored.</b>
-                Summary tables, sets of IDs and sequences per cluster are provided.
-            </p>
-
-            <form name="colorSsnForm" id="colorSsnform" method="post" action="">
-                <div class="primary-input">
-<?php echo ui::make_upload_box("SSN File:", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
-                    <div>
-                        A Cytoscape-edited SNN can serve as input.
-                        The accepted format is XGMML (or compressed XGMML as zip).
-                    </div>
-                </div>
-
-                <?php if ($use_advanced_options) { ?>
-                <div class="option-panels">
-                    <div>
-                        <h3>Dev Site Options</h3>
-                        <div>
-                            <div>
-                                <span class="input-name">
-                                    Extra RAM:
-                                </span><span class="input-field">
-                                    <input type="checkbox" id="colorssn-extra-ram" name="colorssn-extra-ram" value="1">
-                                    <label for="colorssn-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
-                                </span>
-                            </div>
-                            <div>
-                                <span class="input-name">
-                                    Make HMMs:
-                                </span><span class="input-field">
-                                    <input type="checkbox" id="colorssn-make-hmm" name="colorssn-make-hmm" value="1">
-                                    <label for="colorssn-make-hmm">Make HMMs [default: off]</label>
-                                    <input type="checkbox" id="colorssn-fast-hmm" name="colorssn-fast-hmm" value="1">
-                                    <label for="colorssn-fast-hmm">Also make Fast HMMs [default: off]</label>
-                                    <a class="question" title="Fast HMMs are HMMs built using a MSA generated using fast MUSCLE options.">?</a>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <?php } ?>
-                <?php add_submit_html("colorssn", "", $user_email); ?>
-            </form>
-        </div>
-<?php    } ?>
-
-        <div id="tutorial" class="tab <?php echo (!$show_jobs_tab ? "ui-tabs-active" : "") ?>">
-
-            <h3>Overview of possible inputs for EFI-EST</h3>
-            
-            <p>
-            The EFI - Enzyme Similarity Tool (EFI-EST) is a service for the generation of SSNs.
-            Four options are available to generate SSNs.
-            A utility to enhance SSN interpretation is also available.
-            </p>
-            
-            <ul>
-                <li><b>Sequence BLAST (Option A): Single sequence query</b>.  The provided sequence is used as 
-                    the query for a BLAST search of the UniProt database. The retrieved sequences 
-                    are used to generate the SSN.
-                    <p class="indentall">Option A allows exploration of local sequence-function space for the query 
-                    sequence. By default, 
-                    <?php echo functions::get_default_blast_seq(1); ?> sequences are collected.
-                    This allows a small "full" SSN to be generated and viewed with Cytoscape.
-                    This for local high resolution SSNs.
-                    </p>
-                </li>
-                
-                <li><b>Families (Option B): Pfam and/or InterPro families; Pfam clans (superfamilies)</b>.
-                    Defined protein families are used to generate the SSN.
-                    <p class="indentall">
-                    Option B allows exploration of sequence-function space from defined 
-                    protein families. A limit of <?php echo functions::get_max_seq(1); ?> 
-                    sequences is imposed. Generation of a SSN for more than one family is allowed.
-                    Using UniRef90 and UniRef50 databases allows the creation of SSNs for very large
-                    Pfam and/or InterPro families, but at lower resolution.
-                    </p>
-                </li>
-                
-                <li><b>FASTA (Option C): User-supplied FASTA file.</b>
-                    A SSN is generated from a set of defined sequences.
-                    
-                    <p class="indentall">
-                    Option C allows generation of a SSN for a provided set of FASTA 
-                    formatted sequences. By default, EST cannot associate the provided sequences
-                    with sequences in the UniProt database, and only two node attributes are 
-                    provided for the SSNs generated: the number of residues as the "Sequence 
-                    Length", and the FASTA header as the "Description". 
-                    An option allows the FASTA headers to be read and if Uniprot or NCBI 
-                    identifiers are recognized, the corresponding Uniprot information will be 
-                    presented as node attributes.
-                    </p>
-                </li>
-                
-                <li><b>Accession IDs (Option D): List of UniProt and/or NCBI IDs.</b>
-                    The SSN is generated after 
-                    fetching the information from the corresponding databases.
-                    
-                    <p class="indentall">
-                    Option D allows for a list of UniProt IDs, NCBI IDs, and/or 
-                    NCBI GI numbers (now "retired"). UniProt IDs are used to retrieve sequences and 
-                    annotation information from the UniProt database. When recognized, NCBI IDs and 
-                    GI numbers are used to retrieve the "equivalent" UniProt IDs and information. 
-                    Sequences with NCBI IDs that cannot be recognized will not be included in the 
-                    SSN and a "no match" file listing these IDs is available for download.
-                    </p>
-                </li>
-                
-                <li><b>Color SSNs: Utility for the identification and coloring of independent clusters within a 
-                    SSN.</b>
-                    
-                    <p class="indentall">
-                    Independent clusters in the uploaded SSN are identified, numbered and colored. 
-                    Summary tables, sets of IDs and sequences per clusters are 
-                    provided. A Cytoscape-edited SNN can serve as input for this utility.
-                    </p>
-                </li>
-            </ul>
-            
-            <h3>Recommended Reading</h3>
-            <p>
-                <a href="https://www.sciencedirect.com/science/article/pii/S1367593118300802">'Democratized'
-                    genomic enzymology web tools for functional assignment</a>
-                    R Zallot, NO Oberg, JA Gerlt - Current opinion in chemical biology, 2018 - Elsevier
-            </p>
-            <p>
-                <a href="https://pubs.acs.org/doi/abs/10.1021/acs.biochem.7b00614">Genomic enzymology:
-                    Web tools for leveraging protein family sequence–function space and genome context to discover novel functions</a>
-                    JA Gerlt - Biochemistry, 2017 - ACS Publications
-            </p>
-            <p>
-                <a href="https://www.sciencedirect.com/science/article/pii/S1570963915001120">Enzyme function
-                    initiative-enzyme similarity tool (EFI-EST): A web tool for generating protein sequence similarity networks</a>
-                Gerlt JA, Bouvier JT, Davidson DB, Imker HJ, Sadkhin B, Slater DR, Whalen KL.
-                - Biochimica Et Biophysica Acta (BBA)-Proteins and Proteomics, 2015 - Elsevier
-            </p>
-
-            <p class="center"><a href="tutorial.php"><button class="light" type="button">Proceed to the tutorial</button></a></p>
-
-        </div>
-    </div> <!-- tab-content -->
-</div> <!-- tabs -->
-
+include_once("inc/index_helpers.inc.php");
+include_once("inc/index_sections.inc.php");
+$show_example = false;
+$show_tutorial = true;
+output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $show_example);
+?>
 
 <div align="center">
     <p>
@@ -782,12 +310,31 @@ This job will be permanently removed from your list of jobs.
 
 <?php
 
+
+function is_interactive() {
+    return true;
+}
+function get_default_fraction() {
+    return functions::get_fraction();
+}
+function get_default_evalue() {
+    return est_settings::get_evalue();
+}
+function get_max_full_family_count() {
+    return est_settings::get_maximum_full_family_count();
+}
+function get_max_blast_seq() {
+    return est_settings::get_max_blast_seq();
+}
+function get_default_blast_seq() {
+    return est_settings::get_default_blast_seq();
+}
 function make_db_mod_option($db_modules, $option) {
     if (count($db_modules) < 2)
         return "";
 
     $id = "db-mod-$option";
-    echo <<<HTML
+    $html = <<<HTML
 <div>
     <span class="input-name">
         Database version:
@@ -797,94 +344,18 @@ HTML;
 
     foreach ($db_modules as $mod) {
         $mod_name = $mod[1];
-        echo "            <option value=\"$mod_name\">$mod_name</option>\n";
+        $html .= "            <option value=\"$mod_name\">$mod_name</option>\n";
     }
 
-    echo <<<HTML
+    $html .= <<<HTML
         </select>
     </span>
 </div>
 HTML;
+    return array($html);
 }
-
-
-function add_submit_html($option_id, $js_id_name, $user_email) {
-    $js_fn = "submitOptionForm('$option_id', familySizeHelper, $js_id_name)";
-    if ($option_id == "colorssn")
-        $js_fn = "submitColorSsnForm()";
-
-    if ($option_id != "colorssn")
-        echo <<<HTML
-<div style="margin-top: 35px">
-    <span class="input-name">
-        Job name:
-    </span><span class="input-field">
-        <input type="text" class="email" name="job-name-$option_id" id="job-name-$option_id" value=""> (required)
-    </span>
-</div>
-HTML;
-    echo <<<HTML
-<div>
-    <span class="input-name">
-        E-mail address:
-    </span><span class="input-field">
-        <input name="email" id="email-$option_id" type="text" value="$user_email" class="email"
-            onfocus='if(!this._haschanged){this.value=""};this._haschanged=true;' value="">
-    </span>
-    <p>
-    You will be notified by e-mail when your submission has been processed.
-    </p>
-</div>
-
-<div id="message-$option_id" style="color: red" class="error_message">
-</div>
-<center>
-    <div><button type="button" class="dark" onclick="$js_fn">Submit Analysis</button></div>
-</center>
-HTML;
-}
-
-
-function get_advanced_seq_html($option_id) {
-    $addl_html = <<<HTML
-<div>
-    <span class="input-name">
-        Sequence identity: 
-    </span><span class="input-field">
-        <input type="text" class="small" id="seqid-$option_id" name="seqid-$option_id" value="1">
-        Sequence identity (&le; 1; default: 1)
-    </span>
-</div>
-<div>
-    <span class="input-name">
-        Sequence length overlap:
-    </span><span class="input-field">
-        <input type="text" class="small" id="length-overlap-$option_id" name="length-overlap-$option_id" value="1">
-        Sequence length overlap (&le; 1; default: 1)
-    </span>
-</div>
-HTML;
-    if ($option_id == "opte") {
-        $addl_html .= <<<HTML
-<div>
-    Minimum Sequence Length: <input type="text" class="small" id="min-seq-len-$option_id" name="min-seq-len-$option_id" value="">
-</div>
-<div>
-    Maximum Sequence Length: <input type="text" class="small" id="max-seq-len-$option_id" name="max-seq-len-$option_id" value="">
-</div>
-<div>
-    Do not demultiplex:
-    <input type="checkbox" id="demux-$option_id" name="demux-$option_id" value="1">
-    Check to prevent a demultiplex to expand cd-hit clusters (default: demultiplex)
-</div>
-HTML;
-    }
-    return $addl_html;
-}
-
-
 function add_dev_site_option($option_id, $db_modules, $extra_html = "") {
-    echo <<<HTML
+    $html = <<<HTML
 <h3>Dev Site Options</h3>
 <div>
     <div>
@@ -896,9 +367,10 @@ function add_dev_site_option($option_id, $db_modules, $extra_html = "") {
         </span>
     </div>
 HTML;
-    make_db_mod_option($db_modules, $option_id);
+    list($db_html) = make_db_mod_option($db_modules, $option_id);
+    $html .= $db_html;
     if (functions::get_program_selection_enabled()) {
-        echo <<<HTML
+        $html .= <<<HTML
     <div>
         <span class="input-name">
             Select Program to use:
@@ -913,201 +385,12 @@ HTML;
     </div>
 HTML;
     }
-    echo <<<HTML
+    $html .= <<<HTML
     $extra_html
 </div>
 HTML;
+    return array($html);
 }
-
-
-function add_ssn_calc_option($option_id) {
-    $default_evalue = functions::get_evalue();
-    echo <<<HTML
-<h3>SSN Edge Calculation Option</h3>
-<div>
-    <span class="input-name">
-        E-Value:
-    </span><span class="input-field">
-        <input type="text" class="small" id="evalue-$option_id" name="evalue-$option_id" size="5" value="$default_evalue">
-        Negative log of e-value for all-by-all BLAST (&ge;1; default $default_evalue)
-    </span>
-    <div class="input-desc">
-        Input an alternative e-value for BLAST to calculate similarities between sequences defining edge values.
-        Default parameters are permissive and are used to obtain edges even between sequences that share low similarities.
-        We suggest using a larger e-value (smaller negative log) for short sequences.
-    </div>
-</div>
-HTML;
-}
-
-
-function add_blast_calc_desc() {
-    echo <<<HTML
-            An all-by-all BLAST is performed to obtain the similarities between sequence pairs to
-            calculate edge values to generate the SSN.
-HTML;
-}
-
-
-function add_domain_option($option_id, $specify_family = false, $use_advanced_options = false) {
-    $option_text = $specify_family ? "Options" : "Option";
-    echo <<<HTML
-<h3>Family Domain Boundary $option_text</h3>
-<div>
-    <div>
-        Pfam and InterPro databases define domain boundaries for members of their families.
-    </div>
-    <div>
-        <span class="input-name">
-            Domain:
-        </span><span class="input-field">
-            <input type="checkbox" id="domain-$option_id" name="domain-$option_id" value="1" class="bigger">
-            <label for="domain-$option_id">Sequences trimmed to the domain boundaries defined by the input family will be used for the calculations.</label>
-        </span>
-    </div>
-HTML;
-    if ($specify_family) { // Option D only
-        echo <<<HTML
-    <div>
-        <span class="input-name">
-            Family:
-        </span><span class="input-field">
-            <input type="text" name="accession-input-domain-family" id="accession-input-domain-family" style="width: 100px" disabled />
-            Use domain boundaries from the specified family (enter only one family).
-        </span>
-HTML;
-        if ($use_advanced_options) {
-            echo <<<HTML
-        <div>
-            <input type="radio" id="accession-input-domain-region-nterminal" name="accession-input-domain-region" value="nterminal" class="accession-input-domain-region">
-            <label for="accession-input-domain-region-nterminal">N-Terminal</label>
-            <input type="radio" id="accession-input-domain-region-domain" name="accession-input-domain-region" value="domain" class="accession-input-domain-region">
-            <label for="accession-input-domain-region-domain">Domain</label>
-            <input type="radio" id="accession-input-domain-region-cterminal" name="accession-input-domain-region" value="cterminal" class="accession-input-domain-region">
-            <label for="accession-input-domain-region-cterminal">C-Terminal</label>
-        </div>
-HTML;
-        }
-        echo <<<HTML
-    </div>
-HTML;
-    }
-    echo <<<HTML
-</div>
-HTML;
-}
-
-
-function add_family_input_option_family_only($option_id) {
-    return add_family_input_option_base($option_id, false, "");
-}
-
-
-function add_family_input_option($option_id) {
-    return add_family_input_option_base($option_id, true, get_fraction_html($option_id));
-}
-
-
-function add_family_input_option_base($option_id, $include_intro, $fraction_html) {
-    $max_full_family = number_format(functions::get_maximum_full_family_count(), 0);
-
-    if ($include_intro) {
-        $option_text = $fraction_html ? "Options" : "Option";
-        echo <<<HTML
-<h3>Protein Family Addition $option_text</h3>
-<div>
-    <div>
-        Add sequences belonging to Pfam and/or InterPro families to the sequences used to generate the SSN.
-    </div>
-    <div class="secondary-input">
-        <div class="secondary-name">
-            Familes:
-        </div>
-        <div class="secondary-field">
-HTML;
-    // Don't include intro
-    } else {
-        echo <<<HTML
-<div>
-    <div class="primary-input">
-        <div class="secondary-name">
-            Pfam and/or InterPro Families:
-        </div>
-        <div>
-HTML;
-    }
-
-    echo <<<HTML
-            <input type="text" id="families-input-$option_id" name="families-input-$option_id">
-        </div>
-HTML;
-
-    if ($include_intro) {
-        echo <<<HTML
-    </div>
-    <div class="input-desc">
-HTML;
-    }
-
-    echo <<<HTML
-        <div>
-            <input type="checkbox" id="use-uniref-$option_id" class="cb-use-uniref bigger" value="1">
-            <label for="use-uniref-$option_id">Use <select id="uniref-ver-$option_id" name="uniref-ver-$option_id" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> cluster ID sequences instead of the full family</label>
-            <div style="margin-top: 10px">
-HTML;
-    echo est_ui::make_pfam_size_box("family-size-container-$option_id", "family-count-table-$option_id");
-    echo <<<HTML
-            </div>
-        </div>
-        <div>
-            The input format is a single family or comma/space separated list of families.
-            Families should be specified as PFxxxxx (five digits),
-            IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans.
-        </div>
-    </div>
-    <div>
-        The EST provides access to the UniRef90 and UniRef50 databases to allow the creation
-        of SSNs for very large Pfam and/or InterPro families. For families that contain 
-        more than $max_full_family sequences, the SSN <b>will be</b> generated 
-        using the UniRef50 or UniRef90 databases. In UniRef90, sequences that share &ge;90% sequence identity 
-        over 80% of the sequence length are grouped together and represented by a 
-        sequence known as the cluster ID. UniRef50 is similar except that the
-        sequence identity is &ge;50%. If one of the UniRef databases is used,
-        the output SSN is equivalent to a 90% (for UniRef90) or 50% (for UniRef50)
-        Representative Node Network with each node corresponding to a UniRef cluster ID; in this
-        case an additional node attribute is provided which lists all
-        of the sequences represented by the UniRef node.
-    </div>
-$fraction_html
-</div>
-HTML;
-}
-
-
-function get_fraction_html($option_id) {
-    $default_fraction = functions::get_fraction(); 
-    return <<<HTML
-    <div>
-        <span class="input-name">
-            Fraction:
-        </span><span class="input-field">
-            <input type="text" class="small fraction" id="fraction-$option_id" name="fraction-$option_id" value="$default_fraction" size="5">
-            <a class="question" title="Either fraction or UniRef can be used, not both.">?</a>
-            Reduce the number of sequences used to a fraction of the full family size (&ge; 1; default:
-            $default_fraction)
-        </span>
-        <div class="input-desc">
-            Selects every Nth sequence in the family; the sequences are assumed to be
-            added randomly to UniProt, so the selected sequences are assumed to be a
-            representative sampling of the family. This allows reduction of the size of the SSN.
-            Sequences in the family with Swiss-Prot annotations will always be included;
-            this may result in the size of the resulting data set being slightly larger than
-            the fraction specified.
-        </div>
-    </div>
-HTML;
-}
-
 
 function output_job_list($jobs, $show_archive = false, $toggle_id = "") {
     $up = "&#x25B2;";
