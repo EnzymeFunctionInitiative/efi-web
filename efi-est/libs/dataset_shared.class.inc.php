@@ -95,7 +95,7 @@ class dataset_shared {
 
 //        $generate->print_raw_counts();
         $evalue_option = $generate->get_evalue();
-        $default_evalue = functions::get_evalue();
+        $default_evalue = est_settings::get_evalue();
         $show_evalue = $evalue_option != $default_evalue;
 
         $add_fam_rows_fn = function() {};

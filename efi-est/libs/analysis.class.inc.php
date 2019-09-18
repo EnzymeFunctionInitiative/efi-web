@@ -686,7 +686,7 @@ class analysis extends est_shared {
         $plain_email = "";
         $plain_email .= "Your EFI-EST SSN has been generated and is available for download." . PHP_EOL . PHP_EOL;
         $plain_email .= "To access the results, please go to THE_URL" . PHP_EOL;
-        $plain_email .= "This data will only be retained for " . functions::get_retention_days() . " days." . PHP_EOL . PHP_EOL;
+        $plain_email .= "This data will only be retained for " . global_settings::get_retention_days() . " days." . PHP_EOL . PHP_EOL;
         $plain_email .= "Submission Summary:" . PHP_EOL . PHP_EOL;
         $plain_email .= $this->get_stepa_job_info() . PHP_EOL;
         $plain_email .= $this->get_email_job_info() . PHP_EOL . PHP_EOL;
