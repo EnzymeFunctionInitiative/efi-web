@@ -25,6 +25,11 @@ table.pretty tr:nth-of-type(even) td {
     background-color: #eee;
 }
 
+table.no-stretch tr td:first-child {
+    width: 1%;
+    white-space: nowrap;
+}
+
 /* Same as pretty but without the alternating row colors since we will handle that manually. */
 table.pretty-nested {
     border-collapse: collapse;

@@ -17,12 +17,25 @@ class quantify extends quantify_shared {
 
     
     // job_id represents the analysis id, not the identify id.
-    public function __construct($db, $job_id, $is_debug = false) {
-        parent::__construct($db);
+    public function __construct($db, $job_id, $is_example = false, $is_debug = false) {
+        parent::__construct($db, $is_example);
         $this->set_id($job_id);
         $this->db = $db;
         $this->is_debug = $is_debug;
+
+        if ($this->is_example) {
+            $this->init_example();
+        }
+
         $this->load_job();
+    }
+
+    private function init_example() {
+        $config_file = example_config::get_config_file();
+        $config = example_config::get_config($config_file);
+        $this->q_table = example_config::get_cgfp_quantify_table($config);
+        $this->id_table = example_config::get_cgfp_identify_table($config);
+        $this->ex_data_dir = example_config::get_cgfp_data_dir($config);
     }
 
     public static function create($db, $identify_id, $metagenome_ids, $search_type, $mg_db_id = "", $job_name = "") {
@@ -217,8 +230,11 @@ class quantify extends quantify_shared {
     }
 
     private function load_job() {
-        $sql = "SELECT quantify.*, identify_email, identify_key, identify_params, identify_parent_id FROM quantify ";
-        $sql .= "JOIN identify ON quantify.quantify_identify_id = identify.identify_id WHERE quantify_id='" . $this->get_id() . "'";
+        $q_table = $this->is_example ? $this->q_table : "quantify";
+        $id_table = $this->is_example ? $this->id_table : "identify";
+
+        $sql = "SELECT $q_table.*, identify_email, identify_key, identify_params, identify_parent_id FROM $q_table ";
+        $sql .= "JOIN $id_table ON $q_table.quantify_identify_id = $id_table.identify_id WHERE quantify_id='" . $this->get_id() . "'";
         $result = $this->db->query($sql);
 
         if (!$result) {
@@ -233,7 +249,7 @@ class quantify extends quantify_shared {
 
         if (isset($result['identify_parent_id']) && $result['identify_parent_id']) {
             $this->identify_parent_id = $result['identify_parent_id'];
-            $sql = "SELECT identify_params FROM identify WHERE identify_id='" . $result['identify_parent_id'] . "'";
+            $sql = "SELECT identify_params FROM $id_table WHERE identify_id='" . $result['identify_parent_id'] . "'";
             $parent_result = $this->db->query($sql);
             $iparams2 = global_functions::decode_object($parent_result[0]['identify_params']);
             $params = array_merge($qparams, $iparams2, $iparams);
@@ -328,11 +344,12 @@ class quantify extends quantify_shared {
     }
     public function get_identify_output_path($parent_id = 0) {
         $id = $parent_id ? $parent_id : $this->identify_id;
-        $base_path = settings::get_output_dir() . "/" . $id;
+        if ($this->is_example)
+            $out_dir = $this->ex_data_dir;
+        else
+            $out_dir = settings::get_output_dir();
+        $base_path = "$out_dir/$id";
         $path = $base_path . "/" . settings::get_rel_output_dir();
-        //TODO: remove for production
-        if (!file_exists($path))
-            $path = $base_path . "/" . settings::get_rel_output_dir_legacy();
         return $path;
     }
     protected function get_quantify_output_path() {

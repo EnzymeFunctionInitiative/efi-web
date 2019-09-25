@@ -12,7 +12,8 @@ if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
     error500("Unable to find the requested job.");
 }
 
-$generate = new stepa($db,$_GET['id']);
+$is_example = isset($_GET["x"]);
+$generate = new stepa($db, $_GET['id'], $is_example);
 $gen_id = $generate->get_id();
 $key = $_GET['key'];
 
@@ -136,7 +137,7 @@ if (isset($_GET["as-table"])) {
 $use_advanced_options = global_settings::advanced_options_enabled();
 
 $gen_type = $generate->get_type();
-$generate = dataset_shared::create_generate_object($gen_type, $db);
+$generate = dataset_shared::create_generate_object($gen_type, $db, $is_example);
 
 $uniref = dataset_shared::get_uniref_version($gen_type, $generate);
 $job_name = $generate->get_job_name();
@@ -144,7 +145,7 @@ $use_domain = dataset_shared::get_domain($gen_type, $generate) == "on";
 
 
 $table = new table_builder($table_format);
-dataset_shared::add_generate_summary_table($generate, $table, false);
+dataset_shared::add_generate_summary_table($generate, $table, false, $is_example);
 $table_string = $table->as_string();
 
 
@@ -165,6 +166,7 @@ if (isset($_GET["as-table"])) {
         'key'=>$generate->get_key()));
 
     function make_plot_download($gen, $hdr, $type, $preview_img, $download_img, $plot_exists) {
+        global $is_example;
         $html = ""; //"<span class='plot-header'>$hdr</span> \n";
         if (!$plot_exists) {
             $html .= "Unable to be generated";
@@ -176,7 +178,8 @@ if (isset($_GET["as-table"])) {
     <center>
         <img src='$preview_img' />
 HTML;
-            $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
+            $ex_param = $is_example ? "&x=1" : "";
+            $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "$ex_param'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
             $html .= <<<HTML
     </center>
 </div>
@@ -257,7 +260,9 @@ is a measure of the similarity between sequence pairs.
     <ul class="">
         <li class="ui-tabs-active"><a href="#info">Dataset Summary</a></li>
         <li><a href="#graphs">Dataset Analysis</a></li>
+        <?php if (!$is_example) { ?>
         <li><a href="#final">SSN Finalization</a></li>
+        <?php } ?>
         <?php if (count($ssn_jobs) > 0) { ?>
         <li><a href="#jobs">SSNs Created From this Dataset</a></li>
         <?php } ?>
@@ -269,7 +274,7 @@ is a measure of the similarity between sequence pairs.
             The parameters for generating the initial dataset are summarized in the table. 
             </p>
             
-            <table width="100%" class="pretty">
+            <table width="100%" class="pretty no-stretch">
                 <?php echo $table_string; ?>
             </table>
             <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
@@ -309,8 +314,11 @@ were computed.
 The descriptions for the histograms and plots guide the choice of the values 
 for the "Alignment Score Threshold" and the Minimum and Maximum "Sequence 
 Length Restrictions" that are applied to the sequences and edges to generate 
-the SSN.  These values are entered using the "SSN Finalization" tab on this 
-page.
+the SSN.
+
+<?php if (!$is_example) { ?>
+These values are entered using the "SSN Finalization" tab on this page.
+<?php } ?>
 </p>
 
             <div class="option-panels stepc-graphs">
@@ -558,12 +566,15 @@ histogram).</p>
 <?php } ?>
             </div>
 
+<?php if (!$is_example) { ?>
             <p>
             Enter chosen <b>Sequence Length Restriction</b> and <b>Alignment Score Threshold</b> in the <a href="#" id="final-link">SSN Finalization tab</a>.
             </p>
+<?php } ?>
         </div>
 
 
+        <?php if (!$is_example) { ?>
         <!-- FINALIZATION -->
         <div id="final">
             <form name="define_length" method="post" action="<?php echo $url; ?>" class="align_left" enctype="multipart/form-data">
@@ -701,6 +712,7 @@ Protein_ID_3,Cluster#
             
             </form>
         </div>
+        <?php } ?>
 
 
         <?php if (count($ssn_jobs) > 0) { ?>
@@ -712,6 +724,7 @@ Protein_ID_3,Cluster#
             <ul>
 
             <?php
+                    $ex_param = $is_example ? "&x=1" : "";
                     foreach ($ssn_jobs as $job_id => $job_info) {
                         $ssn_name = $job_info["name"];
                         $ssn_ascore = $job_info["ascore"];
@@ -729,7 +742,7 @@ Protein_ID_3,Cluster#
 
                         echo "<li>";
                         if ($status == __FINISH__)
-                            echo "<a href=\"stepe.php?id=$gen_id&key=$key&analysis_id=$job_id\">";
+                            echo "<a href=\"stepe.php?id=$gen_id&key=$key&analysis_id=$job_id$ex_param\">";
                         echo "$ssn_name AS=$ssn_ascore $min_text $max_text (Analysis ID=$job_id)";
                         if ($status == __FINISH__)
                             echo "</a>";

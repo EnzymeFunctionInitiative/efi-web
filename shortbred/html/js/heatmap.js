@@ -43,11 +43,13 @@ class QuantifyResults {
     }
 
     doFormPost(params, responseCallback) {
-        if (this.params.Example) {
-            params.append("example", 1);
+        if (this.params.StaticExample) {
+            params.append("static-example", 1);
         } else {
             params.append("id", this.params.Id);
             params.append("key", this.params.Key);
+            if (this.params.DynamicExample)
+                params.append("x", 1);
             if (this.params.QuantifyId)
                 params.append("quantify-id", this.params.QuantifyId);
         }
@@ -557,7 +559,7 @@ class HeatmapApp extends QuantifyResults {
         }
     
         var title = "Abundances";
-        if (!this.params.Example)
+        if (!this.params.StaticExample)
             title += " for Identify " + this.params.Id + ", Quantify " + this.params.QuantifyId;
     
         if (this.params.FileName || this.params.SearchType || this.params.RefDb || this.params.CdHitSid || this.params.DiamondSens)

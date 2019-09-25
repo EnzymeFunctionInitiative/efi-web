@@ -17,7 +17,12 @@ $the_id = "";
 $q_id = "";
 $job_obj = NULL;
 
-if (isset($_POST["example"])) {
+// There are two types of examples: dynamic and static.  The static example is a curated
+// example pulled into the entry screen.  The dynamic examples are the same as other
+// jobs, except they are stored in separate directories/tables.
+$is_example = isset($_POST["x"]) ? true : false;
+
+if (isset($_POST["static-example"])) {
     $ex_dir = settings::get_example_dir();
     if (file_exists($ex_dir)) {
         $web_path = settings::get_example_web_path();
@@ -30,9 +35,9 @@ if (isset($_POST["example"])) {
     $the_id = $_POST["id"];
     if (isset($_POST["quantify-id"]) && is_numeric($_POST["quantify-id"])) {
         $q_id = $_POST["quantify-id"];
-        $job_obj = new quantify($db, $q_id);
+        $job_obj = new quantify($db, $q_id, $is_example);
     } else {
-        $job_obj = new identify($db, $the_id);
+        $job_obj = new identify($db, $the_id, $is_example);
     }
 
     if ($job_obj->get_key() != $_POST["key"]) {

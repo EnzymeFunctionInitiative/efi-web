@@ -1,8 +1,9 @@
 <?php
 
-require_once("functions.class.inc.php");
-require_once("settings.class.inc.php");
-require_once("job_shared.class.inc.php");
+require_once(__DIR__ . "/functions.class.inc.php");
+require_once(__DIR__ . "/settings.class.inc.php");
+require_once(__DIR__ . "/job_shared.class.inc.php");
+require_once(__BASE_DIR__ . "/training/libs/example_config.class.inc.php");
 
 // ShortBRED-Identify
 class identify extends job_shared {
@@ -18,6 +19,7 @@ class identify extends job_shared {
     private $diamond_sens = "";
     private $db_mod = "";
     private $est_id = 0;
+    private $ex_data_dir = "";
 
 
     public function get_cdhit_sid() {
@@ -43,12 +45,25 @@ class identify extends job_shared {
 
 
 
-    public function __construct($db, $job_id, $is_debug = false) {
-        parent::__construct($db);
+    public function __construct($db, $job_id, $is_example = false, $is_debug = false) {
+        parent::__construct($db, $is_example);
         $this->set_id($job_id);
         $this->db = $db;
         $this->is_debug = $is_debug;
-        $this->load_job();
+        
+        if ($this->is_example)
+            $this->init_example();
+        if (!$this->load_job())
+            die();
+    }
+
+    private function init_example() {
+        $config_file = example_config::get_config_file();
+        $config = example_config::get_config($config_file);
+        if ($config === false)
+            die();
+        $this->id_table = example_config::get_cgfp_identify_table($config);
+        $this->ex_data_dir = example_config::get_cgfp_data_dir($config);
     }
 
     public static function create($db, $email, $tmp_filename, $filename, $create_params) {
@@ -328,7 +343,9 @@ class identify extends job_shared {
     }
 
     private function load_job() {
-        $sql = "SELECT * FROM identify WHERE identify_id='" . $this->get_id() . "'";
+        $table = $this->is_example ? $this->id_table : "identify";
+
+        $sql = "SELECT * FROM $table WHERE identify_id='" . $this->get_id() . "'";
         $result = $this->db->query($sql);
 
         if (!$result) {
@@ -340,7 +357,7 @@ class identify extends job_shared {
         $params = global_functions::decode_object($result['identify_params']);
 
         if (isset($result['identify_parent_id'])) {
-            $sql = "SELECT identify_params FROM identify WHERE identify_id='" . $result['identify_parent_id'] . "'";
+            $sql = "SELECT identify_params FROM $table WHERE identify_id='" . $result['identify_parent_id'] . "'";
             $parent_result = $this->db->query($sql);
             $params2 = global_functions::decode_object($parent_result[0]['identify_params']);
             if (isset($params2['est_id']))
@@ -519,7 +536,11 @@ class identify extends job_shared {
 
     public function get_results_path($parent_id = 0) {
         $id = $parent_id > 0 ? $parent_id : $this->get_id();
-        $out_dir = settings::get_output_dir() . "/" . $id;
+        if ($this->is_example)
+            $out_dir = $this->ex_data_dir;
+        else
+            $out_dir = settings::get_output_dir();
+        $out_dir .= "/" . $id;
         $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
         //TODO: get rid of this test in production
         if (!file_exists($res_dir))
@@ -529,11 +550,14 @@ class identify extends job_shared {
 
     public function get_ssn_http_path() {
         $id = $this->get_id();
-        $test_path = settings::get_output_dir() . "/$id/" . settings::get_rel_output_dir();
+        
+        if ($this->is_example)
+            $out_dir = $this->ex_data_dir;
+        else
+            $out_dir = settings::get_output_dir();
+        $test_path = "$out_dir/$id/" . settings::get_rel_output_dir();
+
         $res_dir = settings::get_rel_output_dir();
-        //TODO: remove for production
-        if (!file_exists($test_path))
-            $res_dir = settings::get_rel_output_dir_legacy();
         return "$id/$res_dir/" . $this->get_ssn_name();
     }
     
@@ -557,7 +581,7 @@ class identify extends job_shared {
         return $path;
     }
 
-    public function get_full_ssn_path() {
+    private function get_full_ssn_path() {
         if ($this->est_id) {
             $dir = global_functions::get_est_job_results_path($this->est_id);
             $file_path = $dir . "/" . $this->get_filename();
@@ -639,7 +663,11 @@ class identify extends job_shared {
         if ($parent_id)
             $id = $parent_id;
 
-        $out_dir = settings::get_output_dir() . "/" . $id;
+        if ($this->is_example)
+            $out_dir = $this->ex_data_dir;
+        else
+            $out_dir = settings::get_output_dir();
+        $out_dir .= "/" . $id;
         $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
         //TODO: get rid of this test in production
         if (!file_exists($res_dir))

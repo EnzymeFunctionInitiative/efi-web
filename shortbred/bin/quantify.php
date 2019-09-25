@@ -21,7 +21,7 @@ else {
 
             print "\nProcessing $jobId\n";
 
-            $job = new quantify($db, $jobId, $is_debug);
+            $job = new quantify($db, $jobId, false, $is_debug);
             $msg = $job->run_job();
             
             if (!$msg) {

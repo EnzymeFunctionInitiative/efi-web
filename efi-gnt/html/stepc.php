@@ -3,8 +3,16 @@ require_once("../includes/main.inc.php");
 require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
+
+$is_example = isset($_GET["x"]);
+
 if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
-    $gnn = new gnn($db,$_GET['id']);
+    if ($is_example) {
+        $gnn = new gnn_example($db, $_GET['id']);
+    } else {
+        $gnn = new gnn($db, $_GET['id']);
+    }
+
     $gnnId = $gnn->get_id();
     $gnnKey = $gnn->get_key();
     if ($gnnKey != $_GET['key']) {
@@ -53,7 +61,7 @@ if (isset($_GET["as-table"])) {
 }
 
 
-$allow_regenerate = !$gnn->has_parent();
+$allow_regenerate = !$gnn->has_parent() && !$is_example;
 $cooccurrence = $gnn->get_cooccurrence();
 
 
@@ -61,9 +69,11 @@ $cooccurrence = $gnn->get_cooccurrence();
 $ssnFile = $gnn->get_relative_color_ssn();
 $ssnZipFile = $gnn->get_relative_color_ssn_zip_file();
 $ssnFilesize = format_file_size($gnn->get_color_ssn_filesize());
+$ssnZipFilesize = format_file_size($gnn->get_color_ssn_zip_filesize());
 $gnnFile = $gnn->get_relative_gnn();
 $gnnZipFile = $gnn->get_relative_gnn_zip_file();
 $gnnFilesize = format_file_size($gnn->get_gnn_filesize());
+$gnnZipFilesize = format_file_size($gnn->get_gnn_zip_filesize());
 $pfamFile = $gnn->get_relative_pfam_hub();
 $pfamZipFile = $gnn->get_relative_pfam_hub_zip_file();
 $pfamFilesize = format_file_size($gnn->get_pfam_hub_filesize());
@@ -119,14 +129,14 @@ $hubCountFilesize = $gnn->get_hub_count_filesize();
 $hasDiagrams = $gnn->does_job_have_arrows();
 $diagramFile = $gnn->get_relative_diagram_data_file();
 $diagramZipFile = $gnn->get_relative_diagram_zip_file();
-$diagramFileSize = format_file_size($gnn->get_diagram_data_filesize());
-$diagramZipFileSize = format_file_size($gnn->get_diagram_zip_filesize());
+$diagramFilesize = format_file_size($gnn->get_diagram_data_filesize());
+$diagramZipFilesize = format_file_size($gnn->get_diagram_zip_filesize());
 $clusterSizesFile = $gnn->get_relative_cluster_sizes_file();
-$clusterSizesFileSize = $gnn->get_cluster_sizes_filesize();
+$clusterSizesFilesize = $gnn->get_cluster_sizes_filesize();
 $swissprotClustersDescFile = $gnn->get_relative_swissprot_desc_file(true);
-$swissprotClustersDescFileSize = $gnn->get_swissprot_desc_filesize(true);
+$swissprotClustersDescFilesize = $gnn->get_swissprot_desc_filesize(true);
 $swissprotSinglesDescFile = $gnn->get_relative_swissprot_desc_file(false);
-$swissprotSinglesDescFileSize = $gnn->get_swissprot_desc_filesize(false);
+$swissprotSinglesDescFilesize = $gnn->get_swissprot_desc_filesize(false);
 
 $otherFiles = array();
 
@@ -176,7 +186,7 @@ if ($fastaUniRef50DomainZipFilesize)
 if ($pfamNoneZip)
     array_push($otherFiles, array($pfamNoneZip, format_file_size($pfamNoneZipFilesize), "Neighbors without Pfam assigned"));
 
-if ($warningFile or $coocTableFile or $hubCountFile or $clusterSizesFileSize !== false or $swissprotClustersDescFileSize !== false or $swissprotSinglesDescFileSize !== false)
+if ($warningFile or $coocTableFile or $hubCountFile or $clusterSizesFilesize !== false or $swissprotClustersDescFilesize !== false or $swissprotSinglesDescFilesize !== false)
     array_push($otherFiles, array("Miscellaneous Files"));
 if ($warningFile)
     array_push($otherFiles, array($warningFile, format_file_size($warningFilesize), "No matches/no neighbors file"));
@@ -184,15 +194,18 @@ if ($coocTableFile)
     array_push($otherFiles, array($coocTableFile, format_file_size($coocTableFilesize), "Pfam family/cluster co-occurrence table file"));
 if ($hubCountFile)
     array_push($otherFiles, array($hubCountFile, format_file_size($hubCountFilesize), "GNN hub cluster sequence count file"));
-if ($clusterSizesFileSize !== false)
-    array_push($otherFiles, array($clusterSizesFile, format_file_size($clusterSizesFileSize), "Cluster size file"));
-if ($swissprotClustersDescFileSize !== false)
-    array_push($otherFiles, array($swissprotClustersDescFile, format_file_size($swissprotClustersDescFileSize), "SwissProt annotations per SSN cluster"));
-if ($swissprotSinglesDescFileSize !== false)
-    array_push($otherFiles, array($swissprotSinglesDescFile, format_file_size($swissprotSinglesDescFileSize), "SwissProt annotations by singleton"));
+if ($clusterSizesFilesize !== false)
+    array_push($otherFiles, array($clusterSizesFile, format_file_size($clusterSizesFilesize), "Cluster size file"));
+if ($swissprotClustersDescFilesize !== false)
+    array_push($otherFiles, array($swissprotClustersDescFile, format_file_size($swissprotClustersDescFilesize), "SwissProt annotations per SSN cluster"));
+if ($swissprotSinglesDescFilesize !== false)
+    array_push($otherFiles, array($swissprotSinglesDescFile, format_file_size($swissprotSinglesDescFilesize), "SwissProt annotations by singleton"));
 
 $gnn_name = $gnn->get_gnn_name();
 $useDiagramsV3 = $gnn->get_diagram_version() >= 3;
+
+$file_size_col_hdr = $is_example ? "(Zipped MB)" : "(Unzipped/Zipped MB)";
+$ex_param = $is_example ? "&x=1" : "";
 
 require_once('inc/header.inc.php'); 
 
@@ -240,19 +253,31 @@ require_once('inc/header.inc.php');
                     <th></th>
                     <th># Nodes</th>
                     <th># Edges</th>
-                    <th>File Size (MB)</th>
+                    <th>File Size <?php echo $file_size_col_hdr; ?></th>
                 </thead>
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
+                            <?php if (!$is_example) { ?>
                             <a href="<?php echo "$baseUrl/$ssnFile" ?>"><button class="mini">Download</button></a>
+                            <?php } ?>
                             <?php if ($ssnZipFile) { ?>
                             <a href="<?php echo "$baseUrl/$ssnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
                             <?php } ?>
                         </td>
                         <td><?php echo number_format($gnn->get_ssn_nodes()); ?></td>
                         <td><?php echo number_format($gnn->get_ssn_edges()); ?></td>
-                        <td><?php echo $ssnFilesize; ?>MB</td>
+                        <td>
+                            <?php
+                            if ($is_example) {
+                                echo "$ssnZipFilesize MB";
+                            } else {
+                                echo "$ssnFilesize MB";
+                                if ($ssnZipFilesize)
+                                    echo "/ $ssnZipFilesize MB";
+                            }
+                            ?>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -275,17 +300,29 @@ require_once('inc/header.inc.php');
             <table width="100%" class="pretty">
                 <thead>
                     <th></th>
-                    <th>File Size (MB)</th>
+                    <th>File Size <?php echo $file_size_col_hdr; ?></th>
                 </thead>
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
+                            <?php if (!$is_example) { ?>
                             <a href="<?php echo "$baseUrl/$gnnFile"; ?>"><button class="mini">Download</button></a>
+                            <?php } ?>
                             <?php if ($gnnZipFile) { ?>
                             <a href="<?php echo "$baseUrl/$gnnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
                             <?php } ?>
                         </td>
-                        <td><?php echo $gnnFilesize; ?>MB</td>
+                        <td>
+                            <?php
+                            if ($is_example) {
+                                echo "$gnnZipFilesize MB";
+                            } else {
+                                echo "$gnnFilesize MB";
+                                if ($gnnZipFilesize)
+                                    echo "/ $gnnZipFilesize MB";
+                            }
+                            ?>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -300,19 +337,28 @@ require_once('inc/header.inc.php');
             <table width="100%" class="pretty">
                 <thead>
                     <th></th>
-                    <th>File Size (Unzipped/Zipped MB)</th>
+                    <th>File Size <?php echo $file_size_col_hdr; ?></th>
                 </thead>
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
+                            <?php if (!$is_example) { ?>
                             <a href="<?php echo "$baseUrl/$pfamFile"; ?>"><button class="mini">Download</button></a>
+                            <?php } ?>
                             <?php if ($pfamZipFile) { ?>
                             <a href="<?php echo "$baseUrl/$pfamZipFile"; ?>"><button class="mini">Download ZIP</button></a>
                             <?php } ?>
                         </td>
                         <td>
-                            <?php echo $pfamFilesize; ?> MB
-                            <?php if ($pfamZipFilesize) { echo "/ $pfamZipFilesize MB"; } ?>
+                            <?php
+                            if ($is_example) {
+                                echo "$pfamZipFilesize MB";
+                            } else {
+                                echo "$pfamFilesize MB";
+                                if ($pfamZipFilesize)
+                                    echo "/ $pfamZipFilesize MB";
+                            }
+                            ?>
                         </td>
                     </tr>
                 </tbody>
@@ -332,16 +378,16 @@ require_once('inc/header.inc.php');
                 <thead>
                     <th>Action</th>
                     <th></th>
-                    <th>File Size (Unzipped/Zipped MB)</th>
+                    <th>File Size <?php echo $file_size_col_hdr; ?></th>
                 </thead>
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
-<?php if ($useDiagramsV3) { ?>
-                            <a href="view_diagrams_v3.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?>" target="_blank"><button class="mini">View diagrams</button></a>
-<?php } else { ?>
+                            <?php if ($useDiagramsV3) { ?>
+                            <a href="view_diagrams_v3.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?><?php echo $ex_param; ?>" target="_blank"><button class="mini">View diagrams</button></a>
+                            <?php } else { ?>
                             <a href="view_diagrams.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?>" target="_blank"><button class="mini">View diagrams</button></a>
-<?php } ?>
+                            <?php } ?>
                         </td>
                         <td colspan="2">
                             Opens GND explorer in a new tab.
@@ -349,8 +395,10 @@ require_once('inc/header.inc.php');
                     </tr>
                     <tr style="text-align:center;">
                         <td class="button-col">
+                            <?php if (!$is_example) { ?>
                             <a href="<?php echo "$baseUrl/$diagramFile"; ?>"><button class="mini">Download</button></a>
-                            <?php if ($diagramZipFileSize) { ?>
+                            <?php } ?>
+                            <?php if ($diagramZipFilesize) { ?>
                             <a href="<?php echo "$baseUrl/$diagramZipFile"; ?>"><button class="mini">Download ZIP</button></a>
                             <?php } ?>
                         </td>
@@ -358,8 +406,15 @@ require_once('inc/header.inc.php');
                             Diagram data for later review
                         </td>
                         <td>
-                            <?php echo $diagramFileSize; ?> MB
-                            <?php if ($diagramZipFileSize) { echo "/ $diagramZipFileSize MB"; } ?>
+                            <?php
+                            if ($is_example) {
+                                echo "$diagramZipFilesize MB";
+                            } else {
+                                echo "$diagramFilesize MB";
+                                if ($diagramZipFilesize)
+                                    echo "/ $diagramZipFilesize MB";
+                            }
+                            ?>
                         </td>
                     </tr>
                 </tbody>
