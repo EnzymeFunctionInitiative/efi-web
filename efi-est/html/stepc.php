@@ -21,7 +21,7 @@ if ($generate->get_key() != $_GET['key']) {
     error500("Unable to find the requested job.");
 }
 
-if ($generate->is_expired()) {
+if (!$is_example && $generate->is_expired()) {
     require_once("inc/header.inc.php");
     echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days(). " days";
     echo "<br>Your job was completed on " . $generate->get_time_completed();
@@ -148,76 +148,78 @@ $table = new table_builder($table_format);
 dataset_shared::add_generate_summary_table($generate, $table, false, $is_example);
 $table_string = $table->as_string();
 
+$ex_param = $is_example ? "&x=1" : "";
 
 if (isset($_GET["as-table"])) {
     $file_job_name = $gen_id . "_" . $gen_type;
     $table_filename = functions::safe_filename($file_job_name) . "_summary.txt";
 
     dataset_shared::send_table($table_filename, $table_string);
-} else {
+    exit(0);
+}
 
-    $IncludePlotlyJs = true;
-    require_once("inc/header.inc.php");
+$IncludePlotlyJs = true;
+require_once("inc/header.inc.php");
 
 
-    $date_completed = $generate->get_time_completed_formatted();
+$date_completed = $generate->get_time_completed_formatted();
 
-    $url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$generate->get_id(),
-        'key'=>$generate->get_key()));
+$url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$generate->get_id(),
+    'key'=>$generate->get_key()));
 
-    function make_plot_download($gen, $hdr, $type, $preview_img, $download_img, $plot_exists) {
-        global $is_example;
-        $html = ""; //"<span class='plot-header'>$hdr</span> \n";
-        if (!$plot_exists) {
-            $html .= "Unable to be generated";
-            return;
-        }
-        if ($preview_img) {
-            $html .= <<<HTML
+function make_plot_download($gen, $hdr, $type, $preview_img, $download_img, $plot_exists) {
+    global $is_example;
+    $html = ""; //"<span class='plot-header'>$hdr</span> \n";
+    if (!$plot_exists) {
+        $html .= "Unable to be generated";
+        return;
+    }
+    if ($preview_img) {
+        $html .= <<<HTML
 <div>
     <center>
         <img src='$preview_img' />
 HTML;
-            $ex_param = $is_example ? "&x=1" : "";
-            $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "$ex_param'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
-            $html .= <<<HTML
+        $ex_param = $is_example ? "&x=1" : "";
+        $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "$ex_param'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
+        $html .= <<<HTML
     </center>
 </div>
 HTML;
-        } else {
-            $html .= "<a href='$download_img'><button class='file_download'>Preview</button></a>\n";
-        }
-
-        return $html;
+    } else {
+        $html .= "<a href='$download_img'><button class='file_download'>Preview</button></a>\n";
     }
 
-    function make_histo_plot_download($gen, $hdr, $plot_type) {
-        $download_type = $gen->get_length_histogram_download_type($plot_type);
-        $web_path = $gen->get_length_histogram($plot_type, true, true);
-        $large_web_path = $gen->get_length_histogram($plot_type, true, false);
-        $plot_exists = $web_path ? true : false;
-        if (!$plot_exists) {
-            $plot_type = "";
-            $use_v2 = false;
-            $download_type = $gen->get_length_histogram_download_type($plot_type, $use_v2);
-            $web_path = $gen->get_length_histogram($plot_type, true, true, $use_v2);
-            $large_web_path = $gen->get_length_histogram($plot_type, true, false, $use_v2);
-            $plot_exists = $large_web_path ? true : false;
-        }
-        return make_plot_download($gen, $hdr, $download_type, $web_path, $large_web_path, $plot_exists); 
+    return $html;
+}
+
+function make_histo_plot_download($gen, $hdr, $plot_type) {
+    $download_type = $gen->get_length_histogram_download_type($plot_type);
+    $web_path = $gen->get_length_histogram($plot_type, true, true);
+    $large_web_path = $gen->get_length_histogram($plot_type, true, false);
+    $plot_exists = $web_path ? true : false;
+    if (!$plot_exists) {
+        $plot_type = "";
+        $use_v2 = false;
+        $download_type = $gen->get_length_histogram_download_type($plot_type, $use_v2);
+        $web_path = $gen->get_length_histogram($plot_type, true, true, $use_v2);
+        $large_web_path = $gen->get_length_histogram($plot_type, true, false, $use_v2);
+        $plot_exists = $large_web_path ? true : false;
     }
+    return make_plot_download($gen, $hdr, $download_type, $web_path, $large_web_path, $plot_exists); 
+}
 
-    function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {
-        $plot = plots::get_plot($gen, $plot_id);
-        if (!$plot || !$plot->has_data())
-            return "";
+function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {
+    $plot = plots::get_plot($gen, $plot_id);
+    if (!$plot || !$plot->has_data())
+        return "";
 
-        $data = $plot->render_data(); // Javascript notation
-        $plotly = $plot->render_plotly_config(); // Javascript code
-        $trace_var = $plot->get_trace_var();
-        $layout_var = $plot->get_layout_var();
+    $data = $plot->render_data(); // Javascript notation
+    $plotly = $plot->render_plotly_config(); // Javascript code
+    $trace_var = $plot->get_trace_var();
+    $layout_var = $plot->get_layout_var();
 
-        $html = <<<HTML
+    $html = <<<HTML
                 <div>
                     <center>
                     <div id="$plot_div"></div>
@@ -229,13 +231,13 @@ HTML;
                     </script>
                 </div>
 HTML;
-        echo $html;
-    }
+    echo $html;
+}
 
 
-    $ssn_jobs = $generate->get_analysis_jobs();
+$ssn_jobs = $generate->get_analysis_jobs();
 
-    $use_v2_graphs = $generate->get_graphs_version() >= 2;
+$use_v2_graphs = $generate->get_graphs_version() >= 2;
 
 ?>	
 
@@ -277,7 +279,7 @@ is a measure of the similarity between sequence pairs.
             <table width="100%" class="pretty no-stretch">
                 <?php echo $table_string; ?>
             </table>
-            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
+            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1$ex_param" ?>'><button class="normal">Download Information</button></a></div>
             <div style="clear: both"></div>
         </div>
 
@@ -724,7 +726,6 @@ Protein_ID_3,Cluster#
             <ul>
 
             <?php
-                    $ex_param = $is_example ? "&x=1" : "";
                     foreach ($ssn_jobs as $job_id => $job_info) {
                         $ssn_name = $job_info["name"];
                         $ssn_ascore = $job_info["ascore"];
@@ -844,8 +845,7 @@ for (var i = 0; i < acc.length; i++) {
 <?php } ?>
 <?php
 
-    require_once("inc/footer.inc.php");
-}
+require_once("inc/footer.inc.php");
 
 
 ?>
