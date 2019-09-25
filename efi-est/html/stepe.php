@@ -24,6 +24,19 @@ $key = $_GET['key'];
 $analysis_id = $_GET['analysis_id'];
 $analysis = new analysis($db, $analysis_id, $is_example);
 
+
+if (!$is_example && $analysis->is_expired()) {
+    require_once("inc/header.inc.php");
+    echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days() . " days.";
+    echo "<br>Your job was completed on " . $analysis->get_time_completed();
+    echo "<br>Please go back to the <a href='" . functions::get_server_name() . "'>homepage</a></p>";
+    require_once("inc/footer.inc.php");
+    exit;
+}
+
+
+
+
 $mig_info = functions::get_gnt_migrate_info($db, $analysis_id);
 $is_migrated = false;
 if ($mig_info !== false) {
@@ -45,7 +58,7 @@ if (isset($_GET["as-table"])) {
 $table = new table_builder($table_format);
 
 $gen_type = $generate->get_type();
-$generate = dataset_shared::create_generate_object($gen_type, $db);
+$generate = dataset_shared::create_generate_object($gen_type, $db, $is_example);
 $stats = $analysis->get_network_stats();
 
 $table = new table_builder($table_format);
@@ -59,11 +72,13 @@ dataset_shared::add_generate_summary_table($generate, $table, true, $is_example)
 $table_string = $table->as_string();
 
 
+$ex_param = $is_example ? "&x=1" : "";
 
 if (isset($_GET["as-table"])) {
     $table_filename = functions::safe_filename($analysis->get_name()) . "_SSN_overview.txt";
 
     dataset_shared::send_table($table_filename, $table_string);
+    exit(0);
 } elseif (isset($_GET["stats-as-table"])) {
 
     $stats = $analysis->get_network_stats();
@@ -86,102 +101,95 @@ if (isset($_GET["as-table"])) {
     $table_filename = functions::safe_filename($analysis->get_name()) . "_stats.txt";
 
     dataset_shared::send_table($table_filename, $table_string);
+    exit(0);
 }
-else {
 
-    if ($analysis->is_expired()) {
-        echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days() . " days.";
-        echo "<br>Your job was completed on " . $analysis->get_time_completed();
-        echo "<br>Please go back to the <a href='" . functions::get_server_name() . "'>homepage</a></p>";
-        exit;
-    }
+require_once("inc/header.inc.php");
 
-    // $stats is set above
-    $rep_network_html = "";
-    $full_network_html = "";
-    $full_edge_count = 0;
-    $network_sel_list = array();
+// $stats is set above
+$rep_network_html = "";
+$full_network_html = "";
+$full_edge_count = 0;
+$network_sel_list = array();
 
-    $color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
-        $js_code = "";
-        $html = " <button class='mini colorssn-btn' type='button' onclick='$js_code' data-aid='$analysis_id' data-ssn-index='$ssn_index'>Color SSN</button>";
-        return $html;
-    };
+$color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
+    $js_code = "";
+    $html = " <button class='mini colorssn-btn' type='button' onclick='$js_code' data-aid='$analysis_id' data-ssn-index='$ssn_index'>Color SSN</button>";
+    return $html;
+};
 
-    $res_dir = $is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+$res_dir = $is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
 
-    for ($i = 0; $i < count($stats); $i++) {
-        $gnt_args = "est-id=$analysis_id&est-key=$key&est-ssn=$i";
-        $size = $analysis->get_zip_file_size($stats[$i]['File']);
-        if ($i == 0) {
-            $full_edge_count = number_format($stats[$i]['Edges'], 0);
-            if ($stats[$i]['Nodes'] == 0)
-                continue;
-            $rel_path = $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
-            $path = functions::get_web_root() . "/$res_dir/$rel_path";
-            $full_network_html = "<tr>";
+for ($i = 0; $i < count($stats); $i++) {
+    $gnt_args = "est-id=$analysis_id&est-key=$key&est-ssn=$i";
+    $size = $analysis->get_zip_file_size($stats[$i]['File']);
+    if ($i == 0) {
+        $full_edge_count = number_format($stats[$i]['Edges'], 0);
+        if ($stats[$i]['Nodes'] == 0)
+            continue;
+        $rel_path = $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
+        $path = functions::get_web_root() . "/$res_dir/$rel_path";
+        $full_network_html = "<tr>";
+        $full_network_html .= "<td style='text-align:center;'>";
+        if (!$is_example)
+            $full_network_html .= "<a href='$path'><button class='mini'>Download</button></a>";
+        $full_network_html .= "  <a href='$path.zip'><button class='mini'>Download ZIP</button></a>";
+        $full_network_html .= "</td>\n";
+        $full_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Nodes'],0) . "</td>\n";
+        $full_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
+        $full_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($size, 0) . " MB</td>\n";
+        if (!$is_example) {
             $full_network_html .= "<td style='text-align:center;'>";
-            if (!$is_example)
-                $full_network_html .= "<a href='$path'><button class='mini'>Download</button></a>";
-            $full_network_html .= "  <a href='$path.zip'><button class='mini'>Download ZIP</button></a>";
+            $full_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>GNT Submission</button></a>";
+            $full_network_html .= $color_ssn_code_fn($i);
             $full_network_html .= "</td>\n";
-            $full_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Nodes'],0) . "</td>\n";
-            $full_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
-            $full_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($size, 0) . " MB</td>\n";
-            if (!$is_example) {
-                $full_network_html .= "<td style='text-align:center;'>";
-                $full_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>GNT Submission</button></a>";
-                $full_network_html .= $color_ssn_code_fn($i);
-                $full_network_html .= "</td>\n";
-            }
-            $full_network_html .= "</tr>";
-            $network_sel_list["full"] = $rel_path;
+        }
+        $full_network_html .= "</tr>";
+        $network_sel_list["full"] = $rel_path;
+    } else {
+        $percent_identity = substr($stats[$i]['File'], strrpos($stats[$i]['File'],'-') + 1);
+        $sep_char = "_";
+        $percent_identity = substr($percent_identity, 0, strrpos($percent_identity, $sep_char));
+        $percent_identity = str_replace(".","",$percent_identity);
+        $rel_path = $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
+        $path = functions::get_web_root() . "/$res_dir/$rel_path";
+        $rep_network_html .= "<tr>";
+        if ($stats[$i]['Nodes'] == 0) {
+            $rep_network_html .= "<td style='text-align:center;'>";
         } else {
-            $percent_identity = substr($stats[$i]['File'], strrpos($stats[$i]['File'],'-') + 1);
-            $sep_char = "_";
-            $percent_identity = substr($percent_identity, 0, strrpos($percent_identity, $sep_char));
-            $percent_identity = str_replace(".","",$percent_identity);
-            $rel_path = $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
-            $path = functions::get_web_root() . "/$res_dir/$rel_path";
-            $rep_network_html .= "<tr>";
-            if ($stats[$i]['Nodes'] == 0) {
+            $rep_network_html .= "<td style='text-align:center;'>";
+            if (!$is_example)
+                $rep_network_html .= "<a href='$path'><button class='mini'>Download</button></a>";
+            $rep_network_html .= "  <a href='$path.zip'><button class='mini'>Download ZIP</button></a>";
+            $rep_network_html .= "</td>\n";
+        }
+        $rep_network_html .= "<td style='text-align:center;'>" . $percent_identity . "</td>\n";
+        if ($stats[$i]['Nodes'] == 0) {
+            $rep_network_html .= "<td style='text-align:center;' colspan='4'>The output file was too large (edges=" . 
+                number_format($stats[$i]['Edges'], 0) . ") to be generated by EST.</td>\n";
+        } else {
+            $rep_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Nodes'],0) . "</td>\n";
+            $rep_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
+            $rep_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($size, 0) . " MB</td>\n";
+            if (!$is_example) {
                 $rep_network_html .= "<td style='text-align:center;'>";
-            } else {
-                $rep_network_html .= "<td style='text-align:center;'>";
-                if (!$is_example)
-                    $rep_network_html .= "<a href='$path'><button class='mini'>Download</button></a>";
-                $rep_network_html .= "  <a href='$path.zip'><button class='mini'>Download ZIP</button></a>";
+                $rep_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>GNT Submission</button></a>";
+                $rep_network_html .= $color_ssn_code_fn($i);
                 $rep_network_html .= "</td>\n";
             }
-            $rep_network_html .= "<td style='text-align:center;'>" . $percent_identity . "</td>\n";
-            if ($stats[$i]['Nodes'] == 0) {
-                $rep_network_html .= "<td style='text-align:center;' colspan='4'>The output file was too large (edges=" . 
-                    number_format($stats[$i]['Edges'], 0) . ") to be generated by EST.</td>\n";
-            } else {
-                $rep_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Nodes'],0) . "</td>\n";
-                $rep_network_html .= "<td style='text-align:center;'>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
-                $rep_network_html .= "<td style='text-align:center;'>" . functions::bytes_to_megabytes($size, 0) . " MB</td>\n";
-                if (!$is_example) {
-                    $rep_network_html .= "<td style='text-align:center;'>";
-                    $rep_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>GNT Submission</button></a>";
-                    $rep_network_html .= $color_ssn_code_fn($i);
-                    $rep_network_html .= "</td>\n";
-                }
-            }
-            $rep_network_html .= "</tr>";
-            $network_sel_list[$percent_identity] = $rel_path;
         }
+        $rep_network_html .= "</tr>";
+        $network_sel_list[$percent_identity] = $rel_path;
     }
+}
 
-    $IncludeSubmitJs = true;
-    require_once("inc/header.inc.php");
+$IncludeSubmitJs = true;
 
+$stepa_link = functions::get_web_root() . "/index.php#colorssn";
+$gnt_link = functions::get_gnt_web_root();
 
-    $stepa_link = functions::get_web_root() . "/index.php#colorssn";
-    $gnt_link = functions::get_gnt_web_root();
-
-    $job_name = $generate->get_job_name();
-    $network_name = $analysis->get_name();
+$job_name = $generate->get_job_name();
+$network_name = $analysis->get_name();
 
 ?>	
 
@@ -206,7 +214,7 @@ else {
             <table width="100%" class="pretty no-stretch">
                 <?php echo $table_string; ?>
             </table>
-            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=" . $_GET['key'] . "&analysis_id=" . $_GET['analysis_id'] . "&as-table=1" ?>'><button class='normal'>Download Information</button></a></div>
+            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=" . $_GET['key'] . "&analysis_id=" . $_GET['analysis_id'] . "&as-table=1$ex_param" ?>'><button class='normal'>Download Information</button></a></div>
             <div style="clear: both"></div>
             <?php if ($is_migrated) { ?>
                 <div style="margin-top: 20px;">
@@ -287,7 +295,7 @@ else {
                 <a href="<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] .
                                     "&key=" . $_GET['key'] .
                                     "&analysis_id=" . $_GET['analysis_id'] .
-                                    "&stats-as-table=1" ?>"><button class='mini'>Download Network Statistics as Table</button></a>
+                                    "&stats-as-table=1$ex_param" ?>"><button class='mini'>Download Network Statistics as Table</button></a>
             </div>
             <div style="clear:both"></div>
 
@@ -336,9 +344,7 @@ Would you like to color the SSN?
 
 <?php
 
-    require_once("inc/footer.inc.php");
-
-} // as-table block
+require_once("inc/footer.inc.php");
 
 
 
