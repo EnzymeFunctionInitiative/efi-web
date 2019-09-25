@@ -90,21 +90,26 @@ class global_functions {
     }
 
     public static function get_file_retention_start_date() {
-        $numDays = global_settings::get_file_retention_days();
-        return self::get_prior_date($numDays);
+        $num_days = global_settings::get_file_retention_days();
+        return self::get_prior_date($num_days);
     }
 
     // This is for cleaning up failed jobs, after the specified number of days.
     public static function get_failed_retention_start_date() {
-        $numDays = 14;
-        return self::get_prior_date($numDays);
+        $num_days = 14;
+        return self::get_prior_date($num_days);
     }
 
-    public static function get_prior_date($numDaysInPast) {
+    public static function get_start_date_window() {
+        $num_days = global_settings::get_retention_days();
+        return global_functions::get_prior_date($num_days);
+    }
+
+    public static function get_prior_date($num_days_in_past) {
         $dt = new DateTime();
-        $pastDt = $dt->sub(new DateInterval("P${numDaysInPast}D"));
-        $mysqlDate = $pastDt->format("Y-m-d");
-        return $mysqlDate;
+        $past_date = $dt->sub(new DateInterval("P${num_days_in_past}D"));
+        $mysql_date = $past_date->format("Y-m-d");
+        return $mysql_date;
     }
 
     public static function get_est_results_path() {
@@ -116,8 +121,13 @@ class global_functions {
         return self::get_est_results_path() . "/$out_dir";
     }
 
-    public static function get_est_job_results_relative_path($id) {
+    public static function get_est_job_output_dir() {
         $out_dir = defined("__EST_JOB_RESULTS_DIRNAME__") ? __EST_JOB_RESULTS_DIRNAME__ : "output";
+        return $out_dir;
+    }
+
+    public static function get_est_job_results_relative_path($id) {
+        $out_dir = self::get_est_job_output_dir();
         return "$id/$out_dir";
     }
 

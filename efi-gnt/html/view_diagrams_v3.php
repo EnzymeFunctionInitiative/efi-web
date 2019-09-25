@@ -1,11 +1,13 @@
 
 <?php 
 
-require_once '../includes/main.inc.php';
-require_once '../libs/settings.class.inc.php';
-require_once '../libs/bigscape_job.class.inc.php';
+require_once(__DIR__ . "/../includes/main.inc.php");
+require_once(__DIR__ . "/../libs/settings.class.inc.php");
+require_once(__DIR__ . "/../libs/bigscape_job.class.inc.php");
+require_once(__BASE_DIR__ . "/training/libs/example_config.class.inc.php");
 
 
+$is_example = isset($_GET["x"]) ? true : false;
 
 $gnn_id = "";
 $gnn_key = "";
@@ -22,7 +24,7 @@ $unmatched_id_modal_text = "";
 $blast_seq = "";
 $job_type_text = "";
 
-$is_bigscape_enabled = settings::get_bigscape_enabled();
+$is_bigscape_enabled = settings::get_bigscape_enabled() && !$is_example;
 $is_interpro_enabled = settings::get_interpro_enabled();
 $num_diagrams = settings::get_num_diagrams_per_page();
 $is_uploaded_diagram = false;
@@ -38,7 +40,11 @@ $show_new_features = false;
 if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
     $gnn_key = $_GET['key'];
     $gnn_id = $_GET['gnn-id'];
-    $gnn = new gnn($db, $gnn_id);
+
+    if ($is_example)
+        $gnn = new gnn_example($db, $gnn_id);
+    else
+        $gnn = new gnn($db, $gnn_id);
     $cooccurrence = $gnn->get_cooccurrence();
     $nb_size = $gnn->get_size();
     $max_nb_size = $gnn->get_max_neighborhood_size();
@@ -57,6 +63,8 @@ if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
         $bigscape_type = DiagramJob::GNN;
 
     $id_key_query_string = "gnn-id=$gnn_id&key=$gnn_key";
+    if ($is_example)
+        $id_key_query_string .= "&x=1";
     $gnn_name_text = "GNN <i>$gnn_name</i>";
     $window_title = " for GNN $gnn_name (#$gnn_id)";
 }
@@ -333,7 +341,7 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li><a href="#" id="export-gene-graphics-button"><i class="far fa-image" aria-hidden="true"></i> Export to Gene Graphics</a></li>
-<?php if ($supports_download && !$is_uploaded_diagram) { ?>
+<?php if (!$is_example && $supports_download && !$is_uploaded_diagram) { ?>
                                     <li><a id="download-data" href="download_files.php?<?php echo $id_key_query_string; ?>&type=data-file"
                                         title="Download the data to upload it for future analysis using this tool.">
                                                 <i class="fas fa-download" aria-hidden="true"></i> Download Data as SQLite
@@ -350,7 +358,7 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                             </div>
 <?php } ?>
                             <div>
-                                <a href="view_diagrams.php?<?php echo $id_key_query_string; ?>" target="_blank">
+                                <a href="view_diagrams_v3.php?<?php echo $id_key_query_string; ?>" target="_blank">
                                     <button type="button" class="btn btn-default tool-button">
                                         <i class="fas fa-window-restore" aria-hidden="true"></i> New Window
                                     </button>
@@ -417,6 +425,7 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     <svg id="arrow-canvas" width="100%" style="height:70px" viewBox="0 0 10 70" preserveAspectRatio="xMinYMin"></svg>
                     <div style="margin-top:50px;width:100%;position:fixed;bottom:0;height:50px;margin-bottom:100px">
                         <i id="progress-loader" class="fas fa-sync black fa-spin fa-4x fa-fw hidden-placeholder"></i>
+                        <i id="progress-error" class="fas fa-exclamation-circle black fa-4x fa-fw hidden-placeholder"></i>
                         <span id="loader-message"></span><br>
                         <div class="progress hidden">
                             <div class="progress-bar" style="width: 10%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-bar"></div>
@@ -528,6 +537,7 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     ui.registerShowAllBtn("#show-all-arrows-button");
                     ui.registerWindowUpdateBtn("#refresh-window", "#window-size");
                     ui.registerProgressLoader("#progress-loader");
+                    ui.registerErrorLoader("#progress-error");
                     ui.registerFilterControl("#filter-cb-toggle");
                     ui.registerFilterClear("#filter-clear");
                     ui.registerFilterAnnotation("#filter-anno-toggle", "#filter-anno-toggle-text");
@@ -583,7 +593,7 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     dlForm.attr("method", "POST");
                     dlForm.attr("action", "download_diagram_image.php");
                     dlForm.append('<input type="hidden" name="type" value="svg">');
-                    dlForm.append('<input type="hidden" name="name" value="<?php echo str_replace("'", "\\'", $gnnName); ?>">');
+                    dlForm.append('<input type="hidden" name="name" value="<?php echo str_replace("'", "\\'", $gnn_name); ?>">');
                     dlForm.append('<input type="hidden" name="svg" value="' + svg + '">');
                     dlForm.append('<input type="hidden" name="legend1-svg" value="' + legendSvgMarkup + '">');
                     $("#download-forms").append(dlForm);
@@ -664,7 +674,7 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                             title="Download the list of UniProt IDs that are contained within the diagrams.">
                                 <button type="button" class="btn btn-default" id="save-uniprot-ids-btn">Save to File</button>
                         </a>
-                            <!--                            onclick='saveDataFn("<?php echo "${gnnId}_${gnnName}_UniProt_IDs.txt" ?>", "uniprot-ids")'>Save to File</button>-->
+                            <!--                            onclick='saveDataFn("<?php echo "${gnn_id}_${gnn_name}_UniProt_IDs.txt" ?>", "uniprot-ids")'>Save to File</button>-->
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div><!-- /.modal-content -->
@@ -686,7 +696,7 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                             title="Download the list of IDs that were not matched to a UniProt ID.">
                                 <button type="button" class="btn btn-default" id="save-unmatched-ids-btn">Save to File</button>
                         </a>
-                            <!--                            onclick='saveDataFn("<?php echo "${gnnId}_${gnnName}_Unmatched.txt" ?>", "unmatched-ids")'>Save to File</button>-->
+                            <!--                            onclick='saveDataFn("<?php echo "${gnn_id}_${gnn_name}_Unmatched.txt" ?>", "unmatched-ids")'>Save to File</button>-->
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div><!-- /.modal-content -->

@@ -1,6 +1,8 @@
 <?php
 require_once(__DIR__ . "/../../libs/functions.class.inc.php");
+require_once(__DIR__ . "/../../libs/est_ui.class.inc.php");
 require_once(__DIR__ . "/../../../libs/ui.class.inc.php");
+
 function output_option_a($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
     $default_evalue = get_default_evalue();
     $max_blast_seq = get_max_blast_seq();
@@ -562,11 +564,11 @@ function output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $
             <h4>EST Jobs</h4>
 <?php 
     $show_archive = true;
-    output_job_list($jobs, $show_archive, "sort-jobs-toggle");
+    echo est_ui::output_job_list($jobs, $show_archive, "sort-jobs-toggle");
 
     if (has_jobs($tjobs)) {
         echo "            <h4>Training Resources</h4>\n";
-        output_job_list($tjobs);
+        echo est_ui::output_job_list($tjobs);
     }
 ?>
          </div>

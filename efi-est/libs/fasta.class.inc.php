@@ -12,10 +12,10 @@ class fasta extends family_shared {
     public $subject = "EFI-EST FASTA";
 
     
-    public function __construct($db, $id = 0, $option = "C") {
+    public function __construct($db, $id = 0, $option = "C", $is_example = false) {
         $this->file_helper = new file_helper(".fasta", $id);
         $this->option = $option;
-        parent::__construct($db, $id);
+        parent::__construct($db, $id, $is_example);
     }
 
     public function __destruct() {

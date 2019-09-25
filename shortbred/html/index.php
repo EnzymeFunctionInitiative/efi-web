@@ -4,6 +4,8 @@ require_once("../includes/main.inc.php");
 require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
+require_once(__DIR__ . "/../libs/cgfp_ui.class.inc.php");
+
 
 $user_email = "Enter your e-mail address";
 
@@ -41,9 +43,9 @@ if (user_auth::has_token_cookie()) {
 }
 
 $db_modules = global_settings::get_database_modules();
-$default_cdhit_id = settings::get_default_cdhit_id();
-$default_ref_db = settings::get_default_ref_db();
-$default_search = settings::get_default_identify_search();
+$default_cdhit_id = cgfp_settings::get_default_cdhit_id();
+$default_ref_db = cgfp_settings::get_default_ref_db();
+$default_search = cgfp_settings::get_default_identify_search();
 
 $login_banner_msg = "";
 if (!$IsLoggedIn) {
@@ -122,36 +124,18 @@ nares (nasal cavity), tongue dorsum (surface), and posterior fornix (vagina)].
         <?php } ?>
         <?php if (count($jobs) > 0) { ?>
             <h4>CGFP Jobs</h4>
-            <table class="pretty-nested" style="table-layout:fixed">
-                <thead>
-                    <th class="id-col">ID</th>
-                    <th>Filename</th>
-                    <th class="date-col">Date Completed</th>
-                </thead>
-                <tbody>
-                    <?php
-                    $allow_cancel = true;
-                    show_jobs($jobs, $allow_cancel);
-                    ?>
-                </tbody>
-            </table>
+            <?php
+                $allow_cancel = true;
+                echo cgfp_ui::output_job_list($jobs, $allow_cancel);
+            ?>
         <?php } ?>
             
         <?php if (count($training_jobs) > 0) { ?>
             <h4>Training Resources</h4>
-            <table class="pretty-nested" style="table-layout:fixed">
-                <thead>
-                    <th class="id-col">ID</th>
-                    <th>Filename</th>
-                    <th class="date-col">Date Completed</th>
-                </thead>
-                <tbody>
-                    <?php
-                    $allow_cancel = false;
-                    show_jobs($training_jobs, $allow_cancel);
-                    ?>
-                </tbody>
-            </table>
+            <?php
+                $allow_cancel = false;
+                echo cgfp_ui::output_job_list($training_jobs, $allow_cancel);
+            ?>
         <?php } ?>
             
         <?php if ($show_previous_jobs) { ?>
@@ -581,91 +565,6 @@ HTML;
 
 
 <?php
-
-function show_jobs($jobs, $allow_cancel) {
-    $last_bg_color = "#eee";
-    for ($i = 0; $i < count($jobs); $i++) {
-        $key = $jobs[$i]["key"];
-        $id = $jobs[$i]["id"];
-        $name = $jobs[$i]["job_name"];
-        $is_completed = $jobs[$i]["is_completed"];
-        $date_completed = $jobs[$i]["date_completed"];
-        $is_finished = $date_completed && $date_completed != "PENDING" && $date_completed != "RUNNING";
-        $search_type = $jobs[$i]["search_type"];
-        $ref_db = $jobs[$i]["ref_db"];
-    
-        $link_start = "";
-        $link_end = "";
-        $name_style = "";
-        $id_field = $id;
-        $quantify_id = "";
-        $job_name = "";
-        $job_info = "";
-    
-        if ($jobs[$i]["is_quantify"]) {
-            $quantify_id = $jobs[$i]["quantify_id"];
-            $title_str = "title=\"" . $jobs[$i]["full_job_name"] . "\"";
-            if ($is_completed) {
-                $link_start = "<a href=\"stepe.php?id=$id&key=$key&quantify-id=$quantify_id\" $title_str>";
-                $link_end = "</a>";
-            } else {
-                $link_start = "<span $title_str>";
-                $link_end = "</span>";
-            }
-
-            $par_text = "";
-            if ($jobs[$i]["identify_parent_id"])
-                $par_text = "Identify " . $jobs[$i]["id"] . "-";
-
-            $name_style = "style=\"padding-left: 50px;\"";
-            $job_name = $name;
-            $job_info = "[${par_text}Quantify $quantify_id]";
-            $id_field = "";
-        } else {
-            $link_start = $is_finished ? "<a href=\"stepc.php?id=$id&key=$key\">" : "";
-            $link_end = $is_finished ? "</a>" : "";
-            if ($last_bg_color == "#fff")
-                $last_bg_color = "#eee";
-            else
-                $last_bg_color = "#fff";
-            if ($jobs[$i]["identify_parent_id"]) {
-                $job_name = "Child job of Identify " . $jobs[$i]["identify_parent_id"];
-                $date_completed = "PENDING";
-            } else {
-                $job_name = $name;
-            }
-        }
-
-        if ($search_type)
-            $job_info .= " Search=$search_type";
-        if ($ref_db)
-            $job_info .= " RefDB=$ref_db";
-
-        $job_action_code = "";
-        if ($allow_cancel) {
-            if (!$is_finished) {
-                $job_action_code = "<div style=\"float:right\" class=\"cancel-btn\" data-type=\"gnn\" title=\"Cancel Job\" data-id=\"$id\" data-key=\"$key\"";
-                if ($quantify_id)
-                    $job_action_code .= " data-quantify-id=\"$quantify_id\"";
-                $job_action_code .= "><i class=\"fas fa-stop-circle cancel-btn\"></i></div>";
-            } else {
-                $job_action_code = "<div style=\"float:right\" class=\"archive-btn\" data-type=\"gnn\" data-id=\"$id\" data-key=\"$key\"";
-                if ($quantify_id)
-                    $job_action_code .= ' data-quantify-id="' . $quantify_id . '"';
-                $job_action_code .= "title=\"Archive Job\"><i class=\"fas fa-trash-alt\"></i></div>";
-            }
-        }
-        
-
-        echo <<<HTML
-                    <tr style="background-color: $last_bg_color">
-                        <td>$link_start${id_field}$link_end</td>
-                        <td $name_style>$link_start<span class='job-name'>$job_name</span><br><span class='job-metadata'>$job_info</span>$link_end</td>
-                        <td>$date_completed $job_action_code</td>
-                    </tr>
-HTML;
-    }
-}
 
 include_once("tutorial/refs.inc.php");
 

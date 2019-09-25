@@ -51,6 +51,7 @@ class GndUi {
 //            }
 //        } else
         if (payload.MessageType == "DataRetrievalStatus") {
+            this.errorLoader.addClass("hidden-placeholder");
             if (payload.Data.Retrieving) {  // Called at start of retrieval
                 this.progressLoader.removeClass("hidden-placeholder");
                 if (!payload.Data.Initial) {
@@ -85,6 +86,11 @@ class GndUi {
             } else {
             }
         } else if (payload.MessageType == "InitDataRetrieved") {
+            if (payload.Data.Error) {
+                $(this.loaderMessageId).text("Data Retrieval Error").show();
+                this.progressLoader.addClass("hidden-placeholder");
+                this.errorLoader.removeClass("hidden-placeholder");
+            }
             this.setTotalCount(payload.Data.TotalCount);
         }
     }
@@ -197,6 +203,9 @@ class GndUi {
     }
     registerProgressLoader(id) {
         this.progressLoader = $(id);
+    }
+    registerErrorLoader(id) {
+        this.errorLoader = $(id);
     }
     registerShowMoreBtn(id) {
         var that = this;

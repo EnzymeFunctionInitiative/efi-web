@@ -154,7 +154,7 @@ class GndController {
 
         var that = this;
         var handleInitRequest = function(jsonData) {
-            if (jsonData !== null && typeof jsonData.stats.max_index !== 'undefined') {
+            if (jsonData !== null && jsonData.error === false && typeof jsonData.stats !== 'undefined' && typeof jsonData.stats.max_index !== 'undefined') {
                 that.Http.initialize(jsonData.stats.max_index, that.getUrlFn);
                 that.scaleFactor = jsonData.stats.scale_factor;
                 that.View.setLegendScale(jsonData.stats.legend_scale);
@@ -164,13 +164,15 @@ class GndController {
                     console.log("Init load duration: " + jsonData.totaltime);
                 
                 var totalCount = jsonData.stats.max_index + 1; // zero-based index
-                var payload = new Payload(); payload.MessageType = "InitDataRetrieved"; payload.Data = { TotalCount: totalCount }
+                var payload = new Payload(); payload.MessageType = "InitDataRetrieved"; payload.Data = { TotalCount: totalCount, Error: false };
                 that.msgRouter.sendMessage(payload);
 
                 that.loadNext(); // Retrieve the first batch of arrows.
             } else {
                 console.log("Invalid json data: ");
                 console.log(jsonData);
+                var payload = new Payload(); payload.MessageType = "InitDataRetrieved"; payload.Data = { TotalCount: 0, Error: true };
+                that.msgRouter.sendMessage(payload);
             }
         };
 

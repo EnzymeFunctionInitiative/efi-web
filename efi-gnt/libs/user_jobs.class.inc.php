@@ -1,9 +1,10 @@
 <?php
 
-require_once "../includes/main.inc.php";
-require_once "functions.class.inc.php";
-require_once "const.class.inc.php";
-require_once "../../libs/user_auth.class.inc.php";
+require_once(__DIR__ . "/../includes/main.inc.php");
+require_once(__DIR__ . "/functions.class.inc.php");
+require_once(__DIR__ . "/gnt_ui.class.inc.php");
+require_once(__DIR__ . "/const.class.inc.php");
+require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
 
 class user_jobs extends user_auth {
 
@@ -60,7 +61,7 @@ class user_jobs extends user_auth {
         $rows = $db->query($sql);
 
         $includeFailedJobs = true;
-        $this->jobs = self::process_load_rows($db, $rows, $includeFailedJobs, $email);
+        $this->jobs = gnt_ui::process_load_rows($db, $rows, $includeFailedJobs, $email);
     }
 
     private function load_training_jobs($db) {
@@ -77,64 +78,7 @@ class user_jobs extends user_auth {
         $rows = $db->query($sql);
 
         $includeFailedJobs = false;
-        $this->training_jobs = self::process_load_rows($db, $rows, $includeFailedJobs, "");
-    }
- 
-    private static function process_load_rows($db, $rows, $includeFailedJobs, $email) {
-        $jobs = array();
-        $indexMap = array();
-
-        $childJobs = array();
-
-        $idx = 0;
-        foreach ($rows as $row) {
-            $comp = $row["gnn_time_completed"];
-            if (substr($comp, 0, 4) == "0000") {
-                $comp = $row["gnn_status"]; // "RUNNING";
-                if ($comp == "NEW")
-                    $comp = "PENDING";
-            } else {
-                $comp = date_format(date_create($comp), "n/j h:i A");
-            }
-            $params = global_functions::decode_object($row["gnn_params"]);
-            $filename = pathinfo($params["filename"], PATHINFO_BASENAME);
-            $jobName = "<span class='job-name'>$filename</span><br><span class='job-metadata'>Neighborhood Size=" . $params["neighborhood_size"] . " Co-occurrence=" . $params["cooccurrence"] . "</span>";
-
-            $id = $row["gnn_id"];
-            $jobInfo = array("id" => $id, "key" => $row["gnn_key"], "filename" => $jobName, "completed" => $comp, "is_child" => false);
-
-            $isChild = false;
-            if (isset($row["gnn_parent_id"]) && $row["gnn_parent_id"]) {
-                // Get parent email address and if it's not the same as the current email address then treat this job
-                // as a normal job.
-                $sql = "SELECT gnn_email FROM gnn WHERE gnn_id = " . $row["gnn_parent_id"];
-                $parentRow = $db->query($sql);
-                $isChild = !$parentRow || $parentRow[0]["gnn_email"] == $email || !$email;  // !$email is true for training jobs
-            }
-
-            if ($isChild) {
-                $parentId = $row["gnn_parent_id"];
-                $jobInfo["is_child"] = true;
-                $jobInfo["parent_id"] = $parentId;
-                if (isset($childJobs[$parentId]))
-                    array_push($childJobs[$parentId], $jobInfo);
-                else
-                    $childJobs[$parentId] = array($jobInfo);
-            } else {
-                array_push($jobs, $jobInfo);
-                $indexMap[$id] = $idx;
-                $idx++;
-            }
-        }
-
-        for ($i = 0; $i < count($jobs); $i++) {
-            $id = $jobs[$i]["id"];
-            if (isset($childJobs[$id])) {
-                array_splice($jobs, $i+1, 0, $childJobs[$id]);
-            }
-        }
-
-        return $jobs;
+        $this->training_jobs = gnt_ui::process_load_rows($db, $rows, $includeFailedJobs, "");
     }
 
     private function load_diagram_jobs($db) {

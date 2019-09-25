@@ -20,9 +20,9 @@ class colorssn extends option_base {
     private $fast_hmm = false;
 
 
-    public function __construct($db, $id = 0) {
+    public function __construct($db, $id = 0, $is_example = false) {
         $this->file_helper = new file_helper(".xgmml", $id);
-        parent::__construct($db, $id);
+        parent::__construct($db, $id, $is_example);
     }
 
     public function __destruct() {
@@ -226,10 +226,12 @@ class colorssn extends option_base {
     // FILE NAME/PATH ACCESSORS
 
     private function get_web_output_dir() {
-        return functions::get_results_dirname() . "/" . $this->get_output_dir();
+        $dir = $this->is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+        return $dir . "/" . $this->get_output_dir();
     }
     public function get_full_output_dir() {
-        return functions::get_results_dir() . "/" . $this->get_output_dir();
+        $dir = $this->is_example ? functions::get_results_example_dir() : functions::get_results_dir();
+        return $dir . "/" . $this->get_output_dir();
     }
     public function get_base_filename() {
         $id = $this->get_id();
@@ -244,7 +246,15 @@ class colorssn extends option_base {
         return $rel_path;
     }
     public function get_file_size($web_path) {
-        $full_path = functions::get_results_dir() . "/../" . $web_path;
+        if ($this->is_example) {
+            $dir = functions::get_results_example_dir();
+            $chop = functions::get_results_example_dirname();
+            $web_path = substr($web_path, strlen($chop)+1);
+            $full_path = "$dir/$web_path";
+        } else {
+           $dir = functions::get_results_dir();
+            $full_path = "$dir/../$web_path";
+        }
         if (!file_exists($full_path))
             return 0;
         return round(filesize($full_path) / 1048576, 5);
@@ -430,13 +440,15 @@ class colorssn extends option_base {
 
         array_push($metadata, array("Job Number", $this->get_id()));
         array_push($metadata, array("Input Option", "Color SSN"));
-        if ($stepe_path) {
-            $gid = $this->ssn_source_id;
-            $aid = $this->ssn_source_analysis_id;
-            array_push($metadata, array("Original SSN Job Number", "$gid/$aid (<a href='$stepc_path' title='EST $gid'>Original Dataset</a> | <a href='$stepe_path' title='EST Analysis ID $aid'>SSN Download</a>)"));
+        if (!$this->is_example) {
+            if ($stepe_path) {
+                $gid = $this->ssn_source_id;
+                $aid = $this->ssn_source_analysis_id;
+                array_push($metadata, array("Original SSN Job Number", "$gid/$aid (<a href='$stepc_path' title='EST $gid'>Original Dataset</a> | <a href='$stepe_path' title='EST Analysis ID $aid'>SSN Download</a>)"));
+            }
+            array_push($metadata, array("Time Started -- Finished", global_functions::format_short_date($this->time_started) . " -- " .
+                global_functions::format_short_date($this->time_completed)));
         }
-        array_push($metadata, array("Time Started -- Finished", global_functions::format_short_date($this->time_started) . " -- " .
-            global_functions::format_short_date($this->time_completed)));
         array_push($metadata, array("Uploaded Filename", $this->get_uploaded_filename()));
         if (!empty($db_version))
             array_push($metadata, array("Database Version", $db_version));

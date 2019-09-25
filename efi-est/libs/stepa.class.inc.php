@@ -6,10 +6,9 @@ require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 require_once(__DIR__ . "/est_shared.class.inc.php");
 require_once(__DIR__ . "/est_settings.class.inc.php");
+require_once(__BASE_DIR__ . "/training/libs/example_config.class.inc.php");
 
 class stepa extends est_shared {
-
-    ////////////////Private Variables//////////
 
     protected $db; //mysql database object
     protected $id;
@@ -28,6 +27,9 @@ class stepa extends est_shared {
     protected $is_sticky = false;
     protected $job_name = "";
 
+    protected $is_example = false;
+    private $load_table = "generate";
+
     private $alignment_length_filename = "alignment_length.png";
     private $alignment_length_new = "alignment_length_new.png";
     private $alignment_length_new_html = "alignment_length_new.html";
@@ -39,15 +41,26 @@ class stepa extends est_shared {
     private $percent_identity_sm_filename = "percent_identity_sm.png";
     private $number_of_edges_sm_filename = "number_of_edges_sm.png";
     private $length_histogram_filename = "length_histogram.png";
-    ///////////////Public Functions///////////
 
-    public function __construct($db, $id = 0) {
+
+    public function __construct($db, $id = 0, $is_example = false) {
         parent::__construct($db, "generate");
+
+        if ($is_example) {
+            $this->is_example = true;
+            $this->init_example($id);
+        }
 
         $this->db = $db;
         if ($id)
             $this->load_generate($id);
         $this->counts_file = functions::get_accession_counts_filename();
+    }
+
+    private function init_example($id) {
+        $config_file = example_config::get_config_file();
+        $config = example_config::get_config($config_file);
+        $this->load_table = example_config::get_est_generate_table($config);
     }
 
     public function __destruct() {
@@ -234,7 +247,11 @@ class stepa extends est_shared {
     }
 
     private function get_plot_path_shared($for_web, $file_name) {
-        return ($for_web ? functions::get_results_dirname() : functions::get_results_dir()) . "/" . $this->get_output_dir() . "/" . $file_name;
+        if ($this->is_example)
+            $dir = ($for_web ? functions::get_results_example_dirname() : functions::get_results_example_dir());
+        else
+            $dir = ($for_web ? functions::get_results_dirname() : functions::get_results_dir());
+        return $dir . "/" . $this->get_output_dir() . "/" . $file_name;
     }
     public function get_alignment_plot($for_web = 0) {
         return $this->get_plot_path_shared($for_web, $this->alignment_length_filename);
@@ -280,9 +297,18 @@ class stepa extends est_shared {
     }
 
     private function get_plot_webpath_sm_shared($file_name) {
-        $full_file = functions::get_results_dir() . "/" . $this->get_output_dir() . "/" . $file_name;
+        $dir = "";
+        $dirname = "";
+        if ($this->is_example) {
+            $dir = functions::get_results_example_dir();
+            $dirname = functions::get_results_example_dirname();
+        } else {
+            $dir = functions::get_results_dir();
+            $dirname = functions::get_results_dirname();
+        }
+        $full_file = $dir . "/" . $this->get_output_dir() . "/" . $file_name;
         if (file_exists($full_file)) {
-            return functions::get_results_dirname() . "/" . $this->get_output_dir() . "/" . $file_name;
+            return $dirname . "/" . $this->get_output_dir() . "/" . $file_name;
         } else {
             return "";
         }
@@ -531,7 +557,8 @@ class stepa extends est_shared {
 
 
     protected function load_generate($id) {
-        $sql = "SELECT * FROM generate WHERE generate_id='" . $id . "' ";
+        $table = $this->load_table;
+        $sql = "SELECT * FROM $table WHERE generate_id='" . $id . "' ";
         $sql .= "LIMIT 1";
         $result = $this->db->query($sql);
 
@@ -630,6 +657,9 @@ class stepa extends est_shared {
     }
 
     public function get_analysis_jobs() {
+        if ($this->is_example)
+            return array();
+
         $sql = "SELECT analysis_id, analysis_status, analysis_name, analysis_min_length, analysis_max_length, analysis_evalue FROM analysis WHERE analysis_generate_id = $this->id";
         $rows = $this->db->query($sql);
 
