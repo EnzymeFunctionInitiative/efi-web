@@ -1,9 +1,10 @@
 <?php
 
-require_once("job_types.class.inc.php");
+require_once(__DIR__ . "/job_types.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
-require_once("functions.class.inc.php");
+require_once(__DIR__ . "/functions.class.inc.php");
+require_ONCE(__DIR__ . "/cgfp_ui.class.inc.php");
 
 
 class job_manager {
@@ -256,7 +257,7 @@ class job_manager {
             "ORDER BY identify_status, identify_time_completed DESC";
         $id_rows = $this->db->query($id_sql);
 
-        $jobs = $this->get_jobs_by_user_shared($id_rows);
+        $jobs = cgfp_ui::process_load_rows($this->db, $id_rows);
 
         return $jobs;
     }
@@ -277,7 +278,7 @@ class job_manager {
         $sql .= "ORDER BY identify_status, identify_time_completed DESC";
         $id_rows = $this->db->query($sql);
 
-        $jobs = $this->get_jobs_by_user_shared($id_rows);
+        $jobs = cgfp_ui::process_load_rows($this->db, $id_rows);
 
         return $jobs;
     }
@@ -293,107 +294,6 @@ class job_manager {
         return $sql;
     }
 
-    private function get_jobs_by_user_shared($id_rows) {
-        $jobs = array();
-
-        $default_cdhit_id = settings::get_default_cdhit_id();
-        $default_ref_db = settings::get_default_ref_db();
-        $default_id_search = strtolower(settings::get_default_identify_search());
-        $default_quantify_search = strtolower(settings::get_default_quantify_search());
-
-        foreach ($id_rows as $id_row) {
-            $iparams = global_functions::decode_object($id_row["identify_params"]);
-
-            $comp_result = self::get_completed_date_label($id_row["identify_time_completed"], $id_row["identify_status"]);
-            $job_name = $iparams["identify_filename"];
-            $comp = $comp_result[1];
-            $is_completed = $comp_result[0];
-
-            $id_id = $id_row["identify_id"];
-            $key = $id_row["identify_key"];
-            $parent_id = $id_row["identify_parent_id"];
-
-            if (!$parent_id) {
-                $i_job_info = array("id" => $id_id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed,
-                    "is_quantify" => false, "date_completed" => $comp, "identify_parent_id" => "");
-                
-                if (isset($iparams["identify_search_type"]) && $iparams["identify_search_type"] != $default_id_search)
-                    $i_job_info["search_type"] = $iparams["identify_search_type"];
-                else
-                    $i_job_info["search_type"] = "";
-                
-                if (isset($iparams["identify_ref_db"]) && $iparams["identify_ref_db"] != $default_ref_db)
-                    $i_job_info["ref_db"] = $iparams["identify_ref_db"];
-                else
-                    $i_job_info["ref_db"] = "";
-    
-                array_push($jobs, $i_job_info);
-            }
-
-            if ($parent_id && $id_row["identify_status"] == "NEW") {
-                $c_job_info = array("id" => $id_id, "key" => "", "job_name" => "", "is_completed" => false,
-                    "is_quantify" => false, "date_completed" => "", "search_type" => "", "ref_db" => "", "identify_parent_id" => $parent_id);
-                array_push($jobs, $c_job_info);
-                continue;
-            } elseif ($parent_id) {
-                continue;
-            }
-
-            if ($is_completed) {
-                $q_sql = "SELECT quantify_id, quantify_identify_id, quantify_time_completed, quantify_status, quantify_params, identify_parent_id, identify_params, identify_key " .
-                    "FROM quantify JOIN identify ON quantify_identify_id = identify_id " .
-                    "WHERE (quantify_identify_id = $id_id OR identify_parent_id = $id_id) AND quantify_status != '" . __ARCHIVED__ . "'";
-                $q_rows = $this->db->query($q_sql);
-
-                foreach ($q_rows as $q_row) {
-                    $qparams = global_functions::decode_object($q_row["quantify_params"]);
-
-                    $q_comp_result = self::get_completed_date_label($q_row["quantify_time_completed"], $q_row["quantify_status"]);
-                    $q_comp = $q_comp_result[1];
-                    $q_is_completed = $q_comp_result[0];
-                    $q_id = $q_row["quantify_id"];
-                    $job_name = isset($qparams["quantify_job_name"]) ? $qparams["quantify_job_name"] : "";
-                    $par_id = "";
-
-                    $mg_ids = explode(",", $qparams["quantify_metagenome_ids"]);
-                    if ($q_row["identify_parent_id"]) {
-                        $iparams = global_functions::decode_object($q_row["identify_params"]);
-                        $q_full_job_name = $iparams["identify_filename"];
-                        $q_job_name = $q_full_job_name;
-                        $the_id_id = $q_row["quantify_identify_id"];
-                        $the_key = $q_row["identify_key"];
-                        $par_id = $q_row["identify_parent_id"];
-                    } else {
-                        $the_id_id = $id_id;
-                        $the_key = $key;
-                        $q_full_job_name = implode(", ", $mg_ids);
-                        if ($job_name) {
-                            $q_job_name = $job_name;
-                        } elseif (count($mg_ids) > 6) {
-                            $q_job_name = implode(", ", array_slice($mg_ids, 0, 5)) . " ...";
-                        } else {
-                            $q_job_name = $q_full_job_name;
-                        }
-                    }
-
-                    $q_job_info = array("id" => $the_id_id, "key" => $the_key, "quantify_id" => $q_id, "job_name" => $q_job_name,
-                        "is_completed" => $q_is_completed, "is_quantify" => true, "date_completed" => $q_comp,
-                        "full_job_name" => $q_full_job_name, "identify_parent_id" => $par_id);
-
-                    if (isset($qparams["quantify_search_type"]) && $qparams["quantify_search_type"] != $default_quantify_search)
-                        $q_job_info["search_type"] = $qparams["quantify_search_type"];
-                    else
-                        $q_job_info["search_type"] = "";
-
-                    $q_job_info["ref_db"] = "";
-                    array_push($jobs, $q_job_info);
-                }
-            }
-        }
-
-        return $jobs;
-    }
-
     public static function get_quantify_jobs($db, $identify_id) {
         $jobs = array();
 
@@ -402,7 +302,7 @@ class job_manager {
         $q_rows = $db->query($q_sql);
 
         foreach ($q_rows as $q_row) {
-            $q_comp_result = self::get_completed_date_label($q_row["quantify_time_completed"], $q_row["quantify_status"]);
+            $q_comp_result = cgfp_ui::get_completed_date_label($q_row["quantify_time_completed"], $q_row["quantify_status"]);
             $q_comp = $q_comp_result[1];
             $q_is_completed = $q_comp_result[0];
             $q_id = $q_row["quantify_id"];
@@ -415,20 +315,6 @@ class job_manager {
         }
 
         return $jobs;
-    }
-
-    // Candidate for refacotring to centralize
-    private static function get_completed_date_label($comp, $status) {
-        $isCompleted = false;
-        if ($status == __FAILED__ || $status == __RUNNING__ || $status == __CANCELLED__) {
-            $comp = $status;
-        } elseif (!$comp || substr($comp, 0, 4) == "0000" || $status == __NEW__) {
-            $comp = "PENDING";
-        } else {
-            $comp = functions::format_short_date($comp);
-            $isCompleted = true;
-        }
-        return array($isCompleted, $comp);
     }
 }
 

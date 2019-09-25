@@ -1,3 +1,26 @@
 
 h3.extra-margin { margin-top: 50px; }
 
+.doc-wrap {
+    border: 4px dashed orange;
+}
+div.doc-wrap {
+    padding: 10px;
+}
+span.doc-wrap {
+}
+
+div.doc-wrap > div.ui-tabs-panel, div.ui-widget-content {
+    border: none;
+}
+div.doc-wrap div.option-panels > div {
+    border: 2px solid black;
+}
+div.doc-wrap div.option-panels h3 {
+    margin: 0;
+}
+
+div.empty-tabs > div.ui-tabs-panel {
+    padding: 0;
+}
+

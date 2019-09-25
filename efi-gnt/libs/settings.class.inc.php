@@ -76,7 +76,11 @@ class settings extends global_settings {
     }
 
     public static function get_rel_output_dir() {
-        return __RELATIVE_OUTPUT_DIR__;		
+        return __RELATIVE_OUTPUT_DIR__;
+    }
+
+    public static function get_rel_example_output_dir() {
+        return __RELATIVE_EXAMPLE_OUTPUT_DIR__;
     }
 
     public static function get_rel_diagram_output_dir() {

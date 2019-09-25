@@ -8,7 +8,8 @@ if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
 }
 
 
-$obj = new colorssn($db,$_GET['id']);
+$is_example = isset($_GET["x"]);
+$obj = new colorssn($db, $_GET['id'], $is_example);
 
 $key = $obj->get_key();
 if ($key != $_GET['key']) {
@@ -186,7 +187,7 @@ else {
         <!-- JOB INFORMATION -->
         <div id="info">
             <h4>Submission Summary Table</h4>
-            <table width="100%" class="pretty">
+            <table width="100%" class="pretty no-stretch">
             <?php echo $table_string ?>
             </table>
             <div style="float:right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$est_id&key=$key&as-table=1" ?>'><button class='normal'>Download Information</button></a></div>
@@ -199,16 +200,18 @@ else {
             <table width="100%" class="pretty">
                 <thead>
                     <th></th>
-                    <th>File Size (Unzipped/Zipped MB)</th>
+                    <th>File Size (<?php echo $is_example ? "Zipped MB" : "Unzipped/Zipped MB"; ?>)</th>
                 </thead>
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
+<?php if (!$is_example) { ?>
                             <a href="<?php echo "$ssnFile"; ?>"><button class="mini">Download</button></a>
+<?php } ?>
                             <a href="<?php echo "$ssnFileZip"; ?>"><button class="mini">Download ZIP</button></a>
                         </td>
                         <td>
-                            <?php echo "$ssnFileSize MB / $ssnFileZipSize MB"; ?>
+                            <?php echo $is_example ? "$ssnFileZipSize MB" : "$ssnFileSize MB / $ssnFileZipSize MB"; ?>
                         </td>
                     </tr>
                 </tbody>

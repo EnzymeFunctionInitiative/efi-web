@@ -161,7 +161,21 @@ class global_settings {
     public static function get_est_database() {
         return defined("__EFI_EST_DB_NAME__") ? __EFI_EST_DB_NAME__ : "";
     }
+    public static function get_gnt_database() {
+        return defined("__EFI_GNT_DB_NAME__") ? __EFI_GNT_DB_NAME__ : "";
+    }
+    public static function get_cgfp_database() {
+        return defined("__EFI_SHORTBRED_DB_NAME__") ? __EFI_SHORTBRED_DB_NAME__ : "";
+    }
 
-
+    public static function get_est_web_path() {
+        return defined("__EST_WEB_PATH__") ? __EST_WEB_PATH__ : "efi-est";
+    }
+    public static function get_gnt_web_path() {
+        return defined("__GNT_WEB_PATH__") ? __GNT_WEB_PATH__ : "efi-gnt";
+    }
+    public static function get_cgfp_web_path() {
+        return defined("__CGFP_WEB_PATH__") ? __CGFP_WEB_PATH__ : "efi-cgfp";
+    }
 }
 ?>

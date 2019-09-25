@@ -22,7 +22,7 @@ if (isset($_GET["filename"])) {
     <!--<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>-->
     <script src="js/plotly-1.42.5.min.js"></script>
     <script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
-    <script src="js/heatmap.js?v=2"></script>
+    <script src="js/heatmap.js?v=6"></script>
 
     <title>Boxplots for <?php echo $filename; ?></title>
 </head>
@@ -71,12 +71,13 @@ $(document).ready(function() {
     
     var params = {
 <?php if (isset($_GET["example"])) { ?>
-        Example: true,
+        StaticExample: true,
         Id: 0,
         Key: 0,
         QuantifyId: 0,
 <?php } else { ?>
-        Example: false,
+        StaticExample: false,
+        DynamicExample: <?php echo (isset($_GET["x"]) ? "true" : "false"); ?>,
         Id: "<?php echo $_GET["id"]; ?>",
         Key: "<?php echo $_GET["key"]; ?>",
         QuantifyId: <?php echo(isset($_GET["quantify-id"]) ? $_GET["quantify-id"] : 0); ?>,

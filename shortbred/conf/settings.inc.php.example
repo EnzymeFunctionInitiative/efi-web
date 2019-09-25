@@ -28,6 +28,7 @@ define("__LEGACY_RELATIVE_OUTPUT_DIR__","");
 define("__QUANTIFY_REL_OUTPUT_DIR__","");
 define("__VALID_FILE_TYPE__","xgmml zip");
 define("__HTTP_OUTPUT_DIR__","results");
+define("__HTTP_EXAMPLE_OUTPUT_DIR__","results_example");
 
 //
 // DATABASE
@@ -42,10 +43,6 @@ define("__MYSQL_DATABASE__","");
 define("__TITLE__","EFI-CGFP");
 define("__ENABLE_DIAMOND__",true);
 define("__CGFP_APP_EMAIL__","");
-define("__DEFAULT_DB__","uniref90");
-define("__DEFAULT_CDHIT__",85);
-define("__DEFAULT_IDENTIFY_SEARCH__","DIAMOND");
-define("__DEFAULT_QUANTIFY_SEARCH__","USEARCH");
 
 //
 // JOB SCHEDULING PARAMETERS
