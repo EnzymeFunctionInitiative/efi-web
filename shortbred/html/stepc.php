@@ -7,13 +7,18 @@ require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
 
 
+// There are two types of examples: dynamic and static.  The static example is a curated
+// example pulled into the entry screen.  The dynamic examples are the same as other
+// jobs, except they are stored in separate directories/tables.
+$is_example = isset($_GET["x"]) ? true : false;
+
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"])) {
     error404();
-} else {
-    $job_mgr = new job_manager($db, job_types::Identify);
-    if ($job_mgr->get_job_key($_GET["id"]) != $_GET["key"]) {
-        error404();
-    }
+//} else {
+//    $job_mgr = new job_manager($db, job_types::Identify);
+//    if ($job_mgr->get_job_key($_GET["id"]) != $_GET["key"]) {
+//        error404();
+//    }
 }
 
 $user_token = user_auth::get_user_token();
@@ -25,15 +30,22 @@ if ($user_token) {
 
 $id = $_GET["id"];
 $key = $_GET["key"];
-$id_query_string = "id=$id&key=$key";
 
+$ex_param = $is_example ? "&x=1" : "";
 
-$job = new identify($db, $id);
+$id_query_string = "id=$id&key=$key$ex_param";
+
+$job = new identify($db, $id, $is_example);
+if ($job->get_key() != $key) {
+    error_404();
+}
+
 $status = $job->get_status();
 
 $parent_id = $job->get_parent_id();
 $parent_key = "";
 if ($parent_id) {
+    $job_mgr = new job_manager($db, job_types::Identify);
     $parent_key = $job_mgr->get_job_key($parent_id);
 }
 $child_data = $job->get_child_jobs();
@@ -111,7 +123,10 @@ $mg_db = new metagenome_db_manager();
 $mg_db_list = $mg_db->get_metagenome_db_ids();
 
 
-$q_jobs = job_manager::get_quantify_jobs($db, $id);
+if ($is_example)
+    $q_jobs = array();
+else
+    $q_jobs = job_manager::get_quantify_jobs($db, $id);
 
 
 $ExtraCssLinks = array("$SiteUrlPrefix/chosen/chosen.min.css");
@@ -137,6 +152,7 @@ if ($user_token) {
     if ($is_sb_enabled)
         $is_enabled = $IsAdminUser || functions::is_shortbred_authorized($db, $user_token);
 }
+$is_enabled = $is_enabled && !$is_example;
 
 
 require_once "inc/header.inc.php"; 
@@ -161,14 +177,14 @@ require_once "inc/header.inc.php";
         <li><a href="#data">Identified Markers</a></li>
         <?php if ($is_enabled) { ?>
         <li><a href="#mg">Select Metagenomes for Marker Quantification</a></li>
-        <?php } ?>
         <li><a href="#filter">Resubmit SSN</a></li>
+        <?php } ?>
     </ul>
 
     <div>
         <div id="info">
             <h4>Submission Summary Table</h4>
-            <table class="pretty" style="border-top: 1px solid #aaa">
+            <table class="pretty no-stretch" style="border-top: 1px solid #aaa">
                 <tbody>
             <?php echo $table_string; ?>
                 </tbody>
@@ -218,9 +234,18 @@ HTML;
                 <thead><th></th><th>File</th><th>Size</th></thead>
                 <tbody>
                     <?php
-                        make_output_row($id_query_string,
-                            array("ssn-c", "ssn-c-zip"), array("Download", "Download (ZIP)"),
-                                "SSN with marker results", array($job->get_output_ssn_file_size(), $ssnZipFileSize));
+                        $types = array();
+                        $text = array();
+                        $sizes = array();
+                        if (!$is_example) {
+                            $types = array("ssn-c");
+                            $text = array("Download");
+                            $sizes = array($job->get_output_ssn_file_size());
+                        }
+                        array_push($types, "ssn-c-zip");
+                        array_push($text, "Download (ZIP)");
+                        array_push($sizes, $ssnZipFileSize);
+                        make_output_row($id_query_string, $types, $text, "SSN with marker results", $sizes);
                     ?>
                 </tbody>
             </table>
@@ -245,9 +270,7 @@ HTML;
         </div>
 
 
-        <?php
-        if ($is_enabled) {
-        ?>
+    <?php if ($is_enabled) { ?>
         <div id="mg">
             <h4>Select Metagenomes from the Human Microbiome Project</h4>
             
@@ -309,7 +332,7 @@ HTML;
                             </span>
                             <span class="input-field">
                             <?php
-                                $default_search_type = settings::get_default_quantify_search();
+                                $default_search_type = cgfp_settings::get_default_quantify_search();
                                 $search_usearch = $default_search_type == "USEARCH" ? "selected" : "";
                                 $search_diamond = $default_search_type == "DIAMOND" ? "selected" : "";
                             ?>
@@ -349,10 +372,11 @@ HTML;
             
             
         </div>
-        <?php } ?>
+    <?php } ?>
 
 
-    <?php if ($user_email) { ?>
+    <?php if ($is_enabled) { ?>
+    <?php     if ($user_email) { ?>
         <div id="filter">
             <p class="p-heading">
             Map previously-computed protein/cluster abundances per metagenome to a different Colored SSN.
@@ -399,7 +423,8 @@ HTML;
             </center>
             </form>
         </div>            
-    <?php   } ?>
+    <?php     } ?>
+    <?php } ?>
     </div>
 </div>
 <?php } ?>

@@ -2,9 +2,12 @@
 
 $Title = "EFI - Training Resources";
 if (isset($ExtraTitle) && $ExtraTitle)
-    $title = "$Title: $ExtraTitle";
+    $Title = "$Title: $ExtraTitle";
 
-$StyleAdditional = array('<link rel="stylesheet" type="text/css" href="css/training.css?v=1">');
+if (!isset($StyleAdditional))
+    $StyleAdditional = array();
+array_push($StyleAdditional, '<link rel="stylesheet" type="text/css" href="css/training.css?v=1">',
+    '<link rel="stylesheet" type="text/css" href="'.$SiteUrlPrefix.'/css/tabs.css?v=2">');
 
 $BannerImagePath = "$SiteUrlPrefix/images/efi_logo.png";
 

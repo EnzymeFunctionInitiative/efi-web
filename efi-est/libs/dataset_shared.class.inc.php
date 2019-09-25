@@ -3,18 +3,18 @@
 
 class dataset_shared {
     
-    public static function create_generate_object($gen_type, $db) {
+    public static function create_generate_object($gen_type, $db, $is_example = false) {
         $generate = false;
         if ($gen_type == "BLAST")
-            $generate = new blast($db, $_GET['id']);
+            $generate = new blast($db, $_GET['id'], $is_example);
         elseif ($gen_type == "FAMILIES")
-            $generate = new generate($db, $_GET['id']);
+            $generate = new generate($db, $_GET['id'], $is_example);
         elseif ($gen_type == "ACCESSION")
-            $generate = new accession($db, $_GET['id']);
+            $generate = new accession($db, $_GET['id'], $is_example);
         elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID")
-            $generate = new fasta($db, $_GET['id']);
+            $generate = new fasta($db, $_GET['id'], "C", $is_example);
         elseif ($gen_type == "COLORSSN")
-            $generate = new colorssn($db, $_GET['id']);
+            $generate = new colorssn($db, $_GET['id'], $is_example);
         return $generate;
     }
     
@@ -32,7 +32,7 @@ class dataset_shared {
             return "";
     }
     
-    public static function add_generate_summary_table($generate, $table, $is_analysis) {
+    public static function add_generate_summary_table($generate, $table, $is_analysis, $is_example = false) {
 
         $gen_id = $generate->get_id();
         $gen_type = $generate->get_type();
@@ -49,7 +49,8 @@ class dataset_shared {
             $table->add_row_with_html("EST Job Number", "$gen_id (<a href='stepc.php?id=$gen_id&key=$key'>Original Dataset</a>)");
         else
             $table->add_row("Job Number", $gen_id);
-        $table->add_row("Time Started -- Finished", $time_window);
+        if (!$is_example)
+            $table->add_row("Time Started -- Finished", $time_window);
         if (!empty($db_version))
             $table->add_row("Database Version", $db_version);
         $table->add_row("Input Option", $formatted_gen_type);
@@ -95,7 +96,7 @@ class dataset_shared {
 
 //        $generate->print_raw_counts();
         $evalue_option = $generate->get_evalue();
-        $default_evalue = functions::get_evalue();
+        $default_evalue = est_settings::get_evalue();
         $show_evalue = $evalue_option != $default_evalue;
 
         $add_fam_rows_fn = function() {};

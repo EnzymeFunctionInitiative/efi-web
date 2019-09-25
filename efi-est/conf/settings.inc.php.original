@@ -6,9 +6,6 @@
 //                                              
 //      Settings for the scripts.               
 //                                              
-//      David Slater                            
-//      Sep 2013                                
-//                                              
 ////////////////////////////////////
 
 require_once(__DIR__ . "/../../conf/settings_base.inc.php");
@@ -24,6 +21,7 @@ define("__CGFP_WEB_ROOT__","");
 define("__ENABLE_LOG__",true);
 define("__LOG_FILE__","");
 define("__UPLOADS_DIR__","");
+define("__RESULTS_EXAMPLE_DIR__,"");
 
 //
 // MYSQL SETTINGS
@@ -42,26 +40,16 @@ define("__ANALYSE_QUEUE__","");
 define("__CLUSTER_PROCS__","48");
 define("__BLASTHITS_PROCS__",12);
 define("__RESULTS_DIRNAME__","results");
+define("__RESULTS_EXAMPLE_DIRNAME__","results_example");
 define("__EFI_MODULE__","");
 define("__EFI_DB_MODULE__","");
 define("__EFI_GNT_MODULE__","");
 define("__MAX_QUEUABLE_JOBS__",1000);
 define("__MAX_USER_QUEUABLE_JOBS__",1000);
-define("__EFI_DB_CONFIG__","");
 
 //
 // UI SETTINGS
-define("__MAX_SEQ__",100000);
-define("__MAX_BLAST_SEQ__",10000);
-define("__DEFAULT_BLAST_SEQ__",5000);
-define("__MAX_FULL_FAMILY_COUNT__",30000);
 define("__MAX_NUM_SNN_NODES__",10000000);
-define("__ENABLE_A__",true);
-define("__ENABLE_B__",true);
-define("__ENABLE_C__",true);
-define("__ENABLE_D__",true);
-define("__ENABLE_E__",false);
-define("__ENABLE_COLORSSN__",true);
 define("__ENABLE_PROGRAM_SELECTION__",false);
 define("__ENABLE_OPTION_A_FAMILIES__",false);
 define("__FASTA_FILETYPES__","txt fasta fa zip");

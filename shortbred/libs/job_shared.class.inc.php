@@ -29,10 +29,13 @@ abstract class job_shared {
 
     private $db;
     private $beta;
-    protected $eol = PHP_EOL;
 
-    function __construct($db) {
+    protected $eol = PHP_EOL;
+    protected $is_example = false;
+
+    function __construct($db, $is_example = false) {
         $this->db = $db;
+        $this->is_example = $is_example ? true : false;
         $this->beta = settings::get_release_status();
     }
 
@@ -418,15 +421,17 @@ abstract class job_shared {
         $tab_data = self::read_kv_tab_file($meta_file);
         $table_data = array();
 
-        $time_data = $this->get_extra_metadata($id, $tab_data);
-        if (count($time_data) > 0)
-            $table_data[0] = $time_data;
+        if (!$this->is_example) {
+            $time_data = $this->get_extra_metadata($id, $tab_data);
+            if (count($time_data) > 0)
+                $table_data[0] = $time_data;
+        }
 
         $pos_start = 1;
         foreach ($tab_data as $key => $value) {
             $attr = "";
             $pos = $pos_start;
-            if ($key == "time_period") {
+            if ($key == "time_period" && !$this->is_example) {
                 $attr = "Time Started/Finished";
                 $pos = max(0, $pos_start - 1);
             } elseif ($key == "num_ssn_clusters") {

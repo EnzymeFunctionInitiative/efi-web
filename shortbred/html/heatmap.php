@@ -53,7 +53,7 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 <script src="../js/jquery-3.2.1.min.js"></script>
 <script src="../js/jquery-ui-1.12.1/jquery-ui.min.js"></script>
 <script src="../bs/js/bootstrap.min.js"></script>
-<script src="js/heatmap.js?v=5"></script>
+<script src="js/heatmap.js?v=6"></script>
 
 <script>
 $(document).ready(function() {
@@ -64,12 +64,13 @@ $(document).ready(function() {
     var data = {
         Width: width,
 <?php if (isset($_GET["example"])) { ?>
-        Example: true,
+        StaticExample: true,
         Id: 0,
         Key: 0,
         QuantifyId: 0,
 <?php } else { ?>
-        Example: false,
+        StaticExample: false,
+        DynamicExample: <?php echo (isset($_GET["x"]) ? "true" : "false"); ?>,
         Id: "<?php echo $_GET["id"]; ?>",
         Key: "<?php echo $_GET["key"]; ?>",
         QuantifyId: <?php echo(isset($_GET["quantify-id"]) ? $_GET["quantify-id"] : 0); ?>,

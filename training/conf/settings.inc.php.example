@@ -15,4 +15,8 @@ define("__MYSQL_PASSWORD__","");
 define("__MYSQL_DATABASE__","");
 define("__MYSQL_AUTH_DATABASE__","");
 
+//
+// EXAMPLES
+define("__EST_EXAMPLE_CONFIG__","");
+
 ?>

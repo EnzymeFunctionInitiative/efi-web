@@ -109,7 +109,7 @@ abstract class est_shared {
     public function email_complete() {
         $subject = $this->beta . $this->get_email_completion_subject();
         $body_data = $this->get_email_completion_body();
-        $extra_footer = "These data will only be retained for " . functions::get_retention_days() . " days." . PHP_EOL . PHP_EOL;
+        $extra_footer = "These data will only be retained for " . global_settings::get_retention_days() . " days." . PHP_EOL . PHP_EOL;
         $this->send_email($subject, $body_data, "", $extra_footer);
     }
 
