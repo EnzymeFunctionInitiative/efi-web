@@ -13,8 +13,8 @@ class blast extends family_shared {
     public $subject = "EFI-EST BLAST";
 
 
-    public function __construct($db,$id = 0) {
-        parent::__construct($db, $id);
+    public function __construct($db, $id = 0, $is_example = false) {
+        parent::__construct($db, $id, $is_example);
         $this->num_pbs_jobs = 11;
     }
 

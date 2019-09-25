@@ -1,13 +1,18 @@
 <?php
 
-require_once("../includes/main.inc.php");
-require_once("../libs/identify.class.inc.php");
-require_once("../libs/quantify.class.inc.php");
+require_once(__DIR__ . "/../includes/main.inc.php");
+require_once(__DIR__ . "/../libs/identify.class.inc.php");
+require_once(__DIR__ . "/../libs/quantify.class.inc.php");
 
 $is_error = true;
 $the_id = "";
 $q_id = "";
 $job_obj = NULL;
+
+// There are two types of examples: dynamic and static.  The static example is a curated
+// example pulled into the entry screen.  The dynamic examples are the same as other
+// jobs, except they are stored in separate directories/tables.
+$is_example = isset($_GET["x"]) ? true : false;
 
 if (isset($_GET["example"])) {
     $example_dir = settings::get_example_dir();
@@ -21,9 +26,9 @@ if (isset($_GET["example"])) {
     $the_id = $_GET["id"];
     if (isset($_GET["quantify-id"]) && is_numeric($_GET["quantify-id"])) {
         $q_id = $_GET["quantify-id"];
-        $job_obj = new quantify($db, $q_id);
+        $job_obj = new quantify($db, $q_id, $is_example);
     } else {
-        $job_obj = new identify($db, $the_id);
+        $job_obj = new identify($db, $the_id, $is_example);
     }
 
     if ($job_obj->get_key() != $_GET["key"]) {
@@ -76,6 +81,11 @@ if (isset($_GET["type"])) {
     if (isset($_GET["example"]))
         $prefix = "";
 
+    if ($is_example)
+        $rel_out_dir = settings::get_rel_example_http_output_dir();
+    else
+        $rel_out_dir = settings::get_rel_http_output_dir();
+
     if (isset($file_info[$type])) {
         $file_path = $file_info[$type]["file_path"];
         $suffix = $file_info[$type]["suffix"];
@@ -83,19 +93,19 @@ if (isset($_GET["type"])) {
         $is_error = ! send_text_file($prefix, $file_path, $file_name, $suffix);
     } elseif ($type == "ssn-q") {
         $ssn_file = $job_obj->get_ssn_http_path();
-        $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
+        $url = $rel_out_dir . "/" . $ssn_file;
         header("Location: $url");
     } elseif ($type == "ssn-q-zip") {
         $ssn_file = $job_obj->get_zip_ssn_http_path();
-        $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
+        $url = $rel_out_dir . "/" . $ssn_file;
         header("Location: $url");
     } elseif ($type == "ssn-c") {
         $ssn_file = $job_obj->get_ssn_http_path();
-        $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
+        $url = $rel_out_dir . "/" . $ssn_file;
         header("Location: $url");
     } elseif ($type == "ssn-c-zip") {
         $ssn_file = $job_obj->get_output_ssn_zip_http_path();
-        $url = settings::get_rel_http_output_dir() . "/" . $ssn_file;
+        $url = $rel_out_dir . "/" . $ssn_file;
         header("Location: $url");
     } elseif ($type == "q-mg-info") {
         $suffix = "_metagenome_desc.txt";
@@ -110,6 +120,7 @@ if (isset($_GET["type"])) {
 if ($is_error) {
     error404();
 }
+
 
 
 

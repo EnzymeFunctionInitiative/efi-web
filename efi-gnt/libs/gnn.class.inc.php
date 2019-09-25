@@ -44,10 +44,10 @@ class gnn extends gnn_shared {
 
     ///////////////Public Functions///////////
 
-    public function __construct($db, $id = 0, $is_sync = false) {
+    public function __construct($db, $id = 0, $is_sync = false, $load_gnn = true) {
         parent::__construct($db, $id, "gnn");
 
-        if ($id) {
+        if ($id && $load_gnn) {
             $this->load_gnn($id);
         }
 
@@ -87,6 +87,10 @@ class gnn extends gnn_shared {
             $uploads_dir = settings::get_uploads_dir();
             return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->filename, PATHINFO_EXTENSION);
         }
+    }
+    
+    protected function show_summary_details() {
+        return true;
     }
 
     public function get_source_info() {
@@ -332,6 +336,10 @@ class gnn extends gnn_shared {
         $name = "coloredssn";
         return $this->shared_get_relative_file_path("_${name}", ".xgmml");
     }
+    public function get_color_ssn_zip() {
+        $name = "coloredssn";
+        return $this->shared_get_full_file_path("_${name}", ".zip");
+    }
 
     public function get_gnn() {
         $name = "ssn_cluster_gnn";
@@ -340,6 +348,10 @@ class gnn extends gnn_shared {
     public function get_relative_gnn() {
         $name = "ssn_cluster_gnn";
         return $this->shared_get_relative_file_path("_${name}", ".xgmml");
+    }
+    public function get_gnn_zip() {
+        $name = "ssn_cluster_gnn";
+        return $this->shared_get_full_file_path("_${name}", ".zip");
     }
 
     public function get_pfam_hub() {
@@ -546,8 +558,16 @@ class gnn extends gnn_shared {
         $file = $this->get_color_ssn();
         return $this->get_shared_file_size($file);
     }
+    public function get_color_ssn_zip_filesize() {
+        $file = $this->get_color_ssn_zip();
+        return $this->get_shared_file_size($file);
+    }
     public function get_gnn_filesize() {
         $file = $this->get_gnn();
+        return $this->get_shared_file_size($file);
+    }
+    public function get_gnn_zip_filesize() {
+        $file = $this->get_gnn_zip();
         return $this->get_shared_file_size($file);
     }
     public function get_warning_filesize() {
@@ -713,29 +733,29 @@ class gnn extends gnn_shared {
     //////////////////Private Functions////////////
 
 
-    private function load_gnn($id) {
-        $sql = "SELECT * FROM gnn WHERE gnn_id='" . $id . "' LIMIT 1";
+    protected function load_gnn($id, $table = "gnn") {
+        $sql = "SELECT * FROM $table WHERE gnn_id='" . $id . "' LIMIT 1";
         $result = $this->db->query($sql);
         if ($result) {
             $result = $result[0];
-            $this->id = $result['gnn_id'];
-            $this->email = $result['gnn_email'];
-            $this->key = $result['gnn_key'];
-            $this->time_created = $result['gnn_time_created'];
-            $this->time_started = $result['gnn_time_started'];
-            $this->time_completed = $result['gnn_time_completed'];
-            $this->pbs_number = $result['gnn_pbs_number'];
-            $this->status = $result['gnn_status'];
+            $this->id = $result["gnn_id"];
+            $this->email = $result["gnn_email"];
+            $this->key = $result["gnn_key"];
+            $this->time_created = $result["gnn_time_created"];
+            $this->time_started = $result["gnn_time_started"];
+            $this->time_completed = $result["gnn_time_completed"];
+            $this->pbs_number = $result["gnn_pbs_number"];
+            $this->status = $result["gnn_status"];
             $this->is_legacy = is_null($this->status);
-            if (isset($result['gnn_est_source_id']))
-                $this->est_id = $result['gnn_est_source_id'];
+            if (isset($result["gnn_est_source_id"]))
+                $this->est_id = $result["gnn_est_source_id"];
 
-            $params_obj = global_functions::decode_object($result['gnn_params']);
+            $params_obj = global_functions::decode_object($result["gnn_params"]);
             $this->size = $params_obj['neighborhood_size'];
             $this->cooccurrence = $params_obj['cooccurrence'];
             $this->filename = $params_obj['filename'];
 
-            $results_obj = global_functions::decode_object($result['gnn_results']);
+            $results_obj = global_functions::decode_object($result["gnn_results"]);
             $this->ssn_nodes = isset($results_obj['ssn_nodes']) ? $results_obj['ssn_nodes'] : "";
             $this->ssn_edges = isset($results_obj['ssn_edges']) ? $results_obj['ssn_edges'] : "";
             $this->gnn_nodes = isset($results_obj['gnn_nodes']) ? $results_obj['gnn_nodes'] : "";
@@ -743,9 +763,9 @@ class gnn extends gnn_shared {
             $this->diagram_version = isset($results_obj['diagram_version']) ? $results_obj['diagram_version'] :
                                         (isset($results_obj['gnn_diagram_version']) ? $results_obj['gnn_diagram_version'] : arrow_api::DEFAULT_DIAGRAM_VERSION);
 
-            if (isset($result['gnn_parent_id']) && isset($result['gnn_child_type'])) {
-                $this->gnn_parent_id = $result['gnn_parent_id'];
-                $this->child_filter_only = $result['gnn_child_type'] == "filter";
+            if (isset($result["gnn_parent_id"]) && isset($result["gnn_child_type"])) {
+                $this->gnn_parent_id = $result["gnn_parent_id"];
+                $this->child_filter_only = $result["gnn_child_type"] == "filter";
             }
 
             $db_mod = "";
@@ -1009,19 +1029,21 @@ class gnn extends gnn_shared {
 
         $source_info = $this->get_source_info();
 
-        array_push($metadata, array("Job Number", $this->id));
-        if ($source_info !== false) {
-            if ($this->gnn_parent_id) {
-                array_push($metadata, array("Original GNT Job Number", "<a href='stepc.php?id=$this->gnn_parent_id&key=$source_info'>$this->gnn_parent_id</a>"));
-            } else {
-                $gid = $source_info["generate_id"];
-                $aid = $source_info["analysis_id"];
-                $key = $source_info["key"];
-                array_push($metadata, array("Original EST Job Number", "$gid/$aid (<a href='../efi-est/stepc.php?id=$gid&key=$key' class='hl-est'>Original EST Dataset</a> | <a href='../efi-est/stepe.php?id=$gid&key=$key&analysis_id=$aid' class='hl-est'>Original SSN Download</a>)"));
+        if ($this->show_summary_details()) {
+            array_push($metadata, array("Job Number", $this->id));
+            if ($source_info !== false) {
+                if ($this->gnn_parent_id) {
+                    array_push($metadata, array("Original GNT Job Number", "<a href='stepc.php?id=$this->gnn_parent_id&key=$source_info'>$this->gnn_parent_id</a>"));
+                } else {
+                    $gid = $source_info["generate_id"];
+                    $aid = $source_info["analysis_id"];
+                    $key = $source_info["key"];
+                    array_push($metadata, array("Original EST Job Number", "$gid/$aid (<a href='../efi-est/stepc.php?id=$gid&key=$key' class='hl-est'>Original EST Dataset</a> | <a href='../efi-est/stepe.php?id=$gid&key=$key&analysis_id=$aid' class='hl-est'>Original SSN Download</a>)"));
+                }
             }
+            array_push($metadata, array("Time Started -- Finished", global_functions::format_short_date($this->time_started) . " -- " .
+                global_functions::format_short_date($this->time_completed)));
         }
-        array_push($metadata, array("Time Started -- Finished", global_functions::format_short_date($this->time_started) . " -- " .
-            global_functions::format_short_date($this->time_completed)));
         array_push($metadata, array("Uploaded Filename", $this->get_filename()));
         array_push($metadata, array("Neighborhood Size", $this->get_size()));
         array_push($metadata, array("Input % Co-Occurrence", $this->get_cooccurrence()));

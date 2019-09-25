@@ -20,7 +20,7 @@ else {
             sleep(1);
             $msg = false;
             print "Checking $jobId for completion: ";
-            $job = new identify($db, $jobId, $is_debug);
+            $job = new identify($db, $jobId, false, $is_debug);
             $job_result = $job->check_if_job_is_done(); // checks if the job is done and handles updating the database and sending email
             if ($job_result === 0) {
                 print "failed.\n";

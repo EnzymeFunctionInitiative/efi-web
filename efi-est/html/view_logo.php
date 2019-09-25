@@ -25,7 +25,13 @@ if (!isset($_GET["logo"])) {
 $hmm_graphics = $obj->get_hmm_graphics();
 $output_dir = $obj->get_full_output_dir();
 
-list($cluster, $seq_type, $quality) = explode("-", $_GET["logo"]);
+$parts = explode("-", $_GET["logo"]);
+$cluster = $parts[0];
+$seq_type = $parts[1];
+$quality = $parts[2];
+if (count($parts) > 3)
+    $quality .= "-" . $parts[3];
+
 
 if (!isset($hmm_graphics[$cluster][$seq_type][$quality])) {
     die("$cluster $seq_type $quality");
