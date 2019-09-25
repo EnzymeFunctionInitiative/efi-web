@@ -66,8 +66,9 @@ if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])
 $use_advanced_options = global_settings::advanced_options_enabled();
 
 $updateMessage = 
-    "Videos about the use of Cytoscape for viewing and manipulating SSNs are now available.<br>" .
-    "Access the videos by the <i class='fas fa-question'></i> <b>Training</b> button at the top of the page.<br>" .
+    "The \"From the Bench\" article describing the tools and their use is available on the " . 
+    "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
+    "Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
     "<small>" . functions::get_update_message() . "</small>";
 
 require_once "inc/header.inc.php";
