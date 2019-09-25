@@ -33,7 +33,7 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
         <div id="info">
             <h4>Submission Summary Table</h4>
             
-            <table class="pretty" style="border-top: 1px solid #aaa;">
+            <table class="pretty no-stretch" style="border-top: 1px solid #aaa;">
                 <tbody>
                     <?php echo $table_string; ?>
                 </tbody>
@@ -85,9 +85,9 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
                             <thead><th></th><th>File</th><th>Size</th></thead>
                             <tbody>
                             <?php 
-                                $ssn_row_file_array = $size_data["ssn"] ? array($file_types["ssn"], $file_types["ssn_zip"]) : $file_types["ssn_zip"];
-                                $ssn_row_label_array = $size_data["ssn"] ? array("Download", "Download (ZIP)") : "Download (ZIP)";
-                                $ssn_row_size_array = $size_data["ssn"] ? array($size_data["ssn"], $size_data["ssn_zip"]) : $size_data["ssn_zip"];
+                                $ssn_row_file_array = (!$is_example && $size_data["ssn"]) ? array($file_types["ssn"], $file_types["ssn_zip"]) : $file_types["ssn_zip"];
+                                $ssn_row_label_array = (!$is_example && $size_data["ssn"]) ? array("Download", "Download (ZIP)") : "Download (ZIP)";
+                                $ssn_row_size_array = (!$is_example && $size_data["ssn"]) ? array($size_data["ssn"], $size_data["ssn_zip"]) : $size_data["ssn_zip"];
                                 make_results_row($id_query_string,
                                     $ssn_row_file_array,
                                     $ssn_row_label_array,

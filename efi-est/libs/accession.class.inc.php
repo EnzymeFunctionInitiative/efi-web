@@ -17,9 +17,9 @@ class accession extends family_shared {
     private $domain_region;
 
 
-    public function __construct($db,$id = 0) {
+    public function __construct($db, $id = 0, $is_example = false) {
         $this->file_helper = new file_helper(".txt", $id);
-        parent::__construct($db, $id);
+        parent::__construct($db, $id, $is_example);
     }
 
     public function __destruct() {
@@ -40,10 +40,10 @@ class accession extends family_shared {
             $this->get_no_matches_download_file();
     }
     private function get_no_matches_download_file() {
-        return
-            functions::get_results_dirname() . "/" .
-            $this->get_output_dir() . "/" . 
-            $this->get_no_matches_filename(); 
+        $dir = $this->is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+        $dir .= "/" . $this->get_output_dir();
+        $dir .= "/" . $this->get_no_matches_filename(); 
+        return $dir;
     }
     private function get_no_matches_job_file() {
         return

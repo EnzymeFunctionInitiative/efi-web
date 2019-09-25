@@ -38,15 +38,34 @@ class analysis extends est_shared {
     private $use_min_node_attr = false;
     protected $is_sticky = false;
 
+    private $is_example = true;
+    private $analysis_table = "analysis";
+    private $generate_table = "generate";
+    private $ex_data_dir = "";
+
     ///////////////Public Functions///////////
 
-    public function __construct($db, $id = 0) {
+    public function __construct($db, $id = 0, $is_example = false) {
         parent::__construct($db, "analysis");
 
         $this->db = $db;
+
+        if ($is_example) {
+            $this->is_example = true;
+            $this->init_example($id);
+        }
+
         if ($id)
             $this->load_analysis($id);
         $this->beta = global_settings::get_release_status();
+    }
+
+    private function init_example($id) {
+        $config_file = example_config::get_config_file();
+        $config = example_config::get_config($config_file);
+        $this->analysis_table = example_config::get_est_analysis_table($config);
+        $this->generate_table = example_config::get_est_generate_table($config);
+        $this->ex_data_dir = example_config::get_est_data_dir($config);
     }
 
     public function __destruct() {
@@ -233,11 +252,21 @@ class analysis extends est_shared {
         return file_exists($full_path);
     }
 
+    public function get_zip_file_size($ssn_file) {
+        $results_dir = $this->get_results_dir();
+        $file = $results_dir . "/" . $this->get_output_dir();
+        $file .= "/" . $this->get_network_dir() . "/" . $ssn_file . ".zip";
+        if (file_exists($file))
+            return filesize($file);
+        else
+            return 0;
+    }
+
     public function get_network_stats() {
-        $results_dir = functions::get_results_dir();
+        $results_dir = $this->get_results_dir();
         $file = $results_dir . "/" . $this->get_output_dir();
         $file .= "/" . $this->get_network_dir() . "/" . $this->stats_file;
-        $file_handle = @fopen($file,"r") or die("Error opening " . $this->stats_file . "\n");
+        $file_handle = @fopen($file,"r") or die("Error opening $file " . $this->stats_file . "\n");
         $i = 0; 
         $stats_array = array();
         $keys = array('File','Nodes','Edges','Size');
@@ -271,9 +300,16 @@ class analysis extends est_shared {
         return $stats_array;
     }
 
+    private function get_results_dir() {
+        if ($this->is_example) {
+            return $this->ex_data_dir;
+        } else {
+            return functions::get_results_dir();
+        }
+    }
 
     public function download_network($file) {
-        $root_dir = functions::get_results_dir();	
+        $root_dir = $this->get_results_dir();	
         $directory = $root_dir . "/" . $this->get_output_dir() . "/" . $this->get_network_dir();
         $full_path = $directory . "/" . $file;
         if (file_exists($full_path)) {
@@ -418,7 +454,9 @@ class analysis extends est_shared {
 
 
     private function load_analysis($id) {
-        $sql = "SELECT * FROM analysis INNER JOIN generate ON analysis_generate_id = generate_id WHERE analysis_id='" . $id . "' ";
+        $a_table = $this->analysis_table;
+        $g_table = $this->generate_table;
+        $sql = "SELECT * FROM $a_table INNER JOIN $g_table ON analysis_generate_id = generate_id WHERE analysis_id='" . $id . "' ";
         $sql .= "LIMIT 1";
         $result = $this->db->query($sql);
         if ($result) {
@@ -686,7 +724,7 @@ class analysis extends est_shared {
         $plain_email = "";
         $plain_email .= "Your EFI-EST SSN has been generated and is available for download." . PHP_EOL . PHP_EOL;
         $plain_email .= "To access the results, please go to THE_URL" . PHP_EOL;
-        $plain_email .= "This data will only be retained for " . functions::get_retention_days() . " days." . PHP_EOL . PHP_EOL;
+        $plain_email .= "This data will only be retained for " . global_settings::get_retention_days() . " days." . PHP_EOL . PHP_EOL;
         $plain_email .= "Submission Summary:" . PHP_EOL . PHP_EOL;
         $plain_email .= $this->get_stepa_job_info() . PHP_EOL;
         $plain_email .= $this->get_email_job_info() . PHP_EOL . PHP_EOL;

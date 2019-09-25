@@ -1,138 +1,101 @@
 <?php
 require_once(__DIR__ . "/../includes/main.inc.php");
+require_once(__DIR__ . "/../libs/example_config.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
 require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
+require_once(__BASE_DIR__ . "/efi-est/libs/est_ui.class.inc.php");
+require_once(__BASE_DIR__ . "/efi-est/libs/est_user_jobs_shared.class.inc.php");
+require_once(__BASE_DIR__ . "/efi-gnt/libs/gnt_ui.class.inc.php");
+require_once(__BASE_DIR__ . "/shortbred/libs/cgfp_ui.class.inc.php");
 
 $NoAdmin = true;
+$ExtraTitle = "From The Bench";
 require_once("inc/header.inc.php");
+
+$has_advanced_options = global_settings::advanced_options_enabled();
 
 ?>
 
-<div class="tabs-efihdr ui-tabs ui-widget-content" id="main-tabs">
-    <ul class="ui-tabs-nav ui-widget-header">
-        <li class="ui-tabs-active"><a href="#video">Videos</a></li>
-        <!--
-        <li><a href="#tutorial">Tutorials</a></li>
-        <li><a href="#workshop">Workshops</a></li>
-        -->
-    </ul>
+<?php
+$active_tab = "biochem";
+include("inc/tab_header.inc.php");
+?>
+<div id="biochem" class="<?php echo $tab_class; ?>">
 
-    <div>
-        <div id="video" class="ui-tabs-panel ui-widget-content">
-            <p>
-            <a href="https://cytoscape.org/" target="_blank">Cytoscape</a> is used to visualize and analyze sequence similarity networks (SSNs) 
-            generated across the EFI website. Below, you will find videos that demonstrate 
-            the use of Cytoscape to analyze SSNs and explore their contents. The videos 
-            presented on this page are also accessible on the 
-            <a href="https://www.youtube.com/channel/UCShNWZLlJYevN2TlypX71ng" target="_blank">EFI YouTube channel</a>.
-            </p>
+<p>
+A "From The Bench"
+article was published in Biochemistry in 2019 describing the use of the EFI web 
+tools with an analysis of the glycyl radical enzyme superfamily (GRE; 
+IPR004184).  PDF files of the article and the Supplementary Information that 
+includes a detailed description of the tools are available for download.  
+</p>
 
-
-
-            <h3 class="extra-margin">Downloading and initial loading of a SSN in Cytoscape</h3>
-            <p>
-            SSNs generated on the EFI website are provided in the XGMML file 
-            format (.xgmml extension). A SSN needs to be downloaded to the user's computer, 
-            and then loaded into Cytoscape. In Cytoscape a layout needs to be applied. The 
-            SSN is then ready for exploration.
-            </p>
-            <iframe width="900" height="506" src="https://www.youtube.com/embed/ffLFhrD0-Ns" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-
-
-            <h3 class="extra-margin">SSN exploration in Cytoscape: overview</h3>
-            <p>
-            Once a SSN is loaded in Cytoscape and a layout is applied,
-            sequences forming SSN clusters can be explored. The following video
-            provides an overview of Cytoscape use to explore the information
-            present in SSNs.
-            </p>
-            <p>
-            In a Sequence Similarity Network (SSN), Nodes represent protein
-            sequences (or sets of protein sequences). Edges connecting Nodes
-            are only present if the similarity between the Node sequences is
-            higher than a specified threshold (the Alignment Score Threshold)
-            defined when the SSN is created. Cytoscape has a "Table panel",
-            used to view the node and edge attributes within a SSN, as well as
-            a "Control panel" that can be used to "Select" (search) for
-            specific information.
-            </p>
-            <iframe width="900" height="506" src="https://www.youtube.com/embed/s9epC5gv5Rw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-
-
-            <h3 class="extra-margin">Accessing key information and exporting a publication ready figure</h3>
-            <p>
-            SSNs generated using the EFI website contain a wealth of data that
-            can be explored. This video shows how to identify the key
-            information that is SwissProt annotations for sequences contained
-            in the SSN to evaluate it and create a publication ready figure.
-            </p>
-            <p>
-            In the Cytoscape "Control panel", the general style of networks can
-            be edited. The default styling can be changed to create images that
-            are suited as figures for publications. In this video the user will
-            see how to export such an image. Additionally, the user will learn
-            how to use SwissProt-annotated sequences for the basis of SSN
-            analysis; how to locate SwissProt-annotated nodes using the
-            "Select" function and how to ensure that these nodes are visible
-            using a depth parameter; how to view multiple SwissProt-annotated
-            nodes; how to locate and add text annotations to the network; how
-            to save a Cytoscape session for later use; and how to export a
-            final publication-ready figure.
-            </p>
-            <iframe width="900" height="506" src="https://www.youtube.com/embed/2O_tWRi4EIM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-
-
-            <h3 class="extra-margin">Sub-clusters: choosing the minimal Alignment Score Threshold that would separate sub-clusters into clusters; Editing SSNs and the Color Utility</h3>
-            <p>
-            The Alignment Score Threshold is initially chosen may not segregate
-            the SSN into isofunctional clusters. This video shows how to use
-            daughter networks to explore clusters that contain more than one
-            SwissProt-annotated node, and to determine the minimal Alignment
-            Score Threshold that would allow the SwissProt-annotated nodes to
-            separate into their own clusters. Additionally, the user learns how
-            to edit networks and apply a new Alignment Score Threshold.
-            Finally, the Color SSN utility is demonstrated.
-            </p>
-            <iframe width="900" height="506" src="https://www.youtube.com/embed/4oF6iZadwRU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-
-
-            <h3 class="extra-margin">Adding Custom Node Attributes to a SSN</h3>
-            <p>
-            <a href="https://www.bridgedb.org/" target="_blank">BridgeDB</a>
-            is a Cytoscape application allowing to add custom node attributes
-            to SSNs. This video shows how to install the BridgeDB Cytoscape app
-            and add a custom color attribute to nodes in a SSN using a simple
-            two-column text file. 
-            The first column contains IDs corresponding to those in the SSN and
-            the second colum containing the specific color for the node. The
-            user is also introduced to the "Passthrough mapping" function in
-            the Cytoscape style panel which is used for mapping the custom
-            color attribute to node color.
-            </p>
-            <iframe width="900" height="506" src="https://www.youtube.com/embed/MUxfe7lAxsw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-
-
-        </div>
-        <!--
-        <div id="tutorial" class="ui-tabs-panel ui-widget-content">
-        </div>
-        <div id="workshop" class="ui-tabs-panel ui-widget-content">
-        </div>
-        -->
-    </div>
+<p>
+Please use the following to cite the EFI tools:
+<div style="margin-left: 50px">
+R&eacute;mi Zallot, Nils Oberg, and John A. Gerlt,
+<b>The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome 
+Databases to Discover Novel Enzymes and Metabolic Pathways.</b>
+2019.
+<a href="https://doi.org/10.1021/acs.biochem.9b00735">https://doi.org/10.1021/acs.biochem.9b00735</a>
 </div>
+</p>
+
+<p>
+<a href="biochem/FromTheBench2019.pdf">Download the paper in PDF format.</a>
+</p>
+
+<p>
+<a href="biochem/FromTheBench2019_Supplementary_Methods.pdf">Download the supplementary methods (201 pages).</a>
+</p>
+
+<p>
+<a href="biochem/FromTheBench2019_Supplementary_Figures_and_Tables.pdf">Download the supplementary figures and tables (25 pages).</a>
+</p>
+
+<p>
+We also provide access to the EFI-EST, EFI-GNT and EFI-CGFP jobs that were generated in the analysis of the GRE superfamily.
+</p>
+
+<p>
+<div id="jobs">
+<?php
+
+$is_example = true;
+
+$config_file = example_config::get_config_file();
+$config = new example_config($db, $config_file);
+
+echo "<h4>EST Jobs</h4>\n";
+$est_jobs = $config->get_est_jobs();
+if (isset($est_jobs["order"]) && count($est_jobs["order"]) > 0) {
+    echo est_ui::output_job_list($est_jobs, false, false, $is_example);
+}
+
+echo "<h4 style=\"margin-top:50px\">GNT Job</h4>\n";
+$gnt_jobs = $config->get_gnt_jobs();
+if (count($gnt_jobs) > 0) {
+    echo gnt_ui::output_job_list($gnt_jobs, $is_example);
+}
+
+echo "<h4 style=\"margin-top:50px\">CGFP Job</h4>\n";
+$cgfp_jobs = $config->get_cgfp_jobs();
+if (count($cgfp_jobs) > 0) {
+    echo cgfp_ui::output_job_list($cgfp_jobs, false, $is_example);
+}
+
+?>
+</div>
+</p>
+
+</div>
+<?php include("inc/tab_footer.inc.php"); ?>
 
 
 
 <script>
     $(document).ready(function() {
-        $("#main-tabs").tabs();
     }).tooltip();
 </script>
 

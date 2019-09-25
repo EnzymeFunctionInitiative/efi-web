@@ -13,8 +13,8 @@ abstract class option_base extends stepa {
     protected $num_cpu = 0;
 
 
-    public function __construct($db, $id = 0) {
-        parent::__construct($db, $id);
+    public function __construct($db, $id = 0, $is_example = false) {
+        parent::__construct($db, $id, $is_example);
     }
 
     public function __destruct() {
@@ -248,7 +248,7 @@ abstract class option_base extends stepa {
         chdir($out->job_dir);
 
         $sched = functions::get_cluster_scheduler();
-        $max_full_fam = functions::get_maximum_full_family_count();
+        $max_full_fam = est_settings::get_maximum_full_family_count();
 
         $parms = $this->get_run_script_args($out);
 

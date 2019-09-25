@@ -10,21 +10,28 @@ require_once("../libs/job_manager.class.inc.php");
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"])) {
     error500("Unable to find the requested job.");
-} else {
-    $job_mgr = new job_manager($db, job_types::Identify);
-    if ($job_mgr->get_job_key($_GET["id"]) != $_GET["key"]) {
-        error500("Unable to find the requested job.");
-    }
+//} else {
+//    $job_mgr = new job_manager($db, job_types::Identify);
+//    if ($job_mgr->get_job_key($_GET["id"]) != $_GET["key"]) {
+//        error500("Unable to find the requested job.");
+//    }
 }
 
 $key = $_GET["key"];
 $qid = $_GET["quantify-id"];
 $identify_id = $_GET["id"];
 
+// There are two types of examples: dynamic and static.  The static example is a curated
+// example pulled into the entry screen.  The dynamic examples are the same as other
+// jobs, except they are stored in separate directories/tables.
+$is_example = isset($_GET["x"]) ? true : false;
+
+$ex_param = $is_example ? "&x=1" : "";
+
 // Vars needed by step_vars.inc.php
 $table_format = "html";
-$id_query_string = "id=$identify_id&key=$key&quantify-id=$qid";
-$identify_only_id_query_string = "id=$identify_id&key=$key";
+$id_query_string = "id=$identify_id&key=$key&quantify-id=$qid$ex_param";
+$identify_only_id_query_string = "id=$identify_id&key=$key$ex_param";
 $id_tbl_val = "<a href=\"stepc.php?$id_query_string\"><u>$identify_id</u></a>/$qid";
 
 if (isset($_GET["as-table"])) {
@@ -33,7 +40,11 @@ if (isset($_GET["as-table"])) {
 
 
 $ExtraTitle = "Quantify Results";
-$job_obj = new quantify($db, $qid);
+$job_obj = new quantify($db, $qid, $is_example);
+
+if ($job_obj->get_key() != $key) {
+    error_404();
+}
 
 
 require_once("inc/stepe_vars.inc.php");

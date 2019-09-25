@@ -8,7 +8,8 @@ if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
 }
 
 
-$obj = new colorssn($db,$_GET['id']);
+$is_example = isset($_GET["x"]);
+$obj = new colorssn($db, $_GET['id'], $is_example);
 
 $key = $obj->get_key();
 if ($key != $_GET['key']) {
@@ -75,7 +76,7 @@ $swissprotSinglesDescFile = $obj->get_swissprot_desc_web_path($want_singles_file
 $swissprotSinglesDescFileSize = format_file_size($obj->get_file_size($swissprotSinglesDescFile));
 $hmmZipFile = $obj->get_hmm_zip_web_path();
 $hmmZipFileSize = format_file_size($obj->get_file_size($hmmZipFile));
-$hmmGraphics = $obj->get_hmm_graphics();
+$hmm_graphics = $obj->get_hmm_graphics();
 $hmm_graphics_dir = $obj->get_hmm_graphics_dir();
 
 $fileInfo = array();
@@ -161,7 +162,7 @@ else {
     require_once("inc/header.inc.php");
 
     if ($obj->is_expired()) {
-        echo "<p class='center'><br>Your job results are only retained for a period of " . functions::get_retention_days(). " days";
+        echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days(). " days";
         echo "<br>Your job was completed on " . $obj->get_time_completed();
         echo "<br>Please go back to the <a href='" . functions::get_server_name() . "'>homepage</a></p>";
         exit;
@@ -178,7 +179,7 @@ else {
     <ul class="">
         <li class="ui-tabs-active"><a href="#info">Submission Summary</a></li>
         <li><a href="#data">Data File Download</a></li>
-<?php if ($hmmGraphics) { ?>
+<?php if ($hmm_graphics) { ?>
         <li><a href="#hmm">HMMs</a></li>
 <?php } ?>
     </ul>
@@ -186,7 +187,7 @@ else {
         <!-- JOB INFORMATION -->
         <div id="info">
             <h4>Submission Summary Table</h4>
-            <table width="100%" class="pretty">
+            <table width="100%" class="pretty no-stretch">
             <?php echo $table_string ?>
             </table>
             <div style="float:right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$est_id&key=$key&as-table=1" ?>'><button class='normal'>Download Information</button></a></div>
@@ -199,16 +200,18 @@ else {
             <table width="100%" class="pretty">
                 <thead>
                     <th></th>
-                    <th>File Size (Unzipped/Zipped MB)</th>
+                    <th>File Size (<?php echo $is_example ? "Zipped MB" : "Unzipped/Zipped MB"; ?>)</th>
                 </thead>
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
+<?php if (!$is_example) { ?>
                             <a href="<?php echo "$ssnFile"; ?>"><button class="mini">Download</button></a>
+<?php } ?>
                             <a href="<?php echo "$ssnFileZip"; ?>"><button class="mini">Download ZIP</button></a>
                         </td>
                         <td>
-                            <?php echo "$ssnFileSize MB / $ssnFileZipSize MB"; ?>
+                            <?php echo $is_example ? "$ssnFileZipSize MB" : "$ssnFileSize MB / $ssnFileZipSize MB"; ?>
                         </td>
                     </tr>
                 </tbody>
@@ -274,7 +277,7 @@ HTML;
             </center>
             
         </div>
-<?php if ($hmmGraphics) { ?>
+<?php if ($hmm_graphics) { ?>
         <div id="hmm">
             <h4>HMMs</h4>
 <?php
@@ -283,54 +286,48 @@ HTML;
                         if (isset($data["length"]))
                             $info .= ", length=" . $data["length"];
                         if (isset($data["num_seq"]))
-                            $info .= ", number of sequences=" . $data["num_seq"];
+                            $info .= ", #HMM Seq=" . $data["num_seq"];
+                        if (isset($data["num_uniprot"]) && $data["num_uniprot"])
+                            $info .= ", #UniProt=" . $data["num_uniprot"];
+                        if (isset($data["num_uniref90"]) && $data["num_uniref90"] && (isset($data["num_uniref50"]) && $data["num_uniref50"]))
+                            $info .= ", #UniRef90=" . $data["num_uniref90"];
                         $class = $type ? "hmm-$type" : "";
                         return <<<HTML
-<div class="$class hidden">CLUSTER $cluster_num $info (<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type&f=png">download PNG</a>)<br><img class="hmm-logo" src="$hmm_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type"></div>\n
+<div class="$class hidden">$info (<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type&f=png">download PNG</a>)<br><img class="hmm-logo" src="$hmm_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type"></div>\n
 HTML;
                     };
 
-                    $has_full_normal = false;
-                    $has_full_fast = false;
-                    $has_domain_normal = false;
-                    $has_domain_fast = false;
+                    $cb_types = array();
 
-                    $clusters = array_keys($hmmGraphics);
+                    $clusters = array_keys($hmm_graphics);
                     sort($clusters);
 
                     $html = "";
                     for ($i = 0; $i < count($clusters); $i++) {
                         $cluster = $clusters[$i];
-                        if (isset($hmmGraphics[$cluster]["full"]["normal"])) {
-                            $has_full_normal = true;
-                            $html .= $output_fn($cluster, $hmmGraphics[$cluster]["full"]["normal"], "full, normal", "full-normal");
-                        }
-                        if (isset($hmmGraphics[$cluster]["full"]["fast"])) {
-                            $has_full_fast = true;
-                            $html .= $output_fn($cluster, $hmmGraphics[$cluster]["full"]["fast"], "full, fast", "full-fast");
-                        }
-                        if (isset($hmmGraphics[$cluster]["domain"]["normal"])) {
-                            $has_domain_normal = true;
-                            $html .= $output_fn($cluster, $hmmGraphics[$cluster]["domain"]["normal"], "domain, normal", "domain-normal");
-                        }
-                        if (isset($hmmGraphics[$cluster]["domain"]["fast"])) {
-                            $has_domain_fast = true;
-                            $html .= $output_fn($cluster, $hmmGraphics[$cluster]["domain"]["fast"], "domain, fast", "domain-fast");
+                        $html .= "<h4 class=\"cluster-heading hidden\" style=\"margin-top: 30px\">Cluster $cluster</h4>\n";
+                        foreach ($hmm_graphics[$cluster] as $seq_type => $group_data) {
+                            foreach ($group_data as $quality => $data) {
+                                $html .= $output_fn($cluster, $data, "$seq_type, <b>$quality</b>", "$seq_type-$quality");
+                                $cb_types[$seq_type][$quality] = 1;
+                            }
                         }
                     }
 
-                    print "Show: ";
-                    if ($has_full_normal)
-                        print '<input type="checkbox" id="hmm-full-normal" name="sel-hmm" value="full-normal"><label for="hmm-full-normal">full, normal</label>' . PHP_EOL;
-                    if ($has_full_fast)
-                        print '<input type="checkbox" id="hmm-full-fast" name="sel-hmm" value="full-fast"><label for="hmm-full-fast">full, fast</label>' . PHP_EOL;
-                    if ($has_domain_normal)
-                        print '<input type="checkbox" id="hmm-domain-normal" name="sel-hmm" value="domain-normal"><label for="hmm-domain-normal">domain, normal</label>' . PHP_EOL;
-                    if ($has_domain_fast)
-                        print '<input type="checkbox" id="hmm-domain-fast" name="sel-hmm" value="domain-fast"><label for="hmm-domain-fast">domain, fast</label>' . PHP_EOL;
-                    print " HMMs.<br><br><br>";
+                    $cb_id_list = array();
+                    echo "Show HMMs:<br>\n";
+                    foreach ($cb_types as $seq_type => $qdata) {
+                        foreach ($qdata as $quality => $junk) {
+                            $dash_type = $seq_type . "-" . $quality;
+                            $comma_type = $seq_type . ", " . $quality;
+                            echo "<input type=\"checkbox\" id=\"hmm-$dash_type\" name=\"sel-hmm\" value=\"$dash_type\"><label for=\"hmm-$dash_type\">$comma_type</label>" . PHP_EOL;
+                            array_push($cb_id_list, $dash_type);
+                        }
+                        echo "<br>\n";
+                    }
+                    echo "<br><br><br>";
 
-                    print $html;
+                    echo $html;
 ?>
         </div>
 <?php } ?>
@@ -341,6 +338,21 @@ HTML;
 $(document).ready(function() {
     $(".tabs").tabs();
 
+<?php if ($hmm_graphics) {
+    foreach ($cb_id_list as $cb_id) {
+        echo <<<HTML
+    $("#hmm-$cb_id").click(function() {
+        if (this.checked) {
+            $(".hmm-$cb_id").show();
+            $(".cluster-heading").show();
+        } else {
+            $(".hmm-$cb_id").hide();
+        }
+    });
+HTML;
+          }
+?>
+<?php /*
     $("#hmm-full-normal").click(function() {
         if (this.checked)
             $(".hmm-full-normal").show();
@@ -365,6 +377,7 @@ $(document).ready(function() {
         else
             $(".hmm-domain-fast").hide();
     });
+ */ ?>
     $(".hmm-logo").click(function(evt) {
         var parm = $(this).data("logo");
         var windowSize = ["width=1500,height=600"];
@@ -372,6 +385,7 @@ $(document).ready(function() {
         var theWindow = window.open(url, "", windowSize);
         evt.preventDefault();
     });
+<?php } ?>
 });
 </script>
 

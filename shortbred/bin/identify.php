@@ -22,7 +22,7 @@ else {
             print "\nProcessing $jobId\n";
 
             $is_debug = false;
-            $job = new identify($db, $jobId, $is_debug);
+            $job = new identify($db, $jobId, false, $is_debug);
             $msg = $job->run_job();
             
             if (!$msg) {

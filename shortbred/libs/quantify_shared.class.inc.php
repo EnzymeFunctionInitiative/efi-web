@@ -47,8 +47,8 @@ abstract class quantify_shared extends job_shared {
     }
 
 
-    public function __construct($db) {
-        parent::__construct($db);
+    public function __construct($db, $is_example = false) {
+        parent::__construct($db, $is_example);
     }
 
 
