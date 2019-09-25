@@ -18,11 +18,47 @@ if ($key != $_GET['key']) {
     exit;
 }
 
+if (!$is_example && $obj->is_expired()) {
+    require_once("inc/header.inc.php");
+    echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days(). " days";
+    echo "<br>Your job was completed on " . $obj->get_time_completed();
+    echo "<br>Please go back to the <a href='" . functions::get_server_name() . "'>homepage</a></p>";
+    require_once("inc/footer.inc.php");
+    exit;
+}
+
+
 $table_format = "html";
 if (isset($_GET["as-table"])) {
     $table_format = "tab";
 }
 $table = new table_builder($table_format);
+
+$metadata = $obj->get_metadata();
+$job_name = $obj->get_uploaded_filename();
+foreach ($metadata as $row) {
+    if (strpos($row[0], '<a href') !== false)
+        $table->add_row_html_only($row[0], $row[1]);
+    else
+        $table->add_row($row[0], $row[1]);
+}
+
+$table_string = $table->as_string();
+
+if (isset($_GET["as-table"])) {
+    $table_filename = functions::safe_filename($baseSsnName) . "_summary.txt";
+
+    header('Pragma: public');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="' . $table_filename . '"');
+    header('Content-Length: ' . strlen($table_string));
+    ob_clean();
+    echo $table_string;
+    exit(0);
+}
+
 
 $est_id = $obj->get_id();
 $uploadedFilename = $obj->get_uploaded_filename();
@@ -30,6 +66,7 @@ $uploadedFilename = $obj->get_uploaded_filename();
 $url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$obj->get_id(), 'key' => $key));
 $baseUrl = functions::get_web_root() . "/results/" . $obj->get_output_dir();
 
+$ex_param = $is_example ? "&x=1" : "";
 
 $want_clusters_file = true;
 $want_singles_file = false;
@@ -123,51 +160,7 @@ if ($hmmZipFile)
     array_push($fileInfo, array("HMMs for FASTA $uniprotText cluster", $hmmZipFile, $hmmZipFileSize));
 
 
-$metadata = $obj->get_metadata();
-$job_name = $obj->get_uploaded_filename();
-
-foreach ($metadata as $row) {
-    if (strpos($row[0], '<a href') !== false)
-        $table->add_row_html_only($row[0], $row[1]);
-    else
-        $table->add_row($row[0], $row[1]);
-}
-
-#$dateCompleted = $obj->get_time_completed_formatted();
-#$dbVersion = $obj->get_db_version();
-#$table->add_row("Date Completed", $dateCompleted);
-#if (!empty($dbVersion)) {
-#    $table->add_row("Database Version", $dbVersion);
-#}
-#$table->add_row("Input Option", "Color SSN");
-#$table->add_row("Job Number", $est_id);
-#$table->add_row("Uploaded XGMML File", $uploadedFilename);
-
-$table_string = $table->as_string();
-
-if (isset($_GET["as-table"])) {
-    $table_filename = functions::safe_filename($baseSsnName) . "_summary.txt";
-
-    header('Pragma: public');
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="' . $table_filename . '"');
-    header('Content-Length: ' . strlen($table_string));
-    ob_clean();
-    echo $table_string;
-}
-else {
-    
-    require_once("inc/header.inc.php");
-
-    if ($obj->is_expired()) {
-        echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days(). " days";
-        echo "<br>Your job was completed on " . $obj->get_time_completed();
-        echo "<br>Please go back to the <a href='" . functions::get_server_name() . "'>homepage</a></p>";
-        exit;
-    }
-
+require_once("inc/header.inc.php");
 
 ?>	
 
@@ -190,7 +183,7 @@ else {
             <table width="100%" class="pretty no-stretch">
             <?php echo $table_string ?>
             </table>
-            <div style="float:right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$est_id&key=$key&as-table=1" ?>'><button class='normal'>Download Information</button></a></div>
+            <div style="float:right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$est_id&key=$key&as-table=1$ex_param" ?>'><button class='normal'>Download Information</button></a></div>
             <div style="clear:both;margin-bottom:20px"></div>
         </div>
         <div id="data">
@@ -390,9 +383,7 @@ HTML;
 </script>
 
 <?php
-    include_once 'inc/footer.inc.php';
-
-}
+require_once("inc/footer.inc.php");
 
 
 function format_file_size($size) {

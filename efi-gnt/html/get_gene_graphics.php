@@ -8,7 +8,8 @@ require_once("../libs/gnd_v2.class.inc.php");
 // This is necessary so that the gnd class environment doesn't get clusttered
 // with the dependencies that gnn, etc. need.
 class gnd_job_factory extends job_factory {
-    public function new_gnn($db, $id) { return new gnn($db, $id); }
+    function __construct($is_example) { $this->is_example = $is_example; }
+    public function new_gnn($db, $id) { return $this->is_example ? new gnn_example($db, $id) : new gnn($db, $id); }
     public function new_gnn_bigscape_job($db, $id) { return new bigscape_job($db, $id, DiagramJob::GNN); }
     public function new_uploaded_bigscape_job($db, $id) { return new bigscape_job($db, $id, DiagramJob::Uploaded); }
     public function new_diagram_data_file($id) { return new diagram_data_file($id); }
@@ -20,10 +21,10 @@ class gnd_job_factory extends job_factory {
 if (!isset($_SERVER["HTTP_HOST"]))
     parse_str($argv[1], $_GET);
 
+$is_example = isset($_GET["x"]) ? true : false;
 
-$start_time = microtime(true);
 
-$gnd = new gnd_v2($db, $_GET, new gnd_job_factory());
+$gnd = new gnd_v2($db, $_GET, new gnd_job_factory($is_example));
 
 
 
