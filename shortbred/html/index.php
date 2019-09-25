@@ -55,8 +55,9 @@ if (!$IsLoggedIn) {
     $login_banner_msg = "To use EFI-CGFP, submit a request on the 'Run CGFP/ShortBRED' tab.";
 }
 $update_message = 
-    "Videos about the use of Cytoscape for viewing and manipulating SSNs are now available.<br>" .
-    "Access the videos by the <i class='fas fa-question'></i> <b>Training</b> button at the top of the page.<br>" .
+    "The \"From the Bench\" article describing the tools and their use is available on the " . 
+    "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
+    "Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
     "<small>" . functions::get_update_message() . "</small>";
 $update_message = ($login_banner_msg ? "$login_banner_msg<br>" : "") . $update_message;
 
