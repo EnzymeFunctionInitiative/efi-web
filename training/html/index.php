@@ -23,6 +23,24 @@ include("inc/tab_header.inc.php");
 ?>
 <div id="biochem" class="<?php echo $tab_class; ?>">
 
+<div style="text-align: center; font-size: 2em; font-weight: bold;">
+EFI Genomic Enzymology Tools
+</div>
+<div>
+<img src="biochem/paper_banner1.png" width="100%" />
+</div>
+<div>
+<div style="width: 33%; display: inline-block; font-weight: bold; font-size: 1.5em; text-align: center" class="hl-est">
+EFI-EST
+</div>
+<div style="width: 33%; display: inline-block; font-weight: bold; font-size: 1.5em; text-align: center" class="hl-gnt">
+EFI-GNT
+</div>
+<div style="width: 33%; display: inline-block; font-weight: bold; font-size: 1.5em; text-align: center" class="hl-cgfp">
+EFI-CGFP
+</div>
+</div>
+
 <p>
 A "From The Bench"
 article was published in Biochemistry in 2019 describing the use of the EFI web 

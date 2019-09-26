@@ -39,8 +39,22 @@ and Network Resource Group</a> at IGB.
 </div>
 
 <p>
+A "From The Bench" article was recently published in Biochemistry and is available on
+<a href="training/">the training resources page</a>.
+</p>
+
+<p>
 <a name="citeus"></a>
 If you use the EFI web tools, please cite us:
+</p>
+
+<div style="margin-left: 50px">
+<p>
+R&eacute;mi Zallot, Nils Oberg, and John A. Gerlt,
+<b>The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome 
+Databases to Discover Novel Enzymes and Metabolic Pathways.</b>
+2019.
+<a href="https://doi.org/10.1021/acs.biochem.9b00735">https://doi.org/10.1021/acs.biochem.9b00735</a>
 </p>
 
 <p>
@@ -65,6 +79,7 @@ similarity networks</b>, Biochimica et Biophysica Acta (BBA) - Proteins and
 Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639, 
 <a href="https://dx.doi.org/10.1016/j.bbapap.2015.04.015">https://dx.doi.org/10.1016/j.bbapap.2015.04.015</a>
 </p>
+</div>
 
 <p style="margin-top: 30px">
 <table border="0" class="nav-blocks">
