@@ -1,7 +1,8 @@
 <?php
 
-require_once('option_base.class.inc.php');
-require_once('generate_helper.class.inc.php');
+require_once(__DIR__ . "/option_base.class.inc.php");
+require_once(__DIR__ . "/generate_helper.class.inc.php");
+require_once(__DIR__ . "/est_settings.class.inc.php");
 
 class blast extends family_shared {
 
@@ -98,7 +99,7 @@ class blast extends family_shared {
             $parms["-nresults"] = $this->get_submitted_max_sequences();
         }
         else {
-            $parms["-nresults"] = functions::get_default_blast_seq();
+            $parms["-nresults"] = est_settings::get_default_blast_seq();
         }
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
 
@@ -174,7 +175,7 @@ class blast extends family_shared {
         elseif (!preg_match("/^[1-9][0-9]*$/",$max_seqs)) {
             $valid = 0;
         }
-        elseif ($max_seqs > functions::get_max_blast_seq()) {
+        elseif ($max_seqs > est_settings::get_max_blast_seq()) {
             $valid = 0;
         }
         else {

@@ -38,7 +38,7 @@ class analysis extends est_shared {
     private $use_min_node_attr = false;
     protected $is_sticky = false;
 
-    private $is_example = true;
+    private $is_example = false;
     private $analysis_table = "analysis";
     private $generate_table = "generate";
     private $ex_data_dir = "";
