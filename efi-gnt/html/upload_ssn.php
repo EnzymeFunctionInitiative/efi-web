@@ -75,7 +75,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     }
     elseif (!functions::is_valid_file_type($file_type)) {
         $valid = 0;
-        $message .= "<br><b>Invalid filetype ($file_type).  The file has to be an " . settings::get_valid_file_types() . " filetype.</b>";
+        $message .= "<br><b>Invalid filetype ($file_type).</b>";
     }
 
     if (!$gnn_parent_id && !functions::verify_email($email)) {
