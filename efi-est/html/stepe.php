@@ -104,6 +104,7 @@ if (isset($_GET["as-table"])) {
     exit(0);
 }
 
+$IncludeSubmitJs = true;
 require_once("inc/header.inc.php");
 
 // $stats is set above
@@ -182,8 +183,6 @@ for ($i = 0; $i < count($stats); $i++) {
         $network_sel_list[$percent_identity] = $rel_path;
     }
 }
-
-$IncludeSubmitJs = true;
 
 $stepa_link = functions::get_web_root() . "/index.php#colorssn";
 $gnt_link = functions::get_gnt_web_root();
