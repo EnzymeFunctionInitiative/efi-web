@@ -12,6 +12,7 @@ class blast extends family_shared {
     private $blast_evalue; // the evalue to use for the SEQUENCE blast, not the family one
     public $fail_file = "1.out.failed";
     public $subject = "EFI-EST BLAST";
+    private $blast_db_type = "";
 
 
     public function __construct($db, $id = 0, $is_example = false) {
@@ -51,10 +52,11 @@ class blast extends family_shared {
 
     protected function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
-        $insert_array['generate_blast_max_sequence'] = $data->max_seqs;
-        $insert_array['generate_blast_evalue'] = $data->blast_evalue;
+        $insert_array["generate_blast_max_sequence"] = $data->max_seqs;
+        $insert_array["generate_blast_evalue"] = $data->blast_evalue;
         $formatted_blast = self::format_blast($data->field_input);
-        $insert_array['generate_blast'] = $formatted_blast;
+        $insert_array["generate_blast"] = $formatted_blast;
+        $insert_array["blast_db_type"] = isset($data->blast_db_type) ? $data->blast_db_type : "";
         return $insert_array;
     }
 
@@ -70,15 +72,19 @@ class blast extends family_shared {
 
         if (($data->field_input != "") && (!$this->verify_blast_input($data->field_input))) {
             $result->errors = true;
-            $result->message .= "<br><b>Please enter a valid blast input</b></br>";
+            $result->message .= "<br>Please enter a valid blast input";
         }
         if (!$this->verify_max_seqs($data->max_seqs)) {
             $result->errors = true;	
-            $result->message .= "<br><b>Please enter a valid maximum number of sequences</b></br>";
+            $result->message .= "<br>Please enter a valid maximum number of sequences";
         }
         if (!$this->verify_evalue($data->blast_evalue)) {
             $result->errors = true;
-            $result->message .= "<br><b>Please enter a valid E-Value</b></br>";
+            $result->message .= "<br>Please enter a valid E-Value";
+        }
+        if (isset($data->blast_db_type) && $data->blast_db_type != "uniprot" && $data->blast_db_type != "uniref50" && $data->blast_db_type != "uniref90") {
+            $result->errors = true;
+            $result->message .= "<br>Please enter a valid database type";
         }
 
         return $result;
@@ -95,13 +101,13 @@ class blast extends family_shared {
 
         $parms["-seq"] = "'" . $this->get_blast_input() . "'";
         $parms["-blast-evalue"] = $this->blast_evalue; // initial blast evalue
-        if ($this->get_submitted_max_sequences() != "") {
+        if ($this->get_submitted_max_sequences() != "")
             $parms["-nresults"] = $this->get_submitted_max_sequences();
-        }
-        else {
+        else
             $parms["-nresults"] = est_settings::get_default_blast_seq();
-        }
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
+        if ($this->blast_db_type)
+            $parms["-db-type"] = $this->blast_db_type;
 
         return $parms;
     }
@@ -112,12 +118,13 @@ class blast extends family_shared {
             return;
         }
 
-        $this->blast_input = $result['generate_blast'];
-        $this->blast_sequence_max = $result['generate_blast_max_sequence'];
-        if (! array_key_exists('generate_blast_evalue', $result))
-            $this->blast_evalue = $result['generate_evalue'];  // legacy cases
+        $this->blast_input = $result["generate_blast"];
+        $this->blast_sequence_max = $result["generate_blast_max_sequence"];
+        if (!isset($result["generate_blast_evalue"]))
+            $this->blast_evalue = $result["generate_evalue"];  // legacy cases
         else
-            $this->blast_evalue = $result['generate_blast_evalue'];
+            $this->blast_evalue = $result["generate_blast_evalue"];
+        $this->blast_db_type = isset($result["blast_db_type"]) ? $result["blast_db_type"] : "";
 
         return $result;
     }

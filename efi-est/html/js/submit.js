@@ -61,6 +61,7 @@ function submitOptionAForm(famHelper, outputIds) { // familySizeHelper
         addParam(fd, "blast_input", "blast-input");
         addParam(fd, "blast_evalue", "blast-evalue");
         addParam(fd, "blast_max_seqs", "blast-max-seqs");
+        addParam(fd, "blast_db_type", "blast-db-type");
         
         var fileHandler = function(xhr) {};
         var completionHandler = getDefaultCompletionHandler();
