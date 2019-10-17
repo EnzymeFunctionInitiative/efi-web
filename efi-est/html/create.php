@@ -76,6 +76,7 @@ if (!isset($_POST['submit'])) {
         $input->db_mod = $_POST['db-mod'];
     if (array_key_exists('cpu-x2', $_POST) && global_settings::advanced_options_enabled())
         $input->cpu_x2 = $_POST['cpu-x2'] == "true" ? true : false;
+    $input->exclude_fragments = (isset($_POST['exclude-fragments']) && $_POST['exclude-fragments'] == "true") ? true : false;
 
     switch($option) {
         //Option A - BLAST Input
@@ -87,6 +88,7 @@ if (!isset($_POST['submit'])) {
             $input->blast_evalue = $_POST['blast_evalue'];
             $input->field_input = $_POST['blast_input'];
             $input->max_seqs = $_POST['blast_max_seqs'];
+            $input->blast_db_type = $_POST['blast_db_type'];
             if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
                 if (isset($_POST['families_uniref_ver']) && $_POST['families_uniref_ver'])
                     $input->uniref_version = $_POST['families_uniref_ver'];
@@ -182,8 +184,10 @@ if (!isset($_POST['submit'])) {
                     if (isset($_POST['ssn-source-idx']))
                         $input->color_ssn_source_idx = $_POST['ssn-source-idx'];
                     $input->extra_ram = (isset($_POST['extra_ram']) && $_POST['extra_ram'] == "true");
-                    $input->make_hmm = (isset($_POST['make_hmm']) && $_POST['make_hmm'] == "true");
-                    $input->fast_hmm = (isset($_POST['fast_hmm']) && $_POST['fast_hmm'] == "true");
+                    $input->make_hmm = (isset($_POST['make-hmm']) && $_POST['make-hmm']) ? $_POST['make-hmm'] : "";
+                    $input->aa_threshold = (isset($_POST['aa-threshold']) && $_POST['aa-threshold']) ? $_POST['aa-threshold'] : 0.8;
+                    $input->hmm_aa = (isset($_POST['hmm-aa']) && $_POST['hmm-aa']) ? $_POST['hmm-aa'] : "";
+                    $input->min_seq_msa = (isset($_POST['min-seq-msa']) && $_POST['min-seq-msa']) ? $_POST['min-seq-msa'] : 0;
                 }
 
                 if (isset($_FILES['file'])) {

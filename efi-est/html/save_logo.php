@@ -22,19 +22,41 @@ if (!isset($_GET["logo"])) {
 }
 
 
-$hmm_graphics = $obj->get_hmm_graphics();
+$gtype = "hmm";
+if (isset($_GET["t"])) {
+    if ($_GET["t"] == "w")
+        $gtype = "weblogo";
+    elseif ($_GET["t"] == "l")
+        $gtype = "length";
+}
+
+
 $output_dir = $obj->get_full_output_dir();
 
-list($cluster, $seq_type, $quality) = explode("-", $_GET["logo"]);
+$file_prefix = "";
+$format = "png";
+if ($gtype == "hmm") {
+    $graphics = $obj->get_hmm_graphics();
+    $file_prefix = "HMM_Cluster";
+} elseif ($gtype == "weblogo") {
+    $graphics = $obj->get_weblogo_graphics();
+    $file_prefix = "WebLogo_Cluster";
+} elseif ($gtype == "length") {
+    $graphics = $obj->get_lenhist_graphics();
+    $file_prefix = "Length_Histogram";
+}
 
-if (!isset($hmm_graphics[$cluster][$seq_type][$quality])) {
+
+list($cluster, $seq_type, $quality) = explode("-", $_GET["logo"]);
+if (!isset($graphics[$cluster][$seq_type][$quality])) {
     die("$cluster $seq_type $quality");
     exit;
 }
 
 $format = "png";
-$filename = $obj->get_base_filename() . "_HMM_Cluster_${cluster}_${seq_type}_${quality}.$format";
-$full_path = $obj->get_full_output_dir() . "/" . $hmm_graphics[$cluster][$seq_type][$quality] . ".png";
+$filename = $obj->get_base_filename() . "_${file_prefix}_${cluster}_${seq_type}_${quality}.$format";
+$full_path = $obj->get_full_output_dir() . "/" . $graphics[$cluster][$seq_type][$quality]["path"] . ".png";
+
 
 header('Content-Description: File Transfer');
 header('Content-Type: application/octet-stream');

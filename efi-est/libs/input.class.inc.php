@@ -11,6 +11,7 @@ class input_data {
     public $random_fraction;
     public $db_mod;
     public $cpu_x2;
+    public $exclude_fragments;
 
     // For option A, C, D
     public $field_input;
@@ -52,7 +53,9 @@ class input_data {
     public $color_ssn_source_idx; // SSN index
     public $extra_ram; // use extra RAM (dev site)
     public $make_hmm; // make HMMs
-    public $fast_hmm; // make HMMs and fast MUSCLE HMMs
+    public $aa_threshold; // AA probability treshold
+    public $hmm_aa; // List of AAs to compute CR for
+    public $min_seq_msa;
 
     //public $cooccurrence;
     //public $neighborhood_size;
