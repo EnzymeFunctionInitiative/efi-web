@@ -19,6 +19,7 @@ class input_data {
     // For option A
     public $blast_evalue; // For Option A, this is the sequence blast evalue.  the $evalue var above is for the optional families added in by the user.
     public $blast_input_id; // For Option A, if the user provides a header, we store it.
+    public $blast_db_type;
 
     // For option D
     public $domain_family;

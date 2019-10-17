@@ -67,6 +67,20 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
                                     default: <?php echo number_format($default_blast_seq); ?>)
                                 </span>
                             </div>
+                            <div>
+                                <span class="input-name">
+                                    Sequence database:
+                                </span><span class="input-field">
+                                    <select name="blast-db-type" id="blast-db-type">
+                                        <option value="uniprot" selected>UniProt</option>
+                                        <option value="uniref90">UniRef90</option>
+                                        <option value="uniref50">UniRef50</option>
+                                    </select>  (UniProt, UniRef90, or UniRef50; default UniProt)
+                                </span>
+                                <div class="input-desc">
+                                    Select the sequence database to BLAST against.
+                                </div>
+                            </div>
                         </div>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
