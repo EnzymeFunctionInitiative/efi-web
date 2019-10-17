@@ -363,6 +363,14 @@ function add_dev_site_option($option_id, $db_modules, $extra_html = "") {
             <label for="cpu-x2-$option_id">Check to use two times the number of processors (default: off)</label>
         </span>
     </div>
+    <div>
+        <span class="input-name">
+            Exclude fragments:
+        </span><span class="input-field">
+            <input type="checkbox" id="exclude-fragments-$option_id" name="exclude-fragments-$option_id" value="1">
+            <label for="exclude-fragments-$option_id">Check to exclude fragments in the result [default: fragments are included; will not work with databases prior to IP76]</label>
+        </span>
+    </div>
 HTML;
     list($db_html) = make_db_mod_option($db_modules, $option_id);
     $html .= $db_html;

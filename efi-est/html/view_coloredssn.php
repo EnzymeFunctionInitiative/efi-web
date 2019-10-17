@@ -114,7 +114,9 @@ $swissprotSinglesDescFileSize = format_file_size($obj->get_file_size($swissprotS
 $hmmZipFile = $obj->get_hmm_zip_web_path();
 $hmmZipFileSize = format_file_size($obj->get_file_size($hmmZipFile));
 $hmm_graphics = $obj->get_hmm_graphics();
-$hmm_graphics_dir = $obj->get_hmm_graphics_dir();
+$weblogo_graphics = $obj->get_weblogo_graphics();
+$lenhist_graphics = $obj->get_lenhist_graphics();
+$logo_graphics_dir = $obj->get_graphics_dir();
 
 $fileInfo = array();
 array_push($fileInfo, array("Mapping Tables"));
@@ -174,6 +176,12 @@ require_once("inc/header.inc.php");
         <li><a href="#data">Data File Download</a></li>
 <?php if ($hmm_graphics) { ?>
         <li><a href="#hmm">HMMs</a></li>
+<?php } ?>
+<?php if ($weblogo_graphics) { ?>
+        <li><a href="#weblogo">WebLogos</a></li>
+<?php } ?>
+<?php if ($lenhist_graphics) { ?>
+        <li><a href="#lenhist">Length Histograms</a></li>
 <?php } ?>
     </ul>
     <div>
@@ -274,7 +282,7 @@ HTML;
         <div id="hmm">
             <h4>HMMs</h4>
 <?php
-                    $output_fn = function($cluster_num, $data, $info = "", $type = "") use ($hmm_graphics_dir, $est_id, $key) {
+                    $output_fn = function($cluster_num, $data, $info = "", $type = "") use ($logo_graphics_dir, $est_id, $key) {
                         $file = $data["path"];
                         if (isset($data["length"]))
                             $info .= ", length=" . $data["length"];
@@ -282,45 +290,61 @@ HTML;
                             $info .= ", #HMM Seq=" . $data["num_seq"];
                         if (isset($data["num_uniprot"]) && $data["num_uniprot"])
                             $info .= ", #UniProt=" . $data["num_uniprot"];
-                        if (isset($data["num_uniref90"]) && $data["num_uniref90"] && (isset($data["num_uniref50"]) && $data["num_uniref50"]))
+                        if (isset($data["num_uniref50"]) && $data["num_uniref50"])
+                            $info .= ", #UniRef50=" . $data["num_uniref50"];
+                        if (isset($data["num_uniref90"]) && $data["num_uniref90"]);
                             $info .= ", #UniRef90=" . $data["num_uniref90"];
                         $class = $type ? "hmm-$type" : "";
                         return <<<HTML
-<div class="$class hidden">$info (<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type&f=png">download PNG</a>)<br><img class="hmm-logo" src="$hmm_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type"></div>\n
+<div class="$class hidden">$info (<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type&f=png">download PNG</a>)<br><img class="hmm-logo" src="$logo_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type"></div>\n
 HTML;
                     };
 
-                    $cb_types = array();
+                    $hmm_cb_id_list = output_graphics_html("Show HMMs:", "hmm", $hmm_graphics, $output_fn);
+?>
+        </div>
+<?php } ?>
+<?php if ($weblogo_graphics) { ?>
+        <div id="weblogo">
+            <h4>WebLogos</h4>
+<?php
+                    $weblogo_output_fn = function($cluster_num, $data, $info = "", $type = "") use ($logo_graphics_dir, $est_id, $key) {
+                        $file = $data["path"];
+                        if (isset($data["num_uniprot"]) && $data["num_uniprot"])
+                            $info .= ", #UniProt=" . $data["num_uniprot"];
+                        if (isset($data["num_uniref50"]) && $data["num_uniref50"])
+                            $info .= ", #UniRef50=" . $data["num_uniref50"];
+                        if (isset($data["num_uniref90"]) && $data["num_uniref90"]);
+                            $info .= ", #UniRef90=" . $data["num_uniref90"];
+                        $class = $type ? "weblogo-$type" : "";
+                        return <<<HTML
+<div class="$class hidden">$info (<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type&f=png&t=w">download PNG</a>)<br><a href="$logo_graphics_dir/$file.png"><img src="$logo_graphics_dir/$file.png" width="50%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type"></a></div>\n
+HTML;
+                    };
 
-                    $clusters = array_keys($hmm_graphics);
-                    sort($clusters);
+                    $weblogo_cb_id_list = output_graphics_html("Show WebLogos:", "weblogo", $weblogo_graphics, $weblogo_output_fn);
+?>
+        </div>
+<?php } ?>
+<?php if ($lenhist_graphics) { ?>
+        <div id="lenhist">
+            <h4>Length Histograms</h4>
+<?php
+                    $lenhist_output_fn = function($cluster_num, $data, $info = "", $type = "") use ($logo_graphics_dir, $est_id, $key) {
+                        $file = $data["path"];
+                        if (isset($data["num_uniprot"]) && $data["num_uniprot"])
+                            $info .= ", #UniProt=" . $data["num_uniprot"];
+                        if (isset($data["num_uniref50"]) && $data["num_uniref50"])
+                            $info .= ", #UniRef50=" . $data["num_uniref50"];
+                        if (isset($data["num_uniref90"]) && $data["num_uniref90"]);
+                            $info .= ", #UniRef90=" . $data["num_uniref90"];
+                        $class = $type ? "lenhist-$type" : "";
+                        return <<<HTML
+<div class="$class hidden" style="float: left; width: 50%">$info (<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type&f=png&t=l">download PNG</a>)<br><a href="$logo_graphics_dir/$file.png"><img src="$logo_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type"></a></div>\n
+HTML;
+                    };
 
-                    $html = "";
-                    for ($i = 0; $i < count($clusters); $i++) {
-                        $cluster = $clusters[$i];
-                        $html .= "<h4 class=\"cluster-heading hidden\" style=\"margin-top: 30px\">Cluster $cluster</h4>\n";
-                        foreach ($hmm_graphics[$cluster] as $seq_type => $group_data) {
-                            foreach ($group_data as $quality => $data) {
-                                $html .= $output_fn($cluster, $data, "$seq_type, <b>$quality</b>", "$seq_type-$quality");
-                                $cb_types[$seq_type][$quality] = 1;
-                            }
-                        }
-                    }
-
-                    $cb_id_list = array();
-                    echo "Show HMMs:<br>\n";
-                    foreach ($cb_types as $seq_type => $qdata) {
-                        foreach ($qdata as $quality => $junk) {
-                            $dash_type = $seq_type . "-" . $quality;
-                            $comma_type = $seq_type . ", " . $quality;
-                            echo "<input type=\"checkbox\" id=\"hmm-$dash_type\" name=\"sel-hmm\" value=\"$dash_type\"><label for=\"hmm-$dash_type\">$comma_type</label>" . PHP_EOL;
-                            array_push($cb_id_list, $dash_type);
-                        }
-                        echo "<br>\n";
-                    }
-                    echo "<br><br><br>";
-
-                    echo $html;
+                    $lenhist_cb_id_list = output_graphics_html("Show Length Histograms:", "lenhist", $lenhist_graphics, $lenhist_output_fn);
 ?>
         </div>
 <?php } ?>
@@ -331,46 +355,16 @@ HTML;
 $(document).ready(function() {
     $(".tabs").tabs();
 
-<?php if ($hmm_graphics) {
-    foreach ($cb_id_list as $cb_id) {
-        echo <<<HTML
-    $("#hmm-$cb_id").click(function() {
-        if (this.checked) {
-            $(".hmm-$cb_id").show();
-            $(".cluster-heading").show();
-        } else {
-            $(".hmm-$cb_id").hide();
-        }
-    });
-HTML;
-          }
+<?php
+    if ($weblogo_graphics) {
+        output_graphics_js($weblogo_cb_id_list, "weblogo");
+    }
+    if ($lenhist_graphics) {
+        output_graphics_js($lenhist_cb_id_list, "lenhist");
+    }
+    if ($hmm_graphics) {
+        output_graphics_js($hmm_cb_id_list, "hmm");
 ?>
-<?php /*
-    $("#hmm-full-normal").click(function() {
-        if (this.checked)
-            $(".hmm-full-normal").show();
-        else
-            $(".hmm-full-normal").hide();
-    });
-    $("#hmm-full-fast").click(function() {
-        if (this.checked)
-            $(".hmm-full-fast").show();
-        else
-            $(".hmm-full-fast").hide();
-    });
-    $("#hmm-domain-normal").click(function() {
-        if (this.checked)
-            $(".hmm-domain-normal").show();
-        else
-            $(".hmm-domain-normal").hide();
-    });
-    $("#hmm-domain-fast").click(function() {
-        if (this.checked)
-            $(".hmm-domain-fast").show();
-        else
-            $(".hmm-domain-fast").hide();
-    });
- */ ?>
     $(".hmm-logo").click(function(evt) {
         var parm = $(this).data("logo");
         var windowSize = ["width=1500,height=600"];
@@ -378,7 +372,9 @@ HTML;
         var theWindow = window.open(url, "", windowSize);
         evt.preventDefault();
     });
-<?php } ?>
+<?php
+    }
+?>
 });
 </script>
 
@@ -393,6 +389,63 @@ function format_file_size($size) {
     return $mb;
 }
 
+
+function output_graphics_js($cb_id_list, $prefix) {
+    foreach ($cb_id_list as $cb_id) {
+        echo <<<HTML
+    $("#$prefix-$cb_id").click(function() {
+        if (this.checked) {
+            $(".$prefix-$cb_id").show();
+            $(".$prefix-cluster-heading").show();
+        } else {
+            $(".$prefix-$cb_id").hide();
+        }
+    });
+HTML;
+    }
+}
+
+
+function output_graphics_html($header, $prefix, $graphics, $output_fn) {
+    $cb_types = array();
+
+    $clusters = array_keys($graphics);
+    sort($clusters);
+
+    $html = "";
+    for ($i = 0; $i < count($clusters); $i++) {
+        $cluster = $clusters[$i];
+        $html .= "<div style=\"clear:both\">\n";
+        $html .= "<h4 class=\"$prefix-cluster-heading hidden\" style=\"margin-top: 30px\">Cluster $cluster</h4>\n";
+        $html .= "</div>\n";
+        $html .= "<div>\n";
+        foreach ($graphics[$cluster] as $seq_type => $group_data) {
+            foreach ($group_data as $quality => $data) {
+                $html .= $output_fn($cluster, $data, "$seq_type, <b>$quality</b>", "$seq_type-$quality");
+                $cb_types[$seq_type][$quality] = 1;
+            }
+        }
+        $html .= "</div>\n";
+    }
+
+    $cb_id_list = array();
+    $html2 = "$header<br>\n";
+    foreach ($cb_types as $seq_type => $qdata) {
+        foreach ($qdata as $quality => $junk) {
+            $dash_type = $seq_type . "-" . $quality;
+            $comma_type = $seq_type . ", " . $quality;
+            $html2 .= "<input type=\"checkbox\" id=\"$prefix-$dash_type\" name=\"sel-hmm\" value=\"$dash_type\"><label for=\"$prefix-$dash_type\">$comma_type</label>" . PHP_EOL;
+            array_push($cb_id_list, $dash_type);
+        }
+        $html2 .= "<br>\n";
+    }
+    $html2 .= "<br><br><br>";
+
+    echo $html2;
+    echo $html;
+
+    return $cb_id_list;
+}
 
 ?>
 
