@@ -9,22 +9,25 @@ require_once "inc/header.inc.php";
 
 <h2>Release Notes</h2>
 
-<!--
-<h3>April ZZZ, 2019</h3>
-
+<h3>December 20, 2019</h3>
 <p>
-<?php echo get_db_size_text("2019_02", "73", 146106279, 559228); ?>
+An option to exclude UniProt-defined fragments has been added to the web tool.
 </p>
--->
+<p>
+<?php echo get_db_size_text("2019_10", "77", 181787788, 561568); ?>
+</p>
+
+<h3>September 25, 2019</h3>
+<p>
+<?php echo get_db_size_text("2019_08", "76", 171501488, 560823); ?>
+</p>
 
 <h3>May 20, 2019</h3>
-
 <p>
 <?php echo get_db_size_text("2019_04", "74", 158257522, 560292); ?>
 </p>
 
 <h3>April 6, 2019</h3>
-
 <p>
 The EFI-EST web tool has been enhanced with a tab-style interface.  Contents of the pages are now
 grouped into logical tabs and data files can be downloaded without scrolling.  Job history is
