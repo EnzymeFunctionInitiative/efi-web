@@ -143,6 +143,7 @@ class efi_statistics
             $results[$i]['Time Completed'] = self::format_date($results[$i]['Time Completed']);
             $results[$i]['Time Submitted'] = self::format_date($results[$i]['Time Submitted']);
             $results[$i]['UniRef'] = array_key_exists('generate_uniref', $params) ? $params['generate_uniref'] : '';
+            $results[$i]['ColorSSNOpt'] = isset($params['make_hmm']) && $params['make_hmm'];
         }
         //$sql .= "generate.generate_blast as Blast, ";
         //$sql .= "generate.generate_families as Families, ";

@@ -111,11 +111,82 @@ $swissprotClustersDescFile = $obj->get_swissprot_desc_web_path($want_clusters_fi
 $swissprotClustersDescFileSize = format_file_size($obj->get_file_size($swissprotClustersDescFile));
 $swissprotSinglesDescFile = $obj->get_swissprot_desc_web_path($want_singles_file);
 $swissprotSinglesDescFileSize = format_file_size($obj->get_file_size($swissprotSinglesDescFile));
-$hmmZipFile = $obj->get_hmm_zip_web_path();
-$hmmZipFileSize = format_file_size($obj->get_file_size($hmmZipFile));
+
+$uniprotText = ($fastaFilesUniRef90ZipSize || $fastaFilesUniRef50ZipSize) ? "UniProt" : "";
+
+$hmmZipFileList = array();
+$zipFile = $obj->get_hmm_zip_web_path("Full");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($hmmZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "HMMs for FASTA $uniprotText cluster (full length sequences)"));
+}
+$zipFile = $obj->get_hmm_zip_web_path("Domain");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($hmmZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "HMMs for FASTA $uniprotText cluster (domain sequences)"));
+}
+
+$weblogoZipFileList = array();
+$zipFile = $obj->get_weblogo_zip_web_path("Full");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($weblogoZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "WebLogos for FASTA $uniprotText cluster (full length sequences)"));
+}
+$zipFile = $obj->get_weblogo_zip_web_path("Domain");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($weblogoZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "WebLogos for FASTA $uniprotText cluster (domain sequences)"));
+}
+
+$msaZipFileList = array();
+$zipFile = $obj->get_msa_zip_web_path("Full");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($msaZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "MSAs for FASTA $uniprotText cluster (full length sequences)"));
+}
+$zipFile = $obj->get_msa_zip_web_path("Domain");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($msaZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "MSAs for FASTA $uniprotText cluster (domain sequences)"));
+}
+
+$lenHistZipFileList = array();
+$zipFile = $obj->get_lenhist_zip_web_path("Full", "UniProt");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (full length sequences, UniProt)"));
+}
+$zipFile = $obj->get_lenhist_zip_web_path("Full", "UniRef90");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (full length sequences, UniRef90)"));
+}
+$zipFile = $obj->get_lenhist_zip_web_path("Full", "UniRef50");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (full length sequences, UniRef50)"));
+}
+$zipFile = $obj->get_lenhist_zip_web_path("Domain", "UniProt");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (domain sequences, UniProt)"));
+}
+$zipFile = $obj->get_lenhist_zip_web_path("Domain", "UniRef90");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (domain sequences, UniRef90)"));
+}
+$zipFile = $obj->get_lenhist_zip_web_path("Domain", "UniRef50");
+if ($zipFile) {
+    $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+    array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (domain sequences, UniRef50)"));
+}
+
 $hmm_graphics = $obj->get_hmm_graphics();
 $weblogo_graphics = $obj->get_weblogo_graphics();
 $lenhist_graphics = $obj->get_lenhist_graphics();
+$alignment_list = $obj->get_alignment_list();
+$cr_list = $obj->get_cr_results_list();
 $logo_graphics_dir = $obj->get_graphics_dir();
 
 $fileInfo = array();
@@ -138,7 +209,6 @@ if ($uniref50NodeFilesZip)
 if ($uniref50DomainNodeFilesZip)
     array_push($fileInfo, array("UniRef50 ID lists per cluster (with domain)", $uniref50DomainNodeFilesZip, $uniref50DomainNodeFilesZipSize));
 
-$uniprotText = ($fastaFilesUniRef90ZipSize || $fastaFilesUniRef50ZipSize) ? "UniProt" : "";
 array_push($fileInfo, array("FASTA files per $uniprotText cluster", $fastaFilesUniProtZip, $fastaFilesUniProtZipSize));
 if ($fastaFilesUniProtDomainZip)
     array_push($fileInfo, array("FASTA files per $uniprotText cluster (with domain)", $fastaFilesUniProtDomainZip, $fastaFilesUniProtDomainZipSize));
@@ -158,8 +228,6 @@ if ($swissprotClustersDescFile)
     array_push($fileInfo, array("SwissProt annotations by cluster", $swissprotClustersDescFile, $swissprotClustersDescFileSize));
 if ($swissprotSinglesDescFile)
     array_push($fileInfo, array("SwissProt annotations by singletons", $swissprotSinglesDescFile, $swissprotSinglesDescFileSize));
-if ($hmmZipFile)
-    array_push($fileInfo, array("HMMs for FASTA $uniprotText cluster", $hmmZipFile, $hmmZipFileSize));
 
 
 require_once("inc/header.inc.php");
@@ -174,11 +242,14 @@ require_once("inc/header.inc.php");
     <ul class="">
         <li class="ui-tabs-active"><a href="#info">Submission Summary</a></li>
         <li><a href="#data">Data File Download</a></li>
-<?php if ($hmm_graphics) { ?>
-        <li><a href="#hmm">HMMs</a></li>
-<?php } ?>
 <?php if ($weblogo_graphics) { ?>
         <li><a href="#weblogo">WebLogos</a></li>
+<?php } ?>
+<?php if ($cr_list) { ?>
+        <li><a href="#crinfo">Consensus Residues</a></li>
+<?php } ?>
+<?php if ($hmm_graphics) { ?>
+        <li><a href="#hmm">HMMs</a></li>
 <?php } ?>
 <?php if ($lenhist_graphics) { ?>
         <li><a href="#lenhist">Length Histograms</a></li>
@@ -278,11 +349,102 @@ HTML;
             </center>
             
         </div>
+<?php if ($weblogo_graphics) { ?>
+        <div id="weblogo">
+            <h4>WebLogos</h4>
+<?php outputZipFileTable($weblogoZipFileList); ?>
+<?php outputZipFileTable($msaZipFileList); ?>
+            <br><br>
+<?php
+                    $weblogo_output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key, $alignment_list) {
+                        $file = $data["path"];
+                        if (isset($data["num_uniprot"]) && $data["num_uniprot"])
+                            $info .= ", #UniProt=" . $data["num_uniprot"];
+                        if (isset($data["num_uniref50"]) && $data["num_uniref50"])
+                            $info .= ", #UniRef50=" . $data["num_uniref50"];
+                        if (isset($data["num_uniref90"]) && $data["num_uniref90"])
+                            $info .= ", #UniRef90=" . $data["num_uniref90"];
+                        $class = $type ? "weblogo-$type-$quality" : "";
+                        /*
+                        $extra = <<<HTML
+(<a href="$logo_graphics_dir/$file.afa">Download alignment FASTA</a>)
+HTML;
+                         */
+                        $extra = "";
+                        if (isset($alignment_list[$cluster_num][$type][$quality])) {
+                            $afa_file = $alignment_list[$cluster_num][$type][$quality]["path"];
+                            $extra = <<<HTML
+(<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=afa">Download alignment FASTA</a>)
+HTML;
+                        }
+                        return <<<HTML
+<div class="$class hidden">$info
+(<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=w">download PNG</a>) $extra<br>
+<a href="$logo_graphics_dir/$file.png"><img src="$logo_graphics_dir/$file.png" width="50%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type-$quality"></a>
+</div>\n
+HTML;
+                    };
+
+                    $weblogo_cb_id_list = output_graphics_html("Show WebLogos:", "weblogo", $weblogo_graphics, $weblogo_output_fn);
+?>
+        </div>
+<?php } ?>
+<?php if ($cr_list) { ?> 
+        <div id="crinfo">
+            <h4>Consensus Residues</h4>
+            
+            <table width="100%" class="pretty no-border">
+<?php
+                    foreach ($cr_list as $aa => $seq_types) {
+                        echo <<<HTML
+                <tbody>
+                    <tr style="text-align:center;">
+                        <td colspan="3" class="file-header-row">
+                            $aa
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody class="file-group">
+HTML;
+                        foreach ($seq_types as $seq_type => $file_list) {
+                            foreach ($file_list as $file_type => $info) {
+                                $path = $info["path"];
+                                $size_text = "&lt;1 MB";
+                                $dl_btn_text = "Download";
+                                if ($file_type == "zip") {
+                                    $info_text = "ID lists grouped by consensus residue percentage and number of residues in cluster ($seq_type)";
+                                    $dl_btn_text = "Download All (ZIP)";
+                                } elseif ($file_type == "position") {
+                                    $info_text = "Consensus residue position summary table ($seq_type)";
+                                } elseif ($file_type == "percentage") {
+                                    $info_text = "Consensus residue percentage summary table ($seq_type)";
+                                }
+                                $dl_path = "$logo_graphics_dir/$path";
+                                echo <<<HTML
+                    <tr style="text-align:center;">
+                        <td><a href="$dl_path"><button class='mini'>$dl_btn_text</button></a></td>
+                        <td>$info_text</td>
+                        <td>$size_text</td>
+                    </tr>
+HTML;
+                            }
+                        }
+                        echo <<<HTML
+                </tbody>
+HTML;
+                    }
+?>
+            </table>
+        </div>
+<?php } ?>
 <?php if ($hmm_graphics) { ?>
         <div id="hmm">
             <h4>HMMs</h4>
+<?php outputZipFileTable($hmmZipFileList); ?>
+            <br><br>
+
 <?php
-                    $output_fn = function($cluster_num, $data, $info = "", $type = "") use ($logo_graphics_dir, $est_id, $key) {
+                    $output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key) {
                         $file = $data["path"];
                         if (isset($data["length"]))
                             $info .= ", length=" . $data["length"];
@@ -292,11 +454,15 @@ HTML;
                             $info .= ", #UniProt=" . $data["num_uniprot"];
                         if (isset($data["num_uniref50"]) && $data["num_uniref50"])
                             $info .= ", #UniRef50=" . $data["num_uniref50"];
-                        if (isset($data["num_uniref90"]) && $data["num_uniref90"]);
+                        if (isset($data["num_uniref90"]) && $data["num_uniref90"])
                             $info .= ", #UniRef90=" . $data["num_uniref90"];
-                        $class = $type ? "hmm-$type" : "";
+                        $class = $type ? "hmm-$type-$quality" : "";
                         return <<<HTML
-<div class="$class hidden">$info (<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type&f=png">download PNG</a>)<br><img class="hmm-logo" src="$logo_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type"></div>\n
+<div class="$class hidden">$info
+(<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&t=hmm-png">download PNG</a>)
+(<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&t=hmm">download HMM</a>)<br>
+<img class="hmm-logo" src="$logo_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type-$quality">
+</div>\n
 HTML;
                     };
 
@@ -304,43 +470,23 @@ HTML;
 ?>
         </div>
 <?php } ?>
-<?php if ($weblogo_graphics) { ?>
-        <div id="weblogo">
-            <h4>WebLogos</h4>
-<?php
-                    $weblogo_output_fn = function($cluster_num, $data, $info = "", $type = "") use ($logo_graphics_dir, $est_id, $key) {
-                        $file = $data["path"];
-                        if (isset($data["num_uniprot"]) && $data["num_uniprot"])
-                            $info .= ", #UniProt=" . $data["num_uniprot"];
-                        if (isset($data["num_uniref50"]) && $data["num_uniref50"])
-                            $info .= ", #UniRef50=" . $data["num_uniref50"];
-                        if (isset($data["num_uniref90"]) && $data["num_uniref90"]);
-                            $info .= ", #UniRef90=" . $data["num_uniref90"];
-                        $class = $type ? "weblogo-$type" : "";
-                        return <<<HTML
-<div class="$class hidden">$info (<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type&f=png&t=w">download PNG</a>)<br><a href="$logo_graphics_dir/$file.png"><img src="$logo_graphics_dir/$file.png" width="50%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type"></a></div>\n
-HTML;
-                    };
-
-                    $weblogo_cb_id_list = output_graphics_html("Show WebLogos:", "weblogo", $weblogo_graphics, $weblogo_output_fn);
-?>
-        </div>
-<?php } ?>
 <?php if ($lenhist_graphics) { ?>
         <div id="lenhist">
             <h4>Length Histograms</h4>
+<?php outputZipFileTable($lenHistZipFileList); ?>
+            <br><br>
 <?php
-                    $lenhist_output_fn = function($cluster_num, $data, $info = "", $type = "") use ($logo_graphics_dir, $est_id, $key) {
+                    $lenhist_output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key) {
                         $file = $data["path"];
                         if (isset($data["num_uniprot"]) && $data["num_uniprot"])
                             $info .= ", #UniProt=" . $data["num_uniprot"];
                         if (isset($data["num_uniref50"]) && $data["num_uniref50"])
                             $info .= ", #UniRef50=" . $data["num_uniref50"];
-                        if (isset($data["num_uniref90"]) && $data["num_uniref90"]);
+                        if (isset($data["num_uniref90"]) && $data["num_uniref90"])
                             $info .= ", #UniRef90=" . $data["num_uniref90"];
-                        $class = $type ? "lenhist-$type" : "";
+                        $class = $type ? "lenhist-$type-$quality" : "";
                         return <<<HTML
-<div class="$class hidden" style="float: left; width: 50%">$info (<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type&f=png&t=l">download PNG</a>)<br><a href="$logo_graphics_dir/$file.png"><img src="$logo_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type"></a></div>\n
+<div class="$class hidden" style="float: left; width: 50%">$info (<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=l">download PNG</a>)<br><a href="$logo_graphics_dir/$file.png"><img src="$logo_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type-$quality"></a></div>\n
 HTML;
                     };
 
@@ -421,7 +567,7 @@ function output_graphics_html($header, $prefix, $graphics, $output_fn) {
         $html .= "<div>\n";
         foreach ($graphics[$cluster] as $seq_type => $group_data) {
             foreach ($group_data as $quality => $data) {
-                $html .= $output_fn($cluster, $data, "$seq_type, <b>$quality</b>", "$seq_type-$quality");
+                $html .= $output_fn($cluster, $data, "$seq_type, <b>$quality</b>", $seq_type, $quality);
                 $cb_types[$seq_type][$quality] = 1;
             }
         }
@@ -445,6 +591,29 @@ function output_graphics_html($header, $prefix, $graphics, $output_fn) {
     echo $html;
 
     return $cb_id_list;
+}
+
+function outputZipFileTable($zipList) {
+    echo <<<HTML
+            <table width="100%" class="pretty no-border">
+                <tbody class="file-group">
+HTML;
+    foreach ($zipList as $index => $zipData) {
+        $path = $zipData["path"];
+        $text = $zipData["text"];
+        $size = $zipData["size"];
+        echo <<<HTML
+                    <tr style="text-align:center;">
+                        <td><a href="$path"><button class='mini'>Download All (ZIP)</button></a></td>
+                        <td>$text</td>
+                        <td>$size MB</td>
+                    </tr>
+HTML;
+    }
+    echo <<<HTML
+                </tbody>
+            </table>
+HTML;
 }
 
 ?>

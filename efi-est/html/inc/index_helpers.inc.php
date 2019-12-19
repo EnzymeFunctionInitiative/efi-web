@@ -136,6 +136,30 @@ HTML;
 }
 
 
+function add_fragment_option($option_id) {
+    $html = <<<HTML
+<h3>Fragment Option</h3>
+<div>
+    <span class="input-name">
+        Fragments:
+    </span><span class="input-field">
+        <input type="checkbox" id="exclude-fragments-$option_id" name="exclude-fragments-$option_id" value="1">
+        <label for="exclude-fragments-$option_id">
+            Check to exclude UniProt-defined fragments in the results.
+            (default: off)
+        </label>
+    </span>
+    <div class="input-desc">
+        The UniProt database designates a sequence as a fragment if it translated from a gene missing a start and/or a stop codon (Sequence Status).
+        Fragments are included in the SSNs by default; checking this box will exclude fragmented sequences
+        from computations.  This results in an approximately 10% smaller SSN.
+    </div>
+</div>
+HTML;
+    return array($html);
+}
+
+
 function add_blast_calc_desc() {
     $html = <<<HTML
             An all-by-all BLAST is performed to obtain the similarities between sequence pairs to
