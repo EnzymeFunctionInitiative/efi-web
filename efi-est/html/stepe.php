@@ -7,7 +7,7 @@ require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 require_once(__DIR__ . "/../libs/dataset_shared.class.inc.php");
 
 
-if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
+if (!isset($_GET['id']) || !is_numeric($_GET['id']) || !isset($_GET['analysis_id']) || !is_numeric($_GET['analysis_id'])) {
     error500("Unable to find the requested job.");
 }
 

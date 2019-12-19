@@ -141,6 +141,8 @@ class est_user_jobs_shared {
         }
 
         $job_type = self::get_job_label($type);
+        if ($type == "COLORSSN" && isset($data["make_hmm"]) && $data["make_hmm"])
+            $job_type .= " (HMM and stuff)";
 
         $info = array($job_type);
         if ($fileName) array_push($info, $fileName);
