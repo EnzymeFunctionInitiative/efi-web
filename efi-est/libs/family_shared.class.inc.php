@@ -17,6 +17,7 @@ abstract class family_shared extends option_base {
     protected $random_fraction = false;
     protected $min_seq_len = 0;
     protected $max_seq_len = 0;
+    protected $exclude_fragments = false;
 
     ///////////////Public Functions///////////
 
@@ -37,6 +38,7 @@ abstract class family_shared extends option_base {
     public function get_uniref_version() { return $this->uniref_version; }
     public function get_no_demux() { return $this->no_demux; }
     public function is_cd_hit_job() { return strpos($this->seq_id, ",") !== FALSE; } //HACK: this is a temporary hack for research purposes
+    public function get_exclude_fragments() { return $this->exclude_fragments; }
             
 
 
@@ -110,6 +112,8 @@ abstract class family_shared extends option_base {
             $insert_array["generate_min_seq_len"] = $data->min_seq_len;
         if (isset($data->max_seq_len))
             $insert_array["generate_max_seq_len"] = $data->max_seq_len;
+        if (isset($data->exclude_fragments) && $data->exclude_fragments === true)
+            $insert_array["exclude_fragments"] = true;
         return $insert_array;
     }
 
@@ -164,6 +168,9 @@ abstract class family_shared extends option_base {
         if ($this->max_seq_len)
             $parms["-max-seq-len"] = $this->max_seq_len;
 
+        if ($this->exclude_fragments)
+            $parms["-exclude-fragments"] = "";
+
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
 
         return $parms;
@@ -200,6 +207,11 @@ abstract class family_shared extends option_base {
             $this->min_seq_len = $result["generate_min_seq_len"];
         if (isset($result["generate_max_seq_len"]))
             $this->max_seq_len = $result["generate_max_seq_len"];
+        //TODO: include_fragments is legacy
+        if (isset($result["include_fragments"]))
+            $this->exclude_fragments = !$result["include_fragments"];
+        if (isset($result["exclude_fragments"]))
+            $this->exclude_fragments = $result["exclude_fragments"];
 
         return $result;
     }

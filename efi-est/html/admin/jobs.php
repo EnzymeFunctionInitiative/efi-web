@@ -60,7 +60,8 @@ foreach ($jobs as $job) {
 
     if ($job_type == "generate") {
         $job_list_html .= "<td>" . $job['Email'] . "</td>";
-        $job_list_html .= "<td>" . $job['Option Selected'] . "</td>";
+        $extra = $job['ColorSSNOpt'] ? "+HMM" : "";
+        $job_list_html .= "<td>" . $job['Option Selected'] . $extra . "</td>";
         if ($job['Option Selected'] == 'BLAST') { 
             $job_list_html .= "<td><a href='../blast.php?blast=" . $job['Blast'] . "' target='_blank' ><span class='glyphicon glyphicon-ok'></span></a>";
             $job_list_html .= "</td>";

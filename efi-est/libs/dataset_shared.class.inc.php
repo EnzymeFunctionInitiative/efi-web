@@ -151,6 +151,7 @@ class dataset_shared {
                 $table->add_row("Actual Number of Retrieved Sequences", number_format($retrieved_seq));
             $add_fam_rows_fn($family_label, $fraction_label, "");
             $add_fam_overlap_rows_fn("Retrieved Sequences");
+            $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
         elseif ($gen_type == "FAMILIES") {
             $seqid = $generate->get_sequence_identity();
@@ -169,6 +170,7 @@ class dataset_shared {
                 if ($overlap)
                     $table->add_row("Sequence Overlap", $overlap);
             }
+            $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
         elseif ($gen_type == "ACCESSION" || $gen_type == "FASTA" || $gen_type == "FASTA_ID") {
             $term = "";
@@ -208,11 +210,13 @@ class dataset_shared {
             $add_fam_rows_fn($family_label, $fraction_label, $table_dom_label);
             $table->add_row("Number of $term in Uploaded File", number_format($num_file_seq) . $match_text);
             $add_fam_overlap_rows_fn("Input $term");
+            $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
         elseif ($gen_type == "COLORSSN") {
             $table->add_row("Uploaded XGMML File", $generate->get_uploaded_filename());
             $table->add_row("Neighborhood Size", $generate->get_neighborhood_size());
             $table->add_row("Cooccurrence", $generate->get_cooccurrence());
+            $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
         
         if ($gen_type != "COLORSSN") {

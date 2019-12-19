@@ -23,6 +23,7 @@ function addCommonFormData(opt, fd) {
     var unirefVer = $("#uniref-ver-" + opt).val();
     var fraction = $("#fraction-" + opt).val();
     var cpuX2 = $("#cpu-x2-" + opt).prop("checked");
+    var exlFrag = $("#exclude-fragments-" + opt).prop("checked");
 
     fd.append("email", email);
     fd.append("job-name", jobName);
@@ -33,6 +34,7 @@ function addCommonFormData(opt, fd) {
     fd.append("fraction", fraction);
     fd.append("db-mod", dbMod);
     fd.append("cpu-x2", cpuX2);
+    fd.append("exclude-fragments", exlFrag);
 }
 
 function submitOptionForm(option, famHelper, outputIds) {
@@ -59,6 +61,7 @@ function submitOptionAForm(famHelper, outputIds) { // familySizeHelper
         addParam(fd, "blast_input", "blast-input");
         addParam(fd, "blast_evalue", "blast-evalue");
         addParam(fd, "blast_max_seqs", "blast-max-seqs");
+        addParam(fd, "blast_db_type", "blast-db-type");
         
         var fileHandler = function(xhr) {};
         var completionHandler = getDefaultCompletionHandler();
@@ -204,8 +207,21 @@ function submitColorSsnForm() {
     fd.append("option_selected", "colorssn");
     addParam(fd, "email", "email-colorssn");
     addCbParam(fd, "extra_ram", "colorssn-extra-ram");
-    addCbParam(fd, "make_hmm", "colorssn-make-hmm");
-    addCbParam(fd, "fast_hmm", "colorssn-fast-hmm");
+
+    var hmmOpt = "";
+    if ($("#" + "colorssn-make-weblogo").prop("checked"))
+        hmmOpt = "WEBLOGO";
+    if ($("#" + "colorssn-make-hmm").prop("checked"))
+        hmmOpt += ",HMM";
+    if ($("#" + "colorssn-make-cr").prop("checked"))
+        hmmOpt += ",CR";
+    if ($("#" + "colorssn-make-hist").prop("checked"))
+        hmmOpt += ",HIST";
+    fd.append("make-hmm", hmmOpt);
+    addParam(fd, "aa-threshold", "colorssn-aa-threshold");
+    addParam(fd, "hmm-aa", "colorssn-hmm-aa-list");
+    addParam(fd, "min-seq-msa", "colorssn-min-seq-msa");
+    //addCbParam(fd, "exlude-fragments", "colorssn-exclude-fragments");
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
     var files = document.getElementById("colorssn-file").files;

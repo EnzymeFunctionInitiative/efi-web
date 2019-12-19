@@ -67,6 +67,20 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
                                     default: <?php echo number_format($default_blast_seq); ?>)
                                 </span>
                             </div>
+                            <div>
+                                <span class="input-name">
+                                    Sequence database:
+                                </span><span class="input-field">
+                                    <select name="blast-db-type" id="blast-db-type">
+                                        <option value="uniprot" selected>UniProt</option>
+                                        <option value="uniref90">UniRef90</option>
+                                        <option value="uniref50">UniRef50</option>
+                                    </select>  (UniProt, UniRef90, or UniRef50; default UniProt)
+                                </span>
+                                <div class="input-desc">
+                                    Select the sequence database to BLAST against.
+                                </div>
+                            </div>
                         </div>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
@@ -86,6 +100,13 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_CALC"); ?>
+
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
+                        <?php echo add_fragment_option("opta")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FRAG"); ?>
 
 <?php $example_fn("OPTION_WRAP_END_LAST"); ?>
 <?php $example_fn("DESC_START"); ?>
@@ -148,6 +169,12 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_CALC"); ?>
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
+                        <?php echo add_fragment_option("optb")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FRAG"); ?>
 <?php $example_fn("DESC_START"); ?>
 <?php $example_fn("OPTION_WRAP_END_LAST"); ?>
                     <?php if ($use_advanced_options) { ?>
@@ -222,6 +249,13 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_CALC"); ?>
+
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
+                        <?php echo add_fragment_option("optc")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FRAG"); ?>
 
 <?php $example_fn("OPTION_WRAP_END_LAST"); ?>
 <?php $example_fn("DESC_START"); ?>
@@ -315,6 +349,9 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
                     <div>
                         <?php echo add_ssn_calc_option("optd")[0] ?>
                     </div>
+                    <div>
+                        <?php echo add_fragment_option("optc")[0] ?>
+                    </div>
                     <?php if ($use_advanced_options) { ?>
                     <div>
                         <?php echo add_dev_site_option("optd", $db_modules)[0]; ?>
@@ -360,15 +397,58 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                             </div>
                             <div>
                                 <span class="input-name">
+                                    Minimum Sequence Count:
+                                </span><span class="input-field">
+                                    <input type="text" id="colorssn-min-seq-msa" name="colorssn-min-seq-msa" value="" size="10">
+                                    <label for="colorssn-min-seq-msa">Minimum number of sequences in order to include a cluster in the computations [default: 5]</label>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="input-name">
+                                    Make Weblogo:
+                                </span><span class="input-field">
+                                    <input type="checkbox" id="colorssn-make-weblogo" name="colorssn-make-weblogo" value="1">
+                                    <label for="colorssn-make-weblogo">Make Weblogos for each cluster [default: off]</label>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="input-name">
+                                    Compute Consensus Residues:
+                                </span><span class="input-field">
+                                    <input type="checkbox" id="colorssn-make-cr" name="colorssn-make-cr" value="1">
+                                    <label for="colorssn-make-cr">Compute consensus residues [default: off]</label><br>
+                                    <input type="text" id="colorssn-hmm-aa-list" name="colorssn-hmm-aa-list" value="C" size="10">
+                                    <label for="colorssn-hmm-aa-list">Residues to compute for (comma-separated list of amino acid codes)</label><br>
+                                    <input type="text" id="colorssn-aa-threshold" name="colorssn-aa-threshold" value="" size="10">
+                                    <label for="colorssn-aa-threshold">Consensus probability threshold for counting (multiple comma-separated values allowed) [default: 0.8]</label>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="input-name">
                                     Make HMMs:
                                 </span><span class="input-field">
                                     <input type="checkbox" id="colorssn-make-hmm" name="colorssn-make-hmm" value="1">
-                                    <label for="colorssn-make-hmm">Make HMMs [default: off]</label>
-                                    <input type="checkbox" id="colorssn-fast-hmm" name="colorssn-fast-hmm" value="1">
-                                    <label for="colorssn-fast-hmm">Also make Fast HMMs [default: off]</label>
-                                    <a class="question" title="Fast HMMs are HMMs built using a MSA generated using fast MUSCLE options.">?</a>
+                                    <label for="colorssn-make-hmm">Make HMMs for each cluster [default: off]</label>
                                 </span>
                             </div>
+                            <div>
+                                <span class="input-name">
+                                    Make Length Histograms:
+                                </span><span class="input-field">
+                                    <input type="checkbox" id="colorssn-make-hist" name="colorssn-make-hist" value="1">
+                                    <label for="colorssn-make-hist">Make length histograms for each cluster [default: off]</label>
+                                </span>
+                            </div>
+<!--
+                            <div>
+                                <span class="input-name">
+                                    Fragments:
+                                </span><span class="input-field">
+                                    <input type="checkbox" id="colorssn-include-fragments" name="colorssn-include-fragments" value="1">
+                                    <label for="colorssn-include-fragments">Check to include fragments in the result [default: fragments are not included; will not work with databases prior to IP76]</label>
+                                </span>
+                            </div>
+-->
                         </div>
                     </div>
                 </div>
