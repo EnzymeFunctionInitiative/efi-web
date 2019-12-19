@@ -8,7 +8,7 @@ require_once("../includes/main.inc.php");
 require_once("../libs/job_manager.class.inc.php");
 
 
-if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"])) {
+if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"]) || !isset($_GET["quantify-id"]) || !is_numeric($_GET["quantify-id"])) {
     error500("Unable to find the requested job.");
 //} else {
 //    $job_mgr = new job_manager($db, job_types::Identify);
