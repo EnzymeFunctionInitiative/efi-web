@@ -33,6 +33,7 @@ $update_msg =
     "The \"From the Bench\" article describing the tools and their use is available on the " . 
     "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
     "Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
+    "We now provide the \"Fragment Option\" to exclude UniProt-defined fragments from SSNs.<br>" .
     "<small>" . functions::get_update_message() . "</small>";
 
 

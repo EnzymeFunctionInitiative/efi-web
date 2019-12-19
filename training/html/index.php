@@ -55,7 +55,7 @@ Please use the following to cite the EFI tools:
 R&eacute;mi Zallot, Nils Oberg, and John A. Gerlt,
 <b>The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome 
 Databases to Discover Novel Enzymes and Metabolic Pathways.</b>
-2019.
+Biochemistry 2019 58 (41), 4169-4182.
 <a href="https://doi.org/10.1021/acs.biochem.9b00735">https://doi.org/10.1021/acs.biochem.9b00735</a>
 </div>
 </p>
