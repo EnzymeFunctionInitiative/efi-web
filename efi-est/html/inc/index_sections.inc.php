@@ -101,6 +101,13 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_CALC"); ?>
 
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
+                        <?php echo add_fragment_option("opta")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FRAG"); ?>
+
 <?php $example_fn("OPTION_WRAP_END_LAST"); ?>
 <?php $example_fn("DESC_START"); ?>
                     <?php if ($use_advanced_options) { ?>
@@ -162,6 +169,12 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_CALC"); ?>
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
+                        <?php echo add_fragment_option("optb")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FRAG"); ?>
 <?php $example_fn("DESC_START"); ?>
 <?php $example_fn("OPTION_WRAP_END_LAST"); ?>
                     <?php if ($use_advanced_options) { ?>
@@ -236,6 +249,13 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_CALC"); ?>
+
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
+                        <?php echo add_fragment_option("optc")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FRAG"); ?>
 
 <?php $example_fn("OPTION_WRAP_END_LAST"); ?>
 <?php $example_fn("DESC_START"); ?>
@@ -329,6 +349,9 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
                     <div>
                         <?php echo add_ssn_calc_option("optd")[0] ?>
                     </div>
+                    <div>
+                        <?php echo add_fragment_option("optc")[0] ?>
+                    </div>
                     <?php if ($use_advanced_options) { ?>
                     <div>
                         <?php echo add_dev_site_option("optd", $db_modules)[0]; ?>
@@ -390,14 +413,6 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                             </div>
                             <div>
                                 <span class="input-name">
-                                    Make HMMs:
-                                </span><span class="input-field">
-                                    <input type="checkbox" id="colorssn-make-hmm" name="colorssn-make-hmm" value="1">
-                                    <label for="colorssn-make-hmm">Make HMMs for each cluster [default: off]</label>
-                                </span>
-                            </div>
-                            <div>
-                                <span class="input-name">
                                     Compute Consensus Residues:
                                 </span><span class="input-field">
                                     <input type="checkbox" id="colorssn-make-cr" name="colorssn-make-cr" value="1">
@@ -405,7 +420,15 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                                     <input type="text" id="colorssn-hmm-aa-list" name="colorssn-hmm-aa-list" value="C" size="10">
                                     <label for="colorssn-hmm-aa-list">Residues to compute for (comma-separated list of amino acid codes)</label><br>
                                     <input type="text" id="colorssn-aa-threshold" name="colorssn-aa-threshold" value="" size="10">
-                                    <label for="colorssn-aa-threshold">Cys probability threshold for counting (multiple comma-separated values allowed) [default: 0.8]</label>
+                                    <label for="colorssn-aa-threshold">Consensus probability threshold for counting (multiple comma-separated values allowed) [default: 0.8]</label>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="input-name">
+                                    Make HMMs:
+                                </span><span class="input-field">
+                                    <input type="checkbox" id="colorssn-make-hmm" name="colorssn-make-hmm" value="1">
+                                    <label for="colorssn-make-hmm">Make HMMs for each cluster [default: off]</label>
                                 </span>
                             </div>
                             <div>
