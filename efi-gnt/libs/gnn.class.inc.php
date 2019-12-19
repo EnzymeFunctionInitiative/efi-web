@@ -918,6 +918,7 @@ class gnn extends gnn_shared {
         $full_url = $url . "?" . http_build_query(array('id'=>$this->get_id(), 'key'=>$this->get_key()));
         $cgfp_url = settings::get_cgfp_web_root();
         $gnt_doi_url = "https://doi.org/10.1016/j.cbpa.2018.09.009";
+        $biochem_doi_url = "https://doi.org/10.1021/acs.biochem.9b00735";
 
         $plain_email = "";
 
@@ -935,6 +936,10 @@ class gnn extends gnn_shared {
         }
 
         $plain_email .= "Cite us:" . $this->eol . $this->eol;
+        $plain_email .= "R&eacute;mi Zallot, Nils Oberg, and John A. Gerlt, ";
+        $plain_email .= "The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome Databases to Discover Novel Enzymes and Metabolic Pathways. ";
+        $plain_email .= "Biochemistry 2019 58 (41), 4169-4182. BIOCHEM_DOI"; 
+        $plain_email .= $this->eol . $this->eol;
         $plain_email .= "R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, ";
         $plain_email .= "\"Democratized\" genomic enzymology web tools for functional assignment, ";
         $plain_email .= "Current Opinion in Chemical Biology, Volume 47, 2018, Pages 77-85, GNT_DOI";
@@ -948,9 +953,11 @@ class gnn extends gnn_shared {
         $plain_email = str_replace("THE_URL", $full_url, $plain_email);
         $plain_email = str_replace("CGFP_URL", $cgfp_url, $plain_email);
         $plain_email = str_replace("GNT_DOI", $gnt_doi_url, $plain_email);
+        $plain_email = str_replace("BIOCHEM_DOI", $biochem_doi_url, $plain_email);
         $html_email = str_replace("THE_URL", "<a href='" . htmlentities($full_url) . "'>" . $full_url . "</a>", $html_email);
         $html_email = str_replace("CGFP_URL", "<a href=\"" . htmlentities($cgfp_url) . "\">" . $cgfp_url . "</a>", $html_email);
         $html_email = str_replace("GNT_DOI", "<a href=\"" . htmlentities($gnt_doi_url) . "\">" . $gnt_doi_url. "</a>", $html_email);
+        $html_email = str_replace("BIOCHEM_DOI", "<a href=\"" . htmlentities($biochem_doi_url) . "\">" . $biochem_doi_url. "</a>", $html_email);
 
         $message = new Mail_mime(array("eol"=>$this->eol));
         $message->setTXTBody($plain_email);

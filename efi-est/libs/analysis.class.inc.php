@@ -697,8 +697,9 @@ class analysis extends est_shared {
         $gnt_url = functions::get_gnt_web_root();
         $cgfp_url = functions::get_cgfp_web_root();
         //TODO: move these hardcode constant URLs out to a config file or something
-        $est_doi_url = "https://dx.doi.org/10.1016/j.bbapap.2015.04.015";
+        $est_doi_url = "https://doi.org/10.1021/acs.biochem.9b00735";
         $gnt_doi_url = "https://doi.org/10.1016/j.cbpa.2018.09.009";
+        $biochem_doi_url = "https://dx.doi.org/10.1016/j.bbapap.2015.04.015";
         //$sci_url = "http://www.sciencedirect.com/science/article/pii/S1570963915001120";
 
         $plain_email = "";
@@ -718,6 +719,11 @@ class analysis extends est_shared {
         $plain_email .= "Go to CGFP_URL to use it." . PHP_EOL . PHP_EOL;
 
         $plain_email .= "Cite us:" . PHP_EOL . PHP_EOL;
+        $plain_email .= "R&eacute;mi Zallot, Nils Oberg, and John A. Gerlt, ";
+        $plain_email .= "The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome Databases to Discover Novel Enzymes and Metabolic Pathways. ";
+        $plain_email .= "Biochemistry 2019 58 (41), 4169-4182. BIOCHEM_DOI"; 
+        $plain_email .= PHP_EOL . PHP_EOL;
+
         $plain_email .= "John A. Gerlt, Jason T. Bouvier, Daniel B. Davidson, Heidi J. Imker, Boris Sadkhin, David R. ";
         $plain_email .= "Slater, Katie L. Whalen, Enzyme Function Initiative-Enzyme Similarity Tool (EFI-EST): A web tool ";
         $plain_email .= "for generating protein sequence similarity networks, Biochimica et Biophysica Acta (BBA) - Proteins ";
@@ -729,7 +735,7 @@ class analysis extends est_shared {
         $plain_email .= "Current Opinion in Chemical Biology, Volume 47, 2018, Pages 77-85, GNT_DOI";
         $plain_email .= PHP_EOL . PHP_EOL;
 
-        $url_list = array("THE_URL" => $full_url, "GNT_URL" => $gnt_url, "EST_DOI" => $est_doi_url, "GNT_DOI" => $gnt_doi_url, "CGFP_URL" => $cgfp_url);
+        $url_list = array("THE_URL" => $full_url, "GNT_URL" => $gnt_url, "EST_DOI" => $est_doi_url, "GNT_DOI" => $gnt_doi_url, "CGFP_URL" => $cgfp_url, "BIOCHEM_DOI" => $biochem_doi_url);
 
         return array("body" => $plain_email, "url" => $url_list, "suppress_job_info" => true);
     }
