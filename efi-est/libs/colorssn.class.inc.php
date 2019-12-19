@@ -10,14 +10,18 @@ class colorssn extends option_base {
     const SEQ_UNIREF90 = 3;
     const SEQ_DOMAIN = 1;
     const SEQ_NO_DOMAIN = 2;
+    const DEFAULT_MIN_SEQ_MSA = 5;
 
     private $ssn_source_analysis_id;
     private $ssn_source_analysis_idx;
     private $ssn_source_key;
     private $ssn_source_id;
     private $extra_ram = false;
-    private $make_hmm = false;
-    private $fast_hmm = false;
+    private $make_hmm = "";
+    private $hmm_aa = "";
+    private $aa_threshold = 0;
+    private $min_seq_msa = 0;
+    private $include_fragments = false;
 
 
     public function __construct($db, $id = 0, $is_example = false) {
@@ -47,6 +51,21 @@ class colorssn extends option_base {
                     "key=" . $this->ssn_source_key;
         }
         return $path;
+    }
+    
+    public function get_include_fragments() { return $this->include_fragments; }
+    public function get_hmm_options() {
+        $opt = $this->make_hmm;
+        $opt = str_replace("CR", "Consensus Residue", $opt);
+        $opt = str_replace("HMM", "HMM", $opt);
+        $opt = str_replace("WEBLOGO", "Weblogo", $opt);
+        $opt = str_replace("HIST", "Length Histogram", $opt);
+        $parts = explode(",", $opt);
+        $opt = implode(", ", $parts);
+        $opt = preg_replace("/^\s*,\s*/", "", $opt);
+        if (preg_match("/CR/", $this->make_hmm))
+            $opt .= " (AAs=" . $this->hmm_aa . "; Thresholds=" . $this->aa_threshold . "; MinNumSeq=" . $this->min_seq_msa . ")";
+        return $opt;
     }
 
 
@@ -128,21 +147,34 @@ class colorssn extends option_base {
         $want_clusters_file = true;
         $want_singles_file = false;
 
-        $parms["-queue"] = functions::get_memory_queue();
-        $parms["-ssn-in"] = $this->file_helper->get_results_input_file();
-        $parms["-ssn-out"] = "\"" . $this->get_colored_xgmml_filename_no_ext() . ".xgmml\"";
-        $parms["-map-dir-name"] = "\"" . functions::get_colorssn_map_dir_name() . "\"";
-        $parms["-map-file-name"] = "\"" . functions::get_colorssn_map_filename() . "\"";
-        $parms["-domain-map-file-name"] = "\"" . functions::get_colorssn_domain_map_filename() . "\"";
-        $parms["-out-dir"] = "\"" . $out->relative_output_dir . "\"";
-        $parms["-stats"] = "\"" . $this->get_stats_filename() . "\"";
-        $parms["-cluster-sizes"] = "\"" . $this->get_cluster_sizes_filename() . "\"";
-        $parms["-sp-clusters-desc"] = "\"" . $this->get_swissprot_desc_filename($want_clusters_file) . "\"";
-        $parms["-sp-singletons-desc"] = "\"" . $this->get_swissprot_desc_filename($want_singles_file) . "\"";
+        $parms["--queue"] = functions::get_memory_queue();
+        $parms["--ssn-in"] = $this->file_helper->get_results_input_file();
+        $parms["--ssn-out"] = "\"" . $this->get_colored_xgmml_filename_no_ext() . ".xgmml\"";
+        $parms["--map-dir-name"] = "\"" . functions::get_colorssn_map_dir_name() . "\"";
+        $parms["--map-file-name"] = "\"" . functions::get_colorssn_map_filename() . "\"";
+        $parms["--domain-map-file-name"] = "\"" . functions::get_colorssn_domain_map_filename() . "\"";
+        $parms["--out-dir"] = "\"" . $out->relative_output_dir . "\"";
+        $parms["--stats"] = "\"" . $this->get_stats_filename() . "\"";
+        $parms["--cluster-sizes"] = "\"" . $this->get_cluster_sizes_filename() . "\"";
+        $parms["--sp-clusters-desc"] = "\"" . $this->get_swissprot_desc_filename($want_clusters_file) . "\"";
+        $parms["--sp-singletons-desc"] = "\"" . $this->get_swissprot_desc_filename($want_singles_file) . "\"";
         if ($this->extra_ram)
-            $parms["-extra-ram"] = "";
-        if ($this->make_hmm)
-            $parms["-generate-hmm"] = $this->fast_hmm ? "fast" : "normal";
+            $parms["--extra-ram"] = "";
+        if ($this->make_hmm) {
+            $parms["--opt-msa-option"] = $this->make_hmm;
+            if (preg_match("/CR/", $this->make_hmm)) {
+                if ($this->hmm_aa)
+                    $parms["--opt-aa-list"] = $this->hmm_aa;
+                if ($this->aa_threshold)
+                    $parms["--opt-aa-threshold"] = $this->aa_threshold;
+            }
+            if (preg_match("/CR|HMM|WEBLOGO/", $this->make_hmm)) {
+                if ($this->min_seq_msa)
+                    $parms["--opt-min-seq-msa"] = $this->min_seq_msa;
+            }
+        }
+        if ($this->include_fragments)
+            $parms["--include-fragments"] = "";
 
         return $parms;
     }
@@ -169,8 +201,11 @@ class colorssn extends option_base {
         }
 
         $this->extra_ram = (isset($result["extra_ram"]) && $result["extra_ram"] === true);
-        $this->make_hmm = (isset($result["make_hmm"]) && $result["make_hmm"] === true);
-        $this->fast_hmm = (isset($result["fast_hmm"]) && $result["fast_hmm"] === true);
+        $this->make_hmm = (isset($result["make_hmm"]) && $result["make_hmm"]) ? $result["make_hmm"] : "";
+        $this->aa_threshold = (isset($result["aa_threshold"]) && $result["aa_threshold"]) ? $result["aa_threshold"] : 0;
+        $this->min_seq_msa = (isset($result["min_seq_msa"]) && $result["min_seq_msa"]) ? $result["min_seq_msa"] : self::DEFAULT_MIN_SEQ_MSA;
+        $this->hmm_aa = (isset($result["hmm_aa"]) && $result["hmm_aa"]) ? $result["hmm_aa"] : "";
+        $this->include_fragments = (isset($result["include_fragments"]) && $result["include_fragments"] === true);
 
         $this->file_helper->on_load_generate($id, $result);
 
@@ -206,8 +241,11 @@ class colorssn extends option_base {
             $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
         }
         $insert_array["extra_ram"] = (isset($data->extra_ram) && $data->extra_ram === true);
-        $insert_array["make_hmm"] = (isset($data->make_hmm) && $data->make_hmm === true);
-        $insert_array["fast_hmm"] = (isset($data->fast_hmm) && $data->fast_hmm === true);
+        $insert_array["make_hmm"] = (isset($data->make_hmm) && preg_match("/^[CRHMWEBLOGIST,]+$/", $data->make_hmm)) ? $data->make_hmm : "";
+        $insert_array["aa_threshold"] = (isset($data->aa_threshold) && preg_match("/^[0-9\., ]+$/", $data->aa_threshold)) ? $data->aa_threshold : 0;
+        $insert_array["hmm_aa"] = (isset($data->hmm_aa) && preg_match("/^[A-Z, ]+$/", $data->hmm_aa)) ? str_replace(" ", "", $data->hmm_aa) : "";
+        $insert_array["min_seq_msa"] = (isset($data->min_seq_msa) && preg_match("/^[0-9\., ]+$/", $data->min_seq_msa)) ? $data->min_seq_msa : self::DEFAULT_MIN_SEQ_MSA;
+        $insert_array["include_fragments"] = (isset($data->include_fragments) && $data->include_fragments === true);
         return $insert_array;
     }
 
@@ -308,13 +346,61 @@ class colorssn extends option_base {
         $filename = $this->get_table_file_filename($want_domain);
         return $this->shared_get_web_path($filename);
     }
-    public function get_hmm_zip_web_path() {
-        $filename = $this->get_base_filename() . "_HMMs.zip";
+    public function get_weblogo_zip_web_path($type) {
+        return $this->get_zip_web_path("WebLogos", $type);
+    }
+    public function get_msa_zip_web_path($type) {
+        return $this->get_zip_web_path("MSAs", $type);
+    }
+    public function get_lenhist_zip_web_path($type, $seqType) {
+        return $this->get_zip_web_path("LenHist_$seqType", $type);
+    }
+    public function get_hmm_zip_web_path($type) {
+        return $this->get_zip_web_path("HMMs", $type);
+    }
+    private function get_zip_web_path($job_type, $node_type) {
+        $filename = $this->get_base_filename() . "_${job_type}_${node_type}.zip";
         return $this->shared_get_web_path($filename);
     }
     public function get_hmm_graphics() {
+        return $this->get_logo_graphics_data("hmm_logos");
+    }
+    public function get_weblogo_graphics() {
+        return $this->get_logo_graphics_data("weblogos");
+    }
+    public function get_lenhist_graphics() {
+        return $this->get_logo_graphics_data("histograms");
+    }
+    public function get_alignment_list() {
+        $data = $this->get_logo_graphics_data("alignments");
+        if (!empty($data))
+            return $data;
+
+        $logo_data = $this->get_weblogo_graphics();
+        foreach ($logo_data as $cluster_num => $seq_type_list) {
+            foreach ($seq_type_list as $seq_type => $quality_list) {
+                foreach ($quality_list as $quality => $ds) {
+                    $parts = explode("/", $ds["path"]);
+                    $max = count($parts) - 1;
+                    if (isset($parts[$max - 1])) {
+                        $parts[$max - 1] = "align";
+                        $parts[$max] = $parts[$max];
+                    }
+                    $path = implode("/", $parts);
+                    $data[$cluster_num][$seq_type][$quality]["path"] = $path;
+                }
+            }
+        }
+
+        return $data;
+    }
+    public function get_cr_results_list() {
+        $data = $this->get_logo_graphics_data("consensus_residue");
+        return $data;
+    }
+    private function get_logo_graphics_data($graphics_type) {
         $base_dir = $this->get_full_output_dir();
-        $full_path = $base_dir . "/hmm_logos.txt";
+        $full_path = "$base_dir/$graphics_type.txt";
         if (!file_exists($full_path))
             return array();
 
@@ -324,21 +410,27 @@ class colorssn extends option_base {
 
         $lines = file($full_path);
         foreach ($lines as $line) {
-            list($cluster_num, $seq_type, $quality, $path) = explode("\t", rtrim($line));
-            $hmm_path = "$base_dir/$path.hmm";
-            $data = self::parse_hmm($hmm_path);
-            $data["path"] = $path;
+            list($cluster_num, $seq_type, $sub_type, $path) = explode("\t", rtrim($line));
+            
+            $data = array("path" => $path);
             if (isset($sizes[$cluster_num])) {
+                $data["num_seq"] = 0;
                 $data["num_uniprot"] = $sizes[$cluster_num]["uniprot"];
                 $data["num_uniref90"] = $sizes[$cluster_num]["uniref90"];
                 $data["num_uniref50"] = $sizes[$cluster_num]["uniref50"];
             }
-            $graphics[$cluster_num][$seq_type][$quality] = $data;
+
+            if ($graphics_type == "hmm_logos") {
+                $hmm_path = "$base_dir/$path.hmm";
+                $hmm_data = self::parse_hmm($hmm_path);
+                $data = array_merge($data, $hmm_data);
+            }
+            $graphics[$cluster_num][$seq_type][$sub_type] = $data;
         }
 
         return $graphics;
     }
-    public function get_hmm_graphics_dir() {
+    public function get_graphics_dir() {
         return $this->get_web_output_dir();
     }
     private function parse_cluster_sizes() {
@@ -452,6 +544,11 @@ class colorssn extends option_base {
         array_push($metadata, array("Uploaded Filename", $this->get_uploaded_filename()));
         if (!empty($db_version))
             array_push($metadata, array("Database Version", $db_version));
+        $frags = $this->include_fragments ? "Yes" : "No";
+        array_push($metadata, array("Include Fragments", $frags));
+        $extra = $this->get_hmm_options();
+        if ($extra)
+            array_push($metadata, array("Extra Options", $extra));
 
         $stats_file = $this->get_stats_file_path();
         if (!$stats_file)

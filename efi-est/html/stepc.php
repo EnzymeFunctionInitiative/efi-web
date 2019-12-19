@@ -237,6 +237,7 @@ HTML;
 
 $ssn_jobs = $generate->get_analysis_jobs();
 
+// Still use old EST graphing code, but this is the new length histogram graphs.
 $use_v2_graphs = $generate->get_graphs_version() >= 2;
 
 ?>	
