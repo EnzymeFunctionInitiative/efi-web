@@ -150,7 +150,7 @@ function add_fragment_option($option_id) {
         </label>
     </span>
     <div class="input-desc">
-        The UniProt database designates a sequence as a fragment if it translated from a gene missing a start and/or a stop codon (Sequence Status).
+        The UniProt database designates a sequence as a fragment if it is translated from a gene missing a start and/or a stop codon (Sequence Status).
         Fragments are included in the SSNs by default; checking this box will exclude fragmented sequences
         from computations.  This results in an approximately 10% smaller SSN.
     </div>
