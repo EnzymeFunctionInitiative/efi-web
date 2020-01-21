@@ -11,10 +11,7 @@ class accession extends family_shared {
     private $file_helper;
     public $subject = "EFI-EST FASTA";
 
-
-    private $domain;
     private $domain_family;
-    private $domain_region;
 
 
     public function __construct($db, $id = 0, $is_example = false) {
@@ -26,14 +23,7 @@ class accession extends family_shared {
     }
 
 
-    public function get_domain() { return $this->domain ? "on" : "off"; }
-    public function get_domain_family() { return $this->domain ? $this->domain_family : ""; }
-    public function get_domain_region_pretty() {
-        if ($this->domain_region)
-            return $this->domain_region == "nterminal" ? "N-terminal" : ($this->domain_region == "cterminal" ? "C-terminal" : "");
-        else
-            return "";
-    }
+    public function get_domain_family() { return $this->get_domain() ? $this->domain_family : ""; }
     public function get_uploaded_filename() { return $this->file_helper->get_uploaded_filename(); }
     public function get_no_matches_download_path() {
         return functions::get_web_root() . "/" .
@@ -72,19 +62,19 @@ class accession extends family_shared {
 
         //if (!$this->verify_fraction($data->fraction)) {
         //    $result->errors = true;
-        //    $result->message .= "<br><b>Please enter a valid fraction</b></br>";
+        //    $result->message .= "Please enter a valid fraction";
         //}
         if ($data->uploaded_filename && !$this->verify_accession_file($data->uploaded_filename)) {
             $result->errors = true;
-            $result->message .= "<br><b>Please upload a valid accession ID file.  The file extension must be .txt</b></br>";
+            $result->message .= "Please upload a valid accession ID file.  The file extension must be .txt";
         }
         if (!$data->field_input && !$data->uploaded_filename) {
             $result->errors = true;
-            $result->message .= "<br><b>Please specify a list of accession IDs and/or upload a valid accession ID file.  The file extension must be .txt.</b></br>";
+            $result->message .= "Please specify a list of accession IDs and/or upload a valid accession ID file.  The file extension must be .txt.</br>";
         }
         if (($data->domain == 'true' || $data->domain == 1) && !$data->domain_family) {
             $result->errors = true;
-            $result->message .= "<br><b>If the domain option is selected, a family to be used to retrieve domain extents must be used.";
+            $result->message .= "If the domain option is selected, a family to be used to retrieve domain extents must be used.";
         }
 
         return $result;
@@ -99,10 +89,7 @@ class accession extends family_shared {
         }
 
         if (isset($result['generate_domain']) && isset($result['generate_domain_family'])) {
-            $this->domain = $result['generate_domain'];
             $this->domain_family = $result['generate_domain_family'];
-            if (isset($result['generate_domain_region']))
-                $this->domain_region = $result['generate_domain_region'];
         }
 
         $this->file_helper->on_load_generate($id, $result);
@@ -127,9 +114,6 @@ class accession extends family_shared {
         
         if (($data->domain == 'true' || $data->domain == 1) && $data->domain_family) {
             $insert_array['generate_domain_family'] = $data->domain_family;
-            $insert_array['generate_domain'] = 1;
-            if ($data->domain_region && ($data->domain_region == "nterminal" || $data->domain_region == "cterminal"))
-                $insert_array['generate_domain_region'] = $data->domain_region;
         }
         
         // We don't want to override this in case the user specifies a family to use with uniref
@@ -158,13 +142,8 @@ class accession extends family_shared {
         $parms = parent::get_run_script_args($out);
         $parms["-useraccession"] = $this->file_helper->get_results_input_file();
         $parms["-no-match-file"] = $this->get_no_matches_job_file();
-        $parms["-domain"] = $this->get_domain();
-        if ($this->get_domain() == "on") {
+        if ($this->get_domain()) {
             $parms["-domain-family"] = $this->domain_family;
-            if (global_settings::advanced_options_enabled())
-                $parms["-force-domain"] = 1;
-            if ($this->domain_region)
-                $parms["-domain-region"] = $this->domain_region;
         }
         return $parms;
     }
@@ -200,7 +179,7 @@ class accession extends family_shared {
         while (list($var, $val) = each($data_array)) {
             ++$var;
             $val = trim($val);
-            $output .= "<br>" . $val;
+            $output .= "" . $val;
         }
         return $output;
     }

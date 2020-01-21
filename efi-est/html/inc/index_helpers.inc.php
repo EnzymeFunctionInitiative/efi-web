@@ -186,28 +186,34 @@ function add_domain_option($option_id, $specify_family = false, $use_advanced_op
         </span>
     </div>
 HTML;
-    if ($specify_family) { // Option D only
+    if ($specify_family or $use_advanced_options) {
         $html .= <<<HTML
     <div>
+HTML;
+    }
+    if ($specify_family) { // Option D only
+        $html .= <<<HTML
         <span class="input-name">
             Family:
         </span><span class="input-field">
-            <input type="text" name="accession-input-domain-family" id="accession-input-domain-family" style="width: 100px" disabled />
+            <input type="text" name="domain-family-$option_id" id="domain-family-$option_id" style="width: 100px" disabled />
             Use domain boundaries from the specified family (enter only one family).
         </span>
 HTML;
-        if ($use_advanced_options) {
-            $html .= <<<HTML
+    }
+    if ($use_advanced_options) {
+        $html .= <<<HTML
         <div>
-            <input type="radio" id="accession-input-domain-region-nterminal" name="accession-input-domain-region" value="nterminal" class="accession-input-domain-region">
-            <label for="accession-input-domain-region-nterminal">N-Terminal</label>
-            <input type="radio" id="accession-input-domain-region-domain" name="accession-input-domain-region" value="domain" class="accession-input-domain-region">
-            <label for="accession-input-domain-region-domain">Domain</label>
-            <input type="radio" id="accession-input-domain-region-cterminal" name="accession-input-domain-region" value="cterminal" class="accession-input-domain-region">
-            <label for="accession-input-domain-region-cterminal">C-Terminal</label>
+            <input type="radio" id="domain-region-nterminal-$option_id" name="domain-region-$option_id" value="nterminal" class="domain-region-$option_id">
+            <label for="domain-region-nterminal-$option_id">N-Terminal</label>
+            <input type="radio" id="domain-region-domain-$option_id" name="domain-region-$option_id" value="domain" class="domain-region-$option_id">
+            <label for="domain-region-domain-$option_id">Domain</label>
+            <input type="radio" id="domain-region-cterminal-$option_id" name="domain-region-$option_id" value="cterminal" class="domain-region-$option_id">
+            <label for="domain-region-cterminal-$option_id">C-Terminal</label>
         </div>
 HTML;
-        }
+    }
+    if ($specify_family or $use_advanced_options) {
         $html .= <<<HTML
     </div>
 HTML;
