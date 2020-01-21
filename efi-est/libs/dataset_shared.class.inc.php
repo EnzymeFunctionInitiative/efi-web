@@ -27,7 +27,7 @@ class dataset_shared {
 
     public static function get_domain($gen_type, $generate) {
         if ($gen_type == "FAMILIES" || $gen_type == "ACCESSION")
-            return $generate->get_domain();
+            return $generate->get_domain() ? "on" : "off";
         else
             return "";
     }
@@ -57,7 +57,7 @@ class dataset_shared {
         if ($job_name)
             $table->add_row("Job Name", $job_name);
     
-    
+
         $uploaded_file = "";
         $included_family = $generate->get_families_comma();
         $num_family_nodes = $generate->get_counts("num_family");
@@ -109,8 +109,16 @@ class dataset_shared {
                     $table->add_row("Number of IDs in Pfam / InterPro Family", number_format($num_full_family_nodes));
                     if (!$uniref)
                         $table->add_row($fraction_label, $fraction);
-                    if ($domain_label)
-                        $table->add_row($domain_label, $generate->get_domain());
+                    if ($domain_label) {
+                        $row_val = "off";
+                        if ($generate->get_domain()) {
+                            $row_val = "on";
+                            $term_opt = $generate->get_domain_region_pretty();
+                            if ($term_opt)
+                                $row_val .= " ($term_opt)";
+                        }
+                        $table->add_row($domain_label, $row_val);
+                    }
                     if ($uniref) {
                         $table->add_row("UniRef Version", $uniref);
                         $table->add_row("Number of Cluster IDs in UniRef$uniref Family", number_format($num_family_nodes));
@@ -175,7 +183,7 @@ class dataset_shared {
         elseif ($gen_type == "ACCESSION" || $gen_type == "FASTA" || $gen_type == "FASTA_ID") {
             $term = "";
             $file_label = "";
-            $domain_opt = "off";
+            $domain_opt = 0;
             $table_dom_label = "";
             if ($gen_type == "ACCESSION") {
                 $file_label = "Accession ID";
@@ -192,9 +200,9 @@ class dataset_shared {
             if ($gen_type == "FASTA_ID" || $gen_type == "ACCESSION")
                 $match_text = " (" . number_format($num_matched) . " UniProt ID matches and " . number_format($num_unmatched) . " unmatched)";
 
-            if ($domain_opt == "on" && !$included_family) {
+            if ($domain_opt && !$included_family) {
                 $term_opt = $generate->get_domain_region_pretty();
-                $row_val = $generate->get_domain();
+                $row_val = "on " . strtoupper($generate->get_domain_family());
                 if ($term_opt)
                     $row_val .= " ($term_opt)";
                 $table->add_row($domain_label, $row_val);

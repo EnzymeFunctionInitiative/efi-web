@@ -4,7 +4,6 @@ require_once('family_shared.class.inc.php');
 
 class generate extends family_shared {
 
-    private $domain;
     public $subject = "EFI-EST Pfam/InterPro";
     
     public function __construct($db, $id = 0, $is_example = false) {
@@ -13,8 +12,6 @@ class generate extends family_shared {
 
     public function __destruct() {
     }
-
-    public function get_domain() { return $this->domain ? "on" : "off"; }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // OVERLOADS
@@ -29,21 +26,11 @@ class generate extends family_shared {
 
     protected function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
-
-        $domain_bool = 0;
-        if ($data->domain == 'true' || $data->domain == 1)
-            $domain_bool = 1;
-
-        $insert_array['generate_domain'] = $domain_bool;
-
         return $insert_array;
     }
 
     protected function get_run_script_args($out) {
         $parms = parent::get_run_script_args($out);
-        $parms["-domain"] = $this->get_domain();
-        if (global_settings::advanced_options_enabled()) // Dev site
-            $parms["-force-domain"] = 1;
         return $parms;
     }
 
@@ -52,9 +39,6 @@ class generate extends family_shared {
         if (! $result) {
             return;
         }
-
-        $this->domain = $result['generate_domain'];
-
         return $result;
     }
 
@@ -63,7 +47,7 @@ class generate extends family_shared {
 
         if (!$this->verify_fraction($data->fraction)) {
             $result->errors = true;
-            $result->message .= "<br><b>Please enter a valid fraction</b></br>";
+            $result->message .= "Please enter a valid fraction";
         }
 
         return $result;

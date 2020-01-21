@@ -11,7 +11,8 @@ require_once "inc/header.inc.php";
 
 <h3>December 20, 2019</h3>
 <p>
-An option to exclude UniProt-defined fragments has been added to the web tool.
+An option to exclude UniProt-defined fragments has been added to the web tool.  Additionally,
+BLAST jobs can now search the UniRef50 and UniRef90 databases in addition to the UniProt database.
 </p>
 <p>
 <?php echo get_db_size_text("2019_10", "77", 181787788, 561568); ?>

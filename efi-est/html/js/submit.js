@@ -87,7 +87,10 @@ function submitOptionBForm(famHelper, outputIds) {
         var fd = new FormData();
         fd.append("option_selected", "B");
         addCommonFormData(optionId, fd);
-        addCbParam(fd, "pfam_domain", "domain-optb");
+        addCbParam(fd, "domain", "domain-optb");
+        if ($("#domain-optb").prop("checked")) {
+            addRadioParam(fd, "domain_region", "domain-region-optb");
+        }
         addParam(fd, "pfam_seqid", "pfam-seqid");
         addParam(fd, "pfam_length_overlap", "pfam-length-overlap");
         
@@ -150,9 +153,9 @@ function submitOptionDForm(famHelper, outputIds) {
             addParam(fd, "accession_seq_type", "accession-seq-type");
 
         if ($("#domain-optd").prop("checked")) {
-            fd.append("accession_use_dom", true);
-            addParam(fd, "accession_dom_fam", "accession-input-domain-family");
-            addRadioParam(fd, "accession_dom_reg", "accession-input-domain-region");
+            fd.append("domain", true);
+            addParam(fd, "domain_family", "domain-family-optd");
+            addRadioParam(fd, "domain_region", "domain-region-optd");
         }
     
         var completionHandler = getDefaultCompletionHandler();
@@ -199,7 +202,7 @@ function submitOptionEForm(famHelper, outputIds) {
     }
 }
 
-function submitColorSsnForm() {
+function submitColorSsnForm() { // the parameters are optional
 
     var messageId = "message-colorssn";
 
@@ -221,6 +224,8 @@ function submitColorSsnForm() {
     addParam(fd, "aa-threshold", "colorssn-aa-threshold");
     addParam(fd, "hmm-aa", "colorssn-hmm-aa-list");
     addParam(fd, "min-seq-msa", "colorssn-min-seq-msa");
+    addParam(fd, "ssn-source-id", "ssn-source-id");
+    addParam(fd, "ssn-source-idx", "ssn-source-idx");
     //addCbParam(fd, "exlude-fragments", "colorssn-exclude-fragments");
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};

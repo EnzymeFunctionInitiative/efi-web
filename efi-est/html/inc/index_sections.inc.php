@@ -152,7 +152,7 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
                 <div class="option-panels">
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
                     <div>
-                        <?php echo add_domain_option("optb")[0]; ?>
+                        <?php echo add_domain_option("optb", false, true)[0]; ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_DOM"); ?>
@@ -350,7 +350,7 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
                         <?php echo add_ssn_calc_option("optd")[0] ?>
                     </div>
                     <div>
-                        <?php echo add_fragment_option("optc")[0] ?>
+                        <?php echo add_fragment_option("optd")[0] ?>
                     </div>
                     <?php if ($use_advanced_options) { ?>
                     <div>
@@ -365,7 +365,10 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
 <?php
 }
 
-function output_colorssn($use_advanced_options, $user_email, $show_example = false) {
+function output_colorssn($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
+    $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
+    $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="colorssntab" class="ui-tabs-panel ui-widget-content">
             <p>
@@ -375,7 +378,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
 
             <form name="colorSsnForm" id="colorSsnform" method="post" action="">
                 <div class="primary-input">
-<?php echo ui::make_upload_box("SSN File:", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
+<?php echo ui::make_upload_box("SSN File:", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn", "", "", $ssn_filename); ?>
                     <div>
                         A Cytoscape-edited SNN can serve as input.
                         The accepted format is XGMML (or compressed XGMML as zip).
@@ -384,7 +387,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
 
                 <?php if ($use_advanced_options) { ?>
                 <div class="option-panels">
-                    <div>
+                    <div class="initial-open">
                         <h3>Dev Site Options</h3>
                         <div>
                             <div>
@@ -419,7 +422,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                                     <label for="colorssn-make-cr">Compute consensus residues [default: off]</label><br>
                                     <input type="text" id="colorssn-hmm-aa-list" name="colorssn-hmm-aa-list" value="C" size="10">
                                     <label for="colorssn-hmm-aa-list">Residues to compute for (comma-separated list of amino acid codes)</label><br>
-                                    <input type="text" id="colorssn-aa-threshold" name="colorssn-aa-threshold" value="" size="10">
+                                    <input type="text" id="colorssn-aa-threshold" name="colorssn-aa-threshold" value="0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1" size="10">
                                     <label for="colorssn-aa-threshold">Consensus probability threshold for counting (multiple comma-separated values allowed) [default: 0.8]</label>
                                 </span>
                             </div>
@@ -452,6 +455,10 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                         </div>
                     </div>
                 </div>
+                <?php } ?>
+                <?php if ($ssn_id) { ?>
+                    <input type="hidden" name="ssn-source-id" id="ssn-source-id" value="<?php echo $ssn_id; ?>">
+                    <input type="hidden" name="ssn-source-idx" id="ssn-source-idx" value="<?php echo $ssn_idx; ?>">
                 <?php } ?>
                 <?php echo add_submit_html("colorssn", "", $user_email)[0]; ?>
             </form>
@@ -597,7 +604,7 @@ function output_tab_page_header($show_jobs_tab, $show_tutorial, $selected_tab = 
 ?>
     <ul class="<?php echo $ul_class; ?>">
 <?php if ($show_jobs_tab) { ?>
-        <li class="<?php echo $active_class; ?>"><a href="#jobs">Previous Jobs</a></li>
+        <li <?php echo (!$selected_tab              ? "class=\"$active_class\"" : ""); ?>"><a href="#jobs">Previous Jobs</a></li>
 <?php } ?>
         <li <?php echo ($selected_tab == "option_a" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("optionAtab"); ?>" title="Option A">Sequence BLAST</a></li>
         <li <?php echo ($selected_tab == "option_b" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("optionBtab"); ?>" title="Option B">Families</a></li> <!-- Pfam and/or InterPro families</a></li>-->
@@ -627,9 +634,13 @@ function output_tab_page_end() {
 HTML;
 }
 
-function output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $example_fn = false) {
+function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $example_fn = false) {
+
+    $color_mode_data = check_for_color_mode($db);
+    $sel_tab = !empty($color_mode_data) ? "colorssn" : "";
+
     output_tab_page_start();
-    output_tab_page_header($show_jobs_tab, $show_tutorial);
+    output_tab_page_header($show_jobs_tab, $show_tutorial, $sel_tab);
 ?>
     <div>
 <?php if ($show_jobs_tab) { ?>
@@ -661,7 +672,7 @@ function output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $
     output_option_d($use_advanced_options, $db_modules, $user_email, $example_fn);
     if (est_settings::option_e_enabled())
         output_option_e($use_advanced_options, $db_modules, $user_email, $example_fn);
-    output_colorssn($use_advanced_options, $user_email, $example_fn);
+    output_colorssn($use_advanced_options, $user_email, $example_fn, $color_mode_data);
     if ($show_tutorial)
         output_tutorial($show_jobs_tab);
 ?>
@@ -669,6 +680,37 @@ function output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $
     </div> <!-- tab-content -->
 <?php
     output_tab_page_end();
+}
+
+function check_for_color_mode($db) {
+    $est_id = "";
+    $color_filename = "";
+    $submit_est_args = "";
+
+    $mode_data = array();
+
+    if (isset($_GET["mode"]) && $_GET["mode"] == "color" && isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])) {
+        $the_aid = $_GET["est-id"];
+        $the_key = $_GET["est-key"];
+        $the_idx = $_GET["est-ssn"];
+    
+        $job_info = global_functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
+        if ($job_info !== false) {
+            $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);
+            if ($est_file_info !== false) {
+                $est_id = $job_info["generate_id"];
+                $est_key = $the_key;
+                $color_filename = $est_file_info["filename"];
+                $mode_data["filename"] = $color_filename;
+                $mode_data["ssn_id"] = $the_aid;
+                $mode_data["ssn_idx"] = $the_idx;
+    
+                $submit_est_args = "'$the_aid','$the_key','$the_idx'";
+            }
+        }
+    }
+
+    return $mode_data;
 }
 
 
