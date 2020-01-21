@@ -39,22 +39,18 @@ $default_evalue = settings::get_default_evalue();
 
 
 $est_id = "";
-$est_key = "";
 $est_file_name = "";
-$est_file_index = "";
 $submit_est_args = "";
 if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])) {
     $the_aid = $_GET["est-id"];
     $the_key = $_GET["est-key"];
     $the_idx = $_GET["est-ssn"];
 
-    $job_info = functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
+    $job_info = global_functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
     if ($job_info !== false) {
-        $est_file_info = functions::get_est_filename($job_info, $the_aid, $the_idx);
+        $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);
         if ($est_file_info !== false) {
             $est_id = $job_info["generate_id"];
-            $est_key = $the_key;
-            $est_file_index = $the_idx;
             $est_file_name = $est_file_info["filename"];
 
             $submit_est_args = "'$the_aid','$the_key','$the_idx'";
