@@ -108,7 +108,7 @@ if (!isset($_POST['submit'])) {
             $generate = new generate($db);
             
             $input->families = $_POST['families_input'];
-            $input->domain = $_POST['pfam_domain'];
+            $input->domain = $_POST['domain'];
             if (isset($_POST['pfam_seqid']))
                 $input->seq_id = $_POST['pfam_seqid'];
             if (isset($_POST['pfam_length_overlap']))
@@ -129,6 +129,8 @@ if (!isset($_POST['submit'])) {
                 $input->min_seq_len = $_POST['pfam_min_seq_len'];
             if (isset($_POST['pfam_max_seq_len']) && is_numeric($_POST['pfam_max_seq_len']))
                 $input->max_seq_len = $_POST['pfam_max_seq_len'];
+            if ($input->domain && isset($_POST["domain_region"]) && $_POST["domain_region"])
+                $input->domain_region = $_POST["domain_region"];
             
             $result = $generate->create($input);
             break;
@@ -171,12 +173,12 @@ if (!isset($_POST['submit'])) {
                     $obj = new accession($db);
                     $input->field_input = $_POST['accession_input'];
                     $input->families = $_POST['families_input'];
-                    if (isset($_POST["accession_use_dom"]) && $_POST["accession_use_dom"])
-                        $input->domain = $_POST["accession_use_dom"];
-                    if (isset($_POST["accession_dom_fam"]) && $_POST["accession_dom_fam"])
-                        $input->domain_family = $_POST["accession_dom_fam"];
-                    if (isset($_POST["accession_dom_reg"]) && $_POST["accession_dom_reg"])
-                        $input->domain_region = $_POST["accession_dom_reg"];
+                    if (isset($_POST["domain"]) && $_POST["domain"])
+                        $input->domain = $_POST["domain"];
+                    if (isset($_POST["domain_family"]) && $_POST["domain_family"])
+                        $input->domain_family = $_POST["domain_family"];
+                    if (isset($_POST["domain_region"]) && $_POST["domain_region"])
+                        $input->domain_region = $_POST["domain_region"];
                 } else if ($option == "colorssn") {
                     $obj = new colorssn($db);
                     if (isset($_POST['ssn-source-id']))

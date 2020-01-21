@@ -142,7 +142,9 @@ for ($i = 0; $i < count($stats); $i++) {
         if (!$is_example) {
             $full_network_html .= "<td style='text-align:center;'>";
             $full_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>GNT Submission</button></a>";
-            $full_network_html .= $color_ssn_code_fn($i);
+            //Old: automatically submit color SSN job.  Now we want to provide user with options.
+            //$full_network_html .= $color_ssn_code_fn($i);
+            $full_network_html .= " <a href='index.php?mode=color&$gnt_args'><button class='mini' type='button'>Color SSN</button></a>";
             $full_network_html .= "</td>\n";
         }
         $full_network_html .= "</tr>";
@@ -175,7 +177,9 @@ for ($i = 0; $i < count($stats); $i++) {
             if (!$is_example) {
                 $rep_network_html .= "<td style='text-align:center;'>";
                 $rep_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>GNT Submission</button></a>";
-                $rep_network_html .= $color_ssn_code_fn($i);
+                //Old: automatically submit color SSN job.  Now we want to provide user with options.
+                //$rep_network_html .= $color_ssn_code_fn($i);
+                $rep_network_html .= " <a href='index.php?mode=color&$gnt_args'><button class='mini' type='button'>Color SSN</button></a>";
                 $rep_network_html .= "</td>\n";
             }
         }

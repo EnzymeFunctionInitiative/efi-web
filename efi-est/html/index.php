@@ -55,7 +55,8 @@ if (isset($_GET["sb"]) && $_GET["sb"] == 1) {
     };
 
     usort($jobs["order"], $sort_fn);
-}    
+}
+
 
 ?>
 
@@ -96,7 +97,7 @@ include_once("inc/index_helpers.inc.php");
 include_once("inc/index_sections.inc.php");
 $show_example = false;
 $show_tutorial = true;
-output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $show_example);
+output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $show_example);
 ?>
 
 <div align="center">
@@ -236,15 +237,23 @@ output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_module
         $("#domain-optd").change(function() {
             var status = $(this).prop("checked");
             var disableFamilyInput = status;
-            $("#accession-input-domain-family").prop("disabled", !status);
-            $(".accession-input-domain-region").prop("disabled", !status);
+            $("#domain-family-optd").prop("disabled", !status);
+            $(".domain-region-optd").prop("disabled", !status);
             familySizeHelper.setDisabledState("optd", disableFamilyInput);
             if (disableFamilyInput)
                 familySizeHelper.resetInput("optd");
-            if (status)
-                $("#accession-input-domain-region-domain").prop("checked", true);
+            if (!status)
+                $(".domain-region-optd").prop("checked", false);
             else
-                $("#accession-input-domain-region-domain").prop("checked", false);
+                $("#domain-region-domain-optd").prop("checked", true)
+        });
+        $("#domain-optb").change(function() {
+            var status = $(this).prop("checked");
+            $(".domain-region-optb").prop("disabled", !status);
+            if (!status)
+                $(".domain-region-optb").prop("checked", false);
+            else
+                $("#domain-region-domain-optb").prop("checked", true)
         });
 
         $(".option-panels > div").accordion({
@@ -252,17 +261,22 @@ output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_module
                 collapsible: true,
                 active: false,
         });
+        
+        $(".initial-open").accordion("option", {active: 0});
     });
 
     function resetForms() {
         for (i = 0; i < document.forms.length; i++) {
             document.forms[i].reset();
         }
-        document.getElementById("accession-input-domain-family").disabled = true;
+        document.getElementById("domain-family-optd").disabled = true;
 <?php if ($use_advanced_options) { ?>
-        document.getElementById("accession-input-domain-region-nterminal").disabled = true;
-        document.getElementById("accession-input-domain-region-domain").disabled = true;
-        document.getElementById("accession-input-domain-region-cterminal").disabled = true;
+        document.getElementById("domain-region-nterminal-optd").disabled = true;
+        document.getElementById("domain-region-domain-optd").disabled = true;
+        document.getElementById("domain-region-cterminal-optd").disabled = true;
+        document.getElementById("domain-region-nterminal-optb").disabled = true;
+        document.getElementById("domain-region-domain-optb").disabled = true;
+        document.getElementById("domain-region-cterminal-optb").disabled = true;
 <?php } ?>
     }
 </script>
