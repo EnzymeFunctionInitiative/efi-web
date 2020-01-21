@@ -177,5 +177,12 @@ class global_settings {
     public static function get_cgfp_web_path() {
         return defined("__CGFP_WEB_PATH__") ? __CGFP_WEB_PATH__ : "efi-cgfp";
     }
+    
+    public static function get_est_results_dir() {
+        if (is_dir(__EST_RESULTS_DIR__)) {
+            return __EST_RESULTS_DIR__;
+        }
+        return false;
+    }
 }
 ?>

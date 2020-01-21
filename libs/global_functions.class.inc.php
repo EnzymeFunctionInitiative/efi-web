@@ -141,6 +141,74 @@ class global_functions {
         $ext = $include_ext ? ".xgmml" : "";
         return "${id}_$filename$suffix$ext";
     }
+
+    public static function verify_est_job($db, $est_id, $est_key, $ssn_idx) {
+        if (!is_numeric($est_id))
+            return false;
+        if (!is_numeric($ssn_idx))
+            return false;
+        $est_key = preg_replace("/[^A-Za-z0-9]/", "", $est_key);
+
+        $est_db = global_settings::get_est_database();
+        $sql = "SELECT analysis.*, generate_key FROM $est_db.analysis " .
+            "JOIN $est_db.generate ON generate_id = analysis_generate_id " .
+            "WHERE analysis_id = $est_id AND generate_key = '$est_key'";
+        $result = $db->query($sql);
+
+        $info = array();
+
+        if ($result) {
+            $result = $result[0];
+            $info["generate_id"] = $result["analysis_generate_id"];
+            $info["analysis_id"] = $est_id;
+            $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
+                                    $result["analysis_evalue"] . "-" .
+                                    $result["analysis_min_length"] . "-" .
+                                    $result["analysis_max_length"];
+            return $info;
+        } else {
+            return false;
+        }
+    }
+
+    public static function get_est_filename($job_info, $est_aid, $ssn_idx) {
+
+        $est_gid = $job_info["generate_id"];
+        $a_dir = $job_info["analysis_dir"];
+
+        $base_est_results = global_settings::get_est_results_dir();
+        $est_results_name = "output";
+        $est_results_dir = "$base_est_results/$est_gid/$est_results_name/$a_dir";
+
+        if (!is_dir($est_results_dir)) {
+            return false;
+        }
+
+        $filename = "";
+
+        $stats_file = "$est_results_dir/stats.tab";
+        $fh = fopen($stats_file, "r");
+
+        $c = -1; # header
+        while (($line = fgets($fh)) !== false) {
+            if ($c++ == $ssn_idx) {
+                $parts = explode("\t", $line);
+                $filename = $parts[0];
+                break;
+            }
+        }
+
+        fclose($fh);
+
+        $info = array();
+        if ($filename) {
+            $info["filename"] = $filename;
+            $info["full_ssn_path"] = "$est_results_dir/$filename";
+            return $info;
+        } else {
+            return false;
+        }
+    }
 }
 
 ?>
