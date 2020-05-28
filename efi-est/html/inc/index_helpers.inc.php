@@ -201,8 +201,8 @@ HTML;
         </span>
 HTML;
     }
-    if ($use_advanced_options) {
-        $html .= <<<HTML
+    //if ($option_id == "b" || $option_id == "d") {
+    $html .= <<<HTML
         <div>
             <input type="radio" id="domain-region-nterminal-$option_id" name="domain-region-$option_id" value="nterminal" class="domain-region-$option_id">
             <label for="domain-region-nterminal-$option_id">N-Terminal</label>
@@ -212,7 +212,7 @@ HTML;
             <label for="domain-region-cterminal-$option_id">C-Terminal</label>
         </div>
 HTML;
-    }
+    //}
     if ($specify_family or $use_advanced_options) {
         $html .= <<<HTML
     </div>
