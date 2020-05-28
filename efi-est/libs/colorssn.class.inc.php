@@ -416,10 +416,14 @@ class colorssn extends option_base {
         $graphics = array();
 
         $sizes = $this->parse_cluster_sizes();
+        $num_map = $this->get_cluster_num_map();
 
         $lines = file($full_path);
         foreach ($lines as $line) {
-            list($cluster_num, $seq_type, $sub_type, $path) = explode("\t", rtrim($line));
+            $parts = explode("\t", rtrim($line));
+            if (count($parts) < 4)
+                continue;
+            list($cluster_num, $seq_type, $sub_type, $path) = $parts;
             
             $data = array("path" => $path);
             if (isset($sizes[$cluster_num])) {
@@ -437,6 +441,10 @@ class colorssn extends option_base {
             $graphics[$cluster_num][$seq_type][$sub_type] = $data;
         }
 
+        if (count($num_map) > 0) {
+            uksort($graphics, function ($a, $b) use ($num_map) { return ($num_map[$a] < $num_map[$b] ? -1 : ($num_map[$a] > $num_map[$b] ? 1 : 0)); });
+        }
+
         return $graphics;
     }
     public function get_graphics_dir() {
@@ -446,16 +454,33 @@ class colorssn extends option_base {
         $filename = $this->get_cluster_sizes_filename();
         $full_path = $this->get_full_output_dir() . "/" . $filename;
         $lines = file($full_path);
-        $sizes = array();
+        $nums = array();
         foreach ($lines as $line) {
             $data = explode("\t", rtrim($line));
             $cluster_num = $data[0];
             $uniprot_size = $data[1];
             $uniref90_size = count($data) > 2 ? $data[2] : 0;
             $uniref50_size = count($data) > 3 ? $data[3] : 0;
-            $sizes[$cluster_num] = array("uniprot" => $uniprot_size, "uniref90" => $uniref90_size, "uniref50" => $uniref50_size);
+            $nums[$cluster_num] = array("uniprot" => $uniprot_size, "uniref90" => $uniref90_size, "uniref50" => $uniref50_size);
         }
-        return $sizes;
+        return $nums;
+    }
+    public function get_cluster_num_map() {
+        $filename = $this->get_cluster_num_filename();
+        $full_path = $this->get_full_output_dir() . "/" . $filename;
+        if (!file_exists($full_path))
+            return array();
+        $lines = file($full_path);
+        $num_map = array();
+        foreach ($lines as $line) {
+            $data = explode("\t", rtrim($line));
+            $seq_num = $data[0];
+            $node_num = $data[1];
+            //$uniprot_size = $data[2];
+            //$uniref_size = isset($data[3]) ? $data[3] : 0;
+            $num_map[$seq_num] = $node_num;//array("uniprot" => $uniprot_size, "uniref90" => $uniref90_size, "uniref50" => $uniref50_size);
+        }
+        return $num_map;
     }
     // Read HMM length and number of sequences used to generate HMM.
     private static function parse_hmm($path) {
@@ -487,6 +512,9 @@ class colorssn extends option_base {
     }
     private function get_cluster_sizes_filename($no_prefix = false) {
         return $no_prefix ? "cluster_sizes.txt" : $this->get_base_filename() . "_cluster_sizes.txt";
+    }
+    private function get_cluster_num_filename() {
+        return "cluster_num_map.txt";
     }
     private function get_swissprot_desc_filename($want_clusters_file, $no_prefix = false) {
         $name = $want_clusters_file ? "swissprot_clusters_desc.txt" : "swissprot_singletons_desc.txt";

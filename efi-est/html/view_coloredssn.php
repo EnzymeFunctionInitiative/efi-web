@@ -188,6 +188,7 @@ $lenhist_graphics = $obj->get_lenhist_graphics();
 $alignment_list = $obj->get_alignment_list();
 $cr_list = $obj->get_cr_results_list();
 $logo_graphics_dir = $obj->get_graphics_dir();
+$num_map = $obj->get_cluster_num_map();
 
 $fileInfo = array();
 array_push($fileInfo, array("Mapping Tables"));
@@ -385,7 +386,7 @@ HTML;
 HTML;
                     };
 
-                    $weblogo_cb_id_list = output_graphics_html("Show WebLogos:", "weblogo", $weblogo_graphics, $weblogo_output_fn);
+                    $weblogo_cb_id_list = output_graphics_html("Show WebLogos:", "weblogo", $weblogo_graphics, $num_map, $weblogo_output_fn);
 ?>
         </div>
 <?php } ?>
@@ -466,7 +467,7 @@ HTML;
 HTML;
                     };
 
-                    $hmm_cb_id_list = output_graphics_html("Show HMMs:", "hmm", $hmm_graphics, $output_fn);
+                    $hmm_cb_id_list = output_graphics_html("Show HMMs:", "hmm", $hmm_graphics, $num_map, $output_fn);
 ?>
         </div>
 <?php } ?>
@@ -490,8 +491,9 @@ HTML;
 HTML;
                     };
 
-                    $lenhist_cb_id_list = output_graphics_html("Show Length Histograms:", "lenhist", $lenhist_graphics, $lenhist_output_fn);
+                    $lenhist_cb_id_list = output_graphics_html("Show Length Histograms:", "lenhist", $lenhist_graphics, $num_map, $lenhist_output_fn);
 ?>
+            <div style="clear: both"></div>
         </div>
 <?php } ?>
     </div>
@@ -552,17 +554,19 @@ HTML;
 }
 
 
-function output_graphics_html($header, $prefix, $graphics, $output_fn) {
+function output_graphics_html($header, $prefix, $graphics, $num_map, $output_fn) {
     $cb_types = array();
 
     $clusters = array_keys($graphics);
-    sort($clusters);
+    //sort($clusters);
 
     $html = "";
     for ($i = 0; $i < count($clusters); $i++) {
         $cluster = $clusters[$i];
+        $num = isset($num_map[$cluster]) ? $num_map[$cluster] : 0;
+        $num_html = "Sequence Cluster $cluster" . ($num ? " / Node Cluster $num" : "");
         $html .= "<div style=\"clear:both\">\n";
-        $html .= "<h4 class=\"$prefix-cluster-heading hidden\" style=\"margin-top: 30px\">Cluster $cluster</h4>\n";
+        $html .= "<h4 class=\"$prefix-cluster-heading hidden\" style=\"margin-top: 30px\">$num_html</h4>\n";
         $html .= "</div>\n";
         $html .= "<div>\n";
         foreach ($graphics[$cluster] as $seq_type => $group_data) {
