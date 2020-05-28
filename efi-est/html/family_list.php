@@ -111,13 +111,15 @@ if ($isPfamClanMap) { ?>
             <table class="family" width="100%" border="0">
                 <thead>
                     <th>Clan ID</th>
-                    <th>Clan Short Name</th>
-                    <th>Clan Size</th>
-                    <th>Clan UniRef90 Size</th>
+                    <th>Short Name</th>
+                    <th>Size</th>
+                    <th>UniRef90 Size</th>
+                    <th>UniRef50 Size</th>
                     <th>Pfam ID</th>
-                    <th>Pfam Short Name</th>
-                    <th>Pfam Size</th>
-                    <th>Pfam UniRef90 Size</th>
+                    <th>Short Name</th>
+                    <th>Size</th>
+                    <th>UniRef90 Size</th>
+                    <th>UniRef50 Size</th>
                 </thead>
                 <tbody>
 
@@ -133,8 +135,10 @@ if ($isPfamClanMap) { ?>
         $theFamily = $row["pfam_id"];
         $thePfamName = $row["short_name"];
         $pfamCount = number_format($row["pfam_count"]);
+        $pfamUniRef50Count = number_format($row["pfam_uniref50_count"]);
         $pfamUniRef90Count = number_format($row["pfam_uniref90_count"]);
         $clanCount = number_format($row["clan_count"]);
+        $clanUniRef50Count = number_format($row["clan_uniref50_count"]);
         $clanUniRef90Count = number_format($row["clan_uniref90_count"]);
 
         $rowStyle = "";
@@ -146,6 +150,7 @@ if ($isPfamClanMap) { ?>
             $theClanName = "";
             $clanCount = "";
             $clanUniRef90Count = "";
+            $clanUniRef50Count = "";
         }
 
         $linkStartClan = $hasLink ? "<a href=\"" . str_replace("%FAMILY%", $theClan, $templateClan) . "\">" : "";
@@ -156,10 +161,12 @@ if ($isPfamClanMap) { ?>
         echo "                        <td $rowStyle>$theClanName</td>\n";
         echo "                        <td $rowStyle class=\"right-align\">$clanCount</td>\n";
         echo "                        <td $rowStyle class=\"right-align\">$clanUniRef90Count</td>\n";
+        echo "                        <td $rowStyle class=\"right-align\">$clanUniRef50Count</td>\n";
         echo "                        <td $rowStyle>$linkStartPfam$theFamily$linkEnd</td>\n";
         echo "                        <td $rowStyle>$thePfamName</td>\n";
         echo "                        <td $rowStyle class=\"right-align\">$pfamCount</td>\n";
         echo "                        <td $rowStyle class=\"right-align\">$pfamUniRef90Count</td>\n";
+        echo "                        <td $rowStyle class=\"right-align\">$pfamUniRef50Count</td>\n";
         echo "                    </tr>\n";
     }
 
