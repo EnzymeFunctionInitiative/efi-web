@@ -145,12 +145,12 @@ if (isset($_GET["as-table"])) {
 }
 
 
-$is_enabled = false;
+$is_enabled = true;
 if ($user_token) {
     $IsAdminUser = user_auth::get_user_admin($db, $user_email);
-    $is_sb_enabled = global_settings::get_shortbred_enabled();
-    if ($is_sb_enabled)
-        $is_enabled = $IsAdminUser || functions::is_shortbred_authorized($db, $user_token);
+    #$is_sb_enabled = global_settings::get_shortbred_enabled();
+    #if ($is_sb_enabled)
+    #    $is_enabled = $IsAdminUser || functions::is_shortbred_authorized($db, $user_token);
 }
 $is_enabled = $is_enabled && !$is_example;
 
