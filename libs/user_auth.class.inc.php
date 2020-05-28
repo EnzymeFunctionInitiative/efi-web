@@ -223,6 +223,17 @@ class user_auth {
             return "";
     }
 
+    public static function get_token_from_email($db, $email) {
+        $userTable = self::get_user_table();
+
+        $sql = "SELECT user_id FROM $userTable WHERE user_email = '$email'";
+        $row = $db->query($sql);
+        if ($row)
+            return $row[0]["user_id"];
+        else
+            return "";
+    }
+
     public static function get_user_admin($db, $email) {
         $userTable = self::get_user_table();
 
