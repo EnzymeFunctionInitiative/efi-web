@@ -650,7 +650,7 @@ function output_tab_page_end() {
 HTML;
 }
 
-function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $example_fn = false) {
+function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $example_fn = false, $show_all_ids = false) {
 
     $color_mode_data = check_for_color_mode($db);
     $sel_tab = !empty($color_mode_data) ? "colorssn" : "";
@@ -671,7 +671,7 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
             <h4>EST Jobs</h4>
 <?php 
     $show_archive = true;
-    echo est_ui::output_job_list($jobs, $show_archive, "sort-jobs-toggle");
+    echo est_ui::output_job_list($jobs, $show_archive, "sort-jobs-toggle", $example_fn, $show_all_ids);
 
     if (has_jobs($tjobs)) {
         echo "            <h4>Training Resources</h4>\n";

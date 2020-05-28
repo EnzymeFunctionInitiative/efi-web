@@ -8,7 +8,7 @@ const RT_NESTED_COLOR = 4;
 class est_ui {
     
 
-    public static function output_job_list($jobs, $show_archive = false, $toggle_id = "", $is_example = false) {
+    public static function output_job_list($jobs, $show_archive = false, $toggle_id = "", $is_example = false, $show_all_ids = false) {
         $up = "&#x25B2;";
         $down = "&#x25BC;";
         if ($toggle_id)
@@ -35,7 +35,7 @@ HTML;
             $id = $order[$i];
     
             if (isset($gjobs[$id])) {
-                $html .= self::output_generate_job($id, $gjobs[$id], $get_bg_color, $show_archive, $is_example);
+                $html .= self::output_generate_job($id, $gjobs[$id], $get_bg_color, $show_archive, $is_example, $show_all_ids);
             } elseif (isset($cjobs[$id])) {
                 $html .= self::output_top_color_job($id, $cjobs[$id], $get_bg_color, $show_archive, $is_example);
             }
@@ -54,17 +54,17 @@ HTML;
         return $html;
     }
     
-    private static function output_generate_job($id, $job, $get_bg_color, $show_archive, $is_example) {
+    private static function output_generate_job($id, $job, $get_bg_color, $show_archive, $is_example, $show_all_ids = false) {
         $bg_color = $get_bg_color->get_color();
         $link_class = "hl-est";
         $html = self::output_generate_row($id, $job, $bg_color, $show_archive, $is_example);
     
         foreach ($job["analysis_jobs"] as $ajob) {
-            $htmla = self::output_analysis_row($id, $job["key"], $ajob, $bg_color, $show_archive, $is_example);
+            $htmla = self::output_analysis_row($id, $job["key"], $ajob, $bg_color, $show_archive, $is_example, $show_all_ids);
             $html .= $htmla;
             if (isset($ajob["color_jobs"])) {
                 foreach ($ajob["color_jobs"] as $cjob) {
-                    $htmlc = self::output_nested_colorssn_row($cjob["id"], $cjob, $bg_color, $show_archive, $is_example);
+                    $htmlc = self::output_nested_colorssn_row($cjob["id"], $cjob, $bg_color, $show_archive, $is_example, $show_all_ids);
                     $html .= $htmlc;
                 }
             }
@@ -80,16 +80,16 @@ HTML;
         return self::output_row(RT_COLOR, $id, NULL, $job["key"], $job, $bg_color, $show_archive, $is_example);
     }
 
-    private static function output_nested_colorssn_row($id, $job, $bg_color, $show_archive, $is_example) {
-        return self::output_row(RT_NESTED_COLOR, $id, NULL, $job["key"], $job, $bg_color, $show_archive, $is_example);
+    private static function output_nested_colorssn_row($id, $job, $bg_color, $show_archive, $is_example, $show_all_ids = false) {
+        return self::output_row(RT_NESTED_COLOR, $id, NULL, $job["key"], $job, $bg_color, $show_archive, $is_example, $show_all_ids);
     }
 
-    private static function output_analysis_row($id, $key, $job, $bg_color, $show_archive, $is_example) {
-        return self::output_row(RT_ANALYSIS, $id, $job["analysis_id"], $key, $job, $bg_color, $show_archive, $is_example);
+    private static function output_analysis_row($id, $key, $job, $bg_color, $show_archive, $is_example, $show_all_ids = false) {
+        return self::output_row(RT_ANALYSIS, $id, $job["analysis_id"], $key, $job, $bg_color, $show_archive, $is_example, $show_all_ids);
     }
 
     // $aid = NULL to not output an analysis (nested) job
-    private static function output_row($row_type, $id, $aid, $key, $job, $bg_color, $show_archive, $is_example) {
+    private static function output_row($row_type, $id, $aid, $key, $job, $bg_color, $show_archive, $is_example, $show_all_ids = false) {
         $script = global_settings::get_est_web_path() . "/" . self::get_script($row_type);
         $link_class = self::get_link_class($row_type);
     
@@ -115,11 +115,17 @@ HTML;
     
         if ($row_type == RT_ANALYSIS) {
             $name_style = "style=\"padding-left: 35px;\"";
-            $id_text = "";
+            if (!$show_all_ids)
+                $id_text = "";
+            else
+                $id_text = $aid;
             $data_aid = "data-analysis-id='$aid'";
         } elseif ($row_type == RT_NESTED_COLOR) {
             $name_style = "style=\"padding-left: 70px;\"";
-            $id_text = "";
+            if (!$show_all_ids)
+                $id_text = "";
+            else
+                $id_text = $id;
         }
         $name = "<span title='$id'>$name</span>";
     
