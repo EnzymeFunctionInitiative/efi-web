@@ -58,6 +58,7 @@ foreach ($jobs as $job) {
         $job_list_html .= "<td><a href='" . $url ."'><span class='glyphicon glyphicon-share'></span></a></td>";
     $job_list_html .= "<td>$id</td>";
 
+    $sid = $id; // Status ID
     if ($job_type == "generate") {
         $job_list_html .= "<td>" . $job['Email'] . "</td>";
         $extra = $job['ColorSSNOpt'] ? "+HMM" : "";
@@ -79,6 +80,7 @@ foreach ($jobs as $job) {
         $job_list_html .= "<td>" . $job['E-Value'] . "</td>";
         $job_list_html .= "<td>" . $job['UniRef'] . "</td>";
     } else {
+        $sid = $job['Analysis ID'];
 	    $job_list_html .= "<td>" . $job['Analysis ID'] . "</td>\n";
 	    $job_list_html .= "<td>" . $job['Email'] . "</td>\n";
 	    $job_list_html .= "<td>" . $job['Minimum Length'] . "</td>\n";
@@ -89,8 +91,8 @@ foreach ($jobs as $job) {
     $job_list_html .= "<td>" . str_replace(" ", "&nbsp;", $job['Time Submitted']) . "</td>";
     $job_list_html .= "<td>" . str_replace(" ", "&nbsp;", $job['Time Started']) . "</td>";
     $job_list_html .= "<td>" . str_replace(" ", "&nbsp;", $job['Time Completed'])  ."</td>";
-    $job_list_html .= "<td class='" . strtolower($job['Status']) . "'>" . $job['Status'] . "</td>";
-    //$job_list_html .= "<td><center><span style='font-size: 100%'><a href='#' onclick='restartJob($id)'>&#8635;</a></span></center></td>";
+    $job_list_html .= "<td class='" . strtolower($job['Status']) . "' id='status-col-$sid'>" . $job['Status'] . "</td>";
+    $job_list_html .= "<td id='job-control-$sid'><center>" . ($job['Status'] == 'ARCHIVED' ? "<span style='font-size: 100%'><a class='update-job-status' data-id='$sid'>&#8683;</a></span>" : "") . "</center></td>";
     $job_list_html .= "</tr>\n";
 }
 
@@ -149,7 +151,7 @@ $month_name = date("F", mktime(0, 0, 0, $month, 10));
     <th>Time Started</th>
     <th>Time Finished</th>
     <th>Status</th>
-<!--    <th>Restart</th>-->
+    <th></th>
 </tr>
 <?php echo $job_list_html; ?>
 </table>
@@ -175,6 +177,20 @@ function restartJob(jobId) {
     xmlhttp.open("GET", "restart_job.php?job-id=" + jobId, true);
     xmlhttp.send();
 }
+function updateJob(action, jobType, jobId) {
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            $("#status-col-"+jobId).text("FINISH");
+            $("#job-control-"+jobId).empty();
+            //location.reload();
+        } else if (this.status == 500) {
+            alert("Restart failed! " + this.status + " " + jobId);
+        }
+    };
+    xmlhttp.open("GET", "update_job_status.php?a=" + action + "&t=" + jobType + "&job-id=" + jobId, true);
+    xmlhttp.send();
+}
 
 $(document).ready(function() {
     setMonth(<?php echo $month; ?>);
@@ -188,6 +204,10 @@ $(document).ready(function() {
     $("#next-month").click(function() {
         incMonth();
         window.location = "?job-type=" + jobType + "&month=" + getMonth() + "&year=" + getYear();
+    });
+    $(".update-job-status").click(function() {
+        var id = $(this).data("id");
+        updateJob("unarchive", jobType, id);
     });
 });
 
