@@ -141,8 +141,21 @@ class est_user_jobs_shared {
         }
 
         $job_type = self::get_job_label($type);
-        if ($type == "COLORSSN" && isset($data["make_hmm"]) && $data["make_hmm"])
-            $job_type .= " (HMM and stuff)";
+        if ($type == "COLORSSN" && isset($data["make_hmm"]) && $data["make_hmm"]) {
+            $min_seq_msa = (isset($data["min_seq_msa"]) && $data["min_seq_msa"]) ? $data["min_seq_msa"] : "";
+            $max_seq_msa = (isset($data["max_seq_msa"]) && $data["max_seq_msa"]) ? $data["max_seq_msa"] : "";
+            $aa_parm = "";
+            if (preg_match("/CR/", $data["make_hmm"]))
+                $aa_parm = "AAs=" . $data["hmm_aa"] . "; Thresholds=" . $data["aa_threshold"];
+
+            $parms = $aa_parm;
+            $parms .= $min_seq_msa ? ($parms ? "; " : "") . "MinNumSeq=" . $min_seq_msa : "";
+            $parms .= $max_seq_msa ? ($parms ? "; " : "") . "MaxNumSeq=" . $max_seq_msa : "";
+            if ($parms)
+                $parms = "; $parms";
+
+            $job_type .= " (HMM and stuff$parms)";
+        }
 
         $info = array($job_type);
         if ($fileName) array_push($info, $fileName);

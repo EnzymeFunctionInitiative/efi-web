@@ -60,6 +60,7 @@ class input_data {
     public $aa_threshold; // AA probability treshold
     public $hmm_aa; // List of AAs to compute CR for
     public $min_seq_msa;
+    public $max_seq_msa;
 
     //public $cooccurrence;
     //public $neighborhood_size;

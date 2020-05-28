@@ -226,6 +226,7 @@ function submitColorSsnForm() { // the parameters are optional
     addParam(fd, "aa-threshold", "colorssn-aa-threshold");
     addParam(fd, "hmm-aa", "colorssn-hmm-aa-list");
     addParam(fd, "min-seq-msa", "colorssn-min-seq-msa");
+    addParam(fd, "max-seq-msa", "colorssn-max-seq-msa");
     addParam(fd, "ssn-source-id", "ssn-source-id");
     addParam(fd, "ssn-source-idx", "ssn-source-idx");
     //addCbParam(fd, "exlude-fragments", "colorssn-exclude-fragments");
