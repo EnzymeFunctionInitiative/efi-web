@@ -21,6 +21,9 @@ class input_data {
     public $blast_input_id; // For Option A, if the user provides a header, we store it.
     public $blast_db_type;
 
+    // For option C
+    public $include_all_seq;
+
     // For option D
     public $domain_family;
     public $domain_region;

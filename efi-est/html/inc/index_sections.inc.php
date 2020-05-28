@@ -242,8 +242,16 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_A_FAM"); ?>
 <?php $example_fn("POST_FRAC"); ?>
-
+<?php /*
+<?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
+                    <div>
+                        <?php echo add_domain_option("optc", false, true)[0]; ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_DOM"); ?>
 <?php $example_fn("OPTION_WRAP_START"); ?>
+ */?>
+<?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
                     <div>
                         <?php echo add_ssn_calc_option("optc")[0] ?>
                     </div>
