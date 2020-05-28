@@ -239,7 +239,8 @@ abstract class family_shared extends option_base {
             $this->exclude_fragments = !$result["include_fragments"];
         if (isset($result["exclude_fragments"]))
             $this->exclude_fragments = $result["exclude_fragments"];
-        $this->domain = $result['generate_domain'];
+        if (isset($result['generate_domain']))
+            $this->domain = $result['generate_domain'];
         if (isset($result['generate_domain_region']))
             $this->domain_region = $result['generate_domain_region'];
 

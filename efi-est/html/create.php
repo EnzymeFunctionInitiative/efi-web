@@ -163,22 +163,26 @@ if (!isset($_POST['submit'])) {
                     else
                         $input->uniref_version = "90";
                 }
+                if ($option == "B" || $option == "D") {
+                    if (isset($_POST["domain"]) && $_POST["domain"])
+                        $input->domain = $_POST["domain"];
+                    if (isset($_POST["domain_region"]) && $_POST["domain_region"])
+                        $input->domain_region = $_POST["domain_region"];
+                }
 
                 if ($option == "C" || $option == "E") {
                     $useFastaHeaders = $_POST['fasta_use_headers'];
+                    $includeAllSeq = isset($_POST['include-all-seq']) && $_POST['include-all-seq'] === "true";
                     $obj = new fasta($db, 0, $useFastaHeaders == "true" ? "E" : "C");
                     $input->field_input = $_POST['fasta_input'];
                     $input->families = $_POST['families_input'];
+                    $input->include_all_seq = $includeAllSeq;
                 } else if ($option == "D") {
                     $obj = new accession($db);
                     $input->field_input = $_POST['accession_input'];
                     $input->families = $_POST['families_input'];
-                    if (isset($_POST["domain"]) && $_POST["domain"])
-                        $input->domain = $_POST["domain"];
                     if (isset($_POST["domain_family"]) && $_POST["domain_family"])
                         $input->domain_family = $_POST["domain_family"];
-                    if (isset($_POST["domain_region"]) && $_POST["domain_region"])
-                        $input->domain_region = $_POST["domain_region"];
                 } else if ($option == "colorssn") {
                     $obj = new colorssn($db);
                     if (isset($_POST['ssn-source-id']))
@@ -190,6 +194,7 @@ if (!isset($_POST['submit'])) {
                     $input->aa_threshold = (isset($_POST['aa-threshold']) && $_POST['aa-threshold']) ? $_POST['aa-threshold'] : 0.8;
                     $input->hmm_aa = (isset($_POST['hmm-aa']) && $_POST['hmm-aa']) ? $_POST['hmm-aa'] : "";
                     $input->min_seq_msa = (isset($_POST['min-seq-msa']) && $_POST['min-seq-msa']) ? $_POST['min-seq-msa'] : 0;
+                    $input->max_seq_msa = (isset($_POST['max-seq-msa']) && $_POST['max-seq-msa']) ? $_POST['max-seq-msa'] : 0;
                 }
 
                 if (isset($_FILES['file'])) {

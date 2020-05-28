@@ -24,6 +24,7 @@ function addCommonFormData(opt, fd) {
     var fraction = $("#fraction-" + opt).val();
     var cpuX2 = $("#cpu-x2-" + opt).prop("checked");
     var exlFrag = $("#exclude-fragments-" + opt).prop("checked");
+    var allSeq = $("#include-all-seq-" + opt).prop("checked");
 
     fd.append("email", email);
     fd.append("job-name", jobName);
@@ -35,6 +36,7 @@ function addCommonFormData(opt, fd) {
     fd.append("db-mod", dbMod);
     fd.append("cpu-x2", cpuX2);
     fd.append("exclude-fragments", exlFrag);
+    fd.append("include-all-seq", allSeq);
 }
 
 function submitOptionForm(option, famHelper, outputIds) {
