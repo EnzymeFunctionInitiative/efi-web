@@ -21,6 +21,7 @@ class colorssn extends option_base {
     private $hmm_aa = "";
     private $aa_threshold = 0;
     private $min_seq_msa = 0;
+    private $max_seq_msa = 0;
     private $include_fragments = false;
 
 
@@ -63,8 +64,12 @@ class colorssn extends option_base {
         $parts = explode(",", $opt);
         $opt = implode(", ", $parts);
         $opt = preg_replace("/^\s*,\s*/", "", $opt);
+        $count_seq_opt = $this->min_seq_msa != self::DEFAULT_MIN_SEQ_MSA ? "MinNumSeq=" . $this->min_seq_msa : "";
+        $count_seq_opt .= $this->max_seq_msa ? ($count_seq_opt ? "; " : "") . "MaxNumSeq=" . $this->max_seq_msa : "";
         if (preg_match("/CR/", $this->make_hmm))
-            $opt .= " (AAs=" . $this->hmm_aa . "; Thresholds=" . $this->aa_threshold . "; MinNumSeq=" . $this->min_seq_msa . ")";
+            $opt .= " (AAs=" . $this->hmm_aa . "; Thresholds=" . $this->aa_threshold . "; " . $count_seq_opt . ")";
+        elseif ($count_seq_opt)
+            $opt .= " ($count_seq_opt)";
         return $opt;
     }
 
@@ -171,6 +176,8 @@ class colorssn extends option_base {
             if (preg_match("/CR|HMM|WEBLOGO/", $this->make_hmm)) {
                 if ($this->min_seq_msa)
                     $parms["--opt-min-seq-msa"] = $this->min_seq_msa;
+                if ($this->max_seq_msa)
+                    $parms["--opt-max-seq-msa"] = $this->max_seq_msa;
             }
         }
         if ($this->include_fragments)
@@ -204,6 +211,7 @@ class colorssn extends option_base {
         $this->make_hmm = (isset($result["make_hmm"]) && $result["make_hmm"]) ? $result["make_hmm"] : "";
         $this->aa_threshold = (isset($result["aa_threshold"]) && $result["aa_threshold"]) ? $result["aa_threshold"] : 0;
         $this->min_seq_msa = (isset($result["min_seq_msa"]) && $result["min_seq_msa"]) ? $result["min_seq_msa"] : self::DEFAULT_MIN_SEQ_MSA;
+        $this->max_seq_msa = (isset($result["max_seq_msa"]) && $result["max_seq_msa"]) ? $result["max_seq_msa"] : 0;
         $this->hmm_aa = (isset($result["hmm_aa"]) && $result["hmm_aa"]) ? $result["hmm_aa"] : "";
         $this->include_fragments = (isset($result["include_fragments"]) && $result["include_fragments"] === true);
 
@@ -245,6 +253,7 @@ class colorssn extends option_base {
         $insert_array["aa_threshold"] = (isset($data->aa_threshold) && preg_match("/^[0-9\., ]+$/", $data->aa_threshold)) ? $data->aa_threshold : 0;
         $insert_array["hmm_aa"] = (isset($data->hmm_aa) && preg_match("/^[A-Z, ]+$/", $data->hmm_aa)) ? str_replace(" ", "", $data->hmm_aa) : "";
         $insert_array["min_seq_msa"] = (isset($data->min_seq_msa) && preg_match("/^[0-9\., ]+$/", $data->min_seq_msa)) ? $data->min_seq_msa : self::DEFAULT_MIN_SEQ_MSA;
+        $insert_array["max_seq_msa"] = (isset($data->max_seq_msa) && preg_match("/^[0-9\., ]+$/", $data->max_seq_msa)) ? $data->max_seq_msa : 0;
         $insert_array["include_fragments"] = (isset($data->include_fragments) && $data->include_fragments === true);
         return $insert_array;
     }

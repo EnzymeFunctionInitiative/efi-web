@@ -416,6 +416,14 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                             </div>
                             <div>
                                 <span class="input-name">
+                                    Maximum Sequence Count:
+                                </span><span class="input-field">
+                                    <input type="text" id="colorssn-max-seq-msa" name="colorssn-max-seq-msa" value="" size="10">
+                                    <label for="colorssn-max-seq-msa">Maximum number of sequences to include in the MSA [default: no maximum]</label>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="input-name">
                                     Make Weblogo:
                                 </span><span class="input-field">
                                     <input type="checkbox" id="colorssn-make-weblogo" name="colorssn-make-weblogo" value="1">
