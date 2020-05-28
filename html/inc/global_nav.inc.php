@@ -25,9 +25,6 @@ $pub_text = $IsAdminUser ? "P" : "Publications";
     <div class="system-nav-container">
         <div class="system-nav">
             <ul>
-<?php if ($use_advanced) { ?>
-                <li><a href="<?php echo $UrlPrefix; ?>/" class="about"><?php echo $pub_text; ?></a></li>
-<?php } ?>
                 <li><a href="<?php echo $UrlPrefix; ?>/" class="about">About</a></li>
                 <li><a href="<?php echo $UrlPrefix; ?>/efi-est/" class="est">EFI-EST</a></li>
                 <li><a href="<?php echo $UrlPrefix; ?>/efi-gnt/" class="gnt">EFI-GNT</a></li>
