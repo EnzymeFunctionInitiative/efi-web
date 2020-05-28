@@ -15,17 +15,34 @@ class gnd_job_factory extends job_factory {
     public function new_diagram_data_file($id) { return new diagram_data_file($id); }
 }
 
+function is_cli() {
+    if (php_sapi_name() == "cli" &&
+        defined("STDIN") &&
+        (!isset($_SERVER["HTTP_HOST"]) || empty($_SERVER["HTTP_HOST"])) &&
+        (!isset($_SERVER['REMOTE_ADDR']) || empty($_SERVER['REMOTE_ADDR'])) &&
+        (!isset($_SERVER['HTTP_USER_AGENT']) || empty($_SERVER['HTTP_USER_AGENT'])) &&
+        count($_SERVER['argv']) > 0)
+    {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 // If this is being run from the command line then we parse the command line parameters and put them into _POST so we can use
 // that below.
-if (!isset($_SERVER["HTTP_HOST"]))
+if (is_cli()) {
     parse_str($argv[1], $_GET);
+    if (isset($argv[2]) && file_exists($argv[2])) {
+        $_GET['console-run-file'] = $argv[2];
+    }
+}
+
 
 $is_example = isset($_GET["x"]) ? true : false;
 
 
 $gnd = new gnd_v2($db, $_GET, new gnd_job_factory($is_example));
-
 
 
 if ($gnd->parse_error()) {
@@ -36,7 +53,8 @@ if ($gnd->parse_error()) {
 $data = $gnd->get_arrow_data();
 
 $output = "Genome\tID\tStart\tStop\tSize (nt)\tStrand\tFunction\tFC\tSS\tSet\n";
-
+$add_ipro = true;
+//$add_ipro = is_cli();
 foreach ($data["data"] as $row) {
     $A = $row["attributes"];
     $org = $A["organism"];
@@ -45,20 +63,21 @@ foreach ($data["data"] as $row) {
     foreach ($row["neighbors"] as $N) {
         if ($N["num"] > $num && !$query_processed) {
             $query_processed = true;
-            $output .= get_line($org, $A);
+            $output .= get_line($org, $A, $add_ipro);
         }
-        $output .= get_line($org, $N);
+        $output .= get_line($org, $N, $add_ipro);
     }
 }
 
 
 $gnn_name = $gnd->get_job_name();
-send_headers("${gnn_name}_gene_graphics.tsv", strlen($output));
+if (!is_cli())
+    send_headers("${gnn_name}_gene_graphics.tsv", strlen($output));
 print $output;
 
 
 
-function get_line($organism, $data) {
+function get_line($organism, $data, $add_ipro = false) {
     if (!isset($data["accession"])) {
         return "";
     }
@@ -66,6 +85,12 @@ function get_line($organism, $data) {
     $family = implode("; ", $data["family_desc"]);
     if (!$family)
         $family = "none";
+    $ipro = "";
+    if ($add_ipro && is_array($data["ipro_family"])) {
+        $ipro = implode("; ", preg_grep("/^(?!none)/", $data["ipro_family"]));
+        if ($ipro)
+            $ipro = "; InterPro=$ipro";
+    }
 
     $line = $organism;
     $line .= "\t" . $data["accession"];
@@ -73,7 +98,7 @@ function get_line($organism, $data) {
     $line .= "\t" . round($data["stop"] / 3);
     $line .= "\t" . $data["seq_len"];
     $line .= "\t" . ($data["direction"] == "complement" ? "-" : "+");
-    $line .= "\t" . $family;
+    $line .= "\t" . $family . $ipro;
     $line .= "\t" . "";
     $line .= "\t" . "";
     $line .= "\t" . "";
