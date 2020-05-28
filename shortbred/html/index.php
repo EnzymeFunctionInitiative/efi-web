@@ -16,8 +16,8 @@ $training_jobs = array();
 $IsAdminUser = false;
 $IsExample = true;
 $user_token = "";
-$is_enabled = false;
-$is_sb_enabled = false;
+$is_enabled = true;
+$is_sb_enabled = global_settings::get_shortbred_enabled();
 $use_advanced_options = global_settings::advanced_options_enabled();
 
 if (user_auth::has_token_cookie()) {
@@ -27,11 +27,9 @@ if (user_auth::has_token_cookie()) {
     if ($user_email)
         $IsLoggedIn = $user_email;
 
-    $is_sb_enabled = global_settings::get_shortbred_enabled();
     if ($is_sb_enabled) {
         $job_manager = job_manager::init_by_user($db, job_types::Identify, $user_token);
-        //$job_manager = new job_manager($db, job_types::Identify);
-        $is_enabled = $IsAdminUser || functions::is_shortbred_authorized($db, $user_token);
+//        $is_enabled = $IsAdminUser || functions::is_shortbred_authorized($db, $user_token);
 
         // if $job_manager is a bit of a hack.  we're trying to track down an issue.
         if ($job_manager && settings::get_recent_jobs_enabled()) {
@@ -48,12 +46,12 @@ $default_ref_db = cgfp_settings::get_default_ref_db();
 $default_search = cgfp_settings::get_default_identify_search();
 
 $login_banner_msg = "";
-if (!$IsLoggedIn) {
-    $login_banner_msg = "Use of EFI-CGFP requires a user account. Login or " .
-        "<a href=\"$SiteUrlPrefix/user_account.php?action=create\">create a user account</a>.";
-} elseif (!$is_enabled && $is_sb_enabled) {
-    $login_banner_msg = "To use EFI-CGFP, submit a request on the 'Run CGFP/ShortBRED' tab.";
-}
+//if (!$IsLoggedIn) {
+//    $login_banner_msg = "Use of EFI-CGFP requires a user account. Login or " .
+//        "<a href=\"$SiteUrlPrefix/user_account.php?action=create\">create a user account</a>.";
+//} elseif (!$is_enabled && $is_sb_enabled) {
+//    $login_banner_msg = "To use EFI-CGFP, submit a request on the 'Run CGFP/ShortBRED' tab.";
+//}
 $update_message = 
     "The \"From the Bench\" article describing the tools and their use is available on the " . 
     "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
