@@ -577,4 +577,16 @@ div.input {
 
 
 
+.progress-loader {
+    position: fixed;
+    top:  50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    font-size: 4em;
+}
+
+.progress-loader-sm {
+    font-size: 2em;
+}
+
 

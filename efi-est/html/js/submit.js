@@ -204,39 +204,43 @@ function submitOptionEForm(famHelper, outputIds) {
     }
 }
 
-function submitColorSsnForm() { // the parameters are optional
+function submitColorSsnForm(isClusterAnalysis = false) { // the parameters are optional
 
-    var messageId = "message-colorssn";
+    var option = isClusterAnalysis ? "cluster" : "colorssn";
+    var messageId = "message-" + option;
 
     var fd = new FormData();
-    fd.append("option_selected", "colorssn");
-    addParam(fd, "email", "email-colorssn");
-    addCbParam(fd, "extra_ram", "colorssn-extra-ram");
+    fd.append("option_selected", option);
+    addParam(fd, "email", "email-" + option);
+    if (!isClusterAnalysis)
+        addCbParam(fd, "extra_ram", "colorssn-extra-ram");
 
-    var hmmOpt = "";
-    if ($("#" + "colorssn-make-weblogo").prop("checked"))
-        hmmOpt = "WEBLOGO";
-    if ($("#" + "colorssn-make-hmm").prop("checked"))
-        hmmOpt += ",HMM";
-    if ($("#" + "colorssn-make-cr").prop("checked"))
-        hmmOpt += ",CR";
-    if ($("#" + "colorssn-make-hist").prop("checked"))
-        hmmOpt += ",HIST";
-    fd.append("make-hmm", hmmOpt);
-    addParam(fd, "aa-threshold", "colorssn-aa-threshold");
-    addParam(fd, "hmm-aa", "colorssn-hmm-aa-list");
-    addParam(fd, "min-seq-msa", "colorssn-min-seq-msa");
-    addParam(fd, "max-seq-msa", "colorssn-max-seq-msa");
-    addParam(fd, "ssn-source-id", "ssn-source-id");
-    addParam(fd, "ssn-source-idx", "ssn-source-idx");
-    //addCbParam(fd, "exlude-fragments", "colorssn-exclude-fragments");
+    if (isClusterAnalysis) {
+        var hmmOpt = "";
+        if ($("#" + "make-weblogo-" + option).prop("checked"))
+            hmmOpt = "WEBLOGO";
+        if ($("#" + "make-hmm-" + option).prop("checked"))
+            hmmOpt += ",HMM";
+        if ($("#" + "make-cr-" + option).prop("checked"))
+            hmmOpt += ",CR";
+        if ($("#" + "make-hist-" + option).prop("checked"))
+            hmmOpt += ",HIST";
+        fd.append("make-hmm", hmmOpt);
+        addParam(fd, "aa-threshold", "aa-threshold-" + option);
+        addParam(fd, "hmm-aa", "hmm-aa-list-" + option);
+        addParam(fd, "min-seq-msa", "min-seq-msa-" + option);
+        addParam(fd, "max-seq-msa", "max-seq-msa-" + option);
+    }
+    addParam(fd, "ssn-source-id", "ssn-source-id-" + option);
+    addParam(fd, "ssn-source-idx", "ssn-source-idx-" + option);
+    //addCbParam(fd, "exlude-fragments", "exclude-" + option);
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
-    var files = document.getElementById("colorssn-file").files;
+    var files = document.getElementById(option + "-file").files;
     if (files.length > 0) {
         fd.append("file", files[0]);
         fileHandler = function(xhr) {
-            addUploadStuff(xhr, "progress-num-colorssn", "progress-bar-colorssn");
+            addUploadStuff(xhr, "progress-num-" + option, "progress-bar-" + option);
         };
     }
 
@@ -331,6 +335,8 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
             if (xhr.readyState == 4  ) {
                 // Javascript function JSON.parse to parse JSON data
                 var jsonObj = JSON.parse(xhr.responseText);
+
+                console.log(messageId);
     
                 // jsonObj variable now contains the data structure and can
                 // be accessed as jsonObj.name and jsonObj.country.
