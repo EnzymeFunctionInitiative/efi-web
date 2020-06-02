@@ -48,7 +48,7 @@ if (!isset($_POST['submit'])) {
     $result["MESSAGE"] = "Form is invalid.";
 } elseif (!isset($input->email) || !$input->email) {
     $result["MESSAGE"] = "Please enter an e-mail address.";
-} elseif ($option != "colorssn" && (!isset($_POST['job-name']) || !$_POST['job-name'])) {
+} elseif ($option != "colorssn" && $option != "cluster" && (!isset($_POST['job-name']) || !$_POST['job-name'])) {
     $result["MESSAGE"] = "Job name is required.";
 } elseif ($is_job_limited) {
     $result["MESSAGE"] = "Due to finite computational resource constraints, you can only have $num_job_limit active or pending jobs within a 24 hour period.  Please try again when some of your jobs have completed.";
@@ -141,6 +141,7 @@ if (!isset($_POST['submit'])) {
         case 'D':
         //Option color SSN
         case 'colorssn':
+        case 'cluster':
             $input->seq_id = 1;
 
             if (isset($_FILES['file']) && $_FILES['file']['error'] === "")
@@ -183,18 +184,22 @@ if (!isset($_POST['submit'])) {
                     $input->families = $_POST['families_input'];
                     if (isset($_POST["domain_family"]) && $_POST["domain_family"])
                         $input->domain_family = $_POST["domain_family"];
-                } else if ($option == "colorssn") {
-                    $obj = new colorssn($db);
+                } else if ($option == "colorssn" || $option == "cluster") {
                     if (isset($_POST['ssn-source-id']))
                         $input->color_ssn_source_id = $_POST['ssn-source-id'];
                     if (isset($_POST['ssn-source-idx']))
                         $input->color_ssn_source_idx = $_POST['ssn-source-idx'];
                     $input->extra_ram = (isset($_POST['extra_ram']) && $_POST['extra_ram'] == "true");
-                    $input->make_hmm = (isset($_POST['make-hmm']) && $_POST['make-hmm']) ? $_POST['make-hmm'] : "";
-                    $input->aa_threshold = (isset($_POST['aa-threshold']) && $_POST['aa-threshold']) ? $_POST['aa-threshold'] : 0.8;
-                    $input->hmm_aa = (isset($_POST['hmm-aa']) && $_POST['hmm-aa']) ? $_POST['hmm-aa'] : "";
-                    $input->min_seq_msa = (isset($_POST['min-seq-msa']) && $_POST['min-seq-msa']) ? $_POST['min-seq-msa'] : 0;
-                    $input->max_seq_msa = (isset($_POST['max-seq-msa']) && $_POST['max-seq-msa']) ? $_POST['max-seq-msa'] : 0;
+                    if ($option == "cluster") {
+                        $obj = new cluster_analysis($db);
+                        $input->make_hmm = (isset($_POST['make-hmm']) && $_POST['make-hmm']) ? $_POST['make-hmm'] : "";
+                        $input->aa_threshold = (isset($_POST['aa-threshold']) && $_POST['aa-threshold']) ? $_POST['aa-threshold'] : 0.8;
+                        $input->hmm_aa = (isset($_POST['hmm-aa']) && $_POST['hmm-aa']) ? $_POST['hmm-aa'] : "";
+                        $input->min_seq_msa = (isset($_POST['min-seq-msa']) && $_POST['min-seq-msa']) ? $_POST['min-seq-msa'] : 0;
+                        $input->max_seq_msa = (isset($_POST['max-seq-msa']) && $_POST['max-seq-msa']) ? $_POST['max-seq-msa'] : 0;
+                    } else {
+                        $obj = new colorssn($db);
+                    }
                 }
 
                 if (isset($_FILES['file'])) {
