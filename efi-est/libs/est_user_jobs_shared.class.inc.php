@@ -141,20 +141,27 @@ class est_user_jobs_shared {
         }
 
         $job_type = self::get_job_label($type);
-        if ($type == "COLORSSN" && isset($data["make_hmm"]) && $data["make_hmm"]) {
+        if ($type == "CLUSTER") {
+            $opts = isset($data["make_hmm"]) ? $data["make_hmm"] : "";
             $min_seq_msa = (isset($data["min_seq_msa"]) && $data["min_seq_msa"]) ? $data["min_seq_msa"] : "";
             $max_seq_msa = (isset($data["max_seq_msa"]) && $data["max_seq_msa"]) ? $data["max_seq_msa"] : "";
-            $aa_parm = "";
-            if (preg_match("/CR/", $data["make_hmm"]))
-                $aa_parm = "AAs=" . $data["hmm_aa"] . "; Thresholds=" . $data["aa_threshold"];
 
-            $parms = $aa_parm;
-            $parms .= $min_seq_msa ? ($parms ? "; " : "") . "MinNumSeq=" . $min_seq_msa : "";
-            $parms .= $max_seq_msa ? ($parms ? "; " : "") . "MaxNumSeq=" . $max_seq_msa : "";
-            if ($parms)
-                $parms = "; $parms";
+            $parms = array();
+            if (preg_match("/HMM/", $opts))
+                array_push($parms, "HMMs");
+            if (preg_match("/LOGO/", $opts))
+                array_push($parms, "WebLogos");
+            if (preg_match("/HIST/", $opts))
+                array_push($parms, "Length Histograms");
+            if (preg_match("/CR/", $opts))
+                array_push($parms, "AAs=" . $data["hmm_aa"] . "; Thresholds=" . $data["aa_threshold"]);
+            if ($min_seq_msa)
+                array_push($parms, "MinNumSeq=" . $min_seq_msa);
+            if ($max_seq_msa)
+                array_push($parms, "MaxNumSeq=" . $max_seq_msa);
 
-            $job_type .= " (HMM and stuff$parms)";
+            if (count($parms))
+                $job_type .= " (" . implode("; ", $parms) . ")";
         }
 
         $info = array($job_type);
@@ -187,6 +194,8 @@ class est_user_jobs_shared {
             return "Accession IDs";
         case "COLORSSN":
             return "Color SSN";
+        case "CLUSTER":
+            return "Cluster Analysis";
         case "BLAST":
             return "Sequence BLAST";
         default:
@@ -246,7 +255,8 @@ class est_user_jobs_shared {
         $child_color_jobs = array();
         $color_jobs = array();
         foreach ($rows as $row) {
-            if ($row["${generate_table}_type"] != "COLORSSN")
+            $type = $row["${generate_table}_type"];
+            if ($type != "COLORSSN" && $type != "CLUSTER")
                 continue;
 
             $comp_result = est_user_jobs_shared::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);
@@ -274,7 +284,8 @@ class est_user_jobs_shared {
         $colors_to_remove = array(); // these are the generate_id that will need to be removed from $id_order, since they are now attached to an analysis job
         // Process all non Color SSN jobs.  Link analysis jobs to generate jobs and color SSN jobs to analysis jobs.
         foreach ($rows as $row) {
-            if ($row["${generate_table}_type"] == "COLORSSN")
+            $type = $row["${generate_table}_type"];
+            if ($type == "COLORSSN" || $type == "CLUSTER")
                 continue;
 
             $comp_result = est_user_jobs_shared::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);

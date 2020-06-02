@@ -31,10 +31,12 @@ function add_submit_html($option_id, $js_id_name, $user_email) {
     $js_fn = "submitOptionForm('$option_id', familySizeHelper, $js_id_name)";
     $is_interactive = is_interactive();
     if ($option_id == "colorssn")
-        $js_fn = "submitColorSsnForm()";
+        $js_fn = "submitColorSsnForm(false)";
+    else if ($option_id == "cluster")
+        $js_fn = "submitColorSsnForm(true)";
 
     $html = "";
-    if ($option_id != "colorssn")
+    if ($option_id != "colorssn" && $option_id != "cluster")
         $html .= <<<HTML
 <div style="margin-top: 35px">
     <span class="input-name">

@@ -96,7 +96,7 @@ the <a href="family_list.php">Family Information page</a>.
 include_once("inc/index_helpers.inc.php");
 include_once("inc/index_sections.inc.php");
 $show_example = false;
-$show_tutorial = true;
+$show_tutorial = false;
 output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $show_example);
 ?>
 

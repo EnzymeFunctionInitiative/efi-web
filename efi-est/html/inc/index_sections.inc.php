@@ -384,7 +384,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                 Summary tables, sets of IDs and sequences per cluster are provided.
             </p>
 
-            <form name="colorSsnForm" id="colorSsnform" method="post" action="">
+            <form name="" id="colorSsnform" method="post" action="">
                 <div class="primary-input">
 <?php echo ui::make_upload_box("SSN File:", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn", "", "", $ssn_filename); ?>
                     <div>
@@ -406,6 +406,9 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                                     <label for="colorssn-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
                                 </span>
                             </div>
+                            <?php
+                            /*
+                            <!--
                             <div>
                                 <span class="input-name">
                                     Minimum Sequence Count:
@@ -458,6 +461,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                                     <label for="colorssn-make-hist">Make length histograms for each cluster [default: off]</label>
                                 </span>
                             </div>
+-->
 <!--
                             <div>
                                 <span class="input-name">
@@ -468,15 +472,152 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                                 </span>
                             </div>
 -->
+                            */?>
                         </div>
                     </div>
                 </div>
                 <?php } ?>
                 <?php if ($ssn_id) { ?>
-                    <input type="hidden" name="ssn-source-id" id="ssn-source-id" value="<?php echo $ssn_id; ?>">
-                    <input type="hidden" name="ssn-source-idx" id="ssn-source-idx" value="<?php echo $ssn_idx; ?>">
+                    <input type="hidden" name="ssn-source-id-colorssn" id="ssn-source-id-colorssn" value="<?php echo $ssn_id; ?>">
+                    <input type="hidden" name="ssn-source-idx-colorssn" id="ssn-source-idx-colorssn" value="<?php echo $ssn_idx; ?>">
                 <?php } ?>
                 <?php echo add_submit_html("colorssn", "", $user_email)[0]; ?>
+            </form>
+        </div>
+<?php
+}
+
+function output_cluster($use_advanced_options, $user_email, $show_example = false) {
+    $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
+    $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
+?>
+        <div id="clustertab" class="ui-tabs-panel ui-widget-content">
+            <p>
+                <b>Clusters in the submitted SSN are identified, numbered and colored.</b>
+                Summary tables, sets of IDs and sequences per cluster are provided.
+                HMMs, WebLogos, and consensus residues are computed.
+            </p>
+
+            <form name="clusterTab" id="clusterTab" method="post" action="">
+                <div class="primary-input">
+<?php echo ui::make_upload_box("SSN File:", "cluster-file", "progress-bar-cluster", "progress-num-cluster", "", "", $ssn_filename); ?>
+                    <div>
+                        A Cytoscape-edited SNN can serve as input.
+                        The accepted format is XGMML (or compressed XGMML as zip).
+                    </div>
+                </div>
+
+                <div class="option-panels">
+                        <div>
+                            <h3>Sequence Filter</h3>
+                            <div>
+                                <div>
+                                    The MSA is generated with MUSCLE using the node IDs.  Clusters containing less than
+                                    the Minimum Sequence Count will be excluded from the analyses.
+                                    Since MUSCLE can fail with a "large" number sequences (variable; anywhere from &gt;750 to 1500),
+                                    the Maximum Sequence Count parameter can be used to limit the number of sequences
+                                    that MUSCLE uses.
+                                </div>
+                                <div>
+                                    <span class="input-name">
+                                        Minimum Node Count:
+                                    </span><span class="input-field">
+                                        <input type="text" id="min-seq-msa-cluster" name="min-seq-msa-cluster" value="" size="10">
+                                        <label for="min-seq-msa-cluster">Minimum number of nodes in order to include a cluster in the computations [default: 5]</label>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="input-name">
+                                        Maximum Sequence Count:
+                                    </span><span class="input-field">
+                                        <input type="text" id="max-seq-msa-cluster" name="max-seq-msa-cluster" value="" size="10">
+                                        <label for="max-seq-msa-cluster">Maximum number of nodes to include in the MSA [default: no maximum]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3>WebLogos</h3>
+                            <div>
+                                <div>
+                                    A MSA for the (length-filtered) node IDs is generated using MUSCLE;
+                                    the WebLogo is generated with the
+                                    <a target="_blank" href="http://weblogo.threeplusone.com">http://weblogo.threeplusone.com</a> code.
+                                </div>
+                                <div>
+                                    <span class="input-name">
+                                        Make Weblogo:
+                                    </span><span class="input-field">
+                                        <input type="checkbox" id="make-weblogo-cluster" name="make-weblogo-cluster" value="1" checked>
+                                        <label for="make-weblogo-cluster">Make Weblogos for each cluster [default: on]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div>
+                            <h3>Consensus Residues</h3>
+                            <div>
+                                <div>
+                                    <div>
+                                        The positions and selected percent identities of the selected residues in the MSA are determined.  
+                                    </div>
+                                    <span class="input-name">
+                                        Compute Consensus Residues:
+                                    </span><span class="input-field">
+                                        <input type="checkbox" id="make-cr-cluster" name="make-cr-cluster" value="1" checked>
+                                        <label for="make-cr-cluster">Compute consensus residues [default: on]</label><br>
+                                        <input type="text" id="hmm-aa-list-cluster" name="hmm-aa-list-cluster" value="C" size="10">
+                                        <label for="hmm-aa-list-cluster">Residues to compute for (comma-separated list of amino acid codes)</label><br>
+                                        <input type="text" id="aa-threshold-cluster" name="aa-threshold-cluster" value="0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1" size="20">
+                                        <label for="aa-threshold-cluster">Percent identity threshold(s) for determining conservation (multiple comma-separated values allowed) [default: 0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div>
+                            <h3>HMMs</h3>
+                            <div>
+                                <div>
+                                    The MSA for the (length-filtered) node IDs is used to generate the HMM with hmmbuild from
+                                    <a href="http://hmmer.org">HMMER3 (http://hmmer.org)</a>.
+                                </div>
+                                <div>
+                                    <span class="input-name">
+                                        Make HMMs:
+                                    </span><span class="input-field">
+                                        <input type="checkbox" id="make-hmm-cluster" name="make-hmm-cluster" value="1" checked>
+                                        <label for="make-hmm-cluster">Make HMMs for each cluster [default: on]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div>
+                            <h3>Length Histograms</h3>
+                            <div>
+                                <div>
+                                    Length histograms for the node IDs (where applicable, UniProt, UniRef90, and UniRef50 IDs).
+                                </div>
+                                <div>
+                                    <span class="input-name">
+                                        Make Length Histograms:
+                                    </span><span class="input-field">
+                                        <input type="checkbox" id="make-hist-cluster" name="make-hist-cluster" value="1" checked>
+                                        <label for="make-hist-cluster">Make length histograms for each cluster [default: on]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                <?php if ($ssn_id) { ?>
+                    <input type="hidden" name="ssn-source-id-cluster" id="ssn-source-id-cluster" value="<?php echo $ssn_id; ?>">
+                    <input type="hidden" name="ssn-source-idx-cluster" id="ssn-source-idx-cluster" value="<?php echo $ssn_idx; ?>">
+                <?php } ?>
+                <?php echo add_submit_html("cluster", "", $user_email)[0]; ?>
             </form>
         </div>
 <?php
@@ -633,6 +774,7 @@ function output_tab_page_header($show_jobs_tab, $show_tutorial, $selected_tab = 
 <?php if ($show_tutorial) { ?>
         <li <?php echo (($show_tutorial || $show_jobs_tab) ? "" : "class=\"$active_class\"") ?>><a href="#tutorial">Tutorial</a></li>
 <?php } ?>
+        <li <?php echo ($selected_tab == "cluster" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("clustertab"); ?>">Cluster Analysis</a></li>
     </ul>
 <?php
 }
@@ -691,6 +833,7 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
     output_colorssn($use_advanced_options, $user_email, $example_fn, $color_mode_data);
     if ($show_tutorial)
         output_tutorial($show_jobs_tab);
+    output_cluster($use_advanced_options, $user_email, $example_fn);
 ?>
 
     </div> <!-- tab-content -->

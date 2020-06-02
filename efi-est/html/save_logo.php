@@ -7,7 +7,7 @@ if ((!isset($_GET["id"])) || (!is_numeric($_GET["id"]))) {
 }
 
 
-$obj = new colorssn($db,$_GET["id"]);
+$obj = job_factory::create($db,$_GET["id"]);
 
 $key = $obj->get_key();
 if ($key != $_GET["key"]) {

@@ -55,7 +55,7 @@ else {
             $status = "is currently running the initial processing step";
         }
         else {
-            if ($job_status["job_type"] == "COLORSSN") {
+            if ($job_status["job_type"] == colorssn::create_type() || $job_status["job_type"] == cluster_analysis::create_type()) {
                 $status = "has completed coloring the SSN";
                 $init_url = "view_coloredssn.php?";
             }
