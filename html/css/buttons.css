@@ -132,3 +132,42 @@ div.panel-toggle {
     color: red;
 }
 
+
+
+
+/* SPLIT BUTTONS */
+
+
+.btn-split {
+    position: absolute;
+    display: inline-block;
+}
+
+.btn-split-content {
+    display: none;
+    position: absolute;
+    background-color: lightgray;
+    min-width: 200px;
+    z-index: 1;
+    margin-left: -170px;
+}
+
+.btn-split button.mini {
+    width: 30px;
+}
+
+.btn-split-content a {
+    color: black;
+    padding: 8px 6px;
+    text-decoration: none;
+    display: block;
+    border: 1px solid darkgray;
+}
+
+.btn-split-content a:hover {background-color: #ddd}
+
+.btn-split:hover .btn-split-content {
+    display: block;
+}
+
+

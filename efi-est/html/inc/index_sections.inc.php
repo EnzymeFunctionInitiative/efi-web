@@ -487,7 +487,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
 <?php
 }
 
-function output_cluster($use_advanced_options, $user_email, $show_example = false) {
+function output_cluster($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
     $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
@@ -496,7 +496,10 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
             <p>
                 <b>Clusters in the submitted SSN are identified, numbered and colored.</b>
                 Summary tables, sets of IDs and sequences per cluster are provided.
-                HMMs, WebLogos, and consensus residues are computed.
+            </p>
+            <p>
+                <b>HMMs, WebLogos, and consensus residues are computed.</b>
+                Options are available in the tabs below to select the desired analyes.
             </p>
 
             <form name="clusterTab" id="clusterTab" method="post" action="">
@@ -794,8 +797,8 @@ HTML;
 
 function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $example_fn = false, $show_all_ids = false) {
 
-    $color_mode_data = check_for_color_mode($db);
-    $sel_tab = !empty($color_mode_data) ? "colorssn" : "";
+    $mode_data = check_for_color_mode($db);
+    $sel_tab = !empty($mode_data) ? ($mode_data["mode"] == "cluster" ? "cluster" : "colorssn") : "";
 
     output_tab_page_start();
     output_tab_page_header($show_jobs_tab, $show_tutorial, $sel_tab);
@@ -830,10 +833,10 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
     output_option_d($use_advanced_options, $db_modules, $user_email, $example_fn);
     if (est_settings::option_e_enabled())
         output_option_e($use_advanced_options, $db_modules, $user_email, $example_fn);
-    output_colorssn($use_advanced_options, $user_email, $example_fn, $color_mode_data);
+    output_colorssn($use_advanced_options, $user_email, $example_fn, $mode_data);
     if ($show_tutorial)
         output_tutorial($show_jobs_tab);
-    output_cluster($use_advanced_options, $user_email, $example_fn);
+    output_cluster($use_advanced_options, $user_email, $example_fn, $mode_data);
 ?>
 
     </div> <!-- tab-content -->
@@ -848,7 +851,9 @@ function check_for_color_mode($db) {
 
     $mode_data = array();
 
-    if (isset($_GET["mode"]) && $_GET["mode"] == "color" && isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])) {
+    if (isset($_GET["mode"]) && ($_GET["mode"] == "color" || $_GET["mode"] == "cluster") &&
+        isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"]))
+    {
         $the_aid = $_GET["est-id"];
         $the_key = $_GET["est-key"];
         $the_idx = $_GET["est-ssn"];
@@ -863,6 +868,7 @@ function check_for_color_mode($db) {
                 $mode_data["filename"] = $color_filename;
                 $mode_data["ssn_id"] = $the_aid;
                 $mode_data["ssn_idx"] = $the_idx;
+                $mode_data["mode"] = $_GET["mode"];
     
                 $submit_est_args = "'$the_aid','$the_key','$the_idx'";
             }

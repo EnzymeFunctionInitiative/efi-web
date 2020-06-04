@@ -29,11 +29,15 @@ $use_advanced_options = global_settings::advanced_options_enabled();
 
 $db_modules = global_settings::get_database_modules();
 
-$update_msg =
-    "The \"From the Bench\" article describing the tools and their use is available on the " . 
-    "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
-    "Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
-    "We now provide the \"Fragment Option\" to exclude UniProt-defined fragments from SSNs.<br>" .
+//$update_msg =
+//    "The \"From the Bench\" article describing the tools and their use is available on the " . 
+//    "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
+//    "Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
+//    "We now provide the \"Fragment Option\" to exclude UniProt-defined fragments from SSNs.<br>" .
+$update_msg = 
+    'Cluster Analysis is a new tool that provides a color SSN as well as WebLogos, MSAs, and HMMs for the clusters.<br>' .
+    'Options B and D now provide an expanded "Family Domain Boundary Option" to generate SSNs for sequences N- or C-terminal to the specified family domain.<br>' .
+    //"Sequence regions adjacent to the domain can be selected in the domain option for Families and Accession IDs.<br>" .
     "<small>" . functions::get_update_message() . "</small>";
 
 
