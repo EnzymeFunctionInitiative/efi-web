@@ -41,7 +41,7 @@ class est_user_jobs_shared {
         if (array_key_exists("generate_evalue", $data)) {
             $evalue = $data["generate_evalue"];
             if ($evalue && $evalue != est_settings::get_evalue())
-                $evalueStr = "E-value=" . $evalue;
+                $evalueStr = "E-value: " . $evalue;
         }
         return $evalueStr;
     }
@@ -51,7 +51,7 @@ class est_user_jobs_shared {
         if (array_key_exists("generate_fraction", $data)) {
             $fraction = $data["generate_fraction"];
             if ($fraction && $fraction != functions::get_fraction())
-                $fractionStr = "Fraction=" . $fraction;
+                $fractionStr = "Fraction: " . $fraction;
         }
         return $fractionStr;
     }
@@ -68,8 +68,19 @@ class est_user_jobs_shared {
     private static function get_domain($data) {
         $domainStr = "";
         if (array_key_exists("generate_domain", $data)) {
-            if ($data["generate_domain"])
-                $domainStr = "Domain=on";
+            if ($data["generate_domain"]) {
+                $domainStr = "Domain: on";
+                if (isset($data["generate_domain_region"]) && $data["generate_domain_region"] != "domain") {
+                    switch ($data["generate_domain_region"]) {
+                    case "nterminal":
+                        $domainStr .= " (N-terminal)";
+                        break;
+                    case "cterminal":
+                        $domainStr .= " (C-terminal)";
+                        break;
+                    }
+                }
+            }
         }
         return $domainStr;
     }
@@ -106,6 +117,15 @@ class est_user_jobs_shared {
         return $info;
     }
 
+    private static function get_exclude_fragments($data) {
+        $info = "";
+        if (isset($data["exclude_fragments"]) && $data["exclude_fragments"] == true)
+            $info = "Fragments: no";
+        else
+            $info = "Fragments: yes";
+        return $info;
+    }
+
     public static function build_job_name($data, $type, $familyLookupFn, $job_id = 0) {
 
         $newFamilyLookupFn = function($family_id) use($familyLookupFn) {
@@ -122,6 +142,7 @@ class est_user_jobs_shared {
         $sequence = self::get_sequence($data);
         $blastEvalue = self::get_blast_evalue($data);
         $maxHits = self::get_max_blast_hits($data);
+        $excludeFractions = self::get_exclude_fragments($data);
         $jobNameField = isset($data["generate_job_name"]) ? $data["generate_job_name"] : "";
 
         $job_name = "";
@@ -171,6 +192,7 @@ class est_user_jobs_shared {
         if ($fraction) array_push($info, $fraction);
         if ($uniref) array_push($info, $uniref);
         if ($domain) array_push($info, $domain);
+        if ($excludeFractions) array_push($info, $excludeFractions);
         if ($sequence) array_push($info, $sequence);
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);

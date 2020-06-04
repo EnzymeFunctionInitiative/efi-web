@@ -172,6 +172,7 @@ HTML;
 
 
 function add_domain_option($option_id, $specify_family = false, $use_advanced_options = false) {
+    $specify_region = true;
     $option_text = $specify_family ? "Options" : "Option";
     $html = <<<HTML
 <h3>Family Domain Boundary $option_text</h3>
@@ -188,35 +189,40 @@ function add_domain_option($option_id, $specify_family = false, $use_advanced_op
         </span>
     </div>
 HTML;
-    if ($specify_family or $use_advanced_options) {
+    if ($specify_family) {
         $html .= <<<HTML
     <div>
-HTML;
-    }
-    if ($specify_family) { // Option D only
-        $html .= <<<HTML
         <span class="input-name">
             Family:
         </span><span class="input-field">
             <input type="text" name="domain-family-$option_id" id="domain-family-$option_id" style="width: 100px" disabled />
             Use domain boundaries from the specified family (enter only one family).
         </span>
+    </div>
 HTML;
     }
-    //if ($option_id == "b" || $option_id == "d") {
-    $html .= <<<HTML
-        <div>
+    if ($specify_region) {
+        $html .= <<<HTML
+    <div>
+        <span class="input-name">
+            Region:
+        </span><span class="input-field">
             <input type="radio" id="domain-region-nterminal-$option_id" name="domain-region-$option_id" value="nterminal" class="domain-region-$option_id">
             <label for="domain-region-nterminal-$option_id">N-Terminal</label>
             <input type="radio" id="domain-region-domain-$option_id" name="domain-region-$option_id" value="domain" class="domain-region-$option_id">
-            <label for="domain-region-domain-$option_id">Domain</label>
+            <label for="domain-region-domain-$option_id">Domain [default]</label>
             <input type="radio" id="domain-region-cterminal-$option_id" name="domain-region-$option_id" value="cterminal" class="domain-region-$option_id">
             <label for="domain-region-cterminal-$option_id">C-Terminal</label>
-        </div>
+        </span>
+        <div class="input-desc">
 HTML;
-    //}
-    if ($specify_family or $use_advanced_options) {
+        if ($specify_family)
+            $html .= "A specified InterPro family must be defined by a single database.\n";
         $html .= <<<HTML
+            <i>N-terminal</i> will select the portion of the sequence that is N-terminal to the specified domain to generate the SSN.
+            <i>C-terminal</i> will select the portion of the sequence that is C-terminal to the specified domain to generate the SSN.
+            <i>Domain</i> will use the specified domain.
+        </div>
     </div>
 HTML;
     }
