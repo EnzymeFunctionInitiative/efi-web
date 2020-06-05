@@ -72,6 +72,8 @@ class fasta extends family_shared {
     public function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
         $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
+        if (isset($data->include_all_seq) && $data->include_all_seq === true)
+            $insert_array['include_all_seq'] = true;
         return $insert_array;
     }
 

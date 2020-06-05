@@ -34,6 +34,7 @@ class analysis extends est_shared {
     private $db_mod = "";
     private $use_min_edge_attr = false;
     private $use_min_node_attr = false;
+    private $include_all_seq = false;
     protected $is_sticky = false;
 
     private $is_example = false;
@@ -384,8 +385,11 @@ class analysis extends est_shared {
                     $exec .= " -scheduler " . $sched . " ";
                 if ($parent_id > 0)
                     $exec .= " " . $parent_dir_opt;
-                if ($this->job_type == "FASTA_ID" || $this->job_type == "FASTA")
+                if ($this->job_type == "FASTA_ID" || $this->job_type == "FASTA") {
                     $exec .= " -include-sequences";
+                    if ($this->include_all_seq)
+                        $exec .= " -include-all-sequences";
+                }
                 if ($this->use_min_edge_attr)
                     $exec .= " -use-min-edge-attr";
                 if ($this->use_min_node_attr)
@@ -473,6 +477,7 @@ class analysis extends est_shared {
                 $this->uniref = $gen_params["generate_uniref"];
             else
                 $this->uniref = 0;
+            $this->include_all_seq = (isset($gen_params["include_all_seq"]) && $gen_params["include_all_seq"]) ? true : false;
 
             $a_params = isset($result[0]['analysis_params']) ? global_functions::decode_object($result[0]['analysis_params']) : array();
             $this->use_min_edge_attr = isset($a_params["use_min_edge_attr"]) && $a_params["use_min_edge_attr"];

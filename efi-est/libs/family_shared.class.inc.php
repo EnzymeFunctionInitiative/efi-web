@@ -18,6 +18,8 @@ abstract class family_shared extends option_base {
     protected $min_seq_len = 0;
     protected $max_seq_len = 0;
     protected $exclude_fragments = false;
+    private $domain;
+    private $domain_region;
 
     ///////////////Public Functions///////////
 
@@ -39,7 +41,13 @@ abstract class family_shared extends option_base {
     public function get_no_demux() { return $this->no_demux; }
     public function is_cd_hit_job() { return strpos($this->seq_id, ",") !== FALSE; } //HACK: this is a temporary hack for research purposes
     public function get_exclude_fragments() { return $this->exclude_fragments; }
-            
+    public function get_domain() { return $this->domain ? true : false; }
+    public function get_domain_region_pretty() {
+        if ($this->domain_region)
+            return $this->domain_region == "nterminal" ? "N-terminal" : ($this->domain_region == "cterminal" ? "C-terminal" : "");
+        else
+            return "";
+    }
 
 
     //returns an array of the pfam families or empty array otherwise
@@ -114,6 +122,15 @@ abstract class family_shared extends option_base {
             $insert_array["generate_max_seq_len"] = $data->max_seq_len;
         if (isset($data->exclude_fragments) && $data->exclude_fragments === true)
             $insert_array["exclude_fragments"] = true;
+        
+        $domain_bool = 0;
+        if ($data->domain == 'true' || $data->domain == 1) {
+            $domain_bool = 1;
+            if ($data->domain_region && ($data->domain_region == "nterminal" || $data->domain_region == "cterminal"))
+                $insert_array['generate_domain_region'] = $data->domain_region;
+        }
+        $insert_array['generate_domain'] = $domain_bool;
+
         return $insert_array;
     }
 
@@ -122,8 +139,12 @@ abstract class family_shared extends option_base {
 
         if (($data->families != "") && (!$this->verify_families($data->families))) {
             $result->errors = true;
-            $result->message .= "<br><b>Please enter valid InterPro and Pfam numbers</b></br>";
+            $result->message .= "Please enter valid InterPro and Pfam numbers";
         }
+        //if (($data->domain == 'true' || $data->domain == 1) && !$data->domain_family) {
+        //    $result->errors = true;
+        //    $result->message .= "If the domain option is selected, a family to be used to retrieve domain extents must be used.";
+        //}
 
         return $result;
     }
@@ -171,6 +192,12 @@ abstract class family_shared extends option_base {
         if ($this->exclude_fragments)
             $parms["-exclude-fragments"] = "";
 
+        if ($this->get_domain()) {
+            $parms["-domain"] = ""; // Enable
+            if ($this->domain_region)
+                $parms["-domain-region"] = $this->domain_region;
+        }
+
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
 
         return $parms;
@@ -212,6 +239,10 @@ abstract class family_shared extends option_base {
             $this->exclude_fragments = !$result["include_fragments"];
         if (isset($result["exclude_fragments"]))
             $this->exclude_fragments = $result["exclude_fragments"];
+        if (isset($result['generate_domain']))
+            $this->domain = $result['generate_domain'];
+        if (isset($result['generate_domain_region']))
+            $this->domain_region = $result['generate_domain_region'];
 
         return $result;
     }

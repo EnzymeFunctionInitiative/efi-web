@@ -9,9 +9,25 @@ require_once "inc/header.inc.php";
 
 <h2>Release Notes</h2>
 
+<h3>June 8, 2020</h3>
+<p>
+The new <b>Cluster Analysis</b> utility computes MSAs, WebLogos, consensus residues, HMMs,
+and length histograms from a provided SSN. The same features available in the <b>Color SSNs</b>
+utility are also included.
+</p>
+<p>
+The <b>Families</b> and <b>Accession IDs</b> tools now include a new domain option for selecting
+the regions N- or C-terminal to the provided domain.
+</p>
+<p>
+<?php echo get_db_size_text("2020_02", "79", 180690447, 562253); ?>
+</p>
+
+
 <h3>December 20, 2019</h3>
 <p>
-An option to exclude UniProt-defined fragments has been added to the web tool.
+An option to exclude UniProt-defined fragments has been added to the web tool.  Additionally,
+BLAST jobs can now search the UniRef50 and UniRef90 databases in addition to the UniProt database.
 </p>
 <p>
 <?php echo get_db_size_text("2019_10", "77", 181787788, 561568); ?>

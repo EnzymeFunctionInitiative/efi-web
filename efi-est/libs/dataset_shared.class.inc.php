@@ -5,21 +5,24 @@ class dataset_shared {
     
     public static function create_generate_object($gen_type, $db, $is_example = false) {
         $generate = false;
+        $id = $_GET['id'];
         if ($gen_type == "BLAST")
-            $generate = new blast($db, $_GET['id'], $is_example);
+            $generate = new blast($db, $id, $is_example);
         elseif ($gen_type == "FAMILIES")
-            $generate = new generate($db, $_GET['id'], $is_example);
+            $generate = new generate($db, $id, $is_example);
         elseif ($gen_type == "ACCESSION")
-            $generate = new accession($db, $_GET['id'], $is_example);
+            $generate = new accession($db, $id, $is_example);
         elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID")
-            $generate = new fasta($db, $_GET['id'], "C", $is_example);
-        elseif ($gen_type == "COLORSSN")
-            $generate = new colorssn($db, $_GET['id'], $is_example);
+            $generate = new fasta($db, $id, "C", $is_example);
+        //elseif ($gen_type == "COLORSSN")
+        //    $generate = new colorssn($db, $id, $is_example);
+        else
+            $generate = job_factory::create($db, $id, $is_example);
         return $generate;
     }
     
     public static function get_uniref_version($gen_type, $generate) {
-        if ($gen_type != "COLORSSN")
+        if ($gen_type != "COLORSSN" && $gen_type != "CLUSTER")
             return $generate->get_uniref_version();
         else
             return "";
@@ -27,7 +30,7 @@ class dataset_shared {
 
     public static function get_domain($gen_type, $generate) {
         if ($gen_type == "FAMILIES" || $gen_type == "ACCESSION")
-            return $generate->get_domain();
+            return $generate->get_domain() ? "on" : "off";
         else
             return "";
     }
@@ -57,7 +60,7 @@ class dataset_shared {
         if ($job_name)
             $table->add_row("Job Name", $job_name);
     
-    
+
         $uploaded_file = "";
         $included_family = $generate->get_families_comma();
         $num_family_nodes = $generate->get_counts("num_family");
@@ -109,8 +112,16 @@ class dataset_shared {
                     $table->add_row("Number of IDs in Pfam / InterPro Family", number_format($num_full_family_nodes));
                     if (!$uniref)
                         $table->add_row($fraction_label, $fraction);
-                    if ($domain_label)
-                        $table->add_row($domain_label, $generate->get_domain());
+                    if ($domain_label) {
+                        $row_val = "off";
+                        if ($generate->get_domain()) {
+                            $row_val = "on";
+                            $term_opt = $generate->get_domain_region_pretty();
+                            if ($term_opt)
+                                $row_val .= " ($term_opt)";
+                        }
+                        $table->add_row($domain_label, $row_val);
+                    }
                     if ($uniref) {
                         $table->add_row("UniRef Version", $uniref);
                         $table->add_row("Number of Cluster IDs in UniRef$uniref Family", number_format($num_family_nodes));
@@ -175,7 +186,7 @@ class dataset_shared {
         elseif ($gen_type == "ACCESSION" || $gen_type == "FASTA" || $gen_type == "FASTA_ID") {
             $term = "";
             $file_label = "";
-            $domain_opt = "off";
+            $domain_opt = 0;
             $table_dom_label = "";
             if ($gen_type == "ACCESSION") {
                 $file_label = "Accession ID";
@@ -192,9 +203,9 @@ class dataset_shared {
             if ($gen_type == "FASTA_ID" || $gen_type == "ACCESSION")
                 $match_text = " (" . number_format($num_matched) . " UniProt ID matches and " . number_format($num_unmatched) . " unmatched)";
 
-            if ($domain_opt == "on" && !$included_family) {
+            if ($domain_opt && !$included_family) {
                 $term_opt = $generate->get_domain_region_pretty();
-                $row_val = $generate->get_domain();
+                $row_val = "on " . strtoupper($generate->get_domain_family());
                 if ($term_opt)
                     $row_val .= " ($term_opt)";
                 $table->add_row($domain_label, $row_val);
@@ -212,14 +223,14 @@ class dataset_shared {
             $add_fam_overlap_rows_fn("Input $term");
             $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
-        elseif ($gen_type == "COLORSSN") {
+        elseif ($gen_type == "COLORSSN" || $gen_type == "CLUSTER") {
             $table->add_row("Uploaded XGMML File", $generate->get_uploaded_filename());
             $table->add_row("Neighborhood Size", $generate->get_neighborhood_size());
             $table->add_row("Cooccurrence", $generate->get_cooccurrence());
             $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
         
-        if ($gen_type != "COLORSSN") {
+        if ($gen_type != "COLORSSN" && $gen_type != "CLUSTER") {
             if (functions::get_program_selection_enabled())
                 $table->add_row("Program Used", $generate->get_program());
         }

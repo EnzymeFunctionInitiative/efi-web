@@ -61,6 +61,8 @@ for ($i = 0; $i < count($jobs_per_month); $i++) {
         $jobs_per_month_html .= "<td>" . $value['num_failed_option_d'] . "</td>";
         $jobs_per_month_html .= "<td>" . $value['num_success_option_color'] . "</td>";
         $jobs_per_month_html .= "<td>" . $value['num_failed_option_color'] . "</td>";
+        $jobs_per_month_html .= "<td>" . $value['num_success_option_cluster'] . "</td>";
+        $jobs_per_month_html .= "<td>" . $value['num_failed_option_cluster'] . "</td>";
     } else {
         $jobs_per_month_html .= "<td>" . $value['num_success'] . "</td>";
         $jobs_per_month_html .= "<td>" . $value['num_failed'] . "</td>";
@@ -128,6 +130,8 @@ if ($job_type == "analysis")
     <th>Failed Option D</th>
     <th>Successful Color SSN</th>
     <th>Failed Color SSN</th>
+    <th>Successful Cluster Analysis</th>
+    <th>Failed Cluster Analysis</th>
     <th>Total Time</th>    
 </tr>
 <?php } else { ?>

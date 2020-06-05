@@ -152,7 +152,7 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
                 <div class="option-panels">
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
                     <div>
-                        <?php echo add_domain_option("optb")[0]; ?>
+                        <?php echo add_domain_option("optb", false, true)[0]; ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_DOM"); ?>
@@ -242,8 +242,16 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_A_FAM"); ?>
 <?php $example_fn("POST_FRAC"); ?>
-
+<?php /*
+<?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
+                    <div>
+                        <?php echo add_domain_option("optc", false, true)[0]; ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_DOM"); ?>
 <?php $example_fn("OPTION_WRAP_START"); ?>
+ */?>
+<?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
                     <div>
                         <?php echo add_ssn_calc_option("optc")[0] ?>
                     </div>
@@ -350,7 +358,7 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
                         <?php echo add_ssn_calc_option("optd")[0] ?>
                     </div>
                     <div>
-                        <?php echo add_fragment_option("optc")[0] ?>
+                        <?php echo add_fragment_option("optd")[0] ?>
                     </div>
                     <?php if ($use_advanced_options) { ?>
                     <div>
@@ -365,7 +373,10 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
 <?php
 }
 
-function output_colorssn($use_advanced_options, $user_email, $show_example = false) {
+function output_colorssn($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
+    $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
+    $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="colorssntab" class="ui-tabs-panel ui-widget-content">
             <p>
@@ -373,9 +384,9 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                 Summary tables, sets of IDs and sequences per cluster are provided.
             </p>
 
-            <form name="colorSsnForm" id="colorSsnform" method="post" action="">
+            <form name="" id="colorSsnform" method="post" action="">
                 <div class="primary-input">
-<?php echo ui::make_upload_box("SSN File:", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn"); ?>
+<?php echo ui::make_upload_box("SSN File:", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn", "", "", $ssn_filename); ?>
                     <div>
                         A Cytoscape-edited SNN can serve as input.
                         The accepted format is XGMML (or compressed XGMML as zip).
@@ -384,7 +395,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
 
                 <?php if ($use_advanced_options) { ?>
                 <div class="option-panels">
-                    <div>
+                    <div class="initial-open">
                         <h3>Dev Site Options</h3>
                         <div>
                             <div>
@@ -395,12 +406,23 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                                     <label for="colorssn-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
                                 </span>
                             </div>
+                            <?php
+                            /*
+                            <!--
                             <div>
                                 <span class="input-name">
                                     Minimum Sequence Count:
                                 </span><span class="input-field">
                                     <input type="text" id="colorssn-min-seq-msa" name="colorssn-min-seq-msa" value="" size="10">
                                     <label for="colorssn-min-seq-msa">Minimum number of sequences in order to include a cluster in the computations [default: 5]</label>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="input-name">
+                                    Maximum Sequence Count:
+                                </span><span class="input-field">
+                                    <input type="text" id="colorssn-max-seq-msa" name="colorssn-max-seq-msa" value="" size="10">
+                                    <label for="colorssn-max-seq-msa">Maximum number of sequences to include in the MSA [default: no maximum]</label>
                                 </span>
                             </div>
                             <div>
@@ -419,7 +441,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                                     <label for="colorssn-make-cr">Compute consensus residues [default: off]</label><br>
                                     <input type="text" id="colorssn-hmm-aa-list" name="colorssn-hmm-aa-list" value="C" size="10">
                                     <label for="colorssn-hmm-aa-list">Residues to compute for (comma-separated list of amino acid codes)</label><br>
-                                    <input type="text" id="colorssn-aa-threshold" name="colorssn-aa-threshold" value="" size="10">
+                                    <input type="text" id="colorssn-aa-threshold" name="colorssn-aa-threshold" value="0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1" size="10">
                                     <label for="colorssn-aa-threshold">Consensus probability threshold for counting (multiple comma-separated values allowed) [default: 0.8]</label>
                                 </span>
                             </div>
@@ -439,6 +461,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                                     <label for="colorssn-make-hist">Make length histograms for each cluster [default: off]</label>
                                 </span>
                             </div>
+-->
 <!--
                             <div>
                                 <span class="input-name">
@@ -449,11 +472,155 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                                 </span>
                             </div>
 -->
+                            */?>
                         </div>
                     </div>
                 </div>
                 <?php } ?>
+                <?php if ($ssn_id) { ?>
+                    <input type="hidden" name="ssn-source-id-colorssn" id="ssn-source-id-colorssn" value="<?php echo $ssn_id; ?>">
+                    <input type="hidden" name="ssn-source-idx-colorssn" id="ssn-source-idx-colorssn" value="<?php echo $ssn_idx; ?>">
+                <?php } ?>
                 <?php echo add_submit_html("colorssn", "", $user_email)[0]; ?>
+            </form>
+        </div>
+<?php
+}
+
+function output_cluster($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
+    $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
+    $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
+?>
+        <div id="clustertab" class="ui-tabs-panel ui-widget-content">
+            <p>
+                <b>Clusters in the submitted SSN are identified, numbered and colored.</b>
+                Summary tables, sets of IDs and sequences per cluster are provided.
+            </p>
+            <p>
+                <b>HMMs, WebLogos, and consensus residues are computed.</b>
+                Options are available in the tabs below to select the desired analyes.
+            </p>
+
+            <form name="clusterTab" id="clusterTab" method="post" action="">
+                <div class="primary-input">
+<?php echo ui::make_upload_box("SSN File:", "cluster-file", "progress-bar-cluster", "progress-num-cluster", "", "", $ssn_filename); ?>
+                    <div>
+                        A Cytoscape-edited SNN can serve as input.
+                        The accepted format is XGMML (or compressed XGMML as zip).
+                    </div>
+                </div>
+
+                <div class="option-panels">
+                        <div>
+                            <h3>Sequence Filter</h3>
+                            <div>
+                                <div>
+                                    The MSA is generated with MUSCLE using the node IDs.  Clusters containing less than
+                                    the Minimum Sequence Count will be excluded from the analyses.
+                                    Since MUSCLE can fail with a "large" number sequences (variable; anywhere from &gt;750 to 1500),
+                                    the Maximum Sequence Count parameter can be used to limit the number of sequences
+                                    that MUSCLE uses.
+                                </div>
+                                <div>
+                                    <span class="input-name">
+                                        Minimum Node Count:
+                                    </span><span class="input-field">
+                                        <input type="text" id="min-seq-msa-cluster" name="min-seq-msa-cluster" value="" size="10">
+                                        <label for="min-seq-msa-cluster">Minimum number of nodes in order to include a cluster in the computations [default: 5]</label>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="input-name">
+                                        Maximum Sequence Count:
+                                    </span><span class="input-field">
+                                        <input type="text" id="max-seq-msa-cluster" name="max-seq-msa-cluster" value="" size="10">
+                                        <label for="max-seq-msa-cluster">Maximum number of nodes to include in the MSA [default: no maximum]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3>WebLogos</h3>
+                            <div>
+                                <div>
+                                    A MSA for the (length-filtered) node IDs is generated using MUSCLE;
+                                    the WebLogo is generated with the
+                                    <a target="_blank" href="http://weblogo.threeplusone.com">http://weblogo.threeplusone.com</a> code.
+                                </div>
+                                <div>
+                                    <span class="input-name">
+                                        Make Weblogo:
+                                    </span><span class="input-field">
+                                        <input type="checkbox" id="make-weblogo-cluster" name="make-weblogo-cluster" value="1" checked>
+                                        <label for="make-weblogo-cluster">Make Weblogos for each cluster [default: on]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div>
+                            <h3>Consensus Residues</h3>
+                            <div>
+                                <div>
+                                    <div>
+                                        The positions and selected percent identities of the selected residues in the MSA are determined.  
+                                    </div>
+                                    <span class="input-name">
+                                        Compute Consensus Residues:
+                                    </span><span class="input-field">
+                                        <input type="checkbox" id="make-cr-cluster" name="make-cr-cluster" value="1" checked>
+                                        <label for="make-cr-cluster">Compute consensus residues [default: on]</label><br>
+                                        <input type="text" id="hmm-aa-list-cluster" name="hmm-aa-list-cluster" value="C" size="10">
+                                        <label for="hmm-aa-list-cluster">Residues to compute for (comma-separated list of amino acid codes)</label><br>
+                                        <input type="text" id="aa-threshold-cluster" name="aa-threshold-cluster" value="0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1" size="20">
+                                        <label for="aa-threshold-cluster">Percent identity threshold(s) for determining conservation (multiple comma-separated values allowed) [default: 0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div>
+                            <h3>HMMs</h3>
+                            <div>
+                                <div>
+                                    The MSA for the (length-filtered) node IDs is used to generate the HMM with hmmbuild from
+                                    <a href="http://hmmer.org">HMMER3 (http://hmmer.org)</a>.
+                                </div>
+                                <div>
+                                    <span class="input-name">
+                                        Make HMMs:
+                                    </span><span class="input-field">
+                                        <input type="checkbox" id="make-hmm-cluster" name="make-hmm-cluster" value="1" checked>
+                                        <label for="make-hmm-cluster">Make HMMs for each cluster [default: on]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div>
+                            <h3>Length Histograms</h3>
+                            <div>
+                                <div>
+                                    Length histograms for the node IDs (where applicable, UniProt, UniRef90, and UniRef50 IDs).
+                                </div>
+                                <div>
+                                    <span class="input-name">
+                                        Make Length Histograms:
+                                    </span><span class="input-field">
+                                        <input type="checkbox" id="make-hist-cluster" name="make-hist-cluster" value="1" checked>
+                                        <label for="make-hist-cluster">Make length histograms for each cluster [default: on]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                <?php if ($ssn_id) { ?>
+                    <input type="hidden" name="ssn-source-id-cluster" id="ssn-source-id-cluster" value="<?php echo $ssn_id; ?>">
+                    <input type="hidden" name="ssn-source-idx-cluster" id="ssn-source-idx-cluster" value="<?php echo $ssn_idx; ?>">
+                <?php } ?>
+                <?php echo add_submit_html("cluster", "", $user_email)[0]; ?>
             </form>
         </div>
 <?php
@@ -597,7 +764,7 @@ function output_tab_page_header($show_jobs_tab, $show_tutorial, $selected_tab = 
 ?>
     <ul class="<?php echo $ul_class; ?>">
 <?php if ($show_jobs_tab) { ?>
-        <li class="<?php echo $active_class; ?>"><a href="#jobs">Previous Jobs</a></li>
+        <li <?php echo (!$selected_tab              ? "class=\"$active_class\"" : ""); ?>"><a href="#jobs">Previous Jobs</a></li>
 <?php } ?>
         <li <?php echo ($selected_tab == "option_a" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("optionAtab"); ?>" title="Option A">Sequence BLAST</a></li>
         <li <?php echo ($selected_tab == "option_b" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("optionBtab"); ?>" title="Option B">Families</a></li> <!-- Pfam and/or InterPro families</a></li>-->
@@ -610,6 +777,7 @@ function output_tab_page_header($show_jobs_tab, $show_tutorial, $selected_tab = 
 <?php if ($show_tutorial) { ?>
         <li <?php echo (($show_tutorial || $show_jobs_tab) ? "" : "class=\"$active_class\"") ?>><a href="#tutorial">Tutorial</a></li>
 <?php } ?>
+        <li <?php echo ($selected_tab == "cluster" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("clustertab"); ?>">Cluster Analysis</a></li>
     </ul>
 <?php
 }
@@ -627,9 +795,13 @@ function output_tab_page_end() {
 HTML;
 }
 
-function output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $example_fn = false) {
+function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $example_fn = false, $show_all_ids = false) {
+
+    $mode_data = check_for_color_mode($db);
+    $sel_tab = !empty($mode_data) ? ($mode_data["mode"] == "cluster" ? "cluster" : "colorssn") : "";
+
     output_tab_page_start();
-    output_tab_page_header($show_jobs_tab, $show_tutorial);
+    output_tab_page_header($show_jobs_tab, $show_tutorial, $sel_tab);
 ?>
     <div>
 <?php if ($show_jobs_tab) { ?>
@@ -644,7 +816,7 @@ function output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $
             <h4>EST Jobs</h4>
 <?php 
     $show_archive = true;
-    echo est_ui::output_job_list($jobs, $show_archive, "sort-jobs-toggle");
+    echo est_ui::output_job_list($jobs, $show_archive, "sort-jobs-toggle", $example_fn, $show_all_ids);
 
     if (has_jobs($tjobs)) {
         echo "            <h4>Training Resources</h4>\n";
@@ -661,14 +833,49 @@ function output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $
     output_option_d($use_advanced_options, $db_modules, $user_email, $example_fn);
     if (est_settings::option_e_enabled())
         output_option_e($use_advanced_options, $db_modules, $user_email, $example_fn);
-    output_colorssn($use_advanced_options, $user_email, $example_fn);
+    output_colorssn($use_advanced_options, $user_email, $example_fn, $mode_data);
     if ($show_tutorial)
         output_tutorial($show_jobs_tab);
+    output_cluster($use_advanced_options, $user_email, $example_fn, $mode_data);
 ?>
 
     </div> <!-- tab-content -->
 <?php
     output_tab_page_end();
+}
+
+function check_for_color_mode($db) {
+    $est_id = "";
+    $color_filename = "";
+    $submit_est_args = "";
+
+    $mode_data = array();
+
+    if (isset($_GET["mode"]) && ($_GET["mode"] == "color" || $_GET["mode"] == "cluster") &&
+        isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"]))
+    {
+        $the_aid = $_GET["est-id"];
+        $the_key = $_GET["est-key"];
+        $the_idx = $_GET["est-ssn"];
+    
+        $job_info = global_functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
+        if ($job_info !== false) {
+            $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);
+            if ($est_file_info !== false) {
+                $est_id = $job_info["generate_id"];
+                $est_key = $the_key;
+                $color_filename = $est_file_info["filename"];
+                $mode_data["filename"] = $color_filename;
+                $mode_data["ssn_id"] = $the_aid;
+                $mode_data["ssn_idx"] = $the_idx;
+                $mode_data["mode"] = $_GET["mode"];
+    
+                $submit_est_args = "'$the_aid','$the_key','$the_idx'";
+            }
+        }
+    }
+
+    return $mode_data;
 }
 
 
