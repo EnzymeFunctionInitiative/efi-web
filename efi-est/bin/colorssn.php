@@ -13,7 +13,7 @@ else {
     if (count($new_generate_data)) {
         foreach ($new_generate_data as $data) {
             sleep(5);			
-            $obj = new colorssn($db, $data['generate_id']);
+            $obj = job_factory::create($db, $data['generate_id']);
             $result = $obj->run_job(functions::get_is_debug());
             if ($result['RESULT']) {
                 $msg = "Generate ID: " . $data['generate_id'] .  " - PBS Number: " . $result['PBS_NUMBER'] . " - " . $result['MESSAGE'];

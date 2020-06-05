@@ -87,6 +87,9 @@ abstract class gnd {
             $this->db_file = $arrows->get_diagram_data_file($has_bigscape);
             $this->job_name = $arrows->get_gnn_name();
             $this->is_direct_job = true;
+        } else if (isset($params['console-run-file']) && !isset($_SERVER["HTTP_HOST"])) {
+            $this->db_file = $params['console-run-file'];
+            $this->job_name = "console";
         } else {
             $message = "No GNN selected.";
         }

@@ -14,6 +14,7 @@ if ($use_legacy_tab) {
     <ul class="tab-headers">
         <li class="<?php echo $active_tab === "biochem" ? "active" : ""; ?>"><a href="index.php">From The Bench</a></li>
         <li class="<?php echo $active_tab === "videos" ? "active" : ""; ?>"><a href="videos.php">Videos</a></li>
+        <li class="<?php echo $active_tab === "pubs" ? "active" : ""; ?>"><a href="publications.php">Publications</a></li>
 <?php if ($has_advanced_options) { ?>
         <li class="<?php echo $active_tab === "tutorial" ? "active" : ""; ?>"><a href="tutorial.php">Tutorial</a></li>
         <li class="<?php echo $active_tab === "refguide" ? "active" : ""; ?>"><a href="refguide.php">Reference Guide</a></li>

@@ -56,7 +56,7 @@ class functions {
         $sql = "SELECT * ";
         $sql .= "FROM generate ";
         $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND generate_type='COLORSSN' ";
+        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER') ";
         $sql .= "ORDER BY generate_time_created ASC ";
         $result = $db->query($sql);
         return $result;
@@ -431,6 +431,8 @@ class functions {
         } else if ($gen_type == "FASTA_ID") {
             $gen_type = "FASTA (Option C), with FASTA header reading";
         } else if ($gen_type == "COLORSSN") {
+            $gen_type = "Color SSN";
+        } else if ($gen_type == "CLUSTER") {
             $gen_type = "Color SSN";
         }
         return $gen_type;

@@ -132,9 +132,10 @@ class user_jobs extends user_auth {
             $id = $row["generate_id"];
             $key = $row["generate_key"];
 
+            $is_color = $row["generate_type"] == "COLORSSN" || $row["generate_type"] == "CLUSTER";
             array_push($jobs, array("id" => $id, "key" => $key,
                     "job_name" => $jobName, "is_completed" => $isCompleted, "is_analysis" => false,
-                    "date_completed" => $comp, "is_colorssn" => $row["generate_type"] == "COLORSSN"));
+                    "date_completed" => $comp, "is_colorssn" => $is_color));
 
             if ($isCompleted && $includeAnalysisJobs) {
                 $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter FROM analysis " .
