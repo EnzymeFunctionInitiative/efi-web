@@ -41,7 +41,7 @@ class est_user_jobs_shared {
         if (array_key_exists("generate_evalue", $data)) {
             $evalue = $data["generate_evalue"];
             if ($evalue && $evalue != est_settings::get_evalue())
-                $evalueStr = "E-value=" . $evalue;
+                $evalueStr = "E-value: " . $evalue;
         }
         return $evalueStr;
     }
@@ -51,7 +51,7 @@ class est_user_jobs_shared {
         if (array_key_exists("generate_fraction", $data)) {
             $fraction = $data["generate_fraction"];
             if ($fraction && $fraction != functions::get_fraction())
-                $fractionStr = "Fraction=" . $fraction;
+                $fractionStr = "Fraction: " . $fraction;
         }
         return $fractionStr;
     }
@@ -68,8 +68,19 @@ class est_user_jobs_shared {
     private static function get_domain($data) {
         $domainStr = "";
         if (array_key_exists("generate_domain", $data)) {
-            if ($data["generate_domain"])
-                $domainStr = "Domain=on";
+            if ($data["generate_domain"]) {
+                $domainStr = "Domain: on";
+                if (isset($data["generate_domain_region"]) && $data["generate_domain_region"] != "domain") {
+                    switch ($data["generate_domain_region"]) {
+                    case "nterminal":
+                        $domainStr .= " (N-terminal)";
+                        break;
+                    case "cterminal":
+                        $domainStr .= " (C-terminal)";
+                        break;
+                    }
+                }
+            }
         }
         return $domainStr;
     }
@@ -106,6 +117,15 @@ class est_user_jobs_shared {
         return $info;
     }
 
+    private static function get_exclude_fragments($data) {
+        $info = "";
+        if (isset($data["exclude_fragments"]) && $data["exclude_fragments"] == true)
+            $info = "Fragments: no";
+        else
+            $info = "Fragments: yes";
+        return $info;
+    }
+
     public static function build_job_name($data, $type, $familyLookupFn, $job_id = 0) {
 
         $newFamilyLookupFn = function($family_id) use($familyLookupFn) {
@@ -122,6 +142,7 @@ class est_user_jobs_shared {
         $sequence = self::get_sequence($data);
         $blastEvalue = self::get_blast_evalue($data);
         $maxHits = self::get_max_blast_hits($data);
+        $excludeFractions = self::get_exclude_fragments($data);
         $jobNameField = isset($data["generate_job_name"]) ? $data["generate_job_name"] : "";
 
         $job_name = "";
@@ -141,8 +162,28 @@ class est_user_jobs_shared {
         }
 
         $job_type = self::get_job_label($type);
-        if ($type == "COLORSSN" && isset($data["make_hmm"]) && $data["make_hmm"])
-            $job_type .= " (HMM and stuff)";
+        if ($type == "CLUSTER") {
+            $opts = isset($data["make_hmm"]) ? $data["make_hmm"] : "";
+            $min_seq_msa = (isset($data["min_seq_msa"]) && $data["min_seq_msa"]) ? $data["min_seq_msa"] : "";
+            $max_seq_msa = (isset($data["max_seq_msa"]) && $data["max_seq_msa"]) ? $data["max_seq_msa"] : "";
+
+            $parms = array();
+            if (preg_match("/HMM/", $opts))
+                array_push($parms, "HMMs");
+            if (preg_match("/LOGO/", $opts))
+                array_push($parms, "WebLogos");
+            if (preg_match("/HIST/", $opts))
+                array_push($parms, "Length Histograms");
+            if (preg_match("/CR/", $opts))
+                array_push($parms, "AAs=" . $data["hmm_aa"] . "; Thresholds=" . $data["aa_threshold"]);
+            if ($min_seq_msa)
+                array_push($parms, "MinNumSeq=" . $min_seq_msa);
+            if ($max_seq_msa)
+                array_push($parms, "MaxNumSeq=" . $max_seq_msa);
+
+            if (count($parms))
+                $job_type .= " (" . implode("; ", $parms) . ")";
+        }
 
         $info = array($job_type);
         if ($fileName) array_push($info, $fileName);
@@ -151,6 +192,7 @@ class est_user_jobs_shared {
         if ($fraction) array_push($info, $fraction);
         if ($uniref) array_push($info, $uniref);
         if ($domain) array_push($info, $domain);
+        if ($excludeFractions) array_push($info, $excludeFractions);
         if ($sequence) array_push($info, $sequence);
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);
@@ -174,6 +216,8 @@ class est_user_jobs_shared {
             return "Accession IDs";
         case "COLORSSN":
             return "Color SSN";
+        case "CLUSTER":
+            return "Cluster Analysis";
         case "BLAST":
             return "Sequence BLAST";
         default:
@@ -233,7 +277,8 @@ class est_user_jobs_shared {
         $child_color_jobs = array();
         $color_jobs = array();
         foreach ($rows as $row) {
-            if ($row["${generate_table}_type"] != "COLORSSN")
+            $type = $row["${generate_table}_type"];
+            if ($type != "COLORSSN" && $type != "CLUSTER")
                 continue;
 
             $comp_result = est_user_jobs_shared::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);
@@ -261,7 +306,8 @@ class est_user_jobs_shared {
         $colors_to_remove = array(); // these are the generate_id that will need to be removed from $id_order, since they are now attached to an analysis job
         // Process all non Color SSN jobs.  Link analysis jobs to generate jobs and color SSN jobs to analysis jobs.
         foreach ($rows as $row) {
-            if ($row["${generate_table}_type"] == "COLORSSN")
+            $type = $row["${generate_table}_type"];
+            if ($type == "COLORSSN" || $type == "CLUSTER")
                 continue;
 
             $comp_result = est_user_jobs_shared::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);

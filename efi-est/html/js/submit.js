@@ -24,6 +24,7 @@ function addCommonFormData(opt, fd) {
     var fraction = $("#fraction-" + opt).val();
     var cpuX2 = $("#cpu-x2-" + opt).prop("checked");
     var exlFrag = $("#exclude-fragments-" + opt).prop("checked");
+    var allSeq = $("#include-all-seq-" + opt).prop("checked");
 
     fd.append("email", email);
     fd.append("job-name", jobName);
@@ -35,6 +36,7 @@ function addCommonFormData(opt, fd) {
     fd.append("db-mod", dbMod);
     fd.append("cpu-x2", cpuX2);
     fd.append("exclude-fragments", exlFrag);
+    fd.append("include-all-seq", allSeq);
 }
 
 function submitOptionForm(option, famHelper, outputIds) {
@@ -87,7 +89,10 @@ function submitOptionBForm(famHelper, outputIds) {
         var fd = new FormData();
         fd.append("option_selected", "B");
         addCommonFormData(optionId, fd);
-        addCbParam(fd, "pfam_domain", "domain-optb");
+        addCbParam(fd, "domain", "domain-optb");
+        if ($("#domain-optb").prop("checked")) {
+            addRadioParam(fd, "domain_region", "domain-region-optb");
+        }
         addParam(fd, "pfam_seqid", "pfam-seqid");
         addParam(fd, "pfam_length_overlap", "pfam-length-overlap");
         
@@ -150,9 +155,9 @@ function submitOptionDForm(famHelper, outputIds) {
             addParam(fd, "accession_seq_type", "accession-seq-type");
 
         if ($("#domain-optd").prop("checked")) {
-            fd.append("accession_use_dom", true);
-            addParam(fd, "accession_dom_fam", "accession-input-domain-family");
-            addRadioParam(fd, "accession_dom_reg", "accession-input-domain-region");
+            fd.append("domain", true);
+            addParam(fd, "domain_family", "domain-family-optd");
+            addRadioParam(fd, "domain_region", "domain-region-optd");
         }
     
         var completionHandler = getDefaultCompletionHandler();
@@ -199,36 +204,43 @@ function submitOptionEForm(famHelper, outputIds) {
     }
 }
 
-function submitColorSsnForm() {
+function submitColorSsnForm(isClusterAnalysis = false) { // the parameters are optional
 
-    var messageId = "message-colorssn";
+    var option = isClusterAnalysis ? "cluster" : "colorssn";
+    var messageId = "message-" + option;
 
     var fd = new FormData();
-    fd.append("option_selected", "colorssn");
-    addParam(fd, "email", "email-colorssn");
-    addCbParam(fd, "extra_ram", "colorssn-extra-ram");
+    fd.append("option_selected", option);
+    addParam(fd, "email", "email-" + option);
+    if (!isClusterAnalysis)
+        addCbParam(fd, "extra_ram", "colorssn-extra-ram");
 
-    var hmmOpt = "";
-    if ($("#" + "colorssn-make-weblogo").prop("checked"))
-        hmmOpt = "WEBLOGO";
-    if ($("#" + "colorssn-make-hmm").prop("checked"))
-        hmmOpt += ",HMM";
-    if ($("#" + "colorssn-make-cr").prop("checked"))
-        hmmOpt += ",CR";
-    if ($("#" + "colorssn-make-hist").prop("checked"))
-        hmmOpt += ",HIST";
-    fd.append("make-hmm", hmmOpt);
-    addParam(fd, "aa-threshold", "colorssn-aa-threshold");
-    addParam(fd, "hmm-aa", "colorssn-hmm-aa-list");
-    addParam(fd, "min-seq-msa", "colorssn-min-seq-msa");
-    //addCbParam(fd, "exlude-fragments", "colorssn-exclude-fragments");
+    if (isClusterAnalysis) {
+        var hmmOpt = "";
+        if ($("#" + "make-weblogo-" + option).prop("checked"))
+            hmmOpt = "WEBLOGO";
+        if ($("#" + "make-hmm-" + option).prop("checked"))
+            hmmOpt += ",HMM";
+        if ($("#" + "make-cr-" + option).prop("checked"))
+            hmmOpt += ",CR";
+        if ($("#" + "make-hist-" + option).prop("checked"))
+            hmmOpt += ",HIST";
+        fd.append("make-hmm", hmmOpt);
+        addParam(fd, "aa-threshold", "aa-threshold-" + option);
+        addParam(fd, "hmm-aa", "hmm-aa-list-" + option);
+        addParam(fd, "min-seq-msa", "min-seq-msa-" + option);
+        addParam(fd, "max-seq-msa", "max-seq-msa-" + option);
+    }
+    addParam(fd, "ssn-source-id", "ssn-source-id-" + option);
+    addParam(fd, "ssn-source-idx", "ssn-source-idx-" + option);
+    //addCbParam(fd, "exlude-fragments", "exclude-" + option);
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
-    var files = document.getElementById("colorssn-file").files;
+    var files = document.getElementById(option + "-file").files;
     if (files.length > 0) {
         fd.append("file", files[0]);
         fileHandler = function(xhr) {
-            addUploadStuff(xhr, "progress-num-colorssn", "progress-bar-colorssn");
+            addUploadStuff(xhr, "progress-num-" + option, "progress-bar-" + option);
         };
     }
 
@@ -323,6 +335,8 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
             if (xhr.readyState == 4  ) {
                 // Javascript function JSON.parse to parse JSON data
                 var jsonObj = JSON.parse(xhr.responseText);
+
+                console.log(messageId);
     
                 // jsonObj variable now contains the data structure and can
                 // be accessed as jsonObj.name and jsonObj.country.

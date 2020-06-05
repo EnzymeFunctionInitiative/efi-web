@@ -29,11 +29,15 @@ $use_advanced_options = global_settings::advanced_options_enabled();
 
 $db_modules = global_settings::get_database_modules();
 
-$update_msg =
-    "The \"From the Bench\" article describing the tools and their use is available on the " . 
-    "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
-    "Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
-    "We now provide the \"Fragment Option\" to exclude UniProt-defined fragments from SSNs.<br>" .
+//$update_msg =
+//    "The \"From the Bench\" article describing the tools and their use is available on the " . 
+//    "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
+//    "Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
+//    "We now provide the \"Fragment Option\" to exclude UniProt-defined fragments from SSNs.<br>" .
+$update_msg = 
+    'Cluster Analysis is a new tool that provides a color SSN as well as WebLogos, MSAs, and HMMs for the clusters.<br>' .
+    'Options B and D now provide an expanded "Family Domain Boundary Option" to generate SSNs for sequences N- or C-terminal to the specified family domain.<br>' .
+    //"Sequence regions adjacent to the domain can be selected in the domain option for Families and Accession IDs.<br>" .
     "<small>" . functions::get_update_message() . "</small>";
 
 
@@ -55,7 +59,8 @@ if (isset($_GET["sb"]) && $_GET["sb"] == 1) {
     };
 
     usort($jobs["order"], $sort_fn);
-}    
+}
+
 
 ?>
 
@@ -95,8 +100,8 @@ the <a href="family_list.php">Family Information page</a>.
 include_once("inc/index_helpers.inc.php");
 include_once("inc/index_sections.inc.php");
 $show_example = false;
-$show_tutorial = true;
-output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $show_example);
+$show_tutorial = false;
+output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $show_example);
 ?>
 
 <div align="center">
@@ -236,15 +241,23 @@ output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_module
         $("#domain-optd").change(function() {
             var status = $(this).prop("checked");
             var disableFamilyInput = status;
-            $("#accession-input-domain-family").prop("disabled", !status);
-            $(".accession-input-domain-region").prop("disabled", !status);
+            $("#domain-family-optd").prop("disabled", !status);
+            $(".domain-region-optd").prop("disabled", !status);
             familySizeHelper.setDisabledState("optd", disableFamilyInput);
             if (disableFamilyInput)
                 familySizeHelper.resetInput("optd");
-            if (status)
-                $("#accession-input-domain-region-domain").prop("checked", true);
+            if (!status)
+                $(".domain-region-optd").prop("checked", false);
             else
-                $("#accession-input-domain-region-domain").prop("checked", false);
+                $("#domain-region-domain-optd").prop("checked", true)
+        });
+        $("#domain-optb").change(function() {
+            var status = $(this).prop("checked");
+            $(".domain-region-optb").prop("disabled", !status);
+            if (!status)
+                $(".domain-region-optb").prop("checked", false);
+            else
+                $("#domain-region-domain-optb").prop("checked", true)
         });
 
         $(".option-panels > div").accordion({
@@ -252,17 +265,22 @@ output_tab_page($show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_module
                 collapsible: true,
                 active: false,
         });
+        
+        $(".initial-open").accordion("option", {active: 0});
     });
 
     function resetForms() {
         for (i = 0; i < document.forms.length; i++) {
             document.forms[i].reset();
         }
-        document.getElementById("accession-input-domain-family").disabled = true;
+        document.getElementById("domain-family-optd").disabled = true;
 <?php if ($use_advanced_options) { ?>
-        document.getElementById("accession-input-domain-region-nterminal").disabled = true;
-        document.getElementById("accession-input-domain-region-domain").disabled = true;
-        document.getElementById("accession-input-domain-region-cterminal").disabled = true;
+        document.getElementById("domain-region-nterminal-optd").disabled = true;
+        document.getElementById("domain-region-domain-optd").disabled = true;
+        document.getElementById("domain-region-cterminal-optd").disabled = true;
+        document.getElementById("domain-region-nterminal-optb").disabled = true;
+        document.getElementById("domain-region-domain-optb").disabled = true;
+        document.getElementById("domain-region-cterminal-optb").disabled = true;
 <?php } ?>
     }
 </script>
@@ -367,6 +385,18 @@ function add_dev_site_option($option_id, $db_modules, $extra_html = "") {
 HTML;
     list($db_html) = make_db_mod_option($db_modules, $option_id);
     $html .= $db_html;
+    if ($option_id == "optc") {
+        $html .= <<<HTML
+    <div>
+        <span class="input-name">
+            SSN FASTA:
+        </span><span class="input-field">
+            <input type="checkbox" id="include-all-seq-$option_id" name="include-all-seq-$option_id" value="1" />
+            <label for="include-all-seq-$option_id">Check to include all FASTA sequences in the output SSN, not just the unidentified ones.</label>
+        </span>
+    </div>
+HTML;
+    }
     if (functions::get_program_selection_enabled()) {
         $html .= <<<HTML
     <div>

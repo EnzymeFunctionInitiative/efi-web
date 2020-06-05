@@ -413,7 +413,7 @@ function get_colorssn_html($color_jobs, $sb_jobs, $indent = "        ", $level =
         }
 
         $parent_str = $parent_id >= 0 ? "; Parent=$parent_id" : "";
-        $extra_info = make_extra(" (Color SSN Job #$id$parent_str)");
+        $extra_info = make_extra(" (Job #$id$parent_str)");
         $job_name = "<span class='job-name'>$file</span><br><span class='job-metadata'>Color SSN</span>";
         $html .= "$indent<li $class><a href='efi-est/view_coloredssn.php?id=$id&key=$key' class='hl-color colorssn' title='Color SSN Job #$id'>$job_name$extra_info</a> $date_str";
         if ($sb_html)
@@ -480,8 +480,12 @@ function get_group_select_statement($db, $table, $user_email, $group_clause, $ti
     $sql .= " AND ${table}_status = 'FINISH'";
     if ($time_completed)
         $sql .= " AND ${table}_time_completed >= '$time_completed'";
-    if ($job_type)
-        $sql .= " AND ${table}_type = '$job_type'";
+    if ($job_type) {
+        if (is_array($job_type))
+            $sql .= " AND (${table}_type = '" . implode("' OR ${table}_type = '", $job_type) . "')";
+        else
+            $sql .= " AND ${table}_type = '$job_type'";
+    }
     if ($addl_or_cond)
         $sql .= " OR $addl_or_cond";
     if ($addl_and_cond)
@@ -550,7 +554,7 @@ function retrieve_and_display($start_date, $user_email, $user_groups) {
         $additional_ids_clause = "generate.generate_id IN (" . implode(",", $extra_est_ids) . ")";
     
     
-    $color_sql = get_group_select_statement($est_db, "generate", $user_email, $group_clause, $start_date, "COLORSSN", $additional_ids_clause);
+    $color_sql = get_group_select_statement($est_db, "generate", $user_email, $group_clause, $start_date, array("COLORSSN", "CLUSTER"), $additional_ids_clause);
     //$color_sql = "SELECT * FROM $est_db.generate WHERE generate_email = '$user_email' AND generate_type = 'COLORSSN' AND (generate_time_completed >= '$start_date' $additional_ids_clause)";
     $results = $db->query($color_sql);
     $color_jobs_file = get_job_list($results, "generate", LEVEL2, GET_IDS_FROM_FILE);
@@ -564,7 +568,7 @@ function retrieve_and_display($start_date, $user_email, $user_groups) {
         $est_sql .= " WHERE generate_email = '$user_email'";
     if ($additional_ids_clause)
         $additional_ids_clause = " OR " . $additional_ids_clause;
-    $est_sql .= " AND generate_type != 'COLORSSN' AND generate_status = 'FINISH' AND analysis_status != 'ARCHIVED' AND " .
+    $est_sql .= " AND generate_type != 'COLORSSN' AND generate_type != 'CLUSTER' AND generate_status = 'FINISH' AND analysis_status != 'ARCHIVED' AND " .
         "(generate_time_completed >= '$start_date' OR analysis_time_completed >= '$start_date' $additional_ids_clause) ORDER BY generate_id";
     if ($recent_first)
         $est_sql .= " DESC";
