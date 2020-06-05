@@ -589,9 +589,10 @@ $(document).ready(function() {
         var theWindow = window.open(url, "", windowSize);
         evt.preventDefault();
     });
-    $(window).on("load", function() {
-        progress.stop();
-    });
+    $(window)
+        .on("load", function() { progress.stop(); })
+        .on("error", function() { progress.stop(); });
+    setTimeout(function() { progress.stop(); }, 4000);
 <?php
     }
 ?>
@@ -600,6 +601,7 @@ $(document).ready(function() {
 
 <div id="progressLoader" class="progress-loader" style="display: none">
     <i class="fas fa-spinner fa-spin"></i>
+    <div>Loading...</div>
 </div>
 
 <?php
