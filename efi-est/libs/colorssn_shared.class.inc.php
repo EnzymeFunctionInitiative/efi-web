@@ -194,7 +194,6 @@ abstract class colorssn_shared extends option_base {
             $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
         }
         $insert_array["extra_ram"] = (isset($data->extra_ram) && $data->extra_ram === true);
-        $insert_array["include_fragments"] = (isset($data->include_fragments) && $data->include_fragments === true);
         return $insert_array;
     }
 
