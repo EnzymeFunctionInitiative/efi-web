@@ -6,7 +6,6 @@ require_once("../../libs/global_functions.class.inc.php");
 class colorssn extends colorssn_shared {
 
     private $extra_ram = false;
-    private $include_fragments = false;
     private $is_hmm_and_stuff = false;
 
 
@@ -18,7 +17,6 @@ class colorssn extends colorssn_shared {
     }
 
     
-    public function get_include_fragments() { return $this->include_fragments; }
     public function is_hmm_and_stuff_job() { return $this->is_hmm_and_stuff; }
 
 
@@ -38,8 +36,6 @@ class colorssn extends colorssn_shared {
 
         if ($this->extra_ram)
             $parms["--extra-ram"] = "";
-        if ($this->include_fragments)
-            $parms["--include-fragments"] = "";
 
         return $parms;
     }
@@ -51,7 +47,6 @@ class colorssn extends colorssn_shared {
         }
 
         $this->extra_ram = (isset($result["extra_ram"]) && $result["extra_ram"] === true);
-        $this->include_fragments = (isset($result["include_fragments"]) && $result["include_fragments"] === true);
         $this->is_hmm_and_stuff = (isset($result["make_hmm"]) && $result["make_hmm"]) ? true : false;
 
         return $result;
@@ -60,7 +55,6 @@ class colorssn extends colorssn_shared {
     public function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
         $insert_array["extra_ram"] = (isset($data->extra_ram) && $data->extra_ram === true);
-        $insert_array["include_fragments"] = (isset($data->include_fragments) && $data->include_fragments === true);
         return $insert_array;
     }
 
@@ -69,8 +63,6 @@ class colorssn extends colorssn_shared {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public function get_metadata() {
-        $frags = $this->include_fragments ? "Yes" : "No";
-        $meta = array(array("Include Fragments", $frags));
         $metadata = parent::get_metadata_parent("Color SSN", $meta);
         return $metadata;
     }

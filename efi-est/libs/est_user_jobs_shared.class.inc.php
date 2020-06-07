@@ -192,7 +192,7 @@ class est_user_jobs_shared {
         if ($fraction) array_push($info, $fraction);
         if ($uniref) array_push($info, $uniref);
         if ($domain) array_push($info, $domain);
-        if ($excludeFractions) array_push($info, $excludeFractions);
+        if ($type != "CLUSTER" && $type != "COLORSSN" && $excludeFractions) array_push($info, $excludeFractions);
         if ($sequence) array_push($info, $sequence);
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);
