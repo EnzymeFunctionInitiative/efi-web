@@ -234,9 +234,6 @@ abstract class family_shared extends option_base {
             $this->min_seq_len = $result["generate_min_seq_len"];
         if (isset($result["generate_max_seq_len"]))
             $this->max_seq_len = $result["generate_max_seq_len"];
-        //TODO: include_fragments is legacy
-        if (isset($result["include_fragments"]))
-            $this->exclude_fragments = !$result["include_fragments"];
         if (isset($result["exclude_fragments"]))
             $this->exclude_fragments = $result["exclude_fragments"];
         if (isset($result['generate_domain']))
