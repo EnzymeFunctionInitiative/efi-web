@@ -1,6 +1,6 @@
 <?php
 
-require_once("option_base.class.inc.php");
+require_once("colorssn_shared.class.inc.php");
 require_once("../../libs/global_functions.class.inc.php");
 
 class cluster_analysis extends colorssn_shared {
