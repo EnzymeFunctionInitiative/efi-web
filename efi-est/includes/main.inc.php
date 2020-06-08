@@ -7,7 +7,7 @@ ini_set('display_errors', 1);
 
 set_include_path(get_include_path() . ":" . __DIR__ . "/../libs" . ":" . __BASE_DIR__ . "/includes/pear" . ":" . __BASE_DIR__ . "/libs");
 function __autoload($class_name) {
-    if(file_exists("../libs/" . $class_name . ".class.inc.php")) {
+    if(file_exists(__DIR__ . "/../libs/" . $class_name . ".class.inc.php")) {
         require_once $class_name . '.class.inc.php';
     }
 }
