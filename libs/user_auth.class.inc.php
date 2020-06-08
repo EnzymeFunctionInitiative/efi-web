@@ -19,7 +19,7 @@ class user_auth {
     }
 
     public static function get_user_token() {
-        return $_COOKIE[user_auth::USER_TOKEN_NAME];
+        return isset($_COOKIE[user_auth::USER_TOKEN_NAME]) ? $_COOKIE[user_auth::USER_TOKEN_NAME] : "";
     }
 
     public static function get_logout_cookie() {

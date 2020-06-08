@@ -25,11 +25,14 @@ class data_retention {
         $sql = "SELECT $tname.$idfield, $timefield FROM $tname " .
             "LEFT JOIN job_group ON job_group.$idfield = $tname.$idfield " .
             "WHERE job_group.user_group IS NULL AND (" . 
-            "($timefield < '$exp_date' AND $timefield != '0000-00-00 00:00:00') OR " .
-            "($timefield IS NULL AND $timefield_started < '$exp_date') OR " .
+            "($timefield < '$exp_date' AND $timefield != '0000-00-00 00:00:00')" .
+            " OR " .
+            "($timefield IS NULL AND $timefield_started < '$exp_date')" .
+            " OR " .
             "($tname.$statusfield = '" . __FAILED__ . "' AND $timefield_started < '$failed_exp_date')" .
+            " OR " .
+            "($tname.$statusfield = '" . __ARCHIVED__ . "' AND ($timefield = '0000-00-00 00:00:00' OR $timefield_started = '0000-00-00 00:00:00'))" .
             ")";# OR
-
         $results = $this->db->query($sql);
 
         $jobs = array();
