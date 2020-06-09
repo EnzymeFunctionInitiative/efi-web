@@ -1,0 +1,29 @@
+<?php
+////////////////////////////////////
+//
+//      EFI GNN
+//      settings.inc.php
+//
+//      Settings for the scripts
+//
+////////////////////////////////////
+
+require_once("settings_base.inc.php");
+
+//
+// PATHS
+define("__WEB_PATH__",__BASE_WEB_PATH__."/");
+define("__WEB_ROOT__",__BASE_WEB_ROOT__."".__WEB_PATH__);
+
+//
+// DATABASE
+define("__MYSQL_HOST__","localhost");
+define("__MYSQL_USER__","efi_web");
+define("__MYSQL_PASSWORD__","");
+define("__MYSQL_DATABASE__","efi");
+define("__MYSQL_AUTH_DATABASE__","efi");
+
+//
+// UI
+define("__USE_DASHBOARD__",true);
+
