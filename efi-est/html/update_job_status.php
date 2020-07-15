@@ -35,7 +35,7 @@ if (!$is_error && $request_type !== false && $job_obj !== false && ($request_typ
         $pbs_num = $job_obj->get_pbs_number();
 
         if ($pbs_num)
-            job_cancels::request_job_cancellation($db, $pbs_num);
+            job_cancels::request_job_cancellation($db, $pbs_num, "est");
 
         $job_obj->mark_job_as_cancelled();
     } else { // archive NEW, FAILED.
@@ -47,7 +47,7 @@ if (!$is_error && $request_type !== false && $job_obj !== false && ($request_typ
                 $a_obj = new analysis($db, $anum);
                 $pbs_num = $a_obj->get_pbs_number();
                 if ($pbs_num)
-                    job_cancels::request_job_cancellation($db, $pbs_num);
+                    job_cancels::request_job_cancellation($db, $pbs_num, "est");
                 $a_obj->mark_job_as_archived();
             }
         }

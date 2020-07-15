@@ -411,7 +411,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                             <!--
                             <div>
                                 <span class="input-name">
-                                    Minimum Sequence Count:
+                                    Minimum Node Count:
                                 </span><span class="input-field">
                                     <input type="text" id="colorssn-min-seq-msa" name="colorssn-min-seq-msa" value="" size="10">
                                     <label for="colorssn-min-seq-msa">Minimum number of sequences in order to include a cluster in the computations [default: 5]</label>
@@ -419,7 +419,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                             </div>
                             <div>
                                 <span class="input-name">
-                                    Maximum Sequence Count:
+                                    Maximum Node Count:
                                 </span><span class="input-field">
                                     <input type="text" id="colorssn-max-seq-msa" name="colorssn-max-seq-msa" value="" size="10">
                                     <label for="colorssn-max-seq-msa">Maximum number of sequences to include in the MSA [default: no maximum]</label>
@@ -517,9 +517,9 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
                             <div>
                                 <div>
                                     The MSA is generated with MUSCLE using the node IDs.  Clusters containing less than
-                                    the Minimum Sequence Count will be excluded from the analyses.
+                                    the Minimum Node Count will be excluded from the analyses.
                                     Since MUSCLE can fail with a "large" number sequences (variable; anywhere from &gt;750 to 1500),
-                                    the Maximum Sequence Count parameter can be used to limit the number of sequences
+                                    the Maximum Node Count parameter can be used to limit the number of sequences
                                     that MUSCLE uses.
                                 </div>
                                 <div>
@@ -532,7 +532,7 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
                                 </div>
                                 <div>
                                     <span class="input-name">
-                                        Maximum Sequence Count:
+                                        Maximum Node Count:
                                     </span><span class="input-field">
                                         <input type="text" id="max-seq-msa-cluster" name="max-seq-msa-cluster" value="" size="10">
                                         <label for="max-seq-msa-cluster">Maximum number of nodes to include in the MSA [default: no maximum]</label>
