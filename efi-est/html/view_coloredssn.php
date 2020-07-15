@@ -407,6 +407,11 @@ HTML;
 <?php if ($weblogo_graphics) { ?>
         <div id="weblogo">
             <h4>WebLogos</h4>
+            <p>
+            If the WebLogo is missing for Node Cluster 1 (and additional clusters with large numbers of nodes),
+            repeat the job with a "Maximum Node Count" in the Sequence Filter input window.  MUSCLE can fail
+            with a "large" number of sequences (variable, anywhere from &gt;750 to &gt;1500).
+            </p>
 <?php outputZipFileTable($weblogoZipFileList); ?>
 <?php outputZipFileTable($msaZipFileList); ?>
             <br><br>
@@ -503,6 +508,11 @@ HTML;
 <?php if ($hmm_graphics) { ?>
         <div id="hmm">
             <h4>HMMs</h4>
+            <p>
+            If the HMM is missing for Node Cluster 1 (and additional clusters with large numbers of nodes),
+            repeat the job with a "Maximum Node Count" in the Sequence Filter input window.  MUSCLE can fail
+            with a "large" number of sequences (variable, anywhere from &gt;750 to &gt;1500).
+            </p>
 <?php outputZipFileTable($hmmZipFileList); ?>
             <br><br>
 
