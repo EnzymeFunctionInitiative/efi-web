@@ -3,6 +3,7 @@ DATE=$(date +"%Y-%m-%d %H:%M:%S")
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "$DATE: Start EFI-EST Master script"
 
+source /etc/profile
 
 if [[ "`ps -ef | grep $0 | grep -v grep | wc -l`" -gt 3 ]]; then echo "Already running; exiting"; exit; fi
 

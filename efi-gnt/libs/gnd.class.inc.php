@@ -54,7 +54,7 @@ abstract class gnd {
             $gnn = $this->factory->new_gnn($db, $gnn_id);
             if ($gnn->get_key() != $params["key"]) {
                 $message = "No GNN selected.";
-            } elseif (time() < $gnn->get_time_completed() + settings::get_retention_days()) {
+            } elseif ($gnn->is_expired()) {
                 $message = "GNN results are expired.";
             }
 
