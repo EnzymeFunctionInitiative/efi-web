@@ -24,7 +24,6 @@ class stepa extends est_shared {
     protected $program;
     protected $fraction;
     protected $db_version;
-    protected $is_sticky = false;
     protected $job_name = "";
 
     protected $is_example = false;
@@ -646,14 +645,6 @@ class stepa extends est_shared {
         }
         return $valid;
 
-    }
-
-    public function is_expired() {
-        if (!$this->is_sticky && time() > $this->get_unixtime_completed() + functions::get_retention_secs()) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public function get_analysis_jobs() {

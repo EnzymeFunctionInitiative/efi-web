@@ -20,7 +20,7 @@ if (isset($_GET["gnn-id"]) && is_numeric($_GET["gnn-id"])) {
     if ($gnn->get_key() != $_GET["key"]) {
         $is_error = true;
     }
-    elseif (time() < $gnn->get_time_completed() + settings::get_retention_days()) {
+    elseif ($gnn->is_expired()) {
         $is_error = true;
     }
 
