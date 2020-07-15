@@ -42,7 +42,7 @@ if (isset($_POST["static-example"])) {
 
     if ($job_obj->get_key() != $_POST["key"]) {
         $is_error = true;
-    } elseif (time() < $job_obj->get_time_completed() + settings::get_retention_days()) {
+    } elseif ($job_obj->is_expired()) {
         $is_error = true;
     } else {
         $is_error = false;

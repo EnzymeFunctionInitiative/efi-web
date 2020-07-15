@@ -12,7 +12,7 @@ if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
 	$analysis_id = $_GET['analysis_id'];
         $analysis = new analysis($db,$analysis_id);
 
-	if (time() > $analysis->get_unixtime_completed() + functions::get_retention_secs()) {
+	if (time() > $analysis->is_expired()) {
 
                 echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days() . " days.";
 		echo "<br>Your job was completed on " . $analysis->get_time_completed();
