@@ -55,8 +55,8 @@ if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
     if ($gnn->get_key() != $_GET['key']) {
         error_404();
     }
-    elseif (time() < $gnn->get_time_completed() + settings::get_retention_days()) {
-        pretty_error_404("That job has expired and doesn't exist anymore.");
+    elseif ($gnn->is_expired()) {
+        error_404("That job has expired and doesn't exist anymore.");
     }
 
     if ($is_bigscape_enabled)

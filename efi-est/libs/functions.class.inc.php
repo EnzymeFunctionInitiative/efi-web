@@ -211,9 +211,6 @@ class functions {
 
     }
 
-    public static function get_retention_secs() {
-        return global_settings::get_retention_days() * 24 * 60 * 60;
-    }
     public static function get_results_dir() {
         return __EST_RESULTS_DIR__; // set in the global conf file
     }
