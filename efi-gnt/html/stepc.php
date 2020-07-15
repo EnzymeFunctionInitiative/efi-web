@@ -17,7 +17,7 @@ if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
     $gnnKey = $gnn->get_key();
     if ($gnnKey != $_GET['key']) {
         error500("Unable to find the requested job.");
-    } elseif (!$is_example && time() < $gnn->get_time_completed() + settings::get_retention_days()) {
+    } elseif (!$is_example && $gnn->is_expired()) {
         error404("That job has expired and doesn't exist anymore.");
     }
 }

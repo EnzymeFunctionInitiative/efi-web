@@ -18,7 +18,7 @@ if ((isset($_GET["gnn-id"])) && (is_numeric($_GET["gnn-id"]))) {
         $message = "No GNN selected.";
         exit;
     }
-    elseif (time() < $gnn->get_time_completed() + settings::get_retention_days()) {
+    elseif ($gnn->is_expired()) {
         $message = "GNN results are expired.";
     }
 

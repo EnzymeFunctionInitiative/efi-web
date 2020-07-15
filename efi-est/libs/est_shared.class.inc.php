@@ -18,6 +18,7 @@ abstract class est_shared {
     protected $time_started;
     protected $eol = PHP_EOL;
     protected $beta;
+    protected $is_sticky = false;
 
     function __construct($db, $table) {
         $this->db = $db;
@@ -174,6 +175,14 @@ abstract class est_shared {
 
         $mail = Mail::factory("mail");
         $mail->send($to, $headers, $body);
+    }
+    
+    public function is_expired() {
+        if (!$this->is_sticky && time() > $this->get_unixtime_completed() + global_settings::get_retention_secs()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
