@@ -24,7 +24,7 @@ function checkBrowserSupport() {
 
 
 class GndUi {
-    constructor(msgRouter, controller, uiFilter) {
+    constructor(msgRouter, controller, uiFilter, uniRefSupport) {
         this.msgRouter = msgRouter;
         this.XT = controller;
         this.uiFilter = uiFilter;
@@ -35,6 +35,9 @@ class GndUi {
         this.diagramTotalId = "";
         this.loaderMessageId = "";
         this.progressBarId = "";
+        this.uniRefContainerId = "";
+        this.uniRefIds = {};
+        this.uniRefSupport = uniRefSupport;
 
         this.msgRouter.addListener(this);
     }
@@ -63,6 +66,8 @@ class GndUi {
                 $(".zoom-btn").attr("disabled", true).addClass("disabled");
                 this.showMoreBtn.attr("disabled", "true").addClass("disabled");
                 this.showAllBtn.attr("disabled", "true").addClass("disabled");
+                $(this.uniRefContainerId + " div label input").attr("disabled", true);
+                $(this.uniRefContainerId).addClass("disabled");
             } else {
                 $(this.loaderMessageId).hide();
                 this.progressLoader.addClass("hidden-placeholder");
@@ -81,6 +86,8 @@ class GndUi {
                     this.showAllBtn.removeAttr("disabled").removeClass("disabled");
                 }
                 $(this.diagramCountId).text(payload.Data.DiagramCount);
+                $(this.uniRefContainerId + " div label input").attr("disabled", false);
+                $(this.uniRefContainerId).removeClass("disabled");
             }
             if (payload.Data.Message) {
             } else {
@@ -92,6 +99,23 @@ class GndUi {
                 this.errorLoader.removeClass("hidden-placeholder");
             }
             this.setTotalCount(payload.Data.TotalCount);
+            if (payload.Data.SupportsUniRef) {
+                $(this.uniRefContainerId).show();
+                if (payload.Data.FirstLoad) {
+                    var uniRefVer = this.uniRefSupport.getVersion();
+                    if (uniRefVer == "50") {
+                        $("#"+this.uniRefIds.uniref50Cb).prop("checked", true);
+                        $("#"+this.uniRefIds.uniref50Btn).addClass("active");
+                        $("#"+this.uniRefIds.uniprotBtn).removeClass("active");
+                    } else if (uniRefVer == "90") {
+                        $("#"+this.uniRefIds.uniref90Cb).prop("checked", true);
+                        $("#"+this.uniRefIds.uniref90Btn).addClass("active");
+                        $("#"+this.uniRefIds.uniprotBtn).removeClass("active");
+                    }
+                }
+            } else {
+                $(this.uniRefContainerId).hide();
+            }
         }
     }
 
@@ -194,6 +218,17 @@ class GndUi {
             that.initialDirectJobLoad();
         });
     }
+    registerUniRefControl(containerId, groupId, uniRefIds) {
+        var that = this;
+        this.uniRefIds = uniRefIds;
+        this.uniRefContainerId = containerId;
+        $('input[name="'+groupId+'"]').change(function(e) {
+            var val = $(this).val();
+            val = (val == 50 || val == 90) ? val : false;
+            that.uniRefSupport.setVersion(val);
+            that.XT.reloadForIdTypeChange();
+        });
+    }
     registerWindowUpdateBtn(id, inputId) {
         var that = this;
         $(id).click(function(e) {
@@ -239,7 +274,7 @@ class GndUi {
             if (bigscape.getStatus() == "FINISH") {
                 var bigscapeOn = bigscape.toggleUseBigScape();
                 $(buttonLabelId).text( bigscapeOn ? "Use BiG-SCAPE Synteny" : "Use BiG-SCAPE Synteny" );
-                that.XT.reloadForBigScape();
+                that.XT.reloadForIdTypeChange();
             } else {
                 $(modalId).modal("show");
                 if (!bigscape.getStatus() || bigscape.getStatus() == 0) {

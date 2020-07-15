@@ -169,6 +169,8 @@ class diagram_job extends arrow_api {
             $exec .= " -nb-size " . $this->params["neighborhood_size"];
         if ($sched)
             $exec .= " -scheduler $sched";
+        if (true)
+            $exec .= " --include-uniref";
         $exec .= " -job-id " . $this->id;
 
         $exit_status = 1;

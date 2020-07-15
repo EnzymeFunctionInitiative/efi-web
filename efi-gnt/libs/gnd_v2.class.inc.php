@@ -7,6 +7,7 @@ class gnd_v2 extends gnd {
 
     
     private $has_stats = false;
+    private $uniref_query_id = false;
     private $query = array(); // list of queried items
     private $range = array(); // range of cluster_index to retrieve
 
@@ -30,6 +31,12 @@ class gnd_v2 extends gnd {
             $this->query = $this->parse_query($params["query"]);
         if (isset($params["range"]))
             $this->range = $this->parse_range($params["range"]);
+        if (isset($params["id-type"]) && ($params["id-type"] == 50 || $params["id-type"] == 90)) {
+            $this->set_uniref_version($params["id-type"]);
+            if (isset($params["uniref-id"])) {
+                $this->uniref_query_id = $params["uniref-id"];
+            }
+        }
     }
 
     private function parse_range($range) {
@@ -63,9 +70,43 @@ class gnd_v2 extends gnd {
     protected function get_select_id_col_name() {
         return "cluster_index";
     }
-    
+
+    private function get_uniref_table_basename() {
+        return "uniref" . $this->use_uniref;
+    }
+    private function get_cluster_index_table() {
+        $prefix = "";
+        if ($this->use_uniref !== false) {
+            $prefix = $this->get_uniref_table_basename() . "_";
+            if ($this->uniref_query_id)
+                return $prefix . "range";
+        }
+        return $prefix . "cluster_index";
+    }
     protected function get_retrieved_ids() {
-        return $this->expand_range($this->range);
+        $ids = $this->expand_range($this->range);
+        if ($this->use_uniref !== false) {
+            $base = $this->get_uniref_table_basename();
+            $table_suffix = "range";
+            $table_col = "uniref_index";
+            if ($this->uniref_query_id) {
+                $table_suffix = "index";
+                $table_col = "member_index";
+            }
+            $new_ids = array();
+            for ($i = 0; $i < count($ids); $i++) {
+                $sql = "SELECT cluster_index FROM ${base}_${table_suffix} WHERE $table_col = " . $ids[$i];
+                $result = $this->db->query($sql);
+                if ($result) {
+                    $row = $result->fetchArray(SQLITE3_ASSOC);
+                    if (isset($row["cluster_index"]))
+                        array_push($new_ids, $row["cluster_index"]);
+                }
+            }
+            $ids = $new_ids;
+        }
+        return $ids;
+        //$sql = "SELECT attributes.cluster_index AS clsuter_index FROM ${table}_
     }
 
 
@@ -99,7 +140,23 @@ class gnd_v2 extends gnd {
         $stats = array("max_index" => $count - 1, "scale_factor" => $scale_factor, "legend_scale" => $legend_scale,
             "min_bp" => $min, "max_bp" => $max, "query_width" => $q_width, "actual_max_width" => $actual_max_width,
             "time_data" => $time_data . " PROC=$proc_time PARSE=$parse_time",
-            "num_checked" => count($idx), "index_range" => $index_range);
+            "num_checked" => count($idx), "index_range" => $index_range, "has_uniref" => false);
+
+        // Check if the database has UniRef support
+        $sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'uniref50_index'";
+        $result = $this->db->query($sql);
+        if ($result && $result->fetchArray()) {
+            $sql = "SELECT COUNT(*) AS num_uniref FROM uniref50_cluster_index";
+            $result = $this->db->query($sql);
+            if ($result && $result->fetchArray()) {
+                $stats["has_uniref"] = 50;
+            } else {
+                $sql = "SELECT COUNT(*) AS num_uniref FROM uniref90_cluster_index";
+                $result = $this->db->query($sql);
+                if ($result && $result->fetchArray())
+                    $stats["has_uniref"] = 90;
+            }
+        }
 
         return $stats;
     }
@@ -108,23 +165,31 @@ class gnd_v2 extends gnd {
     // Get the start and ending ID indexes for the given cluster inputs
     private function get_cluster_indices() {
         $ranges = array();
-        foreach ($this->query as $item) {
-            if (is_numeric($item)) {
-                $sql = "SELECT start_index, end_index FROM cluster_index WHERE cluster_num = $item";
-                $query_result = $this->db->query($sql);
-                if ($query_result) {
-                    $result = $query_result->fetchArray(SQLITE3_ASSOC);
-                    if ($result && isset($result["start_index"]))
-                        array_push($ranges, array($result["start_index"], $result["end_index"]));
-                }
-            } else {
-                $sql = "SELECT cluster_index FROM attributes WHERE accession = '$item'";
-                $query_result = $this->db->query($sql);
-                if ($query_result) {
-                    $result = $query_result->fetchArray(SQLITE3_ASSOC);
-                    if (isset($result["cluster_index"]))
-                        array_push($ranges, array($result["cluster_index"], $result["cluster_index"]));
-                }
+        $query_fn = function($start_col, $end_col, $id_col, $item, $index_table, $db) {
+            $cols = $start_col == $end_col ? $start_col : "$start_col, $end_col";
+            $sql = "SELECT $cols FROM $index_table WHERE $id_col = '$item'";
+            $query_result = $db->query($sql);
+            if ($query_result) {
+                $result = $query_result->fetchArray(SQLITE3_ASSOC);
+                if ($result && isset($result[$start_col]))
+                    return array($result[$start_col], $result[$end_col]);
+            }
+        };
+        $index_table = $this->get_cluster_index_table();
+        if ($this->use_uniref !== false && $this->uniref_query_id !== false) {
+            $id = $this->db->escapeString($this->uniref_query_id);
+            $result = $query_fn("start_index", "end_index", "uniref_id", $id, $index_table, $this->db);
+            if (is_array($result))
+                array_push($ranges, $result);
+        } else {
+            foreach ($this->query as $item) {
+                $result = false;
+                if (is_numeric($item))
+                    $result = $query_fn("start_index", "end_index", "cluster_num", $item, $index_table, $this->db);
+                else
+                    $result = $query_fn("cluster_index", "cluster_index", "accession", $item, $index_table, $this->db);
+                if (is_array($result))
+                    array_push($ranges, $result);
             }
         }
         return $ranges;
