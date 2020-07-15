@@ -16,6 +16,7 @@ abstract class job_shared {
     public function get_time_started() { return $this->time_started; }
     public function get_time_completed() { return $this->time_completed; }
     public function get_pbs_number() { return $this->pbs_number; }
+    public function get_unixtime_completed() { return strtotime($this->time_completed); }
 
     public function __construct($db, $id, $db_field_prefix) {
         $this->db = $db;
@@ -69,6 +70,14 @@ abstract class job_shared {
             return true;
         }
         else {
+            return false;
+        }
+    }
+    
+    public function is_expired() {
+        if (time() > $this->get_unixtime_completed() + global_settings::get_retention_secs()) {
+            return true;
+        } else {
             return false;
         }
     }

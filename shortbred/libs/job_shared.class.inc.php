@@ -340,6 +340,9 @@ abstract class job_shared {
     public function get_time_completed() {
         return $this->time_completed;
     }
+    public function get_unixtime_completed() {
+        return strtotime($this->time_completed);
+    }
 
     protected function get_time_created() {
         return $this->time_created;
@@ -371,6 +374,14 @@ abstract class job_shared {
         $sql .= "WHERE ${tableName}_id='" . $this->get_id() . "' LIMIT 1";
         $result = $this->db->non_select_query($sql);
         $this->time_created = $current_time;
+    }
+
+    public function is_expired() {
+        if (time() > $this->get_unixtime_completed() + global_settings::get_retention_secs()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 

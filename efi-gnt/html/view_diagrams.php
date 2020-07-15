@@ -49,7 +49,7 @@ if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
     if ($gnn->get_key() != $_GET['key']) {
         error404();
     }
-    elseif (time() < $gnn->get_time_completed() + settings::get_retention_days()) {
+    elseif ($gnn->is_expired()) {
         prettyError404("That job has expired and doesn't exist anymore.");
     }
 
