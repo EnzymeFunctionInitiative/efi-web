@@ -9,7 +9,7 @@ const LOAD_RELOAD = 3;  // Reload what's present on the screen (scale factor/win
 
 
 class GndController {
-    constructor(msgRouter, gndDb, gndHttp, gndVars, gndView, bigscape) {
+    constructor(msgRouter, gndDb, gndHttp, gndVars, gndView, bigscape, uniRefSupport) {
         this.Http = gndHttp;
         this.Vars = gndVars;
         this.Db = gndDb;
@@ -22,6 +22,9 @@ class GndController {
         this.useRange = true;
         this.maxIndex = 0;
         this.bigscape = bigscape;
+        this.uniRefSupport = uniRefSupport;
+        this.supportsUniRef = false;
+        this.firstLoad = true;
 
         this.reset(false);
     }
@@ -112,32 +115,35 @@ class GndController {
         //TODO: move these methods to a different class?
         var authString = this.Vars.getAuthString();
         var urlPath = this.Vars.getUrlPath();
-        var useBigscape = this.bigscape.getUseBigScape() ? "&bigscape=1" : "";
+        var bsParm = this.bigscape.getUseBigScape() ? "&bigscape=1" : "";
 
         var that = this;
-        this.getUrlFn = function(start, end) {
-            var win = that.getWindow();
-            var sf = that.getScaleFactor();
-            var scaleType = that.getScaleType();
-            var sep = "?"
-            var url = urlPath;
-            url += sep + authString;
-            sep = "&";
-            url += sep + "window=" + win;
-//            if (scaleType == SCALE_TYPE_FACTOR)
+        var mkGetUrlFn = function() {
+            return function(start, end) {
+                var win = that.getWindow();
+                var sf = that.getScaleFactor();
+                var scaleType = that.getScaleType();
+                var sep = "?";
+                var url = urlPath;
+                url += sep + authString;
+                sep = "&";
+                url += sep + "window=" + win;
                 url += sep + "scale-factor=" + sf;
-            if (that.useRange) {
-                var ranges = that.computeRange(start, end);
-                var rangeStr = that.serializeRange(ranges);
-                url += sep + "range=" + rangeStr;
-            } else {
-                url += sep + "query=" + queryEscaped;
-                url += sep + "sidx=" + start;
-                url += sep + "eidx=" + end;
-            }
-            url += useBigscape;
-            return url;
+                if (that.useRange) {
+                    var ranges = that.computeRange(start, end);
+                    var rangeStr = that.serializeRange(ranges);
+                    url += sep + "range=" + rangeStr;
+                } else {
+                    url += sep + "query=" + queryEscaped;
+                    url += sep + "sidx=" + start;
+                    url += sep + "eidx=" + end;
+                }
+                url += bsParm;
+                url += that.uniRefSupport.getRequestParams();
+                return url;
+            };
         };
+        this.getUrlFn = mkGetUrlFn();
 
         this.initUrlFn = function() {
             var win = that.getWindow();
@@ -148,7 +154,8 @@ class GndController {
             url += sep + "window=" + win;
             url += sep + "query=" + queryEscaped;
             url += sep + "stats=1";
-            url += useBigscape;
+            url += that.uniRefSupport.getRequestParams();
+            url += bsParm;
             return url;
         };
 
@@ -160,11 +167,14 @@ class GndController {
                 that.View.setLegendScale(jsonData.stats.legend_scale);
                 that.maxIndex = jsonData.stats.max_index;
                 that.indexRange = jsonData.stats.index_range;
+                that.supportsUniRef = jsonData.stats.has_uniref !== false;
+                var firstLoad = that.firstLoad;
+                that.firstLoad = false;
                 if (typeof jsonData.totaltime !== "undefined")
                     console.log("Init load duration: " + jsonData.totaltime);
                 
                 var totalCount = jsonData.stats.max_index + 1; // zero-based index
-                var payload = new Payload(); payload.MessageType = "InitDataRetrieved"; payload.Data = { TotalCount: totalCount, Error: false };
+                var payload = new Payload(); payload.MessageType = "InitDataRetrieved"; payload.Data = { TotalCount: totalCount, Error: false, SupportsUniRef: that.supportsUniRef, FirstLoad: firstLoad };
                 that.msgRouter.sendMessage(payload);
 
                 that.loadNext(); // Retrieve the first batch of arrows.
@@ -185,10 +195,10 @@ class GndController {
     search(query) {
         this.reset(true);
         this.query = query;
-        this.onLoad(query);
+        this.onLoad(this.query);
     }
 
-    reloadForBigScape() {
+    reloadForIdTypeChange() {
         this.reset(true);
         this.onLoad(this.query);
     }

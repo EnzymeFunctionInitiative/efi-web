@@ -356,5 +356,37 @@ class functions extends global_functions {
 
         return $files;
     }
+
+    public static function validate_direct_gnd_file($rs_id, $rs_ver) {
+        $matches = array();
+        $gnd_file = false;
+        if (!preg_match("/^\d+\.\d+$/", $rs_ver))
+            return false;
+        //TODO: fix this
+        //HACK!!! blech
+        $base_dir = "/private_stores/gerlt/radicalsam/data/rsam-$rs_ver/files/";
+        //$result = preg_match("/^((cluster-[\-\d]+):(\d+):)?(cluster-[\-0-9]+)$/", $rs_id, $matches);
+        $result = preg_match("/^(cluster-[\-\d]+):?(\d+)?$/", $rs_id, $matches);
+        if ($result) {
+            //if ($matches[2] && $matches[3] && $matches[4])
+            if (isset($matches[1]) && isset($matches[2])) {
+                $parts = explode("-", $matches[1]);
+                $par_id = implode("-", array($parts[0], $parts[1], $parts[2]));
+                $gnd_file = $base_dir . $par_id . "/dicing-" . $matches[2] . "/" . $matches[1] . "/gnd.sqlite";
+            } else if (isset($matches[1])) {
+                $gnd_file = $base_dir . $matches[1] . "/gnd.sqlite";
+            }
+        } else {
+            $failed_validate = true;
+        }
+        if ($gnd_file === false)
+            return false;
+        $gnd_file = realpath($gnd_file);
+        if (strpos($gnd_file, $base_dir) !== 0 || strpos($gnd_file, $base_dir) === false)
+            return false;
+        if (!file_exists($gnd_file))
+            return false;
+        return $gnd_file;
+    }
 }
 ?>
