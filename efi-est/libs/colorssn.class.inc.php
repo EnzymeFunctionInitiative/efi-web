@@ -63,6 +63,7 @@ class colorssn extends colorssn_shared {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public function get_metadata() {
+        $meta = array();
         $metadata = parent::get_metadata_parent("Color SSN", $meta);
         return $metadata;
     }
