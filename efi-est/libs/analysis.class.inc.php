@@ -35,7 +35,6 @@ class analysis extends est_shared {
     private $use_min_edge_attr = false;
     private $use_min_node_attr = false;
     private $include_all_seq = false;
-    protected $is_sticky = false;
 
     private $is_example = false;
     private $analysis_table = "analysis";
@@ -633,14 +632,6 @@ class analysis extends est_shared {
 
         $message = $stepa->get_email_job_info();
         return $message;
-    }
-    
-    public function is_expired() {
-        if (!$this->is_sticky && time() > $this->get_unixtime_completed() + functions::get_retention_secs()) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public function get_filter_name() {

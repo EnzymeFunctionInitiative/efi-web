@@ -36,6 +36,9 @@ class global_settings {
     public static function get_retention_days() {
         return __RETENTION_DAYS__;
     }
+    public static function get_retention_secs() {
+        return global_settings::get_retention_days() * 24 * 60 * 60;
+    }
 
     public static function get_file_retention_days() {
         return __FILE_RETENTION_DAYS__;
