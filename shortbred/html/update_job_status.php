@@ -33,7 +33,7 @@ if (!$is_error && $request_type !== false && $job_obj !== false) {
         $pbs_num = $job_obj->get_pbs_number();
         $status = $job_obj->get_status();
         if ($pbs_num) { 
-            job_cancels::request_job_cancellation($db, $pbs_num);
+            job_cancels::request_job_cancellation($db, $pbs_num, "cgfp");
         }
         $job_obj->mark_job_as_cancelled();
     } elseif ($request_type == "a") { // archive
