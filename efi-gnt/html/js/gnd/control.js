@@ -154,7 +154,8 @@ class GndController {
             url += sep + "window=" + win;
             url += sep + "query=" + queryEscaped;
             url += sep + "stats=1";
-            url += that.uniRefSupport.getRequestParams();
+            if (!that.firstLoad || that.uniRefSupport.hasUniRefQueryId())
+                url += that.uniRefSupport.getRequestParams();
             url += bsParm;
             return url;
         };
@@ -167,11 +168,13 @@ class GndController {
                 that.View.setLegendScale(jsonData.stats.legend_scale);
                 that.maxIndex = jsonData.stats.max_index;
                 that.indexRange = jsonData.stats.index_range;
-                that.supportsUniRef = jsonData.stats.has_uniref !== false;
+                that.supportsUniRef = jsonData.stats.has_uniref !== false ? jsonData.stats.has_uniref : false;
                 var firstLoad = that.firstLoad;
                 that.firstLoad = false;
                 if (typeof jsonData.totaltime !== "undefined")
                     console.log("Init load duration: " + jsonData.totaltime);
+                if (firstLoad && that.supportsUniRef !== false && !that.uniRefSupport.hasUniRefQueryId())
+                    that.uniRefSupport.setVersion(that.supportsUniRef);
                 
                 var totalCount = jsonData.stats.max_index + 1; // zero-based index
                 var payload = new Payload(); payload.MessageType = "InitDataRetrieved"; payload.Data = { TotalCount: totalCount, Error: false, SupportsUniRef: that.supportsUniRef, FirstLoad: firstLoad };

@@ -7,6 +7,7 @@ class gnd_v2 extends gnd {
 
     
     private $has_stats = false;
+    private $query_set_idtype = false;
     private $uniref_query_id = false;
     private $query = array(); // list of queried items
     private $range = array(); // range of cluster_index to retrieve
@@ -31,10 +32,18 @@ class gnd_v2 extends gnd {
             $this->query = $this->parse_query($params["query"]);
         if (isset($params["range"]))
             $this->range = $this->parse_range($params["range"]);
-        if (isset($params["id-type"]) && ($params["id-type"] == 50 || $params["id-type"] == 90)) {
-            $this->set_uniref_version($params["id-type"]);
-            if (isset($params["uniref-id"])) {
-                $this->uniref_query_id = $params["uniref-id"];
+        if (isset($params["id-type"])) {
+            $this->query_set_idtype = true;
+            if ($params["id-type"] == 50 || $params["id-type"] == 90) {
+                $this->open_db_file();
+                if (($this->check_uniref_exists(50) && ($params["id-type"] == 50 || $params["id-type"] == 90)) ||
+                    ($this->check_uniref_exists(90) && ($params["id-type"] == 90)))
+                {
+                    $this->set_uniref_version($params["id-type"]);
+                    if (isset($params["uniref-id"]))
+                        $this->uniref_query_id = $params["uniref-id"];
+                }
+                $this->db->close();
             }
         }
     }
@@ -117,6 +126,15 @@ class gnd_v2 extends gnd {
 
     private function compute_stats() {
         $S = microtime(true); //TIME
+        // Check if the database has UniRef support
+        $has_uniref = false;
+        if ($this->check_uniref_exists(50))
+            $has_uniref = 50;
+        else if ($this->check_uniref_exists(90))
+            $has_uniref = 90;
+        if ($has_uniref !== false && !$this->query_set_idtype && !$this->uniref_query_id)
+            $this->set_uniref_version($has_uniref);
+
         $index_range = $this->get_cluster_indices();
         $parse_time = microtime(true) - $S; //TIME
         $all_idx = $this->expand_range($index_range);
@@ -140,27 +158,26 @@ class gnd_v2 extends gnd {
         $stats = array("max_index" => $count - 1, "scale_factor" => $scale_factor, "legend_scale" => $legend_scale,
             "min_bp" => $min, "max_bp" => $max, "query_width" => $q_width, "actual_max_width" => $actual_max_width,
             "time_data" => $time_data . " PROC=$proc_time PARSE=$parse_time",
-            "num_checked" => count($idx), "index_range" => $index_range, "has_uniref" => false);
-
-        // Check if the database has UniRef support
-        $sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'uniref50_index'";
-        $result = $this->db->query($sql);
-        if ($result && $result->fetchArray()) {
-            $sql = "SELECT COUNT(*) AS num_uniref FROM uniref50_cluster_index";
-            $result = $this->db->query($sql);
-            if ($result && $result->fetchArray()) {
-                $stats["has_uniref"] = 50;
-            } else {
-                $sql = "SELECT COUNT(*) AS num_uniref FROM uniref90_cluster_index";
-                $result = $this->db->query($sql);
-                if ($result && $result->fetchArray())
-                    $stats["has_uniref"] = 90;
-            }
-        }
+            "num_checked" => count($idx), "index_range" => $index_range, "has_uniref" => $has_uniref);
 
         return $stats;
     }
 
+
+    private function check_uniref_exists($ver) {
+        ////TODO: debug
+        //if ($ver == 50)
+        //    return false;
+        $sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'uniref${ver}_index'";
+        $result = $this->db->query($sql);
+        if ($result && $result->fetchArray()) {
+            $sql = "SELECT COUNT(*) AS num_uniref FROM uniref${ver}_cluster_index";
+            $result = $this->db->query($sql);
+            if ($result && $result->fetchArray())
+                return true;
+        }
+        return false;
+    }
 
     // Get the start and ending ID indexes for the given cluster inputs
     private function get_cluster_indices() {

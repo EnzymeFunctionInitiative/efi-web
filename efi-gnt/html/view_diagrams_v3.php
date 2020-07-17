@@ -194,7 +194,7 @@ $nb_size_div = "";
 $cooc_div = "";
 $job_type_div = "";
 $job_id_div = "";
-$js_version = "?v=4";
+$js_version = "?v=5";
 
 if ($is_direct_job) {
     $job_type_div = $job_type_text ? "<div>Job Type: $job_type_text</div>" : "";
@@ -263,6 +263,7 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                     </td>
                     <td id="header-body-title" class="header-title">
                         Genome Neighborhood Diagrams for <?php echo $gnn_name_text; ?>
+                        <span id="cluster-uniref-id" class="display: none"><br></span>
                     </td>
                     <td id="header-job-info">
                         <?php echo $job_type_div; ?>
@@ -278,9 +279,9 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
         <div id="wrapper" class="">
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
-                    <li>
+                    <li id="advanced-search-panel">
                         <i class="fas fa-search" aria-hidden="true"> </i> <span class="sidebar-header">Search</span>
-                        <div id="advanced-search-panel">
+                        <div>
                             <div id="advanced-search-use-uniref-container" style="display: none; margin-bottom: 10px;">
                                 <div style="font-size:0.9em">Show ID Type:</div>
                                 <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -571,6 +572,7 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                     uniRefUiIds.uniprotBtn = "uniprot-btn";
                     uniRefUiIds.uniref90Cb = "uniref90-cb";
                     uniRefUiIds.uniref90Btn = "uniref90-btn";
+                    uniRefUiIds.uniRefTitleId = "cluster-uniref-id";
 
                     // Create objects
                     var gndVars = new GndVars();
@@ -616,7 +618,7 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                     ui.registerDiagramCountField("#diagrams-displayed-count", "#diagrams-total-count");
                     ui.registerLoaderMessage("#loader-message");
                     ui.registerProgressBar("#progress-bar");
-                    ui.registerSearchBtn("#advanced-search-cluster-button", "#advanced-search-input", "#start-info");
+                    ui.registerSearchBtn("#advanced-search-cluster-button", "#advanced-search-input", "#start-info", "#advanced-search-panel");
                     ui.registerUniRefControl("#advanced-search-use-uniref-container", "display-id-type", uniRefUiIds);
 <?php if ($is_direct_job) { ?>
                     ui.registerSearchResetBtn("#advanced-search-reset-button");

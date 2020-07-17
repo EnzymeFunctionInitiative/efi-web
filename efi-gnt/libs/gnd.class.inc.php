@@ -21,7 +21,7 @@ abstract class gnd {
     protected $window = null;
     
     private $db_file = "";
-    private $use_uniref = false;
+    protected $use_uniref = false;
     private $is_direct_job = false;
     private $factory;
     private $message = "";

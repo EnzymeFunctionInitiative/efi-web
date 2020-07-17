@@ -35,6 +35,7 @@ class GndUi {
         this.diagramTotalId = "";
         this.loaderMessageId = "";
         this.progressBarId = "";
+        this.searchPanelId = "";
         this.uniRefContainerId = "";
         this.uniRefIds = {};
         this.uniRefSupport = uniRefSupport;
@@ -66,7 +67,7 @@ class GndUi {
                 $(".zoom-btn").attr("disabled", true).addClass("disabled");
                 this.showMoreBtn.attr("disabled", "true").addClass("disabled");
                 this.showAllBtn.attr("disabled", "true").addClass("disabled");
-                $(this.uniRefContainerId + " div label input").attr("disabled", true);
+                $(this.uniRefContainerId + " label").attr("disabled", true);
                 $(this.uniRefContainerId).addClass("disabled");
             } else {
                 $(this.loaderMessageId).hide();
@@ -86,7 +87,7 @@ class GndUi {
                     this.showAllBtn.removeAttr("disabled").removeClass("disabled");
                 }
                 $(this.diagramCountId).text(payload.Data.DiagramCount);
-                $(this.uniRefContainerId + " div label input").attr("disabled", false);
+                $(this.uniRefContainerId + " label").attr("disabled", false);
                 $(this.uniRefContainerId).removeClass("disabled");
             }
             if (payload.Data.Message) {
@@ -99,20 +100,36 @@ class GndUi {
                 this.errorLoader.removeClass("hidden-placeholder");
             }
             this.setTotalCount(payload.Data.TotalCount);
-            if (payload.Data.SupportsUniRef) {
-                $(this.uniRefContainerId).show();
+            if (payload.Data.SupportsUniRef !== false) {
+                if (this.uniRefSupport.getShowUniRefUi())
+                    $(this.uniRefContainerId).show();
+                else
+                    $(this.searchPanelId).hide();
+
                 if (payload.Data.FirstLoad) {
+                    // On the first load of the page, set the default version which comes from the server.
+                    this.uniRefSupport.setSupportedVersion(payload.Data.SupportsUniRef); // SupportsUniRef = version of UR that is supported (50 or 90)
                     var uniRefVer = this.uniRefSupport.getVersion();
-                    if (uniRefVer == "50") {
+                    if (uniRefVer == 50) {
                         $("#"+this.uniRefIds.uniref50Cb).prop("checked", true);
                         $("#"+this.uniRefIds.uniref50Btn).addClass("active");
                         $("#"+this.uniRefIds.uniprotBtn).removeClass("active");
-                    } else if (uniRefVer == "90") {
+                    } else if (uniRefVer == 90) {
                         $("#"+this.uniRefIds.uniref90Cb).prop("checked", true);
                         $("#"+this.uniRefIds.uniref90Btn).addClass("active");
                         $("#"+this.uniRefIds.uniprotBtn).removeClass("active");
                     }
+                    if (payload.Data.SupportsUniRef == 90)
+                        $("#"+this.uniRefIds.uniref50Btn).hide();
                 }
+                    if (this.uniRefSupport.getShowUniRefUi()) {
+                        var titleText = this.uniRefSupport.getTitleIdText();
+                        $("#" + this.uniRefIds.uniRefTitleId).empty();
+                        if (titleText) {
+                           $("#" + this.uniRefIds.uniRefTitleId).append($("<br>"));
+                           $("#" + this.uniRefIds.uniRefTitleId).append(titleText);
+                        }
+                    }
             } else {
                 $(this.uniRefContainerId).hide();
             }
@@ -203,8 +220,9 @@ class GndUi {
             that.uiFilter.changeFamilyText(this.checked);
         });
     }
-    registerSearchBtn(id, inputId, startInfoId) {
+    registerSearchBtn(id, inputId, startInfoId, searchPanelId) {
         var that = this;
+        this.searchPanelId = searchPanelId;
         $(id).click(function(e) {
             $(startInfoId).hide();
             var input = $(inputId).val();
@@ -222,6 +240,11 @@ class GndUi {
         var that = this;
         this.uniRefIds = uniRefIds;
         this.uniRefContainerId = containerId;
+        if (!this.uniRefSupport.getShowUniRefUi()) {
+            var titleText = this.uniRefSupport.getTitleIdText();
+            $("#" + uniRefIds.uniRefTitleId).empty().append($("<br>"));
+            $("#" + uniRefIds.uniRefTitleId).append(titleText);
+        }
         $('input[name="'+groupId+'"]').change(function(e) {
             var val = $(this).val();
             val = (val == 50 || val == 90) ? val : false;
