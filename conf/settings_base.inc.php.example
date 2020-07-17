@@ -17,6 +17,7 @@ define("__INTERPRO_WEBSITE__","http://www.ebi.ac.uk/interpro/");
 
 //
 // UI PARAMETERS
+//define("__ENABLE_DEBUG__",true);
 define("__TIMEZONE__","America/Chicago");
 define("__ADMIN_EMAIL__","");
 define("__ERROR_ADMIN_EMAIL__","");

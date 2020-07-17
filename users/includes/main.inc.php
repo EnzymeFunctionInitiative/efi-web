@@ -1,7 +1,7 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+require_once(__DIR__ . "/../conf/settings.inc.php");
+require_once(__DIR__ . "/../../libs/debug_check.inc.php");
 
 set_include_path(get_include_path() . ':../libs:../../libs:../includes/pear:../../includes/pear');
 function __autoload($class_name) {
@@ -13,7 +13,6 @@ function __autoload($class_name) {
 }
 
 
-require_once(__DIR__ . "/../conf/settings.inc.php");
 require_once(__BASE_DIR__ . "/libs/database.class.inc.php");
 
 date_default_timezone_set(__TIMEZONE__);
@@ -25,6 +24,4 @@ else
     $SiteUrlPrefix = "";
 
 require_once(__BASE_DIR__ . "/includes/error_helpers.inc.php");
-
-?>
 
