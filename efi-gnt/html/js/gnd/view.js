@@ -12,7 +12,7 @@ class GndView {
         this.canvas = $(svgCanvasId);
 
         // Constant values
-        this.diagramHeight = 70;
+        this.defaultDiagramHeight = 70;
         this.padding = 10;
         this.fontHeight = 15;
         this.arrowHeight = 15;
@@ -54,7 +54,7 @@ class GndView {
     clearCanvas() {
         this.diagramCount = 0;
         this.canvas.empty();
-        this.canvas.css({height: this.diagramHeight + "px"});
+        this.canvas.css({height: this.defaultDiagramHeight + "px"});
         this.S.attr({viewBox: "0 0 " + this.initialWidth + " 70"});
     }
 
@@ -71,7 +71,7 @@ class GndView {
         var drawingWidth = this.initialWidth - this.padding * 2;
         var urVer = this.uniRefSupport.getVersion();
 
-        var diagramHeight = this.diagramHeight;
+        var diagramHeight = this.defaultDiagramHeight;
         var titleHeight = 0;
         var xPadding = this.padding;
         var drawUniRefExpand = this.uniRefSupport.showUniRefTitleInfo();
@@ -89,7 +89,7 @@ class GndView {
         }
 
         this.setLegendScale(viewData.LegendScale);
-        this.drawLegendLine(this.diagramCount, drawingWidth);
+        this.drawLegendLine(this.diagramCount, diagramHeight, drawingWidth);
         this.isEndOfData = viewData.EndOfData;
         
         var extraPadding = 60; // for popup for last one
@@ -379,11 +379,11 @@ class GndView {
     }
 
 
-    drawLegendLine(index, drawingWidth) {
+    drawLegendLine(index, diagramHeight, drawingWidth) {
         if (this.legendGroup)
             this.legendGroup.remove();
 
-        var ypos = index * this.diagramHeight + this.padding + this.fontHeight;
+        var ypos = index * diagramHeight + this.padding + this.fontHeight;
 
         var legendScale = this.legendScale; // This comes in base-pair units, whereas the GUI displays things in terms of AA position.
         var l1 = Math.log10(legendScale);
@@ -403,11 +403,11 @@ class GndView {
         group.line(this.padding + lineLength, ypos - 5, this.padding + lineLength, ypos + 5)
             .attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness });
 
-        var textYpos = index * this.diagramHeight + this.fontHeight;
+        var textYpos = index * diagramHeight + this.fontHeight;
         var textObj = group.text(this.padding, textYpos, "Scale:");
         textObj.attr({'style':'diagram-title'});
 
-        var textYpos = index * this.diagramHeight + this.fontHeight * 2;
+        var textYpos = index * diagramHeight + this.fontHeight * 2;
         textObj = group.text(this.padding + lineLength + 10, textYpos, legendText + " kbp");
         textObj.attr({'style':'diagram-title'});
 
