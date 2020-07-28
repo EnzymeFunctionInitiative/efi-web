@@ -11,18 +11,35 @@
 require_once(__DIR__."/../../conf/settings_base.inc.php");
 
 //
-// PATHS
+// USER DEFINED OPTIONS
+//
+    // Path to directory where computations are stored [MANDATORY]
 define("__OUTPUT_DIR__","");
+    // Path to directory where uploads are stored [MANDATORY]
 define("__UPLOAD_DIR__","");
+    // Path to log file [MANDATORY]
 define("__LOG_FILE__","");
-define("__WEB_PATH__","");
-define("__WEB_ROOT__","");
+    // Path to the metagenome database [MANDATORY]
 define("__METAGENOME_DB_LIST__","");
+    // Path to the example files directory
 define("__EXAMPLE_SRC_DIR__","");
-define("__EXAMPLE_WEB_PATH__","");
+    // shortbred Lmod module for BLAST
+define("__SHORTBRED_BLAST_MODULE__","shortbred/devlocal");
+    // shortbred Lmod module for DIAMOND
+define("__SHORTBRED_DIAMOND_MODULE__","shortbred/diamond/devlocal");
+    // EFI database Lmod module
+define("__EFI_DB_MODULE__","");
+
+//
+// PATHS
+define("__WEB_PATH__",__BASE_WEB_PATH__."/efi-cgfp");
+define("__WEB_ROOT__",__BASE_WEB_ROOT__."/".__WEB_PATH__);
+// Symlink to EXAMPLE_SRC_DIR, in html/
+define("__EXAMPLE_WEB_PATH__","example");
 
 //
 // FILE INFO
+// 
 define("__RELATIVE_OUTPUT_DIR__","");
 define("__LEGACY_RELATIVE_OUTPUT_DIR__","");
 define("__QUANTIFY_REL_OUTPUT_DIR__","");
@@ -32,11 +49,11 @@ define("__HTTP_EXAMPLE_OUTPUT_DIR__","results_example");
 
 //
 // DATABASE
-define("__MYSQL_HOST__","");
-define("__MYSQL_USER__","");
-define("__MYSQL_PASSWORD__","");
-define("__MYSQL_AUTH_DATABASE__","");
-define("__MYSQL_DATABASE__","");
+define("__MYSQL_HOST__","localhost");
+define("__MYSQL_DATABASE__",__EFI_SHORTBRED_DB_NAME__);
+define("__MYSQL_AUTH_DATABASE__",__GLOBAL_AUTH_DATABASE__);
+define("__MYSQL_USER__",__GLOBAL_MYSQL_USER__);
+define("__MYSQL_PASSWORD__",__GLOBAL_MYSQL_PASSWORD__);
 
 //
 // UI PARAMETERS
@@ -46,14 +63,9 @@ define("__CGFP_APP_EMAIL__","");
 
 //
 // JOB SCHEDULING PARAMETERS
-define("__CLUSTER_USER__","");
-define("__IDENTIFY_SCRIPT__","");
-define("__QUANTIFY_SCRIPT__","");
-define("__SHORTBRED_BLAST_MODULE__","shortbred/devlocal");
-define("__SHORTBRED_DIAMOND_MODULE__","shortbred/diamond/devlocal");
-define("__EFI_DB_MODULE__","");
+define("__IDENTIFY_SCRIPT__","submit_identify.pl");
+define("__QUANTIFY_SCRIPT__","submit_quantify.pl");
 define("__ENABLE_LOG__",true);
 define("__NUM_PROCESSORS__",24);
 define("__NUM_QUANTIFY_PROCESSORS__",24);
 
-?>

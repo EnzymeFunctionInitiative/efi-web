@@ -12,24 +12,22 @@ require_once(__DIR__."/../../conf/settings_base.inc.php");
 
 //
 // PATHS
+    // Path to log file [MANDATORY]
 define("__LOG_FILE__","");
 define("__WEB_PATH__",__BASE_WEB_PATH__."/users");
 define("__WEB_ROOT__",__BASE_WEB_ROOT__."/".__WEB_PATH__);
 
 //
 // DATABASE
-define("__MYSQL_HOST__","");
-define("__MYSQL_USER__","");
-define("__MYSQL_PASSWORD__","");
-define("__MYSQL_DATABASE__","");
-define("__MYSQL_AUTH_DATABASE__","");
-define("__EFI_GNT_DB_NAME__","");
-define("__EFI_GNT_GNN_TABLE__","");
-define("__EFI_GNT_DIAGRAM_TABLE__","");
-define("__EFI_EST_DB_NAME__","");
-define("__EFI_EST_TABLE__","");
-define("__EFI_SHORTBRED_DB_NAME__","");
-define("__EFI_SHORTBRED_TABLE__","");
+define("__MYSQL_HOST__","localhost");
+define("__MYSQL_DATABASE__",__GLOBAL_AUTH_DATABASE__);
+define("__MYSQL_AUTH_DATABASE__",__GLOBAL_AUTH_DATABASE__);
+define("__MYSQL_USER__",__GLOBAL_MYSQL_USER__);
+define("__MYSQL_PASSWORD__",__GLOBAL_MYSQL_PASSWORD__);
+define("__EFI_GNT_GNN_TABLE__","gnn");
+define("__EFI_GNT_DIAGRAM_TABLE__","diagram");
+define("__EFI_EST_TABLE__","generate");
+define("__EFI_SHORTBRED_TABLE__","identify");
 
 //
 // UI PARAMETERS

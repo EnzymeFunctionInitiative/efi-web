@@ -159,8 +159,6 @@ class diagram_job extends arrow_api {
         $exec .= $binary . " ";
         $exec .= $commandLine;
         $exec .= " -output \"$target\"";
-        if (settings::run_jobs_as_legacy())
-            $exec .= " -legacy";
         if ($this->title)
             $exec .= " -title \"" . $this->title . "\"";
         if ($this->type)
