@@ -248,6 +248,7 @@ if (count($trainingJobs) > 0) {
     
                 <?php gnt_ui::add_neighborhood_size_setting(false); ?>
                 <?php gnt_ui::add_cooccurrence_setting(false); ?>
+                <?php gnt_ui::add_advanced_options(); ?>
                 <?php add_submit_button("gnn", "ssn_email", "ssn_message", "Generate GNN"); ?>
             </form>
         </div>
