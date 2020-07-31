@@ -93,6 +93,8 @@ class cluster_analysis extends colorssn_shared {
         return $insert_array;
     }
 
+    protected function get_email_completion_subject() { return "EFI-EST - SSN colored and analyzed"; }
+
     // END OVERLOADS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

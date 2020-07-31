@@ -5,7 +5,6 @@ require_once("../../libs/global_functions.class.inc.php");
 
 class colorssn extends colorssn_shared {
 
-    private $extra_ram = false;
     private $is_hmm_and_stuff = false;
 
 
@@ -33,10 +32,6 @@ class colorssn extends colorssn_shared {
 
     protected function get_run_script_args($out) {
         $parms = parent::get_run_script_args($out);
-
-        if ($this->extra_ram)
-            $parms["--extra-ram"] = "";
-
         return $parms;
     }
 
@@ -46,7 +41,6 @@ class colorssn extends colorssn_shared {
             return;
         }
 
-        $this->extra_ram = (isset($result["extra_ram"]) && $result["extra_ram"] === true);
         $this->is_hmm_and_stuff = (isset($result["make_hmm"]) && $result["make_hmm"]) ? true : false;
 
         return $result;
@@ -54,7 +48,6 @@ class colorssn extends colorssn_shared {
 
     public function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
-        $insert_array["extra_ram"] = (isset($data->extra_ram) && $data->extra_ram === true);
         return $insert_array;
     }
 
