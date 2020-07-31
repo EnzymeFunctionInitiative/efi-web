@@ -178,7 +178,8 @@ else {
 
 $uniref_version = isset($_GET['id-type']) ? $_GET['id-type'] : "";
 $uniref_id = isset($_GET['uniref-id']) ? $_GET['uniref-id'] : "";
-
+if ($uniref_version && $uniref_id)
+    $is_direct_job = true;
 
 
 if ($is_bigscape_enabled) {
@@ -285,14 +286,14 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                             <div id="advanced-search-use-uniref-container" style="display: none; margin-bottom: 10px;">
                                 <div style="font-size:0.9em">Show ID Type:</div>
                                 <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                    <label class="btn btn-default active" id="uniprot-btn">
-                                        <input type="radio" name="display-id-type" id="uniprot-cb" autocomplete="off" value="uniprot" checked> UniProt
-                                    </label>
                                     <label class="btn btn-default" id="uniref50-btn">
                                         <input type="radio" name="display-id-type" id="uniref50-cb" autocomplete="off" value="50"> UniRef50
                                     </label>
                                     <label class="btn btn-default" id="uniref90-btn">
                                         <input type="radio" name="display-id-type" id="uniref90-cb" autocomplete="off" value="90"> UniRef90
+                                    </label>
+                                    <label class="btn btn-default active" id="uniprot-btn">
+                                        <input type="radio" name="display-id-type" id="uniprot-cb" autocomplete="off" value="uniprot" checked> UniProt
                                     </label>
                                 </div>
                                 <!--
