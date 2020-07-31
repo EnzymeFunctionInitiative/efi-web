@@ -2,6 +2,23 @@
 
 class gnt_ui {
 
+    public static function add_advanced_options() {
+        if (!global_settings::advanced_options_enabled())
+            return;
+
+        echo <<<HTML
+<div>
+    <span class="input-name">Use Extra Ram [DEV ONLY]:</span>
+    <span class="input-field">
+        <input type="checkbox" id="extra_ram" name="extra_ram">
+    </span>
+    <div class="input-desc">
+        Check to use additional RAM (800GB) [default: off]
+    </div>
+</div>
+HTML;
+    }
+
     public static function add_cooccurrence_setting($use_header = true, $input_cooc = "") {
         $default_cooc = settings::get_default_cooccurrence();
         $title = "Minimal Co-occurrence Percentage Lower Limit";

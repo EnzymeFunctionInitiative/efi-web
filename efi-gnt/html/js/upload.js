@@ -32,6 +32,7 @@ function uploadFileShared(fileInputId, formId, progressNumId, progressBarId, mes
         addParam(fd, "db_mod", "db_mod");
         addParam(fd, "parent_id", "parent_id");
         addParam(fd, "parent_key", "parent_key");
+        addParam(fd, "extra_ram", "extra_ram", true);
     }
 
     var completionHandler = function() { enableForm(formId); };
@@ -103,16 +104,19 @@ function enableForm(formId) {
 //    document.getElementById('submit').disabled = false;
 }
 
-function addParam(fd, param, id) {
+function addParam(fd, param, id, isCb = false) {
     if (!id)
         return;
     var elem = document.getElementById(id);
     if (elem) {
-        fd.append(param, elem.value);
+        if (isCb)
+            fd.append(param, elem.checked);
+        else
+            fd.append(param, elem.value);
     }
 }
 
-function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId, dbModId) {
+function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId, dbModId, seqTypeId) {
 
     var fd = new FormData();
     addParam(fd, "option", optionId);
