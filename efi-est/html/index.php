@@ -174,6 +174,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
             var aid = $(this).data("analysis-id");
             var requestType = "archive";
             var jobType = "generate";
+            var trElem = $(this).parent().parent();
 
             if (!aid)
                 aid = 0;
@@ -185,7 +186,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
                 modal: true,
                 buttons: {
                     "Archive Job": function() {
-                        requestJobUpdate(id, aid, key, requestType, jobType);
+                        requestJobUpdate(id, aid, key, requestType, jobType, trElem);
                         $( this ).dialog("close");
                     },
                     Cancel: function() {
