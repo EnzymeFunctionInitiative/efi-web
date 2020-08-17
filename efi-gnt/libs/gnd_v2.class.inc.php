@@ -83,14 +83,17 @@ class gnd_v2 extends gnd {
     private function get_uniref_table_basename() {
         return "uniref" . $this->use_uniref;
     }
-    private function get_cluster_index_table() {
+    private function get_cluster_index_table($id_lookup = false) {
         $prefix = "";
         if ($this->use_uniref !== false) {
             $prefix = $this->get_uniref_table_basename() . "_";
-            if ($this->uniref_query_id)
+            if ($this->uniref_query_id || $id_lookup == true)
                 return $prefix . "range";
+            else
+                return $prefix . "cluster_index";
+        } else {
+            return $id_lookup ? "attributes" : "cluster_index";
         }
-        return $prefix . "cluster_index";
     }
     protected function get_retrieved_ids() {
         $ids = $this->expand_range($this->range);
@@ -192,19 +195,22 @@ class gnd_v2 extends gnd {
                     return array($result[$start_col], $result[$end_col]);
             }
         };
-        $index_table = $this->get_cluster_index_table();
+        $index_table = $this->get_cluster_index_table(false);
+        $id_lookup_table = $this->get_cluster_index_table(true);
         if ($this->use_uniref !== false && $this->uniref_query_id !== false) {
             $id = $this->db->escapeString($this->uniref_query_id);
             $result = $query_fn("start_index", "end_index", "uniref_id", $id, $index_table, $this->db);
             if (is_array($result))
                 array_push($ranges, $result);
         } else {
+            $acc_col = $this->use_uniref !== false ? "uniref_id" : "accession";
+            $id_index_col = $this->use_uniref !== false ? "uniref_index" : "cluster_index";
             foreach ($this->query as $item) {
                 $result = false;
                 if (is_numeric($item))
                     $result = $query_fn("start_index", "end_index", "cluster_num", $item, $index_table, $this->db);
                 else
-                    $result = $query_fn("cluster_index", "cluster_index", "accession", $item, $index_table, $this->db);
+                    $result = $query_fn($id_index_col, $id_index_col, $acc_col, $item, $id_lookup_table, $this->db);
                 if (is_array($result))
                     array_push($ranges, $result);
             }
