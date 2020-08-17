@@ -230,9 +230,10 @@ class GndUi {
             that.doSearch(query);
         });
     }
-    registerSearchResetBtn(id) {
+    registerSearchResetBtn(id, inputId) {
         var that = this;
         $(id).click(function(e) {
+            $(inputId).val("");
             that.initialDirectJobLoad();
         });
     }

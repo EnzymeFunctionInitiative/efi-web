@@ -270,7 +270,14 @@ class GndView {
     drawTitle(svgContainer, ypos, data, titleHeight, xPadding) {
         var urVer = this.uniRefSupport.getVersion();
         var title = "";
-        var idType = (urVer !== false && urVer > 0) ? "UniRef"+urVer : "UniProt";
+        var idType = "UniProt";
+        if (urVer !== false && urVer > 0) {
+            if (this.uniRefSupport.getShowUniRefUi()) {
+                idType = "UniRef"+urVer;
+            } else if (urVer == 50) {
+                idType = "UniRef90";
+            }
+        }
         if (data.hasOwnProperty("accession"))
             title = title + "Query " + idType + " ID: " + data.accession + "; ";
         if (data.hasOwnProperty("organism"))

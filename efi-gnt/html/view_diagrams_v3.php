@@ -195,7 +195,7 @@ $nb_size_div = "";
 $cooc_div = "";
 $job_type_div = "";
 $job_id_div = "";
-$js_version = "?v=5";
+$js_version = "?v=7";
 
 if ($is_direct_job) {
     $job_type_div = $job_type_text ? "<div>Job Type: $job_type_text</div>" : "";
@@ -622,7 +622,7 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                     ui.registerSearchBtn("#advanced-search-cluster-button", "#advanced-search-input", "#start-info", "#advanced-search-panel");
                     ui.registerUniRefControl("#advanced-search-use-uniref-container", "display-id-type", uniRefUiIds);
 <?php if ($is_direct_job) { ?>
-                    ui.registerSearchResetBtn("#advanced-search-reset-button");
+                    ui.registerSearchResetBtn("#advanced-search-reset-button", "#advanced-search-input");
 <?php } ?>
 
                     $(".zoom-btn").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
