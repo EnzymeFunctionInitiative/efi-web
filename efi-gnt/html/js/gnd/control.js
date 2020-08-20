@@ -114,51 +114,128 @@ class GndController {
         var queryEscaped = query.replace(/[^A-Za-z0-9\-, ]/g, " ");
         //TODO: move these methods to a different class?
         var authString = this.Vars.getAuthString();
-        var urlPath = this.Vars.getUrlPath();
-        var bsParm = this.bigscape.getUseBigScape() ? "&bigscape=1" : "";
+        var authParams = this.Vars.getAuthParams();
+        var scriptUrl = this.Vars.getUrlPath();
+        var bsParm = this.bigscape.getUseBigScape() ? true : false;
 
         var that = this;
-        var mkGetUrlFn = function() {
-            return function(start, end) {
+        //var mkGetHttpParmsFn = function() {
+        var getDataHttpParms = function(start, end) {
+            //return function(start, end) {
+                var params = {};
                 var win = that.getWindow();
                 var sf = that.getScaleFactor();
                 var scaleType = that.getScaleType();
-                var sep = "?";
-                var url = urlPath;
-                url += sep + authString;
-                sep = "&";
-                url += sep + "window=" + win;
-                url += sep + "scale-factor=" + sf;
+                //var sep = "?";
+                //var url = scriptUrl;
+                //url += sep + authString;
+                //sep = "&";
+                //TODO: authString
+                for (var k in authParams) {
+                    params[k] = authParams[k];
+                }
+                params["window"] = win;
+                params["scale-factor"] = sf;
+                //url += sep + "window=" + win;
+                //url += sep + "scale-factor=" + sf;
                 if (that.useRange) {
                     var ranges = that.computeRange(start, end);
                     var rangeStr = that.serializeRange(ranges);
-                    url += sep + "range=" + rangeStr;
+                    //url += sep + "range=" + rangeStr;
+                    params["range"] = rangeStr;
                 } else {
-                    url += sep + "query=" + queryEscaped;
-                    url += sep + "sidx=" + start;
-                    url += sep + "eidx=" + end;
+                    //url += sep + "query=" + queryEscaped;
+                    //url += sep + "sidx=" + start;
+                    //url += sep + "eidx=" + end;
+                    params["query"] = queryEscaped;
+                    params["sidx"] = start;
+                    params["eidx"] = start;
                 }
-                url += bsParm;
-                url += that.uniRefSupport.getRequestParams();
-                return url;
-            };
+                if (bsParm)
+                    //url += sep + "bigscape=1";
+                    params["bigscape"] = 1;
+                //url += that.uniRefSupport.getRequestParams();
+                var urParms = that.uniRefSupport.getRequestParams();
+                for (var k in urParms) {
+                    params[k] = urParms[k];
+                }
+                //return url;
+                return params;
+//            };
         };
-        this.getUrlFn = mkGetUrlFn();
+        var mkGetUrlFn = function(paramsFn, usePost = false) { //, usePost = false) {
+            return function (start, end) {
+                //var params = mkGetHttpParmsFn(start, end);
+                var params = paramsFn(start, end);
+                //if (usePost !== true) {
+                //    var url = scriptUrl + "?";
+                //    for (var k in params) {
+                //        url += "&" + k + "=" + params[k];
+                //    }
+                //    return url;
+                //} else {
+                //    //TODO: send to http UI
+                //}
+                var method = usePost ? "POST" : "GET";
+                return {method: method, params: params};
+            }
+            //return function(start, end) {
+            //    var win = that.getWindow();
+            //    var sf = that.getScaleFactor();
+            //    var scaleType = that.getScaleType();
+            //    var sep = "?";
+            //    var url = scriptUrl;
+            //    url += sep + authString;
+            //    sep = "&";
+            //    url += sep + "window=" + win;
+            //    url += sep + "scale-factor=" + sf;
+            //    if (that.useRange) {
+            //        var ranges = that.computeRange(start, end);
+            //        var rangeStr = that.serializeRange(ranges);
+            //        url += sep + "range=" + rangeStr;
+            //    } else {
+            //        url += sep + "query=" + queryEscaped;
+            //        url += sep + "sidx=" + start;
+            //        url += sep + "eidx=" + end;
+            //    }
+            //    if (bsParm)
+            //        url += sep + "bigscape=1";
+            //    url += that.uniRefSupport.getRequestParams();
+            //    return url;
+            //};
+        };
+        this.getUrlFn = mkGetUrlFn(getDataHttpParms);
 
-        this.initUrlFn = function() {
+        var getInitHttpParams = function() {
+            var params = {};
             var win = that.getWindow();
-            var sep = "?";
-            var url = urlPath;
-            url += sep + authString;
-            sep = "&";
-            url += sep + "window=" + win;
-            url += sep + "query=" + queryEscaped;
-            url += sep + "stats=1";
-            if (!that.firstLoad || that.uniRefSupport.hasUniRefQueryId())
-                url += that.uniRefSupport.getRequestParams();
-            url += bsParm;
-            return url;
-        };
+            //var sep = "?";
+            //var url = scriptUrl;
+            //url += sep + authString;
+            //sep = "&";
+            for (var k in authParams) {
+                params[k] = authParams[k];
+            }
+            //url += sep + "window=" + win;
+            //url += sep + "query=" + queryEscaped;
+            //url += sep + "stats=1";
+            params["window"] = win;
+            params["query"] = queryEscaped;
+            params["stats"] = 1;
+            if (!that.firstLoad || that.uniRefSupport.hasUniRefQueryId()) {
+                //url += that.uniRefSupport.getRequestParams();
+                var urParms = that.uniRefSupport.getRequestParams();
+                for (var k in urParms) {
+                    params[k] = urParms[k];
+                }
+            }
+            if (bsParm)
+                params["bigscape"] = 1;
+                //url += sep + "bigscape=1";
+            //return url;
+            return params;
+        }; 
+        this.initUrlFn = mkGetUrlFn(getInitHttpParams);
 
         var that = this;
         var handleInitRequest = function(jsonData) {
@@ -192,7 +269,7 @@ class GndController {
         var payload = new Payload(); payload.MessageType = "DataRetrievalStatus"; payload.Data = { Retrieving: true, Message: "Retrieving initial data...", Initial: true };
         that.msgRouter.sendMessage(payload);
 
-        this.Http.fetchInit(this.initUrlFn, handleInitRequest);
+        this.Http.fetchInit(scriptUrl, this.initUrlFn, handleInitRequest);
     }
 
     search(query) {

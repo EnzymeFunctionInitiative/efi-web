@@ -22,12 +22,13 @@ class gnd_job_factory extends job_factory {
 if (!isset($_SERVER["HTTP_HOST"]))
     parse_str($argv[1], $_GET);
 
-$is_example = isset($_GET["x"]) ? true : false;
+$PARAMS = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
+$is_example = isset($PARAMS["x"]) ? true : false;
 
 
 $start_time = microtime(true);
 
-$gnd = new gnd_v2($db, $_GET, new gnd_job_factory($is_example));
+$gnd = new gnd_v2($db, $PARAMS, new gnd_job_factory($is_example));
 
 
 

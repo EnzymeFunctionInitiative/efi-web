@@ -50,11 +50,16 @@ class UniRef {
     }
 
     getRequestParams() {
+        var parms = {};
         var idType = this.version ? this.version : "uniprot";
-        var idTypeParm = idType ? "&id-type=" + idType : "";
+        //var idTypeParm = idType ? "&id-type=" + idType : "";
+        if (idType)
+            parms["id-type"] = idType;
         if (this.uniRefId)
-            idTypeParm += "&uniref-id=" + this.uniRefId;
-        return idTypeParm;
+            //idTypeParm += "&uniref-id=" + this.uniRefId;
+            parms["uniref-id"] = this.uniRefId;
+        //return idTypeParm;
+        return parms;
     }
     // When going down to the next level (e.g. UR50->UR90, UR90->UP), use this function
     updateLinkRequestParams(uniRefId, params) {
