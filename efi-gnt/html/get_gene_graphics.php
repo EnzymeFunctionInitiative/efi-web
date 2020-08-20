@@ -40,10 +40,11 @@ if (is_cli()) {
 }
 
 
-$is_example = isset($_GET["x"]) ? true : false;
+$PARAMS = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
+$is_example = isset($PARAMS["x"]) ? true : false;
 
 
-$gnd = new gnd_v2($db, $_GET, new gnd_job_factory($is_example));
+$gnd = new gnd_v2($db, $PARAMS, new gnd_job_factory($is_example));
 
 
 if ($gnd->parse_error()) {
