@@ -106,7 +106,11 @@ body {
 /* Arrows */
 
 .diagram-title {
+    font-size: 1.0em;
+}
+.diagram-title-uniref-help {
     font-size: 1.1em;
+    font-style: italic;
 }
 
 

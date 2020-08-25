@@ -14,6 +14,7 @@ class GndView {
         // Constant values
         this.defaultDiagramHeight = 70;
         this.padding = 10;
+        this.topPadding = 0;
         this.fontHeight = 15;
         this.arrowHeight = 15;
         this.pointerWidth = 5;
@@ -74,11 +75,20 @@ class GndView {
         var diagramHeight = this.defaultDiagramHeight;
         var titleHeight = 0;
         var xPadding = this.padding;
-        var drawUniRefExpand = this.uniRefSupport.showUniRefTitleInfo();
+        var drawUniRefExpand = this.showUniRefTitleInfo();
         if (drawUniRefExpand) {
             titleHeight = this.titleHeight;
             diagramHeight += titleHeight;
             xPadding *= 2;
+            this.topPadding = 30;
+        }
+
+        if (this.diagramCount == 0) {
+            var group = this.S.paper.group();
+            var textObj = group.text(0, this.padding*2, "")
+                .attr({fontFamily: "FontAwesome", fontSize: "1.5em"});
+            group.text(20, this.padding*2-2, "Click this icon on the diagrams below to open a new window with the sequences contained in the given UniRef cluster.")
+                .attr({'class':'diagram-title-uniref-help'});
         }
 
         // Loop over the input list and call drawDiagram() for each drawable
@@ -93,9 +103,9 @@ class GndView {
         this.isEndOfData = viewData.EndOfData;
         
         var extraPadding = 60; // for popup for last one
-        var ypos = this.diagramCount * diagramHeight + this.padding * 2 + this.fontHeight;
+        var ypos = this.diagramCount * diagramHeight + this.padding * 2 + this.fontHeight + this.topPadding;
         this.S.attr({viewBox: "0 0 " + this.initialWidth + " " + ypos});
-        this.canvas.css({height: (ypos + diagramHeight + this.padding + extraPadding) + "px"});
+        this.canvas.css({height: (ypos + diagramHeight + this.padding + extraPadding + this.topPadding) + "px"});
     }
 
 
@@ -104,7 +114,7 @@ class GndView {
 
     // Draw a diagram (query + neighbors)
     drawDiagram(index, data, drawingWidth, diagramHeight, titleHeight, xPadding, drawUniRefExpand) {
-        var ypos = index * diagramHeight + this.padding * 2 + this.fontHeight + titleHeight;
+        var ypos = index * diagramHeight + this.padding * 2 + this.fontHeight + titleHeight + this.topPadding;
         var geneXpos = parseFloat(data.Query.RelStart);
         var geneWidth = parseFloat(data.Query.RelWidth);
 
@@ -141,11 +151,12 @@ class GndView {
         }
 
         if (drawUniRefExpand) {
-            var plusPos = index * diagramHeight + this.fontHeight + 2;//+ titleHeight;
+            var plusPos = index * diagramHeight + this.fontHeight + 2 + this.topPadding;//+ titleHeight;
             this.drawUniRefExpand(group, plusPos, this.padding, data.Query.Attr);
         }
         this.drawAxis(group, ypos, drawingWidth, xPadding, minXpct, maxXpct, data.Query.IsBound, data.Query.IsComplement);
-        this.drawTitle(group, index * diagramHeight + this.fontHeight - 2, data.Query.Attr, titleHeight, xPadding);
+        var titleYpos = index * diagramHeight + this.fontHeight - 2 + this.topPadding;
+        this.drawTitle(group, titleYpos, data.Query.Attr, titleHeight, xPadding);
         this.groupList.push(group);
     }
 
@@ -271,7 +282,7 @@ class GndView {
         var urVer = this.uniRefSupport.getVersion();
         var title = "";
         var idType = "UniProt";
-        if (urVer !== false && urVer > 0) {
+        if (urVer !== false && urVer > 0 && !this.hasIdQuery) {
             if (this.uniRefSupport.getShowUniRefUi()) {
                 idType = "UniRef"+urVer;
             } else if (urVer == 50) {
@@ -292,9 +303,9 @@ class GndView {
             title = title + "; E-Value: " + data.evalue;
         if (title.length > 0) {
             var textObj = svgContainer.text(xPadding, ypos, title);
-            textObj.attr({'style':'diagram-title'});
+            textObj.attr({'class':'diagram-title'});
         }
-        if (this.uniRefSupport.showUniRefTitleInfo()) {
+        if (this.showUniRefTitleInfo()) {
             var info = this.uniRefSupport.getUniRefSizeFieldInfo(data);
             var infoText = "Number of " + info.ValueFieldName + " IDs in " + info.UniRefType + " cluster: ";
             infoText += info.UniRefSize;
@@ -303,7 +314,7 @@ class GndView {
             //if (urVer == 50)
             //    info += "UniRef90: " + uniRefSize;
             var textObj = svgContainer.text(xPadding, ypos + titleHeight, infoText);
-            textObj.attr({'style':'diagram-title'});
+            textObj.attr({'class':'diagram-title'});
         }
     }
 
@@ -320,6 +331,7 @@ class GndView {
                 that.uniRefSupport.updateLinkRequestParams(id, url.searchParams);
                 window.open(url.toString());
             });
+        //textObj.append(Snap.parse('<title>Open UniRef</title>'));
         //var size = 8;
         //svgContainer.rect(-3, ypos-size-3, size*2+6, size*2+6)
         //    .attr({ 'fill': 'white' })
@@ -390,7 +402,7 @@ class GndView {
         if (this.legendGroup)
             this.legendGroup.remove();
 
-        var ypos = index * diagramHeight + this.padding + this.fontHeight;
+        var ypos = index * diagramHeight + this.padding + this.fontHeight + this.topPadding;
 
         var legendScale = this.legendScale; // This comes in base-pair units, whereas the GUI displays things in terms of AA position.
         var l1 = Math.log10(legendScale);
@@ -412,11 +424,11 @@ class GndView {
 
         var textYpos = index * diagramHeight + this.fontHeight;
         var textObj = group.text(this.padding, textYpos, "Scale:");
-        textObj.attr({'style':'diagram-title'});
+        textObj.attr({'class':'diagram-title'});
 
         var textYpos = index * diagramHeight + this.fontHeight * 2;
         textObj = group.text(this.padding + lineLength + 10, textYpos, legendText + " kbp");
-        textObj.attr({'style':'diagram-title'});
+        textObj.attr({'class':'diagram-title'});
 
         this.legendGroup = group;
     }
@@ -464,6 +476,13 @@ class GndView {
             that.popup.hidePopup(); // won't hide it if autoClose = false;
         };
         return outEvt;
+    }
+
+    setQueryHasProteinId(hasId) {
+        this.hasIdQuery = hasId;
+    }
+    showUniRefTitleInfo() {
+        return !this.hasIdQuery && this.uniRefSupport.showUniRefTitleInfo();
     }
 }
 

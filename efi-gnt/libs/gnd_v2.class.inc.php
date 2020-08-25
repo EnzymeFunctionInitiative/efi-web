@@ -85,7 +85,7 @@ class gnd_v2 extends gnd {
     }
     private function get_cluster_index_table($id_lookup = false) {
         $prefix = "";
-        if ($this->use_uniref !== false) {
+        if (!$id_lookup && $this->use_uniref !== false) {
             $prefix = $this->get_uniref_table_basename() . "_";
             if ($this->uniref_query_id || $id_lookup == true)
                 return $prefix . "range";
@@ -203,8 +203,8 @@ class gnd_v2 extends gnd {
             if (is_array($result))
                 array_push($ranges, $result);
         } else {
-            $acc_col = $this->use_uniref !== false ? "uniref_id" : "accession";
-            $id_index_col = $this->use_uniref !== false ? "uniref_index" : "cluster_index";
+            $acc_col = "accession"; //$this->use_uniref !== false ? "uniref_id" : "accession";
+            $id_index_col = "cluster_index"; //$this->use_uniref !== false ? "uniref_index" : "cluster_index";
             foreach ($this->query as $item) {
                 $result = false;
                 if (is_numeric($item))
@@ -255,9 +255,9 @@ class gnd_v2 extends gnd {
             if ($row) {
                 gnd::coord_compare($row, $min_bp, $max_bp);
                 $key = $row["key"];
-                $queryWidth = $row["stop"] - $row["start"];
-                if ($queryWidth > $max_query_width)
-                    $max_query_width = $queryWidth;
+                $query_width = $row["stop"] - $row["start"];
+                if ($query_width > $max_query_width)
+                    $max_query_width = $query_width;
             }
     
             if (!$key)
@@ -283,7 +283,9 @@ class gnd_v2 extends gnd {
     
         $TT = microtime(true) - $TS; //TIME
         $time_data = "#Ids: " . count($idx) . ", #Queries: $db_num_queries, QueryTime: $db_query_time, #Fetch: $db_fetch, FetchTime: $db_fetch_time, Total: $TT"; //TIME
-    
+
+        //$min_bp = -12000;
+        //$max_bp = 9200;
         list ($scale_factor, $legend_scale, $max_side, $max_width, $actual_max_width) = $this->compute_scale_factor($min_bp, $max_bp, $max_query_width, $scale_cap);
         return array($scale_factor, $legend_scale, $min_bp, $max_bp, $max_query_width, $actual_max_width, $time_data);
     }

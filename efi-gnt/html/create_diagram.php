@@ -23,14 +23,15 @@ if (isset($_POST["option"])) {
         $email = $_POST["email"];
         $title = isset($_POST["title"]) ? $_POST["title"] : "";
         $dbMod = isset($_POST["db-mod"]) ? $_POST["db-mod"] : "";
+        $seqType = isset($_POST["seq-type"]) ? $_POST["seq-type"] : "";
 
         $retval = "";
         if ($opt == "a") {
-            $retval = create_blast_job($db, $email, $title, $dbMod);
+            $retval = create_blast_job($db, $email, $title, $dbMod, $seqType);
         } elseif ($opt == "c") {
             $retval = create_lookup_job($db, $email, $title, "fasta", DiagramJob::FastaLookup, $dbMod);
         } elseif ($opt == "d") {
-            $retval = create_lookup_job($db, $email, $title, "ids", DiagramJob::IdLookup, $dbMod);
+            $retval = create_lookup_job($db, $email, $title, "ids", DiagramJob::IdLookup, $dbMod, $seqType);
         }
 
         if ($retval["valid"] === false) {
@@ -68,11 +69,14 @@ echo json_encode($returnData);
 
 
 
-function create_blast_job($db, $email, $title, $dbMod) {
+function create_blast_job($db, $email, $title, $dbMod, $seqDbType) {
 
     $retval = array("id" => 0, "key" => "", "valid" => false, "message" => "");
 
     $blast_input = functions::remove_blast_header($_POST["sequence"]);
+    
+    // Ignore bad values
+    $seqDbType = sanitize_seq_db_type($seqDbType);
 
     if (!isset($_POST["evalue"]) || !functions::verify_evalue($_POST["evalue"])) {
     
@@ -93,7 +97,7 @@ function create_blast_job($db, $email, $title, $dbMod) {
     } else {
 
         $retval["valid"] = true;
-        $jobInfo = diagram_jobs::create_blast_job($db, $email, $title, $_POST["evalue"], $_POST["max-seqs"], $_POST["nb-size"], $blast_input, $dbMod);
+        $jobInfo = diagram_jobs::create_blast_job($db, $email, $title, $_POST["evalue"], $_POST["max-seqs"], $_POST["nb-size"], $blast_input, $dbMod, $seqDbType);
     
         if ($jobInfo === false) {
             $retval["message"] .= " The job was unable to be created.";
@@ -108,7 +112,7 @@ function create_blast_job($db, $email, $title, $dbMod) {
 }
 
 
-function create_lookup_job($db, $email, $title, $contentField, $jobType, $dbMod) {
+function create_lookup_job($db, $email, $title, $contentField, $jobType, $dbMod, $seqDbType = "") {
 
     $retval = array("id" => 0, "key" => "", "valid" => false, "message" => "");
 
@@ -127,6 +131,9 @@ function create_lookup_job($db, $email, $title, $contentField, $jobType, $dbMod)
         }
     }
 
+    // Ignore bad values
+    $seqDbType = sanitize_seq_db_type($seqDbType);
+
     if (!$hasFile && !$hasInputContent) {
     
         $retval["message"] = "Either a list of IDs or a file containing a list of IDs must be uploaded.";
@@ -140,9 +147,9 @@ function create_lookup_job($db, $email, $title, $contentField, $jobType, $dbMod)
         $retval["valid"] = true;
 
         if ($hasFile)
-            $jobInfo = diagram_jobs::create_file_lookup_job($db, $email, $title, $_POST["nb-size"], $_FILES["file"]["tmp_name"], $_FILES["file"]["name"], $jobType, $dbMod);
+            $jobInfo = diagram_jobs::create_file_lookup_job($db, $email, $title, $_POST["nb-size"], $_FILES["file"]["tmp_name"], $_FILES["file"]["name"], $jobType, $dbMod, $seqDbType);
         else
-            $jobInfo = diagram_jobs::create_lookup_job($db, $email, $title, $_POST["nb-size"], $_POST[$contentField], $jobType, $dbMod);
+            $jobInfo = diagram_jobs::create_lookup_job($db, $email, $title, $_POST["nb-size"], $_POST[$contentField], $jobType, $dbMod, $seqDbType);
 
         if ($jobInfo === false) {
             $retval["message"] .= " The job was unable to be created.";
@@ -154,6 +161,21 @@ function create_lookup_job($db, $email, $title, $contentField, $jobType, $dbMod)
     }
 
     return $retval;
+}
+
+
+function sanitize_seq_db_type($dbType) {
+    if ($dbType == "uniprot" ||
+        $dbType == "uniprot-nf" ||
+        $dbType == "uniref50" ||
+        $dbType == "uniref50-nf" ||
+        $dbType == "uniref90" ||
+        $dbType == "uniref90-nf")
+    {
+        return $dbType;
+    } else {
+        return false;
+    }
 }
 
 
