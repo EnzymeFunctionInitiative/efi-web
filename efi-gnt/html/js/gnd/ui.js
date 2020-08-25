@@ -39,6 +39,7 @@ class GndUi {
         this.uniRefContainerId = "";
         this.uniRefIds = {};
         this.uniRefSupport = uniRefSupport;
+        this.hasProtId = false;
 
         this.msgRouter.addListener(this);
     }
@@ -87,11 +88,10 @@ class GndUi {
                     this.showAllBtn.removeAttr("disabled").removeClass("disabled");
                 }
                 $(this.diagramCountId).text(payload.Data.DiagramCount);
-                $(this.uniRefContainerId + " label").attr("disabled", false);
-                $(this.uniRefContainerId).removeClass("disabled");
-            }
-            if (payload.Data.Message) {
-            } else {
+                if (!this.hasProtId) {
+                    $(this.uniRefContainerId + " label").attr("disabled", false);
+                    $(this.uniRefContainerId).removeClass("disabled");
+                }
             }
         } else if (payload.MessageType == "InitDataRetrieved") {
             if (payload.Data.Error) {
@@ -122,14 +122,14 @@ class GndUi {
                     if (payload.Data.SupportsUniRef == 90)
                         $("#"+this.uniRefIds.uniref50Btn).hide();
                 }
-                    if (this.uniRefSupport.getShowUniRefUi()) {
-                        var titleText = this.uniRefSupport.getTitleIdText();
-                        $("#" + this.uniRefIds.uniRefTitleId).empty();
-                        if (titleText) {
-                           $("#" + this.uniRefIds.uniRefTitleId).append($("<br>"));
-                           $("#" + this.uniRefIds.uniRefTitleId).append(titleText);
-                        }
+                if (this.uniRefSupport.getShowUniRefUi()) {
+                    var titleText = this.uniRefSupport.getTitleIdText();
+                    $("#" + this.uniRefIds.uniRefTitleId).empty();
+                    if (titleText) {
+                       $("#" + this.uniRefIds.uniRefTitleId).append($("<br>"));
+                       $("#" + this.uniRefIds.uniRefTitleId).append(titleText);
                     }
+                }
             } else {
                 $(this.uniRefContainerId).hide();
             }
@@ -140,6 +140,7 @@ class GndUi {
     doSearch(query) {
         this.uiFilter.clearFilter();
         this.XT.search(query);
+        this.hasProtId = query.match(/[^\d\s]/);
         $(".initial-hidden").removeClass("initial-hidden");
     }
     initialDirectJobLoad() {

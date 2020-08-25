@@ -117,6 +117,8 @@ class diagram_job extends arrow_api {
         $args = " -blast \"" . $this->params["blast_seq"] . "\"";
         $args .= " -evalue " . $this->params["evalue"];
         $args .= " -max-seq " . $this->params["max_num_sequence"];
+        if (isset($this->params["seq_db_type"]))
+            $args .= " -seq-db-type " . $this->params["seq_db_type"];
 
         return $this->execute_job($args);
     }
@@ -137,6 +139,8 @@ class diagram_job extends arrow_api {
         $args = "";
         if ($this->type == DiagramJob::IdLookup) {
             $args = " -id-file \"$source\"";
+            if (isset($this->params["seq_db_type"]))
+                $args .= " -seq-db-type " . $this->params["seq_db_type"];
         } elseif ($this->type == DiagramJob::FastaLookup) {
             $args = " -fasta-file \"$source\"";
         }
@@ -169,9 +173,10 @@ class diagram_job extends arrow_api {
             $exec .= " -nb-size " . $this->params["neighborhood_size"];
         if ($sched)
             $exec .= " -scheduler $sched";
-        if (true)
-            $exec .= " --include-uniref";
         $exec .= " -job-id " . $this->id;
+
+        print $exec;
+        print "\n\n";
 
         $exit_status = 1;
         $output_array = array();

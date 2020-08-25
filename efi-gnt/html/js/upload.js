@@ -127,6 +127,7 @@ function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, max
     addParam(fd, "nb-size", nbSizeId);
     addParam(fd, "email", emailId);
     addParam(fd, "db-mod", dbModId);
+    addParam(fd, "seq-type", seqTypeId);
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
 
@@ -134,17 +135,17 @@ function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, max
 }
 
 
-function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
-    submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId);
+function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId) {
+    submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId);
 }
 
 
 function submitOptionCForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
-    submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId);
+    submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, "");
 }
 
 
-function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
+function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId) {
     var fd = new FormData();
     addParam(fd, "option", optionId);
     addParam(fd, "title", titleId);
@@ -152,6 +153,8 @@ function submitOptionForm(formAction, optionId, inputField, inputId, titleId, em
     addParam(fd, "nb-size", nbSizeId);
     addParam(fd, "email", emailId);
     addParam(fd, "db-mod", dbModId);
+    if (seqTypeId)
+        addParam(fd, "seq-type", seqTypeId);
     var files = document.getElementById(fileId).files;
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};

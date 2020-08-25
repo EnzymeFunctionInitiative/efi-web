@@ -195,7 +195,7 @@ $nb_size_div = "";
 $cooc_div = "";
 $job_type_div = "";
 $job_id_div = "";
-$js_version = "?v=7";
+$js_version = "?v=8";
 
 if ($is_direct_job) {
     $job_type_div = $job_type_text ? "<div>Job Type: $job_type_text</div>" : "";
@@ -223,7 +223,6 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
         <link href="<?php echo $SiteUrlPrefix; ?>/bs/css/bootstrap.min.css" rel="stylesheet">
         <link href="<?php echo $SiteUrlPrefix; ?>/bs/css/menu-sidebar.css" rel="stylesheet">
         <link href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/fontawesome-all.min.css" rel="stylesheet">
-        <link rel="shortcut icon" href="images/favicon_efi.ico" type="image/x-icon">
 
 
         <!-- Custom styles for this template -->
@@ -284,7 +283,7 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                         <i class="fas fa-search" aria-hidden="true"> </i> <span class="sidebar-header">Search</span>
                         <div>
                             <div id="advanced-search-use-uniref-container" style="display: none; margin-bottom: 10px;">
-                                <div style="font-size:0.9em">Show ID Type:</div>
+                                <div style="font-size:0.9em">Show ID Type: <i class="fas fa-question-circle" data-placement="bottom" data-toggle="tooltip" title="UniRef options decrease the number of nodes that are displayed by grouping sequences together at a 50% and/or 90% sequence percent identity, depending on job options."></i></div>
                                 <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                     <label class="btn btn-default" id="uniref50-btn">
                                         <input type="radio" name="display-id-type" id="uniref50-cb" autocomplete="off" value="50"> UniRef50
@@ -662,6 +661,7 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                 });
 
                 $(".tooltip-text").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
+                $('[data-toggle="tooltip"]').tooltip();
 
                 $("#save-canvas-button").click(function(e) {
                     var svg = escape($("#arrow-canvas")[0].outerHTML);

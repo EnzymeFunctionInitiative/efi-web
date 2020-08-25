@@ -38,18 +38,20 @@ class diagram_jobs {
         return $info;
     }
 
-    public static function create_blast_job($db, $email, $title, $evalue, $maxNumSeqs, $nbSize, $blastSeq, $dbMod) {
+    public static function create_blast_job($db, $email, $title, $evalue, $maxNumSeqs, $nbSize, $blastSeq, $dbMod, $seqDbType) {
         
         $jobType = DiagramJob::BLAST;
         $params = array('blast_seq' => $blastSeq, 'evalue' => $evalue, 'max_num_sequence' => $maxNumSeqs,
-                            'neighborhood_size' => $nbSize, 'db_mod' => $dbMod);
-        
+            'neighborhood_size' => $nbSize, 'db_mod' => $dbMod);
+        if ($seqDbType)
+            $params['seq_db_type'] = $seqDbType;
+
         $info = self::do_database_create($db, $email, $title, $jobType, $params);
 
         return $info;
     }
 
-    public static function create_lookup_job($db, $email, $title, $nbSize, $content, $jobType, $dbMod) {
+    public static function create_lookup_job($db, $email, $title, $nbSize, $content, $jobType, $dbMod, $seqDbType) {
 
         if ($jobType == DiagramJob::IdLookup) {
             $content = preg_replace("/\s+/", ",", $content);
@@ -57,18 +59,21 @@ class diagram_jobs {
             $content = preg_replace("/,+$/", "", $content);
         }
 
-        return self::do_create_diagram_job($db, $email, $title, $nbSize, $jobType, "txt", $content, $dbMod);
+        return self::do_create_diagram_job($db, $email, $title, $nbSize, $jobType, "txt", $content, $dbMod, $seqDbType);
     }
 
-    public static function create_file_lookup_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, $dbMod) {
-        return self::do_create_file_diagram_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, "txt", $dbMod);
+    public static function create_file_lookup_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, $dbMod, $seqDbType) {
+        return self::do_create_file_diagram_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, "txt", $dbMod, $seqDbType);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Private Helpers
 
-    private static function do_create_diagram_job($db, $email, $title, $nbSize, $jobType, $ext, $contents, $dbMod) {
+    private static function do_create_diagram_job($db, $email, $title, $nbSize, $jobType, $ext, $contents, $dbMod, $seqDbType) {
         $params = array('neighborhood_size' => $nbSize, 'db_mod' => $dbMod);
+
+        if (isset($seqDbType))
+            $params['seq_db_type'] = $seqDbType;
 
         $info = self::do_database_create($db, $email, $title, $jobType, $params);
 
@@ -91,10 +96,13 @@ class diagram_jobs {
         return $info;
     }
 
-    private static function do_create_file_diagram_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, $ext, $dbMod) {
+    private static function do_create_file_diagram_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, $ext, $dbMod, $seqDbType) {
 
         $uploadPrefix = settings::get_diagram_upload_prefix();
         $params = array('neighborhood_size' => $nbSize, 'db_mod' => $dbMod);
+
+        if (isset($seqDbType))
+            $params['seq_db_type'] = $seqDbType;
 
         if (!$title)
             $title = self::get_diagram_title_from_file($fileName);
