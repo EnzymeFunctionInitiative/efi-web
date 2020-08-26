@@ -87,12 +87,8 @@ if (isset($_GET["as-table"])) {
 
     for ($i = 0; $i < count($stats); $i++) {
         $percent_id = "Full";
-        if ($i > 0) {
-            $percent_id = substr($stats[$i]['File'], strrpos($stats[$i]['File'],'-') + 1);
-            $sep_char = "_";
-            $percent_id = substr($percent_id, 0, strrpos($percent_id, $sep_char));
-            $percent_id = str_replace(".","",$percent_id);
-        }
+        if ($i > 0)
+            $percent_id = analysis::get_percent_identity($fname);
         $stats_table->add_row($percent_id, number_format($stats[$i]['Nodes'],0), number_format($stats[$i]['Edges'],0),
             functions::bytes_to_megabytes($stats[$i]['Size'],0) . " MB");
     }
@@ -118,21 +114,15 @@ $color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
     return $html;
 };
 
-$res_dir = $is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
-$full_path = $analysis->get_network_output_path();
 
 for ($i = 0; $i < count($stats); $i++) {
     $gnt_args = "est-id=$analysis_id&est-key=$key&est-ssn=$i";
     $fname = $stats[$i]['File'];
-    $nc_fname = str_replace(".xgmml", "_nc.png", $fname);
 
-    $rel_dir_path = $analysis->get_output_dir() . "/" . $analysis->get_network_dir();
-    $web_dir_path = functions::get_web_root() . "/$res_dir/$rel_dir_path";
+    $web_dir_path = $analysis->get_web_dir_path();
     $web_path = "$web_dir_path/$fname";
-    $nc_web_path = "$web_dir_path/$nc_fname";
-    $nc_full_path = $analysis->get_network_output_path() . "/" . $nc_fname;
-    if (!file_exists($nc_full_path))
-        $nc_web_path = "";
+    $nc_file = $analysis->get_nc_web_path($fname, true); // true for filename only
+    $nc_web_path = "graphs.php?aid=$analysis_id&key=$key&net=$nc_file&atype=NC";
 
     $size = $analysis->get_zip_file_size($fname);
 
@@ -162,10 +152,7 @@ for ($i = 0; $i < count($stats); $i++) {
         }
         $full_network_html .= "</tr>";
     } else {
-        $percent_identity = substr($fname, strrpos($fname,'-') + 1);
-        $sep_char = "_";
-        $percent_identity = substr($percent_identity, 0, strrpos($percent_identity, $sep_char));
-        $percent_identity = str_replace(".","",$percent_identity);
+        $percent_identity = analysis::get_percent_identity($fname);
         $rep_network_html .= "<tr>";
         if ($stats[$i]['Nodes'] == 0) {
             $rep_network_html .= "<td>";

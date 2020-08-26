@@ -655,6 +655,43 @@ class analysis extends est_shared {
         return $name;
     }
 
+    public function download_graph($type, $net) {
+        if (preg_match("/\\//", $net)) {
+            die("Invalid input.");
+        }
+        $fname = $net;
+        if ($type == "NC") {
+            $fname = global_functions::safe_filename($fname);
+            $full_path = $this->get_network_output_path() . "/" . $fname;
+        }
+        global_functions::send_image_file_for_download($fname, $full_path);
+    }
+
+    public static function get_percent_identity($fname) {
+        $percent_identity = substr($fname, strrpos($fname,'-') + 1);
+        $sep_char = "_";
+        $percent_identity = substr($percent_identity, 0, strrpos($percent_identity, $sep_char));
+        $percent_identity = str_replace(".","",$percent_identity);
+        return $percent_identity;
+    }
+
+    public function get_web_dir_path() {
+        $res_dir = $this->is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+        $rel_dir_path = $this->get_output_dir() . "/" . $this->get_network_dir();
+        $web_dir_path = functions::get_web_root() . "/$res_dir/$rel_dir_path";
+        return $web_dir_path;
+    }
+
+    public function get_nc_web_path($fname, $name_only = false) {
+        $nc_fname = str_replace(".xgmml", "_nc.png", $fname);
+        $web_dir_path = $this->get_web_dir_path();
+        $nc_web_path = "$web_dir_path/$nc_fname";
+        $nc_full_path = $this->get_network_output_path() . "/" . $nc_fname;
+        if (!file_exists($nc_full_path))
+            $nc_web_path = "";
+        return ($name_only && $nc_web_path) ? $nc_fname : $nc_web_path;
+    }
+
     // PARENT EMAIL-RELATED OVERLOADS
 
     protected function get_email_job_info() {
