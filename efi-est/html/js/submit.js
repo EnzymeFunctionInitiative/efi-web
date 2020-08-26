@@ -212,8 +212,8 @@ function submitColorSsnForm(isClusterAnalysis = false) { // the parameters are o
     var fd = new FormData();
     fd.append("option_selected", option);
     addParam(fd, "email", "email-" + option);
-    if (!isClusterAnalysis)
-        addCbParam(fd, "extra_ram", "colorssn-extra-ram");
+    //if (!isClusterAnalysis)
+        addCbParam(fd, "extra_ram", option + "-extra-ram");
 
     if (isClusterAnalysis) {
         var hmmOpt = "";
@@ -261,7 +261,7 @@ function submitStepEColorSsnForm(analysisId, ssnIndex) {
 }
 
 
-function requestJobUpdate(generateId, analysisId, jobKey, requestType, jobType) {
+function requestJobUpdate(generateId, analysisId, jobKey, requestType, jobType, elemToHide) {
     var fd = new FormData();
     fd.append("id", generateId);
     fd.append("key", jobKey);
@@ -273,7 +273,11 @@ function requestJobUpdate(generateId, analysisId, jobKey, requestType, jobType) 
     }
 
     var fileHandler = function(xhr) { };
-    var completionHandler = function(jsonObj) { window.location.href = "index.php"; };
+    //var completionHandler = function(jsonObj) { window.location.href = "index.php"; };
+    var completionHandler = function(jsonObj) {
+        if (typeof elemToHide !== "undefined")
+            elemToHide.hide();
+    };
 
     var script = "update_job_status.php";
     doFormPost(script, fd, "", fileHandler, completionHandler);

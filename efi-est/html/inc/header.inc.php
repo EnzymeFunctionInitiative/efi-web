@@ -12,7 +12,7 @@ array_push($StyleAdditional, '<link rel="stylesheet" type="text/css" href="css/e
 if (!isset($JsAdditional))
     $JsAdditional = array();
 if (isset($IncludeSubmitJs)) {
-    array_push($JsAdditional, '<script src="js/submit.js?v=14" type="text/javascript"></script>',
+    array_push($JsAdditional, '<script src="js/submit.js?v=16" type="text/javascript"></script>',
         '<script src="js/family_size_helper.js?v=3" type="text/javascript"></script>',
         '<script src="js/nas.js?v=1" type="text/javascript"></script>');
 }

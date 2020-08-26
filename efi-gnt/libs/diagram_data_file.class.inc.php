@@ -52,9 +52,13 @@ class diagram_data_file extends arrow_api {
         return $info;
     }
 
-    private function load_data() {
-        
+    protected function get_diagram_file_path() {
         $dbFile = functions::get_diagram_file_path($this->id);
+        return $dbFile;
+    }
+    private function load_data() {
+
+        $dbFile = $this->get_diagram_file_path();
         $this->set_diagram_data_file($dbFile);
 
         if (!file_exists($dbFile)) {
@@ -217,6 +221,4 @@ class diagram_data_file extends arrow_api {
     public function get_output_dir($id = 0) {}
     protected function update_results_object($data) {}
 }
-
-?>
 

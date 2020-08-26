@@ -430,7 +430,7 @@ class functions {
         } else if ($gen_type == "COLORSSN") {
             $gen_type = "Color SSN";
         } else if ($gen_type == "CLUSTER") {
-            $gen_type = "Color SSN";
+            $gen_type = "Cluster Analysis";
         }
         return $gen_type;
     }
