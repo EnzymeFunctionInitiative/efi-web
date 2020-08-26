@@ -7,6 +7,8 @@ class gnd_v2 extends gnd {
 
     
     private $has_stats = false;
+    private $query_set_idtype = false;
+    private $uniref_query_id = false;
     private $query = array(); // list of queried items
     private $range = array(); // range of cluster_index to retrieve
 
@@ -30,6 +32,20 @@ class gnd_v2 extends gnd {
             $this->query = $this->parse_query($params["query"]);
         if (isset($params["range"]))
             $this->range = $this->parse_range($params["range"]);
+        if (isset($params["id-type"])) {
+            $this->query_set_idtype = true;
+            if ($params["id-type"] == 50 || $params["id-type"] == 90) {
+                $this->open_db_file();
+                if (($this->check_uniref_exists(50) && ($params["id-type"] == 50 || $params["id-type"] == 90)) ||
+                    ($this->check_uniref_exists(90) && ($params["id-type"] == 90)))
+                {
+                    $this->set_uniref_version($params["id-type"]);
+                    if (isset($params["uniref-id"]))
+                        $this->uniref_query_id = $params["uniref-id"];
+                }
+                $this->db->close();
+            }
+        }
     }
 
     private function parse_range($range) {
@@ -63,9 +79,46 @@ class gnd_v2 extends gnd {
     protected function get_select_id_col_name() {
         return "cluster_index";
     }
-    
+
+    private function get_uniref_table_basename() {
+        return "uniref" . $this->use_uniref;
+    }
+    private function get_cluster_index_table($id_lookup = false) {
+        $prefix = "";
+        if (!$id_lookup && $this->use_uniref !== false) {
+            $prefix = $this->get_uniref_table_basename() . "_";
+            if ($this->uniref_query_id || $id_lookup == true)
+                return $prefix . "range";
+            else
+                return $prefix . "cluster_index";
+        } else {
+            return $id_lookup ? "attributes" : "cluster_index";
+        }
+    }
     protected function get_retrieved_ids() {
-        return $this->expand_range($this->range);
+        $ids = $this->expand_range($this->range);
+        if ($this->use_uniref !== false) {
+            $base = $this->get_uniref_table_basename();
+            $table_suffix = "range";
+            $table_col = "uniref_index";
+            if ($this->uniref_query_id) {
+                $table_suffix = "index";
+                $table_col = "member_index";
+            }
+            $new_ids = array();
+            for ($i = 0; $i < count($ids); $i++) {
+                $sql = "SELECT cluster_index FROM ${base}_${table_suffix} WHERE $table_col = " . $ids[$i];
+                $result = $this->db->query($sql);
+                if ($result) {
+                    $row = $result->fetchArray(SQLITE3_ASSOC);
+                    if (isset($row["cluster_index"]))
+                        array_push($new_ids, $row["cluster_index"]);
+                }
+            }
+            $ids = $new_ids;
+        }
+        return $ids;
+        //$sql = "SELECT attributes.cluster_index AS clsuter_index FROM ${table}_
     }
 
 
@@ -76,6 +129,15 @@ class gnd_v2 extends gnd {
 
     private function compute_stats() {
         $S = microtime(true); //TIME
+        // Check if the database has UniRef support
+        $has_uniref = false;
+        if ($this->check_uniref_exists(50))
+            $has_uniref = 50;
+        else if ($this->check_uniref_exists(90))
+            $has_uniref = 90;
+        if ($has_uniref !== false && !$this->query_set_idtype && !$this->uniref_query_id)
+            $this->set_uniref_version($has_uniref);
+
         $index_range = $this->get_cluster_indices();
         $parse_time = microtime(true) - $S; //TIME
         $all_idx = $this->expand_range($index_range);
@@ -99,32 +161,58 @@ class gnd_v2 extends gnd {
         $stats = array("max_index" => $count - 1, "scale_factor" => $scale_factor, "legend_scale" => $legend_scale,
             "min_bp" => $min, "max_bp" => $max, "query_width" => $q_width, "actual_max_width" => $actual_max_width,
             "time_data" => $time_data . " PROC=$proc_time PARSE=$parse_time",
-            "num_checked" => count($idx), "index_range" => $index_range);
+            "num_checked" => count($idx), "index_range" => $index_range, "has_uniref" => $has_uniref);
 
         return $stats;
     }
 
 
+    private function check_uniref_exists($ver) {
+        ////TODO: debug
+        //if ($ver == 50)
+        //    return false;
+        $sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'uniref${ver}_index'";
+        $result = $this->db->query($sql);
+        if ($result && $result->fetchArray()) {
+            $sql = "SELECT COUNT(*) AS num_uniref FROM uniref${ver}_cluster_index";
+            $result = $this->db->query($sql);
+            if ($result && $result->fetchArray())
+                return true;
+        }
+        return false;
+    }
+
     // Get the start and ending ID indexes for the given cluster inputs
     private function get_cluster_indices() {
         $ranges = array();
-        foreach ($this->query as $item) {
-            if (is_numeric($item)) {
-                $sql = "SELECT start_index, end_index FROM cluster_index WHERE cluster_num = $item";
-                $query_result = $this->db->query($sql);
-                if ($query_result) {
-                    $result = $query_result->fetchArray(SQLITE3_ASSOC);
-                    if ($result && isset($result["start_index"]))
-                        array_push($ranges, array($result["start_index"], $result["end_index"]));
-                }
-            } else {
-                $sql = "SELECT cluster_index FROM attributes WHERE accession = '$item'";
-                $query_result = $this->db->query($sql);
-                if ($query_result) {
-                    $result = $query_result->fetchArray(SQLITE3_ASSOC);
-                    if (isset($result["cluster_index"]))
-                        array_push($ranges, array($result["cluster_index"], $result["cluster_index"]));
-                }
+        $query_fn = function($start_col, $end_col, $id_col, $item, $index_table, $db) {
+            $cols = $start_col == $end_col ? $start_col : "$start_col, $end_col";
+            $sql = "SELECT $cols FROM $index_table WHERE $id_col = '$item'";
+            $query_result = $db->query($sql);
+            if ($query_result) {
+                $result = $query_result->fetchArray(SQLITE3_ASSOC);
+                if ($result && isset($result[$start_col]))
+                    return array($result[$start_col], $result[$end_col]);
+            }
+        };
+        $index_table = $this->get_cluster_index_table(false);
+        $id_lookup_table = $this->get_cluster_index_table(true);
+        if ($this->use_uniref !== false && $this->uniref_query_id !== false) {
+            $id = $this->db->escapeString($this->uniref_query_id);
+            $result = $query_fn("start_index", "end_index", "uniref_id", $id, $index_table, $this->db);
+            if (is_array($result))
+                array_push($ranges, $result);
+        } else {
+            $acc_col = "accession"; //$this->use_uniref !== false ? "uniref_id" : "accession";
+            $id_index_col = "cluster_index"; //$this->use_uniref !== false ? "uniref_index" : "cluster_index";
+            foreach ($this->query as $item) {
+                $result = false;
+                if (is_numeric($item))
+                    $result = $query_fn("start_index", "end_index", "cluster_num", $item, $index_table, $this->db);
+                else
+                    $result = $query_fn($id_index_col, $id_index_col, $acc_col, $item, $id_lookup_table, $this->db);
+                if (is_array($result))
+                    array_push($ranges, $result);
             }
         }
         return $ranges;
@@ -167,9 +255,9 @@ class gnd_v2 extends gnd {
             if ($row) {
                 gnd::coord_compare($row, $min_bp, $max_bp);
                 $key = $row["key"];
-                $queryWidth = $row["stop"] - $row["start"];
-                if ($queryWidth > $max_query_width)
-                    $max_query_width = $queryWidth;
+                $query_width = $row["stop"] - $row["start"];
+                if ($query_width > $max_query_width)
+                    $max_query_width = $query_width;
             }
     
             if (!$key)
@@ -195,7 +283,9 @@ class gnd_v2 extends gnd {
     
         $TT = microtime(true) - $TS; //TIME
         $time_data = "#Ids: " . count($idx) . ", #Queries: $db_num_queries, QueryTime: $db_query_time, #Fetch: $db_fetch, FetchTime: $db_fetch_time, Total: $TT"; //TIME
-    
+
+        //$min_bp = -12000;
+        //$max_bp = 9200;
         list ($scale_factor, $legend_scale, $max_side, $max_width, $actual_max_width) = $this->compute_scale_factor($min_bp, $max_bp, $max_query_width, $scale_cap);
         return array($scale_factor, $legend_scale, $min_bp, $max_bp, $max_query_width, $actual_max_width, $time_data);
     }

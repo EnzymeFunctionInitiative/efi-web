@@ -34,7 +34,7 @@ abstract class gnn_shared extends arrow_api {
         return self::create4($db, $parms);
     }
 
-    public static function create_from_est_job($db, $email, $size, $cooccurrence, $ssn_file_path, $est_id, $db_mod) {
+    public static function create_from_est_job($db, $email, $size, $cooccurrence, $ssn_file_path, $est_id, $db_mod, $extra_ram) {
         $parms = array(
             'email' => $email,
             'size' => $size,
@@ -42,6 +42,7 @@ abstract class gnn_shared extends arrow_api {
             'filename' => $ssn_file_path,
             'est_id' => $est_id,
             'db_mod' => $db_mod,
+            'extra_ram' => $extra_ram,
         );
         return self::create4($db, $parms); // create4 adds default parameters
     }
@@ -70,6 +71,8 @@ abstract class gnn_shared extends arrow_api {
             $parms['parent_id'] = 0;
         if (!isset($parms['child_type']))
             $parms['child_type'] = "";
+        if (!isset($parms['extra_ram']))
+            $parms['extra_ram'] = false;
 
         return self::create_shared($db, $parms);
     }
@@ -110,6 +113,8 @@ abstract class gnn_shared extends arrow_api {
             $params_array['job_name'] = $parms['job_name'];
         if ($parms['db_mod'] && preg_match('/^[A-Z0-9]{4}$/', $parms['db_mod']))
             $params_array['db_mod'] = $parms['db_mod'];
+        if ($parms['extra_ram']) // true/false
+            $params_array['extra_ram'] = $parms['extra_ram'];
 
         $insert_array['gnn_params'] = global_functions::encode_object($params_array);
 

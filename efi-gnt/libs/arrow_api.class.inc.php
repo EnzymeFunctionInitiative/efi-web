@@ -34,8 +34,12 @@ abstract class arrow_api extends job_shared {
             return FALSE;
     }
 
-    public function get_diagram_data_file($useBigscape = false) {
-        $file = $this->db_file . ($useBigscape ? ".bigscape" : "");
+    public function get_diagram_data_file($use_bigscape = false, $uniref_version = "") {
+        $file = $this->db_file;
+        if ($use_bigscape)
+            $file .= ".bigscape";
+        else if ($uniref_version && ($uniref_version == "uniref50" || $uniref_version == "uniref90"))
+            $file .= "." . $uniref_version;
         return $file;
     }
 

@@ -615,6 +615,21 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
                                 </div>
                             </div>
                         </div>
+                <?php if ($use_advanced_options) { ?>
+                        <div>
+                            <h3>Dev Site Options</h3>
+                            <div>
+                                <div>
+                                    <span class="input-name">
+                                        Extra RAM:
+                                    </span><span class="input-field">
+                                        <input type="checkbox" id="cluster-extra-ram" name="cluster-extra-ram" value="1">
+                                        <label for="cluster-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                <?php } ?>
                 </div>
                 <?php if ($ssn_id) { ?>
                     <input type="hidden" name="ssn-source-id-cluster" id="ssn-source-id-cluster" value="<?php echo $ssn_id; ?>">

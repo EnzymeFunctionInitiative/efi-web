@@ -9,7 +9,7 @@ const LOAD_RELOAD = 3;  // Reload what's present on the screen (scale factor/win
 
 
 class GndController {
-    constructor(msgRouter, gndDb, gndHttp, gndVars, gndView, bigscape) {
+    constructor(msgRouter, gndDb, gndHttp, gndVars, gndView, bigscape, uniRefSupport) {
         this.Http = gndHttp;
         this.Vars = gndVars;
         this.Db = gndDb;
@@ -22,6 +22,10 @@ class GndController {
         this.useRange = true;
         this.maxIndex = 0;
         this.bigscape = bigscape;
+        this.uniRefSupport = uniRefSupport;
+        this.supportsUniRef = false;
+        this.firstLoad = true;
+        this.hasProtId = false;
 
         this.reset(false);
     }
@@ -109,48 +113,70 @@ class GndController {
 
         //var queryEscaped = query.replace(/\n/g, " ").replace(/\r/g, " ");
         var queryEscaped = query.replace(/[^A-Za-z0-9\-, ]/g, " ");
-        //TODO: move these methods to a different class?
         var authString = this.Vars.getAuthString();
-        var urlPath = this.Vars.getUrlPath();
-        var useBigscape = this.bigscape.getUseBigScape() ? "&bigscape=1" : "";
+        var authParams = this.Vars.getAuthParams();
+        var scriptUrl = this.Vars.getUrlPath();
+        var bsParm = this.bigscape.getUseBigScape() ? true : false;
 
         var that = this;
-        this.getUrlFn = function(start, end) {
+        var getDataHttpParms = function(start, end) {
+            var params = {};
             var win = that.getWindow();
             var sf = that.getScaleFactor();
             var scaleType = that.getScaleType();
-            var sep = "?"
-            var url = urlPath;
-            url += sep + authString;
-            sep = "&";
-            url += sep + "window=" + win;
-//            if (scaleType == SCALE_TYPE_FACTOR)
-                url += sep + "scale-factor=" + sf;
+            for (var k in authParams) {
+                params[k] = authParams[k];
+            }
+            params["window"] = win;
+            params["scale-factor"] = sf;
             if (that.useRange) {
                 var ranges = that.computeRange(start, end);
                 var rangeStr = that.serializeRange(ranges);
-                url += sep + "range=" + rangeStr;
+                params["range"] = rangeStr;
             } else {
-                url += sep + "query=" + queryEscaped;
-                url += sep + "sidx=" + start;
-                url += sep + "eidx=" + end;
+                params["query"] = queryEscaped;
+                params["sidx"] = start;
+                params["eidx"] = start;
             }
-            url += useBigscape;
-            return url;
+            if (bsParm)
+                params["bigscape"] = 1;
+            if (!that.hasProtId) {
+                var urParms = that.uniRefSupport.getRequestParams();
+                for (var k in urParms) {
+                    params[k] = urParms[k];
+                }
+            }
+            return params;
         };
+        var mkGetUrlFn = function(paramsFn, usePost = false) {
+            return function (start, end) {
+                var params = paramsFn(start, end);
+                var method = usePost ? "POST" : "GET";
+                return {method: method, params: params};
+            }
+        };
+        this.getUrlFn = mkGetUrlFn(getDataHttpParms);
 
-        this.initUrlFn = function() {
+        var getInitHttpParams = function() {
+            var params = {};
             var win = that.getWindow();
-            var sep = "?";
-            var url = urlPath;
-            url += sep + authString;
-            sep = "&";
-            url += sep + "window=" + win;
-            url += sep + "query=" + queryEscaped;
-            url += sep + "stats=1";
-            url += useBigscape;
-            return url;
-        };
+            for (var k in authParams) {
+                params[k] = authParams[k];
+            }
+            params["window"] = win;
+            params["query"] = queryEscaped;
+            params["stats"] = 1;
+            if (!that.hasProtId && (!that.firstLoad || that.uniRefSupport.hasUniRefQueryId())) {
+                var urParms = that.uniRefSupport.getRequestParams();
+                for (var k in urParms) {
+                    params[k] = urParms[k];
+                }
+            }
+            if (bsParm)
+                params["bigscape"] = 1;
+            return params;
+        }; 
+        this.initUrlFn = mkGetUrlFn(getInitHttpParams);
 
         var that = this;
         var handleInitRequest = function(jsonData) {
@@ -160,11 +186,16 @@ class GndController {
                 that.View.setLegendScale(jsonData.stats.legend_scale);
                 that.maxIndex = jsonData.stats.max_index;
                 that.indexRange = jsonData.stats.index_range;
+                that.supportsUniRef = jsonData.stats.has_uniref !== false ? jsonData.stats.has_uniref : false;
+                var firstLoad = that.firstLoad;
+                that.firstLoad = false;
                 if (typeof jsonData.totaltime !== "undefined")
                     console.log("Init load duration: " + jsonData.totaltime);
+                if (firstLoad && that.supportsUniRef !== false && !that.uniRefSupport.hasUniRefQueryId())
+                    that.uniRefSupport.setVersion(that.supportsUniRef);
                 
                 var totalCount = jsonData.stats.max_index + 1; // zero-based index
-                var payload = new Payload(); payload.MessageType = "InitDataRetrieved"; payload.Data = { TotalCount: totalCount, Error: false };
+                var payload = new Payload(); payload.MessageType = "InitDataRetrieved"; payload.Data = { TotalCount: totalCount, Error: false, SupportsUniRef: that.supportsUniRef, FirstLoad: firstLoad };
                 that.msgRouter.sendMessage(payload);
 
                 that.loadNext(); // Retrieve the first batch of arrows.
@@ -179,21 +210,25 @@ class GndController {
         var payload = new Payload(); payload.MessageType = "DataRetrievalStatus"; payload.Data = { Retrieving: true, Message: "Retrieving initial data...", Initial: true };
         that.msgRouter.sendMessage(payload);
 
-        this.Http.fetchInit(this.initUrlFn, handleInitRequest);
+        this.Http.fetchInit(scriptUrl, this.initUrlFn, handleInitRequest);
     }
 
     search(query) {
         this.reset(true);
         this.query = query;
-        this.onLoad(query);
+        // If the query contains a non numeric or non space character then assume it contains a protein ID
+        this.hasProtId = this.query.match(/[^\d\s]/);
+        this.View.setQueryHasProteinId(this.hasProtId);
+        this.onLoad(this.query);
     }
 
-    reloadForBigScape() {
+    reloadForIdTypeChange() {
         this.reset(true);
         this.onLoad(this.query);
     }
 
     // Private
+    // Reloads the view with the given sequences, (i.e. reset for zoom/window)
     reload() {
         if (this.maxIndex > 0) {
             this.View.clearCanvas();
@@ -223,6 +258,7 @@ class GndController {
     }
 
     // Private
+    // Once an query is established, this can be called to retrieve more sequences.
     doLoad(loadAction) {
         var that = this;
 

@@ -32,6 +32,7 @@ function uploadFileShared(fileInputId, formId, progressNumId, progressBarId, mes
         addParam(fd, "db_mod", "db_mod");
         addParam(fd, "parent_id", "parent_id");
         addParam(fd, "parent_key", "parent_key");
+        addParam(fd, "extra_ram", "extra_ram", true);
     }
 
     var completionHandler = function() { enableForm(formId); };
@@ -103,16 +104,19 @@ function enableForm(formId) {
 //    document.getElementById('submit').disabled = false;
 }
 
-function addParam(fd, param, id) {
+function addParam(fd, param, id, isCb = false) {
     if (!id)
         return;
     var elem = document.getElementById(id);
     if (elem) {
-        fd.append(param, elem.value);
+        if (isCb)
+            fd.append(param, elem.checked);
+        else
+            fd.append(param, elem.value);
     }
 }
 
-function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId, dbModId) {
+function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId, dbModId, seqTypeId) {
 
     var fd = new FormData();
     addParam(fd, "option", optionId);
@@ -123,6 +127,7 @@ function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, max
     addParam(fd, "nb-size", nbSizeId);
     addParam(fd, "email", emailId);
     addParam(fd, "db-mod", dbModId);
+    addParam(fd, "seq-type", seqTypeId);
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
 
@@ -130,17 +135,17 @@ function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, max
 }
 
 
-function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
-    submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId);
+function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId) {
+    submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId);
 }
 
 
 function submitOptionCForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
-    submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId);
+    submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, "");
 }
 
 
-function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
+function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId) {
     var fd = new FormData();
     addParam(fd, "option", optionId);
     addParam(fd, "title", titleId);
@@ -148,6 +153,8 @@ function submitOptionForm(formAction, optionId, inputField, inputId, titleId, em
     addParam(fd, "nb-size", nbSizeId);
     addParam(fd, "email", emailId);
     addParam(fd, "db-mod", dbModId);
+    if (seqTypeId)
+        addParam(fd, "seq-type", seqTypeId);
     var files = document.getElementById(fileId).files;
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};

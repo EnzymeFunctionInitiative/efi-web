@@ -248,6 +248,7 @@ if (count($trainingJobs) > 0) {
     
                 <?php gnt_ui::add_neighborhood_size_setting(false); ?>
                 <?php gnt_ui::add_cooccurrence_setting(false); ?>
+                <?php gnt_ui::add_advanced_options(); ?>
                 <?php add_submit_button("gnn", "ssn_email", "ssn_message", "Generate GNN"); ?>
             </form>
         </div>
@@ -265,6 +266,12 @@ if (count($trainingJobs) > 0) {
                     <p>
                     The provided sequence is used as the query for a BLAST search of the UniProt database.
                     The retrieved sequences are used to generate genomic neighborhood diagrams. 
+                    </p>
+                    <p>
+                    If the Sequence Database is set to UniRef90, the resulting GNDs will also include GNDs for UniRef90
+                    cluster IDs that group together UniProt sequences by 90% sequence identiy.  For UniRef50, the GNDs
+                    will also include UniProt sequences that are grouped by 50% sequence identity.  Any of the
+                    "Exclude Fragments" options will exclude UniProt-defined sequence fragments.
                     </p>
 
                     <form name="create_diagrams" id="create_diagram_form" method="post" action="">
@@ -299,6 +306,7 @@ if (count($trainingJobs) > 0) {
                             </tr>
 <?php add_window_option("option-a-nb-size"); ?>
 <?php add_database_option("option-a-db-mod"); ?>
+<?php add_sequence_type_option("option-a-seq-type"); ?>
                             </table>
                         </div>
 
@@ -311,6 +319,12 @@ if (count($trainingJobs) > 0) {
                     The genomic neighborhoods are retreived for the UniProt, NCBI, EMBL-EBI ENA, and PDB identifiers
                     that are provided in the input box below.  Not all identifiers may exist in the EFI-GNT database so
                     the results will only include diagrams for sequences that were identified.
+                    </p>
+                    <p>
+                    If the Sequence Database is set to UniRef90, the resulting GNDs will also include GNDs for UniRef90
+                    cluster IDs that group together UniProt sequences by 90% sequence identiy.  For UniRef50, the GNDs
+                    will also include UniProt sequences that are grouped by 50% sequence identity.  Any of the
+                    "Exclude Fragments" options will exclude UniProt-defined sequence fragments.
                     </p>
 
                     <form name="create_diagrams" id="create_diagram_form" method="post" action="create_diagram.php">
@@ -329,6 +343,7 @@ if (count($trainingJobs) > 0) {
 <?php add_job_title_option("option-d-title"); ?>
 <?php add_window_option("option-d-nb-size"); ?>
 <?php add_database_option("option-d-db-mod"); ?>
+<?php add_sequence_type_option("option-d-seq-type"); ?>
                             </table>
                         </div>
     
@@ -591,6 +606,28 @@ HTML;
 }
 
 
+function add_sequence_type_option($seq_id) {
+    echo <<<HTML
+                                <tr>
+                                    <td><b>Sequence database:</b></td>
+                                    <td>
+<select id="$seq_id" name="seq-type">
+<option value="uniprot" selected>UniProt</option>
+<option value="uniprot-nf">UniProt - Exclude fragments</option>
+<option value="uniref50">UniRef50</option>
+<option value="uniref50-nf">UniRef50 - Exclude fragments</option>
+<option value="uniref90">UniRef90</option>
+<option value="uniref90-nf">UniRef90 - Exclude fragments</option>
+</select>
+                                    </td>
+                                    <td>
+Sequence database for retrieving sequences (default: UniProt)
+                                    </td>
+                                </tr>
+HTML;
+}
+
+
 function add_window_option($nb_id) {
     $default_nb_size = settings::get_default_neighborhood_size();
     echo <<<HTML
@@ -680,7 +717,7 @@ function get_submit_diagram_id_code() {
                                             onclick="submitOptionDForm('create_diagram.php', 'option-d-option', 'option-d-input',
                                                 'option-d-title', 'option-d-email', 'option-d-nb-size', 'option-d-file',
                                                 'option-d-progress-number', 'option-d-progress-bar', 'option-d-message',
-                                                'option-d-db-mod');"
+                                                'option-d-db-mod', 'option-d-seq-type');"
 HTML;
 }
 
@@ -690,7 +727,7 @@ function get_submit_diagram_blast_code() {
                                             onclick="submitOptionAForm('create_diagram.php', 'option-a-option', 'option-a-input',
                                                                        'option-a-title', 'option-a-evalue', 'option-a-max-seqs',
                                                                        'option-a-email', 'option-a-nb-size', 'option-a-message',
-                                                                       'option-a-db-mod');"
+                                                                       'option-a-db-mod', 'option-a-seq-type');"
 HTML;
 }
 

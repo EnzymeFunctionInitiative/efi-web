@@ -13,6 +13,7 @@ abstract class colorssn_shared extends option_base {
     const SEQ_NO_DOMAIN = 2;
     const DEFAULT_MIN_SEQ_MSA = 5;
 
+    private $extra_ram = false;
     private $ssn_source_analysis_id;
     private $ssn_source_analysis_idx;
     private $ssn_source_key;
@@ -135,6 +136,8 @@ abstract class colorssn_shared extends option_base {
         $parms["--cluster-sizes"] = "\"" . $this->get_cluster_sizes_filename() . "\"";
         $parms["--sp-clusters-desc"] = "\"" . $this->get_swissprot_desc_filename($want_clusters_file) . "\"";
         $parms["--sp-singletons-desc"] = "\"" . $this->get_swissprot_desc_filename($want_singles_file) . "\"";
+        if ($this->extra_ram)
+            $parms["--extra-ram"] = "";
 
         return $parms;
     }
@@ -159,6 +162,7 @@ abstract class colorssn_shared extends option_base {
                 }
             }
         }
+        $this->extra_ram = (isset($result["extra_ram"]) && $result["extra_ram"] === true);
 
         $this->file_helper->on_load_generate($id, $result);
 
