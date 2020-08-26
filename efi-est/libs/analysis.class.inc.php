@@ -84,6 +84,7 @@ class analysis extends est_shared {
     public function get_sequence_file() { return $this->sequence_file; }
     public function get_db_version() { return $this->db_version; }
     public function get_output_dir() { return $this->get_generate_id() . "/" . $this->output_dir; }
+    public function get_network_output_path() { return functions::get_results_dir() . "/" . $this->get_output_dir() . "/" . $this->get_network_dir(); }
     public function get_min_option_nice() {
         if ($this->use_min_node_attr && $this->use_min_edge_attr)
             return "Node + Edge";

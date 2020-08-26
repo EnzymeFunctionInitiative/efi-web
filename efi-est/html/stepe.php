@@ -111,7 +111,6 @@ require_once("inc/header.inc.php");
 $rep_network_html = "";
 $full_network_html = "";
 $full_edge_count = 0;
-$network_sel_list = array();
 
 $color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
     $js_code = "";
@@ -120,21 +119,38 @@ $color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
 };
 
 $res_dir = $is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+$full_path = $analysis->get_network_output_path();
 
 for ($i = 0; $i < count($stats); $i++) {
     $gnt_args = "est-id=$analysis_id&est-key=$key&est-ssn=$i";
-    $size = $analysis->get_zip_file_size($stats[$i]['File']);
+    $fname = $stats[$i]['File'];
+    $nc_fname = str_replace(".xgmml", "_nc.png", $fname);
+
+    $rel_dir_path = $analysis->get_output_dir() . "/" . $analysis->get_network_dir();
+    $web_dir_path = functions::get_web_root() . "/$res_dir/$rel_dir_path";
+    $web_path = "$web_dir_path/$fname";
+    $nc_web_path = "$web_dir_path/$nc_fname";
+    $nc_full_path = $analysis->get_network_output_path() . "/" . $nc_fname;
+    if (!file_exists($nc_full_path))
+        $nc_web_path = "";
+
+    $size = $analysis->get_zip_file_size($fname);
+
     if ($i == 0) {
         $full_edge_count = number_format($stats[$i]['Edges'], 0);
         if ($stats[$i]['Nodes'] == 0)
             continue;
-        $rel_path = $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
-        $path = functions::get_web_root() . "/$res_dir/$rel_path";
         $full_network_html = "<tr>";
         $full_network_html .= "<td>";
         if (!$is_example)
-            $full_network_html .= "<a href='$path'><button class='mini'>Download</button></a>";
-        $full_network_html .= "  <a href='$path.zip'><button class='mini'>Download ZIP</button></a>";
+            //$full_network_html .= "<a href='$web_path'><button class='mini'>Download</button></a>";
+            $full_network_html .= "<a href=\"$web_path\" title=\"Download SSN\"><i class=\"fas fa-download\"></i></a>";
+
+        $full_network_html .= "  <span style=\"padding-left:15px\"></span><a href=\"$web_path.zip\" title=\"Download compressed SSN\"><i class=\"fas fa-file-archive\"></i></a>";
+        //$full_network_html .= "  <a href='$web_path.zip'><button class='mini'>Download ZIP</button></a>";
+        if ($nc_web_path)
+            //$full_network_html .= " <span style=\"padding-left:15px\"></span><a href='$nc_web_path'><button class='mini'>NC PNG</button></a>";
+            $full_network_html .= " <span style=\"padding-left:15px\"></span><a href=\"$nc_web_path\" title=\"Download NC legend\">NC <i class=\"fas fa-file-image\"></i></a>";
         $full_network_html .= "</td>\n";
         $full_network_html .= "<td>" . number_format($stats[$i]['Nodes'],0) . "</td>\n";
         $full_network_html .= "<td>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
@@ -145,22 +161,24 @@ for ($i = 0; $i < count($stats); $i++) {
             $full_network_html .= "</td>\n";
         }
         $full_network_html .= "</tr>";
-        $network_sel_list["full"] = $rel_path;
     } else {
-        $percent_identity = substr($stats[$i]['File'], strrpos($stats[$i]['File'],'-') + 1);
+        $percent_identity = substr($fname, strrpos($fname,'-') + 1);
         $sep_char = "_";
         $percent_identity = substr($percent_identity, 0, strrpos($percent_identity, $sep_char));
         $percent_identity = str_replace(".","",$percent_identity);
-        $rel_path = $analysis->get_output_dir() . "/" . $analysis->get_network_dir() . "/" . $stats[$i]['File'];
-        $path = functions::get_web_root() . "/$res_dir/$rel_path";
         $rep_network_html .= "<tr>";
         if ($stats[$i]['Nodes'] == 0) {
             $rep_network_html .= "<td>";
         } else {
             $rep_network_html .= "<td>";
             if (!$is_example)
-                $rep_network_html .= "<a href='$path'><button class='mini'>Download</button></a>";
-            $rep_network_html .= "  <a href='$path.zip'><button class='mini'>Download ZIP</button></a>";
+                //$rep_network_html .= "<a href='$web_path'><button class='mini'>Download</button></a>";
+                $rep_network_html .= "<a href=\"$web_path\" title=\"Download SSN\"><i class=\"fas fa-download\"></i></a>";
+            //$rep_network_html .= "  <a href='$web_path.zip'><button class='mini'>Download ZIP</button></a>";
+            $rep_network_html .= "  <span style=\"padding-left:15px\"></span><a href=\"$web_path.zip\" title=\"Download compressed SSN\"><i class=\"fas fa-file-archive\"></i></a>";
+            if ($nc_web_path)
+                //$rep_network_html .= "  <a href='$nc_web_path'><button class='mini'>NC PNG</button></a>";
+                $rep_network_html .= " <span style=\"padding-left:15px\"></span><a href=\"$nc_web_path\" title=\"Download NC legend\">NC <i class=\"fas fa-file-image\"></i></a>";
             $rep_network_html .= "</td>\n";
         }
         $rep_network_html .= "<td>" . $percent_identity . "</td>\n";
@@ -174,15 +192,10 @@ for ($i = 0; $i < count($stats); $i++) {
             if (!$is_example) {
                 $rep_network_html .= "<td>";
                 $rep_network_html .= make_split_button($gnt_args);
-                //$rep_network_html .= "<a href='../efi-gnt/index.php?$gnt_args'><button class='mini' type='button'>GNT Submission</button></a>";
-                ////Old: automatically submit color SSN job.  Now we want to provide user with options.
-                ////$rep_network_html .= $color_ssn_code_fn($i);
-                //$rep_network_html .= " <a href='index.php?mode=color&$gnt_args'><button class='mini' type='button'>Color SSN</button></a>";
                 $rep_network_html .= "</td>\n";
             }
         }
         $rep_network_html .= "</tr>";
-        $network_sel_list[$percent_identity] = $rel_path;
     }
 }
 
