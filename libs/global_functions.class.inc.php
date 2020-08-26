@@ -94,6 +94,11 @@ class global_functions {
         return self::get_prior_date($num_days);
     }
 
+    public static function get_archived_retention_start_date() {
+        $num_days = global_settings::get_archived_retention_days();
+        return self::get_prior_date($num_days);
+    }
+
     // This is for cleaning up failed jobs, after the specified number of days.
     public static function get_failed_retention_start_date() {
         $num_days = 14;

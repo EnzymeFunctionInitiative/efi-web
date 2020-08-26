@@ -17,7 +17,6 @@ define("__INTERPRO_WEBSITE__","http://www.ebi.ac.uk/interpro/");
 
 //
 // UI PARAMETERS
-//define("__ENABLE_DEBUG__",true);
 define("__TIMEZONE__","America/Chicago");
 define("__ADMIN_EMAIL__","");
 define("__ERROR_ADMIN_EMAIL__","");
@@ -62,6 +61,7 @@ define("__MAX_TIMEOUT__","3600");
 define("__RETENTION_DAYS__","30");
 define("__FILE_RETENTION_DAYS__","80");  // Number of days to keep files from successful jobs around.
 define("__FAILED_RETENTION_DAYS__","14"); // Number of days to keep files from failed jobs around.
+define("__ARCHIVED_RETENTION_DAYS__","14"); // Number of days to keep archived job files around
 define("__NUM_JOB_LIMIT__","6");
 
 //

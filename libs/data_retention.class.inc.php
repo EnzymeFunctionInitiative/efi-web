@@ -21,6 +21,7 @@ class data_retention {
         $timefield_started = "${tname}_time_started";
         $statusfield = "${tname}_status";
         $exp_date = global_functions::get_file_retention_start_date();
+        $archived_exp_date = global_functions::get_archived_retention_start_date();
         $failed_exp_date = global_functions::get_failed_retention_start_date();
         $sql = "SELECT $tname.$idfield, $timefield FROM $tname " .
             "LEFT JOIN job_group ON job_group.$idfield = $tname.$idfield " .
@@ -31,7 +32,11 @@ class data_retention {
             " OR " .
             "($tname.$statusfield = '" . __FAILED__ . "' AND $timefield_started < '$failed_exp_date')" .
             " OR " .
-            "($tname.$statusfield = '" . __ARCHIVED__ . "' AND ($timefield = '0000-00-00 00:00:00' OR $timefield_started = '0000-00-00 00:00:00'))" .
+            "($tname.$statusfield = '" . __ARCHIVED__ . "' AND " .
+                "($timefield = '0000-00-00 00:00:00' OR " .
+                " $timefield_started = '0000-00-00 00:00:00' OR " .
+                " $timefield_started < '$archived_exp_date')" .
+            ")" .
             ")";# OR
         $results = $this->db->query($sql);
 
