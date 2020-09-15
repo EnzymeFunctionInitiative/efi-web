@@ -15,8 +15,10 @@ else {
     $jobs = $dr->get_expired_jobs("gnn");
 
     foreach ($jobs as $id => $dir_path) {
-        print "Cleaning up $id since it's too old: $dir_path\n";
-        global_functions::rrmdir($dir_path);
+        if (file_exists($dir_path)) {
+            print "Cleaning up $id since it's too old: $dir_path\n";
+            global_functions::rrmdir($dir_path);
+        }
     }
 }
 

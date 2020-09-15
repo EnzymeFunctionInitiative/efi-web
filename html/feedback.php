@@ -146,7 +146,7 @@ NAME: $name
 
 INSTITUTION: $inst
 
-EMAIL: $email
+E-MAIL: $email
 
 MESSAGE:
 

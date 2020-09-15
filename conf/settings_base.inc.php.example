@@ -38,6 +38,8 @@ define("__ENABLE_RECENT_JOBS__",true);
 define("__ENABLE_JOB_GROUPS__",false);
 define("__ENABLE_SHORTBRED__",true);
 
+define("__ENABLE_WEBSITE_MSG__","");
+
 define("__CLUSTER_SCHEDULER__","slurm");
 define("__MEMORY_QUEUE__","");
 define("__NORMAL_QUEUE__","");
