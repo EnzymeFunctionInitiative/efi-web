@@ -30,6 +30,10 @@ if (!isset($BannerImagePath))
 $IsDisabled = !global_settings::get_website_enabled();
 if (!isset($IsAdminUser))
     $IsAdminUser = false;
+$DisabledMsg = "";
+if ($IsDisabled)
+    $DisabledMsg = global_settings::get_website_enabled_message();
+$IsBeta = global_settings::get_is_beta_release();
 
 if ($IsDisabled && !$IsAdminUser) {
     $BannerExtra = "";
@@ -103,18 +107,11 @@ if (!$IsDisabled || $IsAdminUser)
 
         <div class="content-holder">
             <h1 class="ruled"><?php echo $title; ?></h1>
-<?php if (global_settings::get_is_beta_release()) { ?>
+<?php if ($IsBeta) { ?>
             <div class="beta"><?php echo global_settings::get_release_status(); ?></div>
-<?php } ?>
-<?php
-if ($IsDisabled && !$IsAdminUser && !$IsLoginPage) {
-?>
+<?php } else if ($IsDisabled && !$IsAdminUser && !$IsLoginPage) { ?>
 <div id="update-message" class="update-message">
-The Enzyme Function Initiative tools are evolving to improve user experience.
-
-EFI-EST, GNT and CGFP will be unavailable during maintenance on Saturday April 6.
-
-New submissions will not be allowed starting Friday April 5, 4 PM (North American Central Time Zone) until maintenance is complete.
+<?php echo $DisabledMsg; ?>
 </div>
 <?php
     include(__DIR__ . "/global_footer.inc.php");
