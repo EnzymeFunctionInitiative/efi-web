@@ -1,7 +1,7 @@
 <?php
 
-require_once("colorssn_shared.class.inc.php");
-require_once("../../libs/global_functions.class.inc.php");
+require_once(__DIR__."/colorssn_shared.class.inc.php");
+require_once(__BASE_DIR__."/libs/global_functions.class.inc.php");
 
 // Neighborhood Connectivity
 class nb_conn extends colorssn_shared {
