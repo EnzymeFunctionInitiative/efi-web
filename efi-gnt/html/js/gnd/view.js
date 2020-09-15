@@ -80,14 +80,14 @@ class GndView {
             titleHeight = this.titleHeight;
             diagramHeight += titleHeight;
             xPadding *= 2;
-            this.topPadding = 30;
+            this.topPadding = 50;
         }
 
-        if (this.diagramCount == 0) {
+        if (this.diagramCount == 0 && drawUniRefExpand) {
             var group = this.S.paper.group();
-            var textObj = group.text(0, this.padding*2, "")
-                .attr({fontFamily: "FontAwesome", fontSize: "1.5em"});
-            group.text(20, this.padding*2-2, "Click this icon on the diagrams below to open a new window with the sequences contained in the given UniRef cluster.")
+            var textObj = group.text(0, this.padding*3, "")
+                .attr({fontFamily: "FontAwesome", fontSize: "2em"});
+            group.text(30, this.padding*2+5, "Click this icon on the diagrams below to open a new window with the sequences contained in the given UniRef cluster.")
                 .attr({'class':'diagram-title-uniref-help'});
         }
 
