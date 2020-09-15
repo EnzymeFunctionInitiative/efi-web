@@ -24,6 +24,7 @@ $status = "";
 $sql = "";
 $init_url = "";
 $ans_url = "";
+$details = "";
 
 if (!array_key_exists("id", $_GET) || !array_key_exists("key", $_GET)) {
     $show_error = true;
@@ -53,6 +54,26 @@ else {
         }
         else if ($gen_status == __RUNNING__) {
             $status = "is currently running the initial processing step";
+            $squeue_lines = array();
+            $cmd = '/usr/bin/squeue -p efi,efi-mem -o "%j,%t,%M,%m" | grep ' . $gen_id . '_';
+            exec($cmd, $squeue_lines);
+            $info = "";
+            foreach ($squeue_lines as $line) {
+                $parts = explode(",", $line);
+                $name_parts = explode("_", $parts[0], 2);
+                $name = $name_parts[1] == "hmm_and_stuff" ? "cluster_analysis" : $name_parts[1];
+                $info .= sprintf("%25s", $name);
+                $info .= "  " . sprintf("%20s", ($parts[1] == "R" ? "RUNNING" : "PENDING/DEPENDENCY"));
+                $info .= "  " . sprintf("%10s", $parts[2]);
+                $info .= "  " . sprintf("%10s", str_replace("G", " GB", $parts[3]));
+                $info .= "\n";
+            }
+            if ($info) {
+                $details = "<h5>Raw Status:</h5><pre>";
+                $details .= sprintf("%25s  %20s  %10s  %10s", "JOB NAME", "STATUS", "TIME", "RAM USAGE") . "\n";
+                $details .= "-----------------------------------------------------------------------\n";
+                $details .= "$info</pre>\n";
+            }
         }
         else {
             if ($job_status["job_type"] == colorssn::create_type() || $job_status["job_type"] == cluster_analysis::create_type()) {
@@ -109,6 +130,9 @@ include_once 'inc/header.inc.php';
     <h2>Job Status - <?php echo $gen_id; ?></h2>
 	<p>&nbsp;</p>
     <p>Job #<?php echo $gen_id . " " . $status; ?>.</p>
+    <?php if ($details) {
+        echo $details;
+    } ?>
 <?php } ?>
 
     <p>&nbsp;</p>

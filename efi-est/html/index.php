@@ -37,6 +37,7 @@ $db_modules = global_settings::get_database_modules();
 $update_msg = 
     'Cluster Analysis is a new tool that provides a color SSN as well as WebLogos, MSAs, and HMMs for the clusters.<br>' .
     'Options B and D now provide an expanded "Family Domain Boundary Option" to generate SSNs for sequences N- or C-terminal to the specified family domain.<br>' .
+    'A list of publications citing the tools is available on the <i class="fas fa-question"></i> Training page.<br>' .
     //"Sequence regions adjacent to the domain can be selected in the domain option for Families and Accession IDs.<br>" .
     "<small>" . functions::get_update_message() . "</small>";
 
@@ -133,6 +134,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
 
     $(document).ready(function() {
         $("#main-tabs").tabs();
+        $("#utility-tabs").tabs();
         $("#optionD-src-tabs").tabs();
 
         resetForms();
@@ -173,6 +175,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
             var aid = $(this).data("analysis-id");
             var requestType = "archive";
             var jobType = "generate";
+            var trElem = $(this).parent().parent();
 
             if (!aid)
                 aid = 0;
@@ -184,7 +187,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
                 modal: true,
                 buttons: {
                     "Archive Job": function() {
-                        requestJobUpdate(id, aid, key, requestType, jobType);
+                        requestJobUpdate(id, aid, key, requestType, jobType, trElem);
                         $( this ).dialog("close");
                     },
                     Cancel: function() {
@@ -385,18 +388,18 @@ function add_dev_site_option($option_id, $db_modules, $extra_html = "") {
 HTML;
     list($db_html) = make_db_mod_option($db_modules, $option_id);
     $html .= $db_html;
-    if ($option_id == "optc") {
-        $html .= <<<HTML
-    <div>
-        <span class="input-name">
-            SSN FASTA:
-        </span><span class="input-field">
-            <input type="checkbox" id="include-all-seq-$option_id" name="include-all-seq-$option_id" value="1" />
-            <label for="include-all-seq-$option_id">Check to include all FASTA sequences in the output SSN, not just the unidentified ones.</label>
-        </span>
-    </div>
-HTML;
-    }
+//    if ($option_id == "optc") {
+//        $html .= <<<HTML
+//    <div>
+//        <span class="input-name">
+//            SSN FASTA:
+//        </span><span class="input-field">
+//            <input type="checkbox" id="include-all-seq-$option_id" name="include-all-seq-$option_id" value="1" />
+//            <label for="include-all-seq-$option_id">Check to include all FASTA sequences in the output SSN, not just the unidentified ones.</label>
+//        </span>
+//    </div>
+//HTML;
+//    }
     if (functions::get_program_selection_enabled()) {
         $html .= <<<HTML
     <div>

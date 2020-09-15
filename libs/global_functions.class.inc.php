@@ -94,6 +94,11 @@ class global_functions {
         return self::get_prior_date($num_days);
     }
 
+    public static function get_archived_retention_start_date() {
+        $num_days = global_settings::get_archived_retention_days();
+        return self::get_prior_date($num_days);
+    }
+
     // This is for cleaning up failed jobs, after the specified number of days.
     public static function get_failed_retention_start_date() {
         $num_days = 14;
@@ -208,6 +213,20 @@ class global_functions {
         } else {
             return false;
         }
+    }
+
+    public static function send_image_file_for_download($filename, $full_path) {
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        header('Content-Transfer-Encoding: binary');
+        header('Connection: Keep-Alive');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($full_path));
+        ob_clean();
+        readfile($full_path);
     }
 }
 

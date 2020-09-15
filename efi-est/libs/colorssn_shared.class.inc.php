@@ -13,6 +13,7 @@ abstract class colorssn_shared extends option_base {
     const SEQ_NO_DOMAIN = 2;
     const DEFAULT_MIN_SEQ_MSA = 5;
 
+    protected $extra_ram = false;
     private $ssn_source_analysis_id;
     private $ssn_source_analysis_idx;
     private $ssn_source_key;
@@ -118,14 +119,18 @@ abstract class colorssn_shared extends option_base {
         return array("body" => $plain_email, "url" => $full_url);
     }
 
-    protected function get_run_script_args($out) {
+    protected function get_run_script_args_base($out) {
         $parms = array();
+        $parms["--queue"] = functions::get_memory_queue();
+        $parms["--ssn-in"] = $this->file_helper->get_results_input_file();
+        return $parms;
+    }
+    protected function get_run_script_args($out) {
+        $parms = $this->get_run_script_args_base($out);
 
         $want_clusters_file = true;
         $want_singles_file = false;
 
-        $parms["--queue"] = functions::get_memory_queue();
-        $parms["--ssn-in"] = $this->file_helper->get_results_input_file();
         $parms["--ssn-out"] = "\"" . $this->get_colored_xgmml_filename_no_ext() . ".xgmml\"";
         $parms["--map-dir-name"] = "\"" . functions::get_colorssn_map_dir_name() . "\"";
         $parms["--map-file-name"] = "\"" . functions::get_colorssn_map_filename() . "\"";
@@ -135,6 +140,8 @@ abstract class colorssn_shared extends option_base {
         $parms["--cluster-sizes"] = "\"" . $this->get_cluster_sizes_filename() . "\"";
         $parms["--sp-clusters-desc"] = "\"" . $this->get_swissprot_desc_filename($want_clusters_file) . "\"";
         $parms["--sp-singletons-desc"] = "\"" . $this->get_swissprot_desc_filename($want_singles_file) . "\"";
+        if ($this->extra_ram)
+            $parms["--extra-ram"] = "";
 
         return $parms;
     }
@@ -159,6 +166,7 @@ abstract class colorssn_shared extends option_base {
                 }
             }
         }
+        $this->extra_ram = (isset($result["extra_ram"]) && $result["extra_ram"] === true);
 
         $this->file_helper->on_load_generate($id, $result);
 
@@ -226,10 +234,16 @@ abstract class colorssn_shared extends option_base {
     }
     protected function shared_get_web_path($filename) {
         $rel_path = $this->get_web_output_dir() . "/" . $filename;
+        if ($this->shared_get_full_path($filename))
+            return $rel_path;
+        else
+            return "";
+    }
+    protected function shared_get_full_path($filename) {
         $full_path = $this->get_full_output_dir() . "/" . $filename;
         if (!file_exists($full_path))
             return "";
-        return $rel_path;
+        return $full_path;
     }
     public function get_file_size($web_path) {
         if ($this->is_example) {
@@ -282,6 +296,14 @@ abstract class colorssn_shared extends option_base {
         $filename = $this->get_colored_ssn_zip_filename();
         return $this->shared_get_web_path($filename);
     }
+    public function get_colored_ssn_full_path() {
+        $filename = $this->get_colored_ssn_filename();
+        return $this->shared_get_full_path($filename);
+    }
+    public function get_colored_ssn_zip_full_path() {
+        $filename = $this->get_colored_ssn_zip_filename();
+        return $this->shared_get_full_path($filename);
+    }
     public function get_node_files_zip_web_path($domain_type, $seq_type) {
         $filename = $this->get_node_files_zip_filename($domain_type, $seq_type);
         return $this->shared_get_web_path($filename);
@@ -305,12 +327,6 @@ abstract class colorssn_shared extends option_base {
     private function get_swissprot_desc_filename($want_clusters_file, $no_prefix = false) {
         $name = $want_clusters_file ? "swissprot_clusters_desc.txt" : "swissprot_singletons_desc.txt";
         return $no_prefix ? $name : $this->get_base_filename() . "_$name";
-    }
-    private function get_colored_ssn_filename() {
-        return $this->get_base_filename() . ".xgmml";
-    }
-    private function get_colored_ssn_zip_filename() {
-        return $this->get_base_filename() . ".zip";
     }
     private function get_node_files_zip_filename($domain_type, $seq_type) {
         $type_suffix = $seq_type == self::SEQ_UNIPROT ? "UniProt" : ($seq_type == self::SEQ_UNIREF50 ? "UniRef50" : "UniRef90");
@@ -337,6 +353,12 @@ abstract class colorssn_shared extends option_base {
     public function get_colored_xgmml_filename_no_ext() {
         $info = pathinfo($this->get_colored_ssn_filename());
         return $info["filename"];
+    }
+    public function get_colored_ssn_filename() {
+        return $this->get_base_filename() . ".xgmml";
+    }
+    public function get_colored_ssn_zip_filename() {
+        return $this->get_base_filename() . ".zip";
     }
 
 
@@ -401,4 +423,3 @@ abstract class colorssn_shared extends option_base {
     }
 }
 
-?>

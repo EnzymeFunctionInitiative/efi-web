@@ -390,17 +390,18 @@ class stepa extends est_shared {
             $filename = "${job_name}_$filename";
         $filename = "${id}_$filename";
         if (file_exists($full_path)) {
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="'.$filename.'"');
-            header('Content-Transfer-Encoding: binary');
-            header('Connection: Keep-Alive');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($full_path));
-            ob_clean();
-            readfile($full_path);
+            global_functions::send_image_file_for_download($filename, $full_path);
+#            header('Content-Description: File Transfer');
+#            header('Content-Type: application/octet-stream');
+#            header('Content-Disposition: attachment; filename="'.$filename.'"');
+#            header('Content-Transfer-Encoding: binary');
+#            header('Connection: Keep-Alive');
+#            header('Expires: 0');
+#            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+#            header('Pragma: public');
+#            header('Content-Length: ' . filesize($full_path));
+#            ob_clean();
+#            readfile($full_path);
         }
         else {
             return false;
@@ -674,4 +675,3 @@ class stepa extends est_shared {
     }
 }
 
-?>

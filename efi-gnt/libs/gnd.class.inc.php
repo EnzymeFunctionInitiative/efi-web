@@ -9,6 +9,7 @@ abstract class job_factory {
     public abstract function new_gnn_bigscape_job($db, $id);
     public abstract function new_uploaded_bigscape_job($db, $id);
     public abstract function new_diagram_data_file($id);
+    public abstract function new_direct_gnd_file($file);
 }
 
 
@@ -20,11 +21,14 @@ abstract class gnd {
     protected $window = null;
     
     private $db_file = "";
+    protected $use_uniref = false;
     private $is_direct_job = false;
     private $factory;
     private $message = "";
     private $scale_factor = null;
     private $job_name = "";
+    private $filter_uniref_ver = 0;
+    private $filter_uniref_id = ""; 
 
     public function get_error_message() { return $this->message; }
     public function parse_error() { return $this->message; }
@@ -66,6 +70,7 @@ abstract class gnd {
                 $this->db_file = $gnn->get_diagram_data_file($has_bigscape);
                 if (!file_exists($this->db_file))
                     $this->db_file = $gnn->get_diagram_data_file_legacy();
+                $this->get_uniref_db_files($gnn);
                 $this->job_name = $gnn->get_gnn_name();
             }
         } else if (isset($params['upload-id']) && functions::is_diagram_upload_id_valid($params['upload-id'])) {
@@ -76,15 +81,30 @@ abstract class gnd {
                 $has_bigscape = $bss->is_finished();
             }
             $this->db_file = $arrows->get_diagram_data_file($has_bigscape);
+            $this->get_uniref_db_files($arrows);
             $this->job_name = $arrows->get_gnn_name();
-        } else if (isset($params['direct-id']) && functions::is_diagram_upload_id_valid($params['direct-id'])) {
-            $gnn_id = $params['direct-id'];
-            $arrows = $this->factory->new_diagram_data_file($gnn_id);
-            if (settings::get_bigscape_enabled() && isset($params['bigscape']) && $params['bigscape']=="1") {
-                $bss = $this->factory->new_uploaded_bigscape_job($db, $gnn_id);
-                $has_bigscape = $bss->is_finished();
+        } else if ((isset($params['direct-id']) && functions::is_diagram_upload_id_valid($params['direct-id'])) || (isset($_GET['rs-id']) && isset($_GET['rs-ver']))) {
+            if (isset($_GET['rs-id'])) {
+                $rs_ver = $_GET['rs-ver'];
+                $gnd_file = functions::validate_direct_gnd_file($_GET['rs-id'], $rs_ver);
+                if ($gnd_file === false)
+                    $validated = true;
+                else
+                    $arrows = $this->factory->new_direct_gnd_file($gnd_file);
+                if (isset($_GET['uniref50-id']))
+                    $this->set_uniref_filter(50, $_GET['uniref50-id']);
+                if (isset($_GET['uniref90-id']))
+                    $this->set_uniref_filter(90, $_GET['uniref90-id']);
+            } else {
+                $gnn_id = $params['direct-id'];
+                $arrows = $this->factory->new_diagram_data_file($gnn_id);
+                if (settings::get_bigscape_enabled() && isset($params['bigscape']) && $params['bigscape']=="1") {
+                    $bss = $this->factory->new_uploaded_bigscape_job($db, $gnn_id);
+                    $has_bigscape = $bss->is_finished();
+                }
             }
             $this->db_file = $arrows->get_diagram_data_file($has_bigscape);
+            $this->get_uniref_db_files($arrows);
             $this->job_name = $arrows->get_gnn_name();
             $this->is_direct_job = true;
         } else if (isset($params['console-run-file']) && !isset($_SERVER["HTTP_HOST"])) {
@@ -96,6 +116,14 @@ abstract class gnd {
 
         $this->message = $message;
         return $message;
+    }
+    private function get_uniref_db_files($gnn) {
+        $this->uniref50_file = $gnn->get_diagram_data_file(false, "uniref50");
+        if (!file_exists($this->uniref50_file))
+            $this->uniref50_file = "";
+        $this->uniref90_file = $gnn->get_diagram_data_file(false, "uniref90");
+        if (!file_exists($this->uniref90_file))
+            $this->uniref90_file = "";
     }
 
 
@@ -253,6 +281,12 @@ abstract class gnd {
     }
 
 
+    private function set_uniref_filter($uniref_version, $id) {
+        $this->filter_uniref_ver = $uniref_version;
+        $this->filter_uniref_id = $id;
+    }
+
+
     private function get_neighbor_select_sql($attr, $row) {
         $nb_sql = "SELECT * FROM neighbors WHERE gene_key = '" . $row['sort_key'] . "'";
         if ($this->window !== NULL) {
@@ -355,6 +389,11 @@ abstract class gnd {
         elseif (! $this->is_direct_job && array_key_exists('cluster_num', $row))
             $attr['cluster_num'] = $row['cluster_num'];
     
+        if (isset($row['uniref50_size']))
+            $attr['uniref50_size'] = $row['uniref50_size'];
+        if (isset($row['uniref90_size']))
+            $attr['uniref90_size'] = $row['uniref90_size'];
+    
         if (count($attr['family']) > 0 && $attr['family'][0] == "")
             $attr['family'][0] = "none-query";
         if (count($attr['ipro_family']) > 0 && $attr['ipro_family'][0] == "")
@@ -418,7 +457,7 @@ abstract class gnd {
     
         if (strlen($attr['organism']) > 0 && substr_compare($attr['organism'], ".", -1) === 0)
             $attr['organism'] = substr($attr['organism'], 0, strlen($attr['organism'])-1);
-    
+
         return $attr;
     }
 
@@ -428,9 +467,15 @@ abstract class gnd {
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Helper methods.
     //
-
     protected function open_db_file() {
-        $this->db = new SQLite3($this->db_file);
+        $db_file = $this->db_file;
+        $this->db = new SQLite3($db_file);
+    }
+    protected function set_uniref_version($ver) {
+        if ($ver == "50" || $ver == "90")
+            $this->use_uniref = $ver;
+        else
+            $this->use_uniref = false;
     }
 
 

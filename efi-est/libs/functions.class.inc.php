@@ -56,7 +56,7 @@ class functions {
         $sql = "SELECT * ";
         $sql .= "FROM generate ";
         $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER') ";
+        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER' OR generate_type='NBCONN') ";
         $sql .= "ORDER BY generate_time_created ASC ";
         $result = $db->query($sql);
         return $result;
@@ -430,7 +430,9 @@ class functions {
         } else if ($gen_type == "COLORSSN") {
             $gen_type = "Color SSN";
         } else if ($gen_type == "CLUSTER") {
-            $gen_type = "Color SSN";
+            $gen_type = "Cluster Analysis";
+        } else if ($gen_type == "NBCONN") {
+            $gen_type = "Neighborhood Connectivity";
         }
         return $gen_type;
     }
