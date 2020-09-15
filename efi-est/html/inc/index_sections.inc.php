@@ -384,6 +384,13 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                 Summary tables, sets of IDs and sequences per cluster are provided.
             </p>
 
+            <p>
+            The clusters are numbered and colored using two conventions: 1)
+            <b>Sequence Count Cluster Number</b> assigned in order of decreasing number of UniProt IDs in the 
+            cluster; 2) <b>Node Count Cluster Number</b> assigned in order of decreasing number of 
+            nodes in the cluster.   
+            </p>
+
             <form name="" id="colorSsnform" method="post" action="">
                 <div class="primary-input">
 <?php echo ui::make_upload_box("SSN File:", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn", "", "", $ssn_filename); ?>
@@ -406,73 +413,6 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                                     <label for="colorssn-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
                                 </span>
                             </div>
-                            <?php
-                            /*
-                            <!--
-                            <div>
-                                <span class="input-name">
-                                    Minimum Node Count:
-                                </span><span class="input-field">
-                                    <input type="text" id="colorssn-min-seq-msa" name="colorssn-min-seq-msa" value="" size="10">
-                                    <label for="colorssn-min-seq-msa">Minimum number of sequences in order to include a cluster in the computations [default: 5]</label>
-                                </span>
-                            </div>
-                            <div>
-                                <span class="input-name">
-                                    Maximum Node Count:
-                                </span><span class="input-field">
-                                    <input type="text" id="colorssn-max-seq-msa" name="colorssn-max-seq-msa" value="" size="10">
-                                    <label for="colorssn-max-seq-msa">Maximum number of sequences to include in the MSA [default: no maximum]</label>
-                                </span>
-                            </div>
-                            <div>
-                                <span class="input-name">
-                                    Make Weblogo:
-                                </span><span class="input-field">
-                                    <input type="checkbox" id="colorssn-make-weblogo" name="colorssn-make-weblogo" value="1">
-                                    <label for="colorssn-make-weblogo">Make Weblogos for each cluster [default: off]</label>
-                                </span>
-                            </div>
-                            <div>
-                                <span class="input-name">
-                                    Compute Consensus Residues:
-                                </span><span class="input-field">
-                                    <input type="checkbox" id="colorssn-make-cr" name="colorssn-make-cr" value="1">
-                                    <label for="colorssn-make-cr">Compute consensus residues [default: off]</label><br>
-                                    <input type="text" id="colorssn-hmm-aa-list" name="colorssn-hmm-aa-list" value="C" size="10">
-                                    <label for="colorssn-hmm-aa-list">Residues to compute for (comma-separated list of amino acid codes)</label><br>
-                                    <input type="text" id="colorssn-aa-threshold" name="colorssn-aa-threshold" value="0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1" size="10">
-                                    <label for="colorssn-aa-threshold">Consensus probability threshold for counting (multiple comma-separated values allowed) [default: 0.8]</label>
-                                </span>
-                            </div>
-                            <div>
-                                <span class="input-name">
-                                    Make HMMs:
-                                </span><span class="input-field">
-                                    <input type="checkbox" id="colorssn-make-hmm" name="colorssn-make-hmm" value="1">
-                                    <label for="colorssn-make-hmm">Make HMMs for each cluster [default: off]</label>
-                                </span>
-                            </div>
-                            <div>
-                                <span class="input-name">
-                                    Make Length Histograms:
-                                </span><span class="input-field">
-                                    <input type="checkbox" id="colorssn-make-hist" name="colorssn-make-hist" value="1">
-                                    <label for="colorssn-make-hist">Make length histograms for each cluster [default: off]</label>
-                                </span>
-                            </div>
--->
-<!--
-                            <div>
-                                <span class="input-name">
-                                    Fragments:
-                                </span><span class="input-field">
-                                    <input type="checkbox" id="colorssn-include-fragments" name="colorssn-include-fragments" value="1">
-                                    <label for="colorssn-include-fragments">Check to include fragments in the result [default: fragments are not included; will not work with databases prior to IP76]</label>
-                                </span>
-                            </div>
--->
-                            */?>
                         </div>
                     </div>
                 </div>
@@ -487,12 +427,116 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
 <?php
 }
 
+function output_nc($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
+    $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
+    $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
+?>
+        <div id="nctab" class="ui-tabs-panel ui-widget-content">
+
+            <p>
+            <b>
+            Nodes in the submitted SSN are colored according to neighborhood connectivity 
+            (number of edges to other nodes). 
+            </b>
+            </p>
+            
+            <p>
+            The nodes for unresolved families can be difficult to identify in SSNs 
+            generated with low alignment scores.  Coloring the nodes according to the 
+            number of edges to other nodes (<b>Neighborhood Connectivity</b>, NC) helps identify 
+            families with highly connected nodes 
+            (<a href="https://www.biorxiv.org/content/10.1101/2020.04.16.045138v1.full">https://www.biorxiv.org/content/10.1101/2020.04.16.045138v1.full</a>).
+            Using <b>Neighborhood Connectivity Coloring</b> as a guide, the alignment score threshold 
+            can be chosen in Cytoscape to separate the SSN into families.
+            </p>
+
+            <form name="" id="ncSsnform" method="post" action="">
+                <div class="primary-input">
+<?php echo ui::make_upload_box("SSN File:", "nc-file", "progress-bar-nc", "progress-num-nc", "", "", $ssn_filename); ?>
+                    <div>
+                        A Cytoscape-edited SNN can serve as input.
+                        The accepted format is XGMML (or compressed XGMML as zip).
+                    </div>
+                </div>
+
+                <?php if ($ssn_id) { ?>
+                    <input type="hidden" name="ssn-source-id-nc" id="ssn-source-id-nc" value="<?php echo $ssn_id; ?>">
+                    <input type="hidden" name="ssn-source-idx-nc" id="ssn-source-idx-nc" value="<?php echo $ssn_idx; ?>">
+                <?php } ?>
+                <?php echo add_submit_html("nc", "", $user_email)[0]; ?>
+            </form>
+        </div>
+<?php
+}
+
 function output_cluster($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
     $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="clustertab" class="ui-tabs-panel ui-widget-content">
+
+            <p>
+            <b>
+            Like the Color SSN utility, clusters in the submitted SSN are identified, 
+            numbered and colored.
+            </b>
+            </p>
+            
+            <p>
+            The SSN clusters are numbered and colored using two conventions:
+            <b>Sequence Count Cluster Numbers</b>
+            are assigned in order of decreasing number of UniProt IDs in 
+            the cluster; <b>Node Count Cluster Numbers</b> are assigned in order of decreasing 
+            number of nodes in the cluster. 
+            </p>
+            
+            <p>
+            The convergence ratio for each cluster also is calculated.  The convergence 
+            ratio is the number of edges in each cluster to the number of sequence pairs.  
+            The value decreases from 1.0 for a cluster very similar sequences (same 
+            function?) to &lt;&lt;1.0 for clusters with distantly related sequences (different 
+            functions?).  
+            </p>
+            
+            <p>
+            <b>
+            Multiple sequence alignments (MSAs), WebLogos, hidden Markov models (HMMs), 
+            length histograms, and consensus residues are computed for each cluster. 
+            </b>
+            </p>
+            
+            <p>
+            Options are available in the tabs below to select the desired analyses:
+            </p>
+            
+            <p>
+            The <b>WebLogos</b> tab provides the WebLogo and MSA for the node IDs in each cluster 
+            containing greater than the "<b>Minimum Node Count</b>" specified in the
+            <b>Sequence Filter</b> tab. 
+            </p>
+            
+            <p>
+            The <b>Consensus Residues</b> tab provides a tab-delimited text file with the number 
+            of the conserved residues and their MSA positions for each specified residue in 
+            each cluster containing greater than the "<b>Minimum Node Count</b>".  Note the 
+            default residue is "C" and the percent identity levels that are displayed are 
+            from 90 to 10% in intervals of 10%; a residue is counted as "conserved" if it 
+            occurs with &ge;80% identity.
+            </p>
+            
+            <p>
+            The <b>HMMs</b> tab provides the HMM for each cluster containing greater than the 
+            specified "<b>Minimum Node Count</b>". 
+            </p>
+            
+            <p>
+            The <b>Length Histograms</b> tab provides length histograms for each cluster 
+            containing greater than the specified "<b>Minimum Node Count</b>". 
+            </p>
+
+<!--
             <p>
                 <b>Clusters in the submitted SSN are identified, numbered and colored.</b>
                 Summary tables, sets of IDs and sequences per cluster are provided.
@@ -501,7 +545,7 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
                 <b>HMMs, WebLogos, and consensus residues are computed.</b>
                 Options are available in the tabs below to select the desired analyes.
             </p>
-
+-->
             <form name="clusterTab" id="clusterTab" method="post" action="">
                 <div class="primary-input">
 <?php echo ui::make_upload_box("SSN File:", "cluster-file", "progress-bar-cluster", "progress-num-cluster", "", "", $ssn_filename); ?>
@@ -768,6 +812,46 @@ function output_option_e($use_advanced_options, $db_modules, $user_email, $show_
 <?php
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// UTILITY TAB
+
+function output_utility($use_advanced_options, $user_email, $example_fn = false, $mode_data = array(), $selected_tab = "") {
+?>
+        <div id="utilitytab" class="ui-tabs-panel ui-widget-content">
+<?php
+    output_tab_page_start(false, "utility-tabs");
+    output_utility_tab_page_header($selected_tab);
+    output_colorssn($use_advanced_options, $user_email, $example_fn, $mode_data);
+    output_cluster($use_advanced_options, $user_email, $example_fn, $mode_data);
+    output_nc($use_advanced_options, $user_email, $example_fn, $mode_data);
+    output_tab_page_end();
+?>
+        </div>
+<?php
+}
+
+function output_utility_tab_page_header($selected_tab = "", $class_fn = false, $url_fn = false) {
+    $ul_class = $class_fn !== false ? $class_fn("ul") : "ui-tabs-nav ui-widget-header";
+    $active_class = $class_fn !== false ? $class_fn("active") : "ui-tabs-active";
+    if ($url_fn === false) {
+        $url_fn = function($id) {
+            return "#$id";
+        };
+    }
+?>
+    <ul class="<?php echo $ul_class; ?>">
+        <li <?php echo ($selected_tab == "colorssn" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("colorssntab"); ?>"> Color SSNs</a></li>
+        <li <?php echo ($selected_tab == "cluster" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("clustertab"); ?>">Cluster Analysis</a></li>
+        <li <?php echo ($selected_tab == "nc" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("nctab"); ?>">Neighborhood Connectivity</a></li>
+    </ul>
+<?php
+}
+
+// END UTILITY TAB
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 function output_tab_page_header($show_jobs_tab, $show_tutorial, $selected_tab = "", $class_fn = false, $url_fn = false) {
     $ul_class = $class_fn !== false ? $class_fn("ul") : "ui-tabs-nav ui-widget-header";
     $active_class = $class_fn !== false ? $class_fn("active") : "ui-tabs-active";
@@ -788,19 +872,18 @@ function output_tab_page_header($show_jobs_tab, $show_tutorial, $selected_tab = 
 <?php if (est_settings::option_e_enabled()) { ?>
         <li><a href="<?php echo $url_fn("optionEtab"); ?>" title="Option E">OptE</a></li>
 <?php } ?>
-        <li <?php echo ($selected_tab == "colorssn" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("colorssntab"); ?>"> Color SSNs</a></li>
+        <li <?php echo (($selected_tab == "colorssn" || $selected_tab == "cluster" || $selected_tab == "nc") ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("utilitytab"); ?>"> SSN Utilities</a></li>
 <?php if ($show_tutorial) { ?>
         <li <?php echo (($show_tutorial || $show_jobs_tab) ? "" : "class=\"$active_class\"") ?>><a href="#tutorial">Tutorial</a></li>
 <?php } ?>
-        <li <?php echo ($selected_tab == "cluster" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("clustertab"); ?>">Cluster Analysis</a></li>
     </ul>
 <?php
 }
 
-function output_tab_page_start($class_fn = false) {
+function output_tab_page_start($class_fn = false, $id = "main-tabs") {
     $tab_class = $class_fn !== false ? $class_fn("tab-container") : "tabs-efihdr ui-tabs ui-widget-content";
     echo <<<HTML
-<div class="$tab_class" id="main-tabs"> <!-- style="display:none">-->
+<div class="$tab_class" id="$id"> <!-- style="display:none">-->
 HTML;
 }
 
@@ -813,7 +896,7 @@ HTML;
 function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $example_fn = false, $show_all_ids = false) {
 
     $mode_data = check_for_color_mode($db);
-    $sel_tab = !empty($mode_data) ? ($mode_data["mode"] == "cluster" ? "cluster" : "colorssn") : "";
+    $sel_tab = !empty($mode_data) ? ($mode_data["mode"] == "cluster" ? "cluster" : ($mode_data["mode"] == "nc" ? "nc" : "colorssn")) : "";
 
     output_tab_page_start();
     output_tab_page_header($show_jobs_tab, $show_tutorial, $sel_tab);
@@ -848,10 +931,11 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
     output_option_d($use_advanced_options, $db_modules, $user_email, $example_fn);
     if (est_settings::option_e_enabled())
         output_option_e($use_advanced_options, $db_modules, $user_email, $example_fn);
-    output_colorssn($use_advanced_options, $user_email, $example_fn, $mode_data);
+    output_utility($use_advanced_options, $user_email, $example_fn, $mode_data, $sel_tab);
+    //output_colorssn($use_advanced_options, $user_email, $example_fn, $mode_data);
+    //output_cluster($use_advanced_options, $user_email, $example_fn, $mode_data);
     if ($show_tutorial)
         output_tutorial($show_jobs_tab);
-    output_cluster($use_advanced_options, $user_email, $example_fn, $mode_data);
 ?>
 
     </div> <!-- tab-content -->
@@ -866,7 +950,7 @@ function check_for_color_mode($db) {
 
     $mode_data = array();
 
-    if (isset($_GET["mode"]) && ($_GET["mode"] == "color" || $_GET["mode"] == "cluster") &&
+    if (isset($_GET["mode"]) && ($_GET["mode"] == "color" || $_GET["mode"] == "cluster" || $_GET["mode"] == "nc") &&
         isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"]))
     {
         $the_aid = $_GET["est-id"];

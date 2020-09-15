@@ -35,6 +35,7 @@ class analysis extends est_shared {
     private $use_min_edge_attr = false;
     private $use_min_node_attr = false;
     private $include_all_seq = false;
+    private $compute_nc = false;
 
     private $is_example = false;
     private $analysis_table = "analysis";
@@ -98,6 +99,7 @@ class analysis extends est_shared {
     public function get_cdhit_method_nice() {
         return "EST";
     }
+    public function get_compute_nc() { return $this->compute_nc; }
     
     public function set_pbs_number($pbs_number) {
         $sql = "UPDATE analysis SET analysis_pbs_number='" . $pbs_number . "' ";
@@ -147,7 +149,7 @@ class analysis extends est_shared {
         }
     }
 
-    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0) {
+    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0, $compute_nc = false) {
         $errors = false;
         $message = "";		
 
@@ -196,6 +198,8 @@ class analysis extends est_shared {
                 $params['use_min_node_attr'] = 1;
             if ($min_edge_attr)
                 $params['use_min_edge_attr'] = 1;
+            if ($compute_nc)
+                $params['compute_nc'] = true;
             $insert_array = array(
                 'analysis_generate_id'=>$generate_id,
                 'analysis_status' => __NEW__,
@@ -394,6 +398,8 @@ class analysis extends est_shared {
                     $exec .= " -use-min-edge-attr";
                 if ($this->use_min_node_attr)
                     $exec .= " -use-anno-spec";
+                if ($this->compute_nc)
+                    $exec .= " -compute-nc";
 
                 $exec .= " 2>&1 ";
 
@@ -482,6 +488,7 @@ class analysis extends est_shared {
             $a_params = isset($result[0]['analysis_params']) ? global_functions::decode_object($result[0]['analysis_params']) : array();
             $this->use_min_edge_attr = isset($a_params["use_min_edge_attr"]) && $a_params["use_min_edge_attr"];
             $this->use_min_node_attr = isset($a_params["use_min_node_attr"]) && $a_params["use_min_node_attr"];
+            $this->compute_nc = (isset($a_params["compute_nc"]) && $a_params["compute_nc"]) ? true : false;
 
             $db_mod = isset($gen_params["generate_db_mod"]) ? $gen_params["generate_db_mod"] : functions::get_efidb_module();
             if ($db_mod) {
@@ -508,6 +515,11 @@ class analysis extends est_shared {
                 $path .= "-minn";
             if ($this->use_min_edge_attr)
                 $path .= "-mine";
+            //TODO: HACK ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! REMOVE ON 9/21/2020
+            $val = $this->get_unixtime_completed();//strtotime($this->time_completed);
+            if ($val > 1599762366)
+                if ($this->compute_nc)
+                    $path .= "-nc";
         }
         return $path;
     }

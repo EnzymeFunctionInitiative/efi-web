@@ -134,6 +134,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
 
     $(document).ready(function() {
         $("#main-tabs").tabs();
+        $("#utility-tabs").tabs();
         $("#optionD-src-tabs").tabs();
 
         resetForms();
@@ -387,18 +388,18 @@ function add_dev_site_option($option_id, $db_modules, $extra_html = "") {
 HTML;
     list($db_html) = make_db_mod_option($db_modules, $option_id);
     $html .= $db_html;
-    if ($option_id == "optc") {
-        $html .= <<<HTML
-    <div>
-        <span class="input-name">
-            SSN FASTA:
-        </span><span class="input-field">
-            <input type="checkbox" id="include-all-seq-$option_id" name="include-all-seq-$option_id" value="1" />
-            <label for="include-all-seq-$option_id">Check to include all FASTA sequences in the output SSN, not just the unidentified ones.</label>
-        </span>
-    </div>
-HTML;
-    }
+//    if ($option_id == "optc") {
+//        $html .= <<<HTML
+//    <div>
+//        <span class="input-name">
+//            SSN FASTA:
+//        </span><span class="input-field">
+//            <input type="checkbox" id="include-all-seq-$option_id" name="include-all-seq-$option_id" value="1" />
+//            <label for="include-all-seq-$option_id">Check to include all FASTA sequences in the output SSN, not just the unidentified ones.</label>
+//        </span>
+//    </div>
+//HTML;
+//    }
     if (functions::get_program_selection_enabled()) {
         $html .= <<<HTML
     <div>
