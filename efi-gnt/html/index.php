@@ -245,6 +245,14 @@ if (count($trainingJobs) > 0) {
                     when they have been modified in Cytoscape.
                     The accepted format is XGMML (or compressed XGMML as zip).
                 </div>
+
+                <p>
+                If a SSN that contains UniRef sequences is uploaded to the GNT,
+                the resulting GNDs will also include GNDs for UniRef90
+                cluster IDs that group together UniProt sequences by 90% sequence identiy.
+                For networks that also contain UniRef50 sequences, GNDs
+                will also include UniProt sequences that are grouped by 50% sequence identity.
+                </p>
     
                 <?php gnt_ui::add_neighborhood_size_setting(false); ?>
                 <?php gnt_ui::add_cooccurrence_setting(false); ?>
@@ -268,10 +276,12 @@ if (count($trainingJobs) > 0) {
                     The retrieved sequences are used to generate genomic neighborhood diagrams. 
                     </p>
                     <p>
+                    <b>
                     If the Sequence Database is set to UniRef90, the resulting GNDs will also include GNDs for UniRef90
                     cluster IDs that group together UniProt sequences by 90% sequence identiy.  For UniRef50, the GNDs
                     will also include UniProt sequences that are grouped by 50% sequence identity.  Any of the
                     "Exclude Fragments" options will exclude UniProt-defined sequence fragments.
+                    </b>
                     </p>
 
                     <form name="create_diagrams" id="create_diagram_form" method="post" action="">
@@ -321,10 +331,12 @@ if (count($trainingJobs) > 0) {
                     the results will only include diagrams for sequences that were identified.
                     </p>
                     <p>
+                    <b>
                     If the Sequence Database is set to UniRef90, the resulting GNDs will also include GNDs for UniRef90
                     cluster IDs that group together UniProt sequences by 90% sequence identiy.  For UniRef50, the GNDs
                     will also include UniProt sequences that are grouped by 50% sequence identity.  Any of the
                     "Exclude Fragments" options will exclude UniProt-defined sequence fragments.
+                    </b>
                     </p>
 
                     <form name="create_diagrams" id="create_diagram_form" method="post" action="create_diagram.php">
