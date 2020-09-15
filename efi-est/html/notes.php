@@ -9,6 +9,22 @@ require_once "inc/header.inc.php";
 
 <h2>Release Notes</h2>
 
+<h3>September 15, 2020</h3>
+
+<p>
+The <b>Color SSNs</b> and <b>Cluster Analysis</b> tabs are now included on the <b>SSN Utilities</b> tab.
+</p>
+<p>
+<b>Neighborhood Connectivity</b> (NC) is a new tool on the <b>SSN Utilities</b> tab.  
+NC colors the input SSN according to the number of internode connections.  NC 
+coloring helps identify families in SSNs generated with low alignment scores.
+</p>
+<p>
+The ENA database that is used by the EFI-GNT was last updated in April 2020.
+<p>
+<?php echo get_db_size_text("2020_04", "81", 188961949, 563082); ?>
+</p>
+
 <h3>June 8, 2020</h3>
 <p>
 The new <b>Cluster Analysis</b> utility computes MSAs, WebLogos, consensus residues, HMMs,
