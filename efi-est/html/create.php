@@ -48,7 +48,7 @@ if (!isset($_POST['submit'])) {
     $result["MESSAGE"] = "Form is invalid.";
 } elseif (!isset($input->email) || !$input->email) {
     $result["MESSAGE"] = "Please enter an e-mail address.";
-} elseif ($option != "colorssn" && $option != "cluster" && (!isset($_POST['job-name']) || !$_POST['job-name'])) {
+} elseif ($option != "colorssn" && $option != "cluster" && $option != "nc" && (!isset($_POST['job-name']) || !$_POST['job-name'])) {
     $result["MESSAGE"] = "Job name is required.";
 } elseif ($is_job_limited) {
     $result["MESSAGE"] = "Due to finite computational resource constraints, you can only have $num_job_limit active or pending jobs within a 24 hour period.  Please try again when some of your jobs have completed.";
@@ -142,6 +142,7 @@ if (!isset($_POST['submit'])) {
         //Option color SSN
         case 'colorssn':
         case 'cluster':
+        case 'nc':
             $input->seq_id = 1;
 
             if (isset($_FILES['file']) && $_FILES['file']['error'] === "")
@@ -184,7 +185,7 @@ if (!isset($_POST['submit'])) {
                     $input->families = $_POST['families_input'];
                     if (isset($_POST["domain_family"]) && $_POST["domain_family"])
                         $input->domain_family = $_POST["domain_family"];
-                } else if ($option == "colorssn" || $option == "cluster") {
+                } else if ($option == "colorssn" || $option == "cluster" || $option == "nc") {
                     if (isset($_POST['ssn-source-id']))
                         $input->color_ssn_source_id = $_POST['ssn-source-id'];
                     if (isset($_POST['ssn-source-idx']))
@@ -197,6 +198,8 @@ if (!isset($_POST['submit'])) {
                         $input->hmm_aa = (isset($_POST['hmm-aa']) && $_POST['hmm-aa']) ? $_POST['hmm-aa'] : "";
                         $input->min_seq_msa = (isset($_POST['min-seq-msa']) && $_POST['min-seq-msa']) ? $_POST['min-seq-msa'] : 0;
                         $input->max_seq_msa = (isset($_POST['max-seq-msa']) && $_POST['max-seq-msa']) ? $_POST['max-seq-msa'] : 0;
+                    } else if ($option == "nc") {
+                        $obj = new nb_conn($db);
                     } else {
                         $obj = new colorssn($db);
                     }

@@ -675,4 +675,3 @@ class stepa extends est_shared {
     }
 }
 
-?>

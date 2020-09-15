@@ -36,6 +36,7 @@ if (!$is_example && $analysis->is_expired()) {
 
 
 
+//print $analysis->get_unixtime_completed();
 
 $mig_info = functions::get_gnt_migrate_info($db, $analysis_id);
 $is_migrated = false;
@@ -100,6 +101,8 @@ if (isset($_GET["as-table"])) {
     exit(0);
 }
 
+$has_nc = $analysis->get_compute_nc();
+
 $IncludeSubmitJs = true;
 require_once("inc/header.inc.php");
 
@@ -113,7 +116,14 @@ $color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
     $html = " <button class='mini colorssn-btn' type='button' onclick='$js_code' data-aid='$analysis_id' data-ssn-index='$ssn_index'>Color SSN</button>";
     return $html;
 };
-
+$get_nc_dl_btn = function($nc_web_path) {
+    //return" <span style=\"padding-left:15px\"></span><a href=\"$nc_web_path\" title=\"Download NC legend\">NC <i class=\"fas fa-file-image\"></i></a>";
+    return " <span style=\"padding-left:15px\"></span><a href='$nc_web_path'><button class='mini'>Download NC color scale</button></a>";
+};
+$get_ssn_dl_btn = function($web_path, $btn_text = "Download") {
+    //return " <span style=\"padding-left:15px\"></span><a href=\"$web_path.zip\" title=\"$btn_text\"><i class=\"fas fa-file-archive\"></i></a>";
+    return " <a href='$web_path.zip'><button class='mini'>$btn_text</button></a>";
+};
 
 for ($i = 0; $i < count($stats); $i++) {
     $gnt_args = "est-id=$analysis_id&est-key=$key&est-ssn=$i";
@@ -132,22 +142,19 @@ for ($i = 0; $i < count($stats); $i++) {
             continue;
         $full_network_html = "<tr>";
         $full_network_html .= "<td>";
-        if (!$is_example)
-            //$full_network_html .= "<a href='$web_path'><button class='mini'>Download</button></a>";
-            $full_network_html .= "<a href=\"$web_path\" title=\"Download SSN\"><i class=\"fas fa-download\"></i></a>";
+        //if (!$is_example)
+        //    $full_network_html .= $get_ssn_dl_btn($web_path);
 
-        $full_network_html .= "  <span style=\"padding-left:15px\"></span><a href=\"$web_path.zip\" title=\"Download compressed SSN\"><i class=\"fas fa-file-archive\"></i></a>";
-        //$full_network_html .= "  <a href='$web_path.zip'><button class='mini'>Download ZIP</button></a>";
-        if ($nc_web_path)
-            //$full_network_html .= " <span style=\"padding-left:15px\"></span><a href='$nc_web_path'><button class='mini'>NC PNG</button></a>";
-            $full_network_html .= " <span style=\"padding-left:15px\"></span><a href=\"$nc_web_path\" title=\"Download NC legend\">NC <i class=\"fas fa-file-image\"></i></a>";
+        $full_network_html .= $get_ssn_dl_btn($web_path, "Download ZIP");
+        if ($has_nc && $nc_web_path)
+            $full_network_html .= $get_nc_dl_btn($nc_web_path);
         $full_network_html .= "</td>\n";
         $full_network_html .= "<td>" . number_format($stats[$i]['Nodes'],0) . "</td>\n";
         $full_network_html .= "<td>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
-        $full_network_html .= "<td>" . functions::bytes_to_megabytes($size, 0) . " MB</td>\n";
+        //$full_network_html .= "<td>" . functions::bytes_to_megabytes($size, 0) . " MB</td>\n";
         if (!$is_example) {
             $full_network_html .= "<td>";
-            $full_network_html .= make_split_button($gnt_args);
+            $full_network_html .= make_split_button($gnt_args, !$has_nc);
             $full_network_html .= "</td>\n";
         }
         $full_network_html .= "</tr>";
@@ -158,14 +165,11 @@ for ($i = 0; $i < count($stats); $i++) {
             $rep_network_html .= "<td>";
         } else {
             $rep_network_html .= "<td>";
-            if (!$is_example)
-                //$rep_network_html .= "<a href='$web_path'><button class='mini'>Download</button></a>";
-                $rep_network_html .= "<a href=\"$web_path\" title=\"Download SSN\"><i class=\"fas fa-download\"></i></a>";
-            //$rep_network_html .= "  <a href='$web_path.zip'><button class='mini'>Download ZIP</button></a>";
-            $rep_network_html .= "  <span style=\"padding-left:15px\"></span><a href=\"$web_path.zip\" title=\"Download compressed SSN\"><i class=\"fas fa-file-archive\"></i></a>";
-            if ($nc_web_path)
-                //$rep_network_html .= "  <a href='$nc_web_path'><button class='mini'>NC PNG</button></a>";
-                $rep_network_html .= " <span style=\"padding-left:15px\"></span><a href=\"$nc_web_path\" title=\"Download NC legend\">NC <i class=\"fas fa-file-image\"></i></a>";
+            //if (!$is_example)
+            //    $rep_network_html .= $get_ssn_dl_btn($web_path);
+            $rep_network_html .= $get_ssn_dl_btn($web_path, "Download ZIP");
+            if ($has_nc && $nc_web_path)
+                $rep_network_html .= $get_nc_dl_btn($nc_web_path);
             $rep_network_html .= "</td>\n";
         }
         $rep_network_html .= "<td>" . $percent_identity . "</td>\n";
@@ -175,10 +179,10 @@ for ($i = 0; $i < count($stats); $i++) {
         } else {
             $rep_network_html .= "<td>" . number_format($stats[$i]['Nodes'],0) . "</td>\n";
             $rep_network_html .= "<td>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
-            $rep_network_html .= "<td>" . functions::bytes_to_megabytes($size, 0) . " MB</td>\n";
+            //$rep_network_html .= "<td>" . functions::bytes_to_megabytes($size, 0) . " MB</td>\n";
             if (!$is_example) {
                 $rep_network_html .= "<td>";
-                $rep_network_html .= make_split_button($gnt_args);
+                $rep_network_html .= make_split_button($gnt_args, !$has_nc);
                 $rep_network_html .= "</td>\n";
             }
         }
@@ -232,14 +236,17 @@ $network_name = $analysis->get_name();
 
         <div id="results">
             <p>
-            The panels below provide files for full and representative node SSNs for 
-            download with the indicated numbers of nodes and edges.  As an approximate guide, SSNs 
-            with ~2M edges can be opened with 16 GB RAM, ~4M edges can be opened with 32 
-            GB RAM, ~8M edges can be opened with 64 GB RAM, ~15M edges can be opened with 
-            128 GB RAM, and ~30M edges can be opened with 256 GB RAM. 
+            The panels below provide files for full and representative node SSNs for download
+            with the indicated numbers of nodes and edges. As an approximate guide, SSNs with
+            ~2M edges can be opened with 16 GB RAM, ~5M edges can be opened with 32 GB RAM,
+            ~10M edges can be opened with 64 GB RAM, ~20M edges can be opened with 128 GB RAM,
+            ~40M edges can be opened with 256 GB RAM, and ~120M edges can be opened with 768 GB RAM.
             </p>
             <p>
-            Files may be transferred to the Genome Neighborhood Tool (GNT), the Color SSN utility, or the Cluster Analysis utility.
+            Files may be transferred to the Genome Neighborhood Tool (GNT), the Color SSN utility,
+            <?php echo $has_nc ? "or" : ""; ?>
+            the Cluster Analysis 
+            utility<?php echo !$has_nc ? ", or the Neighborhood Connectivity utility" : ""; ?>.
             </p>
             <h4>Full Network <a href="tutorial_download.php" class="question" target="_blank">?</a></h4>
             <p>Each node in the network represents a single protein sequence.
@@ -252,7 +259,7 @@ $network_name = $analysis->get_name();
                     <th></th>
                     <th># Nodes</th>
                     <th># Edges</th>
-                    <th>File Size (MB)</th>
+<!--                    <th>File Size (MB)</th>-->
 <?php if (!$is_example) { ?>
                     <th></th>
 <?php } ?>
@@ -284,7 +291,7 @@ $network_name = $analysis->get_name();
                 <th>% ID</th>
                 <th># Nodes</th>
                 <th># Edges</th>
-                <th>File Size (MB)</th>
+<!--                <th>File Size (MB)</th>-->
 <?php if (!$is_example) { ?>
                 <th></th>
 <?php } ?>
@@ -352,10 +359,11 @@ require_once("inc/footer.inc.php");
 
 
 
-function make_split_button($args) {
+function make_split_button($args, $show_nc_xfer = true) {
+    $nc_link_text = $show_nc_xfer ? "<a href=\"index.php?mode=nc&$args\">Neighborhood Connectivity</a>" : "";
     return <<<HTML
 <button class="mini">Transfer To:</button><div class="btn-split"><button class="mini"><i class="fa fa-caret-down"></i></button>
-<div class="btn-split-content"><a href="index.php?mode=color&$args">Color SSN</a><a href="index.php?mode=cluster&$args">Cluster Analysis</a><a href="../efi-gnt/index.php?$args">Genome Neighborhood Tool</a></div></div>
+<div class="btn-split-content"><a href="index.php?mode=color&$args">Color SSN</a><a href="index.php?mode=cluster&$args">Cluster Analysis</a>$nc_link_text<a href="../efi-gnt/index.php?$args">Genome Neighborhood Tool</a></div></div>
 HTML;
 }
 

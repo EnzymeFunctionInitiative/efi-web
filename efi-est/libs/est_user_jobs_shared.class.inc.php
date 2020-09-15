@@ -192,7 +192,7 @@ class est_user_jobs_shared {
         if ($fraction) array_push($info, $fraction);
         if ($uniref) array_push($info, $uniref);
         if ($domain) array_push($info, $domain);
-        if ($type != "CLUSTER" && $type != "COLORSSN" && $excludeFractions) array_push($info, $excludeFractions);
+        if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $excludeFractions) array_push($info, $excludeFractions);
         if ($sequence) array_push($info, $sequence);
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);
@@ -218,6 +218,8 @@ class est_user_jobs_shared {
             return "Color SSN";
         case "CLUSTER":
             return "Cluster Analysis";
+        case "NBCONN":
+            return "Neighborhood Connectivity";
         case "BLAST":
             return "Sequence BLAST";
         default:
@@ -228,12 +230,19 @@ class est_user_jobs_shared {
     public static function build_analyze_job_name($data_row) {
         $a_min = $data_row["analysis_min_length"] == __MINIMUM__ ? "" : "Min=".$data_row["analysis_min_length"];
         $a_max = $data_row["analysis_max_length"] == __MAXIMUM__ ? "" : "Max=".$data_row["analysis_max_length"];
-        $job_name = "<span class='job-name'>" . $data_row["analysis_name"] . "</span><br><span class='job-metadata'>SSN Threshold=" . $data_row["analysis_evalue"];
+        $job_name = "<span class='job-name'>" . $data_row["analysis_name"] . "</span><br>";
+        $job_name .= "<span class='job-metadata'>SSN Threshold=" . $data_row["analysis_evalue"];
         if ($a_min)
             $job_name .= " $a_min";
         if ($a_max)
             $job_name .= " $a_max";
         $job_name .= "</span>";
+        if (isset($data_row["analysis_params"])) {
+            $data = global_functions::decode_object($data_row["analysis_params"]);
+            if (isset($data["compute_nc"]) && $data["compute_nc"]) {
+                $job_name .= " <span class='job-metadata'>Neighborhood Connectivity</span>";
+            }
+        }
         return $job_name;
     }
 
@@ -278,7 +287,7 @@ class est_user_jobs_shared {
         $color_jobs = array();
         foreach ($rows as $row) {
             $type = $row["${generate_table}_type"];
-            if ($type != "COLORSSN" && $type != "CLUSTER")
+            if ($type != "COLORSSN" && $type != "CLUSTER" && $type != "NBCONN")
                 continue;
 
             $comp_result = est_user_jobs_shared::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);
@@ -307,7 +316,7 @@ class est_user_jobs_shared {
         // Process all non Color SSN jobs.  Link analysis jobs to generate jobs and color SSN jobs to analysis jobs.
         foreach ($rows as $row) {
             $type = $row["${generate_table}_type"];
-            if ($type == "COLORSSN" || $type == "CLUSTER")
+            if ($type == "COLORSSN" || $type == "CLUSTER" || $type == "NBCONN")
                 continue;
 
             $comp_result = est_user_jobs_shared::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);
@@ -324,7 +333,7 @@ class est_user_jobs_shared {
             $analysis_jobs = array();
             $has_analysis_date_order = false;
             if ($is_completed && $includeAnalysisJobs) {
-                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter FROM ${table_db}${analysis_table}" .
+                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter, analysis_params FROM ${table_db}${analysis_table}" .
                     " WHERE analysis_generate_id = $id AND analysis_status != 'ARCHIVED'";
                 if (!$includeFailedAnalysisJobs)
                     $sql .= " AND analysis_status = 'FINISH'";
