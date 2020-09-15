@@ -90,6 +90,10 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
 
     $job_name = isset($_POST['job_name']) ? $_POST['job_name'] : "";
     $db_mod = isset($_POST['db_mod']) ? $_POST['db_mod'] : "";
+    $extra_ram = (
+        global_settings::advanced_options_enabled() &&
+        isset($_POST['extra_ram']) &&
+        $_POST['extra_ram'] === "true") ? true : false;
 
     $is_sync = false;
     if ($valid && isset($_POST["sync_key"]) && functions::check_sync_key($_POST["sync_key"])) {
@@ -98,7 +102,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
 
     if ($valid) {
         if ($est_analysis_id) {
-            $gnnInfo = gnn::create_from_est_job($db, $email, $_POST['neighbor_size'], $cooccurrence, $est_file_path, $est_analysis_id, $db_mod);
+            $gnnInfo = gnn::create_from_est_job($db, $email, $_POST['neighbor_size'], $cooccurrence, $est_file_path, $est_analysis_id, $db_mod, $extra_ram);
         } else {
             $parms = array(
                 'size' => $_POST['neighbor_size'],
@@ -106,6 +110,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
                 'job_name' => $job_name,
                 'is_sync' => $is_sync,
                 'db_mod' => $db_mod,
+                'extra_ram' => $extra_ram,
             );
 
             if ($gnn_parent_id) {

@@ -13,6 +13,7 @@ class gnd_job_factory extends job_factory {
     public function new_gnn_bigscape_job($db, $id) { return new bigscape_job($db, $id, DiagramJob::GNN); }
     public function new_uploaded_bigscape_job($db, $id) { return new bigscape_job($db, $id, DiagramJob::Uploaded); }
     public function new_diagram_data_file($id) { return new diagram_data_file($id); }
+    public function new_direct_gnd_file($file) { return new direct_gnd_file($file); }
 }
 
 function is_cli() {
@@ -39,10 +40,11 @@ if (is_cli()) {
 }
 
 
-$is_example = isset($_GET["x"]) ? true : false;
+$PARAMS = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
+$is_example = isset($PARAMS["x"]) ? true : false;
 
 
-$gnd = new gnd_v2($db, $_GET, new gnd_job_factory($is_example));
+$gnd = new gnd_v2($db, $PARAMS, new gnd_job_factory($is_example));
 
 
 if ($gnd->parse_error()) {

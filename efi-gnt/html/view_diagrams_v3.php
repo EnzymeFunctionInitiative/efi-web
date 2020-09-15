@@ -79,7 +79,7 @@ elseif (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GET
         error_404();
     }
     elseif (!$arrows->is_loaded()) {
-        pretty_error_404("Oops, something went wrong. Please send us an e-mail and mention the following diagnostic code: $gnn_id");
+        error_404("Oops, something went wrong. Please send us an e-mail and mention the following diagnostic code: $gnn_id");
     }
 
     $gnn_name = $arrows->get_gnn_name();
@@ -96,19 +96,41 @@ elseif (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GET
     $gnn_name_text = "filename <i>$gnn_name</i>";
     $window_title = " for uploaded filename $gnn_name";
 }
-elseif (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GET['direct-id'])) {
-    $gnn_id = $_GET['direct-id'];
-    $gnn_key = $_GET['key'];
+elseif ((isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GET['direct-id'])) || (isset($_GET["rs-id"]) && isset($_GET["rs-ver"]))) {
+    $validated = false;
+    $arrows = false;
+    $query_type = "";
+    $rs_id = "";
+    $rs_ver = "";
+    if (isset($_GET['rs-id'])) {
+        $gnn_id = -1;
+        $gnn_key = "-1";
+        $rs_id = $_GET['rs-id'];
+        $rs_ver = $_GET['rs-ver'];
+        $gnd_file = functions::validate_direct_gnd_file($rs_id, $rs_ver);
+        if ($gnd_file !== false) {
+            $arrows = new direct_gnd_file($gnd_file);
+            $validated = true;
+        }
+        $query_type = "rs-id";
+    } else {
+        $gnn_id = $_GET['direct-id'];
+        $gnn_key = $_GET['key'];
 
-    $arrows = new diagram_data_file($gnn_id);
-    $key = diagram_jobs::get_key($db, $gnn_id);
+        $key = diagram_jobs::get_key($db, $gnn_id);
+        $validated = $gnn_key == $key ? true : false;
 
-    if ($gnn_key != $key) {
+        if ($validated)
+            $arrows = new diagram_data_file($gnn_id);
+        $query_type = "direct-id";
+    }
+
+    if (!$validated) {
         error404();
     }
     elseif (!$arrows->is_loaded()) {
         error_log($arrows->get_message());
-        pretty_error_404("Oops, something went wrong. Please send us an e-mail and mention the following diagnostic code: $gnn_id");
+        error_404("Oops, something went wrong. Please send us an e-mail and mention the following diagnostic code: $gnn_id");
     }
 
     $gnn_name = $arrows->get_gnn_name();
@@ -138,7 +160,10 @@ elseif (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GET
         $unmatched_id_modal_text .= "<div>" . $unmatched_ids[$i] . "</div>";
     }
 
-    $id_key_query_string = "direct-id=$gnn_id&key=$gnn_key";
+    $query_id = $rs_id ? $rs_id : $gnn_id;
+    $key_query = $rs_id ? "" : "&key=$gnn_key";
+    $ver_query = $rs_id ? "&rs-ver=$rs_ver" : "";
+    $id_key_query_string = "$query_type=$query_id$key_query$ver_query";
     if ($gnn_name) {
         $gnn_name_text = "<i>$gnn_name</i>";
         $window_title = " for $gnn_name (#$gnn_id)";
@@ -150,6 +175,11 @@ elseif (isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GET
 else {
     error404();
 }
+
+$uniref_version = isset($_GET['id-type']) ? $_GET['id-type'] : "";
+$uniref_id = isset($_GET['uniref-id']) ? $_GET['uniref-id'] : "";
+if ($uniref_version && $uniref_id)
+    $is_direct_job = true;
 
 
 if ($is_bigscape_enabled) {
@@ -165,7 +195,7 @@ $nb_size_div = "";
 $cooc_div = "";
 $job_type_div = "";
 $job_id_div = "";
-$js_version = "?v=4";
+$js_version = "?v=8";
 
 if ($is_direct_job) {
     $job_type_div = $job_type_text ? "<div>Job Type: $job_type_text</div>" : "";
@@ -173,7 +203,7 @@ if ($is_direct_job) {
     $nb_size_div = $nb_size ? "<div>Neighborhood size: $nb_size</div>"  : "";
     $cooc_div = $cooccurrence ? "<div>Co-occurrence: $cooccurrence</div>" : "";
 }
-$job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
+$job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
 
 ?>
 
@@ -193,7 +223,6 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
         <link href="<?php echo $SiteUrlPrefix; ?>/bs/css/bootstrap.min.css" rel="stylesheet">
         <link href="<?php echo $SiteUrlPrefix; ?>/bs/css/menu-sidebar.css" rel="stylesheet">
         <link href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/fontawesome-all.min.css" rel="stylesheet">
-        <link rel="shortcut icon" href="images/favicon_efi.ico" type="image/x-icon">
 
 
         <!-- Custom styles for this template -->
@@ -210,6 +239,10 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
             /*#header-body-title  { float: left; width: calc(100%-200px); display: inline-block; vertical-align: middle; line-height: normal; width: calc(100%-370px); }*/
             #header-job-info { width: 195px; }
             #header-job-info div { line-height: normal; }
+            @font-face {
+                font-family:'FontAwesome';
+                src:url("<?php echo $SiteUrlPrefix; ?>/font-awesome/webfonts/fa-solid-900.ttf") format("truetype");
+            }
         </style>
 
         <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -230,6 +263,7 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     </td>
                     <td id="header-body-title" class="header-title">
                         Genome Neighborhood Diagrams for <?php echo $gnn_name_text; ?>
+                        <span id="cluster-uniref-id" class="display: none"><br></span>
                     </td>
                     <td id="header-job-info">
                         <?php echo $job_type_div; ?>
@@ -245,19 +279,44 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
         <div id="wrapper" class="">
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
-                    <li>
+                    <li id="advanced-search-panel">
                         <i class="fas fa-search" aria-hidden="true"> </i> <span class="sidebar-header">Search</span>
-                        <div id="advanced-search-panel">
+                        <div>
+                            <div id="advanced-search-use-uniref-container" style="display: none; margin-bottom: 10px;">
+                                <div style="font-size:0.9em">Show ID Type: <i class="fas fa-question-circle" data-placement="bottom" data-toggle="tooltip" title="UniRef options decrease the number of nodes that are displayed by grouping sequences together at a 50% and/or 90% sequence percent identity, depending on job options."></i></div>
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn btn-default" id="uniref50-btn">
+                                        <input type="radio" name="display-id-type" id="uniref50-cb" autocomplete="off" value="50"> UniRef50
+                                    </label>
+                                    <label class="btn btn-default" id="uniref90-btn">
+                                        <input type="radio" name="display-id-type" id="uniref90-cb" autocomplete="off" value="90"> UniRef90
+                                    </label>
+                                    <label class="btn btn-default active" id="uniprot-btn">
+                                        <input type="radio" name="display-id-type" id="uniprot-cb" autocomplete="off" value="uniprot" checked> UniProt
+                                    </label>
+                                </div>
+                                <!--
+                                <button type="button" class="btn btn-default tool-button" id="advanced-search-use-uniref">
+                                    <i class="fas fa-plus"></i>
+                                    Display UniRef50 Only
+                                </button>
+                                -->
+                                <!--
+                                <label><input type="checkbox" id="advanced-search-use-uniref" name="advanced-search-use-uniref"> Use UniRef50 IDs</label>
+                                -->
+                            </div>
 <?php if ($is_direct_job) { ?>
                             <div style="font-size:0.9em">Input specific UniProt IDs to display only those diagrams.</div>
 <?php } else { ?>
                             <div style="font-size:0.9em">Input multiple clusters and/or individual UniProt IDs.</div>
 <?php } ?>
                             <textarea id="advanced-search-input"></textarea>
-                            <button type="button" class="btn btn-light" id="advanced-search-cluster-button">Query</button>
+                            <div>
+                                <button type="button" class="btn btn-light" id="advanced-search-cluster-button">Query</button>
 <?php if ($is_direct_job) { ?>
-                            <button type="button" class="btn btn-light" id="advanced-search-reset-button">Reset View</button>
+                                <button type="button" class="btn btn-light" id="advanced-search-reset-button">Reset View</button>
 <?php } ?>
+                            </div>
                         </div>
                     </li>
                     <li>
@@ -414,6 +473,9 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                             <div>
                                 <button type="button" class="btn btn-default tool-button" id="help-modal-button"><i class="fas fa-question"></i> Quick Tips</button>
                             </div>
+                            <div>
+                                <button type="button" class="btn btn-default tool-button" id="info-modal-button"><i class="fas fa-info"></i> Licenses</button>
+                            </div>
                         </div>
                     </li>
                 </ul>
@@ -488,11 +550,13 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
         <script src="js/gnd/ui-filter.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
         <script src="js/gnd/app-specific.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
         <script src="js/gnd/svg-util.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/uniref.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
         <script src="js/bigscape.js?v=2" content-type="text/javascript"></script>
         <script type="application/javascript">
             $(document).ready(function() {
                 $("#filter-cb-toggle").prop("checked", false);
                 $("#filter-anno-toggle").prop("checked", false);
+                //$("#advanced-search-use-uniref").prop("checked", false);
                 $("#window-size").val(<?php echo $nb_size; ?>);
                 if (checkBrowserSupport()) {
 
@@ -501,6 +565,14 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     var interproFilterContainerId = "#filter-container-interpro";
                     var legendContainerId = "#active-filter-list";
                     var numDiagramsFilteredId = "#diagram-filter-count-container";
+                    var uniRefUiIds = {};
+                    uniRefUiIds.uniref50Cb = "uniref50-cb";
+                    uniRefUiIds.uniref50Btn = "uniref50-btn";
+                    uniRefUiIds.uniprotCb = "uniprot-cb";
+                    uniRefUiIds.uniprotBtn = "uniprot-btn";
+                    uniRefUiIds.uniref90Cb = "uniref90-cb";
+                    uniRefUiIds.uniref90Btn = "uniref90-btn";
+                    uniRefUiIds.uniRefTitleId = "cluster-uniref-id";
 
                     // Create objects
                     var gndVars = new GndVars();
@@ -515,15 +587,16 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     var gndHttp = new GndHttp(gndRouter);
                     var popupIds = new GndInfoPopupIds();
                     var bigscape = new BigScape(<?php echo $gnn_id; ?>, "<?php echo $gnn_key; ?>", "<?php echo $bigscape_type; ?>", "<?php echo $bigscape_status; ?>");
+                    var uniRefSupport = new UniRef(<?php echo ($uniref_version ? $uniref_version : "false"); ?>, "<?php echo ($uniref_id ? $uniref_id : ""); ?>");
                     
                     var gndDb = new GndDb(gndColor);
                     var gndFilter = new GndFilter(gndRouter, gndDb);
                     var gndPopup = new GndInfoPopup(gndRouter, gndDb, popupIds);
-                    var gndView = new GndView(gndRouter, gndDb, gndFilter, gndPopup, svgCanvasId);
+                    var gndView = new GndView(gndRouter, gndDb, gndFilter, gndPopup, svgCanvasId, uniRefSupport);
 
-                    var control = new GndController(gndRouter, gndDb, gndHttp, gndVars, gndView, bigscape);
+                    var control = new GndController(gndRouter, gndDb, gndHttp, gndVars, gndView, bigscape, uniRefSupport);
                     var filterUi = new GndFilterUi(gndRouter, gndFilter, gndColor, pfamFilterContainerId, interproFilterContainerId, legendContainerId, numDiagramsFilteredId);
-                    var ui = new GndUi(gndRouter, control, filterUi);
+                    var ui = new GndUi(gndRouter, control, filterUi, uniRefSupport);
 <?php if ($is_bigscape_enabled) { ?>
                     ui.registerBigScape(bigscape, "#run-bigscape-btn", "#run-bigscape-btn-text", "#run-bigscape-modal", "#run-bigscape-confirm", "#run-bigscape-reject");
 <?php } ?>
@@ -545,9 +618,10 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     ui.registerDiagramCountField("#diagrams-displayed-count", "#diagrams-total-count");
                     ui.registerLoaderMessage("#loader-message");
                     ui.registerProgressBar("#progress-bar");
-                    ui.registerSearchBtn("#advanced-search-cluster-button", "#advanced-search-input", "#start-info");
+                    ui.registerSearchBtn("#advanced-search-cluster-button", "#advanced-search-input", "#start-info", "#advanced-search-panel");
+                    ui.registerUniRefControl("#advanced-search-use-uniref-container", "display-id-type", uniRefUiIds);
 <?php if ($is_direct_job) { ?>
-                    ui.registerSearchResetBtn("#advanced-search-reset-button");
+                    ui.registerSearchResetBtn("#advanced-search-reset-button", "#advanced-search-input");
 <?php } ?>
 
                     $(".zoom-btn").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
@@ -582,7 +656,12 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     $("#help-modal").modal("show");
                 });
 
+                $("#info-modal-button").click(function(e) {
+                    $("#info-modal").modal("show");
+                });
+
                 $(".tooltip-text").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
+                $('[data-toggle="tooltip"]').tooltip();
 
                 $("#save-canvas-button").click(function(e) {
                     var svg = escape($("#arrow-canvas")[0].outerHTML);
@@ -855,6 +934,26 @@ $job_id_div = $gnn_id ? "<div>Job ID: $gnn_id</div>" : "";
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
+        </div>
+        <div id="info-modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Software Licenses and Attribution</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                        This site uses <a href="https://fontawesome.com">Font Awesome 5</a> and is used by
+                        Creative Commons Attribution 4.0 International
+                        <a href="https://fontawesome.com/license">license</a>.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
 </html>

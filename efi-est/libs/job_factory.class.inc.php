@@ -30,6 +30,8 @@ class job_factory {
             return new colorssn($db, $id, $arg1, $arg2);
         case "CLUSTER":
             return new cluster_analysis($db, $id, $arg1, $arg2);
+        case "NBCONN":
+            return new nb_conn($db, $id, $arg1, $arg2);
         case "BLAST":
             return new blast($db, $id, $arg1, $arg2);
         default:
