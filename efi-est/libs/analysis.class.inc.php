@@ -515,11 +515,8 @@ class analysis extends est_shared {
                 $path .= "-minn";
             if ($this->use_min_edge_attr)
                 $path .= "-mine";
-            //TODO: HACK ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! REMOVE ON 9/21/2020
-            $val = $this->get_unixtime_completed();//strtotime($this->time_completed);
-            if ($val > 1599762366)
-                if ($this->compute_nc)
-                    $path .= "-nc";
+            if ($this->compute_nc)
+                $path .= "-nc";
         }
         return $path;
     }
