@@ -10,15 +10,30 @@ class GndHttp {
 
 
     ///////////////////////////////////////////// PRIVATE /////////////////////////////////////////////
-    makeDiagramHttpRequest(handleData, startIndex, endIndex) {
-        var theUrl = this.scriptFn(startIndex, endIndex);
-
-        return this.makeHttpRequest(theUrl, handleData);
+    makeDiagramHttpRequest(scriptUrl, handleData, startIndex, endIndex) {
+        var params = this.scriptFn(startIndex, endIndex);
+        this.performHttpRequest(scriptUrl, params, handleData);
     }
 
-    makeHttpRequest(theUrl, handleData) {
+    performHttpRequest(scriptUrl, params, handleData) {
+        var paramsStr = "";
+        for (var k in params.params) {
+            if (paramsStr)
+                paramsStr += "&";
+            paramsStr += k + "=" + params.params[k];
+        }
+        
+        var isPost = typeof params.method !== "undefined" && params.method === "POST";
+        // If the request is too long for GET, switch to POST even if the user requested GET
+        if (paramsStr.length > 1800)
+            isPost = true;
+        var method = isPost ? "POST" : "GET";
+        if (!isPost)
+            scriptUrl += "?" + paramsStr;
+
         var xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("GET", theUrl, true);
+        xmlhttp.open(method, scriptUrl, true);
+        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xmlhttp.onload = function() {
             if (this.readyState == 4 && this.status == 200) {
                 var data = null;
@@ -31,7 +46,8 @@ class GndHttp {
                 handleData(data);
             }
         };
-        return xmlhttp;
+        console.log(paramsStr);
+        xmlhttp.send(isPost ? paramsStr : null);
     }
 
 
@@ -43,10 +59,10 @@ class GndHttp {
     }
 
     // Call this initially to get the extent of the data.
-    fetchInit(initUrlFn, handleInitCb) {
-        var theUrl = initUrlFn();
-        var xmlhttp = this.makeHttpRequest(theUrl, handleInitCb);
-        xmlhttp.send(null);
+    fetchInit(scriptUrl, initUrlFn, handleInitCb) {
+        var params = initUrlFn();
+        this.scriptUrl = scriptUrl;
+        this.performHttpRequest(this.scriptUrl, params, handleInitCb);
     }
 
     // Call this to retrieve diagrams from the server.  It chunks the data to allow for more responsive
@@ -78,8 +94,9 @@ class GndHttp {
                     chunkIndex = endChunkIndex + 1;
                     setTimeout(batchRetrieve, 1); // allows the UI to draw
                 };
-                var xmlhttp = that.makeDiagramHttpRequest(onReceiveCb, chunkIndex, endChunkIndex);
-                xmlhttp.send(null);
+                //var xmlhttp = that.makeDiagramHttpRequest(onReceiveCb, chunkIndex, endChunkIndex);
+                //xmlhttp.send(null);
+                that.makeDiagramHttpRequest(that.scriptUrl, onReceiveCb, chunkIndex, endChunkIndex);
                 
                 var pct = Math.trunc(100 * (chunkIndex - startIndex) / (endIndex - startIndex));
                 var payload = new Payload(); payload.MessageType = "DataRetrievalStatus"; payload.Data = { Retrieving: true, Message: "Retrieving diagrams...", PercentCompleted: pct};

@@ -10,17 +10,26 @@ const DEFAULT_PAGE_SIZE = 200;
 class GndVars {
     constructor() {
         this.authString = "";
+        this.authParams = {};
         this.urlPath = "";
         this.pageSize = DEFAULT_PAGE_SIZE;
         this.window = DEFAULT_WINDOW;
     }
 
 
+    getAuthParams() {
+        return this.authParams;
+    }
     getAuthString() {
         return this.authString;
     }
     setAuthString(value) {
         this.authString = value;
+        var parts = value.split("&");
+        for (var i = 0; i < parts.length; i++) {
+            var args = parts[i].split("=");
+            this.authParams[args[0]] = args[1];
+        }
     }
 
 

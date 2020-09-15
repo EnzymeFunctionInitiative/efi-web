@@ -103,6 +103,7 @@ if (isset($_POST['analyze_data'])) {
 
     $min_node_attr = isset($_POST['min_node_attr']) ? 1 : 0;
     $min_edge_attr = isset($_POST['min_edge_attr']) ? 1 : 0;
+    $compute_nc = isset($_POST['compute_nc']) ? true : false;
 
     $result = $analysis->create(
         $job_id,
@@ -114,7 +115,8 @@ if (isset($_POST['analyze_data'])) {
         $cdhitOpt,
         $filter,
         $min_node_attr,
-        $min_edge_attr
+        $min_edge_attr,
+        $compute_nc
     );
 
     if ($result['RESULT']) {
@@ -682,6 +684,29 @@ Protein_ID_3,Cluster#
                                     <input type="text" name="maximum" size="7" maxlength='20' <?php if (isset($_POST['maximum'])) { echo "value='" . $_POST['maximum'] . "'"; } ?>> (default: <?php echo __MAXIMUM__; ?>)
                                 </span>
                             </div>
+                        </p>
+                    </div>
+                </div>
+                <div class="initial-open">
+                    <h3>Neighborhood Connectivity Option</h3>
+                    <div>
+                        <div>
+                            <span class="input-name">Neighborhood Connectivity:</span>
+                            <span class="input-field">
+                                <label><input type="checkbox" name="compute_nc" id="compute_nc" /> Check to compute Neighborhood Connectivity (number of edges to other nodes) [default: off].</label>
+                            </span>
+                            <div class="input-desc">
+                                <p>
+                                The nodes for unresolved families can be difficult to identify in SSNs 
+                                generated with low alignment scores.  Coloring the nodes according to the 
+                                number of edges to other nodes (<b>Neighborhood Connectivity</b>, NC) helps identify 
+                                families with highly connected nodes 
+                                (<a href="https://www.biorxiv.org/content/10.1101/2020.04.16.045138v1.full">https://www.biorxiv.org/content/10.1101/2020.04.16.045138v1.full</a>).
+                                Using <b>Neighborhood Connectivity Coloring</b> as a guide, the alignment score threshold 
+                                can be chosen in Cytoscape to separate the SSN into families.
+                                </p>
+                            </div>
+                        </div>
                         </p>
                     </div>
                 </div>

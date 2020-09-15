@@ -42,7 +42,7 @@ foreach ($jobs as $job) {
         $url = $analysis_page;
         $get_array['analysis_id'] = $job['Analysis ID'];
     } else {
-        if ($job['Option Selected'] == "COLORSSN" || $job['Option Selected'] == "CLUSTER") {
+        if ($job['Option Selected'] == "COLORSSN" || $job['Option Selected'] == "CLUSTER" || $job['Option Selected'] == "NBCONN") {
             $url = $colorssn_page;
         } else {
             $url = $generate_page;

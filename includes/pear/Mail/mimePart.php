@@ -93,7 +93,7 @@ class Mail_mimePart
      *
      * @var array
      */
-    protected $subparts;
+    protected $subparts = array();
 
     /**
      * The output of this part after being built
@@ -486,7 +486,7 @@ class Mail_mimePart
             $part = new Mail_mimePart($body, $params);
         }
 
-        $this->subparts[] = $part;
+        $this->subparts = array($part);
 
         return $part;
     }
@@ -622,7 +622,8 @@ class Mail_mimePart
         $escape = '=';
         $output = '';
 
-        while (list($idx, $line) = each($lines)) {
+        //while (list($idx, $line) = each($lines)) {
+        foreach ($lines as $idx => $line) {
             $newline = '';
             $i = 0;
 

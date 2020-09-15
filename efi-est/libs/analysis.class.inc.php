@@ -35,6 +35,7 @@ class analysis extends est_shared {
     private $use_min_edge_attr = false;
     private $use_min_node_attr = false;
     private $include_all_seq = false;
+    private $compute_nc = false;
 
     private $is_example = false;
     private $analysis_table = "analysis";
@@ -84,6 +85,7 @@ class analysis extends est_shared {
     public function get_sequence_file() { return $this->sequence_file; }
     public function get_db_version() { return $this->db_version; }
     public function get_output_dir() { return $this->get_generate_id() . "/" . $this->output_dir; }
+    public function get_network_output_path() { return functions::get_results_dir() . "/" . $this->get_output_dir() . "/" . $this->get_network_dir(); }
     public function get_min_option_nice() {
         if ($this->use_min_node_attr && $this->use_min_edge_attr)
             return "Node + Edge";
@@ -97,6 +99,7 @@ class analysis extends est_shared {
     public function get_cdhit_method_nice() {
         return "EST";
     }
+    public function get_compute_nc() { return $this->compute_nc; }
     
     public function set_pbs_number($pbs_number) {
         $sql = "UPDATE analysis SET analysis_pbs_number='" . $pbs_number . "' ";
@@ -146,7 +149,7 @@ class analysis extends est_shared {
         }
     }
 
-    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0) {
+    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0, $compute_nc = false) {
         $errors = false;
         $message = "";		
 
@@ -195,6 +198,8 @@ class analysis extends est_shared {
                 $params['use_min_node_attr'] = 1;
             if ($min_edge_attr)
                 $params['use_min_edge_attr'] = 1;
+            if ($compute_nc)
+                $params['compute_nc'] = true;
             $insert_array = array(
                 'analysis_generate_id'=>$generate_id,
                 'analysis_status' => __NEW__,
@@ -393,6 +398,8 @@ class analysis extends est_shared {
                     $exec .= " -use-min-edge-attr";
                 if ($this->use_min_node_attr)
                     $exec .= " -use-anno-spec";
+                if ($this->compute_nc)
+                    $exec .= " -compute-nc";
 
                 $exec .= " 2>&1 ";
 
@@ -481,6 +488,7 @@ class analysis extends est_shared {
             $a_params = isset($result[0]['analysis_params']) ? global_functions::decode_object($result[0]['analysis_params']) : array();
             $this->use_min_edge_attr = isset($a_params["use_min_edge_attr"]) && $a_params["use_min_edge_attr"];
             $this->use_min_node_attr = isset($a_params["use_min_node_attr"]) && $a_params["use_min_node_attr"];
+            $this->compute_nc = (isset($a_params["compute_nc"]) && $a_params["compute_nc"]) ? true : false;
 
             $db_mod = isset($gen_params["generate_db_mod"]) ? $gen_params["generate_db_mod"] : functions::get_efidb_module();
             if ($db_mod) {
@@ -507,6 +515,8 @@ class analysis extends est_shared {
                 $path .= "-minn";
             if ($this->use_min_edge_attr)
                 $path .= "-mine";
+            if ($this->compute_nc)
+                $path .= "-nc";
         }
         return $path;
     }
@@ -652,6 +662,43 @@ class analysis extends est_shared {
         }
 
         return $name;
+    }
+
+    public function download_graph($type, $net) {
+        if (preg_match("/\\//", $net)) {
+            die("Invalid input.");
+        }
+        $fname = $net;
+        if ($type == "NC") {
+            $fname = global_functions::safe_filename($fname);
+            $full_path = $this->get_network_output_path() . "/" . $fname;
+        }
+        global_functions::send_image_file_for_download($fname, $full_path);
+    }
+
+    public static function get_percent_identity($fname) {
+        $percent_identity = substr($fname, strrpos($fname,'-') + 1);
+        $sep_char = "_";
+        $percent_identity = substr($percent_identity, 0, strrpos($percent_identity, $sep_char));
+        $percent_identity = str_replace(".","",$percent_identity);
+        return $percent_identity;
+    }
+
+    public function get_web_dir_path() {
+        $res_dir = $this->is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+        $rel_dir_path = $this->get_output_dir() . "/" . $this->get_network_dir();
+        $web_dir_path = functions::get_web_root() . "/$res_dir/$rel_dir_path";
+        return $web_dir_path;
+    }
+
+    public function get_nc_web_path($fname, $name_only = false) {
+        $nc_fname = str_replace(".xgmml", "_nc.png", $fname);
+        $web_dir_path = $this->get_web_dir_path();
+        $nc_web_path = "$web_dir_path/$nc_fname";
+        $nc_full_path = $this->get_network_output_path() . "/" . $nc_fname;
+        if (!file_exists($nc_full_path))
+            $nc_web_path = "";
+        return ($name_only && $nc_web_path) ? $nc_fname : $nc_web_path;
     }
 
     // PARENT EMAIL-RELATED OVERLOADS
