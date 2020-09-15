@@ -105,12 +105,16 @@ class global_settings {
         return __ENABLE_WEBSITE__; 
     }
 
+    public static function get_website_enabled_message() {
+        return defined("__ENABLE_WEBSITE_MSG__") ? __ENABLE_WEBSITE_MSG__ : "Website is currently under maintenance.  Please check back later.";
+    }
+
     public static function get_release_status() {
-        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? __BETA_RELEASE__ . " " : "";
+        return (defined("__BETA_RELEASE__") && __BETA_RELEASE__) ? __BETA_RELEASE__ . " " : "";
     }
 
     public static function get_is_beta_release() {
-        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? true : false;
+        return (defined("__BETA_RELEASE__") && __BETA_RELEASE__) ? true : false;
     }
 
     public static function get_database_modules() {
