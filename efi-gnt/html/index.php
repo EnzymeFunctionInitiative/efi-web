@@ -62,9 +62,10 @@ if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])
 $use_advanced_options = global_settings::advanced_options_enabled();
 
 $updateMessage = 
-    "The \"From the Bench\" article describing the tools and their use is available on the " . 
-    "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
-    "Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
+    'The ENA database that is used for GNT was last updated in April 2020. We are actively working on updating this database to a more current version.<br>' .
+    //"The \"From the Bench\" article describing the tools and their use is available on the " . 
+    //"<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
+    //"Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
     "<small>" . functions::get_update_message() . "</small>";
 
 require_once "inc/header.inc.php";
