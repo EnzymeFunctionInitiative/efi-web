@@ -45,5 +45,3 @@ function prettyErrorExpired($message = "") {
     error_base($message, true, TYPE500, true);
 }
 
-?>
-
