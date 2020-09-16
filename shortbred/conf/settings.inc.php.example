@@ -31,14 +31,6 @@ define("__HTTP_OUTPUT_DIR__","results");
 define("__HTTP_EXAMPLE_OUTPUT_DIR__","results_example");
 
 //
-// DATABASE
-define("__MYSQL_HOST__","");
-define("__MYSQL_USER__","");
-define("__MYSQL_PASSWORD__","");
-define("__MYSQL_AUTH_DATABASE__","");
-define("__MYSQL_DATABASE__","");
-
-//
 // UI PARAMETERS
 define("__TITLE__","EFI-CGFP");
 define("__ENABLE_DIAMOND__",true);
