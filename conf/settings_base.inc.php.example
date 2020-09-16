@@ -68,9 +68,14 @@ define("__NUM_JOB_LIMIT__","6");
 
 //
 // DATABASES
-define("__EFI_GNT_DB_NAME__","");
-define("__EFI_EST_DB_NAME__","");
-define("__EFI_SHORTBRED_DB_NAME__","");
+define("__MYSQL_HOST__","localhost");
+define("__MYSQL_USER__","efi_web");
+define("__MYSQL_PASSWORD__","");
+define("__MYSQL_DATABASE__","efi_web");
+define("__MYSQL_AUTH_DATABASE__","efi_web");
+define("__EFI_GNT_DB_NAME__","efi_web");
+define("__EFI_EST_DB_NAME__","efi_web");
+define("__EFI_SHORTBRED_DB_NAME__","efi_web");
 
 //
 // DIRECTORIES
