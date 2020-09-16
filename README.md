@@ -5,3 +5,9 @@ Each sub-dir is a separate website with its own configuration and code.  However
 configuration settings, and HTML, JS, and CSS code. These are stored in, ROOT/conf, ROOT/libs, ROOT/html,
 and ROOT/includes.
 
+
+# INSTALLATION
+
+bin/setup-composer.sh
+php composer.phar install
+
