@@ -24,15 +24,6 @@ define("__UPLOADS_DIR__","");
 define("__RESULTS_EXAMPLE_DIR__,"");
 
 //
-// MYSQL SETTINGS
-define("__MYSQL_HOST__","");
-define("__MYSQL_USER__","");
-define("__MYSQL_DATABASE__","");
-define("__MYSQL_AUTH_DATABASE__","");
-define("__MYSQL_PASSWORD__","");
-define("__MYSQL_GNT_DATABASE__","");
-
-//
 // CLUSTER SETTINGS
 define("__CLUSTER_USER__","
 define("__GENERATE_QUEUE__","");

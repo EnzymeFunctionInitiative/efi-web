@@ -33,15 +33,6 @@ define("__VALID_DIAGRAM_FILE_TYPE__","sqlite");
 define("__VALID_ID_FILE_TYPE__","txt fasta");
 
 //
-// DATABASE
-define("__MYSQL_HOST__","");
-define("__MYSQL_USER__","");
-define("__MYSQL_PASSWORD__","");
-define("__MYSQL_DATABASE__","");
-define("__MYSQL_EST_DATABASE__","");
-define("__MYSQL_AUTH_DATABASE__","");
-
-//
 // UI PARAMETERS
 define("__TITLE__","EFI GNT");
 define("__ENABLE_BIGSCAPE__",false);
