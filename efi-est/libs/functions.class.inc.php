@@ -158,7 +158,7 @@ class functions {
     }
 
     public static function get_gnt_migrate_info($db, $analysis_id) {
-        $db_name = self::get_gnt_database();
+        $db_name = global_settings::get_gnt_database();
         if (!$db_name)
             return false;
 
@@ -571,10 +571,6 @@ class functions {
 
     public static function file_size_graph_enabled() {
         return defined("__FILE_SIZE_GRAPH_ENABLED__") ? __FILE_SIZE_GRAPH_ENABLED__ : false;
-    }
-
-    public static function get_gnt_database() {
-        return defined("__MYSQL_GNT_DATABASE__") ? __MYSQL_GNT_DATABASE__ : "";
     }
 
     public static function get_analysis_job_info($db, $analysis_id) {

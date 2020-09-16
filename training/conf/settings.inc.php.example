@@ -8,14 +8,6 @@ define("__WEB_PATH__",__BASE_WEB_PATH__."/");
 define("__WEB_ROOT__",__BASE_WEB_ROOT__."".__WEB_PATH__);
 
 //
-// DATABASE
-define("__MYSQL_HOST__","");
-define("__MYSQL_USER__","");
-define("__MYSQL_PASSWORD__","");
-define("__MYSQL_DATABASE__","");
-define("__MYSQL_AUTH_DATABASE__","");
-
-//
 // EXAMPLES
 define("__EST_EXAMPLE_CONFIG__","");
 
