@@ -104,7 +104,8 @@ function enableForm(formId) {
 //    document.getElementById('submit').disabled = false;
 }
 
-function addParam(fd, param, id, isCb = false) {
+function addParam(fd, param, id, isCb) {
+    isCb = isCb || false;
     if (!id)
         return;
     var elem = document.getElementById(id);

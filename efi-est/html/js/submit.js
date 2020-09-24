@@ -204,7 +204,8 @@ function submitOptionEForm(famHelper, outputIds) {
     }
 }
 
-function submitColorSsnForm(type = "") { // the parameters are optional
+function submitColorSsnForm(type) { // the parameters are optional
+    type = type || "";
 
     var option = type ? type : "colorssn";
     var messageId = "message-" + option;
@@ -327,33 +328,27 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
     if (typeof fileHandler === "function")
         fileHandler(xhr);
 
-    if (DEBUG) {
-        for (var pair of formData.entries()) {
-            console.log(pair[0] + " = " + pair[1]);
-        }
-    } else {
-        xhr.open("POST", formAction, true);
-        xhr.send(formData);
-        xhr.onreadystatechange  = function(){
-            if (xhr.readyState == 4  ) {
-                // Javascript function JSON.parse to parse JSON data
-                var jsonObj = JSON.parse(xhr.responseText);
+    xhr.open("POST", formAction, true);
+    xhr.send(formData);
+    xhr.onreadystatechange  = function(){
+        if (xhr.readyState == 4  ) {
+            // Javascript function JSON.parse to parse JSON data
+            var jsonObj = JSON.parse(xhr.responseText);
 
-                console.log(messageId);
+            console.log(messageId);
     
-                // jsonObj variable now contains the data structure and can
-                // be accessed as jsonObj.name and jsonObj.country.
-                if (jsonObj.valid) {
-                    if (jsonObj.cookieInfo)
-                        document.cookie = jsonObj.cookieInfo;
-                    completionHandler(jsonObj);
-                }
-                if (!jsonObj.valid && jsonObj.message) {
-                    document.getElementById(messageId).innerHTML = jsonObj.message;
-                } else {
-                    if (messageId)
-                        document.getElementById(messageId).innerHTML = "";
-                }
+            // jsonObj variable now contains the data structure and can
+            // be accessed as jsonObj.name and jsonObj.country.
+            if (jsonObj.valid) {
+                if (jsonObj.cookieInfo)
+                    document.cookie = jsonObj.cookieInfo;
+                completionHandler(jsonObj);
+            }
+            if (!jsonObj.valid && jsonObj.message) {
+                document.getElementById(messageId).innerHTML = jsonObj.message;
+            } else {
+                if (messageId)
+                    document.getElementById(messageId).innerHTML = "";
             }
         }
     }
