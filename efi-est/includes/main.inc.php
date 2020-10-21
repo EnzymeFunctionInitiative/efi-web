@@ -1,9 +1,7 @@
 <?php
 
 require_once(__DIR__ . "/../conf/settings.inc.php");
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+require_once(__DIR__ . "/../../libs/debug_check.inc.php");
 
 //set_include_path(get_include_path() . ":" . __DIR__ . "/../libs" . ":" . __BASE_DIR__ . "/includes/pear" . ":" . __BASE_DIR__ . "/libs");
 //function __autoload($class_name) {
@@ -27,4 +25,3 @@ else
 require_once(__BASE_DIR__ . "/includes/error_helpers.inc.php");
 require_once(__DIR__ . "/../libs/est_settings.class.inc.php");
 
-?>

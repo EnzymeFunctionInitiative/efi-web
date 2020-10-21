@@ -56,7 +56,7 @@ class functions {
         $sql = "SELECT * ";
         $sql .= "FROM generate ";
         $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER') ";
+        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER' OR generate_type='NBCONN') ";
         $sql .= "ORDER BY generate_time_created ASC ";
         $result = $db->query($sql);
         return $result;
@@ -158,7 +158,7 @@ class functions {
     }
 
     public static function get_gnt_migrate_info($db, $analysis_id) {
-        $db_name = self::get_gnt_database();
+        $db_name = global_settings::get_gnt_database();
         if (!$db_name)
             return false;
 
@@ -211,9 +211,6 @@ class functions {
 
     }
 
-    public static function get_retention_secs() {
-        return global_settings::get_retention_days() * 24 * 60 * 60;
-    }
     public static function get_results_dir() {
         return __EST_RESULTS_DIR__; // set in the global conf file
     }
@@ -433,7 +430,9 @@ class functions {
         } else if ($gen_type == "COLORSSN") {
             $gen_type = "Color SSN";
         } else if ($gen_type == "CLUSTER") {
-            $gen_type = "Color SSN";
+            $gen_type = "Cluster Analysis";
+        } else if ($gen_type == "NBCONN") {
+            $gen_type = "Neighborhood Connectivity";
         }
         return $gen_type;
     }
@@ -572,10 +571,6 @@ class functions {
 
     public static function file_size_graph_enabled() {
         return defined("__FILE_SIZE_GRAPH_ENABLED__") ? __FILE_SIZE_GRAPH_ENABLED__ : false;
-    }
-
-    public static function get_gnt_database() {
-        return defined("__MYSQL_GNT_DATABASE__") ? __MYSQL_GNT_DATABASE__ : "";
     }
 
     public static function get_analysis_job_info($db, $analysis_id) {

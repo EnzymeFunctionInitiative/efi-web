@@ -13,20 +13,14 @@ require_once(__DIR__."/../../conf/settings_base.inc.php");
 //
 // USER DEFINED OPTIONS
 //
-    // Where output results are stored [MANDATORY]
-define("__OUTPUT_DIR__","");
-    // Where GND output results are stored [MANDATORY]
-define("__DIAGRAM_OUTPUT_DIR__","");
-    // Where uploaded files are temporarily stored [MANDATORY]
-define("__UPLOAD_DIR__","");
-    // Log file [MANDATORY]
-define("__LOG_FILE__","");
-    // The Lmod module to load to run the GNT tools [MANDATORY]
-define("__GNN_MODULE__","efignt/devlocal");
-    // The Lmod module to load to access the EFI database [MANDATORY]
-define("__EFI_DB_MODULE__","efidb/ip79");
-    // The Lmod module for BLAST [MANDATORY]
-define("__BLAST_MODULE__","blast");
+    
+define("__OUTPUT_DIR__","");                // Where output results are stored [MANDATORY]
+define("__DIAGRAM_OUTPUT_DIR__","");        // Where GND output results are stored [MANDATORY]
+define("__UPLOAD_DIR__","");                // Where uploaded files are temporarily stored [MANDATORY]
+define("__LOG_FILE__","");                  // Log file [MANDATORY]
+define("__GNN_MODULE__","efignt/devlocal"); // The Lmod module to load to run the GNT tools [MANDATORY]
+define("__EFI_DB_MODULE__","efidb/ip79");   // The Lmod module to load to access the EFI database [MANDATORY]
+define("__BLAST_MODULE__","blast");         // The Lmod module for BLAST [MANDATORY]
 
 //
 // PATHS
@@ -46,15 +40,6 @@ define("__RELATIVE_DIAGRAM_OUTPUT_DIR__","gnd_results");
 define("__VALID_FILE_TYPE__","xgmml zip");
 define("__VALID_DIAGRAM_FILE_TYPE__","sqlite");
 define("__VALID_ID_FILE_TYPE__","txt fasta");
-
-//
-// DATABASE
-define("__MYSQL_HOST__","localhost");
-define("__MYSQL_DATABASE__",__EFI_GNT_DB_NAME__);
-define("__MYSQL_EST_DATABASE__",__EFI_EST_DB_NAME__);
-define("__MYSQL_AUTH_DATABASE__",__GLOBAL_AUTH_DATABASE__);
-define("__MYSQL_USER__",__GLOBAL_MYSQL_USER__);
-define("__MYSQL_PASSWORD__",__GLOBAL_MYSQL_PASSWORD__);
 
 //
 // UI PARAMETERS

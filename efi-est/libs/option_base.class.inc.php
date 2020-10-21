@@ -1,8 +1,8 @@
 <?php
 
-require_once('stepa.class.inc.php');
-require_once('input.class.inc.php');
-require_once('output.class.inc.php');
+require_once(__DIR__.'/stepa.class.inc.php');
+require_once(__DIR__.'/input.class.inc.php');
+require_once(__DIR__.'/output.class.inc.php');
 
 abstract class option_base extends stepa {
 
@@ -260,6 +260,7 @@ abstract class option_base extends stepa {
             $exec .= "module load " . functions::get_efidb_module() . "\n";
         $exec .= $this->additional_exec_modules();
         $exec .= $this->get_run_script();
+        $exec .= " --output-path " . $out->full_output_dir;
         if ($sched)
             $exec .= " -scheduler $sched";
         if (functions::get_use_legacy_graphs())
@@ -352,4 +353,3 @@ abstract class option_base extends stepa {
 
 }
 
-?>

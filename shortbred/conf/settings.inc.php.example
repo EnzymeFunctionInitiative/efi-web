@@ -48,14 +48,6 @@ define("__HTTP_OUTPUT_DIR__","results");
 define("__HTTP_EXAMPLE_OUTPUT_DIR__","results_example");
 
 //
-// DATABASE
-define("__MYSQL_HOST__","localhost");
-define("__MYSQL_DATABASE__",__EFI_SHORTBRED_DB_NAME__);
-define("__MYSQL_AUTH_DATABASE__",__GLOBAL_AUTH_DATABASE__);
-define("__MYSQL_USER__",__GLOBAL_MYSQL_USER__);
-define("__MYSQL_PASSWORD__",__GLOBAL_MYSQL_PASSWORD__);
-
-//
 // UI PARAMETERS
 define("__TITLE__","EFI-CGFP");
 define("__ENABLE_DIAMOND__",true);

@@ -7,5 +7,3 @@ class output_structure {
 }
 
 
-?>
-

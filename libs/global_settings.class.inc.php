@@ -36,9 +36,19 @@ class global_settings {
     public static function get_retention_days() {
         return __RETENTION_DAYS__;
     }
+    public static function get_retention_secs() {
+        return global_settings::get_retention_days() * 24 * 60 * 60;
+    }
 
     public static function get_file_retention_days() {
         return __FILE_RETENTION_DAYS__;
+    }
+
+    public static function get_archived_retention_days() {
+        if (defined("__ARCHIVED_RETENTION_DAYS__"))
+            return __ARCHIVED_RETENTION_DAYS__;
+        else
+            return __FILE_RETENTION_DAYS__;
     }
 
     public static function get_shortbred_enabled() {
@@ -95,12 +105,16 @@ class global_settings {
         return __ENABLE_WEBSITE__; 
     }
 
+    public static function get_website_enabled_message() {
+        return defined("__ENABLE_WEBSITE_MSG__") ? __ENABLE_WEBSITE_MSG__ : "Website is currently under maintenance.  Please check back later.";
+    }
+
     public static function get_release_status() {
-        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? __BETA_RELEASE__ . " " : "";
+        return (defined("__BETA_RELEASE__") && __BETA_RELEASE__) ? __BETA_RELEASE__ . " " : "";
     }
 
     public static function get_is_beta_release() {
-        return defined("__BETA_RELEASE__") && __BETA_RELEASE__ ? true : false;
+        return (defined("__BETA_RELEASE__") && __BETA_RELEASE__) ? true : false;
     }
 
     public static function get_database_modules() {

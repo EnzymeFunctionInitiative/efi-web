@@ -38,6 +38,7 @@ class gnn extends gnn_shared {
     // the existing job data.
     protected $child_filter_only = false; 
     protected $db_mod = "";
+    protected $extra_ram = false;
 
     private $is_sync = false;
 
@@ -268,6 +269,8 @@ class gnn extends gnn_shared {
         $exec .= " -pfam \"" . $this->get_pfam_hub() . "\"";
         $exec .= " -id-out \"" . $this->get_id_table_file() . "\"";
         $exec .= " -id-out-domain \"" . $this->get_id_table_file(true) . "\"";
+        if ($this->extra_ram)
+            $exec .= " -extra-ram";
         
         if (!$this->is_sync) {
             $exec .= " -pfam-zip \"" . $this->get_pfam_data_zip_file() . "\"";
@@ -763,16 +766,18 @@ class gnn extends gnn_shared {
             }
 
             $db_mod = "";
-            if (isset($params["db_mod"])) {
+            if (isset($params_obj["db_mod"])) {
                 // Get the actual module not the alias.
                 $mod_info = global_settings::get_database_modules();
                 foreach ($mod_info as $mod) {
-                    if ($mod[1] == $params["db_mod"]) {
+                    if ($mod[1] == $params_obj["db_mod"]) {
                         $db_mod = $mod[0];
                     }
                 }
             }
             $this->db_mod = $db_mod;
+
+            $this->extra_ram = isset($params_obj['extra_ram']) && $params_obj['extra_ram'];
 
             $basefilename = $this->filename;
             if ($this->est_id) {

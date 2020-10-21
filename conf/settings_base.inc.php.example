@@ -17,75 +17,125 @@
 //
 // USER-CONTROLLED OPTIONS
 //
-    // This can be used to support different sites, e.g. dev, prod, beta, on the same server; e.g. /dev, or nothing [OPTIONAL]
-    // MUST BE FIRST OPTION
-define("__BASE_WEB_PATH__","");
-    // https://FULL_SERVER_URL, no path_info, e.g. https://efi.igb.illinois.edu [MANDATORY]
-define("__BASE_WEB_ROOT__","");
-    // https://FULL_SERVER_URL/PREFIX/efi-est [MANDATORY]
-define("__EST_URL__","");
-    // Timezone [OPTIONAL]
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// MANDATORY OPTIONS
+
+define("__BASE_WEB_ROOT__","");                 // https://FULL_SERVER_URL, no path_info,
+                                                // e.g. https://efi.igb.illinois.edu 
 define("__TIMEZONE__","America/Chicago");
-    // Where emails are sent From [MANDATORY]
-define("__ADMIN_EMAIL__","");
-    // Where emails are sent when jobs fail [MANDATORY]
-define("__ERROR_ADMIN_EMAIL__","");
-    // Where emails are sent when users submit feedback [MANDATORY]
-define("__FEEDBACK_EMAIL__","");
-    // The next 5 settings depend on the back-end EFI tools database version and should be set when databases are built
+define("__ADMIN_EMAIL__","");                   // Where emails are sent From 
+define("__ERROR_ADMIN_EMAIL__","");             // Where emails are sent when jobs fail 
+define("__FEEDBACK_EMAIL__","");                // Where emails are sent when users submit feedback 
+define("__EMAIL_FOOTER__","");                  // Email-footer (Multiline) [OPTIONAL]
+
+// The next 5 settings depend on the back-end EFI tools database version and should be set when databases are built
 define("__UNIPROT_VERSION__","");
 define("__ENA_VERSION__","");
 define("__GNT_VERSION__","");
 define("__EST_VERSION__","");
 define("__INTERPRO_VERSION__","");
-    // (Multiline) email footer [OPTIONAL]
-define("__EMAIL_FOOTER__","");
-    // These options control how jobs are executed in batch mode.  The schedulers that are supported are SLURM and PBS/Torque [MANDATORY]
-define("__CLUSTER_SCHEDULER__","slurm");
-    // The partition/queue to submit to, for large sub-jobs (can/should be the same as NORMAL_QUEUE) [MANDATORY]
-define("__MEMORY_QUEUE__","");
-    // The partition/queue to submit to, for normal sub-jobs [MANDATORY]
-define("__NORMAL_QUEUE__","");
-    // Set to the directory where results are stored, e.g. /home/a-m/efi_est/results [MANDATORY]
-define("__EST_RESULTS_DIR__","");
-    // Database that tables for all tools are stored in, including auth.  They can be set to different databases but it is not recommended [MANDATORY]
-define("__GLOBAL_MYSQL_DATABASE__","efi_web");
+    
+define("__CLUSTER_SCHEDULER__","slurm");        // These options control how jobs are executed in
+                                                // batch mode.  The schedulers that are supported
+                                                // are SLURM and PBS/Torque 
+define("__MEMORY_QUEUE__","");                  // The partition/queue to submit to, for large sub-jobs
+                                                // (can/should be the same as NORMAL_QUEUE) 
+define("__NORMAL_QUEUE__","");                  // The partition/queue to submit to, for normal sub-jobs 
+define("__EST_RESULTS_DIR__","");               // Set to the directory where results are stored,
+                                                // e.g. /home/a-m/efi_est/results 
+define("__CLUSTER_USER__","");                  // Set to the user that jobs are submitted under 
 
-//
+// Database that tables for all tools are stored in, including auth. They can be set to
+// different databases but it is not recommended.
+// The defaults can be used, but the database server must be configured accordingly.
+define("__MYSQL_HOST__","localhost");
+define("__MYSQL_DATABASE__","efi_web");
+define("__MYSQL_USER__","efi_web");
+define("__MYSQL_PASSWORD__","");
+define("__MYSQL_AUTH_DATABASE__","efi_web");
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // STUFF FOR SITE MAINTENANCE AND ADMIN
 //
-    // This is used when an installation is used as a beta/testing site, and adds the text as a banner on each page, and email.
-//define("__BETA_RELEASE__","BETA --");
-    // This can take the site down for maintenance, and display a message [USEFUL FOR ADMINS]
-define("__ENABLE_WEBSITE__",true);
-    // This enables advanced options (for internal/development/testing only) [USEFUL FOR ADMINS]
-define("__ENABLE_ADVANCED_OPTIONS__",true);
 
-//
-// PATHS
-define("__INTERPRO_WEBSITE__","http://www.ebi.ac.uk/interpro/");
-define("__EST_WEB_PATH__",__BASE_WEB_PATH__."/efi-est");
-define("__GNT_WEB_PATH__",__BASE_WEB_PATH__."/efi-gnt");
-define("__CGFP_WEB_PATH__",__BASE_WEB_PATH__."/efi-cgfp");
+define("__ENABLE_WEBSITE__",true);              // This can take the site down for maintenance, and
+                                                // display a message [USEFUL FOR ADMINS]
+define("__ENABLE_ADVANCED_OPTIONS__",true);     // This enables advanced options (for internal use
+                                                // or software development only) 
+//define("__BETA_RELEASE__","BETA --");         // This is used when an installation is used as a
+                                                // beta/testing site, and adds the text as a banner
+                                                // on each page, and email. Uncomment to enable.
 
-//
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ADVANCED OPTIONS
+// Most people don't need to change anything here
+// 
+
 // UI PARAMETERS
-define("__SHORTBRED_USER_GROUP__","");
 define("__USE_DASHBOARD__",true);
 define("__USE_TRAINING__",true);
 define("__ENABLE_EMAILS__",true);
 define("__ENABLE_RECENT_JOBS__",true);
 define("__ENABLE_JOB_GROUPS__",false);
 define("__ENABLE_SHORTBRED__",true);
+define("__ENABLE_WEBSITE_MSG__","");
 
+// CLUSTER PARAMETERS
+define("__MAX_QUEUABLE_JOBS__",1000);
+define("__MAX_USER_QUEUABLE_JOBS__",1000);
+
+// WEB PATHS
+define("__BASE_WEB_PATH__","");         // Only set this if you want to support multiple EFI sites,
+                                        // e.g. dev and a production site, on the same server.
+                                        // For production this should be an empty string. Otherwise
+                                        // set to something like /dev
+define("__INTERPRO_WEBSITE__","http://www.ebi.ac.uk/interpro/");
+define("__EST_WEB_PATH__",__BASE_WEB_PATH__."/efi-est");
+define("__GNT_WEB_PATH__",__BASE_WEB_PATH__."/efi-gnt");
+define("__CGFP_WEB_PATH__",__BASE_WEB_PATH__."/efi-cgfp");
+define("__EST_URL__",__BASE_WEB_ROOT__."/".__EST_WEB_PATH__);
+
+define("__SHORTBRED_USER_GROUP__","");
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// DATA RETENTION AND SUBMISSION CONTROLS
+// These settings control how long files are kept around.
+// 
+
+define("__MAX_TIMEOUT__","3600");
+define("__RETENTION_DAYS__","30");          // Number of days jobs are made available to user via
+                                            // download.
+define("__FILE_RETENTION_DAYS__","40");     // Number of days to keep files from successful jobs
+                                            // around. This setting should be smaller if you have
+                                            // less storage. Larger than RETENTION_DAYS if you want
+                                            // to keep things around for testing purposes.
+define("__FAILED_RETENTION_DAYS__","14");   // Number of days to keep files from failed jobs around 
+define("__ARCHIVED_RETENTION_DAYS__","14"); // Number of days to keep archived job files around
+define("__NUM_JOB_LIMIT__","6");            // Number of jobs that a user can run within a 24-hour
+                                            // time period (the main EFI website uses a large
+                                            // number, ~50); depends on the size of the cluster 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// GURU OPTIONS
+// Only mess around in here if you are Gandalf 
 //
+
+// DIRECTORIES
+define("__BASE_DIR__",__DIR__."/..");
+define("__EST_JOB_RESULTS_DIRNAME__","output");
+define("__EST_COLORSSN_SUFFIX__","_coloredssn");
+
 // CLUSTER/BACKEND OPTIONS
-// Only use these three if you are Gandalf (this supports multiple EFI tools database versions)
+// (this supports multiple EFI tools database versions)
 define("__EFIDB_MODULES__","");
-define("__ENA_VERSIONS__","");
+define("__ENA_VERSIONS__",__ENA_VERSIONS__);
 define("__UNIPROT_VERSIONS__",__UNIPROT_VERSION__);
 
-//
 // STATUS
 // ***DO NOT CHANGE THESE*** NOT EVEN GANDALF IS ALLOWED TO CHANGE THESE!!!
 define("__NEW__","NEW");
@@ -95,31 +145,8 @@ define("__FAILED__","FAILED");
 define("__CANCELLED__","CANCELLED");
 define("__ARCHIVED__","ARCHIVED");
 
-//
-// DEFAULTS
-define("__MAX_TIMEOUT__","3600");
-    // Number of days jobs are made available to users
-define("__RETENTION_DAYS__","30");
-    // Number of days to keep files from successful jobs around. This setting should be smaller if you have less storage [OPTIONAL]
-define("__FILE_RETENTION_DAYS__","40"); // Larger than RETENTION_DAYS if you want to keep things around for testing purposes
-    // Number of days to keep files from failed jobs around [OPTIONAL]
-define("__FAILED_RETENTION_DAYS__","14"); 
-    // Number of jobs that a user can run within a 24-hour time period (the main EFI website uses a large number, ~50); depends on the size of the cluster [OPTIONAL]
-define("__NUM_JOB_LIMIT__","6");
-
-//
 // DATABASES
-define("__GLOBAL_AUTH_DATABASE__",__GLOBAL_MYSQL_DATABASE__);
-define("__GLOBAL_MYSQL_USER__","efi_web");
-define("__GLOBAL_MYSQL_PASSWORD__","");
-define("__EFI_GNT_DB_NAME__",__GLOBAL_MYSQL_DATABASE__);
-define("__EFI_EST_DB_NAME__",__GLOBAL_MYSQL_DATABASE__);
-define("__EFI_SHORTBRED_DB_NAME__",__GLOBAL_MYSQL_DATABASE__);
-
-//
-// DIRECTORIES
-define("__BASE_DIR__",__DIR__."/..");
-
-define("__EST_JOB_RESULTS_DIRNAME__","output");
-define("__EST_COLORSSN_SUFFIX__","_coloredssn");
+define("__EFI_GNT_DB_NAME__",__MYSQL_DATABASE__);
+define("__EFI_EST_DB_NAME__",__MYSQL_DATABASE__);
+define("__EFI_SHORTBRED_DB_NAME__",__MYSQL_DATABASE__);
 

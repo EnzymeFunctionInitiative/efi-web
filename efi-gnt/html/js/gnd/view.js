@@ -1,7 +1,7 @@
 
 
 class GndView {
-    constructor(gndRouter, gndDb, gndFilter, gndPopup, svgCanvasId) {
+    constructor(gndRouter, gndDb, gndFilter, gndPopup, svgCanvasId, uniRefSupport) {
         this.db = gndDb;
         this.filter = gndFilter;
         this.gndRouter = gndRouter;
@@ -12,16 +12,19 @@ class GndView {
         this.canvas = $(svgCanvasId);
 
         // Constant values
-        this.diagramHeight = 70;
+        this.defaultDiagramHeight = 70;
         this.padding = 10;
+        this.topPadding = 0;
         this.fontHeight = 15;
         this.arrowHeight = 15;
         this.pointerWidth = 5;
         this.axisThickness = 1;
         this.axisBuffer = 2;
+        this.titleHeight = 18;
         this.axisColor = "black";
         this.orientSameDir = true; // Orient the query arrows in the same direction (flip the diagram)
         this.legendScale = 3000;
+        this.uniRefSupport = uniRefSupport;
 
         //TODO: figure out why SnapSVG doesn't give the correct width (which is why I'm using DOM).
         var container = document.getElementById(svgCanvasId.substring(1));
@@ -52,7 +55,7 @@ class GndView {
     clearCanvas() {
         this.diagramCount = 0;
         this.canvas.empty();
-        this.canvas.css({height: this.diagramHeight + "px"});
+        this.canvas.css({height: this.defaultDiagramHeight + "px"});
         this.S.attr({viewBox: "0 0 " + this.initialWidth + " 70"});
     }
 
@@ -67,22 +70,42 @@ class GndView {
 
     addDiagrams(drawables, viewData) {
         var drawingWidth = this.initialWidth - this.padding * 2;
+        var urVer = this.uniRefSupport.getVersion();
+
+        var diagramHeight = this.defaultDiagramHeight;
+        var titleHeight = 0;
+        var xPadding = this.padding;
+        var drawUniRefExpand = this.showUniRefTitleInfo();
+        if (drawUniRefExpand) {
+            titleHeight = this.titleHeight;
+            diagramHeight += titleHeight;
+            xPadding *= 2;
+            this.topPadding = 50;
+        }
+
+        if (this.diagramCount == 0 && drawUniRefExpand) {
+            var group = this.S.paper.group();
+            var textObj = group.text(0, this.padding*3, "")
+                .attr({fontFamily: "FontAwesome", fontSize: "2em"});
+            group.text(30, this.padding*2+5, "Click this icon on the diagrams below to open a new window with the sequences contained in the given UniRef cluster.")
+                .attr({'class':'diagram-title-uniref-help'});
+        }
 
         // Loop over the input list and call drawDiagram() for each drawable
         for (var i = 0; i < drawables.length; i++) {
             var index = this.diagramCount;
-            this.drawDiagram(index, drawables[i], drawingWidth);
+            this.drawDiagram(index, drawables[i], drawingWidth, diagramHeight, titleHeight, xPadding, drawUniRefExpand);
             this.diagramCount++;
         }
 
         this.setLegendScale(viewData.LegendScale);
-        this.drawLegendLine(this.diagramCount, drawingWidth);
+        this.drawLegendLine(this.diagramCount, diagramHeight, drawingWidth);
         this.isEndOfData = viewData.EndOfData;
         
         var extraPadding = 60; // for popup for last one
-        var ypos = this.diagramCount * this.diagramHeight + this.padding * 2 + this.fontHeight;
+        var ypos = this.diagramCount * diagramHeight + this.padding * 2 + this.fontHeight + this.topPadding;
         this.S.attr({viewBox: "0 0 " + this.initialWidth + " " + ypos});
-        this.canvas.css({height: (ypos + this.diagramHeight + this.padding + extraPadding) + "px"});
+        this.canvas.css({height: (ypos + diagramHeight + this.padding + extraPadding + this.topPadding) + "px"});
     }
 
 
@@ -90,8 +113,8 @@ class GndView {
     }
 
     // Draw a diagram (query + neighbors)
-    drawDiagram(index, data, drawingWidth) {
-        var ypos = index * this.diagramHeight + this.padding * 2 + this.fontHeight;
+    drawDiagram(index, data, drawingWidth, diagramHeight, titleHeight, xPadding, drawUniRefExpand) {
+        var ypos = index * diagramHeight + this.padding * 2 + this.fontHeight + titleHeight + this.topPadding;
         var geneXpos = parseFloat(data.Query.RelStart);
         var geneWidth = parseFloat(data.Query.RelWidth);
 
@@ -101,7 +124,7 @@ class GndView {
 
         // Always face to the right which is why isComplement isn't provided, rather false is given in this call.
         var queryIsComplement = this.orientSameDir ? false : data.Query.IsComplement;
-        var arrow = this.drawArrow(group, geneXpos, ypos, geneWidth, queryIsComplement, drawingWidth, data.Query);
+        var arrow = this.drawArrow(group, geneXpos, ypos, geneWidth, xPadding, queryIsComplement, drawingWidth, data.Query);
         this.filter.addArrow(arrow, data.Query, index);
 
         var minXpct = 1.1, maxXpct = -0.1;
@@ -123,12 +146,17 @@ class GndView {
             minXpct = (neighborXpos < minXpct) ? neighborXpos : minXpct;
             maxXpct = (neighborXpos+neighborWidth > maxXpct) ? neighborXpos+neighborWidth : maxXpct;
 
-            var arrow = this.drawArrow(group, neighborXpos, ypos, neighborWidth, nIsComplement, drawingWidth, N);
+            var arrow = this.drawArrow(group, neighborXpos, ypos, neighborWidth, xPadding, nIsComplement, drawingWidth, N);
             this.filter.addArrow(arrow, N, index);
         }
 
-        this.drawAxis(group, ypos, drawingWidth, minXpct, maxXpct, data.Query.IsBound, data.Query.IsComplement);
-        this.drawTitle(group, index * this.diagramHeight + this.fontHeight - 2, data.Query.Attr);
+        if (drawUniRefExpand) {
+            var plusPos = index * diagramHeight + this.fontHeight + 2 + this.topPadding;//+ titleHeight;
+            this.drawUniRefExpand(group, plusPos, this.padding, data.Query.Attr);
+        }
+        this.drawAxis(group, ypos, drawingWidth, xPadding, minXpct, maxXpct, data.Query.IsBound, data.Query.IsComplement);
+        var titleYpos = index * diagramHeight + this.fontHeight - 2 + this.topPadding;
+        this.drawTitle(group, titleYpos, data.Query.Attr, titleHeight, xPadding);
         this.groupList.push(group);
     }
 
@@ -137,7 +165,7 @@ class GndView {
     // ypos is in pixels from top
     // width is in percent (0-1)
     // drawingWidth is in pixels and is the area of the canvas in which we can draw (need to add padding to it to get proper coordinate)
-    drawArrow(svgContainer, xpos, ypos, width, isComplement, drawingWidth, attrData) {
+    drawArrow(svgContainer, xpos, ypos, width, xPadding, isComplement, drawingWidth, attrData) {
         // Upper left and right of rect. portion of arrow
         var coords = [];
         var llx = 0, lrx = 0, urx = 0, ulx = 0, px = 0;
@@ -145,19 +173,19 @@ class GndView {
 
         if (!isComplement) {
             // lower left of rect. portion
-            llx = this.padding + xpos * drawingWidth;
+            llx = xPadding + xpos * drawingWidth;
             lly = ypos - this.axisThickness - this.axisBuffer;
             // lower right of rect. portion
-            lrx = this.padding + (xpos + width) * drawingWidth - this.pointerWidth;
+            lrx = xPadding + (xpos + width) * drawingWidth - this.pointerWidth;
             lry = lly;
             // pointer of arrow, facing right
-            px = this.padding + (xpos + width) * drawingWidth;
+            px = xPadding + (xpos + width) * drawingWidth;
             py = ypos - this.axisThickness - this.axisBuffer - this.arrowHeight / 2;
             // upper right of rect. portion
-            urx = lrx; //this.padding + (xpos + width) * drawingWidth - this.pointerWidth;
+            urx = lrx; //xPadding + (xpos + width) * drawingWidth - this.pointerWidth;
             ury = ypos - this.arrowHeight - this.axisThickness - this.axisBuffer; 
             // upper left of rect. portion
-            ulx = llx; //this.padding + xpos * drawingWidth;
+            ulx = llx; //xPadding + xpos * drawingWidth;
             uly = ury;
 
             if (llx > lrx) {
@@ -168,22 +196,22 @@ class GndView {
             coords = [llx, lly, lrx, lry, px, py, urx, ury, ulx, uly];
         } else { // pointing left
             // pointer of arrow, facing left
-            //px = this.padding + (xpos - width) * drawingWidth;
-            px = this.padding + xpos * drawingWidth;
+            //px = xPadding + (xpos - width) * drawingWidth;
+            px = xPadding + xpos * drawingWidth;
             py = ypos + this.axisThickness + this.axisBuffer + this.arrowHeight / 2;
             // lower left of rect. portion
-            //llx = this.padding + (xpos - width) * drawingWidth + this.pointerWidth;
-            llx = this.padding + xpos * drawingWidth + this.pointerWidth;
+            //llx = xPadding + (xpos - width) * drawingWidth + this.pointerWidth;
+            llx = xPadding + xpos * drawingWidth + this.pointerWidth;
             lly = ypos + this.axisThickness + this.axisBuffer + this.arrowHeight;
             // lower right of rect. portion
-            //lrx = this.padding + xpos * drawingWidth;
-            lrx = this.padding + (xpos + width) * drawingWidth;
+            //lrx = xPadding + xpos * drawingWidth;
+            lrx = xPadding + (xpos + width) * drawingWidth;
             lry = lly;
             // upper right of rect. portion
-            urx = lrx; //this.padding + (xpos + width) * drawingWidth - this.pointerWidth;
+            urx = lrx; //xPadding + (xpos + width) * drawingWidth - this.pointerWidth;
             ury = ypos + this.axisThickness + this.axisBuffer;
             // upper left of rect. portion
-            ulx = llx; //this.padding + xpos * drawingWidth + this.pointerWidth;
+            ulx = llx; //xPadding + xpos * drawingWidth + this.pointerWidth;
             uly = ury;
 
             if (llx > lrx) {
@@ -250,10 +278,19 @@ class GndView {
     }
 
 
-    drawTitle(svgContainer, ypos, data) {
+    drawTitle(svgContainer, ypos, data, titleHeight, xPadding) {
+        var urVer = this.uniRefSupport.getVersion();
         var title = "";
+        var idType = "UniProt";
+        if (urVer !== false && urVer > 0 && !this.hasIdQuery) {
+            if (this.uniRefSupport.getShowUniRefUi()) {
+                idType = "UniRef"+urVer;
+            } else if (urVer == 50) {
+                idType = "UniRef90";
+            }
+        }
         if (data.hasOwnProperty("accession"))
-            title = title + "Query UniProt ID: " + data.accession + "; ";
+            title = title + "Query " + idType + " ID: " + data.accession + "; ";
         if (data.hasOwnProperty("organism"))
             title = title + data.organism + "; ";
         if (data.hasOwnProperty("taxon_id"))
@@ -265,67 +302,107 @@ class GndView {
         if (data.hasOwnProperty("evalue"))
             title = title + "; E-Value: " + data.evalue;
         if (title.length > 0) {
-            var textObj = svgContainer.text(this.padding, ypos, title);
-            textObj.attr({'style':'diagram-title'});
+            var textObj = svgContainer.text(xPadding, ypos, title);
+            textObj.attr({'class':'diagram-title'});
+        }
+        if (this.showUniRefTitleInfo()) {
+            var info = this.uniRefSupport.getUniRefSizeFieldInfo(data);
+            var infoText = "Number of " + info.ValueFieldName + " IDs in " + info.UniRefType + " cluster: ";
+            infoText += info.UniRefSize;
+            //if (urVer == 90)
+            //    info += "UniProt: " + uniRefSize;
+            //if (urVer == 50)
+            //    info += "UniRef90: " + uniRefSize;
+            var textObj = svgContainer.text(xPadding, ypos + titleHeight, infoText);
+            textObj.attr({'class':'diagram-title'});
         }
     }
 
 
-    drawAxis(svgContainer, ypos, drawingWidth, minXpct, maxXpct, isBound, isComplement) {
+    drawUniRefExpand(svgContainer, ypos, xpos, data) {
+        if (!this.uniRefSupport.showUniRefExpandButton(data))
+            return;
+        var that = this;
+        var textObj = svgContainer.text(0, ypos, "")
+            .attr({fontFamily: "FontAwesome", fontSize: "1.5em", cursor: "pointer"})
+            .click(function(e) {
+                var id = data.accession;
+                var url = new URL(window.location.href);
+                that.uniRefSupport.updateLinkRequestParams(id, url.searchParams);
+                window.open(url.toString());
+            });
+        //textObj.append(Snap.parse('<title>Open UniRef</title>'));
+        //var size = 8;
+        //svgContainer.rect(-3, ypos-size-3, size*2+6, size*2+6)
+        //    .attr({ 'fill': 'white' })
+        //    .click(function(e) { alert("New window"); });
+        //svgContainer.line(0, ypos, size*2, ypos)
+        //    .attr({ 'stroke': this.axisColor, 'strokeWidth': 3 })
+        //    .click(function(e) { alert("New window"); });
+        //svgContainer.line(size, ypos-size, size, ypos+size)
+        //    .attr({ 'stroke': this.axisColor, 'strokeWidth': 3 })
+        //    .click(function(e) { alert("New window"); });
+    }
+
+
+    drawAxis(svgContainer, ypos, drawingWidth, xPadding, minXpct, maxXpct, isBound, isComplement) {
         ypos = ypos + this.axisThickness - 1;
         // A single line, full width:
-        //svgContainer.line(this.padding, ypos, this.padding + drawingWidth, ypos).attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness });
-        svgContainer.line(this.padding + minXpct * drawingWidth - 3, ypos,
-                          this.padding + maxXpct * drawingWidth + 3, ypos)
+        //svgContainer.line(xPadding, ypos, xPadding + drawingWidth, ypos).attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness });
+        var minx = xPadding + minXpct * drawingWidth - 3;
+        //if (minx < xPadding)
+        //    minx = xPadding;
+        svgContainer.line(minx, ypos,
+                          xPadding + maxXpct * drawingWidth + 3, ypos)
             .attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness });
 
         if (isBound & 1) { // end of contig on left
             var xc = isComplement ? maxXpct * drawingWidth + 3 :
                                     minXpct * drawingWidth - 3;
-            svgContainer.line(this.padding + xc, ypos - 5,
-                              this.padding + xc, ypos + 5)
-            //svgContainer.line(this.padding + minXpct * drawingWidth - 3, ypos - 5,
-            //                  this.padding + minXpct * drawingWidth - 3, ypos + 5)
+            svgContainer.line(xPadding + xc, ypos - 5,
+                              xPadding + xc, ypos + 5)
+            //svgContainer.line(xPadding + minXpct * drawingWidth - 3, ypos - 5,
+            //                  xPadding + minXpct * drawingWidth - 3, ypos + 5)
                 .attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness });
         } else if (minXpct > 0) {
             var x1 = isComplement ? maxXpct * drawingWidth + 3 :
                                     0;
             var x2 = isComplement ? drawingWidth :
                                     minXpct * drawingWidth - 3;
-            svgContainer.line(this.padding + x1, ypos,
-                              this.padding + x2, ypos)
-            //svgContainer.line(this.padding, ypos,
-            //                  this.padding + minXpct * drawingWidth - 3, ypos)
+            svgContainer.line(xPadding + x1, ypos,
+                              xPadding + x2, ypos)
+            //svgContainer.line(xPadding, ypos,
+            //                  xPadding + minXpct * drawingWidth - 3, ypos)
                 .attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness, 'stroke-dasharray': '2px, 4px' });
         }
 
         if (isBound & 2) { // end of contig on right
             var xc = isComplement ? minXpct * drawingWidth - 3 :
                                     maxXpct * drawingWidth + 3;
-            svgContainer.line(this.padding + xc, ypos - 5,
-                              this.padding + xc, ypos + 5)
-            //svgContainer.line(this.padding + maxXpct * drawingWidth + 3, ypos - 5,
-            //                  this.padding + maxXpct * drawingWidth + 3, ypos + 5)
+            svgContainer.line(xPadding + xc, ypos - 5,
+                              xPadding + xc, ypos + 5)
+            //svgContainer.line(xPadding + maxXpct * drawingWidth + 3, ypos - 5,
+            //                  xPadding + maxXpct * drawingWidth + 3, ypos + 5)
                 .attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness });
         } else if (minXpct > 0) {
             var x1 = isComplement ? 0 :
                                     maxXpct * drawingWidth + 3;
             var x2 = isComplement ? minXpct * drawingWidth - 3 :
                                     drawingWidth;
-            svgContainer.line(this.padding + x1, ypos,
-                              this.padding + x2, ypos)
-            //svgContainer.line(this.padding + maxXpct * drawingWidth + 3, ypos,
-            //                  this.padding + drawingWidth, ypos)
+            svgContainer.line(xPadding + x1, ypos,
+                              xPadding + x2, ypos)
+            //svgContainer.line(xPadding + maxXpct * drawingWidth + 3, ypos,
+            //                  xPadding + drawingWidth, ypos)
                 .attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness, 'stroke-dasharray': '2px, 4px' });
         }
     }
 
 
-    drawLegendLine(index, drawingWidth) {
+    drawLegendLine(index, diagramHeight, drawingWidth) {
         if (this.legendGroup)
             this.legendGroup.remove();
 
-        var ypos = index * this.diagramHeight + this.padding + this.fontHeight;
+        var ypos = index * diagramHeight + this.padding + this.fontHeight + this.topPadding;
 
         var legendScale = this.legendScale; // This comes in base-pair units, whereas the GUI displays things in terms of AA position.
         var l1 = Math.log10(legendScale);
@@ -345,13 +422,13 @@ class GndView {
         group.line(this.padding + lineLength, ypos - 5, this.padding + lineLength, ypos + 5)
             .attr({ 'stroke': this.axisColor, 'strokeWidth': this.axisThickness });
 
-        var textYpos = index * this.diagramHeight + this.fontHeight;
+        var textYpos = index * diagramHeight + this.fontHeight;
         var textObj = group.text(this.padding, textYpos, "Scale:");
-        textObj.attr({'style':'diagram-title'});
+        textObj.attr({'class':'diagram-title'});
 
-        var textYpos = index * this.diagramHeight + this.fontHeight * 2;
+        var textYpos = index * diagramHeight + this.fontHeight * 2;
         textObj = group.text(this.padding + lineLength + 10, textYpos, legendText + " kbp");
-        textObj.attr({'style':'diagram-title'});
+        textObj.attr({'class':'diagram-title'});
 
         this.legendGroup = group;
     }
@@ -399,6 +476,13 @@ class GndView {
             that.popup.hidePopup(); // won't hide it if autoClose = false;
         };
         return outEvt;
+    }
+
+    setQueryHasProteinId(hasId) {
+        this.hasIdQuery = hasId;
+    }
+    showUniRefTitleInfo() {
+        return !this.hasIdQuery && this.uniRefSupport.showUniRefTitleInfo();
     }
 }
 

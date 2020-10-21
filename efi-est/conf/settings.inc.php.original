@@ -15,22 +15,28 @@ require_once(__DIR__ . "/settings_shared.inc.php");
 // Options that are marked [OPTIONAL] in the comment can be set
 // Options that are not commented SHOULD NOT BE CHANGED UNLESS YOU ARE GANDALF.
 
-//
-// USER-CONTROLLED OPTIONS
-//
-    // Set this to a file that HTTPD can write to [MANDATORY]
-define("__LOG_FILE__","FILE_PATH");
-    // Set this to a directory that HTTPD can write to [MANDATORY]
-define("__UPLOADS_DIR__","DIR_PATH");
-    // If an example with results is provided, set this to the path to the dir containing the example files [OPTIONAL]
-define("__RESULTS_EXAMPLE_DIR__","DIR_PATH");
-    // Set to the user that jobs are submitted under [MANDATORY]
-define("__CLUSTER_USER__","");
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// MANDATORY OPTIONS
+
+define("__LOG_FILE__","FILE_PATH");     // Set this to a file that HTTPD can write to 
+define("__UPLOADS_DIR__","DIR_PATH");   // Set this to a directory that HTTPD can write to 
+    
+    
     // The backend EFI tools database selector using the Lmod module commands; set this when you have set up the backend database
 define("__EFI_MODULE__","");
 define("__EFI_DB_MODULE__","");
 define("__EFI_GNT_MODULE__","");
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// UI OPTIONS
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ADVANCED OPTIONS
+
+define("__RESULTS_EXAMPLE_DIR__","DIR_PATH");   // If an example with results is provided, set this to the path to the dir containing the example files [OPTIONAL]
 //
 // SYSTEM SETTINGS
 define("__TITLE__","EFI-EST");
@@ -41,16 +47,6 @@ define("__CGFP_WEB_ROOT__",__BASE_WEB_ROOT__.__BASE_WEB_PATH__."/efi-cgfp");
 define("__ENABLE_LOG__",true);
 
 //
-// MYSQL SETTINGS
-// Change this if the database isn't hosted locally
-define("__MYSQL_HOST__","localhost");
-define("__MYSQL_DATABASE__",__EFI_EST_DB_NAME__);
-define("__MYSQL_GNT_DATABASE__",__EFI_GNT_DB_NAME__);
-define("__MYSQL_AUTH_DATABASE__",__GLOBAL_AUTH_DATABASE__);
-define("__MYSQL_USER__",__GLOBAL_MYSQL_USER__);
-define("__MYSQL_PASSWORD__",__GLOBAL_MYSQL_PASSWORD__);
-
-//
 // CLUSTER SETTINGS
 define("__GENERATE_QUEUE__",__NORMAL_QUEUE__);
 define("__ANALYSE_QUEUE__",__NORMAL_QUEUE__);
@@ -58,8 +54,6 @@ define("__CLUSTER_PROCS__","48");
 define("__BLASTHITS_PROCS__",12);
 define("__RESULTS_DIRNAME__","results");
 define("__RESULTS_EXAMPLE_DIRNAME__","results_example");
-define("__MAX_QUEUABLE_JOBS__",1000);
-define("__MAX_USER_QUEUABLE_JOBS__",1000);
 
 //
 // UI SETTINGS

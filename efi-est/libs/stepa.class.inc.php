@@ -24,7 +24,6 @@ class stepa extends est_shared {
     protected $program;
     protected $fraction;
     protected $db_version;
-    protected $is_sticky = false;
     protected $job_name = "";
 
     protected $is_example = false;
@@ -391,17 +390,18 @@ class stepa extends est_shared {
             $filename = "${job_name}_$filename";
         $filename = "${id}_$filename";
         if (file_exists($full_path)) {
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="'.$filename.'"');
-            header('Content-Transfer-Encoding: binary');
-            header('Connection: Keep-Alive');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($full_path));
-            ob_clean();
-            readfile($full_path);
+            global_functions::send_image_file_for_download($filename, $full_path);
+#            header('Content-Description: File Transfer');
+#            header('Content-Type: application/octet-stream');
+#            header('Content-Disposition: attachment; filename="'.$filename.'"');
+#            header('Content-Transfer-Encoding: binary');
+#            header('Connection: Keep-Alive');
+#            header('Expires: 0');
+#            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+#            header('Pragma: public');
+#            header('Content-Length: ' . filesize($full_path));
+#            ob_clean();
+#            readfile($full_path);
         }
         else {
             return false;
@@ -648,14 +648,6 @@ class stepa extends est_shared {
 
     }
 
-    public function is_expired() {
-        if (!$this->is_sticky && time() > $this->get_unixtime_completed() + functions::get_retention_secs()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public function get_analysis_jobs() {
         if ($this->is_example)
             return array();
@@ -683,4 +675,3 @@ class stepa extends est_shared {
     }
 }
 
-?>
