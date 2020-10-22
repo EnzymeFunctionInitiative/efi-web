@@ -214,6 +214,8 @@ function submitColorSsnForm(type) { // the parameters are optional
     fd.append("option_selected", option);
     addParam(fd, "email", "email-" + option);
     addCbParam(fd, "extra_ram", option + "-extra-ram");
+    addParam(fd, "efiref", option + "-efiref");
+    addCbParam(fd, "skip_fasta", option + "-skip-fasta");
 
     if (type == "cluster") {
         var hmmOpt = "";

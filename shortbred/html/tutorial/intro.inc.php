@@ -61,7 +61,7 @@ readily extended to additional enzyme families and microbial communities."
 
 <p>
 In its original form, the CGFP pipeline described by Balskus and Huttenhower 
-(<a href="https://bitbucket.org/biobakery/cgfp/overview">https://bitbucket.org/biobakery/cgfp/overview</a>)
+(<a href="https://github.com/biobakery/shortbred">https://github.com/biobakery/shortbred</a>)
 required both knowledge of Unix 
 command line programs and access to a computer cluster. <b>The EFI-CGFP web tool 
 was developed to "democratize" the use of CGFP by experimentalists by making it 

@@ -1,5 +1,5 @@
 <p>
-This site uses the CGFP-ShortBRED programs (<a href="https://bitbucket.org/biobakery/cgfp/src">https://bitbucket.org/biobakery/cgfp/src</a>
+This site uses the CGFP-ShortBRED programs (<a href="https://github.com/biobakery/shortbred">https://github.com/biobakery/shortbred</a>
 and <a href="http://huttenhower.sph.harvard.edu/shortbred">http://huttenhower.sph.harvard.edu/shortbred</a>).
 </p>
 <p>For more information on CGFP-ShortBRED, see

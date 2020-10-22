@@ -61,6 +61,8 @@ class input_data {
     public $hmm_aa; // List of AAs to compute CR for
     public $min_seq_msa;
     public $max_seq_msa;
+    public $efiref;
+    public $skip_fasta;
 
     //public $cooccurrence;
     //public $neighborhood_size;

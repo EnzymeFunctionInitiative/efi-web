@@ -102,6 +102,7 @@ if (isset($_GET["as-table"])) {
 }
 
 $has_nc = $analysis->get_compute_nc();
+$has_repnode = $analysis->get_build_repnode();
 
 $IncludeSubmitJs = true;
 require_once("inc/header.inc.php");
@@ -270,7 +271,8 @@ $network_name = $analysis->get_name();
                 </tbody>
                 </table>
             <?php } ?>
-        
+
+<?php if ($has_repnode) { ?>        
             <p>&nbsp;</p>
             <div class="align_left">
                 <h4>Representative Node Networks <a href="tutorial_download.php" class="question" target="_blank">?</a></h4>
@@ -309,6 +311,7 @@ $network_name = $analysis->get_name();
                                     "&stats-as-table=1$ex_param" ?>"><button class='mini'>Download Network Statistics as Table</button></a>
             </div>
             <div style="clear:both"></div>
+<?php } ?>
 
             <center><p><a href="tutorial_cytoscape.php">New to Cytoscape?</a></p></center>
         </div>

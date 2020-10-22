@@ -104,6 +104,7 @@ if (isset($_POST['analyze_data'])) {
     $min_node_attr = isset($_POST['min_node_attr']) ? 1 : 0;
     $min_edge_attr = isset($_POST['min_edge_attr']) ? 1 : 0;
     $compute_nc = isset($_POST['compute_nc']) ? true : false;
+    $build_repnode = isset($_POST['build_repnode']) ? true : false;
 
     $result = $analysis->create(
         $job_id,
@@ -116,7 +117,8 @@ if (isset($_POST['analyze_data'])) {
         $filter,
         $min_node_attr,
         $min_edge_attr,
-        $compute_nc
+        $compute_nc,
+        $build_repnode
     );
 
     if ($result['RESULT']) {
@@ -714,6 +716,7 @@ Protein_ID_3,Cluster#
                 <div>
                     <h3>Dev Site Options</h3>
                     <div>
+                        <div><label><input type="checkbox" name="build_repnode" id="build_repnode" /> Make repnode networks</label></div>
                         <div><label><input type="checkbox" name="min_edge_attr" id="min_edge_attr" /> Use minimum number of edge attributes</label></div>
                         <div><label><input type="checkbox" name="min_node_attr" id="min_node_attr" /> Use minimum number of node attributes</label></div>
                     </div>

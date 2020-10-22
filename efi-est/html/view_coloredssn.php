@@ -126,10 +126,21 @@ if ($job_type === "NBCONN") {
     $statsFileSize = format_file_size($obj->get_file_size($statsFile));
     $clusterSizesFile = $obj->get_cluster_sizes_web_path();
     $clusterSizesFileSize = format_file_size($obj->get_file_size($clusterSizesFile));
+    $convRatioFile = $obj->get_convergence_ratio_web_path();
+    $convRatioFileSize = format_file_size($obj->get_file_size($convRatioFile));
     $swissprotClustersDescFile = $obj->get_swissprot_desc_web_path($want_clusters_file);
     $swissprotClustersDescFileSize = format_file_size($obj->get_file_size($swissprotClustersDescFile));
     $swissprotSinglesDescFile = $obj->get_swissprot_desc_web_path($want_singles_file);
     $swissprotSinglesDescFileSize = format_file_size($obj->get_file_size($swissprotSinglesDescFile));
+    
+    $efiRef70NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_EFIREF70);
+    $efiRef70NodeFilesZipSize = format_file_size($obj->get_file_size($efiRef70NodeFilesZip));
+    $efiRef50NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_EFIREF50);
+    $efiRef50NodeFilesZipSize = format_file_size($obj->get_file_size($efiRef50NodeFilesZip));
+    $fastaFilesEfiRef70Zip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_EFIREF70);
+    $fastaFilesEfiRef70ZipSize = format_file_size($obj->get_file_size($fastaFilesEfiRef70Zip));
+    $fastaFilesEfiRef50Zip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_EFIREF50);
+    $fastaFilesEfiRef50ZipSize = format_file_size($obj->get_file_size($fastaFilesEfiRef50Zip));
 
     $uniprotText = ($fastaFilesUniRef90ZipSize || $fastaFilesUniRef50ZipSize) ? "UniProt" : "";
     
@@ -168,6 +179,18 @@ if ($job_type === "NBCONN") {
         if ($zipFile) {
             $zipFileSize = format_file_size($obj->get_file_size($zipFile));
             array_push($msaZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "MSAs for FASTA $uniprotText cluster (domain sequences)"));
+        }
+
+        $pimZipFileList = array();
+        $zipFile = $obj->get_pim_zip_web_path("Full");
+        if ($zipFile) {
+            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+            array_push($pimZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Percent Identity Matrix for FASTA $uniprotText cluster (full length sequences)"));
+        }
+        $zipFile = $obj->get_pim_zip_web_path("Domain");
+        if ($zipFile) {
+            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
+            array_push($pimZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Percent Identity Matrix for FASTA $uniprotText cluster (domain sequences)"));
         }
         
         $lenHistZipFileList = array();
@@ -224,6 +247,10 @@ if ($job_type === "NBCONN") {
         array_push($fileInfo, array("UniRef90 ID lists per cluster", $uniref90NodeFilesZip, $uniref90NodeFilesZipSize));
     if ($uniref90DomainNodeFilesZip)
         array_push($fileInfo, array("UniRef90 ID lists per cluster (with domain)", $uniref90DomainNodeFilesZip, $uniref90DomainNodeFilesZipSize));
+    if ($efiRef70NodeFilesZip)
+        array_push($fileInfo, array("EfiRef70 ID lists per cluster", $efiRef70NodeFilesZip, $efiRef70NodeFilesZipSize));
+    if ($efiRef50NodeFilesZip)
+        array_push($fileInfo, array("EfiRef50 ID lists per cluster", $efiRef50NodeFilesZip, $efiRef50NodeFilesZipSize));
     if ($uniref50NodeFilesZip)
         array_push($fileInfo, array("UniRef50 ID lists per cluster", $uniref50NodeFilesZip, $uniref50NodeFilesZipSize));
     if ($uniref50DomainNodeFilesZip)
@@ -236,6 +263,10 @@ if ($job_type === "NBCONN") {
         array_push($fileInfo, array("FASTA files per UniRef90 cluster", $fastaFilesUniRef90Zip, $fastaFilesUniRef90ZipSize));
     if ($fastaFilesUniRef90DomainZip)
         array_push($fileInfo, array("FASTA files per UniRef90 cluster (with domain)", $fastaFilesUniRef90DomainZip, $fastaFilesUniRef90DomainZipSize));
+    if ($fastaFilesEfiRef70Zip)
+        array_push($fileInfo, array("FASTA files per EfiRef70 cluster", $fastaFilesEfiRef70Zip, $fastaFilesEfiRef70ZipSize));
+    if ($fastaFilesEfiRef50Zip)
+        array_push($fileInfo, array("FASTA files per EfiRef50 cluster", $fastaFilesEfiRef50Zip, $fastaFilesEfiRef50ZipSize));
     if ($fastaFilesUniRef50Zip)
         array_push($fileInfo, array("FASTA files per UniRef50 cluster", $fastaFilesUniRef50Zip, $fastaFilesUniRef50ZipSize));
     if ($fastaFilesUniRef50DomainZip)
@@ -244,6 +275,8 @@ if ($job_type === "NBCONN") {
     array_push($fileInfo, array("Miscellaneous Files"));
     if ($clusterSizesFile)
         array_push($fileInfo, array("Cluster sizes", $clusterSizesFile, $clusterSizesFileSize));
+    if ($convRatioFile)
+        array_push($fileInfo, array("Cluster-based convergence ratio for UniProt IDs", $convRatioFile, $convRatioFileSize));
     if ($swissprotClustersDescFile)
         array_push($fileInfo, array("SwissProt annotations by cluster", $swissprotClustersDescFile, $swissprotClustersDescFileSize));
     if ($swissprotSinglesDescFile)
@@ -368,7 +401,11 @@ if ($job_type === "NBCONN") {
     The <b>WebLogos</b> tab provides the WebLogo (generated using
     <a href="http://weblogo.threeplusone.com/">http://weblogo.threeplusone.com/</a>) and MSA (generated using MUSCLE) for the node
     IDs in each SSN cluster containing at least the specified "Minimum Node Count".
-    The MSA can be viewed with Jalview (<a href="https://www.jalview.org/">https://www.jalview.org/</a>). 
+    The MSA can be viewed with Jalview (<a href="https://www.jalview.org/">https://www.jalview.org/</a>).
+    <?php if (count($pimZipFileList)) { ?>
+    This tab also provides the percent identity matrix for the multiple sequence alignment,
+    as computed by Clustal-Omega.
+    <?php } ?>
     </p>
     
     <p>
@@ -542,6 +579,7 @@ if ($job_type !== "NBCONN") {
             </p>
 <?php outputZipFileTable($weblogoZipFileList); ?>
 <?php outputZipFileTable($msaZipFileList); ?>
+<?php outputZipFileTable($pimZipFileList); ?>
             <br><br>
 <?php
                     $weblogo_output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key, $alignment_list) {
@@ -816,6 +854,8 @@ function output_graphics_html($header, $prefix, $graphics, $num_map, $output_fn)
 }
 
 function outputZipFileTable($zipList) {
+    if (count($zipList) === 0)
+        return;
     echo <<<HTML
             <table width="100%" class="pretty no-border">
                 <tbody class="file-group">

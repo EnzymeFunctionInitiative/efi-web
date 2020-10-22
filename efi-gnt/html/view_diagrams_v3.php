@@ -679,7 +679,7 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                     dlForm.submit();
                 });
                 $("#export-gene-graphics-button").click(function(e) {
-                    var url = control.getUrl(0, control.getMaxViewIndex());
+                    var url = control.getGetUrl(0, control.getMaxViewIndex());
                     url = url.replace("get_gnd_data.php", "get_gene_graphics.php");
                     window.location = url;
                 });

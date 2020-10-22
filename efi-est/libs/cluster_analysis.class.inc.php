@@ -105,6 +105,9 @@ class cluster_analysis extends colorssn_shared {
     public function get_msa_zip_web_path($type) {
         return $this->get_zip_web_path("MSAs", $type);
     }
+    public function get_pim_zip_web_path($type) {
+        return $this->get_zip_web_path("PIMs", $type);
+    }
     public function get_lenhist_zip_web_path($type, $seqType) {
         return $this->get_zip_web_path("LenHist_$seqType", $type);
     }

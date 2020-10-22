@@ -30,8 +30,17 @@ class GndController {
         this.reset(false);
     }
 
-    getUrl(start, end) {
-        return this.getUrlFn(start, end);
+    getGetUrl(start, end) {
+        var data = this.getUrlFn(start, end);
+        var paramsStr = "";
+        for (var k in data.params) {
+            if (paramsStr)
+                paramsStr += "&";
+            paramsStr += k + "=" + data.params[k];
+        }
+        
+        var scriptUrl = data.url + "?" + paramsStr;
+        return scriptUrl;
     }
     getMaxIndex() {
         return this.maxIndex;
@@ -152,7 +161,7 @@ class GndController {
             return function (start, end) {
                 var params = paramsFn(start, end);
                 var method = usePost ? "POST" : "GET";
-                return {method: method, params: params};
+                return {method: method, params: params, url: scriptUrl};
             }
         };
         this.getUrlFn = mkGetUrlFn(getDataHttpParms);

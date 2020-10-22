@@ -626,13 +626,19 @@ class functions {
         $info = array();
         if ($filename) {
             $info["filename"] = $filename;
-            $info["full_ssn_path"] = "$est_results_dir/$filename";
+            $path = "$est_results_dir/$filename";
+            if (!file_exists($path) && self::endsWith(strtolower($path), "xgmml") && file_exists($path . ".zip"))
+                $path .= ".zip";
+            $info["full_ssn_path"] = $path;
             return $info;
         } else {
             return false;
         }
     }
 
+    public static function endsWith($haystack, $needle) {
+        return substr_compare($haystack, $needle, -strlen($needle)) === 0;
+    }
 }
 
 ?>

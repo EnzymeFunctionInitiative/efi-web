@@ -602,16 +602,8 @@ class stepa extends est_shared {
 
     protected function verify_email($email) {
         $email = strtolower($email);
-        $hostname = "";
-        if (strpos($email,"@")) {
-            list($prefix,$hostname) = explode("@",$email);
-        }
-
         $valid = 1;
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $valid = 0;
-        }
-        elseif (($hostname != "") && (!checkdnsrr($hostname,"ANY"))) {
             $valid = 0;
         }
         return $valid;

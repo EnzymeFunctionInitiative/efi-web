@@ -74,6 +74,10 @@ include("inc/tab_header.inc.php");
     <span class="ref-year">July 25, 2019</span>.
     </div>
 </div>
+
+<?php include(__DIR__ . "/publications.html"); ?>
+
+<!--
 <h3>288 Journal Articles</h3>
 <div class="ref-group">
     <div class="ref-index">1.</div>
@@ -2954,6 +2958,7 @@ include("inc/tab_header.inc.php");
     <span class="ref-volume">86</span>(<span class="ref-number">7</span>):.    <span class="ref-url"><a href="http://doi.org/10.1128/aem.02837-19">http://doi.org/10.1128/aem.02837-19</a></span>
     </div>
 </div>
+-->
 
 </div>
 <?php include("inc/tab_footer.inc.php"); ?>

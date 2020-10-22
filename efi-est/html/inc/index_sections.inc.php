@@ -413,6 +413,22 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                                     <label for="colorssn-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
                                 </span>
                             </div>
+                            <div>
+                                <span class="input-name">
+                                    EfiRef:
+                                </span><span class="input-field">
+                                    <select name="colorssn-efiref" id="colorssn-efiref"><option>None</option><option>50</option><option>70</option></select>
+                                    <label for="colorssn-efiref">Assume input is an EfiRef input [default: off]</label>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="input-name">
+                                    Skip FASTA:
+                                </span><span class="input-field">
+                                    <input type="checkbox" name="colorssn-skip-fasta" id="colorssn-skip-fasta" value="1">
+                                    <label for="colorssn-skip-fasta">Skip generation of FASTA files (saves time) [default: off]</label>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -459,6 +475,24 @@ function output_nc($use_advanced_options, $user_email, $show_example = false, $m
                         The accepted format is XGMML (or compressed XGMML as zip).
                     </div>
                 </div>
+                
+                <?php if ($use_advanced_options) { ?>
+                    <div class="option-panels">
+                        <div>
+                            <h3>Dev Site Options</h3>
+                            <div>
+                                <div>
+                                    <span class="input-name">
+                                        Extra RAM:
+                                    </span><span class="input-field">
+                                        <input type="checkbox" id="nc-extra-ram" name="nc-extra-ram" value="1">
+                                        <label for="nc-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
 
                 <?php if ($ssn_id) { ?>
                     <input type="hidden" name="ssn-source-id-nc" id="ssn-source-id-nc" value="<?php echo $ssn_id; ?>">
@@ -514,7 +548,8 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
             <p>
             The <b>WebLogos</b> tab provides the WebLogo and MSA for the node IDs in each cluster 
             containing greater than the "<b>Minimum Node Count</b>" specified in the
-            <b>Sequence Filter</b> tab. 
+            <b>Sequence Filter</b> tab.
+            The percent identity matrix for the MSA is also provided on this tab.
             </p>
             
             <p>
@@ -669,6 +704,14 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
                                     </span><span class="input-field">
                                         <input type="checkbox" id="cluster-extra-ram" name="cluster-extra-ram" value="1">
                                         <label for="cluster-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="input-name">
+                                        EfiRef:
+                                    </span><span class="input-field">
+                                        <select name="cluster-efiref" id="cluster-efiref"><option>None</option><option>50</option><option>70</option></select>
+                                        <label for="cluster-efiref">Assume input is an EfiRef input [default: off]</label>
                                     </span>
                                 </div>
                             </div>
