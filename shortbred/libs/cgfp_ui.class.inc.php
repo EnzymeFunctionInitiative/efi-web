@@ -1,6 +1,6 @@
 <?php
-
-require_once(__DIR__ . "/../../libs/global_functions.class.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
 require_once(__DIR__ . "/cgfp_settings.class.inc.php");
 
 class cgfp_ui {

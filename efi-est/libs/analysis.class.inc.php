@@ -1,7 +1,7 @@
 <?php
-
-require_once(__DIR__ . "/../includes/main.inc.php");
-require_once(__DIR__ . "/est_shared.class.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__EST_DIR__."/includes/main.inc.php");
+require_once(__DIR__."/est_shared.class.inc.php");
 
 class analysis extends est_shared {
 

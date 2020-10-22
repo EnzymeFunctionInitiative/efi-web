@@ -1,8 +1,8 @@
 <?php
 
-require_once(__DIR__.'/stepa.class.inc.php');
-require_once(__DIR__.'/input.class.inc.php');
-require_once(__DIR__.'/output.class.inc.php');
+require_once(__DIR__."/stepa.class.inc.php");
+require_once(__DIR__."/input.class.inc.php");
+require_once(__DIR__."/output.class.inc.php");
 
 abstract class option_base extends stepa {
 

@@ -1,5 +1,5 @@
 <?php
-
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 
 class settings extends global_settings {

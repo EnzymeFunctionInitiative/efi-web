@@ -12,5 +12,3 @@ if (user_auth::has_token_cookie()) {
 
     $IsAdminUser = user_auth::get_user_admin($db, $userEmail);
 }
-?>
-

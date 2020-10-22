@@ -1,16 +1,5 @@
 <?php
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-set_include_path(get_include_path() . ':../libs:../includes/pear');
-function __autoload($class_name) {
-    if(file_exists("../libs/" . $class_name . ".class.inc.php")) {
-        require_once $class_name . '.class.inc.php';
-    }
-}
-
-
+require_once(__DIR__."/../conf/settings_paths.inc.php");
 require_once(__DIR__ . "/../conf/settings.inc.php");
 require_once(__BASE_DIR__ . "/libs/database.class.inc.php");
 
@@ -23,5 +12,3 @@ else
     $SiteUrlPrefix = "";
 
 require_once(__DIR__ . "/error_helpers.inc.php");
-
-?>

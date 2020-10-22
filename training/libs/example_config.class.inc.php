@@ -1,6 +1,7 @@
 <?php
-require_once(__DIR__ . "/../../libs/global_functions.class.inc.php");
-require_once(__DIR__ . "/../conf/settings_examples.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
+require_once(__TRAINING_DIR__ . "/conf/settings_examples.inc.php");
 // These need to be included by the file that includes this file.
 //require_once(__DIR__ . "/../../efi-est/libs/est_user_jobs_shared.class.inc.php");
 //require_once(__DIR__ . "/../../efi-gnt/libs/gnt_ui.class.inc.php");

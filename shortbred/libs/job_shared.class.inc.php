@@ -1,8 +1,9 @@
 <?php
+require_once(__DIR__."/settings.class.inc.php");
 
-require_once("settings.class.inc.php");
-require_once("Mail.php");
-require_once("Mail/mime.php");
+use pear\Mail;
+use pear\Mail_mime;
+
 
 abstract class job_shared {
 

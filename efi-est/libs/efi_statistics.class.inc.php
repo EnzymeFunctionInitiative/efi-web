@@ -1,5 +1,5 @@
 <?php
-
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
 include_once(__DIR__ . "/functions.class.inc.php");
 include_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
 
