@@ -3,6 +3,7 @@ require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__EST_DIR__."/includes/main.inc.php");
 require_once(__EST_DIR__."/libs/input.class.inc.php");
 require_once(__EST_DIR__."/libs/user_jobs.class.inc.php");
+require_once(__EST_DIR__."/libs/job_factory.class.inc.php");
 
 $result['id'] = 0;
 $result['MESSAGE'] = "";

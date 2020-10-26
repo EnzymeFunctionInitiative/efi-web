@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MANDATORY OPTIONS
 
-define("__BASE_WEB_ROOT__","");                 // https://FULL_SERVER_URL, no path_info,
+define("__BASE_WEB_ROOT__","http://localhost");                 // https://FULL_SERVER_URL, no path_info,
                                                 // e.g. https://efi.igb.illinois.edu 
 define("__TIMEZONE__","America/Chicago");
 define("__ADMIN_EMAIL__","");                   // Where emails are sent From 
@@ -124,8 +124,7 @@ define("__NUM_JOB_LIMIT__","6");            // Number of jobs that a user can ru
 // Only mess around in here if you are Gandalf 
 //
 
-// DIRECTORIES
-define("__BASE_DIR__",__DIR__."/..");
+// PATHS
 define("__EST_JOB_RESULTS_DIRNAME__","output");
 define("__EST_COLORSSN_SUFFIX__","_coloredssn");
 

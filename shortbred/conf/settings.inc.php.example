@@ -20,9 +20,6 @@ define("__UPLOAD_DIR__","");                                // Path to directory
 define("__LOG_FILE__","");                                  // Path to log file
 define("__METAGENOME_DB_LIST__","");                        // Path to the metagenome database
 
-define("__SHORTBRED_BLAST_MODULE__","shortbred/devlocal");
-define("__SHORTBRED_DIAMOND_MODULE__","shortbred/diamond/devlocal");
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // ADVANCED OPTIONS
@@ -58,3 +55,7 @@ define("__ENABLE_LOG__",true);
 define("__NUM_PROCESSORS__",24);
 define("__NUM_QUANTIFY_PROCESSORS__",24);
 
+//
+// FOR ADDING IN ENVIRONMENT VARIABLES WITH EFITools BACKEND -- SEE INSTALLATION
+define("__SHORTBRED_BLAST_MODULE__","shortbred/devlocal");
+define("__SHORTBRED_DIAMOND_MODULE__","shortbred/diamond/devlocal");
