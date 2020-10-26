@@ -1,48 +1,45 @@
 <?php
 ////////////////////////////////////
 //                                              
-//      EFI GNN
-//      settings.inc.php                        
-//                                              
 //      Settings for the scripts
 //                                              
 ////////////////////////////////////
 
 require_once(__DIR__."/../../conf/settings_base.inc.php");
 
-//
-// USER DEFINED OPTIONS
-//
-    // Path to directory where computations are stored [MANDATORY]
-define("__OUTPUT_DIR__","");
-    // Path to directory where uploads are stored [MANDATORY]
-define("__UPLOAD_DIR__","");
-    // Path to log file [MANDATORY]
-define("__LOG_FILE__","");
-    // Path to the metagenome database [MANDATORY]
-define("__METAGENOME_DB_LIST__","");
-    // Path to the example files directory
-define("__EXAMPLE_SRC_DIR__","");
-    // shortbred Lmod module for BLAST
+// Options that are marked [MANDATORY] in the comment must be set
+// Options that are marked [OPTIONAL] in the comment can be set
+// Options that are not commented SHOULD PROBABLY NOT BE CHANGED UNLESS YOU ARE GANDALF.
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// MANDATORY OPTIONS
+
+define("__OUTPUT_DIR__","");                                // Path to directory where computations are stored
+define("__UPLOAD_DIR__","");                                // Path to directory where uploads are stored
+define("__LOG_FILE__","");                                  // Path to log file
+define("__METAGENOME_DB_LIST__","");                        // Path to the metagenome database
+
 define("__SHORTBRED_BLAST_MODULE__","shortbred/devlocal");
-    // shortbred Lmod module for DIAMOND
 define("__SHORTBRED_DIAMOND_MODULE__","shortbred/diamond/devlocal");
-    // EFI database Lmod module
-define("__EFI_DB_MODULE__","");
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ADVANCED OPTIONS
 
 //
 // PATHS
 define("__WEB_PATH__",__BASE_WEB_PATH__."/efi-cgfp");
 define("__WEB_ROOT__",__BASE_WEB_ROOT__."/".__WEB_PATH__);
-// Symlink to EXAMPLE_SRC_DIR, in html/
-define("__EXAMPLE_WEB_PATH__","example");
+define("__EXAMPLE_WEB_PATH__","example");                   // Symlink to EXAMPLE_SRC_DIR, in html/
+define("__EXAMPLE_SRC_DIR__","");                           // Path to the example files directory
 
 //
 // FILE INFO
 // 
-define("__RELATIVE_OUTPUT_DIR__","");
-define("__LEGACY_RELATIVE_OUTPUT_DIR__","");
-define("__QUANTIFY_REL_OUTPUT_DIR__","");
+define("__RELATIVE_OUTPUT_DIR__","results");
+define("__LEGACY_RELATIVE_OUTPUT_DIR__","results");
+define("__QUANTIFY_REL_OUTPUT_DIR__","quantify");
 define("__VALID_FILE_TYPE__","xgmml zip");
 define("__HTTP_OUTPUT_DIR__","results");
 define("__HTTP_EXAMPLE_OUTPUT_DIR__","results_example");

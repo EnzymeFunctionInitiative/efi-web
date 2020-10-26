@@ -1,8 +1,10 @@
 <?php
 require_once("../libs/user_auth.class.inc.php");
 require_once("../includes/main.inc.php");
-require_once("Mail.php");
-require_once("Mail/mime.php");
+
+use pear\Mail;
+use pear\Mail_mime;
+
 
 $StyleAdditional = array('<style>.hideme { display: none; }</style>');
 require_once(__DIR__ . "/inc/header.inc.php");

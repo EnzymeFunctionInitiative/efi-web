@@ -1,9 +1,12 @@
 <?php
-require_once '../includes/main.inc.php';
-require_once '../libs/user_auth.class.inc.php';
-require_once '../libs/PasswordHash.php';
-require_once '../includes/pear/Mail.php';
-require_once '../includes/pear/Mail/mime.php';
+require_once(__DIR__."/../conf/settings_paths.inc.php");
+require_once(__BASE_DIR__."/includes/main.inc.php");
+require_once(__BASE_DIR__."/libs/global_settings.class.inc.php");
+require_once(__BASE_DIR__."/libs/user_auth.class.inc.php");
+require_once(__BASE_DIR__."/libs/PasswordHash.php");
+
+use pear\Mail;
+use pear\Mail_mime;
 
 
 $result = array('valid' => false, 'message' => "", 'cookieInfo' => "");

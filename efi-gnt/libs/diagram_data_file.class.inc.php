@@ -1,7 +1,7 @@
 <?php
 
-require_once('const.class.inc.php');
-require_once('arrow_api.class.inc.php');
+require_once(__DIR__."/const.class.inc.php");
+require_once(__DIR__."/arrow_api.class.inc.php");
 
 class diagram_data_file extends arrow_api {
 

@@ -1,6 +1,7 @@
 <?php
-require_once("const.class.inc.php");
-require_once(__DIR__."/../../libs/global_functions.class.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__DIR__."/const.class.inc.php");
+require_once(__BASE_DIR__."/libs/global_functions.class.inc.php");
 
 class functions extends global_functions {
 
