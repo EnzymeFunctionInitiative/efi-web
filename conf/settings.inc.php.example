@@ -19,4 +19,3 @@ define("__WEB_ROOT__",__BASE_WEB_ROOT__."".__WEB_PATH__);
 // UI
 define("__USE_DASHBOARD__",true);
 
-?>

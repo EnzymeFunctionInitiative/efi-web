@@ -68,13 +68,6 @@ class settings extends global_settings {
         return false;
     }
 
-    public static function get_legacy_output_dir() {
-        if (is_dir(__LEGACY_OUTPUT_DIR__)) {
-            return __LEGACY_OUTPUT_DIR__;
-        }
-        return false;
-    }
-
     public static function get_rel_output_dir() {
         return __RELATIVE_OUTPUT_DIR__;
     }
@@ -85,10 +78,6 @@ class settings extends global_settings {
 
     public static function get_rel_diagram_output_dir() {
         return __RELATIVE_DIAGRAM_OUTPUT_DIR__;
-    }
-
-    public static function get_legacy_rel_output_dir() {
-        return __LEGACY_RELATIVE_OUTPUT_DIR__;		
     }
 
     public static function get_web_address() {
@@ -137,10 +126,6 @@ class settings extends global_settings {
 
     public static function get_default_blast_seq() {
         return __DEFAULT_NUM_BLAST_SEQ__;
-    }
-
-    public static function run_jobs_as_legacy() {
-        return __ENABLE_LEGACY__;
     }
 
     public static function get_default_neighborhood_size() {

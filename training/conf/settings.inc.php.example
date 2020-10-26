@@ -7,8 +7,3 @@ require_once(__DIR__ . "/../../conf/settings_base.inc.php");
 define("__WEB_PATH__",__BASE_WEB_PATH__."/");
 define("__WEB_ROOT__",__BASE_WEB_ROOT__."".__WEB_PATH__);
 
-//
-// EXAMPLES
-define("__EST_EXAMPLE_CONFIG__","");
-
-?>

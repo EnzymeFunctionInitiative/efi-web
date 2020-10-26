@@ -3,12 +3,14 @@
 require_once(__DIR__ . "/../conf/settings.inc.php");
 require_once(__DIR__ . "/../../libs/debug_check.inc.php");
 
-set_include_path(get_include_path() . ":" . __DIR__ . "/../libs" . ":" . __BASE_DIR__ . "/includes/pear" . ":" . __BASE_DIR__ . "/libs");
-function __autoload($class_name) {
-    if(file_exists(__DIR__ . "/../libs/" . $class_name . ".class.inc.php")) {
-        require_once $class_name . '.class.inc.php';
-    }
-}
+//set_include_path(get_include_path() . ":" . __DIR__ . "/../libs" . ":" . __BASE_DIR__ . "/includes/pear" . ":" . __BASE_DIR__ . "/libs");
+//function __autoload($class_name) {
+//    if(file_exists(__DIR__ . "/../libs/" . $class_name . ".class.inc.php")) {
+//        require_once $class_name . '.class.inc.php';
+//    }
+//}
+
+require(__BASE_DIR__ . "/vendor/autoload.php");
 
 require_once(__BASE_DIR__ . "/libs/database.class.inc.php");
 

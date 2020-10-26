@@ -12,6 +12,7 @@ require_once(__DIR__."/../../conf/settings_base.inc.php");
 
 //
 // PATHS
+    // Path to log file [MANDATORY]
 define("__LOG_FILE__","");
 define("__WEB_PATH__",__BASE_WEB_PATH__."/users");
 define("__WEB_ROOT__",__BASE_WEB_ROOT__."/".__WEB_PATH__);
@@ -29,4 +30,3 @@ define("__TITLE__","EFI/User Administration");
 
 define("__ENABLE_LOG__",true);
 
-?>

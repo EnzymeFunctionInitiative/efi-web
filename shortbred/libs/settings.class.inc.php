@@ -37,10 +37,6 @@ class settings extends global_settings {
         return __MAX_TIMEOUT__;
     }
 
-    public static function get_cluster_user() {
-        return __CLUSTER_USER__;
-    }
-
     public static function get_num_processors() {
         return __NUM_PROCESSORS__;
     }
