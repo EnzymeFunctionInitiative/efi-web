@@ -142,9 +142,9 @@ class functions extends global_functions {
     }
 
     public static function is_job_sticky($db, $identify_id, $user_email) {
-        $sql = "SELECT job_group.identify_id, identify.identify_email FROM job_group " .
-            "JOIN identify ON job_group.identify_id = identify.identify_id " .
-            "WHERE job_group.identify_id = $identify_id AND identify.identify_email != '$user_email'";
+        $sql = "SELECT job_group.job_id, identify.identify_email FROM job_group " .
+            "JOIN identify ON job_group.job_id = identify.identify_id " .
+            "WHERE job_group.job_type = 'CGFP' AND job_group.job_id = $identify_id AND identify.identify_email != '$user_email'";
         $result = $db->query($sql);
         if ($result)
             return true;

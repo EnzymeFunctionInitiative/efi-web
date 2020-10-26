@@ -124,10 +124,10 @@ class functions {
     public static function is_job_sticky($db, $generate_id, $user_email) {
         //$sql = "SELECT generate_parent_id FROM generate WHERE generate_id = $generate_id AND generate_parent_id IS NOT NULL";
         $pre_group = self::get_precompute_group();
-        $sql = "SELECT job_group.generate_id, generate.generate_email FROM job_group " .
-            "JOIN generate ON job_group.generate_id = generate.generate_id " .
+        $sql = "SELECT job_group.job_id, generate.generate_email FROM job_group " .
+            "JOIN generate ON job_group.job_id = generate.generate_id " .
             //"WHERE job_group.generate_id = $generate_id AND generate.generate_email != '$user_email'";
-            "WHERE job_group.generate_id = $generate_id AND (generate.generate_email != '$user_email' OR job_group.user_group != '')";
+            "WHERE job_group.job_type = 'EST' AND job_group.job_id = $generate_id AND (generate.generate_email != '$user_email' OR job_group.user_group != '')";
         // users can't create copies of sticky jobs that they own.
         $result = $db->query($sql);
         if ($result)

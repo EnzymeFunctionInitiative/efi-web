@@ -43,8 +43,8 @@ class user_jobs extends user_auth {
     private static function get_group_select_statement($group_clause) {
         $group_clause .= " AND";
         $sql = self::get_select_statement() .
-            "LEFT OUTER JOIN job_group ON gnn.gnn_id = job_group.gnn_id " .
-            "WHERE $group_clause gnn_status = 'FINISH' " .
+            "LEFT OUTER JOIN job_group ON gnn.gnn_id = job_group.job_id " .
+            "WHERE job_group.job_type = 'GNT' AND $group_clause gnn_status = 'FINISH' " .
             "ORDER BY gnn_status, gnn_time_completed DESC";
         return $sql;
     }

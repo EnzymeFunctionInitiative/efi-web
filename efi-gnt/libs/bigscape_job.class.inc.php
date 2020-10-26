@@ -2,9 +2,10 @@
 require_once(__DIR__ . "/../../conf/settings_base.inc.php");
 require_once(__DIR__."/const.class.inc.php");
 require_once(__DIR__."/functions.class.inc.php");
+require_once(__BASE_DIR__."/vendor/autoload.php");
 
-use pear\Mail;
-use pear\Mail_mime;
+require "Mail.php";
+require "Mail/mime.php";
 
 
 class bigscape_job {

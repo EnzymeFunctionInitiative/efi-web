@@ -30,7 +30,7 @@ class job_manager {
 
     public static function update_job_group($db, $db_name, $job_ids, $user_group, $type, $do_update) {
 
-        $col = "";
+        $col = "job_id";
         if ($type == "est") {
             $col = "generate_id";
         } elseif ($type == "gnt") {
@@ -54,9 +54,9 @@ class job_manager {
                 continue; // Should we die instead?
             $sql = "";
             if ($do_update)
-                $sql = "INSERT INTO $db_name.job_group ($col, user_group) VALUES ($id, \"$user_group\")";
+                $sql = "INSERT INTO job_group ($col, job_type, user_group) VALUES ($id, \"$type\", \"$user_group\")";
             else
-                $sql = "DELETE FROM $db_name.job_group WHERE $col = \"$id\" AND user_group = \"$user_group\"";
+                $sql = "DELETE FROM job_group WHERE $col = \"$id\" AND job_type = \"$type\" AND user_group = \"$user_group\"";
             $db->non_select_query($sql);
         }
 
@@ -82,8 +82,8 @@ class job_manager {
 
         $sql = "SELECT $cols FROM $dbn.generate " . 
             "JOIN $auth_db.user_token ON $dbn.generate.generate_email = $auth_db.user_token.user_email " .
-//            "JOIN $dbn.job_group ON $dbn.generate.generate_id = $dbn.job_group.generate_id " .
-            "WHERE $auth_db.user_token.user_admin = 1 ORDER BY $col_id DESC";
+//            "JOIN job_group ON $dbn.generate.generate_id = job_group.job_id " .
+            "WHERE job_group.job_type = 'EST' AND $auth_db.user_token.user_admin = 1 ORDER BY $col_id DESC";
 
         $rows = $this->db->query($sql);
 
@@ -91,7 +91,7 @@ class job_manager {
             return false;
         }
 
-        $this->est_jobs = $this->get_jobs($rows, "generate", $dbn);
+        $this->est_jobs = $this->get_jobs($rows, "generate", "EST");
 
         return true;
     }
@@ -134,7 +134,7 @@ class job_manager {
         } 
 
         foreach ($job_data as $id => $job) {
-            $sql = "SELECT * FROM $db_name.job_group WHERE $db_name.job_group.${table}_id = $id";
+            $sql = "SELECT * FROM job_group WHERE job_group.job_id = $id AND job_group.job_type = \"$db_name\"";
             $rows = $this->db->query($sql);
 
             $groups = array();
@@ -173,7 +173,7 @@ class job_manager {
             return false;
         }
 
-        $this->gnt_jobs = $this->get_jobs($rows, "gnn", $dbn);
+        $this->gnt_jobs = $this->get_jobs($rows, "gnn", "GNT");
 
         return true;
     }
@@ -204,7 +204,7 @@ class job_manager {
             return false;
         }
 
-        $this->shortbred_jobs = $this->get_jobs($rows, "identify", $dbn);
+        $this->shortbred_jobs = $this->get_jobs($rows, "identify", "CGFP");
 
         return true;
     }

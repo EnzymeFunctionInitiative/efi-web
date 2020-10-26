@@ -4,9 +4,10 @@ require_once(__GNT_DIR__."/includes/main.inc.php");
 require_once(__DIR__."/functions.class.inc.php");
 require_once(__DIR__."/const.class.inc.php");
 require_once(__DIR__."/arrow_api.class.inc.php");
+require_once(__BASE_DIR__."/vendor/autoload.php");
 
-use pear\Mail;
-use pear\Mail_mime;
+require "Mail.php";
+require "Mail/mime.php";
 
 
 class diagram_job extends arrow_api {

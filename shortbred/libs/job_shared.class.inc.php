@@ -1,8 +1,10 @@
 <?php
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__DIR__."/settings.class.inc.php");
+require_once(__BASE_DIR__."/vendor/autoload.php");
 
-use pear\Mail;
-use pear\Mail_mime;
+require "Mail.php";
+require "Mail/mime.php";
 
 
 abstract class job_shared {
