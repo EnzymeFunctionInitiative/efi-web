@@ -1,8 +1,8 @@
 <?php
 
-require_once("global_settings.class.inc.php");
-require_once("global_functions.class.inc.php");
-require_once("user_auth.class.inc.php");
+require_once(__DIR__."/global_functions.class.inc.php");
+require_once(__DIR__."/global_settings.class.inc.php");
+require_once(__DIR__."/user_auth.class.inc.php");
 
 class data_retention {
 

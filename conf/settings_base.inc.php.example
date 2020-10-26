@@ -1,28 +1,21 @@
 <?php
 ////////////////////////////////////
 //                                              
-//      EFI 
-//      settings.inc.php                        
-//                                              
 //      Settings for the scripts
 //                                              
 ////////////////////////////////////
 
-// Options that are marked [MANTOARY] in the comment must be set
+// Options that are marked [MANDATORY] in the comment must be set
 // Options that are marked [OPTIONAL] in the comment can be set
 // Options that are not commented SHOULD NOT BE CHANGED UNLESS YOU ARE GANDALF.
 
 // ORDER IS IMPORTANT
 
-//
-// USER-CONTROLLED OPTIONS
-//
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MANDATORY OPTIONS
 
-define("__BASE_WEB_ROOT__","");                 // https://FULL_SERVER_URL, no path_info,
+define("__BASE_WEB_ROOT__","http://localhost");                 // https://FULL_SERVER_URL, no path_info,
                                                 // e.g. https://efi.igb.illinois.edu 
 define("__TIMEZONE__","America/Chicago");
 define("__ADMIN_EMAIL__","");                   // Where emails are sent From 
@@ -55,6 +48,12 @@ define("__MYSQL_DATABASE__","efi_web");
 define("__MYSQL_USER__","efi_web");
 define("__MYSQL_PASSWORD__","");
 define("__MYSQL_AUTH_DATABASE__","efi_web");
+
+// The backend EFI tools database selector using the Lmod module commands; set this when you have set up the backend database
+define("__EFI_EST_MODULE__","");
+define("__EFI_DB_MODULE__","");
+define("__EFI_GNT_MODULE__","");
+define("__BLAST_MODULE__","");
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,16 +124,15 @@ define("__NUM_JOB_LIMIT__","6");            // Number of jobs that a user can ru
 // Only mess around in here if you are Gandalf 
 //
 
-// DIRECTORIES
-define("__BASE_DIR__",__DIR__."/..");
+// PATHS
 define("__EST_JOB_RESULTS_DIRNAME__","output");
 define("__EST_COLORSSN_SUFFIX__","_coloredssn");
 
 // CLUSTER/BACKEND OPTIONS
 // (this supports multiple EFI tools database versions)
-define("__EFIDB_MODULES__","");
-define("__ENA_VERSIONS__",__ENA_VERSIONS__);
-define("__UNIPROT_VERSIONS__",__UNIPROT_VERSION__);
+//define("__EFIDB_MODULES__","");
+//define("__ENA_VERSIONS__","");
+//define("__UNIPROT_VERSIONS__","");
 
 // STATUS
 // ***DO NOT CHANGE THESE*** NOT EVEN GANDALF IS ALLOWED TO CHANGE THESE!!!
@@ -150,3 +148,5 @@ define("__EFI_GNT_DB_NAME__",__MYSQL_DATABASE__);
 define("__EFI_EST_DB_NAME__",__MYSQL_DATABASE__);
 define("__EFI_SHORTBRED_DB_NAME__",__MYSQL_DATABASE__);
 
+
+require_once(__DIR__."/settings.paths.inc.php");

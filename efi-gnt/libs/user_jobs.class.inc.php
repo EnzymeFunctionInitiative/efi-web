@@ -1,6 +1,6 @@
 <?php
-
-require_once(__DIR__ . "/../includes/main.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__GNT_DIR__ . "/includes/main.inc.php");
 require_once(__DIR__ . "/functions.class.inc.php");
 require_once(__DIR__ . "/gnt_ui.class.inc.php");
 require_once(__DIR__ . "/const.class.inc.php");

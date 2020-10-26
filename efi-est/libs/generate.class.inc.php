@@ -1,6 +1,6 @@
 <?php
 
-require_once('family_shared.class.inc.php');
+require_once(__DIR__."/family_shared.class.inc.php");
 
 class generate extends family_shared {
 

@@ -1,9 +1,9 @@
 <?php
 
-require_once('family_shared.class.inc.php');
-require_once('option_base.class.inc.php');
-require_once('generate_helper.class.inc.php');
-require_once('file_helper.class.inc.php');
+require_once("family_shared.class.inc.php");
+require_once("option_base.class.inc.php");
+require_once("generate_helper.class.inc.php");
+require_once("file_helper.class.inc.php");
 
 class accession extends family_shared {
 

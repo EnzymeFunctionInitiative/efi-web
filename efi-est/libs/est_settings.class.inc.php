@@ -1,5 +1,6 @@
 <?php
-include_once(__DIR__ . "/../conf/settings_shared.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__EST_DIR__ . "/conf/settings_shared.inc.php");
 
 class est_settings {
 

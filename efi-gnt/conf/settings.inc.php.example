@@ -1,26 +1,28 @@
 <?php
 ////////////////////////////////////
 //                                              
-//      EFI GNN
-//      settings.inc.php                        
-//                                              
 //      Settings for the scripts
 //                                              
 ////////////////////////////////////
 
 require_once(__DIR__."/../../conf/settings_base.inc.php");
 
-//
-// USER DEFINED OPTIONS
-//
-    
+// Options that are marked [MANDATORY] in the comment must be set
+// Options that are marked [OPTIONAL] in the comment can be set
+// Options that are not commented SHOULD PROBABLY NOT BE CHANGED UNLESS YOU ARE GANDALF.
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// MANDATORY OPTIONS
+
 define("__OUTPUT_DIR__","");                // Where output results are stored [MANDATORY]
 define("__DIAGRAM_OUTPUT_DIR__","");        // Where GND output results are stored [MANDATORY]
 define("__UPLOAD_DIR__","");                // Where uploaded files are temporarily stored [MANDATORY]
 define("__LOG_FILE__","");                  // Log file [MANDATORY]
-define("__GNN_MODULE__","efignt/devlocal"); // The Lmod module to load to run the GNT tools [MANDATORY]
-define("__EFI_DB_MODULE__","efidb/ip79");   // The Lmod module to load to access the EFI database [MANDATORY]
-define("__BLAST_MODULE__","blast");         // The Lmod module for BLAST [MANDATORY]
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ADVANCED OPTIONS
 
 //
 // PATHS
@@ -66,4 +68,4 @@ define("__MAX_NUM_BLAST_SEQ__","500");
 define("__DEFAULT_NEIGHBORHOOD_SIZE__","10");
 
 define("__SYNC_KEYS__","");
-
+define("__GNN_MODULE__",__EFI_GNT_MODULE__);

@@ -1,11 +1,13 @@
 <?php
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__GNT_DIR__."/includes/main.inc.php");
+require_once(__DIR__."/functions.class.inc.php");
+require_once(__DIR__."/const.class.inc.php");
+require_once(__DIR__."/arrow_api.class.inc.php");
 
-require_once "../includes/main.inc.php";
-require_once "functions.class.inc.php";
-require_once "Mail.php";
-require_once "Mail/mime.php";
-require_once "const.class.inc.php";
-require_once "arrow_api.class.inc.php";
+use pear\Mail;
+use pear\Mail_mime;
+
 
 class diagram_job extends arrow_api {
 

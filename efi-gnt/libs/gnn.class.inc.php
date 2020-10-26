@@ -1,9 +1,11 @@
 <?php
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__GNT_DIR__."/includes/main.inc.php");
+require_once(__DIR__."/gnn_shared.class.inc.php");
 
-require_once('../includes/main.inc.php');
-require_once('Mail.php');
-require_once('Mail/mime.php');
-require_once('gnn_shared.class.inc.php');
+use pear\Mail;
+use pear\Mail_mime;
+
 
 class gnn extends gnn_shared {
 
