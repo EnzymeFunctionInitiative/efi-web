@@ -232,6 +232,8 @@ function submitColorSsnForm(type) { // the parameters are optional
         addParam(fd, "hmm-aa", "hmm-aa-list-" + option);
         addParam(fd, "min-seq-msa", "min-seq-msa-" + option);
         addParam(fd, "max-seq-msa", "max-seq-msa-" + option);
+    } else if (type == "cr") {
+        addParam(fd, "ascore", option + "-ascore");
     }
     addParam(fd, "ssn-source-id", "ssn-source-id-" + option);
     addParam(fd, "ssn-source-idx", "ssn-source-idx-" + option);

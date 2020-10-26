@@ -24,7 +24,21 @@ if (isset($_POST['download_network'])) {
 	
         $analysis = new analysis($db,$analysis_id);
 	$analysis->download_network($file);
+} else if ($dl_type == "CONVRATIO") {
+    $obj = new conv_ratio($db, $id);
+    validate_key($obj, $key);
 
+    $file_path = "";
+    $file_name = "";
+    $mime_type = SEND_FILE_BINARY;
+    $sub_type = isset($_GET["ft"]) ? $_GET["ft"] : "";
+    if ($sub_type === "tab") {
+        $file_path = $obj->get_cr_table_full_path();
+        $file_name = $obj->get_cr_table_filename();
+        $mime_type = SEND_FILE_TABLE;
+    }
+
+    output_file($file_path, $file_name, $mime_type);
 } else if ($dl_type === "NBCONN") {
     $obj = new nb_conn($db, $id);
     validate_key($obj, $key);
@@ -47,20 +61,26 @@ if (isset($_POST['download_network'])) {
         $mime_type = SEND_FILE_TABLE;
     }
 
-    if ($file_path && filesize($file_path)) {
-        send_file::send($file_path, $file_name, $mime_type);
-    } else {
-        print_error();
-        exit();
-    }
+    output_file($file_path, $file_name, $mime_type);
 } else {
     print_error();
     exit();
 }
 
 
+
+
+function output_file($file_path, $file_name, $mime_type) {
+    if ($file_path && filesize($file_path)) {
+        send_file::send($file_path, $file_name, $mime_type);
+    } else {
+        print_error();
+        exit();
+    }
+}
+
 function validate_download_type($type) {
-    if ($type === "NBCONN")
+    if ($type === "NBCONN" || $type === "CONVRATIO")
         return $type;
     else
         return false;

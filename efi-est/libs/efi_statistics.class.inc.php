@@ -27,6 +27,8 @@ class efi_statistics
         $sql .= "SUM(IF(generate_type='CLUSTER' AND generate_status='FAILED',1,0)) as num_failed_option_cluster, ";
         $sql .= "SUM(IF(generate_type='NBCONN' AND generate_status='FINISH',1,0)) as num_success_option_nb_conn, ";
         $sql .= "SUM(IF(generate_type='NBCONN' AND generate_status='FAILED',1,0)) as num_failed_option_nb_conn, ";
+        $sql .= "SUM(IF(generate_type='CONVRATIO' AND generate_status='FINISH',1,0)) as num_success_option_conv_ratio, ";
+        $sql .= "SUM(IF(generate_type='CONVRATIO' AND generate_status='FAILED',1,0)) as num_failed_option_conv_ratio, ";
         $sql .= "SUM(TIME_TO_SEC(TIMEDIFF(IF(generate_time_completed>'0000-00-00 00:00:00',generate_time_completed,generate_time_started),generate_time_started))) as total_time ";
         $sql .= "FROM generate ";
         if ($recent_only)

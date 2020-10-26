@@ -56,7 +56,7 @@ class functions {
         $sql = "SELECT * ";
         $sql .= "FROM generate ";
         $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER' OR generate_type='NBCONN') ";
+        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER' OR generate_type='NBCONN' OR generate_type='CONVRATIO') ";
         $sql .= "ORDER BY generate_time_created ASC ";
         $result = $db->query($sql);
         return $result;
@@ -433,7 +433,10 @@ class functions {
             $gen_type = "Cluster Analysis";
         } else if ($gen_type == "NBCONN") {
             $gen_type = "Neighborhood Connectivity";
+        } else if ($gen_type == "CONVRATIO") {
+            $gen_type = "Convergence Ratio";
         }
+
         return $gen_type;
     }
 

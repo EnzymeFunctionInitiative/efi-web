@@ -22,7 +22,7 @@ class dataset_shared {
     }
     
     public static function get_uniref_version($gen_type, $generate) {
-        if ($gen_type != "COLORSSN" && $gen_type != "CLUSTER" && $gen_type != "NBCONN")
+        if ($gen_type != "COLORSSN" && $gen_type != "CLUSTER" && $gen_type != "NBCONN" && $gen_type != "CONVRATIO")
             return $generate->get_uniref_version();
         else
             return "";
@@ -223,14 +223,14 @@ class dataset_shared {
             $add_fam_overlap_rows_fn("Input $term");
             $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
-        elseif ($gen_type == "COLORSSN" || $gen_type == "CLUSTER" || $gen_type == "NBCONN") {
+        elseif ($gen_type == "COLORSSN" || $gen_type == "CLUSTER" || $gen_type == "NBCONN" || $gen_type == "CONVRATIO") {
             $table->add_row("Uploaded XGMML File", $generate->get_uploaded_filename());
             $table->add_row("Neighborhood Size", $generate->get_neighborhood_size());
             $table->add_row("Cooccurrence", $generate->get_cooccurrence());
             $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
         
-        if ($gen_type != "COLORSSN" && $gen_type != "CLUSTER" && $gen_type != "NBCONN") {
+        if ($gen_type != "COLORSSN" && $gen_type != "CLUSTER" && $gen_type != "NBCONN" && $gen_type != "CONVRATIO") {
             if (functions::get_program_selection_enabled())
                 $table->add_row("Program Used", $generate->get_program());
         }

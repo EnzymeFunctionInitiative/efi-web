@@ -63,6 +63,7 @@ class input_data {
     public $max_seq_msa;
     public $efiref;
     public $skip_fasta;
+    public $ascore;
 
     //public $cooccurrence;
     //public $neighborhood_size;

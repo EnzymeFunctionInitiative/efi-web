@@ -36,9 +36,11 @@ function add_submit_html($option_id, $js_id_name, $user_email) {
         $js_fn = "submitColorSsnForm('cluster')";
     else if ($option_id == "nc")
         $js_fn = "submitColorSsnForm('nc')";
+    else if ($option_id == "cr")
+        $js_fn = "submitColorSsnForm('cr')";
 
     $html = "";
-    if ($option_id != "colorssn" && $option_id != "cluster" && $option_id != "nc")
+    if ($option_id != "colorssn" && $option_id != "cluster" && $option_id != "nc" && $option_id != "cr")
         $html .= <<<HTML
 <div style="margin-top: 35px">
     <span class="input-name">

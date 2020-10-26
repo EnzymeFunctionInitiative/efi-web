@@ -504,6 +504,69 @@ function output_nc($use_advanced_options, $user_email, $show_example = false, $m
 <?php
 }
 
+function output_cr($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
+    $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
+    $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
+?>
+        <div id="crtab" class="ui-tabs-panel ui-widget-content">
+
+            <p>
+            <b>
+            Convergence ratio is calculated per cluster.
+            </b>
+            </p>
+            
+            <form name="" id="ncSsnform" method="post" action="">
+                <div class="primary-input">
+<?php echo ui::make_upload_box("SSN File:", "cr-file", "progress-bar-cr", "progress-num-cr", "", "", $ssn_filename); ?>
+                    <div>
+                        A Cytoscape-edited SNN can serve as input.
+                        The accepted format is XGMML (or compressed XGMML as zip).
+                    </div>
+                </div>
+                
+                <div class="option-panels">
+                    <div class="initial-open">
+                        <h3>Alignment Score</h3>
+                        <div>
+                            <div>
+                                <span class="input-name">
+                                    Alignment Score:
+                                </span><span class="input-field">
+                                    <input type="text" id="cr-ascore" name="cr-ascore" value="5" size="5">
+                                    The alignment score to calculate convergence ratio per cluster (should be the same as the original SSN alignment score).
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                <?php if ($use_advanced_options) { ?>
+                    <div>
+                        <h3>Dev Site Options</h3>
+                        <div>
+                            <div>
+                                <span class="input-name">
+                                    Extra RAM:
+                                </span><span class="input-field">
+                                    <input type="checkbox" id="cr-extra-ram" name="cr-extra-ram" value="1">
+                                    <label for="cr-extra-ram">Check to use additional RAM (300GB) [default: off]</label>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+                </div>
+
+                <?php if ($ssn_id) { ?>
+                    <input type="hidden" name="ssn-source-id-cr" id="ssn-source-id-cr" value="<?php echo $ssn_id; ?>">
+                    <input type="hidden" name="ssn-source-idx-cr" id="ssn-source-idx-cr" value="<?php echo $ssn_idx; ?>">
+                <?php } ?>
+                <?php echo add_submit_html("cr", "", $user_email)[0]; ?>
+            </form>
+        </div>
+<?php
+}
+
 function output_cluster($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
@@ -868,6 +931,7 @@ function output_utility($use_advanced_options, $user_email, $example_fn = false,
     output_colorssn($use_advanced_options, $user_email, $example_fn, $mode_data);
     output_cluster($use_advanced_options, $user_email, $example_fn, $mode_data);
     output_nc($use_advanced_options, $user_email, $example_fn, $mode_data);
+    output_cr($use_advanced_options, $user_email, $example_fn, $mode_data);
     output_tab_page_end();
 ?>
         </div>
@@ -887,6 +951,7 @@ function output_utility_tab_page_header($selected_tab = "", $class_fn = false, $
         <li <?php echo ($selected_tab == "colorssn" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("colorssntab"); ?>"> Color SSNs</a></li>
         <li <?php echo ($selected_tab == "cluster" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("clustertab"); ?>">Cluster Analysis</a></li>
         <li <?php echo ($selected_tab == "nc" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("nctab"); ?>">Neighborhood Connectivity</a></li>
+        <li <?php echo ($selected_tab == "cr" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("crtab"); ?>">Convergence Ratio</a></li>
     </ul>
 <?php
 }
@@ -939,7 +1004,15 @@ HTML;
 function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $example_fn = false, $show_all_ids = false) {
 
     $mode_data = check_for_color_mode($db);
-    $sel_tab = !empty($mode_data) ? ($mode_data["mode"] == "cluster" ? "cluster" : ($mode_data["mode"] == "nc" ? "nc" : "colorssn")) : "";
+    $sel_tab = !empty($mode_data) ?
+        ($mode_data["mode"] == "cluster" ?
+            "cluster" :
+            ($mode_data["mode"] == "nc" ?
+                "nc" :
+                ($mode_data["mode"] == "cr" ? 
+                    "cr" :
+                    "colorssn"))) 
+         : "";
 
     output_tab_page_start();
     output_tab_page_header($show_jobs_tab, $show_tutorial, $sel_tab);
@@ -991,29 +1064,32 @@ function check_for_color_mode($db) {
     $color_filename = "";
     $submit_est_args = "";
 
+    $modes_avail = array("color" => 1, "cluster" => 1, "nc" => 1);
     $mode_data = array();
 
-    if (isset($_GET["mode"]) && ($_GET["mode"] == "color" || $_GET["mode"] == "cluster" || $_GET["mode"] == "nc") &&
-        isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"]))
-    {
-        $the_aid = $_GET["est-id"];
-        $the_key = $_GET["est-key"];
-        $the_idx = $_GET["est-ssn"];
+    if (isset($_GET["mode"])) {
+        $mode = $_GET["mode"];
+        if (isset($modes_avail[$mode]) && isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])) {
+            $the_aid = $_GET["est-id"];
+            $the_key = $_GET["est-key"];
+            $the_idx = $_GET["est-ssn"];
     
-        $job_info = global_functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
-        if ($job_info !== false) {
-            $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);
-            if ($est_file_info !== false) {
-                $est_id = $job_info["generate_id"];
-                $est_key = $the_key;
-                $color_filename = $est_file_info["filename"];
-                $mode_data["filename"] = $color_filename;
-                $mode_data["ssn_id"] = $the_aid;
-                $mode_data["ssn_idx"] = $the_idx;
-                $mode_data["mode"] = $_GET["mode"];
+            $job_info = global_functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
+            if ($job_info !== false) {
+                $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);
+                if ($est_file_info !== false) {
+                    $est_id = $job_info["generate_id"];
+                    $est_key = $the_key;
+                    $color_filename = $est_file_info["filename"];
+                    $mode_data["filename"] = $color_filename;
+                    $mode_data["ssn_id"] = $the_aid;
+                    $mode_data["ssn_idx"] = $the_idx;
+                    $mode_data["mode"] = $_GET["mode"];
     
-                $submit_est_args = "'$the_aid','$the_key','$the_idx'";
+                    $submit_est_args = "'$the_aid','$the_key','$the_idx'";
+                }
             }
+        } else if ($mode === "cr") {
         }
     }
 

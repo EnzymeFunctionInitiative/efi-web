@@ -91,6 +91,10 @@ if ($job_type === "NBCONN") {
     array_push($fileInfo, array(""));
     array_push($fileInfo, array("Neighborhood Connectivity Color Scale (PNG)", "$dl_base&ft=legend", 0));
     array_push($fileInfo, array("Neighborhood Connectivity Table", "$dl_base&ft=nc", 0));
+} else if ($job_type === "CONVRATIO") {
+    $dl_base = "download.php?dl=CONVRATIO&id=$est_id&key=$key";
+    array_push($fileInfo, array(""));
+    array_push($fileInfo, array("Convergence Ratio Table", "$dl_base&ft=tab", 0));
 } else {
     $want_clusters_file = true;
     $want_singles_file = false;
@@ -289,6 +293,8 @@ require_once("inc/header.inc.php");
 $header_text = "Download Colored SSN Files";
 if ($job_type === "NBCONN")
     $header_text = "Neighborhood Connectivity";
+else if ($job_type === "CONVRATIO")
+    $header_text = "Convergence Ratio";
 else if ($job_type === "CLUSTER")
     $header_text = "Cluster Analyses and Downloads";
 
@@ -464,7 +470,14 @@ if ($job_type === "NBCONN") {
             <div style="clear:both;margin-bottom:20px"></div>
         </div>
         <div id="data">
+<?php
+if ($job_type !== "CONVRATIO") {
+?>
             <h4>Colored SSN</h4>
+<?php
+}
+?>
+
 
 <?php
 if ($job_type === "NBCONN") {
@@ -474,6 +487,10 @@ if ($job_type === "NBCONN") {
             has been added with the NC factor.
             </p>
 <?php
+} else if ($job_type === "CONVRATIO") {
+?>
+            <p>Convergence ratio has been computed.</p>
+<?php
 } else {
 ?>
             <p>Each cluster in the submitted SSN has been identified and assigned a unique number and color.</p>
@@ -481,30 +498,22 @@ if ($job_type === "NBCONN") {
 }
 ?>
 
+<?php
+if ($job_type !== "CONVRATIO") {
+?>
             <p>
             <a href="<?php echo "$ssnFileZip"; ?>"><button class="normal">Download ZIP</button></a>
             </p>
-
-            <!--
-            <table width="100%" class="pretty">
-                <thead>
-                    <th></th>
-                    <th>File Size (Zipped MB)</th>
-                </thead>
-                <tbody>
-                    <tr style='text-align:center;'>
-                        <td class="button-col">
-                            <a href="<?php echo "$ssnFileZip"; ?>"><button class="mini">Download ZIP</button></a>
-                        </td>
-                        <td>
-                            <?php echo "$ssnFileZipSize MB"; ?>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            -->
-
+            
             <h4>Supplementary Files</h4>
+<?php
+} else {
+?>
+<?php
+}
+?>
+
+
             <table width="100%" class="pretty no-border">
 <?php
                     $first = true;
@@ -559,7 +568,7 @@ HTML;
             </table>
 
 <?php
-if ($job_type !== "NBCONN") {
+if ($job_type !== "NBCONN" && $job_type !== "CONVRATIO") {
 ?>
             <center>
                 <a href="../efi-cgfp/index.php?<?php echo "est-id=$est_id&est-key=$key"; ?>"><button type="button" name="analyze_data" class="dark white">Run CGFP on Colored SSN</button></a>

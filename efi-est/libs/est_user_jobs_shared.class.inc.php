@@ -192,7 +192,7 @@ class est_user_jobs_shared {
         if ($fraction) array_push($info, $fraction);
         if ($uniref) array_push($info, $uniref);
         if ($domain) array_push($info, $domain);
-        if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $excludeFractions) array_push($info, $excludeFractions);
+        if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $type != "CONVRATIO" && $excludeFractions) array_push($info, $excludeFractions);
         if ($sequence) array_push($info, $sequence);
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);
@@ -220,6 +220,8 @@ class est_user_jobs_shared {
             return "Cluster Analysis";
         case "NBCONN":
             return "Neighborhood Connectivity";
+        case "CONVRATIO":
+            return "Convergence Ratio";
         case "BLAST":
             return "Sequence BLAST";
         default:
@@ -287,7 +289,7 @@ class est_user_jobs_shared {
         $color_jobs = array();
         foreach ($rows as $row) {
             $type = $row["${generate_table}_type"];
-            if ($type != "COLORSSN" && $type != "CLUSTER" && $type != "NBCONN")
+            if ($type != "COLORSSN" && $type != "CLUSTER" && $type != "NBCONN" && $type != "CONVRATIO")
                 continue;
 
             $comp_result = est_user_jobs_shared::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);
@@ -316,7 +318,7 @@ class est_user_jobs_shared {
         // Process all non Color SSN jobs.  Link analysis jobs to generate jobs and color SSN jobs to analysis jobs.
         foreach ($rows as $row) {
             $type = $row["${generate_table}_type"];
-            if ($type == "COLORSSN" || $type == "CLUSTER" || $type == "NBCONN")
+            if ($type == "COLORSSN" || $type == "CLUSTER" || $type == "NBCONN" || $type == "CONVRATIO")
                 continue;
 
             $comp_result = est_user_jobs_shared::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);
