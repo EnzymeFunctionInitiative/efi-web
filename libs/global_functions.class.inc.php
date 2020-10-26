@@ -207,8 +207,13 @@ class global_functions {
 
         $info = array();
         if ($filename) {
+            $full_path = "$est_results_dir/$filename";
+            if (!file_exists($full_path)) {
+                $filename = "$filename.zip";
+                $full_path = "$full_path.zip";
+            }
             $info["filename"] = $filename;
-            $info["full_ssn_path"] = "$est_results_dir/$filename";
+            $info["full_ssn_path"] = $full_path;
             return $info;
         } else {
             return false;

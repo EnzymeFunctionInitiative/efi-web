@@ -1,6 +1,6 @@
 <?php
-
-require_once(__DIR__."/../includes/main.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__EST_DIR__."/includes/main.inc.php");
 
 
 class job_factory {
@@ -32,6 +32,8 @@ class job_factory {
             return new cluster_analysis($db, $id, $arg1, $arg2);
         case "NBCONN":
             return new nb_conn($db, $id, $arg1, $arg2);
+        case "CONVRATIO":
+            return new conv_ratio($db, $id, $arg1, $arg2);
         case "BLAST":
             return new blast($db, $id, $arg1, $arg2);
         default:

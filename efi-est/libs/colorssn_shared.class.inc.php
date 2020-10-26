@@ -9,11 +9,14 @@ abstract class colorssn_shared extends option_base {
     const SEQ_UNIPROT = 1;
     const SEQ_UNIREF50 = 2;
     const SEQ_UNIREF90 = 3;
+    const SEQ_EFIREF70 = 4;
+    const SEQ_EFIREF50 = 5;
     const SEQ_DOMAIN = 1;
     const SEQ_NO_DOMAIN = 2;
     const DEFAULT_MIN_SEQ_MSA = 5;
 
     protected $extra_ram = false;
+    protected $use_efiref = false;
     private $ssn_source_analysis_id;
     private $ssn_source_analysis_idx;
     private $ssn_source_key;
@@ -138,10 +141,17 @@ abstract class colorssn_shared extends option_base {
         $parms["--out-dir"] = "\"" . $out->relative_output_dir . "\"";
         $parms["--stats"] = "\"" . $this->get_stats_filename() . "\"";
         $parms["--cluster-sizes"] = "\"" . $this->get_cluster_sizes_filename() . "\"";
+        $parms["--conv-ratio"] = "\"" . $this->get_convergence_ratio_filename() . "\"";
         $parms["--sp-clusters-desc"] = "\"" . $this->get_swissprot_desc_filename($want_clusters_file) . "\"";
         $parms["--sp-singletons-desc"] = "\"" . $this->get_swissprot_desc_filename($want_singles_file) . "\"";
         if ($this->extra_ram)
             $parms["--extra-ram"] = "";
+        if (!global_settings::advanced_options_enabled())
+            $parms["--cleanup"] = "";
+        if ($this->use_efiref !== false) {
+            $parms["--efiref-ver"] = $this->use_efiref;
+            $parms["--efiref-db"] = "/igbgroup/n-z/noberg/dev/mmseq/efi/efiref.sqlite";
+        }
 
         return $parms;
     }
@@ -167,6 +177,7 @@ abstract class colorssn_shared extends option_base {
             }
         }
         $this->extra_ram = (isset($result["extra_ram"]) && $result["extra_ram"] === true);
+        $this->use_efiref = (isset($result["efiref"]) && is_numeric($result["efiref"])) ? $result["efiref"] : false;
 
         $this->file_helper->on_load_generate($id, $result);
 
@@ -202,6 +213,8 @@ abstract class colorssn_shared extends option_base {
             $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
         }
         $insert_array["extra_ram"] = (isset($data->extra_ram) && $data->extra_ram === true);
+        if (isset($data->efiref) && is_numeric($data->efiref))
+            $insert_array["efiref"] = $data->efiref;
         return $insert_array;
     }
 
@@ -234,7 +247,8 @@ abstract class colorssn_shared extends option_base {
     }
     protected function shared_get_web_path($filename) {
         $rel_path = $this->get_web_output_dir() . "/" . $filename;
-        if ($this->shared_get_full_path($filename))
+        $full_path = $this->shared_get_full_path($filename);
+        if ($full_path)
             return $rel_path;
         else
             return "";
@@ -275,6 +289,15 @@ abstract class colorssn_shared extends option_base {
         $path = $this->shared_get_web_path($filename);
         if (!$path) {
             $filename = $this->get_cluster_sizes_filename(true);
+            $path = $this->shared_get_web_path($filename);
+        }
+        return $path;
+    }
+    public function get_convergence_ratio_web_path() {
+        $filename = $this->get_convergence_ratio_filename();
+        $path = $this->shared_get_web_path($filename);
+        if (!$path) {
+            $filename = $this->get_convergence_ratio_filename(true);
             $path = $this->shared_get_web_path($filename);
         }
         return $path;
@@ -321,6 +344,9 @@ abstract class colorssn_shared extends option_base {
     private function get_stats_filename($no_prefix = false) {
         return $no_prefix ? "stats.txt" : $this->get_base_filename() . "_stats.txt";
     }
+    protected function get_convergence_ratio_filename($no_prefix = false) {
+        return $no_prefix ? "conv_ratio.txt" : $this->get_base_filename() . "_convergence_ratio.txt";
+    }
     protected function get_cluster_sizes_filename($no_prefix = false) {
         return $no_prefix ? "cluster_sizes.txt" : $this->get_base_filename() . "_cluster_sizes.txt";
     }
@@ -329,13 +355,33 @@ abstract class colorssn_shared extends option_base {
         return $no_prefix ? $name : $this->get_base_filename() . "_$name";
     }
     private function get_node_files_zip_filename($domain_type, $seq_type) {
-        $type_suffix = $seq_type == self::SEQ_UNIPROT ? "UniProt" : ($seq_type == self::SEQ_UNIREF50 ? "UniRef50" : "UniRef90");
+        $type_suffix = self::get_type_suffix($seq_type);
+        if (!$type_suffix)
+            $type_suffix = "UniProt";
+        $type_suffix = "_$type_suffix";
         $dom_suffix = $domain_type == self::SEQ_DOMAIN ? "_Domain" : "";
-        return $this->get_base_filename() . "_${type_suffix}${dom_suffix}_IDs.zip";
+        return $this->get_base_filename() . "${type_suffix}${dom_suffix}_IDs.zip";
+    }
+    private static function get_type_suffix($seq_type) {
+        $type_suffix =
+            $seq_type == self::SEQ_UNIREF50 ? "UniRef50" : 
+                (
+                    $seq_type == self::SEQ_UNIREF90 ? "UniRef90" :
+                    (
+                        $seq_type == self::SEQ_EFIREF50 ? "EfiRef50" : 
+                        (
+                            $seq_type == self::SEQ_EFIREF70 ? "EfiRef70" : ""
+                        )
+                    )
+                )
+                ;
+        return $type_suffix;
     }
     private function get_fasta_files_zip_filename($domain_type, $seq_type) {
         $dom_suffix = $domain_type == self::SEQ_DOMAIN ? "_Domain" : "";
-        $type_suffix = $seq_type == self::SEQ_UNIREF50 ? "_UniRef50" : ($seq_type == self::SEQ_UNIREF90 ? "_UniRef90" : "");
+        $type_suffix = self::get_type_suffix($seq_type);
+        if ($type_suffix)
+            $type_suffix = "_$type_suffix";
         return $this->get_base_filename() . "_FASTA$type_suffix$dom_suffix.zip";
     }
     private function get_table_file_filename($want_domain = false) {

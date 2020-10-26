@@ -1,5 +1,6 @@
 <?php
-require_once(__DIR__ . "/../../libs/global_settings.class.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 
 class functions {
 
@@ -56,7 +57,7 @@ class functions {
         $sql = "SELECT * ";
         $sql .= "FROM generate ";
         $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER' OR generate_type='NBCONN') ";
+        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER' OR generate_type='NBCONN' OR generate_type='CONVRATIO') ";
         $sql .= "ORDER BY generate_time_created ASC ";
         $result = $db->query($sql);
         return $result;
@@ -433,7 +434,10 @@ class functions {
             $gen_type = "Cluster Analysis";
         } else if ($gen_type == "NBCONN") {
             $gen_type = "Neighborhood Connectivity";
+        } else if ($gen_type == "CONVRATIO") {
+            $gen_type = "Convergence Ratio";
         }
+
         return $gen_type;
     }
 
@@ -626,13 +630,19 @@ class functions {
         $info = array();
         if ($filename) {
             $info["filename"] = $filename;
-            $info["full_ssn_path"] = "$est_results_dir/$filename";
+            $path = "$est_results_dir/$filename";
+            if (!file_exists($path) && self::endsWith(strtolower($path), "xgmml") && file_exists($path . ".zip"))
+                $path .= ".zip";
+            $info["full_ssn_path"] = $path;
             return $info;
         } else {
             return false;
         }
     }
 
+    public static function endsWith($haystack, $needle) {
+        return substr_compare($haystack, $needle, -strlen($needle)) === 0;
+    }
 }
 
 ?>

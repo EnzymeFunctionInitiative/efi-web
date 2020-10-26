@@ -1,9 +1,11 @@
 <?php
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__USERS_DIR__."/.includes/main.inc.php");
+require_once(__BASE_DIR__."/libs/global_settings.class.inc.php");
 
-require_once(__DIR__."/../includes/main.inc.php");
-require_once(__DIR__."/../../libs/global_settings.class.inc.php");
-require_once(__DIR__."/../../includes/pear/Mail.php");
-require_once(__DIR__."/../../includes/pear/Mail/mime.php");
+use pear\Mail;
+use pear\Mail_mime;
+
 
 class functions {
 

@@ -1,5 +1,5 @@
 <?php
-
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__DIR__."/colorssn_shared.class.inc.php");
 require_once(__BASE_DIR__."/libs/global_functions.class.inc.php");
 
@@ -37,7 +37,7 @@ class nb_conn extends colorssn_shared {
         $name = $this->get_base_filename();
         $parms["--output-name"] = "\"$name\"";
         if ($this->extra_ram)
-            $parms["--ram"] = "500gb";
+            $parms["--ram"] = "300";
         return $parms;
     }
 

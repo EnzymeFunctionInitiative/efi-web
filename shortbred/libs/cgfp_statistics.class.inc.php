@@ -1,6 +1,6 @@
 <?php
 
-require_once("functions.class.inc.php");
+require_once(__DIR__."/functions.class.inc.php");
 
 class cgfp_statistics {
 

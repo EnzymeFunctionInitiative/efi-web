@@ -1,9 +1,6 @@
 <?php
 ////////////////////////////////////
 //                                              
-//      EFI EST                         
-//      settings_shared.inc.php                        
-//                                              
 //      These settings are used by shared code in other parts of the website.
 //                                              
 ////////////////////////////////////
@@ -18,4 +15,3 @@ define("__DEFAULT_BLAST_SEQ__",1000);
 define("__MAX_FULL_FAMILY_COUNT__",25000);
 define("__ENABLE_E__",false);
 
-?>

@@ -1,9 +1,11 @@
 <?php
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__GNT_DIR__."/includes/main.inc.php");
+require_once(__DIR__."/gnn_shared.class.inc.php");
 
-require_once('../includes/main.inc.php');
-require_once('Mail.php');
-require_once('Mail/mime.php');
-require_once('gnn_shared.class.inc.php');
+use pear\Mail;
+use pear\Mail_mime;
+
 
 class gnn extends gnn_shared {
 
@@ -31,7 +33,6 @@ class gnn extends gnn_shared {
     protected $eol = PHP_EOL;
     protected $finish_file = "gnn.completed";
     protected $beta;
-    protected $is_legacy = false;
     protected $est_id = 0; // gnn_est_source_id, we use the EST job with this analysis ID
     protected $gnn_parent_id = 0; // parent GNT job
     // If gnn_parent_id is set, then if this is true the job is to use the 
@@ -683,14 +684,10 @@ class gnn extends gnn_shared {
 
 
     public function get_rel_output_dir() {
-        if ($this->is_legacy) {
-            return settings::get_legacy_rel_output_dir();
-        } else {
-            if ($this->is_sync)
-                return settings::get_rel_sync_output_dir();
-            else
-                return settings::get_rel_output_dir();
-        }
+        if ($this->is_sync)
+            return settings::get_rel_sync_output_dir();
+        else
+            return settings::get_rel_output_dir();
     }
 
     public function set_time_started() {
@@ -749,7 +746,6 @@ class gnn extends gnn_shared {
             $this->time_completed = $result["gnn_time_completed"];
             $this->pbs_number = $result["gnn_pbs_number"];
             $this->status = $result["gnn_status"];
-            $this->is_legacy = is_null($this->status);
             if (isset($result["gnn_est_source_id"]))
                 $this->est_id = $result["gnn_est_source_id"];
 
@@ -991,16 +987,12 @@ class gnn extends gnn_shared {
     public function get_output_dir($id = 0) {
         if (!$id)
             $id = $this->get_id();
-        if ($this->is_legacy) {
-            return settings::get_legacy_output_dir() . "/" . $id;
-        } else {
-            $base_dir = "";
-            if ($this->is_sync)
-                $base_dir = settings::get_sync_output_dir();
-            else
-                $base_dir = settings::get_output_dir();
-            return $base_dir . "/" . $id;
-        }
+        $base_dir = "";
+        if ($this->is_sync)
+            $base_dir = settings::get_sync_output_dir();
+        else
+            $base_dir = settings::get_output_dir();
+        return $base_dir . "/" . $id;
     }
 
     public function set_pbs_number($pbs_number) {

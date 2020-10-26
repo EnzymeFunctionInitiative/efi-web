@@ -2,6 +2,6 @@
 
 //
 // EXAMPLES
+// Path to example config ini file [OPTIONAL]
 define("__EXAMPLE_CONFIG__","");
 
-?>

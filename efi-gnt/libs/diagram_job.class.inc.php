@@ -1,11 +1,13 @@
 <?php
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__GNT_DIR__."/includes/main.inc.php");
+require_once(__DIR__."/functions.class.inc.php");
+require_once(__DIR__."/const.class.inc.php");
+require_once(__DIR__."/arrow_api.class.inc.php");
 
-require_once "../includes/main.inc.php";
-require_once "functions.class.inc.php";
-require_once "Mail.php";
-require_once "Mail/mime.php";
-require_once "const.class.inc.php";
-require_once "arrow_api.class.inc.php";
+use pear\Mail;
+use pear\Mail_mime;
+
 
 class diagram_job extends arrow_api {
 
@@ -163,8 +165,6 @@ class diagram_job extends arrow_api {
         $exec .= $binary . " ";
         $exec .= $commandLine;
         $exec .= " -output \"$target\"";
-        if (settings::run_jobs_as_legacy())
-            $exec .= " -legacy";
         if ($this->title)
             $exec .= " -title \"" . $this->title . "\"";
         if ($this->type)

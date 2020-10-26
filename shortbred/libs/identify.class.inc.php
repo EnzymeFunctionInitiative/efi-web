@@ -1,5 +1,5 @@
 <?php
-
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__DIR__ . "/functions.class.inc.php");
 require_once(__DIR__ . "/settings.class.inc.php");
 require_once(__DIR__ . "/job_shared.class.inc.php");

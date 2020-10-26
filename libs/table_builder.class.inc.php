@@ -1,7 +1,5 @@
 <?php
 
-require_once('functions.class.inc.php');
-
 class table_builder {
 
     private $is_html;
