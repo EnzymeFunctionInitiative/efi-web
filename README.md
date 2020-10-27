@@ -72,16 +72,16 @@ For example on Windows from the XAMPP terminal:
 
 On Windows replace the / with \
 
-Copy conf/settings_base.inc.php.example conf/settings_base.inc.php
-Copy conf/settings.inc.php.example conf/settings.inc.php
-Copy efi-est/conf/settings.inc.php.example efi-est/conf/settings.inc.php
-Copy efi-est/conf/settings_shared.inc.php.example efi-est/conf/settings_shared.inc.php
-Copy efi-gnt/conf/settings.inc.php.example efi-gnt/conf/settings.inc.php
-Copy shortbred/conf/settings.inc.php.example shortbred/conf/settings.inc.php
-Copy shortbred/conf/settings_shared.inc.php.example shortbred/conf/settings_shared.inc.php
-Copy users/conf/settings.inc.php.example users/conf/settings.inc.php
-Copy training/conf/settings.inc.php.example training/conf/settings.inc.php
-Copy training/conf/settings_examples.inc.php.example training/conf/settings_examples.inc.php
+    cp conf/settings_base.inc.php.example conf/settings_base.inc.php
+    cp conf/settings.inc.php.example conf/settings.inc.php
+    cp efi-est/conf/settings.inc.php.example efi-est/conf/settings.inc.php
+    cp efi-est/conf/settings_shared.inc.php.example efi-est/conf/settings_shared.inc.php
+    cp efi-gnt/conf/settings.inc.php.example efi-gnt/conf/settings.inc.php
+    cp shortbred/conf/settings.inc.php.example shortbred/conf/settings.inc.php
+    cp shortbred/conf/settings_shared.inc.php.example shortbred/conf/settings_shared.inc.php
+    cp users/conf/settings.inc.php.example users/conf/settings.inc.php
+    cp training/conf/settings.inc.php.example training/conf/settings.inc.php
+    cp training/conf/settings_examples.inc.php.example training/conf/settings_examples.inc.php
 
 When entering file or directory paths on Windows into the config files always use the forward slash for directory separator char (/).
 
