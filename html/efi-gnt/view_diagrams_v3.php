@@ -4,6 +4,12 @@ require_once(__GNT_DIR__ . "/includes/main.inc.php");
 require_once(__GNT_DIR__ . "/libs/settings.class.inc.php");
 require_once(__GNT_DIR__ . "/libs/bigscape_job.class.inc.php");
 require_once(__BASE_DIR__ . "/training/libs/example_config.class.inc.php");
+require_once(__GNT_DIR__."/libs/gnn.class.inc.php");
+require_once(__GNT_DIR__."/libs/gnn_example.class.inc.php");
+require_once(__GNT_DIR__."/libs/diagram_data_file.class.inc.php");
+require_once(__GNT_DIR__."/libs/direct_gnd_file.class.inc.php");
+require_once(__GNT_DIR__."/libs/bigscape_job.class.inc.php");
+require_once(__GNT_DIR__."/libs/diagram_jobs.class.inc.php");
 
 
 $is_example = isset($_GET["x"]) ? true : false;
@@ -532,7 +538,7 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
         <!-- jQuery -->
         <script src="js/jquery-3.2.1.min.js"></script>
         <!-- Bootstrap Core JavaScript -->
-        <script src="/bs/js/bootstrap.min.js"></script>
+        <script src="<?php echo $SiteUrlPrefix; ?>/bs/js/bootstrap.min.js"></script>
 
         <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
         <script src="/bs/js/ie10-viewport-bug-workaround.js"></script>

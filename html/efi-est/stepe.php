@@ -6,6 +6,10 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
 require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 require_once(__EST_DIR__ . "/libs/dataset_shared.class.inc.php");
+require_once(__EST_DIR__ . "/libs/stepa.class.inc.php");
+require_once(__EST_DIR__ . "/libs/functions.class.inc.php");
+require_once(__EST_DIR__ . "/libs/analysis.class.inc.php");
+
 
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id']) || !isset($_GET['analysis_id']) || !is_numeric($_GET['analysis_id'])) {

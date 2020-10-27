@@ -6,8 +6,8 @@ require_once(__DIR__."/const.class.inc.php");
 require_once(__DIR__."/arrow_api.class.inc.php");
 require_once(__BASE_DIR__."/vendor/autoload.php");
 
-require "Mail.php";
-require "Mail/mime.php";
+require_once("Mail.php");
+require_once("Mail/mime.php");
 
 
 class diagram_job extends arrow_api {

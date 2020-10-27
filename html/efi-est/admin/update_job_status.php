@@ -23,6 +23,3 @@ echo json_encode(array(
     'id'=>$job_id,
     'status'=>'SUCCESS'
 ));
-
-?>
-

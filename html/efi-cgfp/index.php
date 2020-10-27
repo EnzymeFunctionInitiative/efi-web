@@ -6,6 +6,7 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
 require_once(__CGFP_DIR__ . "/libs/cgfp_ui.class.inc.php");
 require_once(__CGFP_DIR__ . "/libs/functions.class.inc.php");
+require_once(__CGFP_DIR__ . "/libs/job_manager.class.inc.php");
 
 
 $user_email = "Enter your e-mail address";

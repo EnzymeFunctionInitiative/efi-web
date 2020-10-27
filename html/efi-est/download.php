@@ -2,6 +2,12 @@
 require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__EST_DIR__."/includes/main.inc.php");
 require_once(__BASE_DIR__ . "/libs/send_file.class.inc.php");
+require_once(__EST_DIR__ . "/libs/nb_conn.class.inc.php");
+require_once(__EST_DIR__ . "/libs/conv_ratio.class.inc.php");
+require_once(__EST_DIR__ . "/libs/stepa.class.inc.php");
+require_once(__EST_DIR__ . "/libs/analysis.class.inc.php");
+
+
 
 $dl_type = isset($_GET["dl"]) ? $_GET["dl"] : "";
 $dl_type = validate_download_type($dl_type);

@@ -1,6 +1,8 @@
 <?php
 
 require_once(__DIR__."/inc/stats_main.inc.php");
+require_once(__EST_DIR__."/libs/efi_statistics.class.inc.php");
+require_once(__EST_DIR__."/libs/custom_graph.class.inc.php");
 
 if (isset($_GET['year'])) {
     $year = $_GET['year'];

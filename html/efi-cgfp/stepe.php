@@ -6,6 +6,7 @@
 require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__CGFP_DIR__."/includes/main.inc.php");
 require_once(__CGFP_DIR__."/libs/job_manager.class.inc.php");
+require_once(__CGFP_DIR__."/libs/quantify.class.inc.php");
 
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"]) || !isset($_GET["quantify-id"]) || !is_numeric($_GET["quantify-id"])) {

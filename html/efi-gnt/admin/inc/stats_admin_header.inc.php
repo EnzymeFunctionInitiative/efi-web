@@ -2,9 +2,9 @@
 <html lang='en'>
 <head>
 <title>EFI-GNT Statistics</title>
-<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/font-awesome/css/fontawesome-all.min.css">
-<link rel="stylesheet" type="text/css" href="/bs/css/bootstrap.min.css">
+<script type="text/javascript" src="<?php echo $SiteUrlPrefix; ?>/js/jquery-3.2.1.min.js"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/fontawesome-all.min.css">
+<link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/bs/css/bootstrap.min.css">
 <style>
 .running { font-weight: bold; color: green; }
 .failed { font-weight: bold; color: red; }

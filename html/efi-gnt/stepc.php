@@ -3,6 +3,9 @@ require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__GNT_DIR__."/includes/main.inc.php");
 require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
+require_once(__GNT_DIR__."/libs/gnn.class.inc.php");
+require_once(__GNT_DIR__."/libs/gnn_example.class.inc.php");
+require_once(__GNT_DIR__."/libs/gnt_ui.class.inc.php");
 
 
 $is_example = isset($_GET["x"]);

@@ -1,6 +1,7 @@
 <?php
-
+require_once(__DIR__."/../../../conf/settings_paths.inc.php");
 require_once(__DIR__."/inc/stats_main.inc.php");
+require_once(__EST_DIR__."/libs/efi_statistics.class.inc.php");
 
 
 $NumWaitingJobs = efi_statistics::get_num_jobs($db, __NEW__);

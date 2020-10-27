@@ -2,6 +2,7 @@
 
 require_once(__DIR__."/option_base.class.inc.php");
 require_once(__BASE_DIR__."/libs/global_functions.class.inc.php");
+require_once(__EST_DIR__ . "/libs/file_helper.class.inc.php");
 
 
 abstract class colorssn_shared extends option_base {

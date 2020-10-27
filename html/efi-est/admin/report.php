@@ -1,5 +1,8 @@
 <?php
 require_once(__DIR__."/inc/stats_main.inc.php");
+require_once(__EST_DIR__."/libs/efi_statistics.class.inc.php");
+require_once(__EST_DIR__."/libs/report.class.inc.php");
+
 if (isset($_POST['create_user_report'])) {
 
 	$type = $_POST['report_type'];
