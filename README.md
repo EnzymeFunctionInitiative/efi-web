@@ -60,12 +60,20 @@ MAKE SURE TO UPDATE THE PASSWORD IN sql\create_user.sql.example
 
 For example on Windows from the XAMPP terminal:
 
-    mkdir efi-est\uploads
-    mkdir efi-gnt\uploads
-    mkdir shortbred\uploads
-    mkdir efi-est\log
-    mkdir efi-gnt\log
-    mkdir shortbred\log
+    mkdir efi-est/uploads
+    chown www-data:www-data efi-est/uploads
+    mkdir efi-gnt/uploads
+    chown www-data:www-data efi-gnt/uploads
+    mkdir shortbred/uploads
+    chown www-data:www-data shortbred/uploads
+    mkdir efi-est/log
+    chown www-data:www-data efi-est/log
+    mkdir efi-gnt/log
+    chown www-data:www-data efi-gnt/log
+    mkdir shortbred/log
+    chown www-data:www-data shortbred/log
+
+where www-data is the Apache user/group (set appropriately).
 
 
 # EFI-WEB CONFIGURATION FILES
