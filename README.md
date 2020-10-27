@@ -159,9 +159,9 @@ Unzip data to C:/efi
 
 From XAMMP terminal:
 
-    mysql -u root efi_web < C:/efi/web_sample_data/install_examples.sql
-
-Try it out by going to http://localhost/efi-web/
+    mysql -u root efi_web < c:\efi\web_sample_data\install_examples.sql
+    cd c:\efi
+    mysql -u root efi_web < load_family_sizes.sql
 
 
 # MAKE SYMLINKS
