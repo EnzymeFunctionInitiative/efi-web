@@ -3,7 +3,7 @@ require_once(__DIR__."/../conf/settings_paths.inc.php");
 require_once(__BASE_DIR__."/includes/main.inc.php");
 require_once(__BASE_DIR__."/libs/user_auth.class.inc.php");
 require_once(__BASE_DIR__."/includes/login_check.inc.php");
-require_once(__BASE_DIR__."/libs/global_SETTINGS.class.inc.php");
+require_once(__BASE_DIR__."/libs/global_settings.class.inc.php");
 
 
 $NoAdmin = true;

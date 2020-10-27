@@ -106,7 +106,7 @@ For __EST_RESULTS_DIR__ on Windows this can be left blank because there is no EF
 
 To use sample data on Windows:
 
-    __OUTPUT_DIR__ = C:/efi/web_sample_data/est
+    __EST_RESULTS_DIR__ = C:/efi/web_sample_data/est
 
 ## EST
 
