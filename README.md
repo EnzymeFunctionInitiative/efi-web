@@ -60,28 +60,36 @@ MAKE SURE TO UPDATE THE PASSWORD IN sql\create_user.sql.example
 
 For example on Windows from the XAMPP terminal:
 
-    mkdir efi-est\uploads
-    mkdir efi-gnt\uploads
-    mkdir shortbred\uploads
-    mkdir efi-est\log
-    mkdir efi-gnt\log
-    mkdir shortbred\log
+    mkdir efi-est/uploads
+    chown www-data:www-data efi-est/uploads
+    mkdir efi-gnt/uploads
+    chown www-data:www-data efi-gnt/uploads
+    mkdir shortbred/uploads
+    chown www-data:www-data shortbred/uploads
+    mkdir efi-est/log
+    chown www-data:www-data efi-est/log
+    mkdir efi-gnt/log
+    chown www-data:www-data efi-gnt/log
+    mkdir shortbred/log
+    chown www-data:www-data shortbred/log
+
+where www-data is the Apache user/group (set appropriately).
 
 
 # EFI-WEB CONFIGURATION FILES
 
 On Windows replace the / with \
 
-Copy conf/settings_base.inc.php.example conf/settings_base.inc.php
-Copy conf/settings.inc.php.example conf/settings.inc.php
-Copy efi-est/conf/settings.inc.php.example efi-est/conf/settings.inc.php
-Copy efi-est/conf/settings_shared.inc.php.example efi-est/conf/settings_shared.inc.php
-Copy efi-gnt/conf/settings.inc.php.example efi-gnt/conf/settings.inc.php
-Copy shortbred/conf/settings.inc.php.example shortbred/conf/settings.inc.php
-Copy shortbred/conf/settings_shared.inc.php.example shortbred/conf/settings_shared.inc.php
-Copy users/conf/settings.inc.php.example users/conf/settings.inc.php
-Copy training/conf/settings.inc.php.example training/conf/settings.inc.php
-Copy training/conf/settings_examples.inc.php.example training/conf/settings_examples.inc.php
+    cp conf/settings_base.inc.php.example conf/settings_base.inc.php
+    cp conf/settings.inc.php.example conf/settings.inc.php
+    cp efi-est/conf/settings.inc.php.example efi-est/conf/settings.inc.php
+    cp efi-est/conf/settings_shared.inc.php.example efi-est/conf/settings_shared.inc.php
+    cp efi-gnt/conf/settings.inc.php.example efi-gnt/conf/settings.inc.php
+    cp shortbred/conf/settings.inc.php.example shortbred/conf/settings.inc.php
+    cp shortbred/conf/settings_shared.inc.php.example shortbred/conf/settings_shared.inc.php
+    cp users/conf/settings.inc.php.example users/conf/settings.inc.php
+    cp training/conf/settings.inc.php.example training/conf/settings.inc.php
+    cp training/conf/settings_examples.inc.php.example training/conf/settings_examples.inc.php
 
 When entering file or directory paths on Windows into the config files always use the forward slash for directory separator char (/).
 
@@ -106,7 +114,7 @@ For __EST_RESULTS_DIR__ on Windows this can be left blank because there is no EF
 
 To use sample data on Windows:
 
-    __OUTPUT_DIR__ = C:/efi/web_sample_data/est
+    __EST_RESULTS_DIR__ = C:/efi/web_sample_data/est
 
 ## EST
 
