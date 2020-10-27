@@ -27,7 +27,7 @@ define("__LOG_FILE__","");                  // Log file [MANDATORY]
 //
 // PATHS
 //
-define("__SYNC_OUTPUT_DIR__","/var/www/efi-web-dev/efi-gnt/html/sync_output");
+define("__SYNC_OUTPUT_DIR__","");
 define("__WEB_PATH__",__GNT_WEB_PATH__);
 define("__WEB_ROOT__",__BASE_WEB_ROOT__."/".__WEB_PATH__);
 define("__CGFP_WEB_ROOT__",__CGFP_WEB_PATH__);

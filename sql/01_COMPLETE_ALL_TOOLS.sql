@@ -375,7 +375,7 @@ CREATE TABLE `user_token` (
 DROP TABLE IF EXISTS `job_group`;
 CREATE TABLE `job_group` (
   `job_type` varchar(4) NOT NULL DEFAULT "",
-  `job_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NOT NULL,
   `other_id` int(11) DEFAULT NULL,
   `user_group` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`job_type`,`job_id`)

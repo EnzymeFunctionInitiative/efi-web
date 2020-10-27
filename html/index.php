@@ -114,7 +114,7 @@ Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639,
     </td>
     <td>
 <?php if (isset($IncludeShortBred) && $IncludeShortBred) { ?>
-        <a href="shortbred/">
+        <a href="efi-cgfp/">
             <span class="block-hdr">Functional Profiling</span>
             <img src="images/about_heatmap.png" width="450">
             Computationally-guided functional profiling using ShortBRED and the CGFP tools from
