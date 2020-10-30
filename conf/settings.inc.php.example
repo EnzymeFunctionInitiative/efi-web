@@ -14,9 +14,3 @@ require_once("settings_base.inc.php");
 // PATHS
 define("__WEB_PATH__",__BASE_WEB_PATH__."/");
 define("__WEB_ROOT__",__BASE_WEB_ROOT__."".__WEB_PATH__);
-
-//
-// UI
-define("__USE_DASHBOARD__",true);
-
-?>

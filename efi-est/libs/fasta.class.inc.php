@@ -1,7 +1,7 @@
 <?php
 
-require_once('family_shared.class.inc.php');
-require_once('file_helper.class.inc.php');
+require_once(__DIR__."/family_shared.class.inc.php");
+require_once(__DIR__."/file_helper.class.inc.php");
 
 class fasta extends family_shared {
 

@@ -12,7 +12,7 @@ else {
     $base_dir = settings::get_output_dir();
 
     $dr = new data_retention($db, $base_dir);
-    $jobs = $dr->get_expired_jobs("gnn");
+    $jobs = $dr->get_expired_jobs("gnn", "GNT");
 
     foreach ($jobs as $id => $dir_path) {
         if (file_exists($dir_path)) {

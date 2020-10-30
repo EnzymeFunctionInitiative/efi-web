@@ -1,8 +1,12 @@
 <?php
-require_once("../libs/user_auth.class.inc.php");
-require_once("../includes/main.inc.php");
-require_once("Mail.php");
-require_once("Mail/mime.php");
+require_once(__DIR__."/../conf/settings_paths.inc.php");
+require_once(__BASE_DIR__."/libs/user_auth.class.inc.php");
+require_once(__BASE_DIR__."/includes/main.inc.php");
+require_once(__BASE_DIR__."/vendor/autoload.php");
+
+require "Mail.php";
+require "Mail/mime.php";
+
 
 $StyleAdditional = array('<style>.hideme { display: none; }</style>');
 require_once(__DIR__ . "/inc/header.inc.php");

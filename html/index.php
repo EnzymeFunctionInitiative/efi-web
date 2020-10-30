@@ -1,7 +1,10 @@
 <?php
-require_once("../includes/main.inc.php");
-require_once("../libs/user_auth.class.inc.php");
-require_once("../includes/login_check.inc.php");
+require_once(__DIR__."/../conf/settings_paths.inc.php");
+require_once(__BASE_DIR__."/includes/main.inc.php");
+require_once(__BASE_DIR__."/libs/user_auth.class.inc.php");
+require_once(__BASE_DIR__."/includes/login_check.inc.php");
+require_once(__BASE_DIR__."/libs/global_settings.class.inc.php");
+
 
 $NoAdmin = true;
 require_once("inc/header.inc.php");
@@ -111,7 +114,7 @@ Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639,
     </td>
     <td>
 <?php if (isset($IncludeShortBred) && $IncludeShortBred) { ?>
-        <a href="shortbred/">
+        <a href="efi-cgfp/">
             <span class="block-hdr">Functional Profiling</span>
             <img src="images/about_heatmap.png" width="450">
             Computationally-guided functional profiling using ShortBRED and the CGFP tools from

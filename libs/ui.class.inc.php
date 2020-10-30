@@ -8,7 +8,10 @@ class ui {
             $maxFileSize = ini_get('post_max_size');
 
         if (!$default_file)
-            $default_file = "Choose a file&hellip;";
+             $default_file = "Choose a file&hellip;";
+
+        if (!$site_url_prefix)
+             $site_url_prefix = global_settings::get_base_web_path();
 
         return <<<HTML
                 <div>

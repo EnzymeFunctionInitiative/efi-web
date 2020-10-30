@@ -1,6 +1,6 @@
 <?php
 
-require_once("settings.class.inc.php");
+require_once(__DIR__."/settings.class.inc.php");
 
 class metagenome_db {
     public $id = "";

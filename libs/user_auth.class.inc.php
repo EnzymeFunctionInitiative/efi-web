@@ -1,8 +1,8 @@
 <?php
 
-require_once("global_settings.class.inc.php");
-require_once("global_functions.class.inc.php");
-require_once("PasswordHash.php");
+require_once(__DIR__."/global_functions.class.inc.php");
+require_once(__DIR__."/global_settings.class.inc.php");
+require_once(__DIR__."/PasswordHash.php");
 
 class group_status {
     const Active = "ACTIVE";

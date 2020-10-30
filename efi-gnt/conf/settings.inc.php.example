@@ -1,33 +1,44 @@
 <?php
 ////////////////////////////////////
 //                                              
-//      EFI GNN
-//      settings.inc.php                        
-//                                              
 //      Settings for the scripts
 //                                              
 ////////////////////////////////////
 
-require_once(__DIR__."../../conf/settings_base.inc.php");
+require_once(__DIR__."/../../conf/settings_base.inc.php");
+
+// Options that are marked [MANDATORY] in the comment must be set
+// Options that are marked [OPTIONAL] in the comment can be set
+// Options that are not commented SHOULD PROBABLY NOT BE CHANGED UNLESS YOU ARE GANDALF.
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// MANDATORY OPTIONS
+
+define("__OUTPUT_DIR__","");                // Where output results are stored [MANDATORY]
+define("__DIAGRAM_OUTPUT_DIR__","");        // Where GND output results are stored [MANDATORY]
+define("__UPLOAD_DIR__","");                // Where uploaded files are temporarily stored [MANDATORY]
+define("__LOG_FILE__","");                  // Log file [MANDATORY]
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ADVANCED OPTIONS
 
 //
 // PATHS
-define("__OUTPUT_DIR__","");
+//
 define("__SYNC_OUTPUT_DIR__","");
-define("__DIAGRAM_OUTPUT_DIR__","");
-define("__LEGACY_OUTPUT_DIR__","");
-define("__UPLOAD_DIR__","");
-define("__LOG_FILE__","");
-define("__WEB_PATH__","");
-define("__WEB_ROOT__","");
-define("__CGFP_WEB_ROOT__","");
+define("__WEB_PATH__",__GNT_WEB_PATH__);
+define("__WEB_ROOT__",__BASE_WEB_ROOT__."/".__WEB_PATH__);
+define("__CGFP_WEB_ROOT__",__CGFP_WEB_PATH__);
 
 //
 // FILE INFO
-define("__RELATIVE_OUTPUT_DIR__","");
-define("__RELATIVE_SYNC_OUTPUT_DIR__","");
-define("__RELATIVE_DIAGRAM_OUTPUT_DIR__","");
-define("__LEGACY_RELATIVE_OUTPUT_DIR__","");
+// If you want sub directories to be differently these can be changed (not recommended)
+// Create symlinks for these three to the OUTPUT_DIRs above
+define("__RELATIVE_OUTPUT_DIR__","results");
+define("__RELATIVE_EXAMPLE_OUTPUT_DIR__","results_example");
+define("__RELATIVE_DIAGRAM_OUTPUT_DIR__","gnd_results");
 define("__VALID_FILE_TYPE__","xgmml zip");
 define("__VALID_DIAGRAM_FILE_TYPE__","sqlite");
 define("__VALID_ID_FILE_TYPE__","txt fasta");
@@ -36,21 +47,16 @@ define("__VALID_ID_FILE_TYPE__","txt fasta");
 // UI PARAMETERS
 define("__TITLE__","EFI GNT");
 define("__ENABLE_BIGSCAPE__",false);
-define("__ENABLE_INTERPRO__",false);
-define("__NUM_DIAGRAMS_PER_PAGE__",50);
+define("__ENABLE_INTERPRO__",true);
+define("__NUM_DIAGRAMS_PER_PAGE__",200);
 
 //
 // JOB SCHEDULING PARAMETERS
-define("__CLUSTER_SCHEDULER__","local"); //local,torque,slurm
-define("__GNN_SCRIPT__","");
-define("__SYNC_GNN_SCRIPT__","");
-define("__PROCESS_DIAGRAM_SCRIPT__","");
-define("__PROCESS_BIGSCAPE_SCRIPT__","");
-define("__GNN_MODULE__","");
-define("__EFI_DB_MODULE__","");
-define("__BLAST_MODULE__","");
-define("__ENABLE_LOG__",false);
-define("__ENABLE_LEGACY__",false);
+define("__GNN_SCRIPT__","submit_gnn.pl");
+define("__SYNC_GNN_SCRIPT__","cluster_gnn.pl");
+define("__PROCESS_DIAGRAM_SCRIPT__","submit_diagram.pl");
+define("__PROCESS_BIGSCAPE_SCRIPT__","submit_bigscape.pl");
+define("__ENABLE_LOG__",true);
 
 //
 // DEFAULTS
@@ -62,5 +68,4 @@ define("__MAX_NUM_BLAST_SEQ__","500");
 define("__DEFAULT_NEIGHBORHOOD_SIZE__","10");
 
 define("__SYNC_KEYS__","");
-
-?>
+define("__GNN_MODULE__",__EFI_GNT_MODULE__);

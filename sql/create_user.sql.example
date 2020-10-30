@@ -1,0 +1,2 @@
+CREATE USER 'efi_web'@'localhost' IDENTIFIED BY 'password';
+GRANT SELECT, INSERT, UPDATE, DELETE ON `efi_web`.* TO 'efi_web'@'localhost';

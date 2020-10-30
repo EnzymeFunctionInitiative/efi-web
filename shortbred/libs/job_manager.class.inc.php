@@ -1,5 +1,5 @@
 <?php
-
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__DIR__ . "/job_types.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
@@ -288,8 +288,8 @@ class job_manager {
         $sql .= "FROM identify ";
         if ($group_clause) {
             $sql .= 
-                "LEFT OUTER JOIN job_group ON identify.identify_id = job_group.identify_id " .
-                "WHERE $group_clause AND identify_status = 'FINISH' ";
+                "LEFT OUTER JOIN job_group ON identify.identify_id = job_group.job_id " .
+                "WHERE job_group.job_type = 'CGFP' AND $group_clause AND identify_status = 'FINISH' ";
         }
         return $sql;
     }

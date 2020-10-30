@@ -1,27 +1,34 @@
 <?php
 ////////////////////////////////////
 //                                              
-//      EFI GNN
-//      settings.inc.php                        
-//                                              
 //      Settings for the scripts
 //                                              
 ////////////////////////////////////
 
 require_once(__DIR__."/../../conf/settings_base.inc.php");
 
-//
-// PATHS
+// Options that are marked [MANDATORY] in the comment must be set
+// Options that are marked [OPTIONAL] in the comment can be set
+// Options that are not commented SHOULD PROBABLY NOT BE CHANGED UNLESS YOU ARE GANDALF.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// MANDATORY OPTIONS
+
 define("__LOG_FILE__","");
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// ADVANCED OPTIONS
+
 define("__WEB_PATH__",__BASE_WEB_PATH__."/users");
 define("__WEB_ROOT__",__BASE_WEB_ROOT__."/".__WEB_PATH__);
 
 //
 // DATABASE
-define("__EFI_GNT_GNN_TABLE__","");
-define("__EFI_GNT_DIAGRAM_TABLE__","");
-define("__EFI_EST_TABLE__","");
-define("__EFI_SHORTBRED_TABLE__","");
+define("__EFI_GNT_GNN_TABLE__","gnn");
+define("__EFI_GNT_DIAGRAM_TABLE__","diagram");
+define("__EFI_EST_TABLE__","generate");
+define("__EFI_SHORTBRED_TABLE__","identify");
 
 //
 // UI PARAMETERS
@@ -29,4 +36,3 @@ define("__TITLE__","EFI/User Administration");
 
 define("__ENABLE_LOG__",true);
 
-?>

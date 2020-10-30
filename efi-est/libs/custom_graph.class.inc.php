@@ -1,9 +1,11 @@
 <?php
-require_once 'jpgraph.php';
-require_once 'jpgraph_bar.php';
-require_once 'jpgraph_pie.php';
-require_once 'jpgraph_pie3d.php';
-require_once 'jpgraph_line.php';
+use JpGraph\JpGraph::load();
+//JpGraph\JpGraph::module('moduleName'); 
+//require_once 'jpgraph.php';
+//require_once 'jpgraph_bar.php';
+//require_once 'jpgraph_pie.php';
+//require_once 'jpgraph_pie3d.php';
+//require_once 'jpgraph_line.php';
 class custom_graph {
 
     public static function bar_graph($input_data,$xaxis,$yaxis,$title = "") {

@@ -13,7 +13,7 @@ else {
     $base_dir = functions::get_results_dir();
 
     $dr = new data_retention($db, $base_dir);
-    $jobs = $dr->get_expired_jobs("generate");
+    $jobs = $dr->get_expired_jobs("generate", "EST");
 
     foreach ($jobs as $id => $dir_path) {
         if (file_exists($dir_path)) {
