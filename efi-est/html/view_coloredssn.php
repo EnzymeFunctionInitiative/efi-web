@@ -503,6 +503,15 @@ if ($job_type !== "CONVRATIO") {
 ?>
             <p>
             <a href="<?php echo "$ssnFileZip"; ?>"><button class="normal">Download ZIP</button></a>
+<?php
+    if ($job_type === "COLORSSN" && global_settings::advanced_options_enabled()) {
+        $args = "est-id=$est_id&est-key=$key";
+        $btn = make_split_button($args);
+?>
+            <a href="<?php echo "index.php?mode=cr&$args"; ?>"><button class="normal">Transfer to CR</button></a>
+<?php
+    }
+?>
             </p>
             
             <h4>Supplementary Files</h4>
@@ -896,6 +905,13 @@ function getClusterSizeInfo($data) {
     if (isset($data["num_uniref50"]) && $data["num_uniref50"])
         array_push($info, "UniRef50: " . number_format($data["num_uniref50"]));
     return "Number of IDs: " . implode(", ", $info);
+}
+
+function make_split_button($args) {
+    return <<<HTML
+<button class="mini">Transfer To:</button><div class="btn-split"><button class="mini"><i class="fa fa-caret-down"></i></button>
+<div class="btn-split-content"><a href="index.php?mode=cr&$args">Convergence Ratio</a></div></div>
+HTML;
 }
 
 ?>

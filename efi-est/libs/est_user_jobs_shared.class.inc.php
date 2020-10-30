@@ -183,6 +183,8 @@ class est_user_jobs_shared {
 
             if (count($parms))
                 $job_type .= " (" . implode("; ", $parms) . ")";
+        } else if ($type === "CONVRATIO") {
+            $job_type .= " (E-value=" . $data["ascore"] . ")";
         }
 
         $info = array($job_type);
@@ -286,6 +288,8 @@ class est_user_jobs_shared {
 
         // First process all of the color SSN jobs.  This allows us to link them to SSN jobs.
         $child_color_jobs = array();
+        $child_x2_color_jobs = array();
+        $color_generate_id = array();
         $color_jobs = array();
         foreach ($rows as $row) {
             $type = $row["${generate_table}_type"];
@@ -305,16 +309,43 @@ class est_user_jobs_shared {
             if (isset($params["generate_color_ssn_source_id"]) && $params["generate_color_ssn_source_id"]) {
                 $aid = $params["generate_color_ssn_source_id"];
                 $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
-                if (isset($child_color_jobs[$aid]))
+                if (isset($child_color_jobs[$aid])) {
                     array_push($child_color_jobs[$aid], $color_job);
-                else
+                } else {
                     $child_color_jobs[$aid] = array($color_job);
+                }
+                $color_generate_id[$id] = $aid;
+            // Color jobs that originate from color jobs
+            } else if (isset($params["color_ssn_source_color_id"]) && $params["color_ssn_source_color_id"]) {
+                $cid = $params["color_ssn_source_color_id"];
+                $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
+                if (isset($child_x2_color_jobs[$cid])) {
+                    array_push($child_x2_color_jobs[$cid], $color_job);
+                } else {
+                    $child_x2_color_jobs[$cid] = array($color_job);
+                }
             } else {
                 $color_jobs[$id] = array("key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
             }
         }
 
         $colors_to_remove = array(); // these are the generate_id that will need to be removed from $id_order, since they are now attached to an analysis job
+
+        foreach ($child_x2_color_jobs as $parent_cid => $jobs) {
+            foreach ($jobs as $job) {
+                $colors_to_remove[$job["id"]] = 1;
+            }
+            $aid = $color_generate_id[$parent_cid];
+            if (isset($aid)) {
+                for ($i = 0; $i < count($child_color_jobs[$aid]); $i++) {
+                    if ($child_color_jobs[$aid][$i]["id"] == $parent_cid)
+                        $child_color_jobs[$aid][$i]["color_jobs"] = $jobs;
+                }
+            } else {
+                $color_jobs[$parent_cid]["color_jobs"] = $jobs;
+            }
+        }
+
         // Process all non Color SSN jobs.  Link analysis jobs to generate jobs and color SSN jobs to analysis jobs.
         foreach ($rows as $row) {
             $type = $row["${generate_table}_type"];

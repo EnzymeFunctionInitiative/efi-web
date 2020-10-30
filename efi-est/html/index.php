@@ -45,6 +45,7 @@ $update_msg =
 
 
 $IncludeSubmitJs = true;
+$JsAdditional = array('<script src="js/mem_calc.js?v=1" type="text/javascript"></script>');
 require_once "inc/header.inc.php";
 
 $sort_by_group = true;
@@ -272,6 +273,15 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
         });
         
         $(".initial-open").accordion("option", {active: 0});
+
+        $(".calc-ram-from-edges").on('input', function() {
+            var edges = $(this).val();
+            var ram = get_memory_size(edges, 0);
+            if (ram) {
+                var destId = $(this).data("dest-id");
+                $("#"+destId).val(ram);
+            }
+        });
     });
 
     function resetForms() {

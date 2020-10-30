@@ -191,9 +191,11 @@ if (!isset($_POST['submit'])) {
                         $input->color_ssn_source_id = $_POST['ssn-source-id'];
                     if (isset($_POST['ssn-source-idx']))
                         $input->color_ssn_source_idx = $_POST['ssn-source-idx'];
-                    $input->extra_ram = (isset($_POST['extra_ram']) && $_POST['extra_ram'] == "true");
+                    $input->extra_ram = (isset($_POST['extra_ram']) && is_numeric($_POST['extra_ram'])) ? $_POST['extra_ram'] : false;
                     $input->efiref = isset($_POST['efiref']) ? $_POST['efiref'] : "";
                     $input->skip_fasta = (isset($_POST['skip_fasta']) && $_POST['skip_fasta'] == "true");
+                    if (isset($_POST['color-ssn-source-color-id']) && is_numeric($_POST['color-ssn-source-color-id']))
+                        $input->color_ssn_source_color_id = $_POST['color-ssn-source-color-id'];
                     if ($option == "cluster") {
                         $obj = new cluster_analysis($db);
                         $input->make_hmm = (isset($_POST['make-hmm']) && $_POST['make-hmm']) ? $_POST['make-hmm'] : "";

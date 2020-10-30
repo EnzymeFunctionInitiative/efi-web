@@ -2,6 +2,7 @@
 require_once(__DIR__ . "/../../libs/functions.class.inc.php");
 require_once(__DIR__ . "/../../libs/est_ui.class.inc.php");
 require_once(__DIR__ . "/../../../libs/ui.class.inc.php");
+require_once(__DIR__ . "/../../libs/colorssn_shared.class.inc.php");
 
 function output_option_a($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
     $default_evalue = get_default_evalue();
@@ -406,12 +407,15 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                         <h3>Dev Site Options</h3>
                         <div>
                             <div>
+                                <?php echo add_extra_ram_option("colorssn") ?>
+<!--
                                 <span class="input-name">
                                     Extra RAM:
                                 </span><span class="input-field">
                                     <input type="checkbox" id="colorssn-extra-ram" name="colorssn-extra-ram" value="1">
                                     <label for="colorssn-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
                                 </span>
+-->
                             </div>
                             <div>
                                 <span class="input-name">
@@ -481,6 +485,8 @@ function output_nc($use_advanced_options, $user_email, $show_example = false, $m
                         <div>
                             <h3>Dev Site Options</h3>
                             <div>
+                                <?php echo add_extra_ram_option("nc") ?>
+<!--
                                 <div>
                                     <span class="input-name">
                                         Extra RAM:
@@ -489,6 +495,7 @@ function output_nc($use_advanced_options, $user_email, $show_example = false, $m
                                         <label for="nc-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
                                     </span>
                                 </div>
+-->
                             </div>
                         </div>
                     </div>
@@ -507,7 +514,6 @@ function output_nc($use_advanced_options, $user_email, $show_example = false, $m
 function output_cr($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
-    $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="crtab" class="ui-tabs-panel ui-widget-content">
 
@@ -544,6 +550,8 @@ function output_cr($use_advanced_options, $user_email, $show_example = false, $m
                     <div>
                         <h3>Dev Site Options</h3>
                         <div>
+                                <?php echo add_extra_ram_option("cr") ?>
+<!--
                             <div>
                                 <span class="input-name">
                                     Extra RAM:
@@ -552,14 +560,14 @@ function output_cr($use_advanced_options, $user_email, $show_example = false, $m
                                     <label for="cr-extra-ram">Check to use additional RAM (300GB) [default: off]</label>
                                 </span>
                             </div>
+-->
                         </div>
                     </div>
                 <?php } ?>
                 </div>
 
                 <?php if ($ssn_id) { ?>
-                    <input type="hidden" name="ssn-source-id-cr" id="ssn-source-id-cr" value="<?php echo $ssn_id; ?>">
-                    <input type="hidden" name="ssn-source-idx-cr" id="ssn-source-idx-cr" value="<?php echo $ssn_idx; ?>">
+                    <input type="hidden" name="color-ssn-source-color-id" id="color-ssn-source-color-id" value="<?php echo $ssn_id; ?>">
                 <?php } ?>
                 <?php echo add_submit_html("cr", "", $user_email)[0]; ?>
             </form>
@@ -761,6 +769,8 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
                         <div>
                             <h3>Dev Site Options</h3>
                             <div>
+                                <?php echo add_extra_ram_option("cluster") ?>
+<!--
                                 <div>
                                     <span class="input-name">
                                         Extra RAM:
@@ -769,6 +779,7 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
                                         <label for="cluster-extra-ram">Check to use additional RAM (800GB) [default: off]</label>
                                     </span>
                                 </div>
+-->
                                 <div>
                                     <span class="input-name">
                                         EfiRef:
@@ -980,7 +991,7 @@ function output_tab_page_header($show_jobs_tab, $show_tutorial, $selected_tab = 
 <?php if (est_settings::option_e_enabled()) { ?>
         <li><a href="<?php echo $url_fn("optionEtab"); ?>" title="Option E">OptE</a></li>
 <?php } ?>
-        <li <?php echo (($selected_tab == "colorssn" || $selected_tab == "cluster" || $selected_tab == "nc") ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("utilitytab"); ?>"> SSN Utilities</a></li>
+        <li <?php echo (($selected_tab == "colorssn" || $selected_tab == "cluster" || $selected_tab == "nc" || $selected_tab == "cr") ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("utilitytab"); ?>"> SSN Utilities</a></li>
 <?php if ($show_tutorial) { ?>
         <li <?php echo (($show_tutorial || $show_jobs_tab) ? "" : "class=\"$active_class\"") ?>><a href="#tutorial">Tutorial</a></li>
 <?php } ?>
@@ -1012,7 +1023,7 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
                 ($mode_data["mode"] == "cr" ? 
                     "cr" :
                     "colorssn"))) 
-         : "";
+                    : "";
 
     output_tab_page_start();
     output_tab_page_header($show_jobs_tab, $show_tutorial, $sel_tab);
@@ -1062,9 +1073,8 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
 function check_for_color_mode($db) {
     $est_id = "";
     $color_filename = "";
-    $submit_est_args = "";
 
-    $modes_avail = array("color" => 1, "cluster" => 1, "nc" => 1);
+    $modes_avail = array("color" => 1, "cluster" => 1, "nc" => 1, "cr" => 1);
     $mode_data = array();
 
     if (isset($_GET["mode"])) {
@@ -1084,12 +1094,16 @@ function check_for_color_mode($db) {
                     $mode_data["filename"] = $color_filename;
                     $mode_data["ssn_id"] = $the_aid;
                     $mode_data["ssn_idx"] = $the_idx;
-                    $mode_data["mode"] = $_GET["mode"];
-    
-                    $submit_est_args = "'$the_aid','$the_key','$the_idx'";
+                    $mode_data["mode"] = $mode;
                 }
             }
-        } else if ($mode === "cr") {
+        } else if ($mode === "cr" && isset($_GET["est-id"]) && isset($_GET["est-key"])) {
+            $job_info = colorssn_shared::get_source_color_ssn_info($db, $_GET["est-id"], $_GET["est-key"]);
+            if ($job_info !== false) {
+                $mode_data["filename"] = $job_info["filename"];
+                $mode_data["ssn_id"] = $_GET["est-id"];
+                $mode_data["mode"] = $mode;
+            }
         }
     }
 

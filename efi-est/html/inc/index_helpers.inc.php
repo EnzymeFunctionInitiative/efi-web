@@ -142,6 +142,25 @@ HTML;
 }
 
 
+function add_extra_ram_option($option_id) {
+    $html = <<<HTML
+<div>
+    <span class="input-name">
+        Extra RAM:
+    </span><span class="input-field">
+        <input type="checkbox" id="$option_id-extra-ram" name="$option_id-extra-ram" value="1">
+        <label for="$option_id-extra-ram">Check to use additional RAM (800GB) [default: off, uses 150GB]</label>
+        <br>
+        Enter number of edges to manually specify required RAM:
+        <input type="text" size="9" id="$option_id-extra-ram-edges" name="$option_id-extra-ram-edges" class="calc-ram-from-edges" data-dest-id="$option_id-extra-ram-val" value="">
+        RAM: <input type="text" size="3" id="$option_id-extra-ram-val" name="$option_id-extra-ram-val" value="800">GB
+    </span>
+</div>
+HTML;
+    return $html;
+}
+
+
 function add_fragment_option($option_id) {
     $html = <<<HTML
 <h3>Fragment Option</h3>

@@ -21,6 +21,7 @@ abstract class colorssn_shared extends option_base {
     private $ssn_source_analysis_idx;
     private $ssn_source_key;
     private $ssn_source_id;
+    private $color_ssn_source_color_id;
 
 
     public function __construct($db, $id = 0, $is_example = false) {
@@ -38,15 +39,20 @@ abstract class colorssn_shared extends option_base {
         if (isset($this->ssn_source_analysis_id) and isset($this->ssn_source_analysis_idx) and
             isset($this->ssn_source_key) and isset($this->ssn_source_id))
         {
-            if ($want_ssn)
+            if ($want_ssn) {
                 $path = "stepe.php?" .
                     "id=" . $this->ssn_source_id . "&" .
-                    "key=" . $this->ssn_source_key . "&" .
-                    "analysis_id=" . $this->ssn_source_analysis_id;
-            else
+                    "key=" . $this->ssn_source_key;
+                $path .= "&analysis_id=" . $this->ssn_source_analysis_id;
+            } else {
                 $path = "stepc.php?" .
                     "id=" . $this->ssn_source_id . "&" .
                     "key=" . $this->ssn_source_key;
+            }
+        } else if (isset($this->color_ssn_source_color_id)) {
+            $path = "view_colorssn.php?" .
+                "id=" . $this->ssn_source_id . "&" .
+                "key=" . $this->ssn_source_key;
         }
         return $path;
     }
@@ -78,7 +84,7 @@ abstract class colorssn_shared extends option_base {
             //$result->message .= "<br>Please enter a valid email address</br>";
         }
 
-        if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx)) {
+        if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx) && is_numeric($data->color_ssn_source_id) && is_numeric($data->color_ssn_source_idx)) {
             $sql = "SELECT * FROM analysis WHERE analysis_id = " . $data->color_ssn_source_id;
             $results = $this->db->query($sql);
             if (!$results) {
@@ -88,10 +94,18 @@ abstract class colorssn_shared extends option_base {
                 $result->errors = true;
                 $result->messages = "Invalid SSN selected.";
             }
+        } elseif (isset($data->color_ssn_source_color_id) && is_numeric($data->color_ssn_source_color_id)) {
+            $sql = "SELECT * FROM generate WHERE generate_id = " . $data->color_ssn_source_color_id;
+            $results = $this->db->query($sql);
+            if (!$results) {
+                $result->errors = true;
+                $result->message = "Invalid Color EST job selected.";
+            }
         } elseif (!$this->verify_colorssn_file($data->uploaded_filename)) {
             $result->errors = true;
             $result->message .= "Please upload a valid XGMML (zipped or unzipped) file.  The file extension must be .xgmml or .zip";
         }
+
 
         return $result;
     }
@@ -145,7 +159,7 @@ abstract class colorssn_shared extends option_base {
         $parms["--sp-clusters-desc"] = "\"" . $this->get_swissprot_desc_filename($want_clusters_file) . "\"";
         $parms["--sp-singletons-desc"] = "\"" . $this->get_swissprot_desc_filename($want_singles_file) . "\"";
         if ($this->extra_ram)
-            $parms["--extra-ram"] = "";
+            $parms["--extra-ram"] = $this->extra_ram;
         if (!global_settings::advanced_options_enabled())
             $parms["--cleanup"] = "";
         if ($this->use_efiref !== false) {
@@ -170,18 +184,50 @@ abstract class colorssn_shared extends option_base {
             if ($info) {
                 $this->ssn_source_key = $info["generate_key"];
                 $this->ssn_source_id = $info["generate_id"];
-                $file_info = functions::get_ssn_file_info($info, $this->ssn_source_analysis_idx);
+                $file_info = functions::get_analysis_ssn_file_info($info, $this->ssn_source_analysis_idx);
                 if ($file_info) {
                     $this->file_helper->set_file_source($file_info["full_ssn_path"]);
                 }
             }
+        } else if (isset($result["color_ssn_source_color_id"])) {
+            $this->color_ssn_source_color_id = $result["color_ssn_source_color_id"];
+            $file_info = self::get_source_color_ssn_info($this->db, $this->color_ssn_source_color_id, false);
+            if ($file_info !== false) {
+                $this->file_helper->set_file_source($file_info["full_path"]);
+                $this->ssn_source_key = $file_info["generate_key"];
+                $this->ssn_source_id = $file_info["generate_id"];
+            }
         }
-        $this->extra_ram = (isset($result["extra_ram"]) && $result["extra_ram"] === true);
+
+        $this->extra_ram = (isset($result["extra_ram"]) && is_numeric($result["extra_ram"])) ? $result["extra_ram"] : false;
         $this->use_efiref = (isset($result["efiref"]) && is_numeric($result["efiref"])) ? $result["efiref"] : false;
 
         $this->file_helper->on_load_generate($id, $result);
 
         return $result;
+    }
+    public static function get_source_color_ssn_info($db, $id, $key) {
+        if (!is_numeric($id))
+            return false;
+        $info = array("full_path" => "", "generate_id" => $id, "generate_key" => "");
+        $sql = "SELECT * FROM generate WHERE generate_id = $id";
+        if ($key !== false)
+            $sql .= " AND generate_key = " . $db->escape_string($key);
+        $results = $db->query($sql);
+        if ($results) {
+            $results = $results[0];
+            $base_est_results = functions::get_results_dir();
+            $est_results_name = "output";
+            $est_results_dir = "$base_est_results/$id/$est_results_name";
+            $params = global_functions::decode_object($results["generate_params"]);
+            $filename = global_functions::get_est_colorssn_filename($id, $params["generate_fasta_file"], false);
+            $full_path = "$est_results_dir/$filename.zip";
+            $info["full_path"] = $full_path;
+            $info["generate_key"] = $results["generate_key"];
+            $info["filename"] = $params["generate_fasta_file"];
+            return $info;
+        }
+        return false;
     }
 
     protected function get_email_job_info() {
@@ -191,7 +237,7 @@ abstract class colorssn_shared extends option_base {
 
     protected function post_insert_action($data, $insert_result_id) {
         $result = parent::post_insert_action($data, $insert_result_id);
-        if (!isset($data->color_ssn_source_id) || !isset($data->color_ssn_source_idx)) {
+        if ((!isset($data->color_ssn_source_id) || !isset($data->color_ssn_source_idx)) && !isset($data->color_ssn_source_color_id)) {
             $result = $this->file_helper->on_post_insert_action($data, $insert_result_id, $result);
         }
         return $result;
@@ -202,17 +248,23 @@ abstract class colorssn_shared extends option_base {
         if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx)) {
             $ainfo = functions::get_analysis_job_info($this->db, $data->color_ssn_source_id);
             if ($ainfo) {
-                $sinfo = functions::get_ssn_file_info($ainfo, $data->color_ssn_source_idx);
+                $sinfo = functions::get_analysis_ssn_file_info($ainfo, $data->color_ssn_source_idx);
                 if ($sinfo) {
                     $insert_array["generate_color_ssn_source_id"] = $data->color_ssn_source_id;
                     $insert_array["generate_color_ssn_source_idx"] = $data->color_ssn_source_idx;
                     $insert_array["generate_fasta_file"] = $sinfo["filename"];
                 }
             }
+        } else if (isset($data->color_ssn_source_color_id)) {
+            $file_info = self::get_source_color_ssn_info($this->db, $data->color_ssn_source_color_id, false);
+            if ($file_info) {
+                $insert_array["color_ssn_source_color_id"] = $data->color_ssn_source_color_id;
+                $insert_array["generate_fasta_file"] = $file_info["filename"];
+            }
         } else {
             $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
         }
-        $insert_array["extra_ram"] = (isset($data->extra_ram) && $data->extra_ram === true);
+        $insert_array["extra_ram"] = (isset($data->extra_ram) && is_numeric($data->extra_ram)) ? $data->extra_ram : false;
         if (isset($data->efiref) && is_numeric($data->efiref))
             $insert_array["efiref"] = $data->efiref;
         return $insert_array;

@@ -213,9 +213,18 @@ function submitColorSsnForm(type) { // the parameters are optional
     var fd = new FormData();
     fd.append("option_selected", option);
     addParam(fd, "email", "email-" + option);
-    addCbParam(fd, "extra_ram", option + "-extra-ram");
     addParam(fd, "efiref", option + "-efiref");
     addCbParam(fd, "skip_fasta", option + "-skip-fasta");
+    
+    var id = option + "-extra-ram";
+    var val = $("#" + id).prop("checked");
+    if (typeof val !== "undefined") {
+        if (val) {
+            var val2 = $("#" + id + "-val").val();
+            if (typeof val2 !== "undefined" && val2> 1)
+                fd.append("extra_ram", val2);
+        }
+    }
 
     if (type == "cluster") {
         var hmmOpt = "";
@@ -234,6 +243,7 @@ function submitColorSsnForm(type) { // the parameters are optional
         addParam(fd, "max-seq-msa", "max-seq-msa-" + option);
     } else if (type == "cr") {
         addParam(fd, "ascore", option + "-ascore");
+        addParam(fd, "color-ssn-source-color-id", "color-ssn-source-color-id");
     }
     addParam(fd, "ssn-source-id", "ssn-source-id-" + option);
     addParam(fd, "ssn-source-idx", "ssn-source-idx-" + option);
@@ -360,8 +370,12 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
 
 function addCbParam(fd, param, id) {
     var val = $("#" + id).prop("checked");;
-    if (typeof val !== "undefined")
+    if (typeof val !== "undefined") {
         fd.append(param, val);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 function addRadioParam(fd, param, groupName) {

@@ -37,7 +37,7 @@ class nb_conn extends colorssn_shared {
         $name = $this->get_base_filename();
         $parms["--output-name"] = "\"$name\"";
         if ($this->extra_ram)
-            $parms["--ram"] = "300";
+            $parms["--ram"] = $this->extra_ram;
         return $parms;
     }
 

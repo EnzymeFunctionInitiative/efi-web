@@ -597,7 +597,7 @@ class functions {
         }
     }
 
-    public static function get_ssn_file_info($info, $ssn_idx) {
+    public static function get_analysis_ssn_file_info($info, $ssn_idx) {
 
         $est_gid = $info["generate_id"];
         $a_dir = $info["analysis_dir"];

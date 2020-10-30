@@ -366,7 +366,7 @@ function make_split_button($args, $show_nc_xfer = true) {
     $nc_link_text = $show_nc_xfer ? "<a href=\"index.php?mode=nc&$args\">Neighborhood Connectivity</a>" : "";
     return <<<HTML
 <button class="mini">Transfer To:</button><div class="btn-split"><button class="mini"><i class="fa fa-caret-down"></i></button>
-<div class="btn-split-content"><a href="index.php?mode=color&$args">Color SSN</a><a href="index.php?mode=cluster&$args">Cluster Analysis</a>$nc_link_text<a href="../efi-gnt/index.php?$args">Genome Neighborhood Tool</a></div></div>
+<div class="btn-split-content"><a href="index.php?mode=color&$args">Color SSN</a><a href="index.php?mode=cluster&$args">Cluster Analysis</a>$nc_link_text<a href="../efi-gnt/index.php?$args">Genome Neighborhood Tool</a><a href="index.php?mode=cr&$args">Convergence Ratio</a></div></div>
 HTML;
 }
 
