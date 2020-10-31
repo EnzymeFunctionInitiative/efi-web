@@ -1,6 +1,8 @@
 results
-log
-uploads
+log/*
+!log/.gitkeep
+uploads/*
+!log/.gitkeep
 .htaccess
 settings.inc.php
 settings_shared.inc.php
