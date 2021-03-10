@@ -275,7 +275,7 @@ function submitStepEColorSsnForm(analysisId, ssnIndex) {
 }
 
 
-function requestJobUpdate(generateId, analysisId, jobKey, requestType, jobType, elemToHide) {
+function requestJobUpdate(generateId, analysisId, jobKey, requestType, jobType, elementHideFn) {
     var fd = new FormData();
     fd.append("id", generateId);
     fd.append("key", jobKey);
@@ -288,10 +288,7 @@ function requestJobUpdate(generateId, analysisId, jobKey, requestType, jobType, 
 
     var fileHandler = function(xhr) { };
     //var completionHandler = function(jsonObj) { window.location.href = "index.php"; };
-    var completionHandler = function(jsonObj) {
-        if (typeof elemToHide !== "undefined")
-            elemToHide.hide();
-    };
+    var completionHandler = elementHideFn;
 
     var script = "update_job_status.php";
     doFormPost(script, fd, "", fileHandler, completionHandler);

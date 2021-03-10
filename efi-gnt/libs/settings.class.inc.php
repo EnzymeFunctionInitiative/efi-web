@@ -97,7 +97,7 @@ class settings extends global_settings {
     }
 
     public static function get_gnn_module() {
-        return __GNN_MODULE__;
+        return __EFI_GNT_MODULE__;
     }
     public static function get_efidb_module() {
         return defined("__EFI_DB_MODULE__") ? __EFI_DB_MODULE__ : __EFIDB_MODULE__;

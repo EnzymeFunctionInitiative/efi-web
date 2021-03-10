@@ -28,4 +28,4 @@ $output = file_get_contents("$tmp_file");
 
 </div>
 
-<?php require_once(__DIR__."/inc/stats_footer.inc.php' ");
+<?php require_once(__DIR__."/inc/stats_footer.inc.php");

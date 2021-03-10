@@ -1,5 +1,7 @@
 <?php
 require_once(__DIR__."/inc/stats_main.inc.php");
+require_once(__GNT_DIR__."/libs/statistics.class.inc.php");
+require_once(__GNT_DIR__."/libs/custom_graph.class.inc.php");
 
 
 if (isset($_GET["year"])) {

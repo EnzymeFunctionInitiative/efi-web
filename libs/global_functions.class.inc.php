@@ -186,6 +186,9 @@ class global_functions {
         $est_results_dir = "$base_est_results/$est_gid/$est_results_name/$a_dir";
 
         if (!is_dir($est_results_dir)) {
+            $est_results_dir = "$est_results_dir-nc";
+        }
+        if (!is_dir($est_results_dir)) {
             return false;
         }
 

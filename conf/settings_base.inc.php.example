@@ -15,8 +15,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MANDATORY OPTIONS
 
-define("__BASE_WEB_ROOT__","http://localhost");                 // https://FULL_SERVER_URL, no path_info,
+define("__BASE_WEB_ROOT__","http://localhost"); // https://FULL_SERVER_URL, no path_info,
                                                 // e.g. https://efi.igb.illinois.edu 
+define("__BASE_WEB_PATH__","");                 // Only set this if you want to support multiple EFI sites,
+                                                // e.g. dev and a production site, on the same server.
+                                                // For production this should be an empty string. Otherwise
+                                                // set to something like /dev
 define("__TIMEZONE__","America/Chicago");
 define("__ADMIN_EMAIL__","");                   // Where emails are sent From 
 define("__ERROR_ADMIN_EMAIL__","");             // Where emails are sent when jobs fail 
@@ -82,6 +86,7 @@ define("__ENABLE_RECENT_JOBS__",true);
 define("__ENABLE_JOB_GROUPS__",false);
 define("__ENABLE_SHORTBRED__",true);
 define("__ENABLE_WEBSITE_MSG__","");
+define("__ENABLE_LOG__",true);
 
 // CLUSTER PARAMETERS
 define("__MAX_QUEUABLE_JOBS__",1000);

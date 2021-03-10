@@ -25,7 +25,7 @@ class data_retention {
         $failed_exp_date = global_functions::get_failed_retention_start_date();
         $sql = "SELECT $tname.$idfield, $timefield FROM $tname " .
             "LEFT JOIN job_group ON job_group.job_id = $tname.$idfield " .
-            "WHERE job_group.job_type = '$job_type' AND job_group.user_group IS NULL AND (" . 
+            "WHERE (job_group.user_group IS NULL OR job_group.job_type != '$job_type') AND (" . 
             "($timefield < '$exp_date' AND $timefield != '0000-00-00 00:00:00')" .
             " OR " .
             "($timefield IS NULL AND $timefield_started < '$exp_date')" .
@@ -45,7 +45,6 @@ class data_retention {
         foreach ($results as $row) {
             $id = $row["$idfield"];
             $dir_path = $this->base_dir . "/" . $id;
-            #print "$id $dir_path   " . $row["${tname}_time_completed"] . "\n";
             if (file_exists($dir_path)) // may be removed already
                 $jobs[$id] = $dir_path;
         }

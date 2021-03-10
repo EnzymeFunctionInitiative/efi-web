@@ -1,5 +1,6 @@
 <?php 
 require_once(__DIR__."/../../../../conf/settings_paths.inc.php");
+require_once(__BASE_DIR__ . "/vendor/autoload.php");
 require_once(__GNT_DIR__ . "/conf/settings.inc.php");
 require_once(__BASE_DIR__ . "/libs/database.class.inc.php");
 

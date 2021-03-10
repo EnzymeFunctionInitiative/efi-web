@@ -707,7 +707,7 @@ Protein_ID_3,Cluster#
                                 generated with low alignment scores.  Coloring the nodes according to the 
                                 number of edges to other nodes (<b>Neighborhood Connectivity</b>, NC) helps identify 
                                 families with highly connected nodes 
-                                (<a href="https://www.biorxiv.org/content/10.1101/2020.04.16.045138v1.full">https://www.biorxiv.org/content/10.1101/2020.04.16.045138v1.full</a>).
+                                (<a href="https://doi.org/10.1016/j.heliyon.2020.e05867">https://doi.org/10.1016/j.heliyon.2020.e05867</a>).
                                 Using <b>Neighborhood Connectivity Coloring</b> as a guide, the alignment score threshold 
                                 can be chosen in Cytoscape to separate the SSN into families.
                                 </p>

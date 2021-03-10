@@ -180,8 +180,52 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
             var jobType = "generate";
             var trElem = $(this).parent().parent();
 
-            if (!aid)
+            var elemList = [trElem];
+            if (!aid) {
                 aid = 0;
+                var idQuery = `[data-parent-id='${id}']`;
+                var kids = $(".archive-btn"+idQuery);
+                var aids = [];
+                for (kid of kids) {
+                    var jKid = $(kid);
+                    if (jKid.data("analysis-id"))
+                        aids.push(jKid.data("analysis-id"));
+                    elemList.push(jKid.parent().parent());
+                }
+                for (kidAid of aids) {
+                    idQuery = `[data-parent-aid='${kidAid}']`;
+                    kids = $(".archive-btn"+idQuery);
+                    for (kid of kids) {
+                        var jKid = $(kid);
+                        elemList.push(jKid.parent().parent());
+                        var jKidId = jKid.data("id");
+                        var cKidQuery = `[data-parent-id='${jKidId}']`;
+                        var cKids = $(".archive-btn"+cKidQuery);
+                        for (ckid of cKids) {
+                            var cKid = $(ckid);
+                            elemList.push(cKid.parent().parent());
+                        }
+                    }
+                }
+            } else {
+                var idQuery = `[data-parent-aid='${aid}']`;
+                var kids = $(".archive-btn"+idQuery);
+                for (kid of kids) {
+                    var jKid = $(kid);
+                    elemList.push(jKid.parent().parent());
+                    var jKidId = jKid.data("id");
+                    var cKidQuery = `[data-parent-id='${jKidId}']`;
+                    var cKids = $(".archive-btn"+cKidQuery);
+                    for (ckid of cKids) {
+                        var cKid = $(ckid);
+                        elemList.push(cKid.parent().parent());
+                    }
+                }
+            }
+
+            var elementHideFn = function() {
+                elemList.map(x => x.hide());
+            };
 
             $("#archive-confirm").dialog({
                 resizable: false,
@@ -190,7 +234,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
                 modal: true,
                 buttons: {
                     "Archive Job": function() {
-                        requestJobUpdate(id, aid, key, requestType, jobType, trElem);
+                        requestJobUpdate(id, aid, key, requestType, jobType, elementHideFn);
                         $( this ).dialog("close");
                     },
                     Cancel: function() {
@@ -274,13 +318,17 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
         
         $(".initial-open").accordion("option", {active: 0});
 
-        $(".calc-ram-from-edges").on('input', function() {
+        $(".extra-ram-calc-ram-from-edges").on('input', function() {
             var edges = $(this).val();
             var ram = get_memory_size(edges, 0);
             if (ram) {
                 var destId = $(this).data("dest-id");
                 $("#"+destId).val(ram);
+                $(".extra-ram-cb").prop("checked", true);
             }
+        });
+        $(".extra-ram-val").on("input", function() {
+            $(".extra-ram-cb").prop("checked", true);
         });
     });
 

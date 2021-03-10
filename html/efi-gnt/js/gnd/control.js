@@ -239,7 +239,7 @@ class GndController {
     // Private
     // Reloads the view with the given sequences, (i.e. reset for zoom/window)
     reload() {
-        if (this.maxIndex > 0) {
+        if (this.maxIndex >= 0) {
             this.View.clearCanvas();
             this.doLoad(LOAD_RELOAD);
         }

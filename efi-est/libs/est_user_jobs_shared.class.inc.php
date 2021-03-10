@@ -308,7 +308,7 @@ class est_user_jobs_shared {
             $params = global_functions::decode_object($row["${generate_table}_params"]);
             if (isset($params["generate_color_ssn_source_id"]) && $params["generate_color_ssn_source_id"]) {
                 $aid = $params["generate_color_ssn_source_id"];
-                $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
+                $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp, "parent_aid" => $aid);
                 if (isset($child_color_jobs[$aid])) {
                     array_push($child_color_jobs[$aid], $color_job);
                 } else {
@@ -318,7 +318,7 @@ class est_user_jobs_shared {
             // Color jobs that originate from color jobs
             } else if (isset($params["color_ssn_source_color_id"]) && $params["color_ssn_source_color_id"]) {
                 $cid = $params["color_ssn_source_color_id"];
-                $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
+                $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp, "parent_id" => $cid);
                 if (isset($child_x2_color_jobs[$cid])) {
                     array_push($child_x2_color_jobs[$cid], $color_job);
                 } else {
@@ -335,8 +335,8 @@ class est_user_jobs_shared {
             foreach ($jobs as $job) {
                 $colors_to_remove[$job["id"]] = 1;
             }
-            $aid = $color_generate_id[$parent_cid];
-            if (isset($aid)) {
+            if (isset($color_generate_id[$parent_cid])) {
+                $aid = $color_generate_id[$parent_cid];
                 for ($i = 0; $i < count($child_color_jobs[$aid]); $i++) {
                     if ($child_color_jobs[$aid][$i]["id"] == $parent_cid)
                         $child_color_jobs[$aid][$i]["color_jobs"] = $jobs;
@@ -380,7 +380,7 @@ class est_user_jobs_shared {
                     $a_is_completed = $acomp_result[0];
                     $a_job_name = est_user_jobs_shared::build_analyze_job_name($arow);
 
-                    $a_job = array("analysis_id" => $aid, "job_name" => $a_job_name, "is_completed" => $a_is_completed, "date_completed" => $acomp);
+                    $a_job = array("analysis_id" => $aid, "job_name" => $a_job_name, "is_completed" => $a_is_completed, "date_completed" => $acomp, "parent_id" => $id);
                     if (isset($child_color_jobs[$aid])) {
                         $a_job["color_jobs"] = $child_color_jobs[$aid];
                         foreach ($child_color_jobs[$aid] as $cjob) {

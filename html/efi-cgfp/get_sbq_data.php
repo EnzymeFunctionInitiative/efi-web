@@ -3,6 +3,7 @@ require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__CGFP_DIR__."/includes/main.inc.php");
 require_once(__CGFP_DIR__."/libs/identify.class.inc.php");
 require_once(__CGFP_DIR__."/libs/quantify.class.inc.php");
+require_once(__CGFP_DIR__."/libs/quantify_example.class.inc.php");
 
 const MERGED = 1;       // Both clusters and singletons
 const SINGLETONS = 2;   // Only singletons in the SSN

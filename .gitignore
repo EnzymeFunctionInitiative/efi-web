@@ -10,4 +10,6 @@ remove_old_uploads.sh
 user_auth.class.inc.php.const
 family_info.tab
 sync_output
+composer.lock
+composer.phar
 

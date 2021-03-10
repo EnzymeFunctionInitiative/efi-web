@@ -3,6 +3,8 @@ require_once(__DIR__ . "/../../conf/settings_base.inc.php");
 require_once(__DIR__."/const.class.inc.php");
 require_once(__DIR__."/functions.class.inc.php");
 require_once(__BASE_DIR__."/vendor/autoload.php");
+require_once(__GNT_DIR__."/libs/diagram_data_file.class.inc.php");
+require_once(__GNT_DIR__."/libs/gnn.class.inc.php");
 
 require_once("Mail.php");
 require_once("Mail/mime.php");

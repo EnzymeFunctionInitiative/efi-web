@@ -28,7 +28,8 @@ abstract class gnd {
     private $scale_factor = null;
     private $job_name = "";
     private $filter_uniref_ver = 0;
-    private $filter_uniref_id = ""; 
+    private $filter_uniref_id = "";
+    private $use_cluster_id = false;
 
     public function get_error_message() { return $this->message; }
     public function parse_error() { return $this->message; }

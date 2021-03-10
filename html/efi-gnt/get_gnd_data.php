@@ -4,6 +4,7 @@ require_once(__GNT_DIR__."/includes/main.inc.php");
 require_once(__GNT_DIR__."/libs/gnn.class.inc.php");
 require_once(__GNT_DIR__."/libs/bigscape_job.class.inc.php");
 require_once(__GNT_DIR__."/libs/gnd_v2.class.inc.php");
+require_once(__GNT_DIR__."/libs/direct_gnd_file.class.inc.php");
 
 
 // This is necessary so that the gnd class environment doesn't get clusttered

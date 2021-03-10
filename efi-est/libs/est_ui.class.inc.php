@@ -54,7 +54,7 @@ HTML;
         $html = self::output_colorssn_row($id, $job, $bg_color, $show_archive, $is_example);
         if (isset($job["color_jobs"])) {
             foreach ($job["color_jobs"] as $cjob) {
-                $htmlc = self::output_nested_colorssn_row($cjob["id"], $cjob, $bg_color, $show_archive, $is_example, $show_all_ids);
+                $htmlc = self::output_nested_colorssn_row($cjob["id"], $cjob, $bg_color, $show_archive, $is_example);
                 $html .= $htmlc;
             }
         }
@@ -110,6 +110,8 @@ HTML;
         $name = $job["job_name"];
         $date_completed = $job["date_completed"];
         $is_completed = $job["is_completed"];
+        //if ($row_type == RT_NESTED_COLOR)
+        //    var_dump($job);
     
         $link_start = "";
         $link_end = "";
@@ -137,6 +139,13 @@ HTML;
             if ($row_type == RT_ANALYSIS)
                 $data_aid = "data-analysis-id='$aid'";
         }
+        $data_parent_id = "";
+        if ($row_type == RT_ANALYSIS) {
+            $data_parent_id = "data-parent-id='" . $job["parent_id"] . "'";
+        } else if ($row_type == RT_NESTED_COLOR || $row_type == RT_NESTED_COLOR_X2) {
+            $akey = isset($job["parent_aid"]) ? "aid" : "id";
+            $data_parent_id = "data-parent-$akey='" . $job["parent_$akey"] . "'";
+        }
 //        if ($row_type == RT_ANALYSIS) {
 //            $name_style = "style=\"padding-left: 35px;\"";
 //            if (!$show_all_ids)
@@ -155,7 +164,7 @@ HTML;
     
         $status_update_html = "";
         if ($show_archive)
-            $status_update_html = "<div style='float:right' class='archive-btn' data-type='gnn' data-id='$id' data-key='$key' $data_aid title='Archive Job'><i class='fas $archive_icon'></i></div>";
+            $status_update_html = "<div style='float:right' class='archive-btn' data-type='gnn' data-id='$id' data-key='$key' $data_aid $data_parent_id title='Archive Job'><i class='fas $archive_icon'></i></div>";
     
         return <<<HTML
                     <tr style="background-color: $bg_color">

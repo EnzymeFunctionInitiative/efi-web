@@ -1,6 +1,6 @@
 <?php
-use JpGraph\JpGraph::load();
-//JpGraph\JpGraph::module('moduleName'); 
+JpGraph\JpGraph::load();
+JpGraph\JpGraph::module('bar'); 
 //require_once 'jpgraph.php';
 //require_once 'jpgraph_bar.php';
 //require_once 'jpgraph_pie.php';

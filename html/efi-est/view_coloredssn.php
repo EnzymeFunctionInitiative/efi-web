@@ -507,9 +507,8 @@ if ($job_type !== "CONVRATIO") {
             <p>
             <a href="<?php echo "$ssnFileZip"; ?>"><button class="normal">Download ZIP</button></a>
 <?php
-    if ($job_type === "COLORSSN" && global_settings::advanced_options_enabled()) {
+    if (($job_type === "COLORSSN" || $job_type === "CLUSTER") && global_settings::advanced_options_enabled()) {
         $args = "est-id=$est_id&est-key=$key";
-        $btn = make_split_button($args);
 ?>
             <a href="<?php echo "index.php?mode=cr&$args"; ?>"><button class="normal">Transfer to CR</button></a>
 <?php

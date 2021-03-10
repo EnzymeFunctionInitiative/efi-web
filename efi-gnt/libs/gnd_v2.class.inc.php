@@ -228,7 +228,7 @@ class gnd_v2 extends gnd {
     }
 
     private function compute_set_scale_factor($idx, $scale_cap) {
-        
+
         $min_bp = 999999999999;
         $max_bp = -999999999999;
         $max_query_width = -1;

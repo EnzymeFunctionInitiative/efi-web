@@ -147,7 +147,7 @@ class quantify extends quantify_shared {
         $memQueue = settings::get_memory_queue();
         $sb_module = settings::get_shortbred_blast_module();
         $search_type = $this->get_search_type();
-        if ($search_type == "diamond")
+        if (settings::get_diamond_enabled()) //$search_type == "diamond")
             $sb_module = settings::get_shortbred_diamond_module();
         $parent_quantify_id = $this->get_parent_id();
         $parent_identify_id = "";
@@ -304,9 +304,6 @@ class quantify extends quantify_shared {
         $id = $this->identify_id;
         $out_dir = settings::get_output_dir() . "/" . $id;
         $id_dir = $out_dir . "/" . settings::get_rel_output_dir();
-        //TODO: remove for production
-        if (!file_exists($id_dir))
-            $id_dir = $out_dir . "/" . settings::get_rel_output_dir_legacy();
         $res_dir = $id_dir . "/" . settings::get_quantify_rel_output_dir() . "-$qid";
 
         $finish_file = "$res_dir/job.completed";
@@ -414,9 +411,6 @@ class quantify extends quantify_shared {
     public function get_ssn_http_path() {
         $test_path = settings::get_output_dir() . "/" . $this->identify_id . "/" . settings::get_rel_output_dir();
         $rel_dir = settings::get_rel_output_dir();
-        //TODO: remove for production
-        if (!file_exists($test_path))
-            $rel_dir = settings::get_rel_output_dir_legacy();
 
         $path = $this->identify_id . "/" . $rel_dir . "/";
         $q_dir = $this->get_quantify_res_dir();

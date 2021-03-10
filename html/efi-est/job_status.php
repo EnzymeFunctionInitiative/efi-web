@@ -1,6 +1,9 @@
 <?php
 require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__EST_DIR__."/includes/main.inc.php");
+require_once(__EST_DIR__."/libs/functions.class.inc.php");
+require_once(__EST_DIR__."/libs/stepa.class.inc.php");
+require_once(__EST_DIR__."/libs/job_factory.class.inc.php");
 
 
 // If this is being run from the command line then we parse the command line parameters and put them into _POST so we can use

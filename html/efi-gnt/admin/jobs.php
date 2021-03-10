@@ -58,12 +58,12 @@ foreach ($jobs as $job) {
 
 	$url = $script . "?" . http_build_query($get_array);
 	$gnn_html .= "<tr>";
-	if (time() < $job['Time Completed'] + __RETENTION_DAYS__) {
-		$gnn_html .= "<td>&nbsp</td>";
-	}
-	else {
+	//if (time() < $job['Time Completed'] + __RETENTION_DAYS__) {
+	//	$gnn_html .= "<td>&nbsp</td>";
+	//}
+	//else {
 		$gnn_html .= "<td><a href='" . $url ."'><span class='glyphicon glyphicon-share'></span></a></td>";
-    }
+    //}
     $tco = $job['Time Completed'];
     if ($job['Status'] != __FINISH__ || strpos($tco, "0000") !== FALSE)
         $tco = "<span title=\"$tco // " . $job['PBS Number'] . "\">" . $job['Status'] . "</span>";

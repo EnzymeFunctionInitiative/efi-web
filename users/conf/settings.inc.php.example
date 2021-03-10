@@ -34,5 +34,3 @@ define("__EFI_SHORTBRED_TABLE__","identify");
 // UI PARAMETERS
 define("__TITLE__","EFI/User Administration");
 
-define("__ENABLE_LOG__",true);
-

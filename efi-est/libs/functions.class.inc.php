@@ -92,6 +92,19 @@ class functions {
         return $result;
     }
 
+    public static function get_color_jobs_for_analysis($db, $generate_id, $status = "") {
+        //$sql = "SELECT generate_id FROM generate WHERE generate_type = 'COLORSSN' AND generate_params LIKE '%\"generate_color_ssn_source_id\":\"$generate_id\"%'";
+        $sql = "SELECT generate_id FROM generate WHERE generate_params LIKE '%\"generate_color_ssn_source_id\":\"$generate_id\"%'";
+        $result = $db->query($sql);
+        return $result;
+    }
+
+    public static function get_color_jobs_for_color_job($db, $generate_id, $status = "") {
+        $sql = "SELECT generate_id FROM generate WHERE generate_params LIKE '%\"color_ssn_source_color_id\":\"$generate_id\"%'";
+        $result = $db->query($sql);
+        return $result;
+    }
+
     public static function get_job_status($db, $generate_id, $analysis_id, $key) {
         $result = array("generate" => "", "analysis" => "", "job_type" => "", "sql" => "");
         if ($analysis_id) {
@@ -239,8 +252,7 @@ class functions {
     }
 
     public static function get_efi_module() {
-        return __EFI_MODULE__;
-
+        return __EFI_EST_MODULE__;
     }
 
     public static function get_efidb_module() {
@@ -286,7 +298,7 @@ class functions {
     }
 
     public static function get_efignn_module() {
-        return __EFI_GNN_MODULE__;
+        return __EFI_GNT_MODULE__;
     }
 
     public static function log_message($message) {

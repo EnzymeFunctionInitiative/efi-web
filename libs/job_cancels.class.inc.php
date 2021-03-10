@@ -19,8 +19,8 @@ class job_cancels {
 
     public static function request_job_cancellation($db, $job_process_num, $prefix = "") {
         $table = "job_cancel";
-        if ($prefix)
-            $table = "${prefix}_$table";
+        //if ($prefix)
+        //    $table = "${prefix}_$table";
         $sql = "INSERT INTO $table (job_process_num, cancel_status) VALUES ('$job_process_num', '" . self::CANCEL_NEW . "')";
         $db->non_select_query($sql);
     }

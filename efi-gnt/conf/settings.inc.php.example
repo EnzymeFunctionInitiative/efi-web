@@ -56,7 +56,6 @@ define("__GNN_SCRIPT__","submit_gnn.pl");
 define("__SYNC_GNN_SCRIPT__","cluster_gnn.pl");
 define("__PROCESS_DIAGRAM_SCRIPT__","submit_diagram.pl");
 define("__PROCESS_BIGSCAPE_SCRIPT__","submit_bigscape.pl");
-define("__ENABLE_LOG__",true);
 
 //
 // DEFAULTS
@@ -68,4 +67,4 @@ define("__MAX_NUM_BLAST_SEQ__","500");
 define("__DEFAULT_NEIGHBORHOOD_SIZE__","10");
 
 define("__SYNC_KEYS__","");
-define("__GNN_MODULE__",__EFI_GNT_MODULE__);
+

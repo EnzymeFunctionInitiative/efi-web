@@ -25,11 +25,10 @@ define("__UPLOADS_DIR__","DIR_PATH");   // Set this to a directory that HTTPD ca
 //
 // SYSTEM SETTINGS
 define("__TITLE__","EFI-EST");
-define("__WEB_PATH__",__BASE_WEB_PATH__."/efi-est");
-define("__WEB_ROOT__",__BASE_WEB_ROOT__."".__WEB_PATH__);
-define("__GNT_WEB_ROOT__",__BASE_WEB_ROOT__.__BASE_WEB_PATH__."/efi-gnt");
-define("__CGFP_WEB_ROOT__",__BASE_WEB_ROOT__.__BASE_WEB_PATH__."/efi-cgfp");
-define("__ENABLE_LOG__",true);
+define("__WEB_PATH__",__EST_WEB_PATH__);
+define("__WEB_ROOT__",__BASE_WEB_ROOT__.__WEB_PATH__);
+define("__GNT_WEB_ROOT__",__BASE_WEB_ROOT__.__GNT_WEB_PATH__);
+define("__CGFP_WEB_ROOT__",__BASE_WEB_ROOT__.__CGFP_WEB_PATH__);
 
 //
 // CLUSTER SETTINGS
@@ -64,5 +63,4 @@ define("__ACC_COUNT_FILENAME__","acc_counts.txt");
 define("__CDHIT_STATS_FILE__","cdhit.stats");
 
 define("__USER_LIST_KEY__","");
-define("__EFI_MODULE__",__EFI_EST_MODULE__);
 

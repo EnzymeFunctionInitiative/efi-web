@@ -39,7 +39,7 @@ class conv_ratio extends colorssn_shared {
         $name = $this->get_base_filename();
         $parms["--ascore"] = $this->ascore;
         if ($this->extra_ram)
-            $parms["--ram"] = "300";
+            $parms["--ram"] = $this->extra_ram;
         return $parms;
     }
 

@@ -35,7 +35,6 @@ define("__EXAMPLE_SRC_DIR__","");                           // Path to the examp
 // FILE INFO
 // 
 define("__RELATIVE_OUTPUT_DIR__","results");
-define("__LEGACY_RELATIVE_OUTPUT_DIR__","results");
 define("__QUANTIFY_REL_OUTPUT_DIR__","quantify");
 define("__VALID_FILE_TYPE__","xgmml zip");
 define("__HTTP_OUTPUT_DIR__","results");
@@ -51,7 +50,6 @@ define("__CGFP_APP_EMAIL__","");
 // JOB SCHEDULING PARAMETERS
 define("__IDENTIFY_SCRIPT__","submit_identify.pl");
 define("__QUANTIFY_SCRIPT__","submit_quantify.pl");
-define("__ENABLE_LOG__",true);
 define("__NUM_PROCESSORS__",24);
 define("__NUM_QUANTIFY_PROCESSORS__",24);
 
