@@ -125,6 +125,7 @@ class GndController {
         var authString = this.Vars.getAuthString();
         var authParams = this.Vars.getAuthParams();
         var scriptUrl = this.Vars.getUrlPath();
+        var isSuperfamily = this.Vars.getSuperfamilySupport() === true;
         var bsParm = this.bigscape.getUseBigScape() ? true : false;
 
         var that = this;
@@ -143,7 +144,8 @@ class GndController {
                 var rangeStr = that.serializeRange(ranges);
                 params["range"] = rangeStr;
             } else {
-                params["query"] = queryEscaped;
+                if (!isSuperfamily)
+                    params["query"] = queryEscaped;
                 params["sidx"] = start;
                 params["eidx"] = start;
             }
@@ -173,7 +175,8 @@ class GndController {
                 params[k] = authParams[k];
             }
             params["window"] = win;
-            params["query"] = queryEscaped;
+            if (!isSuperfamily)
+                params["query"] = queryEscaped;
             params["stats"] = 1;
             if (!that.hasProtId && (!that.firstLoad || that.uniRefSupport.hasUniRefQueryId())) {
                 var urParms = that.uniRefSupport.getRequestParams();

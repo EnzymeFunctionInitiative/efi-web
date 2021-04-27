@@ -147,5 +147,9 @@ class settings extends global_settings {
     public static function get_num_diagrams_per_page() {
         return defined("__NUM_DIAGRAMS_PER_PAGE__") ? __NUM_DIAGRAMS_PER_PAGE__ : 50;
     }
+
+    public static function get_superfamily_dir() {
+        return defined("__SUPERFAMILY_DIR__") ? __SUPERFAMILY_DIR__ : "";
+    }
 }
 ?>

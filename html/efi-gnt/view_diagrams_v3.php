@@ -41,6 +41,7 @@ $is_blast = false;
 $bigscape_status = 0; # 0 = no bigscape, 1 = running bigscape, 2 = bigscape completed
 $bigscape_type = "";
 $show_new_features = false;
+$is_superfamily_job = false;
 
 if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
     $gnn_key = $_GET['key'];
@@ -104,23 +105,23 @@ elseif (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GET
 elseif ((isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GET['direct-id'])) || (isset($_GET["rs-id"]) && isset($_GET["rs-ver"]))) {
     $validated = false;
     $arrows = false;
-    $query_type = "";
     $rs_id = "";
     $rs_ver = "";
+    $gnn_key = $_GET['key'];
+    $query_type = "";
     if (isset($_GET['rs-id'])) {
         $gnn_id = -1;
-        $gnn_key = "-1";
         $rs_id = $_GET['rs-id'];
         $rs_ver = $_GET['rs-ver'];
-        $gnd_file = functions::validate_direct_gnd_file($rs_id, $rs_ver);
+        $gnd_file = functions::validate_direct_gnd_file($rs_id, $rs_ver, $gnn_key);
         if ($gnd_file !== false) {
             $arrows = new direct_gnd_file($gnd_file);
             $validated = true;
         }
         $query_type = "rs-id";
+        $is_superfamily_job = true;
     } else {
         $gnn_id = $_GET['direct-id'];
-        $gnn_key = $_GET['key'];
 
         $key = diagram_jobs::get_key($db, $gnn_id);
         $validated = $gnn_key == $key ? true : false;
@@ -141,8 +142,6 @@ elseif ((isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GE
     $gnn_name = $arrows->get_gnn_name();
     $is_direct_job = true;
     $is_blast = $arrows->is_job_type_blast();
-    $unmatched_ids = $arrows->get_unmatched_ids();
-    $uniprot_ids = $arrows->get_uniprot_ids();
     $blast_seq = $arrows->get_blast_sequence();
     $job_type_text = $arrows->get_verbose_job_type();;
     $nb_size = $arrows->get_neighborhood_size();
@@ -153,25 +152,33 @@ elseif ((isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GE
 
     $has_unmatched_ids = count($unmatched_ids) > 0;
 
-    #for ($i = 0; $i < count($uniprot_ids); $i++) {
-    foreach ($uniprot_ids as $upId => $otherId) {
-        if ($upId == $otherId)
-            $uniprot_id_modal_text .= "<tr><td>$upId</td><td></td></tr>";
-        else
-            $uniprot_id_modal_text .= "<tr><td>$upId</td><td>$otherId</td></tr>";
+    if (!$is_superfamily_job) {
+        $uniprot_ids = $arrows->get_uniprot_ids();
+        #for ($i = 0; $i < count($uniprot_ids); $i++) {
+        foreach ($uniprot_ids as $upId => $otherId) {
+            if ($upId == $otherId)
+                $uniprot_id_modal_text .= "<tr><td>$upId</td><td></td></tr>";
+            else
+                $uniprot_id_modal_text .= "<tr><td>$upId</td><td>$otherId</td></tr>";
+        }
+        $unmatched_ids = $arrows->get_unmatched_ids();
+        for ($i = 0; $i < count($unmatched_ids); $i++) {
+            $unmatched_id_modal_text .= "<div>" . $unmatched_ids[$i] . "</div>";
+        }
     }
 
-    for ($i = 0; $i < count($unmatched_ids); $i++) {
-        $unmatched_id_modal_text .= "<div>" . $unmatched_ids[$i] . "</div>";
-    }
 
     $query_id = $rs_id ? $rs_id : $gnn_id;
-    $key_query = $rs_id ? "" : "&key=$gnn_key";
+    $key_query = "&key=$gnn_key";
     $ver_query = $rs_id ? "&rs-ver=$rs_ver" : "";
     $id_key_query_string = "$query_type=$query_id$key_query$ver_query";
     if ($gnn_name) {
         $gnn_name_text = "<i>$gnn_name</i>";
         $window_title = " for $gnn_name (#$gnn_id)";
+    } else if ($is_superfamily_job) {
+        $cluster_name = ucfirst($rs_id);
+        $gnn_name_text = "<i>$cluster_name</i>";
+        $window_title = " for $cluster_name";
     } else {
         $gnn_name_text = "job #$gnn_id";
         $window_title = " for job #$gnn_id";
@@ -200,7 +207,7 @@ $nb_size_div = "";
 $cooc_div = "";
 $job_type_div = "";
 $job_id_div = "";
-$js_version = "?v=8";
+$js_version = "?v=9";
 
 if ($is_direct_job) {
     $job_type_div = $job_type_text ? "<div>Job Type: $job_type_text</div>" : "";
@@ -310,17 +317,19 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                                 <label><input type="checkbox" id="advanced-search-use-uniref" name="advanced-search-use-uniref"> Use UniRef50 IDs</label>
                                 -->
                             </div>
+                            <div id="advanced-search-input-container" style="display:none">
 <?php if ($is_direct_job) { ?>
-                            <div style="font-size:0.9em">Input specific UniProt IDs to display only those diagrams.</div>
+                                <div style="font-size:0.9em">Input specific UniProt IDs to display only those diagrams.</div>
 <?php } else { ?>
-                            <div style="font-size:0.9em">Input multiple clusters and/or individual UniProt IDs.</div>
+                                <div style="font-size:0.9em">Input multiple clusters and/or individual UniProt IDs.</div>
 <?php } ?>
-                            <textarea id="advanced-search-input"></textarea>
-                            <div>
-                                <button type="button" class="btn btn-light" id="advanced-search-cluster-button">Query</button>
+                                <textarea id="advanced-search-input"></textarea>
+                                <div>
+                                    <button type="button" class="btn btn-light" id="advanced-search-cluster-button">Query</button>
 <?php if ($is_direct_job) { ?>
-                                <button type="button" class="btn btn-light" id="advanced-search-reset-button">Reset View</button>
+                                    <button type="button" class="btn btn-light" id="advanced-search-reset-button">Reset View</button>
 <?php } ?>
+                                </div>
                             </div>
                         </div>
                     </li>
@@ -570,6 +579,7 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                     var interproFilterContainerId = "#filter-container-interpro";
                     var legendContainerId = "#active-filter-list";
                     var numDiagramsFilteredId = "#diagram-filter-count-container";
+                    var superfamilySupport = <?php echo $is_superfamily_job ? "true" : "false"; ?>;
                     var uniRefUiIds = {};
                     uniRefUiIds.uniref50Cb = "uniref50-cb";
                     uniRefUiIds.uniref50Btn = "uniref50-btn";
@@ -586,6 +596,8 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                     gndVars.setUrlPath("get_gnd_data.php");
                     gndVars.setAuthString("<?php echo $id_key_query_string; ?>");
                     gndVars.setWindow(<?php echo $nb_size; ?>);
+                    if (superfamilySupport)
+                        gndVars.setSuperfamilySupport(true);
 
                     var gndColor = new GndColor();
                     var gndRouter = new GndMessageRouter();
@@ -633,6 +645,9 @@ $job_id_div = ($gnn_id && $gnn_id > 0) ? "<div>Job ID: $gnn_id</div>" : "";
                     $("#download-data").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
 
 
+<?php if (!$is_superfamily_job) { ?>
+                    $("#advanced-search-input-container").show();
+<?php } ?>
 
 <?php if (!$is_direct_job) { ?>
                     $("#start-info").show();

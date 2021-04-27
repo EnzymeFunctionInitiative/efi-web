@@ -14,6 +14,7 @@ class GndVars {
         this.urlPath = "";
         this.pageSize = DEFAULT_PAGE_SIZE;
         this.window = DEFAULT_WINDOW;
+        this.hasSuperfamily = false;
     }
 
 
@@ -61,6 +62,14 @@ class GndVars {
     }
     getDefaultScaleFactor() {
         return DEFAULT_SCALE_FACTOR;
+    }
+
+
+    setSuperfamilySupport(state) {
+        this.hasSuperfamily = state;
+    }
+    getSuperfamilySupport() {
+        return this.hasSuperfamily;
     }
 }
 
