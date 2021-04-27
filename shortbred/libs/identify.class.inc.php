@@ -1,8 +1,9 @@
 <?php
-
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__DIR__ . "/functions.class.inc.php");
 require_once(__DIR__ . "/settings.class.inc.php");
 require_once(__DIR__ . "/job_shared.class.inc.php");
+require_once(__DIR__ . "/job_types.class.inc.php");
 require_once(__BASE_DIR__ . "/training/libs/example_config.class.inc.php");
 
 // ShortBRED-Identify
@@ -542,9 +543,6 @@ class identify extends job_shared {
             $out_dir = settings::get_output_dir();
         $out_dir .= "/" . $id;
         $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
-        //TODO: get rid of this test in production
-        if (!file_exists($res_dir))
-            $res_dir = $out_dir . "/" . settings::get_rel_output_dir_legacy();
         return $res_dir;
     }
 
@@ -669,9 +667,6 @@ class identify extends job_shared {
             $out_dir = settings::get_output_dir();
         $out_dir .= "/" . $id;
         $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
-        //TODO: get rid of this test in production
-        if (!file_exists($res_dir))
-            $res_dir = $out_dir . "/" . settings::get_rel_output_dir_legacy();
 
         return $this->get_marker_file_shared($res_dir);
     }

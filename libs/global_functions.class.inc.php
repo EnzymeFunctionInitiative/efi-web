@@ -186,6 +186,9 @@ class global_functions {
         $est_results_dir = "$base_est_results/$est_gid/$est_results_name/$a_dir";
 
         if (!is_dir($est_results_dir)) {
+            $est_results_dir = "$est_results_dir-nc";
+        }
+        if (!is_dir($est_results_dir)) {
             return false;
         }
 
@@ -207,8 +210,13 @@ class global_functions {
 
         $info = array();
         if ($filename) {
+            $full_path = "$est_results_dir/$filename";
+            if (!file_exists($full_path)) {
+                $filename = "$filename.zip";
+                $full_path = "$full_path.zip";
+            }
             $info["filename"] = $filename;
-            $info["full_ssn_path"] = "$est_results_dir/$filename";
+            $info["full_ssn_path"] = $full_path;
             return $info;
         } else {
             return false;

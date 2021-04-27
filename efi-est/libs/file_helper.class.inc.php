@@ -1,6 +1,6 @@
 <?php
 
-require_once('functions.class.inc.php');
+require_once(__DIR__."/functions.class.inc.php");
 
 class file_helper {
 
@@ -18,13 +18,13 @@ class file_helper {
         $this->file_source = $file_path;
     }
 
+    private function set_file_extension($ext) { $this->file_extension = $ext; }
     public function get_file_extension() { return $this->file_extension; }
     public function get_uploaded_filename() { return $this->uploaded_filename; }
     public function get_full_uploaded_path() { return functions::get_uploads_dir() . "/" . $this->get_uploaded_filename(); }
     public function get_results_input_file($id = 0) {
-        if ($id == 0) {
+        if ($id == 0)
             $id = $this->id;
-        }
         return functions::get_results_dir() . "/" . $id . "/" . $id . $this->file_extension;
     }
 
@@ -64,6 +64,8 @@ class file_helper {
         } else {
             $start_path = functions::get_uploads_dir() . "/" . $this->id . $ext;
         }
+        $ext = "." . pathinfo($start_path, PATHINFO_EXTENSION);
+        $this->set_file_extension($ext);
         $end_path = $this->get_results_input_file($this->id);
         return copy($start_path, $end_path);
     }

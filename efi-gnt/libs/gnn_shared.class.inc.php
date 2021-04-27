@@ -1,7 +1,7 @@
 <?php
-
-require_once('arrow_api.class.inc.php');
-require_once(__DIR__.'/../../libs/global_functions.class.inc.php');
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__DIR__."/arrow_api.class.inc.php");
+require_once(__BASE_DIR__.'/libs/global_functions.class.inc.php');
 
 abstract class gnn_shared extends arrow_api {
 

@@ -4,6 +4,7 @@ const RT_GENERATE = 1;
 const RT_COLOR = 2;
 const RT_ANALYSIS = 3;
 const RT_NESTED_COLOR = 4;
+const RT_NESTED_COLOR_X2 = 5;
 
 class est_ui {
     
@@ -51,6 +52,12 @@ HTML;
         $bg_color = $get_bg_color->get_color();
         $link_class = "hl-color";
         $html = self::output_colorssn_row($id, $job, $bg_color, $show_archive, $is_example);
+        if (isset($job["color_jobs"])) {
+            foreach ($job["color_jobs"] as $cjob) {
+                $htmlc = self::output_nested_colorssn_row($cjob["id"], $cjob, $bg_color, $show_archive, $is_example);
+                $html .= $htmlc;
+            }
+        }
         return $html;
     }
     
@@ -66,6 +73,13 @@ HTML;
                 foreach ($ajob["color_jobs"] as $cjob) {
                     $htmlc = self::output_nested_colorssn_row($cjob["id"], $cjob, $bg_color, $show_archive, $is_example, $show_all_ids);
                     $html .= $htmlc;
+                    if (isset($cjob["color_jobs"])) {
+                        $x2 = true;
+                        foreach ($cjob["color_jobs"] as $xjob) {
+                            $htmlx = self::output_nested_colorssn_row($xjob["id"], $xjob, $bg_color, $show_archive, $is_example, $show_all_ids, $x2);
+                            $html .= $htmlx;
+                        }
+                    }
                 }
             }
         }
@@ -80,8 +94,8 @@ HTML;
         return self::output_row(RT_COLOR, $id, NULL, $job["key"], $job, $bg_color, $show_archive, $is_example);
     }
 
-    private static function output_nested_colorssn_row($id, $job, $bg_color, $show_archive, $is_example, $show_all_ids = false) {
-        return self::output_row(RT_NESTED_COLOR, $id, NULL, $job["key"], $job, $bg_color, $show_archive, $is_example, $show_all_ids);
+    private static function output_nested_colorssn_row($id, $job, $bg_color, $show_archive, $is_example, $show_all_ids = false, $x2 = false) {
+        return self::output_row(($x2 ? RT_NESTED_COLOR_X2 : RT_NESTED_COLOR), $id, NULL, $job["key"], $job, $bg_color, $show_archive, $is_example, $show_all_ids);
     }
 
     private static function output_analysis_row($id, $key, $job, $bg_color, $show_archive, $is_example, $show_all_ids = false) {
@@ -96,6 +110,8 @@ HTML;
         $name = $job["job_name"];
         $date_completed = $job["date_completed"];
         $is_completed = $job["is_completed"];
+        //if ($row_type == RT_NESTED_COLOR)
+        //    var_dump($job);
     
         $link_start = "";
         $link_end = "";
@@ -112,26 +128,43 @@ HTML;
             $archive_icon = "fa-trash-alt";
         }
         $id_text = "$link_start${id}$link_end";
-    
-        if ($row_type == RT_ANALYSIS) {
-            $name_style = "style=\"padding-left: 35px;\"";
+        
+        $indent = $row_type == RT_ANALYSIS ? 35 : ($row_type == RT_NESTED_COLOR ? 70 : ($row_type == RT_NESTED_COLOR_X2 ? 95 : 0));
+        if ($indent) {
+            $name_style = "style=\"padding-left: ${indent}px;\"";
             if (!$show_all_ids)
                 $id_text = "";
             else
                 $id_text = $aid;
-            $data_aid = "data-analysis-id='$aid'";
-        } elseif ($row_type == RT_NESTED_COLOR) {
-            $name_style = "style=\"padding-left: 70px;\"";
-            if (!$show_all_ids)
-                $id_text = "";
-            else
-                $id_text = $id;
+            if ($row_type == RT_ANALYSIS)
+                $data_aid = "data-analysis-id='$aid'";
         }
+        $data_parent_id = "";
+        if ($row_type == RT_ANALYSIS) {
+            $data_parent_id = "data-parent-id='" . $job["parent_id"] . "'";
+        } else if ($row_type == RT_NESTED_COLOR || $row_type == RT_NESTED_COLOR_X2) {
+            $akey = isset($job["parent_aid"]) ? "aid" : "id";
+            $data_parent_id = "data-parent-$akey='" . $job["parent_$akey"] . "'";
+        }
+//        if ($row_type == RT_ANALYSIS) {
+//            $name_style = "style=\"padding-left: 35px;\"";
+//            if (!$show_all_ids)
+//                $id_text = "";
+//            else
+//                $id_text = $aid;
+//            $data_aid = "data-analysis-id='$aid'";
+//        } elseif ($row_type == RT_NESTED_COLOR) {
+//            $name_style = "style=\"padding-left: 70px;\"";
+//            if (!$show_all_ids)
+//                $id_text = "";
+//            else
+//                $id_text = $id;
+//        }
         $name = "<span title='$id'>$name</span>";
     
         $status_update_html = "";
         if ($show_archive)
-            $status_update_html = "<div style='float:right' class='archive-btn' data-type='gnn' data-id='$id' data-key='$key' $data_aid title='Archive Job'><i class='fas $archive_icon'></i></div>";
+            $status_update_html = "<div style='float:right' class='archive-btn' data-type='gnn' data-id='$id' data-key='$key' $data_aid $data_parent_id title='Archive Job'><i class='fas $archive_icon'></i></div>";
     
         return <<<HTML
                     <tr style="background-color: $bg_color">
@@ -150,6 +183,7 @@ HTML;
             return "stepe.php";
         case RT_COLOR:
         case RT_NESTED_COLOR:
+        case RT_NESTED_COLOR_X2:
             return "view_coloredssn.php";
         default:
             return "";
@@ -160,6 +194,7 @@ HTML;
         switch ($row_type) {
         case RT_COLOR:
         case RT_NESTED_COLOR:
+        case RT_NESTED_COLOR_X2:
             return "hl-color";
         default:
             return "hl-est";

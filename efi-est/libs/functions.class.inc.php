@@ -1,5 +1,6 @@
 <?php
-require_once(__DIR__ . "/../../libs/global_settings.class.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 
 class functions {
 
@@ -56,7 +57,7 @@ class functions {
         $sql = "SELECT * ";
         $sql .= "FROM generate ";
         $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER' OR generate_type='NBCONN') ";
+        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER' OR generate_type='NBCONN' OR generate_type='CONVRATIO') ";
         $sql .= "ORDER BY generate_time_created ASC ";
         $result = $db->query($sql);
         return $result;
@@ -87,6 +88,19 @@ class functions {
         $sql = "SELECT * FROM analysis WHERE analysis_generate_id = $generate_id";
         if ($status)
             $sql .= " AND analysis_status = '$status'";
+        $result = $db->query($sql);
+        return $result;
+    }
+
+    public static function get_color_jobs_for_analysis($db, $generate_id, $status = "") {
+        //$sql = "SELECT generate_id FROM generate WHERE generate_type = 'COLORSSN' AND generate_params LIKE '%\"generate_color_ssn_source_id\":\"$generate_id\"%'";
+        $sql = "SELECT generate_id FROM generate WHERE generate_params LIKE '%\"generate_color_ssn_source_id\":\"$generate_id\"%'";
+        $result = $db->query($sql);
+        return $result;
+    }
+
+    public static function get_color_jobs_for_color_job($db, $generate_id, $status = "") {
+        $sql = "SELECT generate_id FROM generate WHERE generate_params LIKE '%\"color_ssn_source_color_id\":\"$generate_id\"%'";
         $result = $db->query($sql);
         return $result;
     }
@@ -123,10 +137,10 @@ class functions {
     public static function is_job_sticky($db, $generate_id, $user_email) {
         //$sql = "SELECT generate_parent_id FROM generate WHERE generate_id = $generate_id AND generate_parent_id IS NOT NULL";
         $pre_group = self::get_precompute_group();
-        $sql = "SELECT job_group.generate_id, generate.generate_email FROM job_group " .
-            "JOIN generate ON job_group.generate_id = generate.generate_id " .
+        $sql = "SELECT job_group.job_id, generate.generate_email FROM job_group " .
+            "JOIN generate ON job_group.job_id = generate.generate_id " .
             //"WHERE job_group.generate_id = $generate_id AND generate.generate_email != '$user_email'";
-            "WHERE job_group.generate_id = $generate_id AND (generate.generate_email != '$user_email' OR job_group.user_group != '')";
+            "WHERE job_group.job_type = 'EST' AND job_group.job_id = $generate_id AND (generate.generate_email != '$user_email' OR job_group.user_group != '')";
         // users can't create copies of sticky jobs that they own.
         $result = $db->query($sql);
         if ($result)
@@ -238,8 +252,7 @@ class functions {
     }
 
     public static function get_efi_module() {
-        return __EFI_MODULE__;
-
+        return __EFI_EST_MODULE__;
     }
 
     public static function get_efidb_module() {
@@ -285,7 +298,7 @@ class functions {
     }
 
     public static function get_efignn_module() {
-        return __EFI_GNN_MODULE__;
+        return __EFI_GNT_MODULE__;
     }
 
     public static function log_message($message) {
@@ -433,7 +446,10 @@ class functions {
             $gen_type = "Cluster Analysis";
         } else if ($gen_type == "NBCONN") {
             $gen_type = "Neighborhood Connectivity";
+        } else if ($gen_type == "CONVRATIO") {
+            $gen_type = "Convergence Ratio";
         }
+
         return $gen_type;
     }
 
@@ -594,7 +610,7 @@ class functions {
         }
     }
 
-    public static function get_ssn_file_info($info, $ssn_idx) {
+    public static function get_analysis_ssn_file_info($info, $ssn_idx) {
 
         $est_gid = $info["generate_id"];
         $a_dir = $info["analysis_dir"];
@@ -626,13 +642,19 @@ class functions {
         $info = array();
         if ($filename) {
             $info["filename"] = $filename;
-            $info["full_ssn_path"] = "$est_results_dir/$filename";
+            $path = "$est_results_dir/$filename";
+            if (!file_exists($path) && self::endsWith(strtolower($path), "xgmml") && file_exists($path . ".zip"))
+                $path .= ".zip";
+            $info["full_ssn_path"] = $path;
             return $info;
         } else {
             return false;
         }
     }
 
+    public static function endsWith($haystack, $needle) {
+        return substr_compare($haystack, $needle, -strlen($needle)) === 0;
+    }
 }
 
 ?>

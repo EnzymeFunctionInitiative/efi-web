@@ -2,6 +2,7 @@
 
 require_once(__DIR__."/option_base.class.inc.php");
 require_once(__BASE_DIR__."/libs/global_functions.class.inc.php");
+require_once(__EST_DIR__ . "/libs/file_helper.class.inc.php");
 
 
 abstract class colorssn_shared extends option_base {
@@ -9,15 +10,19 @@ abstract class colorssn_shared extends option_base {
     const SEQ_UNIPROT = 1;
     const SEQ_UNIREF50 = 2;
     const SEQ_UNIREF90 = 3;
+    const SEQ_EFIREF70 = 4;
+    const SEQ_EFIREF50 = 5;
     const SEQ_DOMAIN = 1;
     const SEQ_NO_DOMAIN = 2;
     const DEFAULT_MIN_SEQ_MSA = 5;
 
     protected $extra_ram = false;
+    protected $use_efiref = false;
     private $ssn_source_analysis_id;
     private $ssn_source_analysis_idx;
     private $ssn_source_key;
     private $ssn_source_id;
+    private $color_ssn_source_color_id;
 
 
     public function __construct($db, $id = 0, $is_example = false) {
@@ -35,15 +40,20 @@ abstract class colorssn_shared extends option_base {
         if (isset($this->ssn_source_analysis_id) and isset($this->ssn_source_analysis_idx) and
             isset($this->ssn_source_key) and isset($this->ssn_source_id))
         {
-            if ($want_ssn)
+            if ($want_ssn) {
                 $path = "stepe.php?" .
                     "id=" . $this->ssn_source_id . "&" .
-                    "key=" . $this->ssn_source_key . "&" .
-                    "analysis_id=" . $this->ssn_source_analysis_id;
-            else
+                    "key=" . $this->ssn_source_key;
+                $path .= "&analysis_id=" . $this->ssn_source_analysis_id;
+            } else {
                 $path = "stepc.php?" .
                     "id=" . $this->ssn_source_id . "&" .
                     "key=" . $this->ssn_source_key;
+            }
+        } else if (isset($this->color_ssn_source_color_id)) {
+            $path = "view_colorssn.php?" .
+                "id=" . $this->ssn_source_id . "&" .
+                "key=" . $this->ssn_source_key;
         }
         return $path;
     }
@@ -75,7 +85,7 @@ abstract class colorssn_shared extends option_base {
             //$result->message .= "<br>Please enter a valid email address</br>";
         }
 
-        if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx)) {
+        if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx) && is_numeric($data->color_ssn_source_id) && is_numeric($data->color_ssn_source_idx)) {
             $sql = "SELECT * FROM analysis WHERE analysis_id = " . $data->color_ssn_source_id;
             $results = $this->db->query($sql);
             if (!$results) {
@@ -85,10 +95,18 @@ abstract class colorssn_shared extends option_base {
                 $result->errors = true;
                 $result->messages = "Invalid SSN selected.";
             }
+        } elseif (isset($data->color_ssn_source_color_id) && is_numeric($data->color_ssn_source_color_id)) {
+            $sql = "SELECT * FROM generate WHERE generate_id = " . $data->color_ssn_source_color_id;
+            $results = $this->db->query($sql);
+            if (!$results) {
+                $result->errors = true;
+                $result->message = "Invalid Color EST job selected.";
+            }
         } elseif (!$this->verify_colorssn_file($data->uploaded_filename)) {
             $result->errors = true;
             $result->message .= "Please upload a valid XGMML (zipped or unzipped) file.  The file extension must be .xgmml or .zip";
         }
+
 
         return $result;
     }
@@ -138,10 +156,17 @@ abstract class colorssn_shared extends option_base {
         $parms["--out-dir"] = "\"" . $out->relative_output_dir . "\"";
         $parms["--stats"] = "\"" . $this->get_stats_filename() . "\"";
         $parms["--cluster-sizes"] = "\"" . $this->get_cluster_sizes_filename() . "\"";
+        $parms["--conv-ratio"] = "\"" . $this->get_convergence_ratio_filename() . "\"";
         $parms["--sp-clusters-desc"] = "\"" . $this->get_swissprot_desc_filename($want_clusters_file) . "\"";
         $parms["--sp-singletons-desc"] = "\"" . $this->get_swissprot_desc_filename($want_singles_file) . "\"";
         if ($this->extra_ram)
-            $parms["--extra-ram"] = "";
+            $parms["--extra-ram"] = $this->extra_ram;
+        if (!global_settings::advanced_options_enabled())
+            $parms["--cleanup"] = "";
+        if ($this->use_efiref !== false) {
+            $parms["--efiref-ver"] = $this->use_efiref;
+            $parms["--efiref-db"] = "/igbgroup/n-z/noberg/dev/mmseq/efi/efiref.sqlite";
+        }
 
         return $parms;
     }
@@ -160,17 +185,50 @@ abstract class colorssn_shared extends option_base {
             if ($info) {
                 $this->ssn_source_key = $info["generate_key"];
                 $this->ssn_source_id = $info["generate_id"];
-                $file_info = functions::get_ssn_file_info($info, $this->ssn_source_analysis_idx);
+                $file_info = functions::get_analysis_ssn_file_info($info, $this->ssn_source_analysis_idx);
                 if ($file_info) {
                     $this->file_helper->set_file_source($file_info["full_ssn_path"]);
                 }
             }
+        } else if (isset($result["color_ssn_source_color_id"])) {
+            $this->color_ssn_source_color_id = $result["color_ssn_source_color_id"];
+            $file_info = self::get_source_color_ssn_info($this->db, $this->color_ssn_source_color_id, false);
+            if ($file_info !== false) {
+                $this->file_helper->set_file_source($file_info["full_path"]);
+                $this->ssn_source_key = $file_info["generate_key"];
+                $this->ssn_source_id = $file_info["generate_id"];
+            }
         }
-        $this->extra_ram = (isset($result["extra_ram"]) && $result["extra_ram"] === true);
+
+        $this->extra_ram = (isset($result["extra_ram"]) && is_numeric($result["extra_ram"])) ? $result["extra_ram"] : false;
+        $this->use_efiref = (isset($result["efiref"]) && is_numeric($result["efiref"])) ? $result["efiref"] : false;
 
         $this->file_helper->on_load_generate($id, $result);
 
         return $result;
+    }
+    public static function get_source_color_ssn_info($db, $id, $key) {
+        if (!is_numeric($id))
+            return false;
+        $info = array("full_path" => "", "generate_id" => $id, "generate_key" => "");
+        $sql = "SELECT * FROM generate WHERE generate_id = $id";
+        if ($key !== false)
+            $sql .= " AND generate_key = " . $db->escape_string($key);
+        $results = $db->query($sql);
+        if ($results) {
+            $results = $results[0];
+            $base_est_results = functions::get_results_dir();
+            $est_results_name = "output";
+            $est_results_dir = "$base_est_results/$id/$est_results_name";
+            $params = global_functions::decode_object($results["generate_params"]);
+            $filename = global_functions::get_est_colorssn_filename($id, $params["generate_fasta_file"], false);
+            $full_path = "$est_results_dir/$filename.zip";
+            $info["full_path"] = $full_path;
+            $info["generate_key"] = $results["generate_key"];
+            $info["filename"] = $params["generate_fasta_file"];
+            return $info;
+        }
+        return false;
     }
 
     protected function get_email_job_info() {
@@ -180,7 +238,7 @@ abstract class colorssn_shared extends option_base {
 
     protected function post_insert_action($data, $insert_result_id) {
         $result = parent::post_insert_action($data, $insert_result_id);
-        if (!isset($data->color_ssn_source_id) || !isset($data->color_ssn_source_idx)) {
+        if ((!isset($data->color_ssn_source_id) || !isset($data->color_ssn_source_idx)) && !isset($data->color_ssn_source_color_id)) {
             $result = $this->file_helper->on_post_insert_action($data, $insert_result_id, $result);
         }
         return $result;
@@ -191,17 +249,25 @@ abstract class colorssn_shared extends option_base {
         if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx)) {
             $ainfo = functions::get_analysis_job_info($this->db, $data->color_ssn_source_id);
             if ($ainfo) {
-                $sinfo = functions::get_ssn_file_info($ainfo, $data->color_ssn_source_idx);
+                $sinfo = functions::get_analysis_ssn_file_info($ainfo, $data->color_ssn_source_idx);
                 if ($sinfo) {
                     $insert_array["generate_color_ssn_source_id"] = $data->color_ssn_source_id;
                     $insert_array["generate_color_ssn_source_idx"] = $data->color_ssn_source_idx;
                     $insert_array["generate_fasta_file"] = $sinfo["filename"];
                 }
             }
+        } else if (isset($data->color_ssn_source_color_id)) {
+            $file_info = self::get_source_color_ssn_info($this->db, $data->color_ssn_source_color_id, false);
+            if ($file_info) {
+                $insert_array["color_ssn_source_color_id"] = $data->color_ssn_source_color_id;
+                $insert_array["generate_fasta_file"] = $file_info["filename"];
+            }
         } else {
             $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
         }
-        $insert_array["extra_ram"] = (isset($data->extra_ram) && $data->extra_ram === true);
+        $insert_array["extra_ram"] = (isset($data->extra_ram) && is_numeric($data->extra_ram)) ? $data->extra_ram : false;
+        if (isset($data->efiref) && is_numeric($data->efiref))
+            $insert_array["efiref"] = $data->efiref;
         return $insert_array;
     }
 
@@ -234,7 +300,8 @@ abstract class colorssn_shared extends option_base {
     }
     protected function shared_get_web_path($filename) {
         $rel_path = $this->get_web_output_dir() . "/" . $filename;
-        if ($this->shared_get_full_path($filename))
+        $full_path = $this->shared_get_full_path($filename);
+        if ($full_path)
             return $rel_path;
         else
             return "";
@@ -275,6 +342,15 @@ abstract class colorssn_shared extends option_base {
         $path = $this->shared_get_web_path($filename);
         if (!$path) {
             $filename = $this->get_cluster_sizes_filename(true);
+            $path = $this->shared_get_web_path($filename);
+        }
+        return $path;
+    }
+    public function get_convergence_ratio_web_path() {
+        $filename = $this->get_convergence_ratio_filename();
+        $path = $this->shared_get_web_path($filename);
+        if (!$path) {
+            $filename = $this->get_convergence_ratio_filename(true);
             $path = $this->shared_get_web_path($filename);
         }
         return $path;
@@ -321,6 +397,9 @@ abstract class colorssn_shared extends option_base {
     private function get_stats_filename($no_prefix = false) {
         return $no_prefix ? "stats.txt" : $this->get_base_filename() . "_stats.txt";
     }
+    protected function get_convergence_ratio_filename($no_prefix = false) {
+        return $no_prefix ? "conv_ratio.txt" : $this->get_base_filename() . "_convergence_ratio.txt";
+    }
     protected function get_cluster_sizes_filename($no_prefix = false) {
         return $no_prefix ? "cluster_sizes.txt" : $this->get_base_filename() . "_cluster_sizes.txt";
     }
@@ -329,13 +408,33 @@ abstract class colorssn_shared extends option_base {
         return $no_prefix ? $name : $this->get_base_filename() . "_$name";
     }
     private function get_node_files_zip_filename($domain_type, $seq_type) {
-        $type_suffix = $seq_type == self::SEQ_UNIPROT ? "UniProt" : ($seq_type == self::SEQ_UNIREF50 ? "UniRef50" : "UniRef90");
+        $type_suffix = self::get_type_suffix($seq_type);
+        if (!$type_suffix)
+            $type_suffix = "UniProt";
+        $type_suffix = "_$type_suffix";
         $dom_suffix = $domain_type == self::SEQ_DOMAIN ? "_Domain" : "";
-        return $this->get_base_filename() . "_${type_suffix}${dom_suffix}_IDs.zip";
+        return $this->get_base_filename() . "${type_suffix}${dom_suffix}_IDs.zip";
+    }
+    private static function get_type_suffix($seq_type) {
+        $type_suffix =
+            $seq_type == self::SEQ_UNIREF50 ? "UniRef50" : 
+                (
+                    $seq_type == self::SEQ_UNIREF90 ? "UniRef90" :
+                    (
+                        $seq_type == self::SEQ_EFIREF50 ? "EfiRef50" : 
+                        (
+                            $seq_type == self::SEQ_EFIREF70 ? "EfiRef70" : ""
+                        )
+                    )
+                )
+                ;
+        return $type_suffix;
     }
     private function get_fasta_files_zip_filename($domain_type, $seq_type) {
         $dom_suffix = $domain_type == self::SEQ_DOMAIN ? "_Domain" : "";
-        $type_suffix = $seq_type == self::SEQ_UNIREF50 ? "_UniRef50" : ($seq_type == self::SEQ_UNIREF90 ? "_UniRef90" : "");
+        $type_suffix = self::get_type_suffix($seq_type);
+        if ($type_suffix)
+            $type_suffix = "_$type_suffix";
         return $this->get_base_filename() . "_FASTA$type_suffix$dom_suffix.zip";
     }
     private function get_table_file_filename($want_domain = false) {

@@ -1,6 +1,6 @@
 <?php
-
-require_once(__DIR__ . "/../conf/settings_shared.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__EST_DIR__ . "/conf/settings_shared.inc.php");
 require_once(__DIR__ . "/functions.class.inc.php");
 require_once(__DIR__ . "/est_settings.class.inc.php");
 
@@ -183,6 +183,8 @@ class est_user_jobs_shared {
 
             if (count($parms))
                 $job_type .= " (" . implode("; ", $parms) . ")";
+        } else if ($type === "CONVRATIO") {
+            $job_type .= " (E-value=" . $data["ascore"] . ")";
         }
 
         $info = array($job_type);
@@ -192,7 +194,7 @@ class est_user_jobs_shared {
         if ($fraction) array_push($info, $fraction);
         if ($uniref) array_push($info, $uniref);
         if ($domain) array_push($info, $domain);
-        if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $excludeFractions) array_push($info, $excludeFractions);
+        if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $type != "CONVRATIO" && $excludeFractions) array_push($info, $excludeFractions);
         if ($sequence) array_push($info, $sequence);
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);
@@ -220,6 +222,8 @@ class est_user_jobs_shared {
             return "Cluster Analysis";
         case "NBCONN":
             return "Neighborhood Connectivity";
+        case "CONVRATIO":
+            return "Convergence Ratio";
         case "BLAST":
             return "Sequence BLAST";
         default:
@@ -284,10 +288,12 @@ class est_user_jobs_shared {
 
         // First process all of the color SSN jobs.  This allows us to link them to SSN jobs.
         $child_color_jobs = array();
+        $child_x2_color_jobs = array();
+        $color_generate_id = array();
         $color_jobs = array();
         foreach ($rows as $row) {
             $type = $row["${generate_table}_type"];
-            if ($type != "COLORSSN" && $type != "CLUSTER" && $type != "NBCONN")
+            if ($type != "COLORSSN" && $type != "CLUSTER" && $type != "NBCONN" && $type != "CONVRATIO")
                 continue;
 
             $comp_result = est_user_jobs_shared::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);
@@ -302,21 +308,48 @@ class est_user_jobs_shared {
             $params = global_functions::decode_object($row["${generate_table}_params"]);
             if (isset($params["generate_color_ssn_source_id"]) && $params["generate_color_ssn_source_id"]) {
                 $aid = $params["generate_color_ssn_source_id"];
-                $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
-                if (isset($child_color_jobs[$aid]))
+                $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp, "parent_aid" => $aid);
+                if (isset($child_color_jobs[$aid])) {
                     array_push($child_color_jobs[$aid], $color_job);
-                else
+                } else {
                     $child_color_jobs[$aid] = array($color_job);
+                }
+                $color_generate_id[$id] = $aid;
+            // Color jobs that originate from color jobs
+            } else if (isset($params["color_ssn_source_color_id"]) && $params["color_ssn_source_color_id"]) {
+                $cid = $params["color_ssn_source_color_id"];
+                $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp, "parent_id" => $cid);
+                if (isset($child_x2_color_jobs[$cid])) {
+                    array_push($child_x2_color_jobs[$cid], $color_job);
+                } else {
+                    $child_x2_color_jobs[$cid] = array($color_job);
+                }
             } else {
                 $color_jobs[$id] = array("key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
             }
         }
 
         $colors_to_remove = array(); // these are the generate_id that will need to be removed from $id_order, since they are now attached to an analysis job
+
+        foreach ($child_x2_color_jobs as $parent_cid => $jobs) {
+            foreach ($jobs as $job) {
+                $colors_to_remove[$job["id"]] = 1;
+            }
+            if (isset($color_generate_id[$parent_cid])) {
+                $aid = $color_generate_id[$parent_cid];
+                for ($i = 0; $i < count($child_color_jobs[$aid]); $i++) {
+                    if ($child_color_jobs[$aid][$i]["id"] == $parent_cid)
+                        $child_color_jobs[$aid][$i]["color_jobs"] = $jobs;
+                }
+            } else {
+                $color_jobs[$parent_cid]["color_jobs"] = $jobs;
+            }
+        }
+
         // Process all non Color SSN jobs.  Link analysis jobs to generate jobs and color SSN jobs to analysis jobs.
         foreach ($rows as $row) {
             $type = $row["${generate_table}_type"];
-            if ($type == "COLORSSN" || $type == "CLUSTER" || $type == "NBCONN")
+            if ($type == "COLORSSN" || $type == "CLUSTER" || $type == "NBCONN" || $type == "CONVRATIO")
                 continue;
 
             $comp_result = est_user_jobs_shared::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);
@@ -347,7 +380,7 @@ class est_user_jobs_shared {
                     $a_is_completed = $acomp_result[0];
                     $a_job_name = est_user_jobs_shared::build_analyze_job_name($arow);
 
-                    $a_job = array("analysis_id" => $aid, "job_name" => $a_job_name, "is_completed" => $a_is_completed, "date_completed" => $acomp);
+                    $a_job = array("analysis_id" => $aid, "job_name" => $a_job_name, "is_completed" => $a_is_completed, "date_completed" => $acomp, "parent_id" => $id);
                     if (isset($child_color_jobs[$aid])) {
                         $a_job["color_jobs"] = $child_color_jobs[$aid];
                         foreach ($child_color_jobs[$aid] as $cjob) {

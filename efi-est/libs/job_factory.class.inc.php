@@ -1,6 +1,15 @@
 <?php
-
-require_once(__DIR__."/../includes/main.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__EST_DIR__."/includes/main.inc.php");
+require_once(__DIR__."/generate.class.inc.php");
+require_once(__DIR__."/fasta.class.inc.php");
+require_once(__DIR__."/accession.class.inc.php");
+require_once(__DIR__."/colorssn.class.inc.php");
+require_once(__DIR__."/cluster_analysis.class.inc.php");
+require_once(__DIR__."/nb_conn.class.inc.php");
+require_once(__DIR__."/conv_ratio.class.inc.php");
+require_once(__DIR__."/blast.class.inc.php");
+require_once(__DIR__."/stepa.class.inc.php");
 
 
 class job_factory {
@@ -19,19 +28,21 @@ class job_factory {
             $type = self::get_job_type($db, $id);
         switch ($type) {
         case "FAMILIES":
-            return new FAMILIES($db, $id, $arg1, $arg2);
+            return new family($db, $id, $arg1, $arg2);
         case "FASTA":
             return new fasta($db, $id, $arg1, $arg2);
         case "FASTA_ID":
-            return new FASTA_ID($db, $id, $arg1, $arg2);
+            return new fasta($db, $id, $arg1, $arg2);
         case "ACCESSION":
-            return new ACCESSION($db, $id, $arg1, $arg2);
+            return new accession($db, $id, $arg1, $arg2);
         case "COLORSSN":
             return new colorssn($db, $id, $arg1, $arg2);
         case "CLUSTER":
             return new cluster_analysis($db, $id, $arg1, $arg2);
         case "NBCONN":
             return new nb_conn($db, $id, $arg1, $arg2);
+        case "CONVRATIO":
+            return new conv_ratio($db, $id, $arg1, $arg2);
         case "BLAST":
             return new blast($db, $id, $arg1, $arg2);
         default:

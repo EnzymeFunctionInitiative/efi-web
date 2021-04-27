@@ -91,28 +91,6 @@ CREATE TABLE `bigscape` (
 ) ENGINE=InnoDB AUTO_INCREMENT=278 DEFAULT CHARSET=latin1;
 
 --
--- Table structure for table `cgfp_job_cancel`
---
-
-DROP TABLE IF EXISTS `cgfp_job_cancel`;
-CREATE TABLE `cgfp_job_cancel` (
-  `job_process_num` int(11) NOT NULL DEFAULT 0,
-  `cancel_status` varchar(10) DEFAULT NULL,
-  PRIMARY KEY (`job_process_num`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `cgfp_job_group`
---
-
-DROP TABLE IF EXISTS `cgfp_job_group`;
-CREATE TABLE `cgfp_job_group` (
-  `identify_id` int(11) NOT NULL DEFAULT 0,
-  `user_group` varchar(100) NOT NULL DEFAULT '',
-  PRIMARY KEY (`identify_id`,`user_group`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
 -- Table structure for table `db_version`
 --
 
@@ -167,27 +145,6 @@ CREATE TABLE `email_status` (
   `email` varchar(255) NOT NULL,
   `opt_in` tinyint(1) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Table structure for table `est_job_cancel`
---
-
-DROP TABLE IF EXISTS `est_job_cancel`;
-CREATE TABLE `est_job_cancel` (
-  `job_process_num` int(11) NOT NULL DEFAULT 0,
-  `cancel_status` varchar(10) DEFAULT NULL,
-  PRIMARY KEY (`job_process_num`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `est_job_group`
---
-
-DROP TABLE IF EXISTS `est_job_group`;
-CREATE TABLE `est_job_group` (
-  `generate_id` int(11) DEFAULT NULL,
-  `user_group` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `family_info`
@@ -296,28 +253,6 @@ CREATE TABLE `gnn_example` (
   `gnn_results` text DEFAULT NULL,
   PRIMARY KEY (`gnn_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=10443 DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `gnn_job_cancel`
---
-
-DROP TABLE IF EXISTS `gnn_job_cancel`;
-CREATE TABLE `gnn_job_cancel` (
-  `job_process_num` int(11) NOT NULL DEFAULT 0,
-  `cancel_status` varchar(10) DEFAULT NULL,
-  PRIMARY KEY (`job_process_num`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `gnn_job_group`
---
-
-DROP TABLE IF EXISTS `gnn_job_group`;
-CREATE TABLE `gnn_job_group` (
-  `gnn_id` int(11) DEFAULT NULL,
-  `diagram_id` int(11) DEFAULT NULL,
-  `user_group` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `groups`
@@ -433,4 +368,27 @@ CREATE TABLE `user_token` (
   `user_admin` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `job_group`
+--
 
+DROP TABLE IF EXISTS `job_group`;
+CREATE TABLE `job_group` (
+  `job_type` varchar(4) NOT NULL DEFAULT "",
+  `job_id` int(11) NOT NULL DEFAULT 0,
+  `other_id` int(11) DEFAULT NULL,
+  `user_group` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`job_type`,`job_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `job_cancel`
+--
+
+DROP TABLE IF EXISTS `job_cancel`;
+CREATE TABLE `job_cancel` (
+  `job_type` varchar(4) NOT NULL DEFAULT "",
+  `job_process_num` int(11) NOT NULL DEFAULT 0,
+  `cancel_status` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`job_type`,`job_process_num`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

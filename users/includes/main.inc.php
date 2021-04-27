@@ -1,18 +1,8 @@
 <?php
-
-require_once(__DIR__ . "/../conf/settings.inc.php");
-require_once(__DIR__ . "/../../libs/debug_check.inc.php");
-
-set_include_path(get_include_path() . ':../libs:../../libs:../includes/pear:../../includes/pear');
-function __autoload($class_name) {
-    if(file_exists("../libs/" . $class_name . ".class.inc.php")) {
-        require_once $class_name . '.class.inc.php';
-    } elseif(file_exists("../../libs/" . $class_name . ".class.inc.php")) {
-        require_once $class_name . '.class.inc.php';
-    }
-}
-
-
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__USERS_DIR__ . "/conf/settings.inc.php");
+require_once(__BASE_DIR__ . "/libs/debug_check.inc.php");
+require_once(__BASE_DIR__ . "/vendor/autoload.php");
 require_once(__BASE_DIR__ . "/libs/database.class.inc.php");
 
 date_default_timezone_set(__TIMEZONE__);

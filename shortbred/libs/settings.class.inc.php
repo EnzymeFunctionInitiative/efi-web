@@ -1,12 +1,8 @@
 <?php
-
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 
 class settings extends global_settings {
-
-    public static function get_rel_output_dir_legacy() {
-        return __LEGACY_RELATIVE_OUTPUT_DIR__;
-    }
 
     public static function get_identify_script() {
         return __IDENTIFY_SCRIPT__;
@@ -35,10 +31,6 @@ class settings extends global_settings {
 
     public static function get_timeout() {
         return __MAX_TIMEOUT__;
-    }
-
-    public static function get_cluster_user() {
-        return __CLUSTER_USER__;
     }
 
     public static function get_num_processors() {

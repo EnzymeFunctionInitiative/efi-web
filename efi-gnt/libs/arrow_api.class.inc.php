@@ -1,5 +1,5 @@
 <?php
-require("job_shared.class.inc.php");
+require(__DIR__."/job_shared.class.inc.php");
 
 
 abstract class arrow_api extends job_shared {

@@ -29,6 +29,9 @@ class global_settings {
         return __WEB_ROOT__;
     }
 
+    public static function get_base_web_path() {
+	return __BASE_WEB_PATH__;
+    }
     public static function get_base_web_root() {
         return __BASE_WEB_ROOT__ . "/" . __BASE_WEB_PATH__;
     }

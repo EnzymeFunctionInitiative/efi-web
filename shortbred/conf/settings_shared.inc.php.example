@@ -1,8 +1,7 @@
 <?php
 
-define("__DEFAULT_DB__","");
-define("__DEFAULT_CDHIT__",);
-define("__DEFAULT_IDENTIFY_SEARCH__","");
-define("__DEFAULT_QUANTIFY_SEARCH__","");
+define("__DEFAULT_DB__","uniref90");
+define("__DEFAULT_CDHIT__",85);
+define("__DEFAULT_IDENTIFY_SEARCH__","DIAMOND");
+define("__DEFAULT_QUANTIFY_SEARCH__","USEARCH");
 
-?>

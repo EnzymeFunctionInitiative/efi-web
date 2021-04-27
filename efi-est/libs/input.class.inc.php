@@ -55,12 +55,16 @@ class input_data {
     // For Color SSN option
     public $color_ssn_source_id;  // analysis ID
     public $color_ssn_source_idx; // SSN index
+    public $color_ssn_source_color_id; // Color SSN parent ID
     public $extra_ram; // use extra RAM (dev site)
     public $make_hmm; // make HMMs
     public $aa_threshold; // AA probability treshold
     public $hmm_aa; // List of AAs to compute CR for
     public $min_seq_msa;
     public $max_seq_msa;
+    public $efiref;
+    public $skip_fasta;
+    public $ascore;
 
     //public $cooccurrence;
     //public $neighborhood_size;

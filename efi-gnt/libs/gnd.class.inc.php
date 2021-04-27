@@ -28,7 +28,8 @@ abstract class gnd {
     private $scale_factor = null;
     private $job_name = "";
     private $filter_uniref_ver = 0;
-    private $filter_uniref_id = ""; 
+    private $filter_uniref_id = "";
+    private $use_cluster_id = false;
 
     public function get_error_message() { return $this->message; }
     public function parse_error() { return $this->message; }
@@ -86,11 +87,12 @@ abstract class gnd {
         } else if ((isset($params['direct-id']) && functions::is_diagram_upload_id_valid($params['direct-id'])) || (isset($_GET['rs-id']) && isset($_GET['rs-ver']))) {
             if (isset($_GET['rs-id'])) {
                 $rs_ver = $_GET['rs-ver'];
-                $gnd_file = functions::validate_direct_gnd_file($_GET['rs-id'], $rs_ver);
+                $gnd_file = functions::validate_direct_gnd_file($_GET['rs-id'], $rs_ver, $params["key"]);
                 if ($gnd_file === false)
                     $validated = true;
                 else
                     $arrows = $this->factory->new_direct_gnd_file($gnd_file);
+                //TODO:
                 if (isset($_GET['uniref50-id']))
                     $this->set_uniref_filter(50, $_GET['uniref50-id']);
                 if (isset($_GET['uniref90-id']))

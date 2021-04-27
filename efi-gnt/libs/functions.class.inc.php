@@ -1,6 +1,7 @@
 <?php
-require_once("const.class.inc.php");
-require_once(__DIR__."/../../libs/global_functions.class.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__DIR__."/const.class.inc.php");
+require_once(__BASE_DIR__."/libs/global_functions.class.inc.php");
 
 class functions extends global_functions {
 
@@ -296,7 +297,8 @@ class functions extends global_functions {
     public static function get_update_message() {
         $msg = 
             "The GNT database has been updated to use UniProt " . 
-            settings::get_uniprot_version() . " and ENA " . settings::get_ena_version() . ". ";
+            settings::get_uniprot_version() . ", and ENA downloaded on " . settings::get_ena_version() . ". ";
+//            settings::get_uniprot_version() . " and ENA " . settings::get_ena_version() . ". ";
         //$msg .=
         //    "You now have the ability to register a user account for the purpose of viewing prior " .
         //    "jobs in a summary table. You can also access both EFI-EST and EFI-GNT from the top of each page.";
@@ -357,28 +359,34 @@ class functions extends global_functions {
         return $files;
     }
 
-    public static function validate_direct_gnd_file($rs_id, $rs_ver) {
+    public static function validate_direct_gnd_file($rs_id, $rs_ver, $key) {
         $matches = array();
         $gnd_file = false;
         if (!preg_match("/^\d+\.\d+$/", $rs_ver))
             return false;
-        //TODO: fix this
-        //HACK!!! blech
-        $base_dir = "/private_stores/gerlt/radicalsam/data/rsam-$rs_ver/files/";
-        //$result = preg_match("/^((cluster-[\-\d]+):(\d+):)?(cluster-[\-0-9]+)$/", $rs_id, $matches);
+        $superfamily_dir = settings::get_superfamily_dir();
+        if (!$superfamily_dir)
+            return false;
+        $base_dir = "$superfamily_dir/rsam-$rs_ver/gnds";
+        $key_path = "$base_dir/gnd.key";
+        if (!file_exists($key_path))
+            return false;
+        $file_key = file_get_contents($key_path);
+        if ($file_key !== $key)
+            return false;
+        
         $result = preg_match("/^(cluster-[\-\d]+):?(\d+)?$/", $rs_id, $matches);
+        $dicing = false;
         if ($result) {
-            //if ($matches[2] && $matches[3] && $matches[4])
-            if (isset($matches[1]) && isset($matches[2])) {
-                $parts = explode("-", $matches[1]);
-                $par_id = implode("-", array($parts[0], $parts[1], $parts[2]));
-                $gnd_file = $base_dir . $par_id . "/dicing-" . $matches[2] . "/" . $matches[1] . "/gnd.sqlite";
-            } else if (isset($matches[1])) {
-                $gnd_file = $base_dir . $matches[1] . "/gnd.sqlite";
-            }
+            $cluster = $matches[1];
+            if (isset($matches[1]) && isset($matches[2]))
+                $dicing = $matches[2];
         } else {
-            $failed_validate = true;
+            return false;
         }
+
+        $gnd_file = "$base_dir/gnd.sqlite";
+
         if ($gnd_file === false)
             return false;
         $gnd_file = realpath($gnd_file);
@@ -389,4 +397,4 @@ class functions extends global_functions {
         return $gnd_file;
     }
 }
-?>
+

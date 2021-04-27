@@ -1,6 +1,6 @@
 <?php
-
-require_once(__DIR__ . "/../includes/main.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__EST_DIR__ . "/includes/main.inc.php");
 require_once(__DIR__ . "/functions.class.inc.php");
 require_once(__DIR__ . "/est_user_jobs_shared.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
@@ -79,8 +79,8 @@ class user_jobs extends user_auth {
     private static function get_group_select_statement($group_clause) {
         $group_clause .= " AND";
         $sql = self::get_select_statement() .
-            "LEFT OUTER JOIN job_group ON generate.generate_id = job_group.generate_id " .
-            "WHERE $group_clause generate_status = 'FINISH' " .
+            "LEFT OUTER JOIN job_group ON generate.generate_id = job_group.job_id " .
+            "WHERE job_group.job_type = 'EST' AND $group_clause generate_status = 'FINISH' " .
             "ORDER BY generate_status, generate_time_completed DESC";
         return $sql;
     }
@@ -132,7 +132,7 @@ class user_jobs extends user_auth {
             $id = $row["generate_id"];
             $key = $row["generate_key"];
 
-            $is_color = $row["generate_type"] == "COLORSSN" || $row["generate_type"] == "CLUSTER" || $row["generate_type"] == "NBCONN";
+            $is_color = $row["generate_type"] == "COLORSSN" || $row["generate_type"] == "CLUSTER" || $row["generate_type"] == "NBCONN" || $row["generate_type"] == "CONVRATIO";
             array_push($jobs, array("id" => $id, "key" => $key,
                     "job_name" => $jobName, "is_completed" => $isCompleted, "is_analysis" => false,
                     "date_completed" => $comp, "is_colorssn" => $is_color));

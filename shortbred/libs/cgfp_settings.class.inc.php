@@ -1,6 +1,6 @@
 <?php
-
-require_once(__DIR__ . "/../conf/settings_shared.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__CGFP_DIR__ . "/conf/settings_shared.inc.php");
 
 class cgfp_settings {
 

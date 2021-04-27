@@ -1,7 +1,7 @@
 <?php
-
-require_once("colorssn_shared.class.inc.php");
-require_once("../../libs/global_functions.class.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__DIR__."/colorssn_shared.class.inc.php");
+require_once(__BASE_DIR__."/libs/global_functions.class.inc.php");
 
 class cluster_analysis extends colorssn_shared {
 
@@ -104,6 +104,9 @@ class cluster_analysis extends colorssn_shared {
     }
     public function get_msa_zip_web_path($type) {
         return $this->get_zip_web_path("MSAs", $type);
+    }
+    public function get_pim_zip_web_path($type) {
+        return $this->get_zip_web_path("PIMs", $type);
     }
     public function get_lenhist_zip_web_path($type, $seqType) {
         return $this->get_zip_web_path("LenHist_$seqType", $type);

@@ -1,7 +1,9 @@
 <?php
-
-require_once(__DIR__ . "/../includes/main.inc.php");
-require_once(__DIR__ . "/est_shared.class.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__EST_DIR__."/includes/main.inc.php");
+require_once(__DIR__."/est_shared.class.inc.php");
+require_once(__DIR__."/job_factory.class.inc.php");
+require_once(__DIR__."/queue.class.inc.php");
 
 class analysis extends est_shared {
 
@@ -36,6 +38,7 @@ class analysis extends est_shared {
     private $use_min_node_attr = false;
     private $include_all_seq = false;
     private $compute_nc = false;
+    private $build_repnode = true;
 
     private $is_example = false;
     private $analysis_table = "analysis";
@@ -100,6 +103,7 @@ class analysis extends est_shared {
         return "EST";
     }
     public function get_compute_nc() { return $this->compute_nc; }
+    public function get_build_repnode() { return $this->build_repnode; }
     
     public function set_pbs_number($pbs_number) {
         $sql = "UPDATE analysis SET analysis_pbs_number='" . $pbs_number . "' ";
@@ -149,7 +153,7 @@ class analysis extends est_shared {
         }
     }
 
-    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0, $compute_nc = false) {
+    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0, $compute_nc = false, $build_repnode = true) {
         $errors = false;
         $message = "";		
 
@@ -200,6 +204,8 @@ class analysis extends est_shared {
                 $params['use_min_edge_attr'] = 1;
             if ($compute_nc)
                 $params['compute_nc'] = true;
+            if (!$build_repnode)
+                $params['build_repnode'] = false;
             $insert_array = array(
                 'analysis_generate_id'=>$generate_id,
                 'analysis_status' => __NEW__,
@@ -400,6 +406,8 @@ class analysis extends est_shared {
                     $exec .= " -use-anno-spec";
                 if ($this->compute_nc)
                     $exec .= " -compute-nc";
+                if (!$this->build_repnode)
+                    $exec .= " -no-repnode";
 
                 $exec .= " 2>&1 ";
 
@@ -489,6 +497,9 @@ class analysis extends est_shared {
             $this->use_min_edge_attr = isset($a_params["use_min_edge_attr"]) && $a_params["use_min_edge_attr"];
             $this->use_min_node_attr = isset($a_params["use_min_node_attr"]) && $a_params["use_min_node_attr"];
             $this->compute_nc = (isset($a_params["compute_nc"]) && $a_params["compute_nc"]) ? true : false;
+            if (isset($a_params["build_repnode"]) && !$a_params["build_repnode"]) {
+                $this->build_repnode = false;
+            }
 
             $db_mod = isset($gen_params["generate_db_mod"]) ? $gen_params["generate_db_mod"] : functions::get_efidb_module();
             if ($db_mod) {

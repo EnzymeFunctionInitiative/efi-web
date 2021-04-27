@@ -1,6 +1,6 @@
 <?php
-
-require_once(__DIR__."/../../libs/global_settings.class.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__BASE_DIR__."/libs/global_settings.class.inc.php");
 
 class settings extends global_settings {
 
@@ -68,13 +68,6 @@ class settings extends global_settings {
         return false;
     }
 
-    public static function get_legacy_output_dir() {
-        if (is_dir(__LEGACY_OUTPUT_DIR__)) {
-            return __LEGACY_OUTPUT_DIR__;
-        }
-        return false;
-    }
-
     public static function get_rel_output_dir() {
         return __RELATIVE_OUTPUT_DIR__;
     }
@@ -85,10 +78,6 @@ class settings extends global_settings {
 
     public static function get_rel_diagram_output_dir() {
         return __RELATIVE_DIAGRAM_OUTPUT_DIR__;
-    }
-
-    public static function get_legacy_rel_output_dir() {
-        return __LEGACY_RELATIVE_OUTPUT_DIR__;		
     }
 
     public static function get_web_address() {
@@ -108,7 +97,7 @@ class settings extends global_settings {
     }
 
     public static function get_gnn_module() {
-        return __GNN_MODULE__;
+        return __EFI_GNT_MODULE__;
     }
     public static function get_efidb_module() {
         return defined("__EFI_DB_MODULE__") ? __EFI_DB_MODULE__ : __EFIDB_MODULE__;
@@ -139,10 +128,6 @@ class settings extends global_settings {
         return __DEFAULT_NUM_BLAST_SEQ__;
     }
 
-    public static function run_jobs_as_legacy() {
-        return __ENABLE_LEGACY__;
-    }
-
     public static function get_default_neighborhood_size() {
         return __DEFAULT_NEIGHBORHOOD_SIZE__;
     }
@@ -161,6 +146,10 @@ class settings extends global_settings {
 
     public static function get_num_diagrams_per_page() {
         return defined("__NUM_DIAGRAMS_PER_PAGE__") ? __NUM_DIAGRAMS_PER_PAGE__ : 50;
+    }
+
+    public static function get_superfamily_dir() {
+        return defined("__SUPERFAMILY_DIR__") ? __SUPERFAMILY_DIR__ : "";
     }
 }
 ?>
