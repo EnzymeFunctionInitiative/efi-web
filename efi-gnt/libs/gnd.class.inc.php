@@ -2,6 +2,7 @@
 
 require_once(__DIR__ . "/settings.class.inc.php");
 require_once(__DIR__ . "/functions.class.inc.php");
+require_once(__DIR__ . "/realtime_lookup.class.inc.php");
 
 
 abstract class job_factory {
@@ -30,6 +31,7 @@ abstract class gnd {
     private $filter_uniref_ver = 0;
     private $filter_uniref_id = "";
     private $use_cluster_id = false;
+    protected $rt_id = "";
 
     public function get_error_message() { return $this->message; }
     public function parse_error() { return $this->message; }
@@ -112,6 +114,20 @@ abstract class gnd {
         } else if (isset($params['console-run-file']) && !isset($_SERVER["HTTP_HOST"])) {
             $this->db_file = $params['console-run-file'];
             $this->job_name = "console";
+        } else if (isset($params['mode']) && $params['mode'] == "rt") {
+            $result = false;
+            if (isset($params['rt_id']))
+                $result = realtime_lookup::get_job_file($params['rt_id']);
+            else if (isset($params['query']))
+                $result = realtime_lookup::execute_job($params['query']);
+            if ($result["status"] === false) {
+                $message = "Unable to run RT (message = " . $result["rt_id"] . ")";
+            } else {
+                $this->db_file = $result["output_file"];
+                $this->rt_id = $result["rt_id"];
+                $this->job_name = "";
+                $this->is_realtime_job = true;
+            }
         } else {
             $message = "No GNN selected.";
         }
@@ -144,7 +160,7 @@ abstract class gnd {
 
 
     protected function parse_query($query) {
-        $query = strtoupper($query);
+        $query = trim(strtoupper($query));
         $items = preg_split("/[\n\r ,]+/", $query);
         return $items;
     }
@@ -215,6 +231,7 @@ abstract class gnd {
     private function retrieve_and_process() {
         // datbase file is alread open
 
+        $output["file"] = $this->db_file;
         $output["data"] = array();
 
         $id_col = $this->get_select_id_col_name();
@@ -472,6 +489,7 @@ abstract class gnd {
     protected function open_db_file() {
         $db_file = $this->db_file;
         $this->db = new SQLite3($db_file);
+        return $db_file;
     }
     protected function set_uniref_version($ver) {
         if ($ver == "50" || $ver == "90")
