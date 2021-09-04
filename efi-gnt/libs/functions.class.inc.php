@@ -148,7 +148,7 @@ class functions extends global_functions {
     public static function is_diagram_upload_id_valid($id) {
         // Make sure the ID only contains numbers and letters to prevent attacks.
         $hasInvalidChars = preg_match('/[^A-Za-z0-9]/', $id);
-        if ($hasInvalidChars === 1)
+        if ($hasInvalidChars === 1 || strlen($id) > 64)
             return false;
 
         return file_exists(self::get_diagram_file_path($id));

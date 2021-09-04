@@ -31,6 +31,7 @@ $pub_text = $IsAdminUser ? "P" : "Publications";
 <?php if (isset($IncludeShortBred) && $IncludeShortBred) { ?>
                 <li><a href="<?php echo $UrlPrefix; ?>/efi-cgfp/" class="shortbred">EFI-CGFP</a></li>
 <?php } ?>
+                <li><a href="<?php echo $UrlPrefix; ?>/family_resources.php" class="fam-info">Superfamily Resources</a></li>
 <?php
 if ($IsAdminUser) { ?>
 <?php

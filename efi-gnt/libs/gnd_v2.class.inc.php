@@ -32,9 +32,11 @@ class gnd_v2 extends gnd {
         if (isset($params["rs-id"])) {
             $this->query = $this->parse_query($params["rs-id"]);
             $this->use_cluster_id_map = true;
-        } else if (isset($params["query"])) {
+        } else if (isset($params["query"]) && !isset($params["range"])) {
             $this->query = $this->parse_query($params["query"]);
         }
+        if (isset($params["mode"]) && $params["mode"] == "rt")
+            $this->query = $this->parse_query($params["query"]);
         if (isset($params["range"]))
             $this->range = $this->parse_range($params["range"]);
         if (isset($params["id-type"])) {
@@ -69,7 +71,8 @@ class gnd_v2 extends gnd {
     public function check_for_stats() { return $this->has_stats; }
     public function get_stats() {
         $output = $this->create_output();
-        $this->open_db_file();
+        $db_file = $this->open_db_file();
+        $output["rt"] = array("rt_id" => $this->rt_id); //, "file" => $db_file);
         $S = microtime(true); //TIME
         $stats = $this->compute_stats();
         $T = microtime(true) - $S; //TIME
@@ -100,16 +103,13 @@ class gnd_v2 extends gnd {
         }
     }
     protected function get_retrieved_ids() {
-        $ids = $this->expand_range($this->range);
-        if ($this->use_cluster_id_map === false && $this->use_uniref === false)
-            return $ids;
 
         $db = $this->db;
 
         $query_fn = function ($ids, $table, $table_col) use ($db) {
             $new_ids = array();
             for ($i = 0; $i < count($ids); $i++) {
-                $sql = "SELECT cluster_index FROM $table WHERE $table_col = " . $ids[$i];
+                $sql = "SELECT cluster_index FROM $table WHERE $table_col = '" . $ids[$i] . "'";
                 $result = $this->db->query($sql);
                 if ($result) {
                     $row = $result->fetchArray(SQLITE3_ASSOC);
@@ -119,6 +119,14 @@ class gnd_v2 extends gnd {
             }
             return $new_ids;
         };
+
+        if (count($this->range) == 0 && $this->query) {
+            return $query_fn($this->query, "attributes", "accession");
+        }
+
+        $ids = $this->expand_range($this->range);
+        if ($this->use_cluster_id_map === false && $this->use_uniref === false)
+            return $ids;
 
         if ($this->use_cluster_id_map === true && $this->uniref_query_id === false) {
             $table_col = "member_index";
@@ -308,6 +316,7 @@ class gnd_v2 extends gnd {
         if ($this->use_uniref !== false && $this->uniref_query_id !== false) {
             $ranges = array($uniref_id_fn($this->uniref_query_id));
         } else {
+            $acc_count = 0;
             foreach ($this->query as $item) {
                 $result = false;
                 if (is_numeric($item))
@@ -315,7 +324,9 @@ class gnd_v2 extends gnd {
                 else if (strtolower(substr($item, 0, 7)) == "cluster")
                     $result = $cluster_id_fn($item);
                 else
-                    $result = $accession_fn($item);
+                    //$result = $accession_fn($item);
+                    $result = array($acc_count, $acc_count);
+                $acc_count++;
                 if (is_array($result))
                     array_push($ranges, $result);
             }

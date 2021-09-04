@@ -30,9 +30,7 @@ if (!isset($BannerImagePath))
 $IsDisabled = !global_settings::get_website_enabled();
 if (!isset($IsAdminUser))
     $IsAdminUser = false;
-$DisabledMsg = "";
-if ($IsDisabled)
-    $DisabledMsg = global_settings::get_website_enabled_message();
+$DisabledMsg = global_settings::get_website_enabled_message();
 $IsBeta = global_settings::get_is_beta_release();
 
 if ($IsDisabled && !$IsAdminUser) {
@@ -51,7 +49,7 @@ $is_dev_site = global_settings::advanced_options_enabled();
 <head>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/buttons.css?v=3">
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css?v=2">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css?v=3">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/table.css?v=5">
 <?php if (isset($LightweightTabs) && $LightweightTabs === true) { ?>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/tabs.css?v=2">
@@ -120,6 +118,8 @@ if (!$IsDisabled || $IsAdminUser)
 ?>
 <?php if ($IsDisabled && !$IsLoginPage) { ?>
             <div class="beta"><big><i class="fas fa-exclamation-triangle"></i><br>The website is currently disabled for non-admin users or users who are not logged in.</big></div>
+<?php } else if ($DisabledMsg) { ?>
+            <div class="beta"><big><i class="fas fa-exclamation-triangle"></i><br><?php echo $DisabledMsg; ?></big></div>
 <?php } ?>
 
 
