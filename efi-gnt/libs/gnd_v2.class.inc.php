@@ -72,7 +72,8 @@ class gnd_v2 extends gnd {
     public function get_stats() {
         $output = $this->create_output();
         $db_file = $this->open_db_file();
-        $output["rt"] = array("rt_id" => $this->rt_id); //, "file" => $db_file);
+        if (isset($this->rt_id) && $this->rt_id)
+            $output["rt"] = array("rt_id" => $this->rt_id); //, "file" => $db_file);
         $S = microtime(true); //TIME
         $stats = $this->compute_stats();
         $T = microtime(true) - $S; //TIME
