@@ -13,13 +13,12 @@ array_push($StyleAdditional, '<link rel="stylesheet" type="text/css" href="css/e
 if (!isset($JsAdditional))
     $JsAdditional = array();
 if (isset($IncludeSubmitJs)) {
-    array_push($JsAdditional, '<script src="js/submit.js?v=22" type="text/javascript"></script>',
+    array_push($JsAdditional, '<script src="js/submit.js?v=23" type="text/javascript"></script>',
         '<script src="js/family_size_helper.js?v=3" type="text/javascript"></script>',
+        '<script src="js/taxonomy.js?v=3" type="text/javascript"></script>',
         '<script src="js/nas.js?v=1" type="text/javascript"></script>');
 }
 $BannerImagePath = "images/efiest_logo.png";
 
 require_once(__BASE_DIR__ . "/html/inc/global_header.inc.php");
-
-?>
 

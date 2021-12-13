@@ -26,6 +26,8 @@ class GndController {
         this.supportsUniRef = false;
         this.firstLoad = true;
         this.hasProtId = false;
+        this.realtimeId = "";
+        this.isRealtime = false;
 
         this.reset(false);
     }
@@ -151,6 +153,10 @@ class GndController {
             }
             if (bsParm)
                 params["bigscape"] = 1;
+            if (that.isRealtime) {
+                params["mode"] = "rt";
+                params["rt_id"] = that.realtimeId;
+            }
             if (!that.hasProtId) {
                 var urParms = that.uniRefSupport.getRequestParams();
                 for (var k in urParms) {
@@ -205,6 +211,10 @@ class GndController {
                     console.log("Init load duration: " + jsonData.totaltime);
                 if (firstLoad && that.supportsUniRef !== false && !that.uniRefSupport.hasUniRefQueryId())
                     that.uniRefSupport.setVersion(that.supportsUniRef);
+                if (typeof jsonData.rt !== "undefined") {
+                    that.isRealtime = true;
+                    that.realtimeId = jsonData.rt.rt_id;
+                }
                 
                 var totalCount = jsonData.stats.max_index + 1; // zero-based index
                 var payload = new Payload(); payload.MessageType = "InitDataRetrieved"; payload.Data = { TotalCount: totalCount, Error: false, SupportsUniRef: that.supportsUniRef, FirstLoad: firstLoad };

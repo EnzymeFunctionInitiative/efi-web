@@ -151,5 +151,13 @@ class settings extends global_settings {
     public static function get_superfamily_dir() {
         return defined("__SUPERFAMILY_DIR__") ? __SUPERFAMILY_DIR__ : "";
     }
+
+    public static function get_realtime_output_dir() {
+        return defined("__RT_OUTPUT_DIR__") ? __RT_OUTPUT_DIR__ : "";
+    }
+
+    public static function get_realtime_script() {
+        return defined("__RT_GNN_SCRIPT__") ? __RT_GNN_SCRIPT__ : "";
+    }
 }
-?>
+

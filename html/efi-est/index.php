@@ -330,6 +330,18 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
         $(".extra-ram-val").on("input", function() {
             $(".extra-ram-cb").prop("checked", true);
         });
+
+        $(".taxonomy-preselects").change(function() {
+            var opt = $(this).data("taxoption");
+            var name = $(this).val();
+            add_tax_preselect(opt, name);
+        });
+        for (var name in TaxPreselects) {
+            var selects = $(".taxonomy-preselects");
+            selects.each(function(selIdx) {
+                $(this).append('<option>' + name + '</option>');
+            });
+        }
     });
 
     function resetForms() {
@@ -443,6 +455,14 @@ function add_dev_site_option($option_id, $db_modules, $extra_html = "") {
         </span><span class="input-field">
             <input type="checkbox" id="cpu-x2-$option_id" name="cpu-x2-$option_id" value="1">
             <label for="cpu-x2-$option_id">Check to use two times the number of processors (default: off)</label>
+        </span>
+    </div>
+    <div>
+        <span class="input-name">
+            Extra Memory:
+        </span><span class="input-field">
+            <input type="checkbox" id="large-mem-$option_id" name="large-mem-$option_id" value="1">
+            <label for="large-mem-$option_id">Check to use extra memory (default: off)</label>
         </span>
     </div>
 HTML;

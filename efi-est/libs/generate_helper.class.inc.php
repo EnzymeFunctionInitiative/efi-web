@@ -9,6 +9,8 @@ class generate_helper {
             $parms["-np"] = $obj->get_num_cpu();
         else
             $parms["-np"] = functions::get_cluster_procs();
+        if ($obj->is_large_mem())
+            $parms["--large-mem"] = "";
         $parms["-evalue"] = $obj->get_evalue();
         $parms["-tmp"] = $out->relative_output_dir;
         $parms["-maxsequence"] = est_settings::get_max_seq();

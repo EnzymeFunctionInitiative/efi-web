@@ -103,6 +103,10 @@ button.hl-gnt-bg {
     color: #317873;
 }
 
+.hl-fam-info, .ui-widget-content .hl-fam-info {
+    color: #7d3c98;
+}
+
 
 /*********** NAV BAR STYLES **********************************************************************/
 
@@ -164,6 +168,10 @@ button.hl-gnt-bg {
 
 .system-nav a.user-mgmt {
     background-color: SaddleBrown;
+}
+
+.system-nav a.fam-info {
+    background-color: #7d3c98;
 }
 
 
@@ -573,6 +581,11 @@ div.input {
 
 .primary-input div {
     margin-bottom: 0;
+}
+
+
+.m-5 {
+    margin: 5px;
 }
 
 

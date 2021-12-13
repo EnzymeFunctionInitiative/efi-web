@@ -23,6 +23,7 @@ function addCommonFormData(opt, fd) {
     var unirefVer = $("#uniref-ver-" + opt).val();
     var fraction = $("#fraction-" + opt).val();
     var cpuX2 = $("#cpu-x2-" + opt).prop("checked");
+    var largeMem = $("#large-mem-" + opt).prop("checked");
     var exlFrag = $("#exclude-fragments-" + opt).prop("checked");
     var allSeq = $("#include-all-seq-" + opt).prop("checked");
 
@@ -35,8 +36,24 @@ function addCommonFormData(opt, fd) {
     fd.append("fraction", fraction);
     fd.append("db-mod", dbMod);
     fd.append("cpu-x2", cpuX2);
+    fd.append("large-mem", largeMem);
     fd.append("exclude-fragments", exlFrag);
     fd.append("include-all-seq", allSeq);
+
+    addTaxSearch(opt, fd);
+}
+
+function addTaxSearch(opt, fd) {
+    var containerId = '#taxonomy-' + opt + '-container';
+    $(containerId + " .tax-group").each(function(index) {
+        var divs = $(this).children();
+        var taxSelect = divs[0].children[0].value;
+        var taxSearch = divs[1].children[0].value;
+        if (taxSelect && taxSearch) {
+            var taxGroup = taxSelect + ":" + taxSearch;
+            fd.append("tax_search[]", taxGroup);
+        }
+    });
 }
 
 function submitOptionForm(option, famHelper, outputIds) {
