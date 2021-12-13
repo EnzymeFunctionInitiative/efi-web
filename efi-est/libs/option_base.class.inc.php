@@ -11,7 +11,8 @@ abstract class option_base extends stepa {
     protected $max_blast_failed = "accession.txt.failed";
     protected $bad_import_format = "blast.failed";
     protected $db_mod = "";
-    protected $num_cpu = 0;
+    private $cpu_x2 = false;
+    private $large_mem = false;
 
 
     public function __construct($db, $id = 0, $is_example = false) {
@@ -30,6 +31,8 @@ abstract class option_base extends stepa {
 //    }
 
     public function get_num_cpu() { return functions::get_cluster_procs() * ($this->cpu_x2 ? 2 : 1); }
+
+    public function is_large_mem() { return $this->large_mem; }
 
     public function get_sequence_max() { return $this->sequence_max; }
 
@@ -133,8 +136,10 @@ abstract class option_base extends stepa {
         }
         $this->db_mod = $db_mod;
 
-        $cpu_x2 = isset($result["generate_cpu_x2"]) ? $result["generate_cpu_x2"] : false;
+        $cpu_x2 = isset($result["generate_cpu_x2"]) ? true : false;
         $this->cpu_x2 = $cpu_x2;
+        $large_mem = isset($result["large_mem"]) ? true : false;
+        $this->large_mem = $large_mem;
 
         return $result;
     }
@@ -170,6 +175,8 @@ abstract class option_base extends stepa {
             $insert_array['generate_db_mod'] = $data->db_mod;
         if (isset($data->cpu_x2) && $data->cpu_x2 === true)
             $insert_array['generate_cpu_x2'] = $data->cpu_x2;
+        if (isset($data->large_mem) && $data->large_mem === true)
+            $insert_array['large_mem'] = true;
         return $insert_array;
     }
 
@@ -350,6 +357,10 @@ abstract class option_base extends stepa {
         }
         functions::log_message($msg);
         return $result;
+    }
+
+    public function get_taxonomy_filter() {
+        return false;
     }
 
 }

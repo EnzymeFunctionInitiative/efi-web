@@ -126,6 +126,16 @@ class est_user_jobs_shared {
         return $info;
     }
 
+    private static function get_tax_search($data) {
+        $info = "";
+        if (isset($data["tax_search"]) && $data["tax_search"]) {
+            $info = preg_replace("/;/", "; ", $data["tax_search"]);
+            $info = preg_replace("/:/", ": ", $info);
+            $info = "Taxonomic filter: [<small>$info</small>]";
+        }
+        return $info;
+    }
+
     public static function build_job_name($data, $type, $familyLookupFn, $job_id = 0) {
 
         $newFamilyLookupFn = function($family_id) use($familyLookupFn) {
@@ -143,6 +153,7 @@ class est_user_jobs_shared {
         $blastEvalue = self::get_blast_evalue($data);
         $maxHits = self::get_max_blast_hits($data);
         $excludeFractions = self::get_exclude_fragments($data);
+        $taxSearch = self::get_tax_search($data);
         $jobNameField = isset($data["generate_job_name"]) ? $data["generate_job_name"] : "";
 
         $job_name = "";
@@ -195,6 +206,7 @@ class est_user_jobs_shared {
         if ($uniref) array_push($info, $uniref);
         if ($domain) array_push($info, $domain);
         if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $type != "CONVRATIO" && $excludeFractions) array_push($info, $excludeFractions);
+        if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $type != "CONVRATIO" && $taxSearch) array_push($info, $taxSearch);
         if ($sequence) array_push($info, $sequence);
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);

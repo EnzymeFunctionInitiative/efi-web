@@ -42,6 +42,12 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
                 <div class="option-panels">
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
                     <div>
+                        <?php echo add_taxonomy_filter("opta")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_TAX"); ?>
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
                         <h3>BLAST Retrieval Options</h3>
                         <div>
                             <div>
@@ -154,6 +160,12 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
                 <div class="option-panels">
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
                     <div>
+                        <?php echo add_taxonomy_filter("optb")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_TAX"); ?>
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
                         <?php echo add_domain_option("optb", false, true)[0]; ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
@@ -238,6 +250,12 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
 
                 <div class="option-panels">
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
+                    <div>
+                        <?php echo add_taxonomy_filter("optc")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_TAX"); ?>
+<?php $example_fn("OPTION_WRAP_START"); ?>
                     <div>
                         <?php echo add_family_input_option("optc", $show_example)[0]; ?>
                     </div>
@@ -350,9 +368,11 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
 
                 <div class="option-panels">
                     <div>
+                        <?php echo add_taxonomy_filter("optd")[0] ?>
+                    </div>
+                    <div>
                         <?php echo add_domain_option("optd", true, $use_advanced_options)[0]; ?>
                     </div>
-
                     <div>
                         <?php echo add_family_input_option("optd", $show_example)[0]; ?>
                     </div>

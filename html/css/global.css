@@ -584,6 +584,11 @@ div.input {
 }
 
 
+.m-5 {
+    margin: 5px;
+}
+
+
 
 .progress-loader {
     position: fixed;

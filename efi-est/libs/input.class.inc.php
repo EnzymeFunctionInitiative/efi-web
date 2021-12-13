@@ -11,6 +11,7 @@ class input_data {
     public $random_fraction;
     public $db_mod;
     public $cpu_x2;
+    public $large_mem;
     public $exclude_fragments;
 
     // For option A, C, D
@@ -68,6 +69,8 @@ class input_data {
 
     //public $cooccurrence;
     //public $neighborhood_size;
+
+    public $tax_search;
 }
 
 class validation_result {

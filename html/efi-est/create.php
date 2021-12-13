@@ -34,7 +34,7 @@ if ($input->is_debug) {
 #}
 
 if (isset($_POST['email'])) {
-    $input->email = $_POST['email'];
+    $input->email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
 } else {
     if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie())
         $input->email = user_auth::get_email_from_token($db, user_auth::get_user_token());
@@ -77,7 +77,10 @@ if (!isset($_POST['submit'])) {
         $input->db_mod = $_POST['db-mod'];
     if (array_key_exists('cpu-x2', $_POST) && global_settings::advanced_options_enabled())
         $input->cpu_x2 = $_POST['cpu-x2'] == "true" ? true : false;
+    if (array_key_exists('large-mem', $_POST) && global_settings::advanced_options_enabled())
+        $input->large_mem = $_POST['large-mem'] == "true" ? true : false;
     $input->exclude_fragments = (isset($_POST['exclude-fragments']) && $_POST['exclude-fragments'] == "true") ? true : false;
+    $input->tax_search = parse_tax_search($_POST["tax_search"]);
 
     switch($option) {
         //Option A - BLAST Input
@@ -132,7 +135,7 @@ if (!isset($_POST['submit'])) {
                 $input->max_seq_len = $_POST['pfam_max_seq_len'];
             if ($input->domain && isset($_POST["domain_region"]) && $_POST["domain_region"])
                 $input->domain_region = $_POST["domain_region"];
-            
+
             $result = $generate->create($input);
             break;
     
@@ -252,5 +255,26 @@ echo json_encode($returnData);
 if ($input->is_debug) {
     print "\n\n";
 }
+
+
+
+
+function parse_tax_search($search_array) {
+    if (!isset($search_array) || !is_array($search_array))
+        return false;
+    $store = array();
+    $accepted = array("superkingdom" => true, "kingdom" => true, "phylum" => true, "class" => true, "order" => true, "family" => true, "genus" => true, "species" => true);
+    for ($i = 0; $i < count($search_array); $i++) {
+        $parts = explode(":", $search_array[$i]);
+        $cat = strtolower($parts[0]);
+        $text = strtolower($parts[1]);
+        $text = preg_replace("/[^a-zA-Z0-9\.\- ]/", "", $text);
+        $text = preg_replace("/^\s*(.*?)\s*$/", '$1', $text);
+        if (isset($accepted[$cat]))
+            array_push($store, $cat . ":" . $text);
+    }
+    return $store;
+}
+
 
 ?>

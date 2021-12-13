@@ -401,4 +401,26 @@ HTML;
 }
 
 
-?>
+function add_taxonomy_filter($option_id) {
+    $html = <<<HTML
+<h3>Filter by Taxonomy</h3>
+<div>
+    <div>
+        Conditions on the taxonomy can be set to further restrict the set of sequences by only including the sequences that
+        match the specific taxonomic categories.  Multiple conditions are combined to be a union of each other.
+    </div>
+    <div>Preselected conditions:
+        <select class="taxonomy-preselects" data-taxoption="$option_id">
+            <option disabled selected value>-- select a preset to auto populate --</option>
+        </select>
+    </div>
+    <div id="taxonomy-$option_id-container"></div>
+    <div>
+        <button type="button" class="light" onclick="add_tax_condition('$option_id')">Add taxonomic condition</button>
+    </div>
+</div>
+HTML;
+    return array($html);
+}
+
+

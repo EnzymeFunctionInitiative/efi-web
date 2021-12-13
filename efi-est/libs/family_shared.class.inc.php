@@ -18,6 +18,7 @@ abstract class family_shared extends option_base {
     protected $min_seq_len = 0;
     protected $max_seq_len = 0;
     protected $exclude_fragments = false;
+    private $tax_search;
     private $domain;
     private $domain_region;
 
@@ -122,6 +123,8 @@ abstract class family_shared extends option_base {
             $insert_array["generate_max_seq_len"] = $data->max_seq_len;
         if (isset($data->exclude_fragments) && $data->exclude_fragments === true)
             $insert_array["exclude_fragments"] = true;
+        if (is_array($data->tax_search) && count($data->tax_search) > 0)
+            $insert_array["tax_search"] = implode(";", $data->tax_search);
         
         $domain_bool = 0;
         if ($data->domain == 'true' || $data->domain == 1) {
@@ -198,6 +201,9 @@ abstract class family_shared extends option_base {
                 $parms["-domain-region"] = $this->domain_region;
         }
 
+        if ($this->tax_search)
+            $parms["--tax-search"] = '"' . $this->tax_search . '"';
+
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
 
         return $parms;
@@ -240,6 +246,8 @@ abstract class family_shared extends option_base {
             $this->domain = $result['generate_domain'];
         if (isset($result['generate_domain_region']))
             $this->domain_region = $result['generate_domain_region'];
+        if (isset($result['tax_search']))
+            $this->tax_search = $result['tax_search'];
 
         return $result;
     }
@@ -285,6 +293,19 @@ abstract class family_shared extends option_base {
 
     //}
 
+    public function get_taxonomy_filter() {
+        if (!$this->tax_search)
+            return false;
+
+        $parts = explode(";", $this->tax_search);
+        $data = array();
+        for ($i = 0; $i < count($parts); $i++) {
+            $item = explode(":", $parts[$i]);
+            array_push($data, $item);
+        }
+
+        return $data;
+    }
 }
 
 ?>
