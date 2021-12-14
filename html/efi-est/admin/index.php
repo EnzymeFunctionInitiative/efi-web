@@ -1,6 +1,8 @@
 <?php
 require_once(__DIR__."/../../../init.php");
 
+require_once(__EST_CONF_DIR__."/settings_shared.inc.php");
+
 use \efi\est\efi_statistics;
 
 

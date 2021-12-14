@@ -4,7 +4,6 @@ require_once(__TRAINING_DIR__ . "/includes/main.inc.php");
 require_once(__TRAINING_DIR__ . "/libs/example_config.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
-require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 require_once(__BASE_DIR__ . "/efi-est/libs/est_ui.class.inc.php");
 require_once(__BASE_DIR__ . "/efi-est/libs/est_user_jobs_shared.class.inc.php");
 require_once(__BASE_DIR__ . "/efi-gnt/libs/gnt_ui.class.inc.php");

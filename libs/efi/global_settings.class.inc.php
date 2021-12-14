@@ -79,6 +79,13 @@ class global_settings {
         return __FEEDBACK_EMAIL__;
     }
 
+    public static function get_smtp_host() {
+        return (defined("__SMTP_HOST__") && __SMTP_HOST__) ? __SMTP_HOST__ : "localhost";
+    }
+    public static function get_smtp_port() {
+        return (defined("__SMTP_PORT__") && __SMTP_PORT__) ? __SMTP_PORT__ : 25;
+    }
+
     public static function get_memory_queue() {
         return __MEMORY_QUEUE__;
     }
@@ -111,7 +118,7 @@ class global_settings {
     }
 
     public static function get_website_enabled_message() {
-        return defined("__ENABLE_WEBSITE_MSG__") ? __ENABLE_WEBSITE_MSG__ : "Website is currently under maintenance.  Please check back later.";
+        return (defined("__ENABLE_WEBSITE_MSG__") && __ENABLE_WEBSITE_MSG__) ? "Website is currently under maintenance.  Please check back later." : "";
     }
 
     public static function get_release_status() {
@@ -204,4 +211,4 @@ class global_settings {
         return false;
     }
 }
-?>
+

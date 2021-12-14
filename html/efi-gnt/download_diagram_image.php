@@ -1,7 +1,10 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__DIR__."/../../init.php");
+
 require_once(__GNT_DIR__."/includes/main.inc.php");
-require_once(__GNT_DIR__."/libs/settings.class.inc.php");
+
+use \efi\gnt\settings;
+
 
 $gntServer = settings::get_web_root();
 $refServer = parse_url($_SERVER['HTTP_REFERER'],  PHP_URL_HOST);
@@ -63,6 +66,4 @@ if ($type == "svg") {
     header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
 }
 
-
-?>
 

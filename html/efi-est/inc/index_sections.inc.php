@@ -1,13 +1,11 @@
 <?php
 require_once(__DIR__ . "/../../../init.php");
-//require_once(__DIR__."/../../../conf/settings_paths.inc.php");
-//require_once(__EST_DIR__ . "/libs/functions.class.inc.php");
-//require_once(__EST_DIR__ . "/libs/est_ui.class.inc.php");
-//require_once(__EST_DIR__ . "/libs/colorssn_shared.class.inc.php");
-//require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 
-use \efi\est\est_settings;
 use \efi\global_settings;
+use \efi\ui;
+use \efi\est\est_settings;
+use \efi\est\colorssn;
+use \efi\est\est_ui;
 
 
 function output_option_a($use_advanced_options, $db_modules, $user_email, $example_fn = false) {

@@ -1,25 +1,21 @@
 <?php 
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__DIR__."/../../init.php");
+
 require_once(__GNT_DIR__ . "/includes/main.inc.php");
-require_once(__GNT_DIR__ . "/libs/settings.class.inc.php");
-require_once(__GNT_DIR__ . "/libs/bigscape_job.class.inc.php");
-require_once(__BASE_DIR__ . "/training/libs/example_config.class.inc.php");
-require_once(__GNT_DIR__."/libs/gnn.class.inc.php");
-require_once(__GNT_DIR__."/libs/gnn_example.class.inc.php");
-require_once(__GNT_DIR__."/libs/diagram_data_file.class.inc.php");
-require_once(__GNT_DIR__."/libs/direct_gnd_file.class.inc.php");
-require_once(__GNT_DIR__."/libs/bigscape_job.class.inc.php");
-require_once(__GNT_DIR__."/libs/diagram_jobs.class.inc.php");
-require_once(__DIR__."/inc/gnd_params.class.inc.php");
-require_once(__DIR__."/inc/gnd_make_params.inc.php");
-require_once(__DIR__."/inc/gnd_misc.inc.php");
-require_once(__DIR__."/inc/gnd_tools.inc.php");
-require_once(__DIR__."/inc/gnd_window.inc.php");
-require_once(__DIR__."/inc/gnd_search.inc.php");
-require_once(__DIR__."/inc/gnd_filter.inc.php");
-require_once(__DIR__."/inc/gnd_dialog_direct.inc.php");
-require_once(__DIR__."/inc/gnd_dialog_bigscape.inc.php");
-require_once(__DIR__."/inc/gnd_misc_dialogs.inc.php");
+
+use \efi\gnt\settings;
+use \efi\gnt\bigscape_job;
+use \efi\gnt\gnd_params;
+
+include(__DIR__."/inc/gnd_make_params.inc.php");
+include(__DIR__."/inc/gnd_misc.inc.php");
+include(__DIR__."/inc/gnd_tools.inc.php");
+include(__DIR__."/inc/gnd_window.inc.php");
+include(__DIR__."/inc/gnd_search.inc.php");
+include(__DIR__."/inc/gnd_filter.inc.php");
+include(__DIR__."/inc/gnd_dialog_direct.inc.php");
+include(__DIR__."/inc/gnd_dialog_bigscape.inc.php");
+include(__DIR__."/inc/gnd_misc_dialogs.inc.php");
 
 
 

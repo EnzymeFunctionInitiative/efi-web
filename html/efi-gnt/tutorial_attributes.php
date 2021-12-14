@@ -1,11 +1,14 @@
 <?php
+require_once(__DIR__."/../../init.php");
+
 $Tutorial = true;
-require_once "../includes/main.inc.php";
-require_once 'inc/header.inc.php';
+require_once("../includes/main.inc.php");
+require_once("inc/header.inc.php");
+
 ?>
 
 <div class="tutorial-nav">
-	<?php require_once('inc/tutorial_nav.php'); ?>
+	<?php require_once("inc/tutorial_nav.php"); ?>
 </div>
   
 
@@ -1625,11 +1628,11 @@ selected with the Select Control Panel.
 
 <center><a href='tutorial_input.php'><button class="light">Continue Tutorial</button></a></center>
 
-<?php include_once('inc/tutorial_footer.inc.php'); ?>
+<?php require_once("inc/tutorial_footer.inc.php"); ?>
 
 </div> <!-- end of float -->
 
 <div style="clear: both"></div>
 
-<?php require_once('inc/footer.inc.php'); ?>
+<?php require_once("inc/footer.inc.php"); ?>
 

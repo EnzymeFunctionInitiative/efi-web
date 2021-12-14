@@ -1,11 +1,11 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__ . "/libs/send_file.class.inc.php");
-require_once(__EST_DIR__ . "/libs/nb_conn.class.inc.php");
-require_once(__EST_DIR__ . "/libs/conv_ratio.class.inc.php");
-require_once(__EST_DIR__ . "/libs/stepa.class.inc.php");
-require_once(__EST_DIR__ . "/libs/analysis.class.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\send_file;
+use \efi\est\nb_conn;
+use \efi\est\conv_ratio;
+use \efi\est\stepa;
+use \efi\est\analysis;
 
 
 

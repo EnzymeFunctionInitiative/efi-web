@@ -8,6 +8,7 @@ use \efi\est\colorssn;
 use \efi\est\accession;
 use \efi\est\blast;
 use \efi\est\generate;
+use \efi\est\fasta;
 use \efi\est\job_factory;
 
 

@@ -1,7 +1,7 @@
 <?php
 require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__."/includes/main.inc.php");
-require_once(__EST_DIR__."/libs/functions.class.inc.php");
+
+use \efi\est\functions;
 
 
 $accessKey = functions::get_user_list_access_key();
@@ -48,4 +48,4 @@ echo json_encode(array(
     'emails'=>$emails
 ));
 
-?>
+

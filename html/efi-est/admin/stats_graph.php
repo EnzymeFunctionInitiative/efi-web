@@ -1,8 +1,8 @@
 <?php
 require_once(__DIR__."/../../../init.php");
 
+use \efi\custom_graph;
 use \efi\est\efi_statistics;
-use \efi\est\custom_graph;
 
 
 if (isset($_GET['year'])) {
@@ -50,4 +50,5 @@ if ($graph_type == 'analysis_daily_jobs') {
     $title = "Monthly Jobs";
     custom_graph::bar_graph($data,$xaxis,$yaxis,$title);
 }
+
 

@@ -1,22 +1,18 @@
 <?php
 require_once(__DIR__ . "/../../init.php");
-//require_once(__DIR__."/../../conf/settings_paths.inc.php");
-//require_once(__EST_DIR__."/includes/main.inc.php");
-//require_once(__EST_DIR__."/libs/input.class.inc.php");
-//require_once(__EST_DIR__."/libs/user_jobs.class.inc.php");
-//require_once(__EST_DIR__."/libs/job_factory.class.inc.php");
 
-use \efi\est\functions;
-use \efi\est\user_jobs;
 use \efi\global_settings;
 use \efi\user_auth;
+use \efi\est\functions;
+use \efi\est\user_jobs;
+use \efi\est\input_data;
 
 
 $result['id'] = 0;
 $result['MESSAGE'] = "";
 $result['RESULT'] = 0;
 
-$input = new efi\est\input_data;
+$input = new input_data;
 $input->is_debug = !isset($_SERVER["HTTP_HOST"]);
 
 // If this is being run from the command line then we parse the command line parameters and put them into _POST so we can use

@@ -2,7 +2,7 @@
 require_once(__DIR__."/../../../init.php");
 
 use \efi\est\efi_statistics;
-use \efi\est\report;
+use \efi\stats_report;
 
 
 if (isset($_POST['create_user_report'])) {
@@ -24,11 +24,11 @@ if (isset($_POST['create_job_report'])) {
 
 switch ($type) {
 	case 'csv':
-		report::create_csv_report($data,$filename);
+		stats_report::create_csv_report($data,$filename);
 		break;
 		break;
 	case 'xlsx':
-		report::create_excel_2007_report($data,$filename);
+		stats_report::create_excel_2007_report($data,$filename);
 		break;
 }
 

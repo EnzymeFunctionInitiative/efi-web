@@ -1,4 +1,10 @@
 <?php
+namespace efi\gnt;
+
+require_once(__DIR__."/../../../init.php");
+
+use \efi\gnt\gnn;
+use \efi\gnt\gnn_example;
 
 
 function get_realtime_params($db, $P) {

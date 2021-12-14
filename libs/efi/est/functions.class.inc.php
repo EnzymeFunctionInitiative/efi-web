@@ -2,6 +2,7 @@
 namespace efi\est;
 
 require_once(__DIR__."/../../../init.php");
+require_once(__EST_CONF_DIR__."/settings.inc.php");
 
 
 class functions {

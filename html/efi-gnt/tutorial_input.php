@@ -1,6 +1,7 @@
 <?php
+require_once(__DIR__."/../../init.php");
+
 $Tutorial = true;
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__GNT_DIR__."/includes/main.inc.php");
 require_once(__DIR__."/inc/header.inc.php");
 ?>

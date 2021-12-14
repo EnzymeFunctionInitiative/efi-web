@@ -1,9 +1,13 @@
 <?php 
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__."/includes/main.inc.php");
+require_once(__DIR__."/../../init.php");
+
 require_once(__BASE_DIR__."/includes/login_check.inc.php");
-require_once(__EST_DIR__."/libs/job_factory.class.inc.php");
-require_once(__BASE_DIR__."/libs/table_builder.class.inc.php");
+
+use \efi\global_settings;
+use \efi\table_builder;
+use \efi\est\job_factory;
+use \efi\est\functions;
+use \efi\est\colorssn;
 
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {

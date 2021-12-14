@@ -1,5 +1,8 @@
 <?php
-require_once(__DIR__."/../../../conf/settings_paths.inc.php");
+require_once(__DIR__."/../../../init.php");
+
+require_once(__EST_CONF_DIR__."/settings.inc.php");
+
 
 $Title = "EFI - Enzyme Similarity Tool";
 if (isset($EstId))

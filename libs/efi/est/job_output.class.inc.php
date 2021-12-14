@@ -3,6 +3,8 @@ namespace efi\est;
 
 require_once(__DIR__ . "/../../../init.php");
 
+use \efi\global_settings;
+use \efi\global_functions;
 use \efi\est\est_shared;
 use \efi\est\example_config;
 

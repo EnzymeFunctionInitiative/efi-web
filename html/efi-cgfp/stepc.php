@@ -3,8 +3,8 @@ require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__CGFP_DIR__."/includes/main.inc.php");
 require_once(__CGFP_DIR__."/libs/job_manager.class.inc.php");
 require_once(__CGFP_DIR__."/libs/identify.class.inc.php");
-require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
-require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
+
+use \efi\table_builder;
 
 
 // There are two types of examples: dynamic and static.  The static example is a curated
@@ -332,7 +332,7 @@ HTML;
                             </span>
                             <span class="input-field">
                             <?php
-                                $default_search_type = cgfp_settings::get_default_quantify_search();
+                                $default_search_type = settings::get_default_quantify_search();
                                 $search_usearch = $default_search_type == "USEARCH" ? "selected" : "";
                                 $search_diamond = $default_search_type == "DIAMOND" ? "selected" : "";
                             ?>
@@ -536,5 +536,4 @@ function make_output_row($id_query_string, $type, $btn_text, $desc, $size) {
 HTML;
 }
 
-?>
 

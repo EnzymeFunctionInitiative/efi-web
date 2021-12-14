@@ -1,7 +1,9 @@
 <?php 
 require_once(__DIR__."/../../../conf/settings_paths.inc.php");
 require_once(__CGFP_DIR__."/libs/quantify.class.inc.php");
-require_once(__BASE_DIR__."/libs/table_builder.class.inc.php");
+
+use \efi\table_builder;
+
 
 // Before including this file, some vars must be set:
 //   $id_tbl_val

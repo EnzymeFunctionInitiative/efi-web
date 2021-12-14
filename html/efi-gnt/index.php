@@ -1,10 +1,16 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__DIR__."/../../init.php");
+
 require_once(__GNT_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
-require_once(__GNT_DIR__."/libs/user_jobs.class.inc.php");
-require_once(__GNT_DIR__."/libs/settings.class.inc.php");
-require_once(__GNT_DIR__."/libs/gnt_ui.class.inc.php");
+
+use \efi\ui;
+use \efi\global_settings;
+use \efi\global_functions;
+use \efi\gnt\settings;
+use \efi\gnt\gnt_ui;
+use \efi\gnt\user_jobs;
+use \efi\gnt\functions;
+
 
 $user_email = "Enter your e-mail address";
 

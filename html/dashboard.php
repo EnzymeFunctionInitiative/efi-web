@@ -1,9 +1,13 @@
 <?php
-require_once(__DIR__ . "/../includes/main.inc.php");
-require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
-require_once(__BASE_DIR__ . "/libs/global_functions.class.inc.php");
+require_once(__DIR__."/../init.php");
+
 require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
-require_once(__BASE_DIR__ . "/efi-est/libs/est_user_jobs_shared.class.inc.php");
+
+use \efi\user_auth;
+use \efi\global_settings;
+use \efi\global_functions;
+use \efi\est\est_user_jobs_shared;
+
 
 const GET_IDS_FROM_FILE = 1;
 const GET_IDS_FROM_DB = 2;
@@ -474,7 +478,7 @@ function make_extra($extra) {
 function get_group_select_statement($db, $table, $user_email, $group_clause, $time_completed, $job_type = "", $addl_or_cond = "", $addl_and_cond = "") {
     $sql = "SELECT $table.* FROM $db.$table ";
     if ($group_clause)
-        $sql .= "LEFT OUTER JOIN $db.job_group ON $table.${table}_id = job_group.${table}_id WHERE $group_clause";
+        $sql .= "LEFT OUTER JOIN $db.job_group ON $table.${table}_id = job_group.job_id WHERE $group_clause";
     else
         $sql .= "WHERE ${table}_email = '$user_email'";
     $sql .= " AND ${table}_status = 'FINISH'";
@@ -524,7 +528,7 @@ function retrieve_and_display($start_date, $user_email, $user_groups) {
     $all_est_ids = array();
     $est_sql = "SELECT generate.generate_id FROM $est_db.generate";
     if ($group_clause)
-        $est_sql .= " LEFT OUTER JOIN $est_db.job_group ON generate.generate_id = job_group.generate_id WHERE $group_clause";
+        $est_sql .= " LEFT OUTER JOIN $est_db.job_group ON generate.generate_id = job_group.job_id WHERE $group_clause AND job_group.job_type = 'EST'";
     else
         $est_sql .= " WHERE generate_email = '$user_email'";
     $results = $db->query($est_sql);
@@ -563,7 +567,7 @@ function retrieve_and_display($start_date, $user_email, $user_groups) {
     
     $est_sql = "SELECT generate.generate_id, generate_key, generate_params, generate_type, generate_time_completed, analysis_id, analysis_name, analysis_min_length, analysis_max_length, analysis_evalue, analysis_time_completed, analysis_status FROM $est_db.generate LEFT JOIN $est_db.analysis ON generate.generate_id = analysis.analysis_generate_id";
     if ($group_clause)
-        $est_sql .= " LEFT OUTER JOIN $est_db.job_group ON generate.generate_id = job_group.generate_id WHERE $group_clause";
+        $est_sql .= " LEFT OUTER JOIN $est_db.job_group ON generate.generate_id = job_group.job_id WHERE $group_clause AND job_group.job_type = 'EST'";
     else
         $est_sql .= " WHERE generate_email = '$user_email'";
     if ($additional_ids_clause)

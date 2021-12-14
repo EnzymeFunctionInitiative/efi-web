@@ -1,10 +1,13 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__DIR__."/../../init.php");
+
 require_once(__GNT_DIR__."/includes/main.inc.php");
-require_once(__GNT_DIR__."/libs/gnn.class.inc.php");
-require_once(__GNT_DIR__."/libs/bigscape_job.class.inc.php");
-require_once(__GNT_DIR__."/libs/gnd_v2.class.inc.php");
-require_once(__GNT_DIR__."/libs/direct_gnd_file.class.inc.php");
+
+use \efi\gnt\gnn;
+use \efi\gnt\bigscape_job;
+use \efi\gnt\gnd_v2;
+use \efi\gnt\direct_gnd_file;
+use \efi\gnt\job_factory;
 
 
 // This is necessary so that the gnd class environment doesn't get clusttered
@@ -56,4 +59,4 @@ if (!isset($_SERVER["HTTP_HOST"])) {
     echo json_encode($output);
 }
 
-?>
+

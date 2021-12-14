@@ -1,9 +1,11 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__."/libs/job_cancels.class.inc.php");
-require_once(__EST_DIR__."/libs/stepa.class.inc.php");
-require_once(__EST_DIR__."/libs/analysis.class.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\job_cancels;
+use \efi\est\stepa;
+use \efi\est\analysis;
+use \efi\est\functions;
+
 
 $is_error = false;
 $the_id = "";

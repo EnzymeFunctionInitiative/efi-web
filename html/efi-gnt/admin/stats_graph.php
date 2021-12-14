@@ -1,7 +1,10 @@
 <?php
+namespace efi\gnt;
+
 require_once(__DIR__."/inc/stats_main.inc.php");
-require_once(__GNT_DIR__."/libs/statistics.class.inc.php");
-require_once(__GNT_DIR__."/libs/custom_graph.class.inc.php");
+
+use \efi\custom_graph;
+use \efi\gnt\statistics;
 
 
 if (isset($_GET["year"])) {
@@ -48,4 +51,3 @@ if ($graph_type == "daily") {
 }
 
 
-?>

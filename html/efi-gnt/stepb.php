@@ -1,8 +1,10 @@
 <?php 
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__DIR__."/../../init.php");
+
 require_once(__GNT_DIR__."/includes/main.inc.php");
-require_once(__GNT_DIR__."/libs/diagram_jobs.class.inc.php");
-require_once(__GNT_DIR__."/libs/gnn.class.inc.php");    
+
+use \efi\gnt\diagram_jobs;
+use \efi\gnt\gnn;
 
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id']) || !isset($_GET['key'])) {

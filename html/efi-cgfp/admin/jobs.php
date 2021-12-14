@@ -1,7 +1,8 @@
 <?php
-require_once(__DIR__."/../../../conf/settings_paths.inc.php");
-require_once(__DIR__."/inc/stats_main.inc.php");
-require_once(__CGFP_DIR__ . "/libs/job_manager.class.inc.php");
+require_once(__DIR__."/../../../init.php");
+
+use \efi\cgfp\job_manager;
+
 
 require_once(__DIR__."/inc/header.inc.php");
 

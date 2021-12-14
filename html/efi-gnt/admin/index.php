@@ -1,8 +1,11 @@
 <?php
-require_once(__DIR__."/../../../conf/settings_paths.inc.php");
-require_once(__GNT_DIR__ . "/libs/statistics.class.inc.php");
+require_once(__DIR__."/../../../init.php");
+
 require_once(__DIR__."/inc/stats_main.inc.php");
 require_once(__DIR__."/inc/stats_admin_header.inc.php");
+
+use \efi\gnt\statistics;
+
 
 $month = date("n");
 if (isset($_POST["month"])) {
@@ -149,4 +152,3 @@ $(document).ready(function() {
 require_once(__DIR__."/inc/stats_footer.inc.php");
 
 
-?>

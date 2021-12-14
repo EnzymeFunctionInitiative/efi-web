@@ -1,9 +1,10 @@
 <?php
 namespace efi\est;
 
-require_once(__DIR__."/../../init.php");
+require_once(__DIR__."/../../../init.php");
 require_once(__EST_CONF_DIR__ . "/settings_shared.inc.php");
 
+use \efi\global_functions;
 use \efi\est\est_settings;
 use \efi\est\functions;
 

@@ -1,7 +1,7 @@
 <?php 
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__ . "/includes/main.inc.php");
-require_once(__EST_DIR__ . "/libs/job_factory.class.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\est\job_factory;
 
 
 if ((!isset($_GET["id"])) || (!is_numeric($_GET["id"]))) {

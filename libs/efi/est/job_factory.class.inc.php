@@ -3,15 +3,15 @@ namespace efi\est;
 
 require_once(__DIR__."/../../../init.php");
 
-use \ef\est\generate;
-use \ef\est\fasta;
-use \ef\est\accession;
-use \ef\est\colorssn;
-use \ef\est\cluster_analysis;
-use \ef\est\nb_conn;
-use \ef\est\conv_ratio;
-use \ef\est\blast;
-use \ef\est\stepa;
+use \efi\est\generate;
+use \efi\est\fasta;
+use \efi\est\accession;
+use \efi\est\colorssn;
+use \efi\est\cluster_analysis;
+use \efi\est\nb_conn;
+use \efi\est\conv_ratio;
+use \efi\est\blast;
+use \efi\est\stepa;
 
 
 class job_factory {

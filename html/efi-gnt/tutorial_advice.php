@@ -1,4 +1,6 @@
 <?php
+require_once(__DIR__."/../../init.php");
+
 $Tutorial = true;
 require_once "../includes/main.inc.php";
 require_once 'inc/header.inc.php';

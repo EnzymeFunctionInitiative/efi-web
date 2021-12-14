@@ -33,7 +33,7 @@ if (isset($NumWaitingJobs) && isset($NumRunningJobs)) {
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class='container-fluid'>
         <div class='navbar-header'>
-            <a class='navbar-brand' href='../'><?php echo __TITLE__; ?></a>
+            <a class='navbar-brand' href='../'>EFI-EST</a>
         </div>    
         <div id='navbar' class='collapse navbar-collapse'>
             <ul class='nav navbar-nav'>

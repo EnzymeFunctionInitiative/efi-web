@@ -1,7 +1,8 @@
 <?php
-require_once(__DIR__."/../../../conf/settings_paths.inc.php");
-require_once(__DIR__."/inc/stats_main.inc.php");
-require_once(__CGFP_DIR__."/libs/functions.class.inc.php");
+require_once(__DIR__."/../../../init.php");
+
+use \efi\cgfp\functions;
+
 
 $month = date('n');
 if (isset($_POST['month'])) {
@@ -122,5 +123,5 @@ HTML;
 
 
 require_once(__DIR__."/inc/footer.inc.php");
-?>
+
 

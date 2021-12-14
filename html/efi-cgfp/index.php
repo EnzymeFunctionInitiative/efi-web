@@ -1,12 +1,14 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__DIR__."/../../init.php");
+
 require_once(__CGFP_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
 require_once(__CGFP_DIR__ . "/libs/cgfp_ui.class.inc.php");
 require_once(__CGFP_DIR__ . "/libs/functions.class.inc.php");
 require_once(__CGFP_DIR__ . "/libs/job_manager.class.inc.php");
+
+use \efi\ui;
 
 
 $user_email = "Enter your e-mail address";
@@ -43,9 +45,9 @@ if (user_auth::has_token_cookie()) {
 }
 
 $db_modules = global_settings::get_database_modules();
-$default_cdhit_id = cgfp_settings::get_default_cdhit_id();
-$default_ref_db = cgfp_settings::get_default_ref_db();
-$default_search = cgfp_settings::get_default_identify_search();
+$default_cdhit_id = settings::get_default_cdhit_id();
+$default_ref_db = settings::get_default_ref_db();
+$default_search = settings::get_default_identify_search();
 
 $login_banner_msg = "";
 //if (!$IsLoggedIn) {

@@ -1,7 +1,12 @@
 <?php 
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__."/includes/main.inc.php");
+require_once(__DIR__."/../../../init.php");
+
 require_once(__DIR__."/inc/header.inc.php");
+
+use \efi\global_settings;
+use \efi\est\stepa;
+use \efi\est\analysis;
+use \efi\est\functions;
 
 
 if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {

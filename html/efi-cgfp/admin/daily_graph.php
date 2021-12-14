@@ -1,9 +1,10 @@
 <?php
-require_once(__DIR__."/../../../conf/settings_paths.inc.php");
-require_once(__DIR__."/inc/stats_main.inc.php");
-require_once(__CGFP_DIR__ . "/libs/functions.class.inc.php");
-require_once(__CGFP_DIR__ . "/libs/cgfp_statistics.class.inc.php");
-require_once(__BASE_DIR__ . "/libs/custom_graph.class.inc.php");
+require_once(__DIR__."/../../../init.php");
+
+use \efi\custom_graph;
+use \efi\cgfp\functions;
+use \efi\cgfp\cgfp_statistics;
+
 
 if (isset($_GET['year'])) {
     $year = $_GET['year'];
@@ -38,4 +39,4 @@ if ($graph_type == 'quantify_daily_jobs') {
     custom_graph::bar_graph($data,$xaxis,$yaxis,$title);
 }
 
-?>
+

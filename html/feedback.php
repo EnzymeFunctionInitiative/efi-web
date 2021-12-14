@@ -1,11 +1,8 @@
 <?php
-require_once(__DIR__."/../conf/settings_paths.inc.php");
-require_once(__BASE_DIR__."/libs/user_auth.class.inc.php");
-require_once(__BASE_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__."/vendor/autoload.php");
+require_once(__DIR__."/../init.php");
 
-require "Mail.php";
-require "Mail/mime.php";
+use \efi\user_auth;
+use \efi\global_settings;
 
 
 $StyleAdditional = array('<style>.hideme { display: none; }</style>');
@@ -79,7 +76,6 @@ To submit feedback, please provide the following information.
         <b>Please fill in all fields.</b>
     </div>
     <input type="text" name="url" value="" class="hideme">
-    <input type="hidden" name="token" value="<?php echo $token; ?>">
 </form>
 
     <script>
@@ -163,18 +159,9 @@ EMAIL;
 
     $subject = "EFI Feedback Form Submission";
     $to = global_settings::get_feedback_email();
-    $from = "EFI Feedback Form <" . global_settings::get_admin_email() . ">";
+    $from = global_settings::get_admin_email();
+    $from_name = "EFI Feedback Form";
 
-    $message = new Mail_mime(array("eol" => PHP_EOL));
-    $message->setTXTBody($plain_email);
-//    $message->setHTMLBody($html_email);
-    $body = $message->get();
-    $extraheaders = array("From" => $from, "Subject" => $subject);
-    $headers = $message->headers($extraheaders);
-
-    $mail = Mail::factory("mail");
-    $mail->send($to, $headers, $body);
+    \efi\email::send_email($to, $from, $subject, $plain_email, "", $from_name);
 }
-
-?>
 

@@ -1,7 +1,7 @@
 <?php
 namespace efi\est;
 
-require_once(__DIR__ . "/../../../init.php");
+require_once(__DIR__."/../../../init.php");
 
 use \efi\est\functions;
 

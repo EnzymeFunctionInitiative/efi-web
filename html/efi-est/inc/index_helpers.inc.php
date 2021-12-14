@@ -1,32 +1,5 @@
 <?php
 
-/*
-function is_interactive() {
-    return false;
-}
-function get_default_fraction() {
-    return 1;
-}
-function get_default_evalue() {
-    return 5;
-}
-function get_max_full_family_count() {
-    return 25000;
-}
-function make_db_mod_option($db_modules, $option) {
-    return "";
-}
-function add_dev_site_option($option_id, $db_modules, $extra_html = "") {
-}
-function get_max_blast_seq() {
-    return 5000;
-}
-function get_default_blast_seq() {
-    return 1000;
-}
- */
-
-
 function add_submit_html($option_id, $js_id_name, $user_email) {
     $js_fn = "submitOptionForm('$option_id', familySizeHelper, $js_id_name)";
     $is_interactive = is_interactive();

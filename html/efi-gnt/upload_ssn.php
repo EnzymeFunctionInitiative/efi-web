@@ -1,10 +1,12 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__GNT_DIR__."/includes/main.inc.php");
-require_once(__GNT_DIR__."/libs/user_jobs.class.inc.php");
-require_once(__GNT_DIR__."/libs/settings.class.inc.php");
-require_once(__GNT_DIR__."/libs/functions.class.inc.php");
-require_once(__GNT_DIR__."/libs/gnn.class.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\global_settings;
+use \efi\gnt\settings;
+use \efi\gnt\functions;
+use \efi\gnt\gnn;
+use \efi\gnt\user_jobs;
+
 
 $id = 0;
 $key = 0;

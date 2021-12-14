@@ -6,9 +6,6 @@ require_once(__DIR__."/../../../init.php");
 use \efi\global_settings;
 use \efi\global_functions;
 
-use \Mail;
-use \Mail\mime;
-
 
 abstract class est_shared {
 
@@ -158,7 +155,8 @@ abstract class est_shared {
         
         if (!$to)
             $to = $this->get_email();
-        $from = "EFI EST <" . global_settings::get_admin_email() . ">";
+        $from = global_settings::get_admin_email();
+        $from_name = "EFI EST";
 
         if ($full_url) {
             if (!is_array($full_url))
@@ -169,15 +167,7 @@ abstract class est_shared {
             }
         }
 
-        $message = new Mail_mime(array("eol" => PHP_EOL));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From" => $from, "Subject" => $subject);
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to, $headers, $body);
+        \efi\email::send_email($to, $from, $subject, $plain_email, $html_email, $from_name);
     }
     
     public function is_expired() {
@@ -189,4 +179,4 @@ abstract class est_shared {
     }
 }
 
-?>
+

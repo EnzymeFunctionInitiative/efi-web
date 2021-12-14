@@ -1,14 +1,14 @@
 <?php
 require_once(__DIR__."/../../init.php");
-//require_once(__EST_DIR__."/libs/user_jobs.class.inc.php");
-//require_once(__EST_DIR__."/libs/est_ui.class.inc.php");
-//require_once(__BASE_DIR__."/libs/global_settings.class.inc.php");
+
 require_once(__BASE_DIR__."/includes/login_check.inc.php");
-//require_once(__BASE_DIR__."/libs/ui.class.inc.php");
 
 use \efi\global_settings;
+use \efi\user_auth;
 use \efi\est\est_settings;
 use \efi\est\functions;
+use \efi\est\user_jobs;
+
 
 $user_email = "Enter your e-mail address";
 
@@ -16,9 +16,9 @@ $show_jobs_tab = false;
 $jobs = array();
 $tjobs = array(); // training jobs
 $IsAdminUser = false;
-if (global_settings::get_recent_jobs_enabled() && \efi\user_auth::has_token_cookie()) {
-    $user_jobs = new \efi\est\user_jobs();
-    $user_jobs->load_jobs($db, \efi\user_auth::get_user_token());
+if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie()) {
+    $user_jobs = new user_jobs();
+    $user_jobs->load_jobs($db, user_auth::get_user_token());
     $jobs = $user_jobs->get_jobs();
     $tjobs = $user_jobs->get_training_jobs();
     $user_email = $user_jobs->get_email();
@@ -44,7 +44,7 @@ $update_msg =
     //'Options B and D now provide an expanded "Family Domain Boundary Option" to generate SSNs for sequences N- or C-terminal to the specified family domain.<br>' .
     //'A list of publications citing the tools is available on the <i class="fas fa-question"></i> Training page.<br>' .
     //"Sequence regions adjacent to the domain can be selected in the domain option for Families and Accession IDs.<br>" .
-    "<small>" . \efi\est\functions::get_update_message() . "</small>";
+    "<small>" . functions::get_update_message() . "</small>";
 
 
 $IncludeSubmitJs = true;
@@ -510,7 +510,4 @@ function has_jobs($jobs) {
     return (isset($jobs["order"]) && count($jobs["order"]) > 0);
 }
 
-
-
-?>
 

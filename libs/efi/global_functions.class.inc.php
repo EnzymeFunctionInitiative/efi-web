@@ -113,8 +113,8 @@ class global_functions {
     }
 
     public static function get_prior_date($num_days_in_past) {
-        $dt = new DateTime();
-        $past_date = $dt->sub(new DateInterval("P${num_days_in_past}D"));
+        $dt = new \DateTime();
+        $past_date = $dt->sub(new \DateInterval("P${num_days_in_past}D"));
         $mysql_date = $past_date->format("Y-m-d");
         return $mysql_date;
     }

@@ -1,10 +1,8 @@
 <?php
 namespace efi;
-require_once(__DIR__."/../../init.php");
 
-//require_once(__DIR__."/global_functions.class.inc.php");
-//require_once(__DIR__."/global_settings.class.inc.php");
-//require_once(__DIR__."/PasswordHash.php");
+require_once(__DIR__."/../../init.php");
+require_once(__DIR__."/../PasswordHash.php");
 
 use \efi\global_settings;
 use \efi\global_functions;
@@ -170,7 +168,7 @@ class user_auth {
     private static function get_hasher() {
         $hash_cost_log2 = 8;
         $hash_portable = false;
-        $hasher = new PasswordHash($hash_cost_log2, $hash_portable);
+        $hasher = new \PasswordHash($hash_cost_log2, $hash_portable);
         return $hasher;
     }
 

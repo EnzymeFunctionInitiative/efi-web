@@ -1,9 +1,11 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
+require_once(__DIR__."/../../init.php");
+
 require_once(__GNT_DIR__."/includes/main.inc.php");
-require_once(__GNT_DIR__."/libs/gnn.class.inc.php");
-require_once(__GNT_DIR__."/libs/diagram_job.class.inc.php");
-//TODO: require_once("../libs/job_cancels.class.inc.php");
+
+use \efi\gnt\gnn;
+use \efi\gnt\diagram;
+
 
 $is_error = false;
 $the_id = "";

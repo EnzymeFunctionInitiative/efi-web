@@ -1,10 +1,5 @@
 <?php
 require_once(__DIR__ . "/../../init.php");
-//require_once(__DIR__."/../../conf/settings_paths.inc.php");
-//require_once(__EST_DIR__."/includes/main.inc.php");
-//require_once(__EST_DIR__."/libs/input.class.inc.php");
-//require_once(__EST_DIR__."/libs/family_size.class.inc.php");
-
 
 use efi\est\family_size;
 
@@ -22,4 +17,3 @@ $results = family_size::compute_family_size($db, $families, $fraction, $use_unir
 echo json_encode($results);
 
 
-?>

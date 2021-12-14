@@ -1,10 +1,10 @@
 <?php
 require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__BASE_DIR__."/vendor/autoload.php");
-require_once(__EST_DIR__."/includes/main.inc.php");
-require_once(__EST_DIR__."/libs/functions.class.inc.php");
-require_once(__EST_DIR__."/libs/stepa.class.inc.php");
-require_once(__EST_DIR__."/libs/analysis.class.inc.php");
+
+use \efi\est\functions;
+use \efi\est\stepa;
+use \efi\est\analysis;
+
 
 if (isset($_GET["type"])) {
     $type = $_GET["type"];
@@ -28,5 +28,3 @@ if (isset($_GET["type"])) {
 }
 
 
-
-?>

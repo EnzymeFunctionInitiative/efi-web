@@ -10,3 +10,5 @@ if (isset($_GET['blast'])) {
 	echo wordwrap($formatted_blast,$width,$break,$cut);
 
 }
+
+
