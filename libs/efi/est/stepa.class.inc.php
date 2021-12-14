@@ -1,10 +1,14 @@
 <?php
 namespace efi\est;
 
-require_once(__DIR__ . "/../../../init.php");
+require_once(__DIR__."/../../../init.php");
 
+use \efi\global_functions;
+use \efi\global_settings;
 use \efi\est\est_shared;
-use \efi\est\example_config;
+use \efi\est\est_settings;
+use \efi\est\functions;
+use \efi\training\example_config;
 
 
 class stepa extends est_shared {

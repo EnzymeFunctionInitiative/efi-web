@@ -2,10 +2,6 @@
 namespace efi\est;
 
 require_once(__DIR__ . "/../../../init.php");
-//require_once(__DIR__."/../../conf/settings_paths.inc.php");
-//require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
-//require_once(__DIR__ . "/functions.class.inc.php");
-//require_once(__DIR__ . "/est_settings.class.inc.php");
 
 use \efi\est\functions;
 
@@ -110,4 +106,3 @@ class family_size {
 
 }
 
-?>

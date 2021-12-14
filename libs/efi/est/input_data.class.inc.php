@@ -1,6 +1,7 @@
 <?php
 namespace efi\est;
 
+
 class input_data {
 
     public $email;

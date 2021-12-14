@@ -1,9 +1,10 @@
 <?php
 chdir(dirname(__FILE__));
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__."/includes/main.inc.php");
-require_once(__EST_DIR__."/libs/functions.class.inc.php");
-require_once(__EST_DIR__."/libs/analysis.class.inc.php");
+
+require_once(__DIR__."/../../init.php");
+
+use \efi\est\analysis;
+use \efi\est\functions;
 
 
 $sapi_type = php_sapi_name();
@@ -29,4 +30,4 @@ if ($sapi_type != 'cli') {
     }
 }
 
-?>
+

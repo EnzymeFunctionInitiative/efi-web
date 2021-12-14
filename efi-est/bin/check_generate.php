@@ -1,8 +1,15 @@
 <?php
 chdir(dirname(__FILE__));
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__."/includes/main.inc.php");
-require_once(__EST_DIR__."/libs/job_factory.class.inc.php");
+
+require_once(__DIR__."/../../init.php");
+
+use \efi\est\functions;
+use \efi\est\colorssn;
+use \efi\est\accession;
+use \efi\est\blast;
+use \efi\est\generate;
+use \efi\est\job_factory;
+
 
 $sapi_type = php_sapi_name();
 //If run from command line
@@ -121,4 +128,4 @@ function get_jobs($run_type, $db) {
     }
 }
 
-?>
+

@@ -1,14 +1,15 @@
 <?php 
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
-require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
-require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
-require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
-require_once(__EST_DIR__ . "/libs/dataset_shared.class.inc.php");
-require_once(__EST_DIR__ . "/libs/stepa.class.inc.php");
-require_once(__EST_DIR__ . "/libs/functions.class.inc.php");
-require_once(__EST_DIR__ . "/libs/analysis.class.inc.php");
+require_once(__DIR__."/../../init.php");
+//require_once(__DIR__."/../../conf/settings_paths.inc.php");
+//require_once(__EST_DIR__."/includes/main.inc.php");
+//require_once(__BASE_DIR__ . "/libs/table_builder.class.inc.php");
+//require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
+//require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
+//require_once(__BASE_DIR__ . "/libs/ui.class.inc.php");
+//require_once(__EST_DIR__ . "/libs/dataset_shared.class.inc.php");
+//require_once(__EST_DIR__ . "/libs/stepa.class.inc.php");
+//require_once(__EST_DIR__ . "/libs/functions.class.inc.php");
+//require_once(__EST_DIR__ . "/libs/analysis.class.inc.php");
 
 
 

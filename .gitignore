@@ -6,6 +6,7 @@ settings.inc.php
 settings_shared.inc.php
 settings_base.inc.php
 settings_examples.inc.php
+settings_auth.inc.php
 remove_old_uploads.sh
 user_auth.class.inc.php.const
 family_info.tab
@@ -15,3 +16,6 @@ composer.phar
 *.bak*
 .*.swp
 max_debug_do_not_commit
+/vendor
+html/vendor
+

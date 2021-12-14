@@ -1,10 +1,9 @@
 <?php
-
-require_once(__DIR__."/inc/stats_main.inc.php");
+require_once(__DIR__."/../../../init.php");
 require_once(__DIR__."/inc/stats_admin_header.inc.php");
 
 #$tmp_dir = defined("__UPLOADS_DIR__") ? __UPLOADS_DIR__ : "";
-$tmp_file = "/var/www/efi-web-dev/tmp/efi.queue";
+$tmp_file = "/tmp/efi.queue";
 
 #$output = "N/A";
 #if (is_dir($tmp_dir)) {

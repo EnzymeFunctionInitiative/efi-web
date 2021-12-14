@@ -3,8 +3,8 @@ namespace efi\est;
 
 require_once(__DIR__."/../../../init.php");
 
-class functions {
 
+class functions {
 
     //Possible errors when you upload a file
     private static $upload_errors = array(
@@ -658,4 +658,3 @@ class functions {
     }
 }
 
-?>

@@ -1,14 +1,21 @@
 <?php
 namespace efi\est;
 
-require_once(__DIR__ . "/../../../init.php");
+require_once(__DIR__."/../../../init.php");
+
+use \efi\global_settings;
+use \efi\global_functions;
+
+use \Mail;
+use \Mail\mime;
 
 
-abstract class shared {
+abstract class est_shared {
 
     private $table;
     private $db;
 
+    protected $email;
     protected $time_created;
     protected $time_completed;
     protected $time_started;
@@ -182,3 +189,4 @@ abstract class shared {
     }
 }
 
+?>

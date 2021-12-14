@@ -1,8 +1,11 @@
 <?php
 chdir(dirname(__FILE__));
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__."/includes/main.inc.php");
-require_once(__EST_DIR__."/libs/job_factory.class.inc.php");
+
+require_once(__DIR__."/../../init.php");
+
+use \efi\est\functions;
+use \efi\est\accession;
+
 
 $sapi_type = php_sapi_name();
 //If run from command line
@@ -34,8 +37,3 @@ else {
 }
 
 
-
-
-
-
-?>

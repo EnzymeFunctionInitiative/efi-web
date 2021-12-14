@@ -1,5 +1,6 @@
 <?php
-require_once(__DIR__."/inc/stats_main.inc.php");
+require_once(__DIR__."/../../../init.php");
+
 
 if (!isset($_GET["a"]) || !isset($_GET["job-id"]) || !is_numeric($_GET["job-id"])) {
     header("HTTP/1.0 500 Internal Server Error");

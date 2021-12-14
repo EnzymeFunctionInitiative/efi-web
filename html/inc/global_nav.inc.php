@@ -1,5 +1,8 @@
 <?php
-require_once(__DIR__."/../../libs/global_settings.class.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\global_settings;
+
 
 // Global vars that may be used in other includes downstream.
 if (!isset($LoginText))
