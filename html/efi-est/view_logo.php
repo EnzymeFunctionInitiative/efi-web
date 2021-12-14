@@ -53,7 +53,7 @@ $title = isset($_GET["title"]) ? $_GET["title"] : "";
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" type="text/css" href="../css/hmm_logo.min.css">
-<script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
+<script src="../vendor/components/jquery/jquery.min.js" type="text/javascript"></script>
 <script src="../js/hmm_logo.js" type="text/javascript"></script>
     <title>Logo</title>
 </head>

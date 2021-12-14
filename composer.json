@@ -10,21 +10,27 @@
         "pear/mail_mime": ">=1.8",
         "pear/mail": ">=1.2",
         "phpseclib/phpseclib": ">3",
-        "components/jquery": "3.4.1",
-        "components/jqueryui": "1.12.1",
-        "twbs/bootstrap": "4.4.1",
-        "fortawesome/font-awesome": "5.12.1",
-        "twig/twig": "^3.0"
+        "components/jquery": ">=3.4.1",
+        "components/jqueryui": ">=1.12.1",
+        "twbs/bootstrap": "^4",
+        "fortawesome/font-awesome": "^5",
+        "twig/twig": "^3.0",
+        "plotly/plotly.js": ">=1.42",
+        "harvesthq/chosen": ">=1.8"
     },
     "scripts": {
         "post-update-cmd": [
             "mkdir -p html/vendor/twbs",
             "mkdir -p html/vendor/components",
             "mkdir -p html/vendor/fortawesome",
+            "mkdir -p html/vendor/plotly/plotly.js",
+            "mkdir -p html/vendor/harvesthq",
             "cp -R vendor/twbs/bootstrap html/vendor/twbs/",
             "cp -R vendor/components/jquery html/vendor/components/",
             "cp -R vendor/components/jqueryui html/vendor/components/",
-            "cp -R vendor/fortawesome/font-awesome html/vendor/fortawesome/"
+            "cp -R vendor/fortawesome/font-awesome html/vendor/fortawesome/",
+            "cp -R vendor/plotly/plotly.js html/vendor/plotly",
+            "cp -R vendor/harvesthq/chosen html/vendor/harvesthq"
         ]
     }
 }

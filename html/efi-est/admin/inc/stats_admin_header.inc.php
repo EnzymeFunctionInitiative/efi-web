@@ -9,8 +9,8 @@ if (isset($NumWaitingJobs) && isset($NumRunningJobs)) {
 <html lang='en'>
 <head>
 <title>EFI-EST Statistics</title>
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/bs/css/bootstrap.min.css">
-    <script type="text/javascript" src="<?php echo $SiteUrlPrefix; ?>/js/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <script type="text/javascript" src="<?php echo $SiteUrlPrefix; ?>/vendor/components/jquery/jquery.min.js"></script>
 <style>
 .running { font-weight: bold; color: green; }
 .failed { font-weight: bold; color: red; }

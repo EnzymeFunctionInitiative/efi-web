@@ -14,15 +14,15 @@ if (isset($_GET["filename"])) {
 <html>
 <head>
 <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="../font-awesome/css/fontawesome-all.min.css">
+    <link rel="stylesheet" type="text/css" href="../vendor/fortawesome/font-awesome/css/fontawesome-all.min.css">
     <link rel="stylesheet" type="text/css" href="css/heatmap.css?v=2">
     <link rel="stylesheet" type="text/css" href="css/boxplot.css?v=2">
     <link rel="stylesheet" type="text/css" href="../css/buttons.css?v=2">
     <link rel="stylesheet" type="text/css" href="../css/form.css?v=2">
 
     <!--<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>-->
-    <script src="js/plotly-1.42.5.min.js"></script>
-    <script src="../js/jquery-3.2.1.min.js" type="text/javascript"></script>
+    <script src="../vendor/plotly/plotly.js/plotly.min.js"></script>
+    <script src="../vendor/components/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="js/heatmap.js?v=6"></script>
 
     <title>Boxplots for <?php echo $filename; ?></title>

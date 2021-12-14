@@ -82,9 +82,9 @@ $js_version = "?v=12";
         <title>Genome Neighborhood Diagrams<?php echo $P->window_title; ?></title>
 
         <!-- Bootstrap core CSS -->
-        <link href="<?php echo $SiteUrlPrefix; ?>/bs/css/bootstrap.min.css" rel="stylesheet">
-        <link href="<?php echo $SiteUrlPrefix; ?>/bs/css/menu-sidebar.css" rel="stylesheet">
-        <link href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/fontawesome-all.min.css" rel="stylesheet">
+        <link href="<?php echo $SiteUrlPrefix; ?>/vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="<?php echo $SiteUrlPrefix; ?>/css/menu-sidebar.css" rel="stylesheet">
+        <link href="<?php echo $SiteUrlPrefix; ?>/vendor/fortawesome/font-awesome/css/fontawesome-all.min.css" rel="stylesheet">
 
 
         <!-- Custom styles for this template -->
@@ -186,12 +186,10 @@ $js_version = "?v=12";
         <script src="js/snap.svg-min.js" content-type="text/javascript"></script>
 
         <!-- jQuery -->
-        <script src="js/jquery-3.2.1.min.js"></script>
+        <script src="../vendor/components/jquery/jquery.min.js"></script>
         <!-- Bootstrap Core JavaScript -->
-        <script src="<?php echo $SiteUrlPrefix; ?>/bs/js/bootstrap.min.js"></script>
+        <script src="<?php echo $SiteUrlPrefix; ?>/vendor/twbs/bootstrap/dist/js/bootstrap.min.js"></script>
 
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="/bs/js/ie10-viewport-bug-workaround.js"></script>
         <script src="js/gnd/color.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
         <script src="js/gnd/control.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
         <script src="js/gnd/data.js<?php echo $js_version; ?>" content-type="text/javascript"></script>

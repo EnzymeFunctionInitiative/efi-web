@@ -49,7 +49,7 @@ $is_dev_site = global_settings::advanced_options_enabled();
 <!doctype html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.min.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/components/jqueryui/themes/base/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/buttons.css?v=3">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css?v=3">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/table.css?v=5">
@@ -57,17 +57,17 @@ $is_dev_site = global_settings::advanced_options_enabled();
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/tabs.css?v=2">
 <?php } ?>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/jquery-custom.css?v=2">
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/fontawesome-all.min.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/fortawesome/font-awesome/css/fontawesome-all.min.css">
 <?php foreach ($StyleAdditional as $line) { echo "    $line\n"; } ?>
 
     <link rel="shortcut icon" href="<?php echo $SiteUrlPrefix; ?>/images/favicon_efi.ico" type="image/x-icon">
     <title><?php echo $title; ?></title>
 
     <script src="<?php echo $SiteUrlPrefix; ?>/js/login.js?v=2" type="text/javascript"></script>
-    <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-3.2.1.min.js" type="text/javascript"></script>
-    <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="<?php echo $SiteUrlPrefix; ?>/vendor/components/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="<?php echo $SiteUrlPrefix; ?>/vendor/components/jqueryui/jquery-ui.min.js" type="text/javascript"></script>
 <?php if (isset($IncludePlotlyJs)) { ?>
-    <script src="<?php echo $SiteUrlPrefix; ?>/js/plotly-1.42.5.min.js" type="text/javascript"></script>
+    <script src="<?php echo $SiteUrlPrefix; ?>/vendor/plotly/plotly.js/dist/plotly.min.js" type="text/javascript"></script>
 <?php } ?>
 <?php foreach ($JsAdditional as $line) { echo "    $line\n"; } ?>
 

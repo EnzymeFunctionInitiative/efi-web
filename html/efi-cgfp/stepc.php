@@ -431,7 +431,7 @@ HTML;
 
 <div style="margin-top: 50px"></div>
 
-<script src="<?php echo $SiteUrlPrefix; ?>/chosen/chosen.jquery.min.js" type="text/javascript"></script>
+<script src="<?php echo $SiteUrlPrefix; ?>/vendor/harvesthq/chosen/chosen.jquery.min.js" type="text/javascript"></script>
 <script>
 $(document).ready(function() {
 <?php

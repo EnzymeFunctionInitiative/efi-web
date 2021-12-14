@@ -7,7 +7,7 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 <html>
 <head>
 <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="../font-awesome/css/fontawesome-all.min.css">
+    <link rel="stylesheet" type="text/css" href="../vendor/fortawesome/font-awesome/css/fontawesome-all.min.css">
     <link rel="stylesheet" type="text/css" href="css/heatmap.css?v=2">
     <link rel="stylesheet" type="text/css" href="../css/buttons.css?v=2">
 
@@ -51,9 +51,9 @@ require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
 </div>
 
 
-<script src="../js/jquery-3.2.1.min.js"></script>
-<script src="../js/jquery-ui-1.12.1/jquery-ui.min.js"></script>
-<script src="../bs/js/bootstrap.min.js"></script>
+<script src="../vendor/components/jquery/jquery.min.js"></script>
+<script src="../vendor/components/jqueryui/jquery-ui.min.js"></script>
+<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="js/heatmap.js?v=6"></script>
 
 <script>

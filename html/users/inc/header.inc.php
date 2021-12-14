@@ -22,18 +22,18 @@ $cur_page_title = isset($pages[$cur_page]) ? "<h2>" . $pages[$cur_page] . "</h2>
 
 <!doctype html>
 <head>
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/components/jqueryui/themes/base/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/shared.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/tabs.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css">
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/font-awesome/css/fontawesome-all.min.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/fortawesome/font-awesome/css/fontawesome-all.min.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="shortcut icon" href="<?php echo $SiteUrlPrefix; ?>/images/favicon_efi.ico" type="image/x-icon">
     <title><?php echo $title; ?></title>
 
     <script src="<?php echo $SiteUrlPrefix; ?>/js/login.js" type="text/javascript"></script>
-    <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-3.2.1.min.js" type="text/javascript"></script>
-    <script src="<?php echo $SiteUrlPrefix; ?>/js/jquery-ui-1.12.1/jquery-ui.js" type="text/javascript"></script>
+    <script src="<?php echo $SiteUrlPrefix; ?>/vendor/components/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="<?php echo $SiteUrlPrefix; ?>/vendor/components/jqueryui/jquery-ui.js" type="text/javascript"></script>
     <script src="js/main.js" type="text/javascript"></script>
 </head>
 
