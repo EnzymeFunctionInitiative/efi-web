@@ -207,6 +207,23 @@ class user_manager {
         return true;
     }
 
+    public static function update_admin_status($db, $user_ids, $is_admin) {
+        if (! is_array($user_ids)) {
+            return false;
+        }
+
+        $user_table = user_auth::get_user_table();
+        $admin_flag = $is_admin ? 1 : 0;
+
+        foreach ($user_ids as $user_id) {
+            $sql = "UPDATE $user_table SET user_admin = $admin_flag WHERE user_id='$user_id'";
+            print($sql);
+            $db->non_select_query($sql);
+        }
+
+        return true;
+    }
+
     private function load_users() {
         $table = user_auth::get_user_table();
         $sql = "SELECT * FROM $table";

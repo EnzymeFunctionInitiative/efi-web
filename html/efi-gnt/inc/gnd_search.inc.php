@@ -37,7 +37,7 @@ function render_search_input($params) {
 <?php } else { ?>
         <div style="font-size:0.9em">Input multiple clusters and/or individual UniProt IDs.</div>
 <?php } ?>
-        <textarea id="advanced-search-input"></textarea>
+        <textarea id="advanced-search-input"><?php echo isset($params->ids) ? $params->ids : ""; ?></textarea>
         <div>
             <button type="button" class="btn btn-light" id="advanced-search-cluster-button">Query</button>
 <?php if ($params->is_direct_job || $params->is_realtime_job) { ?>

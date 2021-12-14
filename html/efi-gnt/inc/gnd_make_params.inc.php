@@ -8,14 +8,18 @@ function get_realtime_params($db, $P) {
     $P->is_realtime_job = true;
     $P->gnn_id = -1;
     $P->gnn_key = "";
+    $ids = isset($_GET["rt-ids"]) ? $_GET["rt-ids"] : "";
+    if (preg_match("/^[A-Z0-9\.,]+$/i", $ids)) {
+        $P->ids = implode("\n", explode(",", $ids));
+    }
 
     return true;
 }
 
 
 function get_gnn_params($db, $P) {
-    $P->gnn_key = $_GET['key'];
-    $P->gnn_id = $_GET['gnn-id'];
+    $P->gnn_key = $_GET["key"];
+    $P->gnn_id = $_GET["gnn-id"];
 
     if ($P->is_example)
         $gnn = new gnn_example($db, $P->gnn_id);
@@ -33,7 +37,7 @@ function get_gnn_params($db, $P) {
     }
     elseif ($gnn->is_expired()) {
         return false;
-        //error_404("That job has expired and doesn't exist anymore.");
+        //error_404("That job has expired and doesn"t exist anymore.");
     }
 
     if ($P->is_bigscape_enabled)
@@ -50,8 +54,8 @@ function get_gnn_params($db, $P) {
 
 
 function get_upload_params($db, $P) {
-    $P->gnn_key = $_GET['key'];
-    $P->gnn_id = $_GET['gnn-id'];
+    $P->gnn_key = $_GET["key"];
+    $P->gnn_id = $_GET["gnn-id"];
 
     $arrows = new diagram_data_file($gnn_id);
     $key = diagram_jobs::get_key($db, $gnn_id);
@@ -87,12 +91,12 @@ function get_direct_params($db, $P) {
     $arrows = false;
     $rs_id = "";
     $rs_ver = "";
-    $P->gnn_key = $_GET['key'];
+    $P->gnn_key = $_GET["key"];
     $query_type = "";
-    if (isset($_GET['rs-id'])) {
+    if (isset($_GET["rs-id"])) {
         $P->gnn_id = -1;
-        $rs_id = $_GET['rs-id'];
-        $rs_ver = $_GET['rs-ver'];
+        $rs_id = $_GET["rs-id"];
+        $rs_ver = $_GET["rs-ver"];
         $gnd_file = functions::validate_direct_gnd_file($rs_id, $rs_ver, $P->gnn_key);
         if ($gnd_file !== false) {
             $arrows = new direct_gnd_file($gnd_file);
@@ -101,7 +105,7 @@ function get_direct_params($db, $P) {
         $query_type = "rs-id";
         $P->is_superfamily_job = true;
     } else {
-        $P->gnn_id = $_GET['direct-id'];
+        $P->gnn_id = $_GET["direct-id"];
 
         $key = diagram_jobs::get_key($db, $P->gnn_id);
         $validated = $P->gnn_key == $key ? true : false;

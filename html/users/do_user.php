@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__USERS_DIR__."/includes/main.inc.php");
+require_once(__USERS_DIR__."/libs/user_manager.class.inc.php");
 
 
 $result = array("valid" => false, "message" => "");
@@ -137,6 +138,23 @@ if ($action == "new") {
             $update_result = false;
             user_manager::delete_users($db, $user_ids);
             $result["valid"] = true;
+            if (!$update_result) {
+                $result["message"] = "Unknown error occurred.";
+            }
+        }
+    }
+} elseif ($action == "set-admin") {
+    $user_ids = array();
+    $user_ids_text = "";
+
+    if (isset($_POST["user-ids"]))
+        $user_ids_text = $_POST["user-ids"];
+
+    if ($user_ids_text) {
+        $user_ids = explode(",", $user_ids_text);
+        if (count($user_ids)) {
+            $update_result = user_manager::update_admin_status($db, $user_ids, true);
+            $result["valid"] = $update_result;
             if (!$update_result) {
                 $result["message"] = "Unknown error occurred.";
             }

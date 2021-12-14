@@ -27,6 +27,7 @@ require_once("inc/header.inc.php");
     <thead>
         <th>#</th>
         <th class="id-col">Email</th>
+        <th>Admin</th>
         <th>Group(s)</th>
         <th>Status</th>
         <th># Jobs</th>
@@ -40,6 +41,7 @@ for ($i = 0; $i < count($user_ids); $i++) {
     $user = $user_mgr->get_user($user_id);
     $user_email = $user["email"];
     $user_status = $user["status"];
+    $is_admin = $user["admin"] ? '<i class="fas fa-check"></i>' : "";
     $num_jobs = count_jobs($user_email, $user_est, $user_gnt, $user_diagrams, $user_shortbred);
     $groups = implode(", ", $user["group"]);
     $user_num = $i + 1;
@@ -47,6 +49,7 @@ for ($i = 0; $i < count($user_ids); $i++) {
         <tr>
             <td>$user_num</td>
             <td>$user_email</td>
+            <td>$is_admin</td>
             <td>$groups</td>
             <td>$user_status</td>
             <td>$num_jobs</td>
@@ -64,6 +67,7 @@ ROW;
 <button id="add-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-user-plus"></i> Add Single User</button>
 <button id="update-group-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-users-cog"></i> Add Users to Group</button>
 <button id="remove-group-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-user-secret"></i> Remove Users from Group</button>
+<button id="set-admin-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-user-secret"></i> Set User to Admin</button>
 <button id="reset-password-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-unlock-alt"></i> Reset Passwords</button>
 <button id="delete-user-btn" class="ui-button ui-widget ui-corner-all"><i class="fas fa-trash-alt"></i> Delete User</button>
 
@@ -133,7 +137,6 @@ Are you sure you want to delete these users from the system?<br>
 
 
 
-
 <script>
 
 $(document).ready(function() {
@@ -141,6 +144,7 @@ $(document).ready(function() {
     var updateGroupDlg = $("#add-group-dlg");
     var removeGroupDlg = $("#remove-group-dlg");
     var deleteUserDlg = $("#delete-user-dlg");
+    var setAdminDlg = $("#set-admin-dlg");
     
     var defaultHandler = function(json) {
         if (json.valid) {
@@ -197,6 +201,8 @@ $(document).ready(function() {
     $("#remove-group-btn").click(function() { removeGroupDlg.dialog("open"); });
     $("#reset-password-btn").click(function() { submitPasswordReset(defaultHandler); });
     $("#delete-user-btn").click(function() { populateDeleteUserDlg(); deleteUserDlg.dialog("open"); ; });
+    //$("#set-admin-btn").click(function() { submitUserAdmin(function(e){console.log(e);}); window.location = "manage_user.php"; });
+    $("#set-admin-btn").click(function() { submitUserAdmin(function(e){console.log(e);}); });
 });
 
 </script>
