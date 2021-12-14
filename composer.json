@@ -9,6 +9,7 @@
         "phpoffice/phpspreadsheet": ">=1.14",
         "pear/mail_mime": ">=1.8",
         "pear/mail": ">=1.2",
+        "phpseclib/phpseclib": ">3",
         "components/jquery": "3.4.1",
         "components/jqueryui": "1.12.1",
         "twbs/bootstrap": "4.4.1",

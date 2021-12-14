@@ -1,5 +1,7 @@
 <?php
 
+namespace efi_est;
+
 const RT_GENERATE = 1;
 const RT_COLOR = 2;
 const RT_ANALYSIS = 3;
@@ -7,7 +9,6 @@ const RT_NESTED_COLOR = 4;
 const RT_NESTED_COLOR_X2 = 5;
 
 class est_ui {
-    
 
     public static function output_job_list($jobs, $show_archive = false, $toggle_id = "", $is_example = false, $show_all_ids = false) {
         $up = "&#x25B2;";

@@ -1,4 +1,5 @@
 <?php
+require_once(__DIR__ . "/../init.php");
 
 
 class ui {
@@ -11,7 +12,7 @@ class ui {
              $default_file = "Choose a file&hellip;";
 
         if (!$site_url_prefix)
-             $site_url_prefix = global_settings::get_base_web_path();
+             $site_url_prefix = \efi\global_settings::get_base_web_path();
 
         return <<<HTML
                 <div>
