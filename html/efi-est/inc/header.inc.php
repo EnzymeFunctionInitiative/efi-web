@@ -1,6 +1,5 @@
 <?php
 require_once(__DIR__."/../../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__."/libs/functions.class.inc.php");
 
 $Title = "EFI - Enzyme Similarity Tool";
 if (isset($EstId))
@@ -20,6 +19,4 @@ if (isset($IncludeSubmitJs)) {
 $BannerImagePath = "images/efiest_logo.png";
 
 require_once(__BASE_DIR__ . "/html/inc/global_header.inc.php");
-
-?>
 

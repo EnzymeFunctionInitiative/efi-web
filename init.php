@@ -15,8 +15,20 @@ spl_autoload_register(function ($className) {
     if (is_readable($filename)) {
         require_once($filename);
     } else {
+        debug_print_backtrace();
         die("Unable to find $className ($filename does not exist).");
     }
 });
 
+require_once(__BASE_DIR__ . "/includes/debug_check.inc.php");
+
+date_default_timezone_set(__TIMEZONE__);
+$db = new \database(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
+
+if (defined("__BASE_WEB_PATH__"))
+    $SiteUrlPrefix = __BASE_WEB_PATH__;
+else
+    $SiteUrlPrefix = "";
+
+require_once(__BASE_DIR__ . "/includes/error_helpers.inc.php");
 

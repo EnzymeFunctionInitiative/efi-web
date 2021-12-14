@@ -1,15 +1,22 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__EST_DIR__."/includes/main.inc.php");
-require_once(__EST_DIR__."/libs/input.class.inc.php");
-require_once(__EST_DIR__."/libs/user_jobs.class.inc.php");
-require_once(__EST_DIR__."/libs/job_factory.class.inc.php");
+require_once(__DIR__ . "/../../init.php");
+//require_once(__DIR__."/../../conf/settings_paths.inc.php");
+//require_once(__EST_DIR__."/includes/main.inc.php");
+//require_once(__EST_DIR__."/libs/input.class.inc.php");
+//require_once(__EST_DIR__."/libs/user_jobs.class.inc.php");
+//require_once(__EST_DIR__."/libs/job_factory.class.inc.php");
+
+use \efi\est\functions;
+use \efi\est\user_jobs;
+use \efi\global_settings;
+use \efi\user_auth;
+
 
 $result['id'] = 0;
 $result['MESSAGE'] = "";
 $result['RESULT'] = 0;
 
-$input = new input_data;
+$input = new efi\est\input_data;
 $input->is_debug = !isset($_SERVER["HTTP_HOST"]);
 
 // If this is being run from the command line then we parse the command line parameters and put them into _POST so we can use
@@ -82,7 +89,7 @@ if (!isset($_POST['submit'])) {
     switch($option) {
         //Option A - BLAST Input
         case 'A':
-            $blast = new blast($db);
+            $blast = new efi\est\blast($db);
 
             if (array_key_exists('families_input', $_POST))
                 $input->families = $_POST['families_input'];
@@ -106,7 +113,7 @@ if (!isset($_POST['submit'])) {
         //Option B - Pfam/InterPro
         case 'B':
         case 'E':
-            $generate = new generate($db);
+            $generate = new efi\est\generate($db);
             
             $input->families = $_POST['families_input'];
             $input->domain = $_POST['domain'];
@@ -151,7 +158,7 @@ if (!isset($_POST['submit'])) {
                 $_FILES['file']['error'] = 4;
     
             if ((isset($_FILES['file']['error'])) && ($_FILES['file']['error'] !== 0)) {
-                $result['MESSAGE'] = "Error Uploading File: " . functions::get_upload_error($_FILES['file']['error']);
+                $result['MESSAGE'] = "Error Uploading File: " . efi\est\functions::get_upload_error($_FILES['file']['error']);
                 $result['RESULT'] = false;
             }
             else {
@@ -177,12 +184,12 @@ if (!isset($_POST['submit'])) {
                 if ($option == "C" || $option == "E") {
                     $useFastaHeaders = $_POST['fasta_use_headers'];
                     $includeAllSeq = isset($_POST['include-all-seq']) && $_POST['include-all-seq'] === "true";
-                    $obj = new fasta($db, 0, $useFastaHeaders == "true" ? "E" : "C");
+                    $obj = new efi\est\fasta($db, 0, $useFastaHeaders == "true" ? "E" : "C");
                     $input->field_input = $_POST['fasta_input'];
                     $input->families = $_POST['families_input'];
                     $input->include_all_seq = $includeAllSeq;
                 } else if ($option == "D") {
-                    $obj = new accession($db);
+                    $obj = new efi\est\accession($db);
                     $input->field_input = $_POST['accession_input'];
                     $input->families = $_POST['families_input'];
                     if (isset($_POST["domain_family"]) && $_POST["domain_family"])
@@ -198,19 +205,19 @@ if (!isset($_POST['submit'])) {
                     if (isset($_POST['color-ssn-source-color-id']) && is_numeric($_POST['color-ssn-source-color-id']))
                         $input->color_ssn_source_color_id = $_POST['color-ssn-source-color-id'];
                     if ($option == "cluster") {
-                        $obj = new cluster_analysis($db);
+                        $obj = new efi\est\cluster_analysis($db);
                         $input->make_hmm = (isset($_POST['make-hmm']) && $_POST['make-hmm']) ? $_POST['make-hmm'] : "";
                         $input->aa_threshold = (isset($_POST['aa-threshold']) && $_POST['aa-threshold']) ? $_POST['aa-threshold'] : 0.8;
                         $input->hmm_aa = (isset($_POST['hmm-aa']) && $_POST['hmm-aa']) ? $_POST['hmm-aa'] : "";
                         $input->min_seq_msa = (isset($_POST['min-seq-msa']) && $_POST['min-seq-msa']) ? $_POST['min-seq-msa'] : 0;
                         $input->max_seq_msa = (isset($_POST['max-seq-msa']) && $_POST['max-seq-msa']) ? $_POST['max-seq-msa'] : 0;
                     } else if ($option == "nc") {
-                        $obj = new nb_conn($db);
+                        $obj = new efi\est\nb_conn($db);
                     } else if ($option == "cr") {
                         $input->ascore = $_POST['ascore'];
-                        $obj = new conv_ratio($db);
+                        $obj = new efi\est\conv_ratio($db);
                     } else {
-                        $obj = new colorssn($db);
+                        $obj = new efi\est\colorssn($db);
                     }
                 }
 

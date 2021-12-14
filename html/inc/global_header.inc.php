@@ -1,4 +1,6 @@
 <?php
+require_once(__DIR__ . "/../../init.php");
+use \efi\global_settings;
 
 if (!isset($TopLevelUrl))
     $TopLevelUrl = __WEB_ROOT__;

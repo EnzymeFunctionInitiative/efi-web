@@ -34,7 +34,7 @@ class database {
         $dsn = "mysql:host=$this->host;dbname=$this->database;port=$this->port;charset=$this->charset";
         $options = [];
         try {
-            $this->link = new PDO($dsn, $this->username, $this->password, $options);
+            $this->link = new \PDO($dsn, $this->username, $this->password, $options);
         } catch (\PDOException $ex) {
             error_log("Unable to connect to database $dsn: " . $ex->getMessage() . " " . $ex->getCode());
             return false;

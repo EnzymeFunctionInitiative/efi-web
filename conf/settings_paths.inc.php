@@ -1,6 +1,7 @@
 <?php
 
 define("__BASE_DIR__",__DIR__."/..");
+define("__CONF_DIR__",__DIR__);
 define("__EST_DIR__",__BASE_DIR__."/efi-est");
 define("__GNT_DIR__",__BASE_DIR__."/efi-gnt");
 define("__CGFP_DIR__",__BASE_DIR__."/shortbred");
