@@ -47,7 +47,7 @@ class settings {
         return __MINIMUM__;
     }
     public static function get_ascore_maximum() {
-        return __MAXIUMUM__;
+        return __MAXIMUM__;
     }
 }
 
