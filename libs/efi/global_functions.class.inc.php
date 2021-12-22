@@ -14,7 +14,7 @@ class global_functions {
     }
     
     public static function copy_to_uploads_dir($tmp_file, $uploaded_filename, $id, $prefix = "", $forceExtension = "") {
-        $uploads_dir = self::get_uploads_dir();
+        $uploads_dir = global_settings::get_uploads_dir();
 
         // By this time we have verified that the uploaded file is valid. Now we need to retain the
         // extension in case the file is a zipped file.

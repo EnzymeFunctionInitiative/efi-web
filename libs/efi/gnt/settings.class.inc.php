@@ -6,6 +6,9 @@ require_once(__DIR__."/../../../init.php");
 use \efi\global_settings;
 
 
+require_once(__GNT_CONF_DIR__."/settings.inc.php");
+
+
 class settings extends global_settings {
 
     public static function get_default_neighbor_size() {

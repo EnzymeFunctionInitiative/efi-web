@@ -1,8 +1,12 @@
 <?php
 chdir(dirname(__FILE__));
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__GNT_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__."/libs/data_retention.class.inc.php");
+
+require_once(__DIR__."/../../init.php");
+
+use \efi\global_functions;
+use \efi\data_retention;
+use \efi\gnt\settings;
+
 
 $sapi_type = php_sapi_name();
 //If run from command line
@@ -23,4 +27,3 @@ else {
     }
 }
 
-?>
