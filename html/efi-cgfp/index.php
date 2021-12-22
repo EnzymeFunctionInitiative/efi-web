@@ -1,14 +1,13 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
-require_once(__CGFP_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
-require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
-require_once(__CGFP_DIR__ . "/libs/cgfp_ui.class.inc.php");
-require_once(__CGFP_DIR__ . "/libs/functions.class.inc.php");
-require_once(__CGFP_DIR__ . "/libs/job_manager.class.inc.php");
-
+use \efi\global_settings;
+use \efi\user_auth;
 use \efi\ui;
+use \efi\cgfp\cgfp_ui;
+use \efi\cgfp\functions;
+use \efi\cgfp\settings;
+use \efi\cgfp\job_manager;
 
 
 $user_email = "Enter your e-mail address";

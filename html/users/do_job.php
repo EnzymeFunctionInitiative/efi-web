@@ -1,6 +1,7 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__USERS_DIR__."/includes/main.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\job_manager;
 
 
 $result = array("valid" => false, "message" => "");
@@ -57,4 +58,3 @@ if ($action == "update-group" || $action == "remove-group") {
 echo json_encode($result);
 
 
-?>

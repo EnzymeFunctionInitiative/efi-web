@@ -20,7 +20,7 @@
     "repositories" : [
         {
             "type": "vcs",
-            "url": "https://www.github.com/nilsoberg2/IGBIllinois-php"
+            "url": "https://www.github.com/IGBIllinois/IGBIllinois-php"
         }
     ],
     "scripts": {

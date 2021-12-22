@@ -1,11 +1,10 @@
 <?php 
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__CGFP_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__ . "/libs/user_auth.class.inc.php");
-require_once(__BASE_DIR__."/vendor/autoload.php");
+require_once(__DIR__."/../../init.php");
 
-require "Mail.php";
-require "Mail/mime.php";
+use \efi\global_settings;
+use \efi\user_auth;
+use \efi\cgfp\settings;
+use \efi\cgfp\functions;
 
 
 $user_email = "";
@@ -52,16 +51,10 @@ send_email($subject, $message, $to);
 functions::add_cgfp_application($db, $name, $user_email, $institution, $desc);
 
 function send_email($subject, $plain_email, $to = "") {
-    $from = "EFI-CGFP User Application <" . settings::get_admin_email() . ">";
+    $from = settings::get_admin_email();
+    $from_name = "EFI-CGFP User Application";
 
-    $message = new Mail_mime(array("eol" => "\n"));
-    $message->setTXTBody($plain_email);
-    $body = $message->get();
-    $extraheaders = array("From "=> $from, "Subject" => $subject);
-    $headers = $message->headers($extraheaders);
-
-    $mail = Mail::factory("mail");
-    $mail->send($to, $headers, $body);
+    \efi\email::send_mail($to, $from, $subject, $plain_email, "", $from_name);
 }
 
 

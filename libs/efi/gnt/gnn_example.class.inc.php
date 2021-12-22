@@ -4,7 +4,7 @@ namespace efi\gnt;
 require_once(__DIR__."/../../../init.php");
 
 use \efi\gnt\settings;
-use \efi\example_config;
+use \efi\training\example_config;
 
 
 class gnn_example extends gnn {

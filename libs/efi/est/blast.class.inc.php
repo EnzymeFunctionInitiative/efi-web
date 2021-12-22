@@ -4,7 +4,7 @@ namespace efi\est;
 require_once(__DIR__."/../../../init.php");
 
 use \efi\est\generate_helper;
-use \efi\est\est_settings;
+use \efi\est\settings;
 
 
 class blast extends family_shared {
@@ -107,7 +107,7 @@ class blast extends family_shared {
         if ($this->get_submitted_max_sequences() != "")
             $parms["-nresults"] = $this->get_submitted_max_sequences();
         else
-            $parms["-nresults"] = est_settings::get_default_blast_seq();
+            $parms["-nresults"] = settings::get_default_blast_seq();
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
         if ($this->blast_db_type)
             $parms["-db-type"] = $this->blast_db_type;
@@ -185,7 +185,7 @@ class blast extends family_shared {
         elseif (!preg_match("/^[1-9][0-9]*$/",$max_seqs)) {
             $valid = 0;
         }
-        elseif ($max_seqs > est_settings::get_max_blast_seq()) {
+        elseif ($max_seqs > settings::get_max_blast_seq()) {
             $valid = 0;
         }
         else {

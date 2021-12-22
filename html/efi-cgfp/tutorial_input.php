@@ -1,6 +1,5 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__CGFP_DIR__."/includes/main.inc.php");
+require_once(__DIR__."/../../init.php");
 
 include("inc/header.inc.php");
 
@@ -19,8 +18,6 @@ include("tutorial/input.inc.php");
 include("tutorial/tutorial_footer.inc.php");
 
 include("inc/footer.inc.php");
-
-?>
 
 
 

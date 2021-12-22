@@ -1,9 +1,13 @@
 <?php
+namespace efi\cgfp;
 
-require_once(__DIR__."/functions.class.inc.php");
-require_once(__DIR__."/settings.class.inc.php");
-require_once(__DIR__."/quantify_shared.class.inc.php");
-require_once(__DIR__."/identify.class.inc.php");
+require_once(__DIR__."/../../../init.php");
+
+use \efi\global_functions;
+use \efi\training\example_config;
+use \efi\cgfp\functions;
+use \efi\cgfp\settings;
+use \efi\cgfp\identify;
 
 
 // ShortBRED-Identify

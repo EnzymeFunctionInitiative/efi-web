@@ -1,8 +1,8 @@
 <?php 
-require_once(__DIR__."/../../../conf/settings_paths.inc.php");
-require_once(__CGFP_DIR__."/libs/quantify.class.inc.php");
+require_once(__DIR__."/../../init.php");
 
 use \efi\table_builder;
+use \efi\cgfp\settings;
 
 
 // Before including this file, some vars must be set:

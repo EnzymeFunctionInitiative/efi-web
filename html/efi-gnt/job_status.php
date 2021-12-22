@@ -1,7 +1,8 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
-require_once(__GNT_DIR__."/includes/main.inc.php");
+use \efi\gnt\functions;
+use \efi\gnt\gnn;
 
 
 // If this is being run from the command line then we parse the command line parameters and put them into _POST so we can use

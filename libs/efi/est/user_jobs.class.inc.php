@@ -3,6 +3,7 @@ namespace efi\est;
 
 require_once(__DIR__."/../../../init.php");
 
+use efi\est\settings;
 use efi\est\est_user_jobs_shared;
 
 
@@ -148,8 +149,8 @@ class user_jobs extends \efi\user_auth {
                     $acompResult = est_user_jobs_shared::get_completed_date_label($arow["analysis_time_completed"], $arow["analysis_status"]);
                     $acomp = $acompResult[1];
                     $aIsCompleted = $acompResult[0];
-                    $aMin = $arow["analysis_min_length"] == __MINIMUM__ ? "" : "Min=".$arow["analysis_min_length"];
-                    $aMax = $arow["analysis_max_length"] == __MAXIMUM__ ? "" : "Max=".$arow["analysis_max_length"];
+                    $aMin = $arow["analysis_min_length"] == settings::get_ascore_minimum() ? "" : "Min=".$arow["analysis_min_length"];
+                    $aMax = $arow["analysis_max_length"] == settings::get_ascore_maximum() ? "" : "Max=".$arow["analysis_max_length"];
                     $filter = $arow["analysis_filter"];
                     $filter = $filter == "eval" ? "AS" : ($filter == "pid" ? "%ID" : ($filter == "bit" ? "BS" : "custom"));
 

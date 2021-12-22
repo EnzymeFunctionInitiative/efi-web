@@ -1,6 +1,6 @@
 <?php
+require_once(__DIR__."/../../init.php");
 
-require_once("../includes/main.inc.php");
 
 include("inc/header.inc.php");
 

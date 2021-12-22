@@ -1,10 +1,12 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__CGFP_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__."/libs/user_auth.class.inc.php");
-require_once(__CGFP_DIR__."/libs/functions.class.inc.php");
-require_once(__CGFP_DIR__."/libs/settings.class.inc.php");
-require_once(__CGFP_DIR__."/libs/identify.class.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\global_settings;
+use \efi\user_auth;
+use \efi\cgfp\settings;
+use \efi\cgfp\functions;
+use \efi\cgfp\identify;
+
 
 $id = 0;
 $key = 0;

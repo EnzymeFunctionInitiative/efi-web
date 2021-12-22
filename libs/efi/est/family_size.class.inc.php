@@ -76,8 +76,8 @@ class family_size {
             }
         }
         
-        $maxFull = est_settings::get_maximum_full_family_count();
-        $maxSeq = est_settings::get_max_seq();
+        $maxFull = settings::get_maximum_full_family_count();
+        $maxSeq = settings::get_max_seq();
         
         $totalFraction = floor($totalFull / $fraction);
 

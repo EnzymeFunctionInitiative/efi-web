@@ -1,10 +1,12 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__DIR__."/settings.class.inc.php");
-require_once(__BASE_DIR__."/vendor/autoload.php");
+namespace efi\cgfp;
 
-require "Mail.php";
-require "Mail/mime.php";
+require_once(__DIR__."/../../../init.php");
+
+use \efi\global_functions;
+use \efi\global_settings;
+use \efi\cgfp\functions;
+use \efi\cgfp\settings;
 
 
 abstract class job_shared {
@@ -299,7 +301,8 @@ abstract class job_shared {
 
         if (!$to)
             $to = $this->get_email();
-        $from = "EFI CGFP <" . settings::get_admin_email() . ">";
+        $from = settings::get_admin_email();
+        $from_name = "EFI CGFP";
 
         $html_email = nl2br($plain_email, false);
 
@@ -315,15 +318,7 @@ abstract class job_shared {
         $plain_email = str_replace("BIOCHEM_DOI", $biochem_doi_url, $plain_email);
         $html_email = str_replace("BIOCHEM_DOI", "<a href=\"" . htmlentities($biochem_doi_url) . "\">" . $biochem_doi_url. "</a>", $html_email);
 
-        $message = new Mail_mime(array("eol" => $this->eol));
-        $message->setTXTBody($plain_email);
-        $message->setHTMLBody($html_email);
-        $body = $message->get();
-        $extraheaders = array("From "=> $from, "Subject" => $subject);
-        $headers = $message->headers($extraheaders);
-
-        $mail = Mail::factory("mail");
-        $mail->send($to, $headers, $body);
+        \efi\email::send_mail($to, $from, $subject, $plain_email, $html_email, $from_name);
     }
 
 

@@ -1,7 +1,9 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__USERS_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__."/libs/user_auth.class.inc.php");
+namespace efi\users;
+
+require_once(__DIR__."/../../../init.php");
+
+use \efi\user_auth;
 
 
 class user_manager {
@@ -334,6 +336,4 @@ class user_manager {
         return date_format(date_create($comp), "n/j h:i A");
     }
 }
-
-?>
 

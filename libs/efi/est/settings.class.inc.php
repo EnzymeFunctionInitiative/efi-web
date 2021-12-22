@@ -6,7 +6,7 @@ require_once(__DIR__."/../../../init.php");
 require_once(__EST_CONF_DIR__ . "/settings.inc.php");
 
 
-class est_settings {
+class settings {
 
     public static function get_max_seq($format = 0) {
         if ($format) {
@@ -41,6 +41,13 @@ class est_settings {
     }
     public static function option_e_enabled() {
         return __ENABLE_E__;
+    }
+
+    public static function get_ascore_minimum() {
+        return __MINIMUM__;
+    }
+    public static function get_ascore_maximum() {
+        return __MAXIUMUM__;
     }
 }
 

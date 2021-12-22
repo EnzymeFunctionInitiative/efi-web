@@ -1,10 +1,11 @@
 <?php 
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__CGFP_DIR__."/includes/main.inc.php");
-require_once(__CGFP_DIR__."/libs/job_manager.class.inc.php");
-require_once(__CGFP_DIR__."/libs/identify.class.inc.php");
+require_once(__DIR__."/../../init.php");
 
+use \efi\global_functions;
 use \efi\table_builder;
+use \efi\user_auth;
+use \efi\cgfp\job_manager;
+use \efi\cgfp\identify;
 
 
 // There are two types of examples: dynamic and static.  The static example is a curated

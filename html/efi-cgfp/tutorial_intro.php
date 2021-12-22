@@ -1,6 +1,5 @@
 <?php
-
-require_once("../includes/main.inc.php");
+require_once(__DIR__."/../../init.php");
 
 include("inc/header.inc.php");
 
@@ -19,8 +18,6 @@ include("tutorial/intro.inc.php");
 include("tutorial/tutorial_footer.inc.php");
 
 include("inc/footer.inc.php");
-
-?>
 
 
 

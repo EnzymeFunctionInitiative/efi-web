@@ -1,7 +1,7 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__USERS_DIR__."/includes/main.inc.php");
-require_once(__USERS_DIR__."/libs/user_manager.class.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\users\user_manager;
 
 
 $result = array("valid" => false, "message" => "");
@@ -166,4 +166,3 @@ if ($action == "new") {
 echo json_encode($result);
 
 
-?>

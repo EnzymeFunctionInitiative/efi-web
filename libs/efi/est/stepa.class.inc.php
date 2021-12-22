@@ -6,7 +6,7 @@ require_once(__DIR__."/../../../init.php");
 use \efi\global_functions;
 use \efi\global_settings;
 use \efi\est\est_shared;
-use \efi\est\est_settings;
+use \efi\est\settings;
 use \efi\est\functions;
 use \efi\training\example_config;
 
@@ -464,7 +464,7 @@ class stepa extends est_shared {
     public function email_number_seq() {
         $subject = "EFI-EST - Too many sequences for initial computation";
         $full_url = functions::get_web_root();
-        $max_seq = est_settings::get_max_seq();
+        $max_seq = settings::get_max_seq();
 
         $url = global_settings::get_base_web_root() . "/feedback.php";
 
@@ -655,7 +655,7 @@ class stepa extends est_shared {
 
         $jobs = array();
         foreach ($rows as $row) {
-            $max_val = $row["analysis_max_length"] != __MAXIMUM__ ? $row["analysis_max_length"] : 0;
+            $max_val = $row["analysis_max_length"] != settings::get_ascore_maximum() ? $row["analysis_max_length"] : 0;
             $info = array(
                 "name" => $row["analysis_name"],
                 "ascore" => $row["analysis_evalue"],

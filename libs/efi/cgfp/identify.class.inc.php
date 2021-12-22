@@ -1,10 +1,15 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__DIR__ . "/functions.class.inc.php");
-require_once(__DIR__ . "/settings.class.inc.php");
-require_once(__DIR__ . "/job_shared.class.inc.php");
-require_once(__DIR__ . "/job_types.class.inc.php");
-require_once(__BASE_DIR__ . "/training/libs/example_config.class.inc.php");
+namespace efi\cgfp;
+
+require_once(__DIR__."/../../../init.php");
+
+use \efi\global_functions;
+use \efi\training\example_config;
+use \efi\cgfp\functions;
+use \efi\cgfp\settings;
+use \efi\cgfp\job_manager;
+use \efi\cgfp\job_types;
+
 
 // ShortBRED-Identify
 class identify extends job_shared {

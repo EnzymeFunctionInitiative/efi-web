@@ -1,13 +1,13 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__TRAINING_DIR__ . "/includes/main.inc.php");
-require_once(__TRAINING_DIR__ . "/libs/example_config.class.inc.php");
-require_once(__BASE_DIR__ . "/libs/global_settings.class.inc.php");
-require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
-require_once(__BASE_DIR__ . "/efi-est/libs/est_ui.class.inc.php");
-require_once(__BASE_DIR__ . "/efi-est/libs/est_user_jobs_shared.class.inc.php");
-require_once(__BASE_DIR__ . "/efi-gnt/libs/gnt_ui.class.inc.php");
-require_once(__BASE_DIR__ . "/shortbred/libs/cgfp_ui.class.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\global_settings;
+use \efi\est\est_ui;
+use \efi\est\est_user_jobs_shared;
+use \efi\gnt\gnt_ui;
+use \efi\cgfp\cgfp_ui;
+use \efi\training\example_config;
+
 
 $NoAdmin = true;
 $ExtraTitle = "From The Bench";

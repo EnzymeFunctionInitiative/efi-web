@@ -1,7 +1,10 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__BASE_DIR__."/libs/user_auth.class.inc.php");
-require_once(__BASE_DIR__."/libs/global_functions.class.inc.php");
+namespace efi\users;
+
+require_once(__DIR__."/../../../init.php");
+
+use \efi\global_functions;
+use \efi\user_auth;
 
 
 class job_manager {
@@ -307,4 +310,3 @@ class job_manager {
 }
 
 
-?>

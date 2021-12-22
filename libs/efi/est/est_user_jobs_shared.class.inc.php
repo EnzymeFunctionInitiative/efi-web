@@ -2,10 +2,9 @@
 namespace efi\est;
 
 require_once(__DIR__."/../../../init.php");
-require_once(__EST_CONF_DIR__ . "/settings_shared.inc.php");
 
 use \efi\global_functions;
-use \efi\est\est_settings;
+use \efi\est\settings;
 use \efi\est\functions;
 
 
@@ -45,7 +44,7 @@ class est_user_jobs_shared {
         $evalueStr = "";
         if (array_key_exists("generate_evalue", $data)) {
             $evalue = $data["generate_evalue"];
-            if ($evalue && $evalue != est_settings::get_evalue())
+            if ($evalue && $evalue != settings::get_evalue())
                 $evalueStr = "E-value: " . $evalue;
         }
         return $evalueStr;
@@ -249,8 +248,8 @@ class est_user_jobs_shared {
     }
 
     public static function build_analyze_job_name($data_row) {
-        $a_min = $data_row["analysis_min_length"] == __MINIMUM__ ? "" : "Min=".$data_row["analysis_min_length"];
-        $a_max = $data_row["analysis_max_length"] == __MAXIMUM__ ? "" : "Max=".$data_row["analysis_max_length"];
+        $a_min = $data_row["analysis_min_length"] == settings::get_ascore_minimum() ? "" : "Min=".$data_row["analysis_min_length"];
+        $a_max = $data_row["analysis_max_length"] == settings::get_ascore_maximum() ? "" : "Max=".$data_row["analysis_max_length"];
         $job_name = "<span class='job-name'>" . $data_row["analysis_name"] . "</span><br>";
         $job_name .= "<span class='job-metadata'>SSN Threshold=" . $data_row["analysis_evalue"];
         if ($a_min)

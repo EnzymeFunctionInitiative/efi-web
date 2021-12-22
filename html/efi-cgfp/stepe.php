@@ -1,12 +1,13 @@
 <?php 
+require_once(__DIR__."/../../init.php");
 
 // In order to share as much code between the actual results page and the example results page
 // and make the example page as full-featured as possible, most of the contents of this file
 // are located in parts in the inc/ dir.
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__CGFP_DIR__."/includes/main.inc.php");
-require_once(__CGFP_DIR__."/libs/job_manager.class.inc.php");
-require_once(__CGFP_DIR__."/libs/quantify.class.inc.php");
+
+use \efi\global_functions;
+use \efi\cgfp\quantify;
+use \efi\cgfp\job_manager;
 
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"]) || !isset($_GET["quantify-id"]) || !is_numeric($_GET["quantify-id"])) {

@@ -1,7 +1,6 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
-require_once(__GNT_DIR__."/includes/main.inc.php");
 require_once(__DIR__."/inc/header.inc.php");
 
 ?>

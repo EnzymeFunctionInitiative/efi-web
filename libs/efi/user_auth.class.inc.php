@@ -31,7 +31,7 @@ class user_auth {
     }
 
     public static function get_user_table() {
-        $userTable = __MYSQL_AUTH_DATABASE__;
+        $userTable = global_settings::get_auth_database();
         if ($userTable)
             $userTable = "`$userTable`.";
         $userTable .= "`user_token`";
@@ -39,7 +39,7 @@ class user_auth {
     }
 
     public static function get_master_group_table() {
-        $userTable = __MYSQL_AUTH_DATABASE__;
+        $userTable = global_settings::get_auth_database();
         if ($userTable)
             $userTable = "`$userTable`.";
         $userTable .= "`groups`";
@@ -47,7 +47,7 @@ class user_auth {
     }
 
     public static function get_user_group_table() {
-        $userTable = __MYSQL_AUTH_DATABASE__;
+        $userTable = global_settings::get_auth_database();
         if ($userTable)
             $userTable = "`$userTable`.";
         $userTable .= "`user_group`";
@@ -282,4 +282,3 @@ class user_auth {
     }
 }
 
-?>

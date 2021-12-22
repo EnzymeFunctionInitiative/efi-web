@@ -210,5 +210,9 @@ class global_settings {
         }
         return false;
     }
+
+    public static function get_auth_database() {
+        return defined("__MYSQL_AUTH_DATABASE__") ? __MYSQL_AUTH_DATABASE__ : "";
+    }
 }
 

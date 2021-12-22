@@ -3,6 +3,7 @@ namespace efi\est;
 
 require_once(__DIR__."/../../../init.php");
 
+use \efi\est\settings;
 use \efi\est\functions;
 
 
@@ -17,7 +18,7 @@ class generate_helper {
             $parms["--large-mem"] = "";
         $parms["-evalue"] = $obj->get_evalue();
         $parms["-tmp"] = $out->relative_output_dir;
-        $parms["-maxsequence"] = est_settings::get_max_seq();
+        $parms["-maxsequence"] = settings::get_max_seq();
         $parms["-queue"] = functions::get_generate_queue();
         $parms["-memqueue"] = functions::get_memory_queue();
         return $parms;

@@ -4,7 +4,6 @@ require_once(__DIR__."/../../init.php");
 use \efi\gnt\settings;
 
 $Tutorial = true;
-require_once "../includes/main.inc.php";
 require_once 'inc/header.inc.php';
 $webRoot = settings::get_web_root(); 
 ?>

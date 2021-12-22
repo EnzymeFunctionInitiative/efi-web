@@ -1,7 +1,10 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__CGFP_DIR__."/includes/main.inc.php");
-require_once(__CGFP_DIR__."/libs/job_cancels.class.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\cgfp\job_cancels;
+use \efi\cgfp\identify;
+use \efi\cgfp\quantify;
+
 
 $is_error = false;
 $the_id = "";
@@ -44,4 +47,4 @@ if (!$is_error && $request_type !== false && $job_obj !== false) {
 
 echo json_encode($result);
 
-?>
+

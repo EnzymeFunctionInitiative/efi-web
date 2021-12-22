@@ -5,7 +5,8 @@
 //                                              
 ////////////////////////////////////
 
-require_once(__DIR__."/../../conf/settings_base.inc.php");
+require_once(__DIR__."/../settings_base.inc.php");
+require_once(__DIR__."/../settings_paths.inc.php");
 
 // Options that are marked [MANDATORY] in the comment must be set
 // Options that are marked [OPTIONAL] in the comment can be set
@@ -16,8 +17,8 @@ require_once(__DIR__."/../../conf/settings_base.inc.php");
 // MANDATORY OPTIONS
 
 define("__OUTPUT_DIR__","");                                // Path to directory where computations are stored
-define("__UPLOAD_DIR__","");                                // Path to directory where uploads are stored
-define("__LOG_FILE__","");                                  // Path to log file
+define("__UPLOAD_DIR__",__CGFP_DIR__."/uploads");
+define("__LOG_FILE__",__CGFP_DIR__."/log/log.txt");
 define("__METAGENOME_DB_LIST__","");                        // Path to the metagenome database
 
 

@@ -4,7 +4,13 @@ namespace efi\est;
 require_once(__DIR__."/../../../init.php");
 
 use \efi\global_settings;
+use \efi\est\settings;
+use \efi\est\functions;
 use \efi\est\job_factory;
+use \efi\est\blast;
+use \efi\est\generate;
+use \efi\est\accession;
+use \efi\est\fasta;
 
 
 class dataset_shared {
@@ -105,7 +111,7 @@ class dataset_shared {
 
 //        $generate->print_raw_counts();
         $evalue_option = $generate->get_evalue();
-        $default_evalue = est_settings::get_evalue();
+        $default_evalue = settings::get_evalue();
         $show_evalue = $evalue_option != $default_evalue;
 
         $add_fam_rows_fn = function() {};

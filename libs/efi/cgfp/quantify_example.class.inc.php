@@ -1,8 +1,11 @@
 <?php
+namespace efi\cgfp;
 
-require_once(__DIR__."/functions.class.inc.php");
-require_once(__DIR__."/settings.class.inc.php");
-require_once(__DIR__."/quantify_shared.class.inc.php");
+require_once(__DIR__."/../../../init.php");
+
+use \efi\cgfp\functions;
+use \efi\cgfp\settings;
+
 
 class quantify_example extends quantify_shared {
 

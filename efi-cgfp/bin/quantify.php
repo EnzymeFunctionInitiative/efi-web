@@ -1,8 +1,10 @@
 <?php
 chdir(dirname(__FILE__));
-require_once("../includes/main.inc.php");
-require_once("../libs/job_manager.class.inc.php");
-require_once("../libs/quantify.class.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\cgfp\job_manager;
+use \efi\cgfp\quantify;
+
 
 $sapi_type = php_sapi_name();
 $is_debug = false;

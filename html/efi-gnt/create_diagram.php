@@ -1,8 +1,6 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
-require_once(__GNT_DIR__."/includes/main.inc.php");
-
 use \efi\gnt\settings;
 use \efi\gnt\functions;
 use \efi\gnt\diagram_jobs;
@@ -186,4 +184,3 @@ function sanitize_seq_db_type($dbType) {
 }
 
 
-?>

@@ -1,8 +1,6 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
-require_once(__GNT_DIR__."/includes/main.inc.php");
-
 use \efi\gnt\settings;
 use \efi\gnt\gnn;
 use \efi\gnt\diagram_data_file;
@@ -148,6 +146,4 @@ function get_arrow_db($db, $id) {
 
     return $arrows;
 }
-
-?>
 

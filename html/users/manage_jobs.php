@@ -1,10 +1,12 @@
 <?php
-require_once(__DIR__."/../../conf/settings_paths.inc.php");
-require_once(__USERS_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__."/libs/user_auth.class.inc.php");
+require_once(__DIR__."/../../init.php");
+
+use \efi\user_auth;
+use \efi\users\job_manager;
+use \efi\users\user_manager;
+
+
 require_once(__BASE_DIR__."/includes/login_check.inc.php");
-require_once(__USERS_DIR__."/libs/job_manager.class.inc.php");
-require_once(__USERS_DIR__."/libs/user_manager.class.inc.php");
 
 
 $user_mgr = new user_manager($db);
@@ -155,7 +157,7 @@ for ($i = 0; $i < count($shortbred_ids); $i++) {
 
     echo <<<HTML
         <tr>
-            <td><a href="../efi-shortbred/stepc.php?id=$id&key=$key">$id</a></td>
+            <td><a href="../efi-cgfp/stepc.php?id=$id&key=$key">$id</a></td>
             <td>$info</td>
             <td>$status</td>
             <td>$email</td>
