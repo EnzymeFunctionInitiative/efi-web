@@ -5,7 +5,7 @@ require_once(__BASE_DIR__."/includes/login_check.inc.php");
 
 use \efi\global_settings;
 use \efi\user_auth;
-use \efi\est\est_settings;
+use \efi\est\settings;
 use \efi\est\functions;
 use \efi\est\user_jobs;
 
@@ -26,7 +26,7 @@ if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie())
     $show_jobs_tab = has_jobs($jobs) || has_jobs($tjobs);
 }
 
-$max_full_family = est_settings::get_maximum_full_family_count(1);
+$max_full_family = settings::get_maximum_full_family_count(1);
 
 $use_advanced_options = global_settings::advanced_options_enabled();
 
@@ -412,16 +412,16 @@ function get_default_fraction() {
     return functions::get_fraction();
 }
 function get_default_evalue() {
-    return est_settings::get_evalue();
+    return settings::get_evalue();
 }
 function get_max_full_family_count() {
-    return est_settings::get_maximum_full_family_count();
+    return settings::get_maximum_full_family_count();
 }
 function get_max_blast_seq() {
-    return est_settings::get_max_blast_seq();
+    return settings::get_max_blast_seq();
 }
 function get_default_blast_seq() {
-    return est_settings::get_default_blast_seq();
+    return settings::get_default_blast_seq();
 }
 function make_db_mod_option($db_modules, $option) {
     if (count($db_modules) < 2)

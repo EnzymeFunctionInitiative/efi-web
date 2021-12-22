@@ -1,7 +1,6 @@
 <?php
 require_once(__DIR__."/../../../init.php");
 
-use \efi\custom_graph;
 use \efi\est\efi_statistics;
 
 
@@ -29,13 +28,13 @@ if ($graph_type == 'analysis_daily_jobs') {
     $xaxis = "day";
     $yaxis = "count";
     $title = "Daily Jobs - " . date("F", mktime(0, 0, 0, $month, 10)) . " - " . $year;
-    custom_graph::bar_graph($data,$xaxis,$yaxis,$title);
+    \IGBIllinois\graphs::bar_graph($data,$xaxis,$yaxis,$title);
 } elseif ($graph_type == 'generate_daily_jobs') {
     $data = efi_statistics::get_generate_daily_jobs($db,$month,$year);
     $xaxis = "day";
     $yaxis = "count";
     $title = "Daily Jobs - " . date("F", mktime(0, 0, 0, $month, 10)) . " - " . $year;
-    custom_graph::bar_graph($data,$xaxis,$yaxis,$title);
+    \IGBIllinois\graphs::bar_graph($data,$xaxis,$yaxis,$title);
 } elseif ($graph_type == 'generate_monthly') {
     $raw_data = efi_statistics::num_generate_per_month($db);
     $data = array();
@@ -48,7 +47,7 @@ if ($graph_type == 'analysis_daily_jobs') {
     $xaxis = "month";
     $yaxis = "count";
     $title = "Monthly Jobs";
-    custom_graph::bar_graph($data,$xaxis,$yaxis,$title);
+    \IGBIllinois\graphs::bar_graph($data,$xaxis,$yaxis,$title);
 }
 
 

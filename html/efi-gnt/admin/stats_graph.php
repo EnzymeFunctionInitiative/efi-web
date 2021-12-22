@@ -3,7 +3,6 @@ namespace efi\gnt;
 
 require_once(__DIR__."/inc/stats_main.inc.php");
 
-use \efi\custom_graph;
 use \efi\gnt\statistics;
 
 
@@ -32,7 +31,7 @@ if ($graph_type == "daily") {
     $xaxis = "day";
     $yaxis = "count";
     $title = "Daily Jobs - " . date("F", mktime(0, 0, 0, $month, 10)) . " - " . $year;
-    custom_graph::bar_graph($data, $xaxis, $yaxis, $title);
+    \IGBIllinois\graphs::bar_graph($data, $xaxis, $yaxis, $title);
 
 // Jobs by month
 } elseif ($graph_type == "monthly") {
@@ -47,7 +46,7 @@ if ($graph_type == "daily") {
     $xaxis = "month";
     $yaxis = "count";
     $title = "Monthly Jobs";
-    custom_graph::bar_graph($data, $xaxis, $yaxis, $title);
+    \IGBIllinois\graphs::bar_graph($data, $xaxis, $yaxis, $title);
 }
 
 

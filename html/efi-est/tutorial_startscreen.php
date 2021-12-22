@@ -5,6 +5,7 @@ require_once(__DIR__."/inc/header.inc.php");
 require_once(__DIR__."/inc/tutorial_nav.inc.php");
 
 use \efi\global_settings;
+use \efi\est\settings;
 
 
 $feedback_url = global_settings::get_base_web_root() . "/feedback.php";
@@ -92,7 +93,7 @@ inferences about divergent evolution of protein function are possible.
 
 <p>
 <b>If you are interested in detailed exploration of sequence-function 
-relationships in families with more than <?php echo est_settings::get_max_seq(1); ?> 
+relationships in families with more than <?php echo settings::get_max_seq(1); ?> 
 sequences, please submit a summary of your interests via the feedback form
 at <a href="<?php echo $feedback_url; ?>"><?php echo $feedback_url; ?></a>
 and we may be able to assist.
@@ -117,11 +118,11 @@ and we may be able to assist.
 sequence (without a FASTA header) into the input box (red arrow). A sequence 
 dataset will be built containing the most closely related sequences retrieved 
 from the UniProtKB database using a BLAST e value upper limit threshold of 
-10<sup>-5</sup>. A default of  <?php echo est_settings::get_default_blast_seq(1); ?>
+10<sup>-5</sup>. A default of  <?php echo settings::get_default_blast_seq(1); ?>
 sequences is used, but the dataset may be smaller if 
-&lt; <?php echo est_settings::get_default_blast_seq(1); ?> sequences are found
+&lt; <?php echo settings::get_default_blast_seq(1); ?> sequences are found
 using a BLAST alignment score upper limit of 10<sup>-5</sup>. 
-A default of &le; <?php echo est_settings::get_default_blast_seq(1); ?> sequences
+A default of &le; <?php echo settings::get_default_blast_seq(1); ?> sequences
 is used because, in most cases, a full network 
 with all sequences (nodes) will be viewable without having to collapse nodes 
 into representative nodes (explained <a href="tutorial_download.php">here</a>).
@@ -143,7 +144,7 @@ sequences that will be collected and the e-value used.
 <p>
 <b>Maximum BLAST Sequences</b>: Option A allows the user to collect a subset of 
 sequences. It is possible to collect a maximum of
-<?php echo est_settings::get_max_blast_seq(1); ?> sequences. This option 
+<?php echo settings::get_max_blast_seq(1); ?> sequences. This option 
 may be preferred if a full family network is difficult to handle in Cytoscape 
 on memory limited computers. Alternatively, you can download a representative 
 node network to visualize larger networks.
@@ -169,7 +170,7 @@ determined on the <a href="http://pfam.xfam.org/search">Pfam</a> and
 <p>
 More than one <b>Pfam and/or InterPro family number(s) can be entered as the input 
 for Option B, in a comma-separated list (red arrow)</b>. The number of sequences 
-that can be used in Option B is limited to &le;<?php echo est_settings::get_max_seq(1); ?>.
+that can be used in Option B is limited to &le;<?php echo settings::get_max_seq(1); ?>.
 This limit is set to 
 ensure that assembling the dataset/performing the all-by all BLAST as well as 
 generating the networks for most families can be completed within several hours 
@@ -208,7 +209,7 @@ domains instead of the full-length sequences.
 
 <p>
 <b>Fraction</b>: If the dataset you initially select is too large (&gt;
-<?php echo est_settings::get_max_seq(); ?> sequences) 
+<?php echo settings::get_max_seq(); ?> sequences) 
 you can select the same dataset and specify a fraction of that dataset to be 
 analyzed. This decreases the number of sequences, but provides representative 
 overview of the original dataset. The value entered represents the divisor by 
@@ -468,14 +469,14 @@ Option C also accepts FASTA headers in which the IDs (formats described in Optio
 below the input box, you can enter a “custom” value used in the all-by-all 
 BLAST. You also can select a fraction of the sequences in the input Pfam and/or 
 InterPro family(ies) so that you can generate a “representative” network for 
-families &le; <?php echo est_settings::get_max_seq(1); ?> sequences.
+families &le; <?php echo settings::get_max_seq(1); ?> sequences.
 </p>
 
 <p>
 <b>Fraction</b>: This advanced option applies ONLY to the sequences in the Pfam or 
 InterPro family if so specified, not in the user-supplied FASTA file. As in 
 Option B, although the limit on the number of sequences that can be used to 
-generate a SSN is limited to &le; <?php echo est_settings::get_max_seq(1); ?>,
+generate a SSN is limited to &le; <?php echo settings::get_max_seq(1); ?>,
 with this advanced option you can select 
 a fraction of the total number of sequences for larger sequence sets to 
 generate a network.
@@ -640,14 +641,14 @@ associated with a sequence in the input file (USER) or Pfam/InterPro family
 below the input box, you can enter a “custom” value used in the all-by-all 
 BLAST. You also can select a fraction of the sequences in the input Pfam and/or 
 InterPro family(ies) so that you can generate an “overview” network for 
-families &le; <?php echo est_settings::get_max_seq(1); ?> sequences.
+families &le; <?php echo settings::get_max_seq(1); ?> sequences.
 </p>
 
 <p>
 <b>Fraction</b>: This advanced option applies ONLY to the sequences in the Pfam or 
 InterPro family if so specified, not in the user-supplied FASTA file. As in 
 Option B, although the limit on the number of sequences that can be used to 
-generate a SSN is limited to &le; <?php echo est_settings::get_max_seq(1); ?>,
+generate a SSN is limited to &le; <?php echo settings::get_max_seq(1); ?>,
 with this advanced option you can 
 select a fraction of the total number of sequences for larger sequence sets to 
 generate a network.

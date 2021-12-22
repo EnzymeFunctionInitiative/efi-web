@@ -1,7 +1,6 @@
 <?php
 require_once(__DIR__."/../../../init.php");
 
-use \efi\custom_graph;
 use \efi\cgfp\functions;
 use \efi\cgfp\cgfp_statistics;
 
@@ -28,7 +27,7 @@ if ($graph_type == 'identify_daily_jobs') {
     $xaxis = "day";
     $yaxis = "count";
     $title = "Daily Identify Jobs - " . date("F", mktime(0, 0, 0, $month, 10)) . " - " . $year;
-    custom_graph::bar_graph($data, $xaxis, $yaxis, $title);
+    \IGBIllinois\graphs::bar_graph($data, $xaxis, $yaxis, $title);
 }
 
 if ($graph_type == 'quantify_daily_jobs') {
@@ -36,7 +35,7 @@ if ($graph_type == 'quantify_daily_jobs') {
     $xaxis = "day";
     $yaxis = "count";
     $title = "Daily Quantify Jobs - " . date("F", mktime(0, 0, 0, $month, 10)) . " - " . $year;
-    custom_graph::bar_graph($data,$xaxis,$yaxis,$title);
+    \IGBIllinois\graphs::bar_graph($data,$xaxis,$yaxis,$title);
 }
 
 

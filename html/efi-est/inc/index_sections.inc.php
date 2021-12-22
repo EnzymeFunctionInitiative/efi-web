@@ -3,7 +3,7 @@ require_once(__DIR__ . "/../../../init.php");
 
 use \efi\global_settings;
 use \efi\ui;
-use \efi\est\est_settings;
+use \efi\est\settings;
 use \efi\est\colorssn;
 use \efi\est\est_ui;
 
@@ -844,7 +844,7 @@ function output_tutorial($show_jobs_tab = false) {
                     are used to generate the SSN.
                     <p class="indentall">Option A allows exploration of local sequence-function space for the query 
                     sequence. By default, 
-                    <?php echo est_settings::get_default_blast_seq(1); ?> sequences are collected.
+                    <?php echo settings::get_default_blast_seq(1); ?> sequences are collected.
                     This allows a small "full" SSN to be generated and viewed with Cytoscape.
                     This for local high resolution SSNs.
                     </p>
@@ -854,7 +854,7 @@ function output_tutorial($show_jobs_tab = false) {
                     Defined protein families are used to generate the SSN.
                     <p class="indentall">
                     Option B allows exploration of sequence-function space from defined 
-                    protein families. A limit of <?php echo est_settings::get_max_seq(1); ?> 
+                    protein families. A limit of <?php echo settings::get_max_seq(1); ?> 
                     sequences is imposed. Generation of a SSN for more than one family is allowed.
                     Using UniRef90 and UniRef50 databases allows the creation of SSNs for very large
                     Pfam and/or InterPro families, but at lower resolution.
@@ -1012,7 +1012,7 @@ function output_tab_page_header($show_jobs_tab, $show_tutorial, $selected_tab = 
         <li <?php echo ($selected_tab == "option_b" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("optionBtab"); ?>" title="Option B">Families</a></li> <!-- Pfam and/or InterPro families</a></li>-->
         <li <?php echo ($selected_tab == "option_c" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("optionCtab"); ?>" title="Option C">FASTA</a></li>
         <li <?php echo ($selected_tab == "option_d" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("optionDtab"); ?>" title="Option D">Accession IDs</a></li>
-<?php if (est_settings::option_e_enabled()) { ?>
+<?php if (settings::option_e_enabled()) { ?>
         <li><a href="<?php echo $url_fn("optionEtab"); ?>" title="Option E">OptE</a></li>
 <?php } ?>
         <li <?php echo (($selected_tab == "colorssn" || $selected_tab == "cluster" || $selected_tab == "nc" || $selected_tab == "cr") ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("utilitytab"); ?>"> SSN Utilities</a></li>
@@ -1080,7 +1080,7 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
     output_option_b($use_advanced_options, $db_modules, $user_email, $example_fn);
     output_option_c($use_advanced_options, $db_modules, $user_email, $example_fn);
     output_option_d($use_advanced_options, $db_modules, $user_email, $example_fn);
-    if (est_settings::option_e_enabled())
+    if (settings::option_e_enabled())
         output_option_e($use_advanced_options, $db_modules, $user_email, $example_fn);
     output_utility($use_advanced_options, $user_email, $example_fn, $mode_data, $sel_tab);
     //output_colorssn($use_advanced_options, $user_email, $example_fn, $mode_data);

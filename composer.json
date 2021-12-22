@@ -5,8 +5,6 @@
         "amenadiel/jpgraph -- as of writing this was at 4.1"
     ],
     "require": {
-        "rulin132/jpgraph": ">=4.0",
-        "phpoffice/phpspreadsheet": ">=1.14",
         "phpseclib/phpseclib": ">3",
         "components/jquery": ">=3.4.1",
         "components/jqueryui": ">=1.12.1",
@@ -20,7 +18,7 @@
     "repositories" : [
         {
             "type": "vcs",
-            "url": "https://www.github.com/IGBIllinois/IGBIllinois-php"
+            "url": "https://www.github.com/nilsoberg2/IGBIllinois-php"
         }
     ],
     "scripts": {
