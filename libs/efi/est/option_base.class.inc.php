@@ -200,11 +200,11 @@ abstract class option_base extends stepa {
 
         if (!$this->verify_email($data->email)) {
             $result->errors = true;
-            $result->message .= "<br>Please enter a valid email address</br>";
+            $result->message .= "Please enter a valid email address";
         }
-        if (!$this->verify_evalue($data->evalue)) {
+        if ($data->evalue && !$this->verify_evalue($data->evalue)) {
             $result->errors = true;
-            $result->message .= "<br><b>Please enter a valid E-Value</b></br>";
+            $result->message .= "Please enter a valid E-Value";
         }
         $data->job_name = preg_replace('/[^A-Za-z0-9 \-_?!#\$%&*()\[\],\.<>:;{}]/', "_", $data->job_name);
 

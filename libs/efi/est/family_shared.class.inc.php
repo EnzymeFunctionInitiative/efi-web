@@ -310,4 +310,3 @@ abstract class family_shared extends option_base {
     }
 }
 
-?>

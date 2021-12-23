@@ -28,6 +28,9 @@ class job_factory {
         $type = $id;
         if (is_numeric($id))
             $type = self::get_job_type($db, $id);
+        return create_by_type($db, $id, $type, $arg1, $arg2);
+    }
+    public static function create_by_type($db, $id, $type, $arg1 = null, $arg2 = null) {
         switch ($type) {
         case "FAMILIES":
             return new family($db, $id, $arg1, $arg2);
@@ -47,10 +50,11 @@ class job_factory {
             return new conv_ratio($db, $id, $arg1, $arg2);
         case "BLAST":
             return new blast($db, $id, $arg1, $arg2);
+        case "TAXONOMY":
+            return new taxonomy_job($db, $id, $arg1, $arg2);
         default:
             return new stepa($db, $id, $arg1, $arg2);
         }
     }
 }
-
 

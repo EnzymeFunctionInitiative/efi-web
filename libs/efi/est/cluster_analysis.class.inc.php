@@ -266,4 +266,3 @@ class cluster_analysis extends colorssn_shared {
     }
 }
 
-?>

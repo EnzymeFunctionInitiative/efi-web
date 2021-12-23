@@ -23,54 +23,30 @@ class functions {
 
     }
 
-    public static function get_blasts($db,$status = 'NEW') {
+    public static function get_job_ids($db, $type, $status = 'NEW') {
+        $ssn_map = array("COLORSSN", "CLUSTER", "NBCONN", "CONVRATIO");
+        $type_map = array(
+            "BLAST" => array("BLAST"),
+            "FAMILIES" => array("FAMILIES"),
+            "TAXONOMY" => array("TAXONOMY"),
+            "ACCESSION" => array("ACCESSION"),
+            "FASTA" => array("FASTA"),
+            "COLORSSN" => $ssn_map,
+            "CLSTER" => $ssn_map,
+            "NBCONN" => $ssn_map,
+            "CONVRATIO" => $ssn_map,
+        );
+        $where = "";
+        if (isset($type_map[$where])) {
+            $where = implode(" OR ", array_map(function ($a) { return "generate_type='$a'"; }, $type_map[$type]));
+        } else {
+            return false;
+        }
 
         $sql = "SELECT * ";
         $sql .= "FROM generate ";
         $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND generate_type='BLAST' ";
-        $sql .= "ORDER BY generate_time_created ASC ";
-        $result = $db->query($sql);
-        return $result;
-    }
-
-    public static function get_families($db,$status = 'NEW') {
-
-        $sql = "SELECT * ";
-        $sql .= "FROM generate ";
-        $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND generate_type='FAMILIES' ";
-        $sql .= "ORDER BY generate_time_created ASC ";
-        $result = $db->query($sql);
-        return $result;
-    }
-
-    public static function get_accessions($db,$status = 'NEW') {
-        $sql = "SELECT * ";
-        $sql .= "FROM generate ";
-        $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND generate_type='ACCESSION' ";
-        $sql .= "ORDER BY generate_time_created ASC ";
-        $result = $db->query($sql);
-        return $result;
-    }
-
-    public static function get_colorssns($db,$status = 'NEW') {
-        $sql = "SELECT * ";
-        $sql .= "FROM generate ";
-        $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND (generate_type='COLORSSN' OR generate_type='CLUSTER' OR generate_type='NBCONN' OR generate_type='CONVRATIO') ";
-        $sql .= "ORDER BY generate_time_created ASC ";
-        $result = $db->query($sql);
-        return $result;
-    }
-
-    public static function get_fastas($db,$status = 'NEW') {
-
-        $sql = "SELECT * ";
-        $sql .= "FROM generate ";
-        $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND (generate_type='FASTA' OR generate_type='FASTA_ID') ";
+        $sql .= "AND $where ";
         $sql .= "ORDER BY generate_time_created ASC ";
         $result = $db->query($sql);
         return $result;
@@ -450,6 +426,8 @@ class functions {
             $gen_type = "Neighborhood Connectivity";
         } else if ($gen_type == "CONVRATIO") {
             $gen_type = "Convergence Ratio";
+        } else if ($gen_type == "TAXONOMY") {
+            $gen_type = "Taxonomy";
         }
 
         return $gen_type;

@@ -812,4 +812,3 @@ class analysis extends est_shared {
     }
 }
 
-?>

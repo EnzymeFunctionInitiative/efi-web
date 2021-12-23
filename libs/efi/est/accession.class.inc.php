@@ -196,4 +196,3 @@ class accession extends family_shared {
     }
 }
 
-?>
