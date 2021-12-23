@@ -3,6 +3,7 @@ namespace efi\gnt;
 
 require_once(__DIR__."/../../../init.php");
 
+use \SQLite;
 use \efi\gnt\settings;
 use \efi\gnt\functions;
 use \efi\gnt\realtime_lookup;
@@ -482,7 +483,7 @@ abstract class gnd {
     //
     protected function open_db_file() {
         $db_file = $this->db_file;
-        $this->db = new SQLite3($db_file);
+        $this->db = new \SQLite3($db_file);
         return $db_file;
     }
     protected function set_uniref_version($ver) {

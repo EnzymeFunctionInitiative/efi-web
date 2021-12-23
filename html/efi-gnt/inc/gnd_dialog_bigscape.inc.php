@@ -1,5 +1,8 @@
 <?php
 
+use \efi\gnt\bigscape_job;
+
+
 function render_bigscape_dialog($params) {
 
 ?>

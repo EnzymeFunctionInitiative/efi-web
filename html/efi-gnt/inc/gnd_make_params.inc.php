@@ -1,8 +1,10 @@
 <?php
-namespace efi\gnt;
 
 require_once(__DIR__."/../../../init.php");
 
+use \efi\gnt\functions;
+use \efi\gnt\DiagramJob;
+use \efi\gnt\direct_gnd_file;
 use \efi\gnt\gnn;
 use \efi\gnt\gnn_example;
 

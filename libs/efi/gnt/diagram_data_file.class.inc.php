@@ -71,7 +71,7 @@ class diagram_data_file extends arrow_api {
             return false;
         }
 
-        $db = new SQLite3($dbFile);
+        $db = new \SQLite3($dbFile);
 
         $gnnName = "";
         if (functions::sqlite_table_exists($db, "metadata")) {
@@ -152,7 +152,7 @@ class diagram_data_file extends arrow_api {
         if (!file_exists($dbFile))
             return false;
 
-        $db = new SQLite3($dbFile);
+        $db = new \SQLite3($dbFile);
         if (!functions::sqlite_table_exists($db, "matched")) {
             $rawIds = $this->get_ids_from_accessions($db);
             for ($i = 0; $i < count($rawIds); $i++)
@@ -199,7 +199,7 @@ class diagram_data_file extends arrow_api {
         if (!file_exists($dbFile))
             return false;
 
-        $db = new SQLite3($dbFile);
+        $db = new \SQLite3($dbFile);
         if (!functions::sqlite_table_exists($db, "unmatched"))
             return $ids;
 
