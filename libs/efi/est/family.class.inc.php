@@ -4,7 +4,7 @@ namespace efi\est;
 require_once(__DIR__."/../../../init.php");
 
 
-class generate extends family_shared {
+class family extends family_shared {
 
     public $subject = "EFI-EST Pfam/InterPro";
     

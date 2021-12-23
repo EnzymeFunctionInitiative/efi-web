@@ -635,7 +635,7 @@ class analysis extends est_shared {
                 break;
     
             case "FAMILIES": 
-                $stepa = new generate($this->db, $gen_id);
+                $stepa = new family($this->db, $gen_id);
                 break;			
     
             case "FASTA":

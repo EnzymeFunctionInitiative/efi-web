@@ -42,7 +42,7 @@ class file_helper {
     // Called from the command line app when loading the job from the database.
     public function on_load_generate($id, $result) {
         // This field is used for any file that is uploaded (e.g. Option C, D, and E), not just FASTA files.
-        $this->uploaded_filename = $result['generate_fasta_file'];
+        $this->uploaded_filename = isset($result['generate_fasta_file']) ? $result['generate_fasta_file'] : $id;
         $this->file_extension = "." . pathinfo($this->uploaded_filename, PATHINFO_EXTENSION);
     }
 

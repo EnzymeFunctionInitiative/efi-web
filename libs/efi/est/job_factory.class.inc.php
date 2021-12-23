@@ -28,7 +28,7 @@ class job_factory {
         $type = $id;
         if (is_numeric($id))
             $type = self::get_job_type($db, $id);
-        return create_by_type($db, $id, $type, $arg1, $arg2);
+        return self::create_by_type($db, $id, $type, $arg1, $arg2);
     }
     public static function create_by_type($db, $id, $type, $arg1 = null, $arg2 = null) {
         switch ($type) {

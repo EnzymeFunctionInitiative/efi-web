@@ -1,7 +1,7 @@
 <?php
 namespace efi\est;
 
-require_once(__DIR__."/../../init.php");
+require_once(__DIR__."/../../../init.php");
 
 use \efi\est\functions;
 use \efi\est\job_factory;
@@ -39,7 +39,7 @@ class job_cli {
         $job_list = array();
         $job_ids = functions::get_job_ids($db, $run_type, $status);
         for ($i = 0; $i < count($job_ids); $i++) {
-            $job = job_factory::create($db, $job_ids[$i]);
+            $job = job_factory::create($db, $job_ids[$i]["generate_id"]);
             array_push($job_list, $job);
         }
         return $job_list;

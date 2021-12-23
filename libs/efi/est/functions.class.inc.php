@@ -37,7 +37,7 @@ class functions {
             "CONVRATIO" => $ssn_map,
         );
         $where = "";
-        if (isset($type_map[$where])) {
+        if (isset($type_map[$type])) {
             $where = implode(" OR ", array_map(function ($a) { return "generate_type='$a'"; }, $type_map[$type]));
         } else {
             return false;
@@ -46,7 +46,7 @@ class functions {
         $sql = "SELECT * ";
         $sql .= "FROM generate ";
         $sql .= "WHERE generate_status='" . $status . "' ";
-        $sql .= "AND $where ";
+        $sql .= "AND ($where) ";
         $sql .= "ORDER BY generate_time_created ASC ";
         $result = $db->query($sql);
         return $result;
