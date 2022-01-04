@@ -6,6 +6,7 @@ use \efi\gnt\bigscape_job;
 use \efi\gnt\gnd_v2;
 use \efi\gnt\direct_gnd_file;
 use \efi\gnt\job_factory;
+use \efi\gnt\diagram_data_file;
 
 
 // This is necessary so that the gnd class environment doesn't get clusttered

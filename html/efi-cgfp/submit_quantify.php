@@ -3,6 +3,7 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\cgfp\quantify;
 use \efi\cgfp\job_manager;
+use \efi\cgfp\job_types;
 
 $id = 0;
 $quantify_id = 0;

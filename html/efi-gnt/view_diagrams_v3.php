@@ -2,6 +2,7 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\gnt\settings;
+use \efi\gnt\functions;
 use \efi\gnt\bigscape_job;
 use \efi\gnt\gnd_params;
 
@@ -78,7 +79,7 @@ $js_version = "?v=12";
         <!-- Bootstrap core CSS -->
         <link href="<?php echo $SiteUrlPrefix; ?>/vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="<?php echo $SiteUrlPrefix; ?>/css/menu-sidebar.css" rel="stylesheet">
-        <link href="<?php echo $SiteUrlPrefix; ?>/vendor/fortawesome/font-awesome/css/fontawesome-all.min.css" rel="stylesheet">
+        <link href="<?php echo $SiteUrlPrefix; ?>/vendor/fortawesome/font-awesome/css/all.min.css" rel="stylesheet">
 
 
         <!-- Custom styles for this template -->
@@ -97,7 +98,7 @@ $js_version = "?v=12";
             #header-job-info div { line-height: normal; }
             @font-face {
                 font-family:'FontAwesome';
-                src:url("<?php echo $SiteUrlPrefix; ?>/font-awesome/webfonts/fa-solid-900.ttf") format("truetype");
+                src:url("<?php echo $SiteUrlPrefix; ?>/vendor/fortawesome/font-awesome/webfonts/fa-solid-900.ttf") format("truetype");
             }
         </style>
 

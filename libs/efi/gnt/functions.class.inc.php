@@ -285,17 +285,17 @@ class functions extends global_functions {
     }
 
     public static function is_valid_file_type($filetype) {
-        $filetypes = explode(" ", __VALID_FILE_TYPE__);
+        $filetypes = explode(" ", settings::get_valid_file_type("default"));
         return in_array($filetype, $filetypes);
     }
 
     public static function is_valid_diagram_file_type($filetype) {
-        $filetypes = explode(" ", __VALID_DIAGRAM_FILE_TYPE__);
+        $filetypes = explode(" ", settings::get_valid_file_type("diagram"));
         return in_array($filetype, $filetypes);
     }
 
     public static function is_valid_id_file_type($filetype) {
-        $filetypes = explode(" ", __VALID_ID_FILE_TYPE__);
+        $filetypes = explode(" ", settings::get_valid_file_type("id"));
         return in_array($filetype, $filetypes);
     }
 

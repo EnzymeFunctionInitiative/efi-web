@@ -21,7 +21,7 @@ class dataset_shared {
         if ($gen_type == "BLAST")
             $generate = new blast($db, $id, $is_example);
         elseif ($gen_type == "FAMILIES")
-            $generate = new generate($db, $id, $is_example);
+            $generate = new family($db, $id, $is_example);
         elseif ($gen_type == "ACCESSION")
             $generate = new accession($db, $id, $is_example);
         elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID")

@@ -2,7 +2,7 @@
 namespace efi\cgfp;
 
 require_once(__DIR__."/../../../init.php");
-require_once(__CGFP_CONF_DIR__."/settings_shared.inc.php");
+require_once(__CGFP_CONF_DIR__."/settings.inc.php");
 
 use \efi\global_settings;
 

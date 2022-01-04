@@ -39,12 +39,12 @@ class settings extends global_settings {
         return false;
     }
 
-    public static function get_valid_file_type() {
-        return __VALID_FILE_TYPE__;
+    public static function get_valid_file_type($type = "") {
+        return $type == "diagram" ? __VALID_DIAGRAM_FILE_TYPE__ : ($type == "id" ? __VALID_ID_FILE_TYPE__ : __VALID_FILE_TYPE__);
     }
 
-    public static function get_default_file_type($filetype) {
-        $filetypes = explode(" ", __VALID_FILE_TYPE__);
+    public static function get_default_file_type($type = "") {
+        $filetypes = explode(" ", self::get_valid_filetype($type));
         return $filetypes[0];
     }
 

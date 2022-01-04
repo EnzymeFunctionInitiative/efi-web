@@ -1,5 +1,5 @@
 <?php 
-require_once(__DIR__."/../../init.php");
+require_once(__DIR__."/../../../init.php");
 
 use \efi\table_builder;
 use \efi\cgfp\settings;

@@ -7,6 +7,7 @@ use \efi\gnt\gnn;
 use \efi\gnt\gnn_example;
 use \efi\gnt\gnt_ui;
 use \efi\gnt\functions;
+use \efi\gnt\settings;
 
 
 $is_example = isset($_GET["x"]);
