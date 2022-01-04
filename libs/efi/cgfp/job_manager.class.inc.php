@@ -4,6 +4,7 @@ namespace efi\cgfp;
 require_once(__DIR__."/../../../init.php");
 
 use \efi\global_settings;
+use \efi\global_functions;
 use \efi\user_auth;
 use \efi\cgfp\functions;
 use \efi\cgfp\job_types;

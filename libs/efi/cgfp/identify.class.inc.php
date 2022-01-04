@@ -3,6 +3,7 @@ namespace efi\cgfp;
 
 require_once(__DIR__."/../../../init.php");
 
+use \efi\global_settings;
 use \efi\global_functions;
 use \efi\training\example_config;
 use \efi\cgfp\functions;

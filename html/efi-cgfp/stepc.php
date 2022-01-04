@@ -4,8 +4,12 @@ require_once(__DIR__."/../../init.php");
 use \efi\global_functions;
 use \efi\table_builder;
 use \efi\user_auth;
+use \efi\cgfp\settings;
+use \efi\cgfp\functions;
 use \efi\cgfp\job_manager;
 use \efi\cgfp\identify;
+use \efi\cgfp\metagenome_db_manager;
+use \efi\ui;
 
 
 // There are two types of examples: dynamic and static.  The static example is a curated

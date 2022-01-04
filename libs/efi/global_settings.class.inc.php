@@ -4,14 +4,7 @@ namespace efi;
 
 class global_settings {
 
-    public static function get_uploads_dir() {
-        $dir =__UPLOAD_DIR__;
-        if (is_dir($dir)) {
-            return $dir;
-        }
-        return false;
-    }
-
+    // These come from the local conf files
     public static function get_output_dir() {
         if (is_dir(__OUTPUT_DIR__)) {
             return __OUTPUT_DIR__;
@@ -21,6 +14,14 @@ class global_settings {
 
     public static function get_rel_output_dir() {
         return __RELATIVE_OUTPUT_DIR__;		
+    }
+
+    public static function get_uploads_dir() {
+        $dir =__UPLOAD_DIR__;
+        if (is_dir($dir)) {
+            return $dir;
+        }
+        return false;
     }
 
     public static function get_web_address() {

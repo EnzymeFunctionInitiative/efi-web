@@ -8,12 +8,10 @@ use \efi\global_settings;
 <html>
 <head>
 <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="../vendor/fortawesome/font-awesome/css/fontawesome-all.min.css">
+    <link rel="stylesheet" type="text/css" href="../vendor/fortawesome/font-awesome/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="css/heatmap.css?v=2">
     <link rel="stylesheet" type="text/css" href="../css/buttons.css?v=2">
-
-    <!--<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>-->
-    <script src="js/plotly-1.42.5.min.js"></script>
+    <script src="../vendor/plotly/plotly.js/dist/plotly.min.js" type="text/javascript"></script>
 </head>
 <body>
 

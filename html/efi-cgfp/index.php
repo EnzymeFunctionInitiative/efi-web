@@ -2,12 +2,14 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\global_settings;
+use \efi\global_functions;
 use \efi\user_auth;
 use \efi\ui;
 use \efi\cgfp\cgfp_ui;
 use \efi\cgfp\functions;
 use \efi\cgfp\settings;
 use \efi\cgfp\job_manager;
+use \efi\cgfp\job_types;
 
 
 $user_email = "Enter your e-mail address";

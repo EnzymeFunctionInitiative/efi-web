@@ -8,6 +8,7 @@ require_once(__DIR__."/../../init.php");
 use \efi\global_functions;
 use \efi\cgfp\quantify;
 use \efi\cgfp\job_manager;
+use \efi\cgfp\job_types;
 
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"]) || !isset($_GET["quantify-id"]) || !is_numeric($_GET["quantify-id"])) {

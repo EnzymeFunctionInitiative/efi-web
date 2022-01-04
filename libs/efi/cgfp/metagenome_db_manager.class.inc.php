@@ -3,7 +3,7 @@ namespace efi\cgfp;
 
 require_once(__DIR__."/../../../init.php");
 
-use \efi\gnt\settings;
+use \efi\cgfp\settings;
 
 // A metagenome db is a collection of metagenome reads for a specifc dataset (e.g. HMP, HMP2).
 

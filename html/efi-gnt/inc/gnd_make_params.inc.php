@@ -7,6 +7,8 @@ use \efi\gnt\DiagramJob;
 use \efi\gnt\direct_gnd_file;
 use \efi\gnt\gnn;
 use \efi\gnt\gnn_example;
+use \efi\gnt\diagram_data_file;
+use \efi\gnt\diagram_jobs;
 
 
 function get_realtime_params($db, $P) {
@@ -63,10 +65,10 @@ function get_gnn_params($db, $P) {
 
 function get_upload_params($db, $P) {
     $P->gnn_key = $_GET["key"];
-    $P->gnn_id = $_GET["gnn-id"];
+    $P->gnn_id = $_GET["upload-id"];
 
-    $arrows = new diagram_data_file($gnn_id);
-    $key = diagram_jobs::get_key($db, $gnn_id);
+    $arrows = new diagram_data_file($P->gnn_id);
+    $key = diagram_jobs::get_key($db, $P->gnn_id);
 
     if ($P->gnn_key != $key) {
         return false;

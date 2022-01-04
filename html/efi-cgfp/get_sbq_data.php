@@ -5,6 +5,7 @@ use \efi\cgfp\settings;
 use \efi\cgfp\identify;
 use \efi\cgfp\quantify;
 use \efi\cgfp\quantify_example;
+use \efi\cgfp\metagenome_db_manager;
 
 
 const MERGED = 1;       // Both clusters and singletons
