@@ -135,6 +135,8 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
     var optDoutputIds = getOutputIds("optd");
     var optEinputIds = getInputIds("opte");
     var optEoutputIds = getOutputIds("opte");
+    var optTaxInputIds = getInputIds("opt_tax");
+    var optTaxOutputIds = getOutputIds("opt_tax");
 
     var sortMethod = <?php echo $sort_by_group ? "SORT_DATE_GROUP" : "SORT_DATE_DESC"; ?>;
 
@@ -159,6 +161,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
         familySizeHelper.setupFamilyInput("optc", optCinputIds, optCoutputIds);
         familySizeHelper.setupFamilyInput("optd", optDinputIds, optDoutputIds);
         familySizeHelper.setupFamilyInput("opte", optEinputIds, optEoutputIds);
+        familySizeHelper.setupFamilyInput("opt_tax", optTaxInputIds, optTaxOutputIds);
 
         $(".cb-use-uniref").click(function() {
             if (this.checked) {

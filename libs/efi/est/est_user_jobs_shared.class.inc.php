@@ -164,7 +164,7 @@ class est_user_jobs_shared {
         if ($jobNameField) {
             $job_name = $jobNameField;
         } else {
-            if ($type == "FAMILIES") {
+            if ($type == "FAMILIES" || $type == "TAXONOMY") {
                 $job_name = $families;
                 $families = ""; // do this so we don't add it in the metadata line below
             } elseif ($type == "BLAST") {
@@ -225,6 +225,7 @@ class est_user_jobs_shared {
     public static function get_job_label($type) {
         switch ($type) {
         case "FAMILIES":
+        case "TAXONOMY":
             return "Families";
         case "FASTA":
             return "FASTA";

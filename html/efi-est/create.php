@@ -141,6 +141,26 @@ if (!isset($_POST['submit'])) {
 
             $result = $generate->create($input);
             break;
+        
+        case 'opt_tax':
+            $generate = new efi\est\taxonomy_job($db);
+            
+            $input->families = $_POST['families_input'];
+            if (isset($_POST['pfam_uniref_version']))
+                $input->uniref_version = $_POST['pfam_uniref_version'];
+            if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
+                if (isset($_POST['families_uniref_ver']) && $_POST['families_uniref_ver'])
+                    $input->uniref_version = $_POST['families_uniref_ver'];
+                else
+                    $input->uniref_version = "90";
+            }
+            if (isset($_POST['pfam_min_seq_len']) && is_numeric($_POST['pfam_min_seq_len']))
+                $input->min_seq_len = $_POST['pfam_min_seq_len'];
+            if (isset($_POST['pfam_max_seq_len']) && is_numeric($_POST['pfam_max_seq_len']))
+                $input->max_seq_len = $_POST['pfam_max_seq_len'];
+
+            $result = $generate->create($input);
+            break;
     
         //Option C - Fasta Input
         case 'C':

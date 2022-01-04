@@ -11,6 +11,8 @@ function add_submit_html($option_id, $js_id_name, $user_email) {
         $js_fn = "submitColorSsnForm('nc')";
     else if ($option_id == "cr")
         $js_fn = "submitColorSsnForm('cr')";
+    else if ($option_id == "opt_tax")
+        $js_fn = "submitTaxonomyForm('opt_tax')";
 
     $html = "";
     if ($option_id != "colorssn" && $option_id != "cluster" && $option_id != "nc" && $option_id != "cr")

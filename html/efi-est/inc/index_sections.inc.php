@@ -2,6 +2,7 @@
 require_once(__DIR__ . "/../../../init.php");
 
 use \efi\global_settings;
+use \efi\global_functions;
 use \efi\ui;
 use \efi\est\settings;
 use \efi\est\colorssn;
@@ -535,6 +536,57 @@ function output_nc($use_advanced_options, $user_email, $show_example = false, $m
 <?php
 }
 
+
+function output_option_taxonomy($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
+    $show_example = $example_fn !== false;
+    $example_fn = $example_fn === false ? function(){} : $example_fn;
+?>
+        <div id="tax_tab" class="ui-tabs-panel ui-widget-content">
+<?php $example_fn("DESC_START"); ?>
+            <p class="p-heading">
+            Retrieve taxonomy for families.
+            </p>
+
+            <p>
+            The sequences from the Pfam families, InterPro families, and/or Pfam clans (superfamilies) input are retrieved.
+            <?php echo add_blast_calc_desc()[0]; ?>
+            </p>
+<?php $example_fn("DESC_END"); ?>
+
+            <form name="option_tax_form" id="option_tax_form" method="post" action="">
+<?php $example_fn("WRAP_START"); ?>
+                <?php echo add_family_input_option_family_only("opt_tax", $show_example)[0]; ?>
+<?php $example_fn("WRAP_END"); ?>
+<?php $example_fn("POST_TAX_FAM"); ?>
+
+                <div class="option-panels">
+<?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
+                    <div>
+                        <?php echo add_taxonomy_filter("opt_tax")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_TAX"); ?>
+                    <?php if ($use_advanced_options) { ?>
+                    <div>
+                        <?php echo add_dev_site_option("opt_tax", $db_modules, get_advanced_seq_html("opt_tax"))[0]; ?>
+                    </div>
+                    <?php } ?>
+                    <?php if (!$use_advanced_options) { ?>
+                        <input type="hidden" id="seqid-opt_tax" value="">
+                        <input type="hidden" id="length-overlap-opt_tax" value="">
+                    <?php } ?>
+<?php $example_fn("DESC_END"); ?>
+                </div>
+
+<?php $example_fn("WRAP_START"); ?>
+                <?php echo add_submit_html("opt_tax", "opt_tax_output_ids", $user_email)[0]; ?>
+<?php $example_fn("WRAP_END"); ?>
+<?php $example_fn("POST_SUBMIT"); ?>
+            </form>
+        </div>
+<?php
+}
+
 function output_cr($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
@@ -957,7 +1009,7 @@ function output_option_e($use_advanced_options, $db_modules, $user_email, $show_
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // UTILITY TAB
 
-function output_utility($use_advanced_options, $user_email, $example_fn = false, $mode_data = array(), $selected_tab = "") {
+function output_utility($use_advanced_options, $db_modules, $user_email, $example_fn = false, $mode_data = array(), $selected_tab = "") {
 ?>
         <div id="utilitytab" class="ui-tabs-panel ui-widget-content">
 <?php
@@ -967,6 +1019,7 @@ function output_utility($use_advanced_options, $user_email, $example_fn = false,
     output_cluster($use_advanced_options, $user_email, $example_fn, $mode_data);
     output_nc($use_advanced_options, $user_email, $example_fn, $mode_data);
     output_cr($use_advanced_options, $user_email, $example_fn, $mode_data);
+    output_option_taxonomy($use_advanced_options, $db_modules, $user_email, $example_fn, $mode_data);
     output_tab_page_end();
 ?>
         </div>
@@ -987,6 +1040,7 @@ function output_utility_tab_page_header($selected_tab = "", $class_fn = false, $
         <li <?php echo ($selected_tab == "cluster" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("clustertab"); ?>">Cluster Analysis</a></li>
         <li <?php echo ($selected_tab == "nc" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("nctab"); ?>">Neighborhood Connectivity</a></li>
         <li <?php echo ($selected_tab == "cr" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("crtab"); ?>">Convergence Ratio</a></li>
+        <li <?php echo ($selected_tab == "tax" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("tax_tab"); ?>">Taxonomy</a></li>
     </ul>
 <?php
 }
@@ -1082,7 +1136,7 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
     output_option_d($use_advanced_options, $db_modules, $user_email, $example_fn);
     if (settings::option_e_enabled())
         output_option_e($use_advanced_options, $db_modules, $user_email, $example_fn);
-    output_utility($use_advanced_options, $user_email, $example_fn, $mode_data, $sel_tab);
+    output_utility($use_advanced_options, $db_modules, $user_email, $example_fn, $mode_data, $sel_tab);
     //output_colorssn($use_advanced_options, $user_email, $example_fn, $mode_data);
     //output_cluster($use_advanced_options, $user_email, $example_fn, $mode_data);
     if ($show_tutorial)

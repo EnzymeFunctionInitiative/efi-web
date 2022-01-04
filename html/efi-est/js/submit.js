@@ -32,13 +32,17 @@ function addCommonFormData(opt, fd) {
     fd.append("families_input", famInput);
     fd.append("families_use_uniref", useUniref);
     fd.append("families_uniref_ver", unirefVer);
-    fd.append("evalue", evalue);
-    fd.append("fraction", fraction);
+    if (evalue)
+        fd.append("evalue", evalue);
+    if (fraction)
+        fd.append("fraction", fraction);
     fd.append("db-mod", dbMod);
     fd.append("cpu-x2", cpuX2);
     fd.append("large-mem", largeMem);
-    fd.append("exclude-fragments", exlFrag);
-    fd.append("include-all-seq", allSeq);
+    if (exlFrag)
+        fd.append("exclude-fragments", exlFrag);
+    if (allSeq)
+        fd.append("include-all-seq", allSeq);
 
     addTaxSearch(opt, fd);
 }
@@ -221,6 +225,22 @@ function submitOptionEForm(famHelper, outputIds) {
     }
 }
 
+function submitTaxonomyForm(option) {
+    option = option || "opt_tax";
+
+    var messageId = "message-" + option;
+
+    var fd = new FormData();
+    fd.append("option_selected", option);
+
+    addCommonFormData(option, fd);
+    
+    var completionHandler = getDefaultCompletionHandler();
+    var fileHandler = function(xhr) {};
+
+    doFormPost(FORM_ACTION, fd, messageId, fileHandler, completionHandler);
+}
+
 function submitColorSsnForm(type) { // the parameters are optional
     type = type || "";
 
@@ -265,6 +285,7 @@ function submitColorSsnForm(type) { // the parameters are optional
     addParam(fd, "ssn-source-id", "ssn-source-id-" + option);
     addParam(fd, "ssn-source-idx", "ssn-source-idx-" + option);
     //addCbParam(fd, "exlude-fragments", "exclude-" + option);
+    
     var completionHandler = getDefaultCompletionHandler();
     var fileHandler = function(xhr) {};
     var files = document.getElementById(option + "-file").files;

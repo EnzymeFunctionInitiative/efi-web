@@ -8,9 +8,10 @@ use \efi\est\settings;
 use \efi\est\functions;
 use \efi\est\job_factory;
 use \efi\est\blast;
-use \efi\est\generate;
+use \efi\est\family;
 use \efi\est\accession;
 use \efi\est\fasta;
+use \efi\est\taxonomy_job;
 
 
 class dataset_shared {
@@ -21,7 +22,9 @@ class dataset_shared {
         if ($gen_type == "BLAST")
             $generate = new blast($db, $id, $is_example);
         elseif ($gen_type == "FAMILIES")
-            $generate = new generate($db, $id, $is_example);
+            $generate = new family($db, $id, $is_example);
+        elseif ($gen_type == "TAXONOMY")
+            $generate = new taxonomy_job($db, $id, $is_example);
         elseif ($gen_type == "ACCESSION")
             $generate = new accession($db, $id, $is_example);
         elseif ($gen_type == "FASTA" || $gen_type == "FASTA_ID")
@@ -190,16 +193,17 @@ class dataset_shared {
                 $table->add_row("Taxonomy Categories:", $tax_row);
             $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
-        elseif ($gen_type == "FAMILIES") {
+        elseif ($gen_type == "FAMILIES" || $gen_type == "TAXONOMY") {
             $seqid = $generate->get_sequence_identity();
             $overlap = $generate->get_length_overlap();
-        
-            $fraction_label = "Fraction Option";
-            $family_label = "Pfam / InterPro Family";
 
+            if ($gen_type == "FAMILIES") {
+                $fraction_label = "Fraction Option";
+                $family_label = "Pfam / InterPro Family";
+                if ($show_evalue)
+                    $table->add_row("E-Value for SSN Edge Calculation", $evalue_option);
+            }
 
-            if ($show_evalue)
-                $table->add_row("E-Value for SSN Edge Calculation", $evalue_option);
             $add_fam_rows_fn($family_label, $fraction_label, $domain_label, "");
             if ($use_advanced_options) {
                 if ($seqid)
