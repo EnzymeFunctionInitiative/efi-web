@@ -112,7 +112,7 @@ if (!isset($_POST['submit'])) {
         //Option B - Pfam/InterPro
         case 'B':
         case 'E':
-            $generate = new efi\est\generate($db);
+            $generate = new efi\est\family($db);
             
             $input->families = $_POST['families_input'];
             $input->domain = $_POST['domain'];
