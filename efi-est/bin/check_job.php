@@ -36,26 +36,30 @@ else {
             $msg = "Generate ID: " . $job_obj->get_id() . " - Job Completed Successfully";
             functions::log_message($msg);
         }
-        elseif (!$is_color_job && !$job_running && $nonblastjob_blast_failed_file_exists) {
-            $job_obj->set_num_blast();
-            $job_obj->finish_job_failed();
-            $job_obj->email_number_seq();
-            $msg = "Generate ID: " . $job_obj->get_id() . " - Job Failed - Max Number of Sequences";
-            functions::log_message($msg);
-        }
-        elseif (!$is_color_job && !$job_running && $blastjob_fail_file_exists) {
-            $job_obj->set_num_blast();
-            $job_obj->finish_job_failed();
-            $job_obj->email_bad_sequence();
-            $msg = "Generate ID: " . $job_obj->get_id() . " - Job Failed - Invalid Input Sequence";
-            functions::log_message($msg);
-        }
-        elseif (!$is_color_job && !$job_running && $nonblastjob_bad_input_format_file_exists) {
-            $job_obj->set_num_blast();
-            $job_obj->finish_job_failed();
-            $job_obj->email_format_error();
-            $msg = "Generate ID: " . $job_obj->get_id() . " - Job Failed - Bad Input File Format";
-            functions::log_message($msg);
+        elseif (!$is_color_job) {
+            if (!$job_running) {
+                if ($nonblastjob_blast_failed_file_exists) {
+                    $job_obj->set_num_blast();
+                    $job_obj->finish_job_failed();
+                    $job_obj->email_number_seq();
+                    $msg = "Generate ID: " . $job_obj->get_id() . " - Job Failed - Max Number of Sequences";
+                    functions::log_message($msg);
+                }
+                elseif ($blastjob_fail_file_exists) {
+                    $job_obj->set_num_blast();
+                    $job_obj->finish_job_failed();
+                    $job_obj->email_bad_sequence();
+                    $msg = "Generate ID: " . $job_obj->get_id() . " - Job Failed - Invalid Input Sequence";
+                    functions::log_message($msg);
+                }
+                elseif ($nonblastjob_bad_input_format_file_exists) {
+                    $job_obj->set_num_blast();
+                    $job_obj->finish_job_failed();
+                    $job_obj->email_format_error();
+                    $msg = "Generate ID: " . $job_obj->get_id() . " - Job Failed - Bad Input File Format";
+                    functions::log_message($msg);
+                }
+            }
         }
         elseif (!$job_running) {
             $job_obj->finish_job_failed();

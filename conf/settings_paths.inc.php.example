@@ -14,3 +14,6 @@ define("__GNT_DIR__",__BASE_DIR__."/efi-gnt");
 define("__CGFP_DIR__",__BASE_DIR__."/efi-cgfp");
 define("__TRAINING_DIR__",__BASE_DIR__."/training");
 define("__USERS_DIR__",__BASE_DIR__."/users");
+
+define("__TEMP_DIR__",__BASE_DIR__."/tmp");
+

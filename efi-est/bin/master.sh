@@ -41,6 +41,13 @@ sleep 1
 php $DIR/run_job.php ACCESSION
 
 sleep 1
+echo "Checking TAXONOMY"
+php $DIR/check_job.php TAXONOMY
+
+sleep 1
+php $DIR/run_job.php TAXONOMY
+
+sleep 1
 echo "Checking analyze jobs"
 php $DIR/check_analyze.php
 
