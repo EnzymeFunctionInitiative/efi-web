@@ -231,19 +231,19 @@ HTML;
 }
 
 
-function add_family_input_option_family_only($option_id, $show_example = false) {
-    return add_family_input_option_base($option_id, false, "", $show_example);
+function add_family_input_option_family_only($option_id, $show_example = false, $show_desc_text = true) {
+    return add_family_input_option_base($option_id, false, "", $show_example, $show_desc_text);
 }
 
 
-function add_family_input_option($option_id, $show_example = false) {
+function add_family_input_option($option_id, $show_example = false, $show_desc_text = true) {
     list($frac) = get_fraction_html($option_id);
-    return add_family_input_option_base($option_id, true, $frac, $show_example);
+    return add_family_input_option_base($option_id, true, $frac, $show_example, $show_desc_text);
 }
 
 
 
-function add_family_input_option_base($option_id, $include_intro, $fraction_html, $show_example = false) {
+function add_family_input_option_base($option_id, $include_intro, $fraction_html, $show_example = false, $show_text = true) {
     $max_full_family = number_format(get_max_full_family_count(), 0);
 
     $html = "";
@@ -303,7 +303,7 @@ HTML;
         </div>
     </div>
 HTML;
-    if (!$show_example) {
+    if (!$show_example && $show_text) {
         $html .= <<<HTML
     <div>
         The EST provides access to the UniRef90 and UniRef50 databases to allow the creation

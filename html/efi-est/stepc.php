@@ -151,6 +151,7 @@ $generate = dataset_shared::create_generate_object($gen_type, $db, $is_example);
 $uniref = dataset_shared::get_uniref_version($gen_type, $generate);
 $job_name = $generate->get_job_name();
 $use_domain = dataset_shared::get_domain($gen_type, $generate) == "on";
+$sunburstUniref = $uniref ? $uniref : "false";
 
 
 $table = new table_builder($table_format);
@@ -167,6 +168,24 @@ if (isset($_GET["as-table"])) {
     exit(0);
 }
 
+$has_tax_data = $generate->has_tax_data();
+$is_taxonomy = ($gen_type == "TAXONOMY") && $has_tax_data;
+$show_taxonomy = true && $has_tax_data;
+
+if ($show_taxonomy) {
+    $JsAdditional = array(
+//                        '<script src="//unpkg.com/sunburst-chart"></script>',
+//                        '<script src="' . $SiteUrlPrefix . '/js/sunburst-chart-1.15.2/src/sunburst.js" type="module"></script>',
+//                        '<script src="' . $SiteUrlPrefix . '/js/circlepack-chart-1.6.0/src/circlepack.js" type="module"></script>',
+                        '<script src="' . $SiteUrlPrefix . '/js/sunburst-chart.min.js"></script>',
+                        '<script src="' . $SiteUrlPrefix . '/js/sunburst_helpers.js" type="text/javascript"></script>',
+                        '<script src="js/sunburst_taxonomy.js?v=2" type="text/javascript"></script>',
+                        '<script src="js/progress.js" type="text/javascript"></script>'
+                    );
+    $StyleAdditional = array(
+                        '<link rel="stylesheet" type="text/css" href="css/sunburst.css?v=2">',
+                    );
+}
 $IncludePlotlyJs = true;
 require_once(__DIR__."/inc/header.inc.php");
 
@@ -258,6 +277,7 @@ $use_v2_graphs = $generate->get_graphs_version() >= 2;
 <?php if ($job_name) { ?>
 <h4 class="job-display">Submission Name: <b><?php echo $job_name; ?></b></h4>
 <?php } ?>
+<?php if (!$is_taxonomy) { ?>
 <p>
 A minimum sequence similarity threshold that specifies the sequence pairs 
 connected by edges is needed to generate the SSN. This threshold also 
@@ -265,18 +285,24 @@ determines the segregation of proteins into clusters. The threshold is applied
 to the edges in the SSN using the alignment score, an edge node attribute that 
 is a measure of the similarity between sequence pairs.
 </p>
+<?php } ?>
 
 <div style="margin:20px;color:red"><?php if (isset($result['MESSAGE'])) { echo $result['MESSAGE']; } ?></div>
 
 <div class="tabs-efihdr tabs">
     <ul class="">
         <li class="ui-tabs-active"><a href="#info">Dataset Summary</a></li>
-        <li><a href="#graphs">Dataset Analysis</a></li>
-        <?php if (!$is_example) { ?>
-        <li><a href="#final">SSN Finalization</a></li>
+        <?php if ($show_taxonomy) { ?>
+            <li><a href="#taxonomy">Taxonomy Sunburst</a></li>
         <?php } ?>
-        <?php if (count($ssn_jobs) > 0) { ?>
-        <li><a href="#jobs">SSNs Created From this Dataset</a></li>
+        <?php if (!$is_taxonomy) { ?>
+            <li><a href="#graphs">Dataset Analysis</a></li>
+            <?php if (!$is_example) { ?>
+                <li><a href="#final">SSN Finalization</a></li>
+            <?php } ?>
+            <?php if (count($ssn_jobs) > 0) { ?>
+                <li><a href="#jobs">SSNs Created From this Dataset</a></li>
+            <?php } ?>
         <?php } ?>
     </ul>
     <div>
@@ -314,6 +340,98 @@ is a measure of the similarity between sequence pairs.
         </div>
 
         <?php } ?>
+
+    <?php if ($show_taxonomy) { ?>
+        <div id="taxonomy">
+<!--
+            <div id="sunburstModal" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Species in Cluster</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+-->
+                        <div class="modal-body text-center modal-sunburst" id="sunburstChartContainer" style="display: flex">
+                            <div id="sunburstChart" style="display: inline-block">
+                            </div>
+                            <div style="display: inline-block; align-self: flex-end" id="sunburstChartLevels">
+                            </div>
+                        </div>
+                        <div>
+                            <div id="sunburstIdNums" class="cluster-size cluster-size-sm float-right">
+                            </div>
+                            <div style="clear: both">
+                                Click on a region to zoom into that part of the taxonomic hierarchy.  Clicking on the
+                                center circle will zoom out to the next highest level.
+                            </div>
+                        </div>
+        <!--
+                            <div>
+                                <canvas id="sunburstPngCanvas" width="600" height="600"></canvas>
+                            </div>
+        -->
+                        <div class="modal-footer">
+                            <div class="mr-auto">
+                                <hr class="light">
+                                <div class="p-2" id="sunburstTypeDownloadContainer" style="display: none">
+                                    ID type: 
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="sunburstIdType" id="sunburstIdTypeUniProt" value="uniprot" checked>
+                                        <label class="form-check-label" for="sunburstIdTypeUniProt">UniProt</label>
+                                    </div>
+                                    <div class="form-check form-check-inline" style="display: none" id="sunburstIdTypeUniRef90Container">
+                                        <input class="form-check-input" type="radio" name="sunburstIdType" id="sunburstIdTypeUniRef90" value="uniref90">
+                                        <label class="form-check-label" for="sunburstIdTypeUniRef90">UniRef90</label>
+                                    </div>
+                                    <div class="form-check form-check-inline" style="display: none" id="sunburstIdTypeUniRef50Container">
+                                        <input class="form-check-input" type="radio" name="sunburstIdType" id="sunburstIdTypeUniRef50" value="uniref50">
+                                        <label class="form-check-label" for="sunburstIdTypeUniRef50">UniRef50</label>
+                                    </div>
+        <!--
+                                    <select class="form-control w-50" data-toggle="tooltip" title="By default the full set of UniProt IDs is downloaded. By selecting this option, only the UniRef50 IDs will be downloaded.">
+                                        <option value="uniprot" selected>UniProt (default)</option>
+                                        <option value="uniref50">UniRef50</option>
+                                        <option value="uniref90">UniRef90</option>
+                                    </select>
+        -->
+                                </div>
+                                <div>
+                                    <button type="button" class="normal btn btn-default btn-secondary" data-toggle="tooltip" title="Download the UniProt IDs that are visible in the sunburst diagram" id="sunburstDlIds">Prepare ID Download</button>
+                                    <button type="button" class="normal btn btn-default btn-secondary mr-auto" data-toggle="tooltip" title="Download the FASTA sequences that are visible in the sunburst diagram" id="sunburstDlFasta">Prepare FASTA Download</button>
+                                    <!--<button type="button" class="btn btn-default mr-auto" data-toggle="tooltip" title="Download a SVG file of the sunburst diagram" id="sunburstSvg">Download SVG</button>-->
+                                </div>
+                            </div>
+<!--
+                            <div class="mt-auto">
+                                <button type="button" class="btn btn-default btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+-->
+                        </div>
+<!--                        
+                    </div>
+                    <div id="sunburstProgressLoader" class="progress-loader-tax" style="display: none">
+                        <div>Please wait, this may take a while...
+                        <div><i class="fas fa-spinner fa-spin"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+-->
+            <div id="sunburstDownloadModal" class="" style="display: none" tabindex="-1" role="dialog" style="margin-top: 200px">
+                <div>
+                    <h5 style="">Download Files</h5>
+                    <button type="button" class="btn btn-primary" id="sbDownloadBtn"><a href="" id="sbDownloadLink">Download List</a></button><br><br>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+                <div id="downloadProgressLoader" class="progress-loader progress-loader-sm" style="display: none">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </div>
+    <?php } ?>
+    
+    <?php if (!$is_taxonomy) { ?>
 
         <!-- GRAPHS -->
         <div id="graphs">
@@ -584,9 +702,10 @@ histogram).</p>
             </p>
 <?php } ?>
         </div>
+    <?php } /* end of graphs div */ ?>
 
 
-        <?php if (!$is_example) { ?>
+        <?php if (!$is_example && !$is_taxonomy) { ?>
         <!-- FINALIZATION -->
         <div id="final">
             <form name="define_length" method="post" action="<?php echo $url; ?>" class="align_left" enctype="multipart/form-data">
@@ -848,6 +967,15 @@ $(document).ready(function() {
     $("#final-link").click(function() {
         $(".tabs").tabs({active: 2});
     });
+
+    //$("#sunburst").dialog({
+    //    modal: true,
+    //    buttons: {
+    //        Ok: function() {
+    //            $(this).dialog("close");
+    //        }
+    //    }
+    //});
 });
 
 
@@ -876,7 +1004,18 @@ for (var i = 0; i < acc.length; i++) {
     }).tooltip();
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
+
 <?php } ?>
+
+<?php if ($show_taxonomy) { ?>
+<script>
+    var rawData = <?php echo $generate->get_raw_taxonomy_data(); ?>;
+    var data = JSON.parse(rawData);
+    var sunburstApp = new AppSunburst("<?php echo $gen_id; ?>", "<?php echo $key; ?>", <?php echo $sunburstUniref; ?>);
+    sunburstApp.addSunburstFeature(data.data);
+</script>
+<?php } ?>
+
 <?php
 
 require_once(__DIR__."/inc/footer.inc.php");

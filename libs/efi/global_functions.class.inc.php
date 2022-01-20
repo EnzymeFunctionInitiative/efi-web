@@ -226,17 +226,45 @@ class global_functions {
     }
 
     public static function send_image_file_for_download($filename, $full_path) {
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="'.$filename.'"');
-        header('Content-Transfer-Encoding: binary');
-        header('Connection: Keep-Alive');
+        send_headers($filename, filesize($full_path));
+        send_file($full_path);
+        //header('Content-Description: File Transfer');
+        //header('Content-Type: application/octet-stream');
+        //header('Content-Disposition: attachment; filename="'.$filename.'"');
+        //header('Content-Transfer-Encoding: binary');
+        //header('Connection: Keep-Alive');
+        //header('Expires: 0');
+        //header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        //header('Pragma: public');
+        //header('Content-Length: ' . filesize($full_path));
+        //ob_clean();
+        //readfile($full_path);
+    }
+
+    public static function send_headers($filename, $filesize, $type = "application/octet-stream") {
+        header('Pragma: public');
         header('Expires: 0');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($full_path));
-        ob_clean();
-        readfile($full_path);
+        header('Cache-Control: private', false);
+        header('Content-Description: File Transfer');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+        header('Content-Type: ' . $type);
+        header('Content-Length: ' . $filesize);
+    }
+    public static function send_file($file) {
+        $handle = fopen($file, 'rb');
+        self::send_file_handle($handle);
+        fclose($handle);
+    }
+    public static function send_file_handle($handle) {
+        $chunkSize = 1024 * 1024;
+        while (!feof($handle)) {
+            $buffer = fread($handle, $chunkSize);
+            echo $buffer;
+            ob_flush();
+            flush();
+        }
     }
 }
 

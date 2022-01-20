@@ -548,14 +548,32 @@ function output_option_taxonomy($use_advanced_options, $db_modules, $user_email,
             </p>
 
             <p>
-            The sequences from the Pfam families, InterPro families, and/or Pfam clans (superfamilies) input are retrieved.
-            <?php echo add_blast_calc_desc()[0]; ?>
+            The sequences from the Pfam families, InterPro families, and/or Pfam clans (superfamilies)
+            input are retrieved. The taxonomic distribution of the sequences is displayed as a
+            "sunburst" with the levels of classification (superkingdom, kingdom, phylum, class, order,
+            family, genus, species) displayed radically, with superkingdom at the center and species
+            in the outermost ring.
             </p>
+
+            <p>
+            The sunburst is interactive, providing the ability to zoom to the selected taxonomic level.
+            </p>
+
+            <p>
+            The UniProt/UniRef90/UniRef50 IDs and/or UniProt/UniRef90/UniRef50 FASTA-formatted sequences
+            can be downloaded.
+            </p>
+
+            <p>
+            This preview of the taxonomic distribution also can be used to guide taxonomic restrictions
+            in the "Filter by Taxonomy" option of Option B.
+            </p>
+
 <?php $example_fn("DESC_END"); ?>
 
             <form name="option_tax_form" id="option_tax_form" method="post" action="">
 <?php $example_fn("WRAP_START"); ?>
-                <?php echo add_family_input_option_family_only("opt_tax", $show_example)[0]; ?>
+                <?php echo add_family_input_option_family_only("opt_tax", $show_example, false)[0]; ?>
 <?php $example_fn("WRAP_END"); ?>
 <?php $example_fn("POST_TAX_FAM"); ?>
 
@@ -566,6 +584,12 @@ function output_option_taxonomy($use_advanced_options, $db_modules, $user_email,
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_TAX"); ?>
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
+                        <?php echo add_fragment_option("opt_tax")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FRAG"); ?>
                     <?php if ($use_advanced_options) { ?>
                     <div>
                         <?php echo add_dev_site_option("opt_tax", $db_modules, get_advanced_seq_html("opt_tax"))[0]; ?>

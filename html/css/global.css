@@ -612,3 +612,8 @@ div.input {
 }
 
 
+hr.light {
+    border: 0;
+    border-top: 1px solid #ccc;
+}
+

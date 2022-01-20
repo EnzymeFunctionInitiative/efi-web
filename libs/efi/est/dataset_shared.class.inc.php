@@ -112,6 +112,10 @@ class dataset_shared {
         if ($fraction == $default_fraction)
             $fraction = "off";
 
+        $is_taxonomy = false;
+        if ($generate->get_type() == "TAXONOMY")
+            $is_taxonomy = true;
+
 //        $generate->print_raw_counts();
         $evalue_option = $generate->get_evalue();
         $default_evalue = settings::get_evalue();
@@ -121,13 +125,13 @@ class dataset_shared {
         $add_fam_overlap_rows_fn = function() {};
         if ($included_family) {
             $add_fam_rows_fn = function($family_label, $fraction_label, $domain_label)
-                use ($included_family, $uniref, $table, $num_family_nodes, $num_full_family_nodes, $generate, $fraction)
+                use ($included_family, $uniref, $table, $num_family_nodes, $num_full_family_nodes, $generate, $fraction, $is_taxonomy)
                 {
                     $table->add_row($family_label, $included_family);
                     $table->add_row("Number of IDs in Pfam / InterPro Family", number_format($num_full_family_nodes));
-                    if (!$uniref)
+                    if (!$uniref && !$is_taxonomy)
                         $table->add_row($fraction_label, $fraction);
-                    if ($domain_label) {
+                    if ($domain_label && !$is_taxonomy) {
                         $row_val = "off";
                         if ($generate->get_domain()) {
                             $row_val = "on";
@@ -278,17 +282,19 @@ class dataset_shared {
         if ($num_unique)
             $table->add_row("Number of Unique Sequences", number_format($num_unique));
 
-        $conv_ratio = $generate->get_convergence_ratio();
-        $convergence_ratio_string = "";
-        if ($conv_ratio > -0.5) {
-            $convergence_ratio_string = <<<STR
+        if (!$is_taxonomy) {
+            $conv_ratio = $generate->get_convergence_ratio();
+            $convergence_ratio_string = "";
+            if ($conv_ratio > -0.5) {
+                $convergence_ratio_string = <<<STR
         The convergence ratio is a measure of the similarity of the sequences used in the BLAST.  It is the
         ratio of the total number of edges retained from the BLAST (e-values less than the specified threshold;
         default 5) to the total number of sequence pairs.  The value decreases from 1.0 for sequences that are
         very similar (identical) to 0.0 for sequences that are very different (unrelated).
 STR;
-            $table->add_row_with_html("Convergence Ratio<a class=\"question\" title=\"$convergence_ratio_string\">?</a>", number_format($conv_ratio, 3));
-            $convergence_ratio_string = "";
+                $table->add_row_with_html("Convergence Ratio<a class=\"question\" title=\"$convergence_ratio_string\">?</a>", number_format($conv_ratio, 3));
+                $convergence_ratio_string = "";
+            }
         }
     }
 

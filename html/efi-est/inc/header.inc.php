@@ -10,7 +10,7 @@ if (isset($EstId))
 
 if (!isset($StyleAdditional))
     $StyleAdditional = array();
-array_push($StyleAdditional, '<link rel="stylesheet" type="text/css" href="css/est.css?v=3">', '<link rel="stylesheet" type="text/css" href="css/table.css?v=3">');
+array_push($StyleAdditional, '<link rel="stylesheet" type="text/css" href="css/est.css?v=4">', '<link rel="stylesheet" type="text/css" href="css/table.css?v=3">');
 
 if (!isset($JsAdditional))
     $JsAdditional = array();

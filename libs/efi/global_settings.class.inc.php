@@ -215,5 +215,9 @@ class global_settings {
     public static function get_auth_database() {
         return defined("__MYSQL_AUTH_DATABASE__") ? __MYSQL_AUTH_DATABASE__ : "";
     }
+
+    public static function get_blast_module() {
+        return defined("__BLAST_MODULE__") ? __BLAST_MODULE__ : "";
+    }
 }
 

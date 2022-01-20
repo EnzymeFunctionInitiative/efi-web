@@ -51,7 +51,7 @@ $is_dev_site = global_settings::advanced_options_enabled();
 <head>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/components/jqueryui/themes/base/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/buttons.css?v=3">
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css?v=3">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css?v=4">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/table.css?v=5">
 <?php if (isset($LightweightTabs) && $LightweightTabs === true) { ?>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/tabs.css?v=2">
