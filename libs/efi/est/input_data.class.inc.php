@@ -68,8 +68,7 @@ class input_data {
     public $skip_fasta;
     public $ascore;
 
-    //public $cooccurrence;
-    //public $neighborhood_size;
+    public $is_taxonomy_job;
 }
 
 class validation_result {

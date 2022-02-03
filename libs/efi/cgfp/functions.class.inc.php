@@ -3,8 +3,10 @@ namespace efi\cgfp;
 
 require_once(__DIR__."/../../../init.php");
 
+use \efi\global_settings;
 use \efi\global_functions;
 use \efi\user_auth;
+use \efi\cgfp\settings;
 
 
 class functions extends global_functions {
@@ -133,7 +135,7 @@ class functions extends global_functions {
     }
 
     public static function is_valid_file_type($filetype) {
-        $filetypes = explode(" ", __VALID_FILE_TYPE__);
+        $filetypes = explode(" ", settings::get_valid_file_types());
         return in_array($filetype, $filetypes);
     }
 

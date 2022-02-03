@@ -6,6 +6,8 @@ require_once(__DIR__."/../../init.php");
 // are located in parts in the inc/ dir.
 
 use \efi\global_functions;
+use \efi\global_settings;
+use \efi\global_header;
 use \efi\cgfp\quantify;
 use \efi\cgfp\job_manager;
 use \efi\cgfp\job_types;
@@ -49,6 +51,7 @@ if ($job_obj->get_key() != $key) {
     error_404();
 }
 
+$update_msg = "";
 
 require_once(__DIR__."/inc/stepe_vars.inc.php");
 
@@ -76,6 +79,14 @@ include("inc/header.inc.php");
 
 <h4 class="job-display">Submitted SSN: <b><?php echo $JobName; ?></b></h4>
 <?php if ($quantify_job_name) { ?><h4 class="job-display">Job Name: <b><?php echo $quantify_job_name; ?></b></h4><?php } ?>
+
+<?php if ($update_msg) { ?>
+<div id="update-message" class="update-message">
+<?php echo $update_msg; ?>
+<div class="new-feature"></div>
+</div>
+<?php } ?>
+<?php echo global_header::get_global_citation(); ?>
 
 <?php include("inc/stepe_body.inc.php"); ?>
 

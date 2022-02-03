@@ -4,6 +4,7 @@ require_once(__DIR__."/../../init.php");
 use \efi\ui;
 use \efi\global_settings;
 use \efi\global_functions;
+use \efi\global_header;
 use \efi\gnt\settings;
 use \efi\gnt\gnt_ui;
 use \efi\gnt\user_jobs;
@@ -67,12 +68,15 @@ if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])
 
 $use_advanced_options = global_settings::advanced_options_enabled();
 
-$updateMessage = 
+$update_msg = "";
+    //'Please cite your use of the EFI tools:<br><br>' .
+    //'R&eacute;mi Zallot, Nils Oberg, and John A. Gerlt, <b>The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome Databases to Discover Novel Enzymes and Metabolic Pathways</b>. Biochemistry 2019 58 (41), 4169-4182. <a href="https://doi.org/10.1021/acs.biochem.9b00735">https://doi.org/10.1021/acs.biochem.9b00735</a>'
+    //;
     //"The \"From the Bench\" article describing the tools and their use is available on the " . 
     //"<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
     //"Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
-    "<small>" . functions::get_update_message() . "</small>";
 
+$ShowCitation = true;
 require_once(__DIR__."/inc/header.inc.php");
 
 ?>
@@ -94,14 +98,18 @@ Neighorhood Diagrams</b> option, only GNDs will be created.
 </p>
 
 
-<div id="update-message" class="update-message initial-hidden">
+<?php if ($update_msg) { ?>
+<div id="update-message" class="update-message">
+<?php echo $update_msg; ?>
 <div class="new-feature"></div>
-<?php if (isset($updateMessage)) echo $updateMessage; ?>
 </div>
+<?php } ?>
 
 <p>
 A listing of new features and other information pertaining to GNT is available on the <a href="notes.php">release notes page</a>. 
 </p>
+
+<p><?php echo functions::get_update_message(); ?></p>
 
 <div class="tabs-efihdr tabs">
     <ul class="tab-headers">

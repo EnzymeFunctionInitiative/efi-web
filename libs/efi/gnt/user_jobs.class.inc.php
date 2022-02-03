@@ -176,5 +176,4 @@ class user_jobs extends user_auth {
     }
 }
 
-?>
 

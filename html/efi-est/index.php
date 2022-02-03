@@ -4,6 +4,7 @@ require_once(__DIR__."/../../init.php");
 require_once(__BASE_DIR__."/includes/login_check.inc.php");
 
 use \efi\global_settings;
+use \efi\global_header;
 use \efi\user_auth;
 use \efi\est\settings;
 use \efi\est\functions;
@@ -17,7 +18,7 @@ $jobs = array();
 $tjobs = array(); // training jobs
 $IsAdminUser = false;
 if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie()) {
-    $user_jobs = new user_jobs();
+    $user_jobs = new user_jobs(null, array("TAXONOMY"));
     $user_jobs->load_jobs($db, user_auth::get_user_token());
     $jobs = $user_jobs->get_jobs();
     $tjobs = $user_jobs->get_training_jobs();
@@ -37,16 +38,18 @@ $db_modules = global_settings::get_database_modules();
 //    "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
 //    "Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
 //    "We now provide the \"Fragment Option\" to exclude UniProt-defined fragments from SSNs.<br>" .
-$update_msg = 
-    'The Color SSNs and Cluster Analysis tabs are now included on the SSN Utilities tab.<br>' .
-    'Neighborhood Connectivity (NC) is a new tool on the SSN Utilities tab.  NC colors the input SSN according to the number of internode connections.  NC coloring helps identify families in SSNs generated with low alignment scores.<br>' .
+$update_msg = "";
+    //'Please cite your use of the EFI tools:<br><br>Rémi Zallot, Nils Oberg, and John A. Gerlt, <b>The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome Databases to Discover Novel Enzymes and Metabolic Pathways</b>. Biochemistry 2019 58 (41), 4169-4182. <a href="https://doi.org/10.1021/acs.biochem.9b00735">https://doi.org/10.1021/acs.biochem.9b00735</a>'
+    //;
+    //'The Color SSNs and Cluster Analysis tabs are now included on the SSN Utilities tab.<br>' .
+    //'Neighborhood Connectivity (NC) is a new tool on the SSN Utilities tab.  NC colors the input SSN according to the number of internode connections.  NC coloring helps identify families in SSNs generated with low alignment scores.<br>' .
     //'Cluster Analysis is a new tool that provides a color SSN as well as WebLogos, MSAs, and HMMs for the clusters.<br>' .
     //'Options B and D now provide an expanded "Family Domain Boundary Option" to generate SSNs for sequences N- or C-terminal to the specified family domain.<br>' .
     //'A list of publications citing the tools is available on the <i class="fas fa-question"></i> Training page.<br>' .
     //"Sequence regions adjacent to the domain can be selected in the domain option for Families and Accession IDs.<br>" .
-    "<small>" . functions::get_update_message() . "</small>";
 
 
+$ShowCitation = true;
 $IncludeSubmitJs = true;
 $JsAdditional = array('<script src="js/mem_calc.js?v=1" type="text/javascript"></script>');
 require_once(__DIR__."/inc/header.inc.php");
@@ -82,10 +85,12 @@ The Enzyme Similarity Tool (EFI-EST) makes it possible to easily generate SSNs.
 </p>
 
 
+<?php if ($update_msg) { ?>
 <div id="update-message" class="update-message">
+<?php echo $update_msg; ?>
 <div class="new-feature"></div>
-<?php if (isset($update_msg)) echo $update_msg; ?>
 </div>
+<?php } ?>
 
 
 <p>
@@ -102,6 +107,8 @@ find matches within the InterPro database for a given sequence.
 Information on Pfam families and clans and InterPro family sizes is available on
 the <a href="family_list.php">Family Information page</a>.
 </p>
+
+<p><?php echo functions::get_update_message(); ?></p>
 
 <?php
 include_once("inc/index_helpers.inc.php");
@@ -123,20 +130,6 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
     const SORT_DATE_GROUP = 3;
     var AutoCheckedUniRef = false;
     var FamilySizeOk = true;
-    var familySizeHelper = new FamilySizeHelper();
-
-    var optAinputIds = getInputIds("opta");
-    var optAoutputIds = getOutputIds("opta");
-    var optBinputIds = getInputIds("optb");
-    var optBoutputIds = getOutputIds("optb");
-    var optCinputIds = getInputIds("optc");
-    var optCoutputIds = getOutputIds("optc");
-    var optDinputIds = getInputIds("optd");
-    var optDoutputIds = getOutputIds("optd");
-    var optEinputIds = getInputIds("opte");
-    var optEoutputIds = getOutputIds("opte");
-    var optTaxInputIds = getInputIds("opt_tax");
-    var optTaxOutputIds = getOutputIds("opt_tax");
 
     var sortMethod = <?php echo $sort_by_group ? "SORT_DATE_GROUP" : "SORT_DATE_DESC"; ?>;
 
@@ -156,12 +149,15 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
             }
         });
 
-        familySizeHelper.setupFamilyInput("opta", optAinputIds, optAoutputIds);
-        familySizeHelper.setupFamilyInput("optb", optBinputIds, optBoutputIds);
-        familySizeHelper.setupFamilyInput("optc", optCinputIds, optCoutputIds);
-        familySizeHelper.setupFamilyInput("optd", optDinputIds, optDoutputIds);
-        familySizeHelper.setupFamilyInput("opte", optEinputIds, optEoutputIds);
-        familySizeHelper.setupFamilyInput("opt_tax", optTaxInputIds, optTaxOutputIds);
+        var taxSearchApp = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/taxonomy/php/get_tax_typeahead.php";
+        var taxContainerFn = function(opt) { return "#taxonomy-" + opt + "-container"; };
+        var taxonomyApp = new AppTF(taxContainerFn, taxSearchApp);
+
+        var idData = setupFamilyInputs(["opta", "optb", "optc", "optd", "opte", "opt_tax"]);
+        var familySizeHelper = new FamilySizeHelper();
+        familySizeHelper.setupFamilyInputs(idData);
+
+        var app = new AppEstSubmit(idData, familySizeHelper, taxonomyApp);
 
         $(".cb-use-uniref").click(function() {
             if (this.checked) {
@@ -178,78 +174,6 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
             }
         });
         
-        $(".archive-btn").click(function() {
-            var id = $(this).data("id");
-            var key = $(this).data("key");
-            var aid = $(this).data("analysis-id");
-            var requestType = "archive";
-            var jobType = "generate";
-            var trElem = $(this).parent().parent();
-
-            var elemList = [trElem];
-            if (!aid) {
-                aid = 0;
-                var idQuery = `[data-parent-id='${id}']`;
-                var kids = $(".archive-btn"+idQuery);
-                var aids = [];
-                for (kid of kids) {
-                    var jKid = $(kid);
-                    if (jKid.data("analysis-id"))
-                        aids.push(jKid.data("analysis-id"));
-                    elemList.push(jKid.parent().parent());
-                }
-                for (kidAid of aids) {
-                    idQuery = `[data-parent-aid='${kidAid}']`;
-                    kids = $(".archive-btn"+idQuery);
-                    for (kid of kids) {
-                        var jKid = $(kid);
-                        elemList.push(jKid.parent().parent());
-                        var jKidId = jKid.data("id");
-                        var cKidQuery = `[data-parent-id='${jKidId}']`;
-                        var cKids = $(".archive-btn"+cKidQuery);
-                        for (ckid of cKids) {
-                            var cKid = $(ckid);
-                            elemList.push(cKid.parent().parent());
-                        }
-                    }
-                }
-            } else {
-                var idQuery = `[data-parent-aid='${aid}']`;
-                var kids = $(".archive-btn"+idQuery);
-                for (kid of kids) {
-                    var jKid = $(kid);
-                    elemList.push(jKid.parent().parent());
-                    var jKidId = jKid.data("id");
-                    var cKidQuery = `[data-parent-id='${jKidId}']`;
-                    var cKids = $(".archive-btn"+cKidQuery);
-                    for (ckid of cKids) {
-                        var cKid = $(ckid);
-                        elemList.push(cKid.parent().parent());
-                    }
-                }
-            }
-
-            var elementHideFn = function() {
-                elemList.map(x => x.hide());
-            };
-
-            $("#archive-confirm").dialog({
-                resizable: false,
-                height: "auto",
-                width: 400,
-                modal: true,
-                buttons: {
-                    "Archive Job": function() {
-                        requestJobUpdate(id, aid, key, requestType, jobType, elementHideFn);
-                        $( this ).dialog("close");
-                    },
-                    Cancel: function() {
-                        $( this ).dialog("close");
-                    }
-                }
-            });
-        });
-
         $("#fasta-file").on("change", function(e) {
             var fileName = '';
             fileName = e.target.value.split( '\\' ).pop();
@@ -279,19 +203,17 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
                 $("#job-name-optd").val(fileName);
         });
 
+        setupArchiveUi();
+        setupSortUi();
 
-        var updateSortIcon = function() {
-            var sortIcon = sortMethod == SORT_DATE_DESC ? "<i class='fas fa-chevron-down'></i>" : "<i class='fas fa-list-alt'></i>";
-            $("#sort-jobs-toggle").html(sortIcon);
-        };
-        var toggleSortIcon = function() {
-            sortMethod = sortMethod == SORT_DATE_DESC ? SORT_DATE_GROUP : SORT_DATE_DESC;
-            updateSortIcon();
-        };
-        updateSortIcon();
-        $("#sort-jobs-toggle").click(function() {
-            toggleSortIcon();
-            window.location.replace("<?php echo $_SERVER['PHP_SELF']; ?>" + (sortMethod == SORT_DATE_DESC ? "?sb=1" : ""));
+        $("button.submit-job").click(function() {
+            var obj = $(this);
+            var colorSsnOption = obj.data("color-ssn-option-id");
+            if (colorSsnOption) {
+                app.submitColorSsnForm(colorSsnOption);
+            } else {
+                app.submitOptionForm(obj.data("option-id"));
+            }
         });
 
         $("#domain-optd").change(function() {
@@ -337,17 +259,8 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
             $(".extra-ram-cb").prop("checked", true);
         });
 
-        $(".taxonomy-preselects").change(function() {
-            var opt = $(this).data("taxoption");
-            var name = $(this).val();
-            add_tax_preselect(opt, name);
-        });
-        for (var name in TaxPreselects) {
-            var selects = $(".taxonomy-preselects");
-            selects.each(function(selIdx) {
-                $(this).append('<option>' + name + '</option>');
-            });
-        }
+
+        setupTaxonomyUi(taxonomyApp);
     });
 
     function resetForms() {

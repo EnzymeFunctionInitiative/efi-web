@@ -21,7 +21,12 @@ if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPag
 
 <?php if (!$IsDisabled || $IsAdminUser) { // set in global_header ?>
 <?php if (!isset($HideCiteUs)) { ?>
-            <p><center>If you use the EFI web tools, please <a href="../#citeus">cite us</a>.</center></p>
+            <!--
+            <p>
+            Please cite your use of the EFI tools:<br><br>
+            R&eacute;mi Zallot, Nils Oberg, and John A. Gerlt, <b>The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome Databases to Discover Novel Enzymes and Metabolic Pathways</b>. Biochemistry 2019 58 (41), 4169-4182. <a href="https://doi.org/10.1021/acs.biochem.9b00735">https://doi.org/10.1021/acs.biochem.9b00735</a>
+            </p>
+            -->
 <?php } ?>
 <?php if (!isset($HideFeedback)) {?>
             <p class="suggestions">
@@ -51,6 +56,7 @@ if ((isset($Is404Page) && $Is404Page) || (isset($IsExpiredPage) && $IsExpiredPag
     </div> <!-- container -->
 
 <?php include(__DIR__."/global_login.inc.php"); ?>
+<?php include(__DIR__."/clipboard_footer.inc.php"); ?>
 
 </body>
 </html>

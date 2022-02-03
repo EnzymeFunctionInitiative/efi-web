@@ -3,6 +3,7 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\table_builder;
 use \efi\global_settings;
+use \efi\global_header;
 use \efi\est\stepa;
 use \efi\est\functions;
 use \efi\est\analysis;
@@ -238,6 +239,7 @@ $network_name = $analysis->get_name();
 
 
         <div id="results">
+            <?php echo global_header::get_global_citation(); ?>
             <p>
             The panels below provide files for full and representative node SSNs for download
             with the indicated numbers of nodes and edges. As an approximate guide, SSNs with

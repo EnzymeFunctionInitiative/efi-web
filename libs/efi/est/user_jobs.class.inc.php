@@ -16,8 +16,14 @@ class user_jobs extends \efi\user_auth {
     private $jobs = array();
     private $training_jobs = array();
     private $analysis_jobs = array();
+    private $load_job_types;
+    private $exclude_job_types;
 
-    public function __construct() {
+    public function __construct($job_types = null, $exclude_types = null) {
+        if (is_array($job_types))
+            $this->load_job_types = $job_types;
+        if (is_array($exclude_job_types))
+            $this->exclude_job_types = $exclude_types;
     }
 
     public function load_jobs($db, $token) {
@@ -86,15 +92,31 @@ class user_jobs extends \efi\user_auth {
         return $sql;
     }
 
+    private function get_job_type_clause() {
+        $type_param_str = "";
+        $job_types = array();
+        if (is_array($this->exclude_job_types)) {
+            $type_param_str .= "generate_type NOT IN (" . implode(",", array_fill(0, count($this->exclude_job_types), "?")) . ") AND";
+            $job_types = array_merge($job_types, $this->exclude_job_types);
+        }
+        if (is_array($this->load_job_types)) {
+            $type_param_str .= "generate_type IN (" . implode(",", array_fill(0, count($this->load_job_types), "?")) . ") AND";
+            $job_types = array_merge($job_types, $this->load_job_types);
+        }
+        return array($type_param_str, $job_types);
+    }
+
     private function load_generate_jobs($db) {
         $email = $this->user_email;
         $expDate = self::get_start_date_window();
 
+        list($job_type_clause, $job_type_params) = $this->get_job_type_clause();
+
         $sql = self::get_select_statement() .
-            "WHERE (generate_email = '$email') AND generate_status != 'ARCHIVED' AND generate_status != 'CANCELLED' AND " .
+            "WHERE (generate_email = '$email') AND generate_status != 'ARCHIVED' AND generate_status != 'CANCELLED' AND $job_type_clause " .
             "(generate_time_completed >= '$expDate' OR (generate_time_created >= '$expDate' AND (generate_status = 'NEW' OR generate_status = 'RUNNING' OR generate_status = 'FAILED'))) " .
             "ORDER BY generate_status, generate_time_completed DESC";
-        $rows = $db->query($sql);
+        $rows = $db->query($sql, $job_type_params);
 
         $familyLookupFn = function($family_id) {};
         $includeFailedAnalysisJobs = true;

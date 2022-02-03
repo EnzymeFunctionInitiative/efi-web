@@ -5,6 +5,7 @@ require_once(__BASE_DIR__."/includes/login_check.inc.php");
 
 use \efi\global_settings;
 use \efi\global_functions;
+use \efi\global_header;
 use \efi\user_auth;
 
 
@@ -24,6 +25,8 @@ project to develop a sequence / structure-based strategy for facilitating discov
 enzymatic and <i>in vivo</i> metabolic / physiological functions of unknown enzymes discovered in
 genome projects.
 </p>
+
+<?php echo global_header::get_global_citation(); ?>
 
 <p>
 The Enzyme Function Initiative tools are hosted at the <a href="http://igb.illinois.edu">Carl R.
@@ -50,7 +53,7 @@ A "From The Bench" article was recently published in Biochemistry and is availab
 
 <p>
 <a name="citeus"></a>
-If you use the EFI web tools, please cite us:
+The web tools have been described in four publications:
 </p>
 
 <div style="margin-left: 50px">

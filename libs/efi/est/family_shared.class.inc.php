@@ -21,6 +21,7 @@ abstract class family_shared extends option_base {
     protected $max_seq_len = 0;
     protected $exclude_fragments = false;
     private $tax_search;
+    private $tax_only = false;
     private $domain;
     private $domain_region;
 
@@ -127,6 +128,8 @@ abstract class family_shared extends option_base {
             $insert_array["exclude_fragments"] = true;
         if (is_array($data->tax_search) && count($data->tax_search) > 0)
             $insert_array["tax_search"] = implode(";", $data->tax_search);
+        if (isset($data->is_taxonomy_job) && $data->is_taxonomy_job)
+            $insert_array["tax_only"] = "1";
         
         $domain_bool = 0;
         if ($data->domain == 'true' || $data->domain == 1) {
@@ -205,6 +208,8 @@ abstract class family_shared extends option_base {
 
         if ($this->tax_search)
             $parms["--tax-search"] = '"' . $this->tax_search . '"';
+        if ($this->tax_only)
+            $parms["--tax-only"] = "";
 
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
 
@@ -250,6 +255,8 @@ abstract class family_shared extends option_base {
             $this->domain_region = $result['generate_domain_region'];
         if (isset($result['tax_search']))
             $this->tax_search = $result['tax_search'];
+        if (isset($result['tax_only']))
+            $this->tax_only = true;
 
         return $result;
     }
@@ -315,14 +322,15 @@ abstract class family_shared extends option_base {
         return (file_exists($file_path) && filesize($file_path) > 0);
     }
 
-    public function get_raw_taxonomy_data() {
+    public function get_taxonomy_data() {
         $results_dir = functions::get_results_dir();
         $file_path = $results_dir . "/" . $this->get_output_dir() . "/tax.json";
         $data = file_get_contents($file_path);
         if ($data !== false) {
-            return json_encode($data);
+            $data = json_decode($data);
+            return $data;
         } else {
-            return "";
+            return null;
         }
     }
 }

@@ -2,6 +2,7 @@
 require_once(__DIR__."/../../../init.php");
 
 use \efi\cgfp\job_manager;
+use \efi\cgfp\job_types;
 
 
 require_once(__DIR__."/inc/header.inc.php");

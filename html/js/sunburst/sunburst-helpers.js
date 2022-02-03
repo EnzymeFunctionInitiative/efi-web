@@ -99,8 +99,8 @@ function getColorList() {
     var Colors = {
         "Archaea":                { "minH": 0.017453292519943295,
                                     "maxH": 0.6981317007977318 },
-        "Bacteria":               { "minH": 0.8726646259971648,
-                                    "maxH": 2.6179938779914944 },
+        "Bacteria":               { "minH": 0.7726646259971648,
+                                    "maxH": 2.9179938779914944 },
         "unclassified sequences": { "minH": 3.141592653589793,
                                     "maxH": 3.1764992386296798 },
         "unclassified":           { "minH": 3.193952531149623,

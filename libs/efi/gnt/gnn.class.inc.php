@@ -927,10 +927,10 @@ class gnn extends gnn_shared {
         $plain_email .= "The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome Databases to Discover Novel Enzymes and Metabolic Pathways. ";
         $plain_email .= "Biochemistry 2019 58 (41), 4169-4182. BIOCHEM_DOI"; 
         $plain_email .= $this->eol . $this->eol;
-        $plain_email .= "R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, ";
-        $plain_email .= "\"Democratized\" genomic enzymology web tools for functional assignment, ";
-        $plain_email .= "Current Opinion in Chemical Biology, Volume 47, 2018, Pages 77-85, GNT_DOI";
-        $plain_email .= $this->eol . $this->eol;
+        //$plain_email .= "R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, ";
+        //$plain_email .= "\"Democratized\" genomic enzymology web tools for functional assignment, ";
+        //$plain_email .= "Current Opinion in Chemical Biology, Volume 47, 2018, Pages 77-85, GNT_DOI";
+        //$plain_email .= $this->eol . $this->eol;
 
         $plain_email .= "These data will only be retained for " . settings::get_retention_days() . " days." . $this->eol . $this->eol;
         $plain_email .= settings::get_email_footer();

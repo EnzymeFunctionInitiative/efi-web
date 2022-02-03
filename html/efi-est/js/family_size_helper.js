@@ -9,46 +9,19 @@ if (!String.prototype.startsWith) {
 }
 
 
-function InputIds() {
-    this.family = "";
-    this.unirefCb = "";
-    this.unirefVer = "";
-    this.fraction = "";
-    this.dbVer = "";
-}
-
-function OutputIds() {
-    this.container = "";
-    this.count = "";
-    this.warningMsg = "";
-}
-
-function getInputIds(opt) {
-    var ids = new InputIds();
-    ids.family = "families-input-" + opt;
-    ids.unirefCb = "use-uniref-" + opt;
-    ids.unirefVer = "uniref-ver-" + opt;
-    ids.fraction = "fraction-" + opt;
-    ids.dbVer = "db-mod-" + opt;
-    return ids;
-}
-
-function getOutputIds(opt) {
-    var ids = new OutputIds();
-    ids.container = "family-size-container-" + opt;
-    ids.count = "family-count-table-" + opt;
-    ids.warningMsg = "message-" + opt;
-    return ids;
-}
-
-
-
 
 function FamilySizeHelper() {
     this.options = {};
     return this;
 }
 
+
+FamilySizeHelper.prototype.setupFamilyInputs = function(idData) {
+    var keys = Object.keys(idData);
+    keys.forEach((key, index) => {
+        this.setupFamilyInput(key, idData[key].input, idData[key].output);
+    });
+}
 
 FamilySizeHelper.prototype.setupFamilyInput = function(optionName, inputIds, outputIds) {
     this.options[optionName] = {
@@ -259,6 +232,43 @@ FamilySizeHelper.prototype.checkUnirefRequirement = function(option, continueSub
     return true;
 }
 
+FamilySizeHelper.prototype.checkUnirefRequirement2 = function(option) {
+
+    //TODO: check input
+    var opt = this.options[option];
+
+    var inputIds = opt.inputIds;
+    var outputIds = opt.outputIds;
+
+    var famInput = $("#" + inputIds.family).val();
+    if (!famInput || famInput.length == 0) {
+        continueSubmissionFn();
+        return true;
+    }
+
+    if (!opt.validated) {
+        alert("Something went wrong.");
+        return false;
+    }
+
+    if (opt.sizeData.is_too_large) {
+        $("#" + outputIds.warningMsg).text("The selected inputs are too large to process.");
+        return false;
+    }
+
+    var unirefVer = $("#" + inputIds.unirefVer).val();
+    var useUniref = $("#" + inputIds.unirefCb).prop("checked");
+
+    var fraction = typeof opt.sizeData.total_compute !== "undefined" ? opt.sizeData.total_compute : 0;
+    var showWarningFn = true;
+    if (useUniref || opt.sizeData.is_uniref90_required || opt.sizeData.is_uniref50_required) {
+        var isUnirefRequired = opt.sizeData.is_uniref90_required || opt.sizeData.is_uniref50_required;
+        showWarningFn = showUnirefRequirement2(opt.sizeData.total, fraction, unirefVer, isUnirefRequired);
+    }
+
+    return showWarningFn;
+}
+
 
 function getFamilyCountsRaw(family, fraction, useUniref, unirefVer, countOutputId, dbVer, handler) {
 
@@ -422,4 +432,38 @@ function showUnirefRequirement(numFound, numAfterFraction, unirefVer, isUnirefRe
 
     warningDialog.dialog("open");
 }
+
+function showUnirefRequirement2(numFound, numAfterFraction, unirefVer, isUnirefRequired) {
+    var showFn = function(continueSubmissionFn) {
+        var warningDialog = $("#family-warning");
+        $("#family-warning-total-size").text(commaFormatted(numFound.toString()));
+        if (numAfterFraction > 0) {
+            $("#family-warning-fraction-size").text(" (" + commaFormatted(numAfterFraction.toString()) + " after applying a fraction)");
+        }
+    
+        if (!isUnirefRequired)
+            $("#family-warning-size-info").hide();
+        else
+            $("#family-warning-size-info").show();
+    
+        $(".family-warning-uniref").text(unirefVer);
+    
+        var warningOkFn = function() {
+            $(this).dialog("close");
+            continueSubmissionFn(); // this is a callback from the submit.js functions that allows the submission to continue
+        };
+    
+        var warningCancelFn = function() {
+            $(this).dialog("close");
+        };
+    
+        warningDialog.dialog({resizeable: false, draggable: false, autoOpen: false, height: 425, width: 500, modal: true,
+            buttons: { "Ok": warningOkFn, "Cancel": warningCancelFn }
+        }).prev(".ui-dialog-titlebar").css("color","red");
+    
+        warningDialog.dialog("open");
+    };
+    return showFn;
+}
+
 

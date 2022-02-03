@@ -8,9 +8,17 @@ use \efi\est\stepa;
 use \efi\est\functions;
 
 
-$id = filter_input(INPUT_POST, "id", FILTER_SANITIZE_NUMBER_INT);
-$key = filter_input(INPUT_POST, "key", FILTER_SANITIZE_STRING);
-$node_name = filter_input(INPUT_POST, "o", FILTER_SANITIZE_STRING);
+$html5_download = false;
+if ($_POST["type"] && $_POST["type"] == "html5") {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $html5_download = true;
+} else {
+    $data = $_POST;
+}
+
+$id = filter_var($data["id"], FILTER_SANITIZE_NUMBER_INT, FILTER_NULL_ON_FAILURE);
+$key = filter_var($data["key"], FILTER_SANITIZE_STRING, FILTER_NULL_ON_FAILURE);
+$node_name = filter_var($data["o"], FILTER_SANITIZE_STRING, FILTER_NULL_ON_FAILURE);
 
 if (!$id || !$key) {
     echo "";
@@ -23,14 +31,13 @@ if ($key != $job->get_key()) {
     exit(1);
 }
 
-$ids = $_POST["ids"];
+$ids = $data["ids"];
 $ids = json_decode($ids);
 
 if (!$ids) {
     echo "";
     exit(1);
 }
-
 
 
 $results_dir = functions::get_results_dir();
@@ -71,9 +78,21 @@ for ($i = 0; $i < $num_ids; $i += $batch_size) {
 
 $node_name = preg_replace("/[^A-Za-z0-9\-_]/", "", $node_name);
 $filename = "${id}_$node_name.fasta";
-$filesize = strlen($output);
-global_functions::send_headers($filename, $filesize);
-echo $output;
-ob_flush();
-flush();
+if ($html5_download) {
+    $response = array(
+        "valid" => "true",
+        "download" => array(
+            "mimetype" => "application/octet-stream",
+            "filename" => $filename,
+            "data" => base64_encode($output)
+        )
+    );
+    echo json_encode($response);
+} else {
+    $filesize = strlen($output);
+    global_functions::send_headers($filename, $filesize);
+    echo $output;
+    ob_flush();
+    flush();
+}
 

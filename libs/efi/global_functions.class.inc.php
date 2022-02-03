@@ -226,8 +226,8 @@ class global_functions {
     }
 
     public static function send_image_file_for_download($filename, $full_path) {
-        send_headers($filename, filesize($full_path));
-        send_file($full_path);
+        self::send_headers($filename, filesize($full_path));
+        self::send_file($full_path);
         //header('Content-Description: File Transfer');
         //header('Content-Type: application/octet-stream');
         //header('Content-Disposition: attachment; filename="'.$filename.'"');

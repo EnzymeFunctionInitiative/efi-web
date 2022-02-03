@@ -4,6 +4,7 @@ chdir(dirname(__FILE__));
 require_once(__DIR__."/../../init.php");
 
 use \efi\cgfp\job_cancels;
+use \efi\cgfp\job_types;
 
 
 $sapi_type = php_sapi_name();

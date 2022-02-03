@@ -4,6 +4,7 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\cgfp\job_manager;
 use \efi\cgfp\identify;
+use \efi\cgfp\job_types;
 
 
 $sapi_type = php_sapi_name();

@@ -30,7 +30,7 @@ class functions {
             "FAMILIES" => array("FAMILIES"),
             "TAXONOMY" => array("TAXONOMY"),
             "ACCESSION" => array("ACCESSION"),
-            "FASTA" => array("FASTA"),
+            "FASTA" => array("FASTA", "FASTA_ID"),
             "COLORSSN" => $ssn_map,
             "CLSTER" => $ssn_map,
             "NBCONN" => $ssn_map,
@@ -524,7 +524,7 @@ class functions {
 
     public static function get_update_message() {
         $msg = 
-            "The EST database has been updated to use UniProt " . 
+            "The EST database uses UniProt " . 
             self::get_uniprot_version() . " and InterPro " . self::get_interpro_version() . ". ";
         return $msg;
     }

@@ -768,30 +768,27 @@ class analysis extends est_shared {
         $plain_email .= $this->get_stepa_job_info() . PHP_EOL;
         $plain_email .= $this->get_email_job_info() . PHP_EOL . PHP_EOL;
 
-        $plain_email .= "The coloring utility recently developed will help downstream analysis of your SSN. Try it! ";
-        $plain_email .= "It can be found at the bottom of the $web_root/#colorssn page." . PHP_EOL . PHP_EOL;
-        $plain_email .= "Have you tried exploring Genome Neighborhood Networks (GNTs) from your favorite SSNs? ";
-        $plain_email .= "GNT_URL" . PHP_EOL . PHP_EOL;
-
-        $plain_email .= "A new tool for Computationally-Guided Functional Profiling (EFI-CGFP) has been added! ";
-        $plain_email .= "Go to CGFP_URL to use it." . PHP_EOL . PHP_EOL;
+        $plain_email .= 'The Color SSN utility can aid downstream analysis of your SSN.  You can transfer the SSN to the Color SNN utility using the "Transfer To" menu on the "Network Files" tab of the "Download Network Files" page.   Or, you can upload the SSN xgmml file to the "Color SSN" utility that can be found in the "SSN Utilities" tab of the EFI-EST home page.';
+        $plain_email .= PHP_EOL . PHP_EOL;
+        $plain_email .= 'You can generate Genome Neighborhood Networks (GNTs) and Genome Neighborhood Diagrams (GNDs) for the clusters in your SSN using EFI-GNT.  The SSN can be transferred to EFI-GNT using the "Transfer To" menu on the Network Files tab of the "Download Network Files" page.  Or, you can upload the SSN xgmml file on the "GNT Submission" tab of the EFI-GNT home page.';
+        $plain_email .= PHP_EOL . PHP_EOL;
+        $plain_email .= 'You can use the Computationally-Guided Functional Profiling tool (EFI-CGFP) to determine the abundance of your clusters in human metagenomes.   The SSN can be transferred from the Color SSN utility (a Color SSN is the required input) using the "Run CGFP on Color SSN" button.   Or, you can upload the SSN xgmml file on the "Run CGFP/Shortbred "tab on the EFI-CGFP home page.';
+        $plain_email .= PHP_EOL . PHP_EOL;
 
         $plain_email .= "Cite us:" . PHP_EOL . PHP_EOL;
-        $plain_email .= "R&eacute;mi Zallot, Nils Oberg, and John A. Gerlt, ";
-        $plain_email .= "The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome Databases to Discover Novel Enzymes and Metabolic Pathways. ";
-        $plain_email .= "Biochemistry 2019 58 (41), 4169-4182. BIOCHEM_DOI"; 
+        $plain_email .= global_settings::get_global_citation();
         $plain_email .= PHP_EOL . PHP_EOL;
 
-        $plain_email .= "John A. Gerlt, Jason T. Bouvier, Daniel B. Davidson, Heidi J. Imker, Boris Sadkhin, David R. ";
-        $plain_email .= "Slater, Katie L. Whalen, Enzyme Function Initiative-Enzyme Similarity Tool (EFI-EST): A web tool ";
-        $plain_email .= "for generating protein sequence similarity networks, Biochimica et Biophysica Acta (BBA) - Proteins ";
-        $plain_email .= "and Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639, EST_DOI ";
-        $plain_email .= PHP_EOL . PHP_EOL;
+        //$plain_email .= "John A. Gerlt, Jason T. Bouvier, Daniel B. Davidson, Heidi J. Imker, Boris Sadkhin, David R. ";
+        //$plain_email .= "Slater, Katie L. Whalen, Enzyme Function Initiative-Enzyme Similarity Tool (EFI-EST): A web tool ";
+        //$plain_email .= "for generating protein sequence similarity networks, Biochimica et Biophysica Acta (BBA) - Proteins ";
+        //$plain_email .= "and Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639, EST_DOI ";
+        //$plain_email .= PHP_EOL . PHP_EOL;
 
-        $plain_email .= "R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, ";
-        $plain_email .= "\"Democratized\" genomic enzymology web tools for functional assignment, ";
-        $plain_email .= "Current Opinion in Chemical Biology, Volume 47, 2018, Pages 77-85, GNT_DOI";
-        $plain_email .= PHP_EOL . PHP_EOL;
+        //$plain_email .= "R&eacute;mi Zallot, Nils Oberg, John A. Gerlt, ";
+        //$plain_email .= "\"Democratized\" genomic enzymology web tools for functional assignment, ";
+        //$plain_email .= "Current Opinion in Chemical Biology, Volume 47, 2018, Pages 77-85, GNT_DOI";
+        //$plain_email .= PHP_EOL . PHP_EOL;
 
         $url_list = array("THE_URL" => $full_url, "GNT_URL" => $gnt_url, "EST_DOI" => $est_doi_url, "GNT_DOI" => $gnt_doi_url, "CGFP_URL" => $cgfp_url, "BIOCHEM_DOI" => $biochem_doi_url);
 

@@ -3,6 +3,8 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\ui;
 use \efi\table_builder;
+use \efi\global_settings;
+use \efi\global_header;
 use \efi\gnt\gnn;
 use \efi\gnt\gnn_example;
 use \efi\gnt\gnt_ui;
@@ -247,6 +249,8 @@ require_once(__DIR__."/inc/header.inc.php");
         
         <!-- DOWNLOAD NETWORKS -->
         <div id="results" class="ui-tabs-active">
+            <?php echo global_header::get_global_citation(); ?>
+
             <h4>Colored Sequence Similarity Network (SSN)</h4>
             <p>
             Each cluster in the submitted SSN has been identified and assigned a unique number and color.

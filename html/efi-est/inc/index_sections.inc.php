@@ -7,6 +7,7 @@ use \efi\ui;
 use \efi\est\settings;
 use \efi\est\colorssn;
 use \efi\est\est_ui;
+use \efi\est\colorssn_shared;
 
 
 function output_option_a($use_advanced_options, $db_modules, $user_email, $example_fn = false) {

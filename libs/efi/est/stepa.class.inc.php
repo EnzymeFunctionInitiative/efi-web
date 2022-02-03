@@ -561,9 +561,8 @@ class stepa extends est_shared {
 
     protected function load_generate($id) {
         $table = $this->load_table;
-        $sql = "SELECT * FROM $table WHERE generate_id='" . $id . "' ";
-        $sql .= "LIMIT 1";
-        $result = $this->db->query($sql);
+        $sql = "SELECT * FROM $table WHERE generate_id = :id LIMIT 1";
+        $result = $this->db->query($sql, array("id" => $id));
 
         $results_obj = array();
         $params_obj = array();

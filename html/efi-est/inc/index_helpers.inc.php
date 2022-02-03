@@ -1,18 +1,22 @@
 <?php
 
 function add_submit_html($option_id, $js_id_name, $user_email) {
-    $js_fn = "submitOptionForm('$option_id', familySizeHelper, $js_id_name)";
+    //$js_fn = "submitOptionForm('$option_id', familySizeHelper, $js_id_name)";
     $is_interactive = is_interactive();
-    if ($option_id == "colorssn")
-        $js_fn = "submitColorSsnForm('colorssn')";
-    else if ($option_id == "cluster")
-        $js_fn = "submitColorSsnForm('cluster')";
-    else if ($option_id == "nc")
-        $js_fn = "submitColorSsnForm('nc')";
-    else if ($option_id == "cr")
-        $js_fn = "submitColorSsnForm('cr')";
-    else if ($option_id == "opt_tax")
-        $js_fn = "submitTaxonomyForm('opt_tax')";
+    $color_ssn_data = "";
+    $color_ssn_options = array("colorssn" => 1, "cluster" => 1, "nc" => 1, "cr" => 1);
+    if (isset($color_ssn_options[$option_id]))
+        $color_ssn_data = 'data-color-ssn-option-id="' + $option_id + '"';
+    //if ($option_id == "colorssn")
+    //    $js_fn = "submitColorSsnForm('colorssn')";
+    //else if ($option_id == "cluster")
+    //    $js_fn = "submitColorSsnForm('cluster')";
+    //else if ($option_id == "nc")
+    //    $js_fn = "submitColorSsnForm('nc')";
+    //else if ($option_id == "cr")
+    //    $js_fn = "submitColorSsnForm('cr')";
+    //else if ($option_id == "opt_tax")
+    //    $js_fn = "submitTaxonomyForm('opt_tax')";
 
     $html = "";
     if ($option_id != "colorssn" && $option_id != "cluster" && $option_id != "nc" && $option_id != "cr")
@@ -45,14 +49,15 @@ HTML;
 <div id="message-$option_id" style="color: red" class="error_message">
 </div>
 <center>
-    <div><button type="button" class="dark"
-HTML;
-    if ($is_interactive)
-        $html .= " onclick=\"$js_fn\"";
-    $html .= <<<HTML
->Submit Analysis</button></div>
+    <div><button type="button" class="dark submit-job" data-option-id="$option_id" $color_ssn_data>SubmitAnalysis</button></div>
 </center>
 HTML;
+//    if ($is_interactive)
+//        $html .= " onclick=\"$js_fn\"";
+//    $html .= <<<HTML
+//>Submit Analysis</button></div>
+//</center>
+//HTML;
     return array($html);
 }
 
@@ -391,7 +396,8 @@ function add_taxonomy_filter($option_id) {
     </div>
     <div id="taxonomy-$option_id-container"></div>
     <div>
-        <button type="button" class="light" onclick="add_tax_condition('$option_id')">Add taxonomic condition</button>
+        <button type="button" class="light add-tax-btn" data-option-id="$option_id">Add taxonomic condition</button>
+        <!--<button type="button" class="light" onclick="appTF.addTaxCondition('$option_id')">Add taxonomic condition</button>-->
     </div>
 </div>
 HTML;

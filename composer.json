@@ -2,7 +2,9 @@
     "//" : [
         "if for some reason composer can't use the rulin132/jpgraph package (as of writing it was jpgraph 4.3) then you can try the following options:",
         "jpgraph/jpgraph -- this was abandoned as of version 4.0",
-        "amenadiel/jpgraph -- as of writing this was at 4.1"
+        "amenadiel/jpgraph -- as of writing this was at 4.1",
+            "url: https://www.github.com/nilsoberg2/IGBIllinois-php",
+            "path: /home/n-z/noberg/dev/IGBIllinois-php"
     ],
     "require": {
         "phpseclib/phpseclib": ">3",
@@ -13,12 +15,23 @@
         "twig/twig": "^3.0",
         "plotly/plotly.js": ">=1.42",
         "harvesthq/chosen": ">=1.8",
-        "igbillinois/igbillinois-php": "dev-main"
+        "php-console/php-console": "^3.1",
+        "igbillinois/igbillinois-php": "main-dev",
+        "efiillinois/taxonomy": "main-dev",
+        "efiillinois/sunburst": "main-dev"
     },
     "repositories" : [
         {
             "type": "vcs",
             "url": "https://www.github.com/nilsoberg2/IGBIllinois-php"
+        },
+        {
+            "type": "path",
+            "url": "/home/n-z/noberg/dev/taxonomy"
+        },
+        {
+            "type": "path",
+            "url": "/home/n-z/noberg/dev/sunburst"
         }
     ],
     "scripts": {
@@ -28,12 +41,37 @@
             "mkdir -p html/vendor/fortawesome",
             "mkdir -p html/vendor/plotly/plotly.js",
             "mkdir -p html/vendor/harvesthq",
+            "mkdir -p html/vendor/twitter",
+            "#change this when moving to a git repo",
+            "#mkdir -p html/vendor/efiillinois/taxonomy/php",
+            "#mkdir -p html/vendor/efiillinois/taxonomy/web",
+            "mkdir -p html/vendor/efiillinois/taxonomy",
+            "#change this when moving to a git repo",
+            "#mkdir -p html/vendor/efiillinois/sunburst/php",
+            "#mkdir -p html/vendor/efiillinois/sunburst/web",
+            "mkdir -p html/vendor/efiillinois/sunburst",
             "cp -R vendor/twbs/bootstrap html/vendor/twbs/",
             "cp -R vendor/components/jquery html/vendor/components/",
             "cp -R vendor/components/jqueryui html/vendor/components/",
             "cp -R vendor/fortawesome/font-awesome html/vendor/fortawesome/",
             "cp -R vendor/plotly/plotly.js html/vendor/plotly",
-            "cp -R vendor/harvesthq/chosen html/vendor/harvesthq"
+            "cp -R vendor/harvesthq/chosen html/vendor/harvesthq",
+            "#change this when moving to a git repo",
+            "#cp -R vendor/efiillinois/taxonomy/bin/* html/vendor/efiillinois/taxonomy/php",
+            "#cp -R vendor/efiillinois/taxonomy/web/* html/vendor/efiillinois/taxonomy/web",
+            "rm html/vendor/efiillinois/taxonomy/php",
+            "ln -s \"$PWD\"/vendor/efiillinois/taxonomy/bin html/vendor/efiillinois/taxonomy",
+            "mv html/vendor/efiillinois/taxonomy/bin html/vendor/efiillinois/taxonomy/php",
+            "rm html/vendor/efiillinois/taxonomy/web",
+            "ln -s \"$PWD\"/vendor/efiillinois/taxonomy/web html/vendor/efiillinois/taxonomy",
+            "#change this when moving to a git repo",
+            "#cp -R vendor/efiillinois/sunburst/bin/* html/vendor/efiillinois/sunburst/php",
+            "#cp -R vendor/efiillinois/sunburst/web/* html/vendor/efiillinois/sunburst/web",
+            "rm html/vendor/efiillinois/sunburst/php",
+            "ln -s \"$PWD\"/vendor/efiillinois/sunburst/bin html/vendor/efiillinois/sunburst",
+            "mv html/vendor/efiillinois/sunburst/bin html/vendor/efiillinois/sunburst/php",
+            "rm html/vendor/efiillinois/sunburst/web",
+            "ln -s \"$PWD\"/vendor/efiillinois/sunburst/web html/vendor/efiillinois/sunburst"
         ]
     }
 }

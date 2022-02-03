@@ -204,6 +204,19 @@ class global_settings {
     public static function get_cgfp_web_path() {
         return defined("__CGFP_WEB_PATH__") ? __CGFP_WEB_PATH__ : "efi-cgfp";
     }
+    public static function get_web_path($type) {
+        $type = strtolower($type);
+        if ($type === "est")
+            return defined("__EST_WEB_PATH__") ? __EST_WEB_PATH__ : "efi-est";
+        else if ($type === "gnt")
+            return defined("__GNT_WEB_PATH__") ? __GNT_WEB_PATH__ : "efi-gnt";
+        else if ($type === "cgfp")
+            return defined("__CGFP_WEB_PATH__") ? __CGFP_WEB_PATH__ : "efi-cgfp";
+        else if ($type === "taxonomy")
+            return defined("__TAXONOMY_WEB_PATH__") ? __TAXONOMY_WEB_PATH__ : "taxonomy";
+        else
+            return "";
+    }
     
     public static function get_est_results_dir() {
         if (is_dir(__EST_RESULTS_DIR__)) {
@@ -218,6 +231,10 @@ class global_settings {
 
     public static function get_blast_module() {
         return defined("__BLAST_MODULE__") ? __BLAST_MODULE__ : "";
+    }
+
+    public static function get_global_citation() {
+        return defined("__GLOBAL_CITATION__") ? __GLOBAL_CITATION__ : "";
     }
 }
 

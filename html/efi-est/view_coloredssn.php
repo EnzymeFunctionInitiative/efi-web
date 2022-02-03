@@ -4,6 +4,7 @@ require_once(__DIR__."/../../init.php");
 require_once(__BASE_DIR__."/includes/login_check.inc.php");
 
 use \efi\global_settings;
+use \efi\global_header;
 use \efi\table_builder;
 use \efi\est\job_factory;
 use \efi\est\functions;
@@ -477,6 +478,7 @@ if ($job_type === "NBCONN") {
             <div style="clear:both;margin-bottom:20px"></div>
         </div>
         <div id="data">
+            <?php echo global_header::get_global_citation(); ?>
 <?php
 if ($job_type !== "CONVRATIO") {
 ?>

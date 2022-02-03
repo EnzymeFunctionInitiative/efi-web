@@ -3,6 +3,7 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\global_settings;
 use \efi\global_functions;
+use \efi\global_header;
 use \efi\user_auth;
 use \efi\ui;
 use \efi\cgfp\cgfp_ui;
@@ -50,19 +51,13 @@ $default_cdhit_id = settings::get_default_cdhit_id();
 $default_ref_db = settings::get_default_ref_db();
 $default_search = settings::get_default_identify_search();
 
-$login_banner_msg = "";
-//if (!$IsLoggedIn) {
-//    $login_banner_msg = "Use of EFI-CGFP requires a user account. Login or " .
-//        "<a href=\"$SiteUrlPrefix/user_account.php?action=create\">create a user account</a>.";
-//} elseif (!$is_enabled && $is_sb_enabled) {
-//    $login_banner_msg = "To use EFI-CGFP, submit a request on the 'Run CGFP/ShortBRED' tab.";
-//}
-$update_message = 
-    "The \"From the Bench\" article describing the tools and their use is available on the " . 
-    "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
-    "Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
-    "<small>" . functions::get_update_message() . "</small>";
-$update_message = ($login_banner_msg ? "$login_banner_msg<br>" : "") . $update_message;
+    //'Please cite your use of the EFI tools:<br><br>' .
+    //'R&eacute;mi Zallot, Nils Oberg, and John A. Gerlt, <b>The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome Databases to Discover Novel Enzymes and Metabolic Pathways</b>. Biochemistry 2019 58 (41), 4169-4182. <a href="https://doi.org/10.1021/acs.biochem.9b00735">https://doi.org/10.1021/acs.biochem.9b00735</a>'
+    //;
+    //"The \"From the Bench\" article describing the tools and their use is available on the " . 
+    //"<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
+    //"Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
+$update_msg = "";
 
 if (!global_settings::get_shortbred_enabled()) {
     error404();
@@ -76,6 +71,7 @@ if ($est_id && $est_key) {
     $est_filename = functions::get_est_job_filename($db, $est_id, $est_key);
 }
 
+$ShowCitation = true;
 include("inc/header.inc.php");
 
 ?>
@@ -105,12 +101,13 @@ from healthy adult women and men from six body sites [stool, buccal mucosa
 nares (nasal cavity), tongue dorsum (surface), and posterior fornix (vagina)].
 </p>
 
-<?php if ($update_message) { ?>
+<?php if ($update_msg) { ?>
 <div id="update-message" class="update-message initial-hidden">
-<div class="new-feature"></div>
-<?php echo $update_message; ?>
 </div>
+<div class="new-feature"></div>
 <?php } ?>
+
+<p><?php echo functions::get_update_message(); ?></p>
 
 <div class="tabs-efihdr tabs" id="tab-container">
     <ul class="tab-headers">

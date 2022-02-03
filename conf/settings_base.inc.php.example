@@ -71,7 +71,7 @@ define("__ENABLE_ADVANCED_OPTIONS__",true);     // This enables advanced options
 //define("__BETA_RELEASE__","BETA --");         // This is used when an installation is used as a
                                                 // beta/testing site, and adds the text as a banner
                                                 // on each page, and email. Uncomment to enable.
-
+define("__GLOBAL_CITATION__","");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // ADVANCED OPTIONS
@@ -101,6 +101,7 @@ define("__INTERPRO_WEBSITE__","http://www.ebi.ac.uk/interpro/");
 define("__EST_WEB_PATH__",__BASE_WEB_PATH__."/efi-est");
 define("__GNT_WEB_PATH__",__BASE_WEB_PATH__."/efi-gnt");
 define("__CGFP_WEB_PATH__",__BASE_WEB_PATH__."/efi-cgfp");
+define("__TAXONOMY_WEB_PATH__",__BASE_WEB_PATH__."/taxonomy");
 define("__EST_URL__",__BASE_WEB_ROOT__."/".__EST_WEB_PATH__);
 
 define("__SHORTBRED_USER_GROUP__","");

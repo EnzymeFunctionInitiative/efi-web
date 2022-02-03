@@ -1,4 +1,7 @@
 <?php
+require_once(__DIR__."/../../../init.php");
+
+require_once(__CGFP_CONF_DIR__."/settings.inc.php");
 
 $Title = "EFI - Computationally-Guided Functional Profiling";
 if (isset($ExtraTitle) && $ExtraTitle)
