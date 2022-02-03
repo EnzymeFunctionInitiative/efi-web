@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__ . "/../../init.php");
 use \efi\global_settings;
+use \efi\global_header;
 
 if (!isset($TopLevelUrl))
     $TopLevelUrl = __WEB_ROOT__;
@@ -51,7 +52,7 @@ $is_dev_site = global_settings::advanced_options_enabled();
 <head>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/components/jqueryui/themes/base/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/buttons.css?v=3">
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css?v=4">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css?v=11">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/table.css?v=5">
 <?php if (isset($LightweightTabs) && $LightweightTabs === true) { ?>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/tabs.css?v=2">
@@ -107,6 +108,8 @@ if (!$IsDisabled || $IsAdminUser)
 
         <div class="content-holder">
             <h1 class="ruled"><?php echo $title; ?></h1>
+            <div class="funding-source">This web resource is supported by a Research Resource from the National Institute of General Medical Sciences (R24GM141196-01).</div>
+<?php if (isset($ShowCitation)) { echo global_header::get_global_citation(); } ?>
 <?php if ($IsBeta) { ?>
             <div class="beta"><?php echo global_settings::get_release_status(); ?></div>
 <?php } else if ($IsDisabled && !$IsAdminUser && !$IsLoginPage) { ?>
