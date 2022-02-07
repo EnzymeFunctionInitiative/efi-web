@@ -28,22 +28,17 @@ abstract class job_list_ui {
 
         $idx = 0;
         foreach ($rows as $row) {
-            $comp = $row["${the_table}_time_completed"];
-            if (substr($comp, 0, 4) == "0000") {
-                $comp = $row["${the_table}_status"]; // "RUNNING";
-                if ($comp == "NEW")
-                    $comp = "PENDING";
-            } else {
-                $comp = date_format(date_create($comp), "n/j h:i A");
-            }
+            $comp_result = self::get_completed_date_label($row["${the_table}_time_completed"], $row["${the_table}_status"]);
             $params = global_functions::decode_object($row["${the_table}_params"]);
-            $filename = pathinfo($params["filename"], PATHINFO_BASENAME);
-            $job_name = $this->get_job_name($filename, $params);
+            $job_name = $this->get_job_name($row["${the_table}_type"], $params);
+
+            $comp = $comp_result[1];
+            $is_completed = $comp_result[0];
 
             $id = $row["${the_table}_id"];
-            $job_info = array("id" => $id, "key" => $row["${the_table}_key"], "filename" => $job_name, "completed" => $comp, "is_child" => false);
+            $job_info = array("id" => $id, "key" => $row["${the_table}_key"], "job_name" => $job_name, "date_completed" => $comp, "is_completed" => $is_completed, "is_child" => false);
             
-            $extra_job_info = $this->get_job_info($row, $params);
+            $extra_job_info = $this->get_extra_job_info($row, $params);
             if (is_array($extra_job_info)) {
                 $job_info = array_merge($job_info, $extra_job_info);
             } else {
@@ -59,17 +54,32 @@ abstract class job_list_ui {
 
         return $jobs;
     }
+    
+    public static function get_completed_date_label($comp, $status) {
+        $is_completed = false;
+        if ($status == "FAILED") {
+            $comp = "FAILED";
+        } elseif (!$comp || substr($comp, 0, 4) == "0000" || $status == "RUNNING") {
+            $comp = $status;
+            if ($comp == "NEW")
+                $comp = "PENDING";
+        } else {
+            $comp = date_format(date_create($comp), "n/j h:i A");
+            $is_completed = true;
+        }
+        return array($is_completed, $comp);
+    }
 
     protected abstract function get_extra_job_info($row, $params);
-    protected abstract function get_job_name($filename, $params);
+    protected abstract function get_job_name($job_type, $params);
     protected abstract function post_process_job_list($jobs);
 
-    public function output_job_list($jobs, $is_example = false) {
+    public function output_job_list($jobs, $job_name_col, $is_example = false) {
         $html = <<<HTML
             <table class="pretty-nested" style="table-layout:fixed">
                 <thead>
                     <th class="id-col">ID</th>
-                    <th>Filename</th>
+                    <th>$job_name_col</th>
                     <th class="date-col">Date Completed</th>
                 </thead>
                 <tbody>
@@ -81,11 +91,11 @@ HTML;
         for ($i = 0; $i < count($jobs); $i++) {
             $key = $jobs[$i]["key"];
             $id = $jobs[$i]["id"];
-            $name = $jobs[$i]["filename"];
-            $date_completed = $jobs[$i]["completed"];
+            $name = $jobs[$i]["job_name"];
+            $date_completed = $jobs[$i]["date_completed"];
             $is_active = $date_completed == "PENDING" || $date_completed == "RUNNING";
 
-            $url = $this->get_url($id, $key);
+            $url = $this->get_url($id, $key, $job);
             $link_start = $is_active ? "" : '<a class="' . $this->css_hl . '" href="' . $url . $example_arg . '">';
             $link_end = $is_active ? "" : "</a>";
             $link_start .= "<span title='$id'>";

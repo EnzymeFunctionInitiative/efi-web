@@ -107,6 +107,7 @@ class efi_statistics
         $sql .= "LEFT JOIN analysis ON analysis.analysis_generate_id=generate.generate_id ";
         $sql .= "WHERE MONTH(analysis.analysis_time_completed)='" . $month . "' ";
         $sql .= "AND YEAR(analysis.analysis_time_completed)='" . $year . "' ";
+        $sql .= "AND generate_is_tax_job = 0 ";
         $sql .= "ORDER BY generate.generate_id ASC";
 
         $results = $db->query($sql);
@@ -139,6 +140,7 @@ class efi_statistics
         $sql .= "FROM generate ";
         $sql .= "WHERE MONTH(generate.generate_time_created)='" . $month . "' ";
         $sql .= "AND YEAR(generate.generate_time_created)='" . $year . "' ";
+        $sql .= "AND generate_is_tax_job = 0 ";
         $sql .= "ORDER BY generate.generate_id ASC";
         
         $results = $db->query($sql);

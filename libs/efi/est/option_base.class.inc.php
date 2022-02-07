@@ -156,13 +156,15 @@ abstract class option_base extends stepa {
     protected function get_generate_insert_array($data) {
         $key = global_functions::generate_key();
         $db_version = functions::get_encoded_db_version($data->db_mod);
-        $job_type = (isset($data->is_taxonomy_job) && $data->is_taxonomy_job) ? "TAXONOMY" : $this->get_create_type();
+        $is_tax_only = (isset($data->is_taxonomy_job) && $data->is_taxonomy_job) ? 1 : 0;
+        $job_type = $this->get_create_type();
         $insert_array = array(
             'generate_key' => $key,
             'generate_email' => $data->email,
             'generate_type' => $job_type,
             'generate_program' => $data->program,
             'generate_db_version' => $db_version,
+            'generate_is_tax_job' => $is_tax_only,
             'generate_status' => __NEW__,
         );
 
@@ -287,6 +289,8 @@ abstract class option_base extends stepa {
         $exec .= " -job-id " . $this->id;
         if (!global_settings::advanced_options_enabled())
             $exec .= " -remove-temp";
+        if ($this->is_tax_only) // From stepa
+            $exec .= " --tax-search-only";
         $exec .= " 2>&1";
 
         $exit_status = 1;

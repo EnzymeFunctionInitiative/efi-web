@@ -9,10 +9,9 @@ use \efi\user_auth;
 abstract class user_jobs extends user_auth {
 
     private $user_token = "";
-    private $user_email = "";
-    private $jobs = array();
+    protected $user_email = "";
+    protected $jobs = array();
     private $is_admin = false;
-    private $user_jobs = array();
     protected $db;
 
     public function __construct($db) {

@@ -14,7 +14,7 @@ class taxonomy_jobs extends user_jobs {
     }
 
     private function get_select_statement() {
-        $sql = "SELECT generate_id, generate_key, generate_time_completed, generate_status, generate_params FROM generate ";
+        $sql = "SELECT generate_id, generate_key, generate_time_completed, generate_time_started, generate_time_created, generate_status, generate_params, generate_type FROM generate ";
         return $sql;
     }
 
@@ -24,7 +24,7 @@ class taxonomy_jobs extends user_jobs {
 
         $sql = $this->get_select_statement();
         $sql .=
-            "WHERE generate_email='$email' AND generate_status != 'ARCHIVED' AND generate_type = 'TAXONOMY' AND " .
+            "WHERE generate_email='$email' AND generate_status != 'ARCHIVED' AND generate_is_tax_job = 1 AND " .
             "(generate_time_completed >= '$exp_date' OR generate_status = 'RUNNING' OR generate_status = 'NEW' OR generate_status = 'FAILED') " .
             "ORDER BY generate_status, generate_time_completed DESC";
         $rows = $this->db->query($sql);

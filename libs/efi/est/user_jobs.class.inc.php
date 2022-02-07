@@ -22,7 +22,7 @@ class user_jobs extends \efi\user_auth {
     public function __construct($job_types = null, $exclude_types = null) {
         if (is_array($job_types))
             $this->load_job_types = $job_types;
-        if (is_array($exclude_job_types))
+        if (isset($exclude_job_types) && is_array($exclude_job_types))
             $this->exclude_job_types = $exclude_types;
     }
 
@@ -87,7 +87,7 @@ class user_jobs extends \efi\user_auth {
         $group_clause .= " AND";
         $sql = self::get_select_statement() .
             "LEFT OUTER JOIN job_group ON generate.generate_id = job_group.job_id " .
-            "WHERE job_group.job_type = 'EST' AND $group_clause generate_status = 'FINISH' " .
+            "WHERE job_group.job_type = 'EST' AND $group_clause generate_status = 'FINISH' AND (generate_is_tax_job = 0 OR generate_is_tax_job IS NULL) " .
             "ORDER BY generate_status, generate_time_completed DESC";
         return $sql;
     }
@@ -113,7 +113,7 @@ class user_jobs extends \efi\user_auth {
         list($job_type_clause, $job_type_params) = $this->get_job_type_clause();
 
         $sql = self::get_select_statement() .
-            "WHERE (generate_email = '$email') AND generate_status != 'ARCHIVED' AND generate_status != 'CANCELLED' AND $job_type_clause " .
+            "WHERE (generate_email = '$email') AND generate_status != 'ARCHIVED' AND generate_status != 'CANCELLED' AND $job_type_clause (generate_is_tax_job = 0 OR generate_is_tax_job IS NULL) AND " .
             "(generate_time_completed >= '$expDate' OR (generate_time_created >= '$expDate' AND (generate_status = 'NEW' OR generate_status = 'RUNNING' OR generate_status = 'FAILED'))) " .
             "ORDER BY generate_status, generate_time_completed DESC";
         $rows = $db->query($sql, $job_type_params);

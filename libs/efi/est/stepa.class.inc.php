@@ -28,6 +28,7 @@ class stepa extends est_shared {
     protected $fraction;
     protected $db_version;
     protected $job_name = "";
+    protected $is_tax_only = false;
 
     protected $is_example = false;
     private $load_table = "generate";
@@ -578,6 +579,7 @@ class stepa extends est_shared {
             $this->type = $result['generate_type'];
             $this->email = $result['generate_email'];
             $this->program = $result['generate_program'];
+            $this->is_tax_only = (isset($result['generate_is_tax_job']) && $result['generate_is_tax_job'] != 0);
             $this->db_version = functions::decode_db_version($result['generate_db_version']);
             
             $params_obj = $this->decode_object($result['generate_params']);
