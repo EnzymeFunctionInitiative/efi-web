@@ -6,7 +6,7 @@ function add_submit_html($option_id, $js_id_name, $user_email) {
     $color_ssn_data = "";
     $color_ssn_options = array("colorssn" => 1, "cluster" => 1, "nc" => 1, "cr" => 1);
     if (isset($color_ssn_options[$option_id]))
-        $color_ssn_data = 'data-color-ssn-option-id="' + $option_id + '"';
+        $color_ssn_data = 'data-color-ssn-option-id="' . $option_id . '"';
     //if ($option_id == "colorssn")
     //    $js_fn = "submitColorSsnForm('colorssn')";
     //else if ($option_id == "cluster")

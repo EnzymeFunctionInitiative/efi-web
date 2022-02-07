@@ -10,8 +10,9 @@ if (!String.prototype.startsWith) {
 
 
 
-function FamilySizeHelper() {
+function FamilySizeHelper(scriptPath) {
     this.options = {};
+    this.scriptPath = scriptPath;
     return this;
 }
 
@@ -187,7 +188,7 @@ FamilySizeHelper.prototype.checkFamilyInput = function (optionName) {
         container.show();
     };
 
-    getFamilyCountsRaw(input, fraction, useUniref, unirefVer, outputIds.count, dbVer, handleResponse);
+    getFamilyCountsRaw(input, fraction, useUniref, unirefVer, outputIds.count, dbVer, handleResponse, this.scriptPath);
 }
 
 
@@ -242,7 +243,6 @@ FamilySizeHelper.prototype.checkUnirefRequirement2 = function(option) {
 
     var famInput = $("#" + inputIds.family).val();
     if (!famInput || famInput.length == 0) {
-        continueSubmissionFn();
         return true;
     }
 
@@ -270,7 +270,7 @@ FamilySizeHelper.prototype.checkUnirefRequirement2 = function(option) {
 }
 
 
-function getFamilyCountsRaw(family, fraction, useUniref, unirefVer, countOutputId, dbVer, handler) {
+function getFamilyCountsRaw(family, fraction, useUniref, unirefVer, countOutputId, dbVer, handler, scriptPath = "get_family_counts.php") {
 
     if ((family.toLowerCase().startsWith("cl") && family.length == 6) || family.length >= 7) {
         var xmlhttp = new XMLHttpRequest();
@@ -285,7 +285,7 @@ function getFamilyCountsRaw(family, fraction, useUniref, unirefVer, countOutputI
         var unirefParam = useUniref ? "&uniref=1" : "";
         var dbVerParam = dbVer ? "&db-ver=" + dbVer : "";
         var unirefVerParam = (useUniref && unirefVer) ? "&uniref-ver=" + unirefVer : "";
-        xmlhttp.open("GET", "get_family_counts.php?families=" + family_query + fractionParam + unirefParam + unirefVerParam + dbVerParam, true);
+        xmlhttp.open("GET", scriptPath + "?families=" + family_query + fractionParam + unirefParam + unirefVerParam + dbVerParam, true);
         xmlhttp.send();
     }
 }

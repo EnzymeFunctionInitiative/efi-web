@@ -107,6 +107,10 @@ button.hl-gnt-bg {
     color: #7d3c98;
 }
 
+.hl-taxonomy, .ui-widget-content .hl-taxonomy {
+    color: #435fa8;
+}
+
 
 /*********** NAV BAR STYLES **********************************************************************/
 
@@ -126,7 +130,7 @@ button.hl-gnt-bg {
     margin: 0;
     padding: 0;
     background-color: #333;
-    overflow: auto;
+    overflow: visible;
 }
 
 .system-nav li a {
@@ -172,6 +176,10 @@ button.hl-gnt-bg {
 
 .system-nav a.fam-info {
     background-color: #7d3c98;
+}
+
+.system-nav a.taxonomy {
+    background-color: #435fa8;
 }
 
 
@@ -403,6 +411,10 @@ a.question {
 
 .tab-content {
     min-height: 500px;
+}
+
+.clear {
+    clear: both;
 }
 
 

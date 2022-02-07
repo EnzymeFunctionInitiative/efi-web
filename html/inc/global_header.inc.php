@@ -16,8 +16,9 @@ if (isset($Is404Page) && $Is404Page)
 if (isset($IsExpiredPage) && $IsExpiredPage)
     $title = "Expired Job";
 
-include_once(__BASE_DIR__ . "/includes/login_check.inc.php");
-include_once(__BASE_DIR__ . "/html/inc/global_login_button.inc.php");
+require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
+
+
 
 if (!isset($HeaderAdditional))
     $HeaderAdditional = array();
@@ -52,8 +53,9 @@ $is_dev_site = global_settings::advanced_options_enabled();
 <head>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/components/jqueryui/themes/base/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/buttons.css?v=3">
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css?v=11">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css?v=13">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/table.css?v=5">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/dropdown.css?v=3">
 <?php if (isset($LightweightTabs) && $LightweightTabs === true) { ?>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/tabs.css?v=2">
 <?php } ?>
@@ -64,7 +66,7 @@ $is_dev_site = global_settings::advanced_options_enabled();
     <link rel="shortcut icon" href="<?php echo $SiteUrlPrefix; ?>/images/favicon_efi.ico" type="image/x-icon">
     <title><?php echo $title; ?></title>
 
-    <script src="<?php echo $SiteUrlPrefix; ?>/js/login.js?v=2" type="text/javascript"></script>
+    <script src="<?php echo $SiteUrlPrefix; ?>/js/login.js?v=3" type="text/javascript"></script>
     <script src="<?php echo $SiteUrlPrefix; ?>/vendor/components/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="<?php echo $SiteUrlPrefix; ?>/vendor/components/jqueryui/jquery-ui.min.js" type="text/javascript"></script>
 <?php if (isset($IncludePlotlyJs)) { ?>
