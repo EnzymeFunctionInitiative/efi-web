@@ -54,6 +54,11 @@ class fasta extends family_shared {
             return;
         }
 
+        if ($this->get_type() == "FASTA_ID")
+            $this->option = "E";
+        else
+            $this->option = "C";
+
         $this->file_helper->on_load_generate($id, $result);
 
         return $result;

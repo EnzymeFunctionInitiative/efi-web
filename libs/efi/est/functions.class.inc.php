@@ -28,7 +28,6 @@ class functions {
         $type_map = array(
             "BLAST" => array("BLAST"),
             "FAMILIES" => array("FAMILIES"),
-            "TAXONOMY" => array("TAXONOMY"),
             "ACCESSION" => array("ACCESSION"),
             "FASTA" => array("FASTA", "FASTA_ID"),
             "COLORSSN" => $ssn_map,
@@ -39,6 +38,9 @@ class functions {
         $where = "";
         if (isset($type_map[$type])) {
             $where = implode(" OR ", array_map(function ($a) { return "generate_type='$a'"; }, $type_map[$type]));
+            $where = "generate_is_tax_job = 0 AND ($where)";
+        } else if ($type == "TAXONOMY") {
+            $where = "generate_is_tax_job = 1";
         } else {
             return false;
         }

@@ -201,7 +201,7 @@ if (!isset($_POST['submit'])) {
                 }
 
                 if ($option == "C" || $option == "E") {
-                    $useFastaHeaders = $_POST['fasta_use_headers'];
+                    $useFastaHeaders = strval($_POST['fasta_use_headers']);
                     $includeAllSeq = isset($_POST['include-all-seq']) && $_POST['include-all-seq'] === "true";
                     $obj = new efi\est\fasta($db, 0, $useFastaHeaders == "true" ? "E" : "C");
                     $input->field_input = $_POST['fasta_input'];

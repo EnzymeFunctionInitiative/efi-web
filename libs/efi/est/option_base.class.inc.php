@@ -289,8 +289,10 @@ abstract class option_base extends stepa {
         $exec .= " -job-id " . $this->id;
         if (!global_settings::advanced_options_enabled())
             $exec .= " -remove-temp";
-        if ($this->is_tax_only) // From stepa
+        if ($this->is_tax_only) { // From stepa
             $exec .= " --tax-search-only";
+            $exec .= " --use-fasta-headers";
+        }
         $exec .= " 2>&1";
 
         $exit_status = 1;

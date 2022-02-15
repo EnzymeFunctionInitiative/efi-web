@@ -120,14 +120,17 @@ HTML;
         $name_style = "";
         $data_aid = "";
         $archive_icon = "fa-stop-circle cancel-btn";
+        $request_type = "cancel";
         if ($is_completed) {
             $aid_param = $row_type == RT_ANALYSIS ? "&analysis_id=$aid" : "";
             $ex_param = $is_example ? "&x=1" : "";
             $link_start = "<a href='$script?id=$id&key=${key}${aid_param}${ex_param}' class='$link_class'>";
             $link_end = "</a>";
             $archive_icon = "fa-trash-alt";
+            $request_type = "archive";
         } elseif ($date_completed == __FAILED__) {
             $archive_icon = "fa-trash-alt";
+            $request_type = "archive";
         }
         $id_text = "$link_start${id}$link_end";
         
@@ -166,7 +169,7 @@ HTML;
     
         $status_update_html = "";
         if ($show_archive)
-            $status_update_html = "<div style='float:right' class='archive-btn' data-type='gnn' data-id='$id' data-key='$key' $data_aid $data_parent_id title='Archive Job'><i class='fas $archive_icon'></i></div>";
+            $status_update_html = "<div style='float:right' class='archive-btn' data-type='generate' data-rt='$request_type' data-id='$id' data-key='$key' $data_aid $data_parent_id title='Archive Job'><i class='fas $archive_icon'></i></div>";
     
         return <<<HTML
                     <tr style="background-color: $bg_color">

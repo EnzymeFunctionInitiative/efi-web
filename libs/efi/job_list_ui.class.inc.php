@@ -41,11 +41,10 @@ abstract class job_list_ui {
             $extra_job_info = $this->get_extra_job_info($row, $params);
             if (is_array($extra_job_info)) {
                 $job_info = array_merge($job_info, $extra_job_info);
-            } else {
-                array_push($jobs, $job_info);
-                $index_map[$id] = $idx;
-                $idx++;
             }
+            array_push($jobs, $job_info);
+            $index_map[$id] = $idx;
+            $idx++;
         }
 
         $replace_jobs = $this->post_process_job_list($jobs);
@@ -89,11 +88,14 @@ HTML;
 
         $last_bg_color = "#eee";
         for ($i = 0; $i < count($jobs); $i++) {
-            $key = $jobs[$i]["key"];
-            $id = $jobs[$i]["id"];
-            $name = $jobs[$i]["job_name"];
-            $date_completed = $jobs[$i]["date_completed"];
+            $job = $jobs[$i];
+            $key = $job["key"];
+            $id = $job["id"];
+            $name = $job["job_name"];
+            $date_completed = $job["date_completed"];
+            $data_type = $job["data_type"];
             $is_active = $date_completed == "PENDING" || $date_completed == "RUNNING";
+            $request_type = $is_active ? "cancel" : "archive";
 
             $url = $this->get_url($id, $key, $job);
             $link_start = $is_active ? "" : '<a class="' . $this->css_hl . '" href="' . $url . $example_arg . '">';
@@ -103,7 +105,7 @@ HTML;
             $id_text = "$link_start${id}$link_end";
         
             $name_style = "";
-            if ($this->check_for_indent($jobs[$i])) {
+            if ($this->check_for_indent($job)) {
                 $id_text = "";
                 $name_style = "style=\"padding-left: 50px;\"";
             } else {
@@ -112,12 +114,16 @@ HTML;
                 else
                     $last_bg_color = "#eee";
             }
-        
+
+            $action = <<<HTML
+<div style="float:right" class="archive-btn" data-type="$data_type" data-id="$id" data-rt="$request_type" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div>
+HTML;
+
             $html .= <<<HTML
                     <tr style="background-color: $last_bg_color">
                         <td>$id_text</td>
                         <td $name_style>$link_start${name}$link_end</td>
-                        <td>$date_completed</td>
+                        <td>$date_completed $action</td>
                     </tr>
 HTML;
         }

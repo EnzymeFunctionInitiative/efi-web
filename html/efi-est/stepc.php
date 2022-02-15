@@ -172,17 +172,7 @@ $has_tax_data = $generate->has_tax_data();
 $is_taxonomy = ($gen_type == "TAXONOMY") && $has_tax_data;
 $show_taxonomy = true && $has_tax_data;
 
-if ($show_taxonomy) {
-    $JsAdditional = array(
-                        '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/sunburst-chart.min.js?v=1"></script>',
-                        '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/sunburst-helpers.js" type="text/javascript"></script>',
-                        '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/sunburst-taxonomy.js?v=4" type="text/javascript"></script>',
-                        '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/progress.js" type="text/javascript"></script>',
-                    );
-    $StyleAdditional = array(
-                        '<link rel="stylesheet" type="text/css" href="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/css/sunburst.css?v=2">',
-                    );
-}
+$IncludeSunburstJs = $show_taxonomy;
 $IncludePlotlyJs = true;
 require_once(__DIR__."/inc/header.inc.php");
 

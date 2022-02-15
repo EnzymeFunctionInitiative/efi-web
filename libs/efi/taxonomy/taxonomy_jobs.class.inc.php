@@ -4,7 +4,7 @@ namespace efi\taxonomy;
 require_once(__DIR__."/../../../init.php");
 
 use \efi\user_jobs;
-use \efi\taxonomy\taxonomy_ui;
+use \efi\taxonomy\taxonomy_job_list_ui;
 
 
 class taxonomy_jobs extends user_jobs {
@@ -31,7 +31,7 @@ class taxonomy_jobs extends user_jobs {
 
         $include_failed_jobs = true;
 
-        $ui = new taxonomy_ui($this->db, $email, $include_failed_jobs);
+        $ui = new taxonomy_job_list_ui($this->db, $email, $include_failed_jobs);
         $this->jobs = $ui->process_load_rows($rows);
     }
 }

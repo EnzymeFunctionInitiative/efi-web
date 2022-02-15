@@ -130,6 +130,11 @@ div.panel-toggle {
 
 .cancel-btn {
     color: red;
+    cursor: pointer;
+}
+
+.archive-btn {
+    cursor: pointer;
 }
 
 

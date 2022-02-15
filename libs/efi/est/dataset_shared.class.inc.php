@@ -113,7 +113,7 @@ class dataset_shared {
             $fraction = "off";
 
         $is_taxonomy = false;
-        if ($generate->get_type() == "TAXONOMY")
+        if ($generate->get_is_tax_only())
             $is_taxonomy = true;
 
 //        $generate->print_raw_counts();

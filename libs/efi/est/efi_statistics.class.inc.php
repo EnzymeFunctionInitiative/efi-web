@@ -34,9 +34,9 @@ class efi_statistics
         $sql .= "SUM(IF(generate_type='CONVRATIO' AND generate_status='FINISH',1,0)) as num_success_option_conv_ratio, ";
         $sql .= "SUM(IF(generate_type='CONVRATIO' AND generate_status='FAILED',1,0)) as num_failed_option_conv_ratio, ";
         $sql .= "SUM(TIME_TO_SEC(TIMEDIFF(IF(generate_time_completed>'0000-00-00 00:00:00',generate_time_completed,generate_time_started),generate_time_started))) as total_time ";
-        $sql .= "FROM generate ";
+        $sql .= "FROM generate WHERE generate_is_tax_job = 0 ";
         if ($recent_only)
-            $sql .= "WHERE TIMESTAMPDIFF(MONTH,generate_time_created,CURRENT_TIMESTAMP) <= 7 ";
+            $sql .= "AND TIMESTAMPDIFF(MONTH,generate_time_created,CURRENT_TIMESTAMP) <= 7 ";
         $sql .= "GROUP BY MONTH(generate_time_created),YEAR(generate_time_created) ORDER BY year,MONTH(generate_time_created)";
         return $db->query($sql);
     }
@@ -151,9 +151,9 @@ class efi_statistics
             $results[$i]['Families'] = isset($params['generate_families']) ? $params['generate_families'] : "";
             $results[$i]['E-Value'] = isset($params['generate_evalue']) ? $params['generate_evalue'] : "";
             $results[$i]['Number of Sequences'] = isset($res_obj['generate_num_seq']) ? $res_obj['generate_num_seq'] : "";
-            $results[$i]['Time Started'] = self::format_date($results[$i]['Time Started']);
-            $results[$i]['Time Completed'] = self::format_date($results[$i]['Time Completed']);
-            $results[$i]['Time Submitted'] = self::format_date($results[$i]['Time Submitted']);
+            $results[$i]['Time Started'] = global_functions::format_short_date($results[$i]['Time Started']);
+            $results[$i]['Time Completed'] = global_functions::format_short_date($results[$i]['Time Completed']);
+            $results[$i]['Time Submitted'] = global_functions::format_short_date($results[$i]['Time Submitted']);
             $results[$i]['UniRef'] = array_key_exists('generate_uniref', $params) ? $params['generate_uniref'] : '';
             $results[$i]['ColorSSNOpt'] = isset($params['make_hmm']) && $params['make_hmm'];
         }
@@ -182,13 +182,14 @@ class efi_statistics
         $sql .= "LEFT JOIN analysis ON analysis.analysis_generate_id=generate.generate_id ";
         $sql .= "WHERE MONTH(analysis.analysis_time_created)='" . $month . "' ";
         $sql .= "AND YEAR(analysis.analysis_time_created)='" . $year . "' ";
+        $sql .= "AND generate_is_tax_job = 0 ";
         $sql .= "ORDER BY generate.generate_id ASC";
 
         $results = $db->query($sql);
         for ($i = 0; $i < count($results); $i++) {
-            $results[$i]['Time Started'] = self::format_date($results[$i]['Time Started']);
-            $results[$i]['Time Completed'] = self::format_date($results[$i]['Time Completed']);
-            $results[$i]['Time Submitted'] = self::format_date($results[$i]['Time Submitted']);
+            $results[$i]['Time Started'] = global_functions::format_short_date($results[$i]['Time Started']);
+            $results[$i]['Time Completed'] = global_functions::format_short_date($results[$i]['Time Completed']);
+            $results[$i]['Time Submitted'] = global_functions::format_short_date($results[$i]['Time Submitted']);
         }
         
         return $results;
@@ -201,10 +202,11 @@ class efi_statistics
         $sql .= "FROM generate ";
         $sql .= "WHERE MONTH(generate.generate_time_created)='" . $month . "' ";
         $sql .= "AND YEAR(generate.generate_time_created)='" . $year . "' ";
+        $sql .= "AND generate_is_tax_job = 0 ";
         $sql .= "GROUP BY DATE(generate.generate_time_created) ";
         $sql .= "ORDER BY DATE(generate.generate_time_created) ASC";
         $result = $db->query($sql);
-        return self::get_day_array($result,'day','count',$month,$year);
+        return global_functions::get_day_array($result,'day','count',$month,$year);
     }
 
     public static function get_analysis_daily_jobs($db,$month,$year) {
@@ -216,41 +218,7 @@ class efi_statistics
         $sql .= "GROUP BY DATE(analysis.analysis_time_created) ";
         $sql .= "ORDER BY DATE(analysis.analysis_time_created) ASC";
         $result = $db->query($sql);
-        return self::get_day_array($result,'day','count',$month,$year);
-    }
-
-    public static function get_day_array($data,$day_column,$data_column,$month,$year) {
-        $days = cal_days_in_month(CAL_GREGORIAN,$month,$year);
-        $new_data = array();
-        for($i=1;$i<=$days;$i++){
-            $exists = false;
-            if (count($data) > 0) {
-                foreach($data as $row) {
-                    $day = date("d",strtotime($row[$day_column]));
-                    if ($day == $i) {
-                        //array_push($new_data,array($day_column=>$i,
-                        //                      $data_column=>$row[$data_column]));
-                        array_push($new_data,$row);
-                        $exists = true;
-                        break(1);
-                    }
-                }
-            }
-            if (!$exists) {
-                $day = $year . "-" . $month . "-" . $i;
-                array_push($new_data,array($day_column=>$day,$data_column=>0));
-            }
-            $exists = false;
-        }
-        return $new_data;
-    }
-
-    private static function format_date($date_str) {
-        if ($date_str == "NULL" || !$date_str)
-            return "";
-        $date = date_create($date_str);
-        $formatted = date_format($date, "n/j h:i A");
-        return $formatted;
+        return global_functions::get_day_array($result,'day','count',$month,$year);
     }
 }
 

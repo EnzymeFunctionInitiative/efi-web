@@ -127,7 +127,7 @@ abstract class family_shared extends option_base {
             $insert_array["exclude_fragments"] = true;
         if (is_array($data->tax_search) && count($data->tax_search) > 0)
             $insert_array["tax_search"] = implode(";", $data->tax_search);
-        
+
         $domain_bool = 0;
         if ($data->domain == 'true' || $data->domain == 1) {
             $domain_bool = 1;
@@ -217,6 +217,9 @@ abstract class family_shared extends option_base {
             return;
         }
 
+        //var_dump($result);
+        //die();
+
         if (isset($result["generate_families"]) && $result["generate_families"]) {
             $families = explode(",", $result["generate_families"]);
             $this->families = $families;
@@ -250,6 +253,7 @@ abstract class family_shared extends option_base {
             $this->domain_region = $result['generate_domain_region'];
         if (isset($result['tax_search']))
             $this->tax_search = $result['tax_search'];
+        //die("|" . $this->exclude_fragments);
 
         return $result;
     }
@@ -320,7 +324,7 @@ abstract class family_shared extends option_base {
         $file_path = $results_dir . "/" . $this->get_output_dir() . "/tax.json";
         $data = file_get_contents($file_path);
         if ($data !== false) {
-            $data = json_decode($data);
+            //$data = json_decode($data);
             return $data;
         } else {
             return null;

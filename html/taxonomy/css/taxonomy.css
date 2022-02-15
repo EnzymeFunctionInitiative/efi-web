@@ -1,0 +1,20 @@
+
+/* Set colors */
+
+h1 {
+    color:#435fa8;
+}
+
+h1.ruled {
+    border-bottom-color: #435fa8;
+}
+
+a, .ui-widget-content a {
+    color: #435fa8;
+}
+
+.footer a:link, .footer a:visited {
+    color: #435fa8;
+}
+
+

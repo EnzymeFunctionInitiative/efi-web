@@ -75,6 +75,7 @@ class stepa extends est_shared {
     public function get_key() { return $this->key; }
     public function get_evalue() { return $this->evalue; }
     public function get_pbs_number() { return $this->pbs_number; }
+    public function get_is_tax_only() { return $this->is_tax_only; }
 
     // Acceptable inputs:
     //      num_seq

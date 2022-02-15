@@ -86,9 +86,39 @@ class global_functions {
         return preg_replace("([^A-Za-z0-9_\-\.])", "_", $filename);
     }
 
-    public static function format_short_date($comp, $date_only = false) {
+    public static function format_short_date($date_str, $date_only = false) {
+        if ($date_str == "NULL" || !$date_str)
+            return "";
         $fmt_str = $date_only ? "n/j" : "n/j h:i A";
-        return date_format(date_create($comp), $fmt_str);
+        $date = date_create($date_str);
+        $formatted = date_format($date, $fmt_str);
+        return $formatted;
+    }
+
+    public static function get_day_array($data, $day_column, $data_column, $month, $year) {
+        $days = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $new_data = array();
+        for($i=1;$i<=$days;$i++){
+            $exists = false;
+            if (count($data) > 0) {
+                foreach($data as $row) {
+                    $day = date("d",strtotime($row[$day_column]));
+                    if ($day == $i) {
+                        //array_push($new_data,array($day_column=>$i,
+                        //                      $data_column=>$row[$data_column]));
+                        array_push($new_data, $row);
+                        $exists = true;
+                        break(1);
+                    }
+                }
+            }
+            if (!$exists) {
+                $day = $year . "-" . $month . "-" . $i;
+                array_push($new_data,array($day_column=>$day, $data_column=>0));
+            }
+            $exists = false;
+        }
+        return $new_data;
     }
 
     public static function get_file_retention_start_date() {
@@ -265,6 +295,13 @@ class global_functions {
             ob_flush();
             flush();
         }
+    }
+
+    public static function validate_id($id) {
+        if (!isset($id) || !is_numeric($id))
+            return false;
+        else
+            return true;
     }
 }
 

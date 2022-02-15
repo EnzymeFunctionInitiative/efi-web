@@ -8,12 +8,12 @@ use \efi\global_functions;
 use \efi\job_list_ui;
 
 
-class gnt_job_ui extends job_list_ui {
+class gnt_job_list_ui extends \efi\job_list_ui {
 
     private $this->child_jobs = array();
 
     public function __construct($db, $email, $include_failed_jobs) {
-        parent::__construct($db, "taxonomy", $email, $include_failed_jobs, "hl-tax");
+        parent::__construct($db, "gnn", $email, $include_failed_jobs, "hl-tax");
         $this->child_jobs = array();
     }
 
@@ -34,7 +34,9 @@ class gnt_job_ui extends job_list_ui {
             $is_child = !$parent_row || $parent_row[0]["${the_table}_email"] == $this->email || !$this->email;
         }
 
-        $info = false;
+        //TODO: handle diagram/gnn data types
+        $info = array("data_type" => "gnn");
+
         if ($is_child) {
             $info = array("is_child" => true);
             $parent_id = $row["${the_table}_parent_id"];

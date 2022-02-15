@@ -9,7 +9,7 @@ use \efi\job_list_ui;
 use \efi\est\est_user_jobs_shared;
 
 
-class taxonomy_ui extends job_list_ui {
+class taxonomy_job_list_ui extends job_list_ui {
 
     // For GNT, when we implement it
 
@@ -26,7 +26,7 @@ class taxonomy_ui extends job_list_ui {
     }
 
     protected function get_extra_job_info($row, $params) {
-        return false;
+        return array("data_type" => "taxonomy");
     }
 
     protected function post_process_job_list($jobs) {

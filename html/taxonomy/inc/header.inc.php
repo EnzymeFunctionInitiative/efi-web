@@ -5,24 +5,22 @@ require_once(__EST_CONF_DIR__."/settings.inc.php");
 
 require_once(__DIR__."/../../shared/est_taxonomy_header.inc.php");
 
-
-$Title = "EFI - Enzyme Similarity Tool";
+$Title = "EFI - Taxonomy Tool";
 if (isset($EstId))
     $JobId = $EstId;
 
-if (!isset($StyleAdditional)) $StyleAdditional = array();
-
+if (!isset($StyleAdditional))
+    $StyleAdditional = array();
 array_push($StyleAdditional,
-    '<link rel="stylesheet" type="text/css" href="css/est.css?v=4">',
+    '<link rel="stylesheet" type="text/css" href="css/taxonomy.css?v=4">',
 );
 
-if (!isset($JsAdditional)) $JsAdditional = array();
-
+if (!isset($JsAdditional))
+    $JsAdditional = array();
 if (isset($IncludeSubmitJs)) {
     array_push($JsAdditional,
-        '<script src="js/submit_app.js?v=29" type="text/javascript"></script>',
+        '<script src="js/submit_app.js?v=3" type="text/javascript"></script>',
         '<script src="js/index_helpers.js?v=1" type="text/javascript"></script>',
-        '<script src="js/nas.js?v=1" type="text/javascript"></script>',
     );
 }
 $BannerImagePath = "images/efiest_logo.png";

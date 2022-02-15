@@ -323,120 +323,6 @@ function submitStepEColorSsnForm(analysisId, ssnIndex) {
     doFormPost(FORM_ACTION, fd, "", fileHandler, completionHandler);
 }
 
-
-function requestJobUpdate(generateId, analysisId, jobKey, requestType, jobType, elementHideFn) {
-    var fd = new FormData();
-    fd.append("id", generateId);
-    fd.append("key", jobKey);
-    if (requestType == "cancel") {
-        fd.append("rt", "c");
-    } else if (requestType == "archive") {
-        fd.append("rt", "a");
-        fd.append("aid", analysisId);
-    }
-
-    var fileHandler = function(xhr) { };
-    //var completionHandler = function(jsonObj) { window.location.href = "index.php"; };
-    var completionHandler = elementHideFn;
-
-    var script = "update_job_status.php";
-    doFormPost(script, fd, "", fileHandler, completionHandler);
-}
-
-
-
-
-
-
-
-function addUploadStuff(xhr, progressNumId, progressBarId) {
-    xhr.upload.addEventListener("progress", function(evt) { uploadProgress(evt, progressNumId, progressBarId);}, false);
-    xhr.addEventListener("load", uploadComplete, false);
-    xhr.addEventListener("error", uploadFailed, false);
-    xhr.addEventListener("abort", uploadCanceled, false);
-}
-
-function uploadProgress(evt, progressTextId, progressBarId) {
-    if (evt.lengthComputable) {
-        var percentComplete = Math.round(evt.loaded * 100 / evt.total);
-        document.getElementById(progressTextId).innerHTML = percentComplete.toString() + '%';
-        var bar = document.getElementById(progressBarId);
-        bar.value = percentComplete;
-    }
-}
-
-function uploadComplete(evt) {
-}
-
-function uploadFailed(evt) {
-    alert("There was an error attempting to upload the file.");
-}
-
-function uploadCanceled(evt) {
-    alert("The upload has been canceled by the user or the browser dropped the connection.");
-}
-
-
-
-
-
-function doFormPost(formAction, formData, messageId, fileHandler, completionHandler) {
-
-    formData.append("submit", "submit");
-
-    var xhr = new XMLHttpRequest();
-    if (typeof fileHandler === "function")
-        fileHandler(xhr);
-
-    xhr.open("POST", formAction, true);
-    xhr.send(formData);
-    xhr.onreadystatechange  = function(){
-        if (xhr.readyState == 4  ) {
-            // Javascript function JSON.parse to parse JSON data
-            var jsonObj = JSON.parse(xhr.responseText);
-
-            console.log(messageId);
-    
-            // jsonObj variable now contains the data structure and can
-            // be accessed as jsonObj.name and jsonObj.country.
-            if (jsonObj.valid) {
-                if (jsonObj.cookieInfo)
-                    document.cookie = jsonObj.cookieInfo;
-                completionHandler(jsonObj);
-            }
-            if (!jsonObj.valid && jsonObj.message) {
-                document.getElementById(messageId).innerHTML = jsonObj.message;
-            } else {
-                if (messageId)
-                    document.getElementById(messageId).innerHTML = "";
-            }
-        }
-    }
-}
-
-function addCbParam(fd, param, id) {
-    var val = $("#" + id).prop("checked");;
-    if (typeof val !== "undefined") {
-        fd.append(param, val);
-        return true;
-    } else {
-        return false;
-    }
-}
-
-function addRadioParam(fd, param, groupName) {
-    var value = $("input[name='" + groupName + "']:checked").val();
-    if (value)
-        fd.append(param, value);
-}
-
-function addParam(fd, param, id) {
-    var val = $("#" + id).val();
-    if (typeof val !== "undefined")
-        fd.append(param, val);
-}
-
-
 function toggleUniref(comboId, unirefCheckbox) {
     if (unirefCheckbox.checked) {
         document.getElementById(comboId).disabled = false;
@@ -444,4 +330,5 @@ function toggleUniref(comboId, unirefCheckbox) {
         document.getElementById(comboId).disabled = true;
     }
 }
+
 
