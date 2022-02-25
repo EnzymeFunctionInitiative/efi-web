@@ -174,35 +174,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
             }
         });
         
-        $("#fasta-file").on("change", function(e) {
-            var fileName = '';
-            fileName = e.target.value.split( '\\' ).pop();
-            if (fileName && !$("#job-name-optc").val())
-                $("#job-name-optc").val(fileName);
-        });
-
-        $("#accession-file-uniref").on("change", function(e) {
-            var fileName = '';
-            fileName = e.target.value.split( '\\' ).pop();
-            if (fileName) {
-                if (fileName.includes("UniRef50"))
-                    $("#accession-seq-type").val("uniref50");
-                else if (fileName.includes("UniRef90"))
-                    $("#accession-seq-type").val("uniref90");
-                else if (fileName.includes("UniProt"))
-                    $("#accession-seq-type").val("uniprot");
-            }
-            if (fileName && !$("#job-name-optd").val())
-                $("#job-name-optd").val(fileName);
-        });
-
-        $("#accession-file-uniprot").on("change", function(e) {
-            var fileName = '';
-            fileName = e.target.value.split( '\\' ).pop();
-            if (fileName && !$("#job-name-optd").val())
-                $("#job-name-optd").val(fileName);
-        });
-
+        setupFileInputEvents();
         setupArchiveUi();
         setupSortUi();
 

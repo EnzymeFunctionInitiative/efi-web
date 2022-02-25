@@ -15,22 +15,33 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
 Retrieve taxonomy for families. 
             </p>
 
-<p>The sequences from input Pfam families, InterPro families/domains, and/or 
-Pfam clans (superfamilies) are retrieved. </p>
+<p>
+The sequences from input Pfam families, InterPro families/domains, and/or Pfam 
+clans are retrieved. 
+</p>
 
-<p>The taxonomic distribution of the sequences is displayed as a "sunburst" in 
+<p>
+The taxonomic distribution of the sequences is displayed as a "sunburst" in 
 which the levels of classification (superkingdom, kingdom, phylum, class, 
-order, family, genus, species) displayed radially, with superkingdom at the 
-center and species in the outermost ring. </p>
+order, family, genus, species) are displayed radially, with superkingdom at the 
+center and species in the outermost ring. 
+</p>
 
-<p>The sunburst is interactive, providing the ability to zoom to a selected 
-taxonomic level.   </p>
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomic level.   
+</p>
 
-<p>The number of sequences at the selected level is displayed.  The 
-UniProt/UniRef90/UniRef50 IDs and/or UniProt/UniRef90/UniRef50 FASTA-formatted 
-sequences at the selected level can be downloaded. </p>
+<p>
+The number of UniProt IDs and UniRef90 cluster IDs at the selected level is 
+displayed.  
+</p>
 
-            </p>
+<p>
+The UniProt IDs and UniRef90 clusters IDs as well as the UniProt and UniRef90 
+FASTA-formatted sequences at the selected level can be downloaded. 
+</p>
+
 
             <form name="optionBform" id="optionBform" method="post" action="">
                 <?php echo add_family_input_option_family_only("optb", false)[0]; ?>
@@ -64,25 +75,33 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
 Retrieve taxonomy for FASTA files. 
             </p>
 
-<p>Input a list of protein sequences in FASTA format or upload a 
-FASTA-formatted sequence file. </p>
+<p>
+Input a list of UniProt sequences in FASTA format or upload a FASTA-formatted 
+UniProt sequence file. 
+</p>
 
-<p>The FASTA headers are necessarily “read” to identify the UniProt accession 
-ID so the taxonomic classification can be retrieved.   </p>
+<p>
+The FASTA headers are necessarily “read” to identify the UniProt ID so the 
+taxonomic classification can be retrieved.   
+</p>
 
-<p>The taxonomic distribution of the sequences is displayed as a "sunburst" in 
+<p>
+The taxonomic distribution of the sequences is displayed as a "sunburst" in 
 which the levels of classification (superkingdom, kingdom, phylum, class, 
-order, family, genus, species) displayed radially, with superkingdom at the 
-center and species in the outermost ring. </p>
+order, family, genus, species) are displayed radially, with superkingdom at the 
+center and species in the outermost ring. 
+</p>
 
-<p>The sunburst is interactive, providing the ability to zoom to the selected 
-taxonomic level. </p>
+<p>
+The sunburst is interactive, providing the ability to zoom to the selected 
+taxonomic level. 
+</p>
 
-<p>The number of sequences at the selected level is displayed.  The UniProt IDs 
+<p>
+The number of sequences at the selected level is displayed.  The UniProt IDs 
 and their FASTA-formatted sequences at the specified level can be downloaded. 
 </p>
 
-            
             <form name="optionCform" id="optionCform" method="post" action="">
                 <div class="primary-input">
                     <div class="secondary-name">
@@ -119,30 +138,80 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
 Retrieve taxonomy for accession IDs. 
             </p>
 
-<p>Input a list of UniProt accession ID or upload a text file. </p>
-
-<p>The taxonomic distribution of the sequences is displayed as a "sunburst" in 
-which the levels of classification (superkingdom, kingdom, phylum, class, 
-order, family, genus, species) displayed radially, with superkingdom at the 
-center and species in the outermost ring. </p>
-
-<p>The sunburst is interactive, providing the ability to zoom to the selected 
-taxonomic level. </p>
-
-<p>The number of sequences at the selected level is displayed.  The UniProt IDs 
-and their FASTA-formatted sequences at the specified level can be downloaded. 
+<p>
+Input a list or upload a text file of UniProt IDs, UniRef90 cluster IDs, or 
+UniRef50 cluster IDs. 
 </p>
 
+<p>
+UniRef90 cluster IDs and UniRef50 cluster IDs are expanded to UniProt IDs.   
+</p>
+
+<p>
+The taxonomic distribution of the sequences is displayed as a "sunburst" in 
+which the levels of classification (superkingdom, kingdom, phylum, class, 
+order, family, genus, species) are displayed radially, with superkingdom at the 
+center and species in the outermost ring. 
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to the selected 
+taxonomic level. 
+</p>
+
+<p>
+The number of UniProt IDs and UniRef90 cluster IDs at the selected level is 
+displayed.  
+</p>
+
+<p>
+The UniProt IDs and UniRef90 clusters IDs as well as the UniProt and UniRef90 
+FASTA-formatted sequences at the selected level can be downloaded. 
+</p>
 
             <form name="optionDform" id="optionDform" method="post" action="">
-                <div id="optionD-source-uniprot" class="tab ui-tabs-active">
-                    <div class="primary-input">
-                        <div class="secondary-name">
-                            Accession IDs:
-                        </div>
-                        <textarea id="accession-input-uniprot" name="accession-input-uniprot"></textarea>
-                        <div>
+                <div class="tabs tabs-efihdr" id="optionD-src-tabs">
+                    <ul class="tab-headers">
+                        <li class="ui-tabs-active"><a href="#optionD-source-uniprot">Use UniProt IDs</a></li>
+                        <li><a href="#optionD-source-uniref">Use UniRef50 or UniRef90 Cluster IDs</a></li>
+                    </ul>
+                    <div class="tab-content" style="min-height: 250px">
+                        <div id="optionD-source-uniprot" class="tab ui-tabs-active">
+                            <div class="primary-input">
+                                <div class="secondary-name">
+                                    Accession IDs:
+                                </div>
+                                <textarea id="accession-input-uniprot" name="accession-input-uniprot"></textarea>
+                                <div>
 <?php echo ui::make_upload_box("Accession ID File:", "accession-file-uniprot", "progress-bar-accession-uniprot", "progress-num-accession-uniprot"); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="optionD-source-uniref" class="ui-tabs-panel ui-widget-content">
+                            <p>
+                            Input a list of UniRef50 or UniRef90 cluster accession IDs, or upload a text
+                            file.
+                            </p>
+                            <div class="primary-input">
+                                <div class="secondary-name">
+                                    Accession IDs:
+                                </div>
+                                <textarea id="accession-input-uniref" name="accession-input-uniref"></textarea>
+                                <div>
+<?php echo ui::make_upload_box("Accession ID File:", "accession-file-uniref", "progress-bar-accession-uniref", "progress-num-accession-uniref"); ?>
+                                </div>
+                                <div id="accession-seq-type-container" style="margin-top:15px">
+                                    <span class="input-name">Input accession IDs are:</span>
+                                    <select id="accession-seq-type">
+                                        <option value="uniref90">UniRef90 cluster IDs</option>
+                                        <option value="uniref50">UniRef50 cluster IDs</option>
+                                    </select>
+                                    <a class="question" title="
+                                        The list of sequences that is put into
+                                        the tool will be end up being the node IDs, and node attributes with the UniRef clusters
+                                        will be included in the output SSN.">?</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

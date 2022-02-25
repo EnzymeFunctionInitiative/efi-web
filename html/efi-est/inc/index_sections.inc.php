@@ -15,6 +15,11 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
     $max_blast_seq = get_max_blast_seq();
     $default_blast_seq = get_default_blast_seq();
     $show_example = $example_fn !== false;
+    $tax_filter_text = <<<TEXT
+<p>Sequences retrieved from the UniProt and UniRef90 databases can be restricted to those that match the specified taxonomic categories. Multiple conditions are combined to be a union of each other. </p>
+<p>UniRef90 clusters with sequences that share &ge;90% sequence identity usually are taxonomically homogeneous.  UniRef50 clusters with sequences that share &ge;50% sequence identity often are taxonomically heterogeneous so this option does not support taxonomic filtering of the UniRef50 database.</p>
+TEXT;
+
     $example_fn = $example_fn === false ? function(){} : $example_fn;
 ?>
         <div id="optionAtab" class="ui-tabs-panel ui-widget-content">
@@ -47,7 +52,7 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
                 <div class="option-panels">
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
                     <div>
-                        <?php echo add_taxonomy_filter("opta")[0] ?>
+                        <?php echo add_taxonomy_filter("opta", $tax_filter_text)[0] ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_TAX"); ?>
@@ -143,6 +148,10 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
 function output_option_b($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
     $show_example = $example_fn !== false;
     $example_fn = $example_fn === false ? function(){} : $example_fn;
+    $tax_filter_text = <<<TEXT
+<p>Sequences from the UniProt and UniRef90 databases can be restricted to those that match the specified taxonomic categories. Multiple conditions are combined to be a union of each other. </p>
+<p>UniRef90 clusters with sequences that share &ge;90% sequence identity usually are taxonomically homogeneous.  UniRef50 clusters with sequences that share &ge;50% sequence identity often are taxonomically heterogeneous so this option does not support taxonomic filtering of the UniRef50 database.</p>
+TEXT;
 ?>
         <div id="optionBtab" class="ui-tabs-panel ui-widget-content">
 <?php $example_fn("DESC_START"); ?>
@@ -165,7 +174,7 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
                 <div class="option-panels">
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
                     <div>
-                        <?php echo add_taxonomy_filter("optb")[0] ?>
+                        <?php echo add_taxonomy_filter("optb", $tax_filter_text)[0] ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_TAX"); ?>
@@ -220,6 +229,9 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
 function output_option_c($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
     $show_example = $example_fn !== false;
     $example_fn = $example_fn === false ? function(){} : $example_fn;
+    $tax_filter_text = <<<TEXT
+<p>Sequences (by default, from the UniProt database) can be restricted to those that match the specified taxonomic categories. Multiple conditions are combined to be a union of each other. </p>
+TEXT;
 ?>
         <div id="optionCtab" class="ui-tabs-panel ui-widget-content">
 <?php $example_fn("DESC_START"); ?>
@@ -256,7 +268,7 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
                 <div class="option-panels">
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
                     <div>
-                        <?php echo add_taxonomy_filter("optc")[0] ?>
+                        <?php echo add_taxonomy_filter("optc", $tax_filter_text)[0] ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_TAX"); ?>
@@ -310,6 +322,10 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
 }
 
 function output_option_d($use_advanced_options, $db_modules, $user_email, $show_example = false) {
+    $tax_filter_text = <<<TEXT
+<p>Sequences from the UniProt and UniRef90 databases can be restricted to those that match the specified taxonomic categories. Multiple conditions are combined to be a union of each other. </p>
+<p>UniRef90 clusters with sequences that share ≥90% sequence identity usually are taxonomically homogeneous.  UniRef50 clusters with sequences that share ≥50% sequence identity often are taxonomically heterogeneous so this option does not support taxonomic filtering of UniRef50 clusters.</p>
+TEXT;
 ?>
         <div id="optionDtab" class="ui-tabs-panel ui-widget-content">
             <p class="p-heading">
@@ -373,7 +389,7 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
 
                 <div class="option-panels">
                     <div>
-                        <?php echo add_taxonomy_filter("optd")[0] ?>
+                        <?php echo add_taxonomy_filter("optd", $tax_filter_text)[0] ?>
                     </div>
                     <div>
                         <?php echo add_domain_option("optd", true, $use_advanced_options)[0]; ?>

@@ -127,6 +127,7 @@ class dataset_shared {
             $add_fam_rows_fn = function($family_label, $fraction_label, $domain_label)
                 use ($included_family, $uniref, $table, $num_family_nodes, $num_full_family_nodes, $generate, $fraction, $is_taxonomy)
                 {
+                    $included_family = implode(", ", explode(",", $included_family));
                     $table->add_row($family_label, $included_family);
                     $table->add_row("Number of IDs in Pfam / InterPro Family", number_format($num_full_family_nodes));
                     if (!$uniref && !$is_taxonomy)

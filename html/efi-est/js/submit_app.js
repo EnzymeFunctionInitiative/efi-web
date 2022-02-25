@@ -83,7 +83,7 @@ AppEstSubmit.prototype.submitOptionForm = function(optionId) {
 
 AppEstSubmit.prototype.getOptionAFormFn = function(outputIds) {
 
-    var that = thils;
+    var that = this;
 
     var optionId = "opta";
 
@@ -179,7 +179,6 @@ AppEstSubmit.prototype.getOptionDFormFn = function(outputIds) {
         fd.append("option_selected", "D");
         that.addCommonFormData(optionId, fd);
         addParam(fd, "accession_input", "accession-input-" + source);
-        addCbParam(fd, "accession_use_uniref", "accession-use-uniref");
         addParam(fd, "accession_uniref_version", "accession-uniref-version");
         if (source == "uniprot")
             addParam(fd, "accession_seq_type", "uniprot");

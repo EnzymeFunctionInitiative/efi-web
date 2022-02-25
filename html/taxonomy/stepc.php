@@ -51,7 +51,7 @@ if (!$generate->has_tax_data()) {
 $uniref = dataset_shared::get_uniref_version($gen_type, $generate);
 $job_name = $generate->get_job_name();
 $sunburstAppUniref = $uniref ? $uniref : "false"; // Is the entire app UniRef-based?
-$hasUniref = $gen_type == "FAMILIES" ? "true" : "false";
+$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") ? "true" : "false";
 
 
 $table = new table_builder($table_format);

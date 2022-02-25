@@ -49,7 +49,7 @@ HTML;
 <div id="message-$option_id" style="color: red" class="error_message">
 </div>
 <center>
-    <div><button type="button" class="dark submit-job" data-option-id="$option_id" $color_ssn_data>SubmitAnalysis</button></div>
+    <div><button type="button" class="dark submit-job" data-option-id="$option_id" $color_ssn_data>Submit Analysis</button></div>
 </center>
 HTML;
 //    if ($is_interactive)
@@ -381,13 +381,18 @@ HTML;
 }
 
 
-function add_taxonomy_filter($option_id) {
+function add_taxonomy_filter($option_id, $text = "") {
+    if (!$text) {
+        $text = <<<TEXT
+        Conditions on the taxonomy can be set to further restrict the set of sequences by only including the sequences that
+        match the specific taxonomic categories.  Multiple conditions are combined to be a union of each other.
+TEXT;
+    }
     $html = <<<HTML
 <h3>Filter by Taxonomy</h3>
 <div>
     <div>
-        Conditions on the taxonomy can be set to further restrict the set of sequences by only including the sequences that
-        match the specific taxonomic categories.  Multiple conditions are combined to be a union of each other.
+        $text
     </div>
     <div>Preselected conditions:
         <select class="taxonomy-preselects" data-taxoption="$option_id">

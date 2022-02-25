@@ -94,6 +94,12 @@ if (!isset($_POST['submit'])) {
                     $input->include_all_seq = $includeAllSeq;
                 } else if ($option == "D") {
                     $obj = new efi\est\accession($db);
+                    if (isset($_POST['accession_seq_type']) && $_POST['accession_seq_type'] != "uniprot") {
+                        if ($_POST['accession_seq_type'] == "uniref50")
+                            $input->uniref_version = "50";
+                        else
+                            $input->uniref_version = "90";
+                    }
                     $input->field_input = $_POST['accession_input'];
                 }
 

@@ -151,7 +151,8 @@ $generate = dataset_shared::create_generate_object($gen_type, $db, $is_example);
 $uniref = dataset_shared::get_uniref_version($gen_type, $generate);
 $job_name = $generate->get_job_name();
 $use_domain = dataset_shared::get_domain($gen_type, $generate) == "on";
-$sunburstUniref = $uniref ? $uniref : "false";
+$sunburstUniref = 50; //$uniref ? $uniref : "false";
+$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") ? "true" : "false";
 
 
 $table = new table_builder($table_format);
@@ -917,7 +918,8 @@ for (var i = 0; i < acc.length; i++) {
 
 <?php if ($show_taxonomy) { ?>
 <script>
-    var sunburstApp = new AppSunburst("<?php echo $gen_id; ?>", "<?php echo $key; ?>", [], <?php echo $sunburstUniref; ?>, "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php");
+    var hasUniref = <?php echo $hasUniref; ?>;
+    var sunburstApp = new AppSunburst("<?php echo $gen_id; ?>", "<?php echo $key; ?>", [], <?php echo $sunburstUniref; ?>, "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php", hasUniref);
     sunburstApp.attachToContainer("taxonomy");
     sunburstApp.addSunburstFeatureAsync();
 </script>

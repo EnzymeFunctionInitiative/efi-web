@@ -107,13 +107,19 @@ AppTaxSubmit.prototype.getOptionDFormFn = function(outputIds) {
     var optionId = "optd";
 
     var submitFn = function() {
-        var source = "uniprot";
+        var source = $("#optionD-src-tabs").data("source");
+        
         var fd = new FormData();
         fd.append("option_selected", "D");
         that.addCommonFormData(optionId, fd);
         addParam(fd, "accession_input", "accession-input-" + source);
-        addParam(fd, "accession_seq_type", "uniprot");
+        addParam(fd, "accession_uniref_version", "accession-uniref-version");
+        if (source == "uniprot")
+            addParam(fd, "accession_seq_type", "uniprot");
+        else
+            addParam(fd, "accession_seq_type", "accession-seq-type");
 
+        console.log(source);
         var completionHandler = getDefaultCompletionHandler();
         var fileHandler = function(xhr) {};
         var files = document.getElementById("accession-file-" + source).files;

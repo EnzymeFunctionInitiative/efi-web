@@ -47,16 +47,29 @@ require_once(__DIR__."/inc/header.inc.php");
 As the UniProt database increases in size, users may encounter difficulties in 
 opening and visualizing SSNs with Cytoscape (too many nodes and edges, 
 insufficient RAM available).  One solution is to restrict the input sequences 
-to specific taxonomic groups.  Options A, B, C, and D include a "Filter by 
-Taxonomy" option so that the user can select specific taxonomic categories to 
+to specific taxonomic categories.  Options A, B, C, and D include a “Filter by 
+Taxonomy” option so that the user can select specific taxonomic categories to 
 include in their SSNs.
 </p>
 
 <p>
-This utility assists the user in selecting taxonomic categories by providing a 
-preview of the taxonomic distribution of input sequences (families, Option B; 
-FASTA files, Option C; accession IDs, Option D) and the number of sequences at 
-selected categories before the SSN is generated.    
+This resource assists the user in selecting taxonomic categories for Options A, 
+B, C, and D by providing a preview of the taxonomic distribution of input 
+sequences (families, Option B; FASTA files, Option C; accession IDs, Option D) 
+and the number of UniProt IDs and UniRef90 cluster IDs at selected categories.    
+</p>
+
+<p>
+This resource also allows the user to download UniProt IDs and UniRef90 cluster 
+IDs and FASTA files for selected taxonomic categories.
+</p>
+
+<p>
+UniRef90 clusters with sequences that share &ge;90% sequence identity are usually 
+taxonomically homogeneous.  UniRef50 clusters with sequences that share &ge;50% 
+sequence identity often are taxonomically heterogeneous.   Therefore, the 
+numbers of sequences at the selected level and ID/FASTA downloads are provided 
+only for UniProt and UniRef90 cluster IDs.
 </p>
 
 <?php
@@ -80,6 +93,9 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
 
     $(document).ready(function() {
         $("#main-tabs").tabs();
+        $("#optionD-src-tabs").tabs();
+
+        $("#optionD-src-tabs").data("source", "uniprot");
 
         $(".tabs .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");
@@ -99,19 +115,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
 
         var app = new AppTaxSubmit(idData, taxonomyApp);
 
-        $("#fasta-file").on("change", function(e) {
-            var fileName = '';
-            fileName = e.target.value.split( '\\' ).pop();
-            if (fileName && !$("#job-name-optc").val())
-                $("#job-name-optc").val(fileName);
-        });
-
-        $("#accession-file-uniprot").on("change", function(e) {
-            var fileName = '';
-            fileName = e.target.value.split( '\\' ).pop();
-            if (fileName && !$("#job-name-optd").val())
-                $("#job-name-optd").val(fileName);
-        });
+        setupFileInputEvents();
 
         $("button.submit-job").click(function() {
             var obj = $(this);
@@ -136,6 +140,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
     });
 
 </script>
+<script src="../js/custom-file-input.js" type="text/javascript"></script>
 
 <div id="family-warning" class="hidden" title="UniRef Family Warning">
 <div style="color:red;" id="family-warning-size-info">
