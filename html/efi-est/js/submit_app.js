@@ -184,6 +184,10 @@ AppEstSubmit.prototype.getOptionDFormFn = function(outputIds) {
             addParam(fd, "accession_seq_type", "uniprot");
         else
             addParam(fd, "accession_seq_type", "accession-seq-type");
+        addParam(fd, "accession_tax_job_id", "tax-source-job-id");
+        addParam(fd, "accession_tax_job_key", "tax-source-job-key");
+        addParam(fd, "accession_tax_tree_id", "tax-source-tree-id");
+        addParam(fd, "accession_tax_id_type", "tax-source-id-type");
 
         if ($("#domain-optd").prop("checked")) {
             fd.append("domain", true);
@@ -192,13 +196,15 @@ AppEstSubmit.prototype.getOptionDFormFn = function(outputIds) {
         }
     
         var completionHandler = getDefaultCompletionHandler();
-        var fileHandler = function(xhr) {};
-        var files = document.getElementById("accession-file-" + source).files;
-        if (files.length > 0) {
-            fd.append("file", files[0]);
-            fileHandler = function(xhr) {
-                addUploadStuff(xhr, "progress-num-accession-" + source, "progress-bar-accession-" + source);
-            };
+        if (!$("#tax-source-job-id").val()) {
+            var fileHandler = function(xhr) {};
+            var files = document.getElementById("accession-file-" + source).files;
+            if (files.length > 0) {
+                fd.append("file", files[0]);
+                fileHandler = function(xhr) {
+                    addUploadStuff(xhr, "progress-num-accession-" + source, "progress-bar-accession-" + source);
+                };
+            }
         }
     
         doFormPost(FORM_ACTION, fd, outputIds.warningMsg, fileHandler, completionHandler);

@@ -11,8 +11,8 @@ $job_type = "taxonomy";
 $results_page = "../stepc.php";
 
 
-$month = isset($_POST['month']) ? $_POST['month'] : date('n');
-$year = isset($_POST['year']) ? $_POST['year'] : date('Y');
+$month = isset($_GET['month']) ? $_GET['month'] : date('n');
+$year = isset($_GET['year']) ? $_GET['year'] : date('Y');
 
 $jobs = statistics::get_jobs($db, $month, $year);
 

@@ -1,8 +1,8 @@
 <?php
 require_once(__DIR__."/../../../../init.php");
 
-$month = isset($_POST['month']) ? $_POST['month'] : date('n');
-$year = isset($_POST['year']) ? $_POST['year'] : date('Y');
+$month = isset($_GET['month']) ? $_GET['month'] : date('n');
+$year = isset($_GET['year']) ? $_GET['year'] : date('Y');
 
 
 function format_time($t) {
@@ -47,7 +47,7 @@ function get_stats_table_html($jobs_per_month, $num_cols) {
 
 
 function get_month_html() {
-    $month = isset($_POST['month']) ? $_POST['month'] : date('n');
+    $month = isset($_GET['month']) ? $_GET['month'] : date('n');
     $month_html = "<select class='form-control month-sel' name='month'>";
     for ($i = 1; $i <= 12; $i++) {
         if ($month == $i)
@@ -62,7 +62,7 @@ function get_month_html() {
 
 
 function get_year_html() {
-    $year = isset($_POST['year']) ? $_POST['year'] : date('Y');
+    $year = isset($_GET['year']) ? $_GET['year'] : date('Y');
     $year_html = "<select class='form-control year-sel' name='year'>";
     for ($i = 2014; $i <= date('Y'); $i++) {
         if ($year = $i)
@@ -143,8 +143,8 @@ Month
 
 
 function show_graphs($graph_type) {
-    $month = isset($_POST['month']) ? $_POST['month'] : date('n');
-    $year = isset($_POST['year']) ? $_POST['year'] : date('Y');
+    $month = isset($_GET['month']) ? $_GET['month'] : date('n');
+    $year = isset($_GET['year']) ? $_GET['year'] : date('Y');
     $month_html = get_month_html();
     $year_html = get_year_html();
 
@@ -175,8 +175,8 @@ function show_graphs($graph_type) {
 
 
 function show_nav_js($graph_type) {
-    $month = isset($_POST['month']) ? $_POST['month'] : date('n');
-    $year = isset($_POST['year']) ? $_POST['year'] : date('Y');
+    $month = isset($_GET['month']) ? $_GET['month'] : date('n');
+    $year = isset($_GET['year']) ? $_GET['year'] : date('Y');
     
     $graph_script = "../../shared/est_taxonomy/admin/stats_graph.php";
 
@@ -222,8 +222,8 @@ $(document).ready(function() {
 
 
 function show_job_js($job_type) {
-    $month = isset($_POST['month']) ? $_POST['month'] : date('n');
-    $year = isset($_POST['year']) ? $_POST['year'] : date('Y');
+    $month = isset($_GET['month']) ? $_GET['month'] : date('n');
+    $year = isset($_GET['year']) ? $_GET['year'] : date('Y');
 ?>
 <script type="text/javascript">
 
@@ -311,8 +311,8 @@ function get_job_table_html($jobs, $script_path) {
 
 
 function show_job_table($title, $table_html, $headers) {
-    $month = isset($_POST['month']) ? $_POST['month'] : date('n');
-    $year = isset($_POST['year']) ? $_POST['year'] : date('Y');
+    $month = isset($_GET['month']) ? $_GET['month'] : date('n');
+    $year = isset($_GET['year']) ? $_GET['year'] : date('Y');
 
     $month_html = get_month_html();
     $year_html = get_year_html();

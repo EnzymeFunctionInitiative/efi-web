@@ -29,6 +29,10 @@ class input_data {
     // For option D
     public $domain_family;
     public $domain_region;
+    public $tax_job_id;
+    public $tax_tree_id;
+    public $tax_job_key;
+    public $tax_id_type;
 
     // For option B, and E
     public $domain;

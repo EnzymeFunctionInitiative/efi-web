@@ -18,4 +18,4 @@ composer.phar
 max_debug_do_not_commit
 /vendor
 html/vendor
-
+/composer-setup.php

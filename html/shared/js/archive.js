@@ -7,6 +7,7 @@ function initArchiveButton(getExtraData) {
         var requestType = $(this).data("rt");
 
         var extra = getExtraData($(this));
+        console.log(extra);
         var otherIds = extra[0];
         var onRequestCompletion = extra[1];
 

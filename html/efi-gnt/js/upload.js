@@ -3,30 +3,40 @@ var DIAGRAM_UPLOAD = 0;
 var SSN_UPLOAD = 1;
 var ARCHIVE = 2;
 
-function submitEstJob(formId, messageId, emailId, submitId, estId, estKey, estSsn) {
-    uploadFileShared("", formId, "", "", messageId, emailId, submitId, true, estId, estKey, estSsn, false);
+function submitEstJob(args) {
+    args.isSsn = true;
+    uploadFileShared(args);
+    //uploadFileShared("", formId, "", "", messageId, emailId, submitId, true, estId, estKey, estSsn, false);
 }
 
-function uploadSsn(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId) {
-    uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, true, 0, "", 0, false);
+function uploadSsn(args) {
+    args.isSsn = true;
+    uploadFileShared(args);
+    //uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, true, 0, "", 0, false);
 }
 
-function uploadSsnFilter(fileInputId, formId, progressNumId, progressBarId, messageId, emailAddr, submitId) {
-    uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailAddr, submitId, true, 0, "", 0, true);
+function uploadSsnFilter(args) {
+//function uploadSsnFilter(fileInputId, formId, progressNumId, progressBarId, messageId, emailAddr, submitId) {
+    uploadFileShared(args);
+    //uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailAddr, submitId, true, 0, "", 0, true);
 }
 
-function uploadDiagramFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId) {
-    uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, false, 0, "", 0, false);
+function uploadDiagramFile(args) {
+//function uploadDiagramFile(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId) {
+    args.isSsn = false;
+    uploadFileShared(args);
+    //uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, isSsn, 0, "", 0, false);
 }
 
-function uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailId, submitId, isSsn, estId, estKey, estSsn, isFilterSubmit) {
+function uploadFileShared(args) {
+    
     var fd = new FormData();
-    if (isFilterSubmit && emailId.includes("@"))
-        fd.append("email", emailId); // in this case emailId is actually the email address
-    else if (emailId.length > 0)
-        addParam(fd, "email", emailId);
-    addParam(fd, "submit", submitId);
-    if (isSsn) {
+    if (args.isFilterSubmit && args.emailId.includes("@"))
+        fd.append("email", args.emailId); // in this case emailId is actually the email address
+    else if (args.emailId.length > 0)
+        addParam(fd, "email", args.emailId);
+    addParam(fd, "submit", args.submitId);
+    if (args.isSsn) {
         addParam(fd, "neighbor_size", "neighbor_size");
         addParam(fd, "cooccurrence", "cooccurrence");
         addParam(fd, "db_mod", "db_mod");
@@ -35,25 +45,25 @@ function uploadFileShared(fileInputId, formId, progressNumId, progressBarId, mes
         addParam(fd, "extra_ram", "extra_ram", true);
     }
 
-    var completionHandler = function() { enableForm(formId); };
+    var completionHandler = function() { enableForm(args.formId); };
     var fileHandler = function(xhr) {};
-    if (estId) {
-        fd.append("est-id", estId);
-        fd.append("est-key", estKey);
-        fd.append("est-ssn", estSsn);
+    if (typeof args.estId !== "undefined" && args.estId) {
+        fd.append("est-id", args.estId);
+        fd.append("est-key", args.estKey);
+        fd.append("est-ssn", args.estSsn);
     } else {
-        var files = document.getElementById(fileInputId).files;
+        var files = document.getElementById(args.fileInputId).files;
         fd.append("file", files[0]);
         fileHandler = function(xhr) {
-            addUploadStuff(xhr, progressNumId, progressBarId);
+            addUploadStuff(xhr, args.progressNumId, args.progressBarId);
         };
     }
 
-    disableForm(formId);
-    var script = isSsn ? "upload_ssn.php" : "upload_diagram.php";
+    disableForm(args.formId);
+    var script = args.isSsn ? "upload_ssn.php" : "upload_diagram.php";
 
-    var uploadType = isSsn ? SSN_UPLOAD : DIAGRAM_UPLOAD;
-    doFormPost(script, fd, messageId, fileHandler, uploadType, completionHandler);
+    var uploadType = args.isSsn ? SSN_UPLOAD : DIAGRAM_UPLOAD;
+    doFormPost(script, fd, args.messageId, fileHandler, uploadType, completionHandler);
 }
 
 function addUploadStuff(xhr, progressNumId, progressBarId) {
@@ -117,56 +127,73 @@ function addParam(fd, param, id, isCb) {
     }
 }
 
-function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId, dbModId, seqTypeId) {
+function submitOptionAForm(formAction, args) {
+//function submitOptionAForm(formAction, optionId, inputId, titleId, evalueId, maxSeqId, emailId, nbSizeId, messageId, dbModId, seqTypeId) {
 
     var fd = new FormData();
-    addParam(fd, "option", optionId);
-    addParam(fd, "title", titleId);
-    addParam(fd, "sequence", inputId);
-    addParam(fd, "evalue", evalueId);
-    addParam(fd, "max-seqs", maxSeqId);
-    addParam(fd, "nb-size", nbSizeId);
-    addParam(fd, "email", emailId);
-    addParam(fd, "db-mod", dbModId);
-    addParam(fd, "seq-type", seqTypeId);
+    addParam(fd, "option", args.optionId);
+    addParam(fd, "title", args.titleId);
+    addParam(fd, "sequence", args.inputId);
+    addParam(fd, "evalue", args.evalueId);
+    addParam(fd, "max-seqs", args.maxSeqId);
+    addParam(fd, "nb-size", args.nbSizeId);
+    addParam(fd, "email", args.emailId);
+    addParam(fd, "db-mod", args.dbModId);
+    addParam(fd, "seq-type", args.seqTypeId);
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
 
-    doFormPost(formAction, fd, messageId, fileHandler, DIAGRAM_UPLOAD, completionHandler);
+    doFormPost(formAction, fd, args.messageId, fileHandler, DIAGRAM_UPLOAD, completionHandler);
 }
 
 
-function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId) {
-    submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId);
+function submitOptionDForm(formAction, args) {
+//function submitOptionDForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId) {
+    args.inputField = "ids";
+    submitOptionForm(formAction, args);
+    //submitOptionForm(formAction, optionId, "ids", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId);
 }
 
 
-function submitOptionCForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
-    submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, "");
+function submitOptionCForm(formAction, args) {
+//function submitOptionCForm(formAction, optionId, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId) {
+    args.inputField = "fasta";
+    args.seqTypeId = "";
+    submitOptionForm(formAction, args);
+    //submitOptionForm(formAction, optionId, "fasta", inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, "");
 }
 
 
-function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId) {
+function submitOptionForm(formAction, args) {
+//function submitOptionForm(formAction, optionId, inputField, inputId, titleId, emailId, nbSizeId, fileId, progressNumId, progressBarId, messageId, dbModId, seqTypeId) {
     var fd = new FormData();
-    addParam(fd, "option", optionId);
-    addParam(fd, "title", titleId);
-    addParam(fd, inputField, inputId);
-    addParam(fd, "nb-size", nbSizeId);
-    addParam(fd, "email", emailId);
-    addParam(fd, "db-mod", dbModId);
-    if (seqTypeId)
-        addParam(fd, "seq-type", seqTypeId);
-    var files = document.getElementById(fileId).files;
+    addParam(fd, "option", args.optionId);
+    addParam(fd, "title", args.titleId);
+    addParam(fd, args.inputField, args.inputId);
+    addParam(fd, "nb-size", args.nbSizeId);
+    addParam(fd, "email", args.emailId);
+    addParam(fd, "db-mod", args.dbModId);
+    if (args.seqTypeId)
+        addParam(fd, "seq-type", args.seqTypeId);
+
+    if (typeof args.taxId !== "undefined" && args.taxId) {
+        fd.append("tax-id", args.taxId);
+        fd.append("tax-tree-id", args.taxTreeId);
+        fd.append("tax-id-type", args.taxIdType);
+        fd.append("tax-key", args.taxKey);
+    }
+
+    var files = document.getElementById(args.fileId).files;
     var fileHandler = function(xhr) {};
     var completionHandler = function() {};
     if (files.length > 0) {
         fd.append("file", files[0]);
         fileHandler = function(xhr) {
-            addUploadStuff(xhr, progressNumId, progressBarId);
+            addUploadStuff(xhr, args.progressNumId, args.progressBarId);
         };
     }
 
-    doFormPost(formAction, fd, messageId, fileHandler, DIAGRAM_UPLOAD, completionHandler);
+    doFormPost(formAction, fd, args.messageId, fileHandler, DIAGRAM_UPLOAD, completionHandler);
 }
 
 

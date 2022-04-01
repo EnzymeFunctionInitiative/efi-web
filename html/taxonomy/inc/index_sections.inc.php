@@ -16,32 +16,31 @@ Retrieve taxonomy for families.
             </p>
 
 <p>
-The sequences from input Pfam families, InterPro families/domains, and/or Pfam 
-clans are retrieved. 
+The UniProt sequences from user-specified Pfam families, InterPro 
+families/domains, and/or Pfam clans are retrieved. 
 </p>
 
 <p>
-The taxonomic distribution of the sequences is displayed as a "sunburst" in 
+The taxonomic distribution of the UniProt IDs is displayed as a "sunburst" in 
 which the levels of classification (superkingdom, kingdom, phylum, class, 
 order, family, genus, species) are displayed radially, with superkingdom at the 
-center and species in the outermost ring. 
+center and species in the outermost ring. The sunburst is interactive, 
+providing the ability to zoom to a selected taxonomic level.  The numbers of 
+UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at the selected 
+taxonomic level are provided.
 </p>
 
 <p>
-The sunburst is interactive, providing the ability to zoom to a selected 
-taxonomic level.   
-</p>
-
-<p>
-The number of UniProt IDs and UniRef90 cluster IDs at the selected level is 
-displayed.  
-</p>
-
-<p>
-The UniProt IDs and UniRef90 clusters IDs as well as the UniProt and UniRef90 
+The UniProt IDs, UniRef90 clusters IDs, and UniRef50 cluster IDs as well as 
 FASTA-formatted sequences at the selected level can be downloaded. 
 </p>
 
+<p>
+The UniProt IDs, UniRef90 clusters IDs, and UniRef50 cluster IDs can be 
+transferred to EFI-EST to generate an SSN and/or to the Retrieve Neighborhood 
+Diagrams/Sequence ID Lookup option of EFI-GNT to generate genome neighborhood 
+diagrams (GNDs).
+</p>
 
             <form name="optionBform" id="optionBform" method="post" action="">
                 <?php echo add_family_input_option_family_only("optb", false)[0]; ?>
@@ -76,30 +75,29 @@ Retrieve taxonomy for FASTA files.
             </p>
 
 <p>
-Input a list of UniProt sequences in FASTA format or upload a FASTA-formatted 
-UniProt sequence file. 
+The user provides a list/file of FASTA-formatted sequences in which the headers 
+contain the UniProt ID.   The UniProt ID is required because it is used to 
+retrieve the taxonomy from the UiProt database (FASTA header “reading”).    
 </p>
 
 <p>
-The FASTA headers are necessarily “read” to identify the UniProt ID so the 
-taxonomic classification can be retrieved.   
-</p>
-
-<p>
-The taxonomic distribution of the sequences is displayed as a "sunburst" in 
+The taxonomic distribution of the UniProt IDs is displayed as a "sunburst" in 
 which the levels of classification (superkingdom, kingdom, phylum, class, 
 order, family, genus, species) are displayed radially, with superkingdom at the 
-center and species in the outermost ring. 
+center and species in the outermost ring. The sunburst is interactive, 
+providing the ability to zoom to a selected taxonomic level. The number of 
+UniProt IDs at the selected taxonomic level is provided.
 </p>
 
 <p>
-The sunburst is interactive, providing the ability to zoom to the selected 
-taxonomic level. 
+The UniProt IDs and their FASTA-formatted sequences at the selected level can 
+be downloaded. 
 </p>
 
 <p>
-The number of sequences at the selected level is displayed.  The UniProt IDs 
-and their FASTA-formatted sequences at the specified level can be downloaded. 
+The UniProt IDs can be transferred to EFI-EST to generate an SSN and/or to the 
+Retrieve Neighborhood Diagrams/Sequence ID Lookup option of EFI-GNT to generate 
+genome neighborhood diagrams (GNDs).
 </p>
 
             <form name="optionCform" id="optionCform" method="post" action="">
@@ -139,34 +137,48 @@ Retrieve taxonomy for accession IDs.
             </p>
 
 <p>
-Input a list or upload a text file of UniProt IDs, UniRef90 cluster IDs, or 
-UniRef50 cluster IDs. 
+The user provides a list/file of UniProt IDs, UniRef90 cluster IDs, or UniRef50 
+cluster IDs. 
 </p>
 
 <p>
 UniRef90 cluster IDs and UniRef50 cluster IDs are expanded to UniProt IDs.   
+For a curated family, the number of UniProt IDs obtained by expansion of 
+UniRef90 cluster IDs may be larger than the number of UniProt IDs identified by 
+protein databases, e.g., Pfam.   And, the numbers of UniProt IDs and UniRef90 
+cluster IDs obtained by expansion of UniRef50 cluster IDs both may be larger 
+than the numbers identified by protein databases.  This behavior is explained 
+by the possibility that 1) the UniRef90 clusters contain divergent UniProt IDs 
+that are not members of the family and 2) the UniRef50 clusters contain 
+divergent UniRef90 clusters that are not members of the family.  Users should 
+be aware of this behavior when SSNs are generated using UniProt IDs from 
+expanded UniRef90 cluster IDs or using UniProt IDs or UniRef90 cluster IDs from 
+expanded UniRef50 clusters IDs.  This problem does not occur when UniRef90 
+clusters are identified using UniProt IDs or when UniRef50 clusters are 
+identified using UniRef90 cluster IDs, i.e., the UniRef90 and UniRef50 cluster 
+IDs identified by the Families option and Option B in EFI-EST.
 </p>
 
 <p>
-The taxonomic distribution of the sequences is displayed as a "sunburst" in 
+The taxonomic distribution of the UniProt IDs is displayed as a "sunburst" in 
 which the levels of classification (superkingdom, kingdom, phylum, class, 
 order, family, genus, species) are displayed radially, with superkingdom at the 
-center and species in the outermost ring. 
+center and species in the outermost ring.  The sunburst is interactive, 
+providing the ability to zoom to a selected taxonomic level.  The numbers of 
+UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at the selected 
+taxonomic level are provided.
 </p>
 
 <p>
-The sunburst is interactive, providing the ability to zoom to the selected 
-taxonomic level. 
-</p>
-
-<p>
-The number of UniProt IDs and UniRef90 cluster IDs at the selected level is 
-displayed.  
-</p>
-
-<p>
-The UniProt IDs and UniRef90 clusters IDs as well as the UniProt and UniRef90 
+The UniProt IDs, UniRef90 clusters IDs, and UniRef50 cluster IDs as well as 
 FASTA-formatted sequences at the selected level can be downloaded. 
+</p>
+
+<p>
+The UniProt IDs, UniRef90 clusters IDs, and UniRef50 cluster IDs can be 
+transferred to EFI-EST to generate an SSN and/or to the Retrieve Neighborhood 
+Diagrams/Sequence ID Lookup option of EFI-GNT to generate genome neighborhood 
+diagrams (GNDs).
 </p>
 
             <form name="optionDform" id="optionDform" method="post" action="">

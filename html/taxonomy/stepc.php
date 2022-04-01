@@ -132,9 +132,55 @@ $date_completed = $generate->get_time_completed_formatted();
 
     var hasUniref = <?php echo $hasUniref; ?>;
 
-    var sunburstApp = new AppSunburst("<?php echo $gen_id; ?>", "<?php echo $key; ?>", [], <?php echo $sunburstAppUniref; ?>, "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php", hasUniref);
+    var onComplete = function(app) {
+        var estClickFn = function(app) {
+            var estPath = "<?php echo global_settings::get_web_path('est'); ?>/index.php";
+            var info = app.getCurrentNode();
+            var encTaxName = encodeURIComponent(info.name);
+            var args = [
+                "tax-id=<?php echo $gen_id; ?>",
+                "tax-key=<?php echo $key; ?>",
+                "tree-id=" + info.id,
+                "id-type=" + info.idType,
+                "tax-name=" + encTaxName,
+                "mode=tax",
+            ];
+            var urlArgs = args.join("&");
+            var url = estPath + "?" + urlArgs;
+            window.location = url;
+        };
+        var gndClickFn = function(app) {
+            var gntPath = "<?php echo global_settings::get_web_path('gnt'); ?>/index.php";
+            var info = app.getCurrentNode();
+            var encTaxName = encodeURIComponent(info.name);
+            var args = [
+                "tax-id=<?php echo $gen_id; ?>",
+                "tax-key=<?php echo $key; ?>",
+                "tree-id=" + info.id,
+                "id-type=" + info.idType,
+                "tax-name=" + encTaxName,
+            ];
+            var urlArgs = args.join("&");
+            var url = gntPath + "?" + urlArgs;
+            window.location = url;
+        };
+        app.addTransferAction("sunburst-transfer-to-est", "Transfer to EFI-EST", "Transfer to EFI-EST", () => estClickFn(app));
+        app.addTransferAction("sunburst-transfer-to-gnt", "Transfer to EFI-GND Viewer", "Transfer to EFI-GND Viewer", () => gndClickFn(app));
+    };
+
+    var scriptAppDir = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php";
+    var sbParams = {
+            apiId: "<?php echo $gen_id; ?>",
+            apiKey: "<?php echo $key; ?>",
+            apiExtra: [],
+            appUniRefVersion: <?php echo $sunburstAppUniref; ?>,
+            scriptApp: scriptAppDir + "/get_tax_data.php",
+            fastaApp: scriptAppDir + "/get_sunburst_fasta.php",
+            hasUniRef: hasUniref
+    };
+    var sunburstApp = new AppSunburst(sbParams);
     sunburstApp.attachToContainer("taxonomy");
-    sunburstApp.addSunburstFeatureAsync();
+    sunburstApp.addSunburstFeatureAsync(onComplete);
 </script>
 
 <?php

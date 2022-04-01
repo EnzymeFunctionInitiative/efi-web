@@ -275,9 +275,11 @@ class est_user_jobs_shared {
             $comp = $status;
             if ($comp == "NEW")
                 $comp = "PENDING";
-        } else {
+        } else if ($status != "NEW") {
             $comp = date_format(date_create($comp), "n/j h:i A");
             $is_completed = true;
+        } else {
+            $comp = "PENDING";
         }
         return array($is_completed, $comp);
     }
@@ -370,6 +372,12 @@ class est_user_jobs_shared {
                 continue;
 
             $comp_result = self::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);
+            //if ($row["generate_id"] == 22995) {
+            //    print($row["${generate_table}_status"]);
+            //    var_dump($comp_result);
+            //    var_dump($row);
+            //    die();
+            //}
             $job_name = self::build_job_name_json($row["${generate_table}_params"], $row["${generate_table}_type"], $familyLookupFn);
             $comp = $comp_result[1];
             $is_completed = $comp_result[0];

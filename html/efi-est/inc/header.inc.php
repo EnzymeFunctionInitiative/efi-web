@@ -20,7 +20,7 @@ if (!isset($JsAdditional)) $JsAdditional = array();
 
 if (isset($IncludeSubmitJs)) {
     array_push($JsAdditional,
-        '<script src="js/submit_app.js?v=30" type="text/javascript"></script>',
+        '<script src="js/submit_app.js?v=31" type="text/javascript"></script>',
         '<script src="js/index_helpers.js?v=1" type="text/javascript"></script>',
         '<script src="js/nas.js?v=1" type="text/javascript"></script>',
     );

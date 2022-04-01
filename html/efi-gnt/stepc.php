@@ -593,7 +593,7 @@ Please change parameters or select a new file to upload before refiltering.
                 });
             } else {
                 var email = "<?php echo $IsLoggedIn ? $IsLoggedIn : ""; ?>";
-                uploadSsnFilter('ssn_file','upload_form','progress_number','progress_bar','ssn_message',email,'filter-btn');
+                uploadSsnFilter({fileInputId: 'ssn_file', formId: 'upload_form', progressNumId: 'progress_number', progressBarId: 'progress_bar', messageId: 'ssn_message', emailAddr: email, submitId: 'filter-btn'});
             }
         });
 

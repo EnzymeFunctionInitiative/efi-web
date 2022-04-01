@@ -48,6 +48,7 @@ $default_evalue = settings::get_default_evalue();
 $est_id = "";
 $est_file_name = "";
 $submit_est_args = "";
+$tax_data = false;
 if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])) {
     $the_aid = $_GET["est-id"];
     $the_key = $_GET["est-key"];
@@ -60,9 +61,11 @@ if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])
             $est_id = $job_info["generate_id"];
             $est_file_name = $est_file_info["filename"];
 
-            $submit_est_args = "'$the_aid','$the_key','$the_idx'";
+            $submit_est_args = "estId: '$the_aid', estKey: '$the_key', estSsn: '$the_idx'";
         }
     }
+} else {
+    $tax_data = check_for_taxonomy_input($db);
 }
 
 
@@ -114,17 +117,17 @@ A listing of new features and other information pertaining to GNT is available o
 <div class="tabs-efihdr tabs">
     <ul class="tab-headers">
 <?php if ($showPreviousJobs) { ?>
-        <li <?php if (!$est_id) echo "class=\"ui-tabs-active\""; ?>><a href="#jobs">Previous Jobs</a></li>
+        <li class="<?php echo ((!$est_id && $tax_data === false) ? "ui-tabs-active" : ""); ?>"><a href="#jobs">Previous Jobs</a></li>
 <?php } ?>
-        <li <?php if ($est_id) echo "class=\"ui-tabs-active\""; ?>><a href="#create">GNT Submission</a></li>
-        <li><a href="#create-diagrams">Retrieve Neighborhood Diagrams</a></li>
+        <li class="<?php echo ($est_id ? "ui-tabs-active" : ""); ?>"><a href="#create">GNT Submission</a></li>
+        <li class="<?php echo ($tax_data !== false ? "ui-tabs-active" : ""); ?>"><a href="#create-diagrams">Retrieve Neighborhood Diagrams</a></li>
         <li><a href="#diagrams">View Saved Diagrams</a></li>
         <li <?php if (! $showPreviousJobs) echo "class=\"ui-tabs-active\""; ?>><a href="#tutorial">Tutorial</a></li>
     </ul>
 
     <div class="tab-content">
 <?php if ($showPreviousJobs) { ?>
-        <div id="jobs" class="tab <?php echo $est_id ? "" : "active"; ?>">
+        <div id="jobs" class="tab <?php echo ((!$est_id && $tax_data === false) ? "ui-tabs-active" : ""); ?>">
 <!--
             <div style="margin-top: 10px">
             <div style="float: right">
@@ -239,7 +242,7 @@ if (count($trainingJobs) > 0) {
         </div>
 <?php } ?>
 
-        <div id="create" class="tab <?php echo $est_id ? "ui-tabs-active" : ""; ?>">
+        <div id="create" class="tab <?php echo ($est_id ? "ui-tabs-active" : ""); ?>">
             <p>
             In a submitted SSN, each sequence is considered as a query. Information 
             associated with protein encoding genes that are neighbors of input queries 
@@ -275,16 +278,16 @@ if (count($trainingJobs) > 0) {
             </form>
         </div>
 
-        <div id="create-diagrams" class="tab">
+        <div id="create-diagrams" class="tab <?php echo ($tax_data !== false ? "ui-tabs-active" : ""); ?>">
             <div style="margin-bottom: 10px;">Clicking on the headers below provides access to various ways of generating genomic neighborhood diagrams.</div>
             <div class="tabs-efihdr tabs">
                 <ul class="tab-headers">
-                    <li class="ui-tabs-active"><a href="#diagram-blast">Single Sequence BLAST</a></li>
-                    <li><a href="#diagram-seqid">Sequence ID Lookup</a></li>
+                    <li class="<?php echo ($tax_data === false ? "ui-tabs-active" : ""); ?>"><a href="#diagram-blast">Single Sequence BLAST</a></li>
+                    <li class="<?php echo ($tax_data !== false ? "ui-tabs-active" : ""); ?>"><a href="#diagram-seqid">Sequence ID Lookup</a></li>
                     <li><a href="#diagram-fasta">FASTA Sequence Lookup</a></li>
                 </ul>
                 <div class="tab-content">
-                <div id="diagram-blast" class="tab ui-tabs-active">
+                <div id="diagram-blast" class="tab <?php echo ($tax_data === false ? "ui-tabs-active" : ""); ?>">
                     <p>
                     The provided sequence is used as the query for a BLAST search of the UniProt database.
                     The retrieved sequences are used to generate genomic neighborhood diagrams. 
@@ -338,7 +341,7 @@ if (count($trainingJobs) > 0) {
                     </form>
                 </div>
 
-                <div id="diagram-seqid" class="tab">
+                <div id="diagram-seqid" class="tab <?php echo ($tax_data !== false ? "ui-tabs-active" : ""); ?>">
                     <p>
                     The genomic neighborhoods are retreived for the UniProt, NCBI, EMBL-EBI ENA, and PDB identifiers
                     that are provided in the input box below.  Not all identifiers may exist in the EFI-GNT database so
@@ -358,18 +361,24 @@ if (count($trainingJobs) > 0) {
                         <textarea class="options" id="option-d-input" name="input"></textarea>
 
                         <div style="margin-bottom: 20px">
-                            <?php echo ui::make_upload_box(
-                                        "Alternatively, a file containing a list of IDs can be uploaded:",
-                                        "option-d-file", "option-d-progress-bar", "option-d-progress-number",
-                                        "The acceptable format is text."); ?>
+<?php
+    $file_title = "";
+    if ($tax_data !== false) {
+        $file_title = $tax_data["filename"];
+    }
+    echo ui::make_upload_box(
+                "Alternatively, a file containing a list of IDs can be uploaded:",
+                "option-d-file", "option-d-progress-bar", "option-d-progress-number",
+                "The acceptable format is text.", "", "$file_title");
+?>
                         </div>
 
                         <div class="create-job-options">
                             <table>
-<?php add_job_title_option("option-d-title"); ?>
+<?php add_job_title_option("option-d-title", $tax_data); ?>
 <?php add_window_option("option-d-nb-size"); ?>
 <?php add_database_option("option-d-db-mod"); ?>
-<?php add_sequence_type_option("option-d-seq-type"); ?>
+<?php add_sequence_type_option("option-d-seq-type", $tax_data); ?>
                             </table>
                         </div>
     
@@ -568,6 +577,15 @@ This job will be permanently removed from your list of jobs.
         });
         $(".gnn-options > div").accordion("option", {active: 0});
         $(".tabs").tabs();
+
+<?php
+    if ($tax_data !== false) {
+        $opt_value = $tax_data["id_type"];
+?>
+        $('#option-d-seq-type option[value="<?php echo $opt_value; ?>"').prop("selected", "selected");
+<?php
+    }
+?>
     });
 </script>
 <script src="js/custom-file-input.js" type="text/javascript"></script>
@@ -632,17 +650,30 @@ HTML;
 }
 
 
-function add_sequence_type_option($seq_id) {
+function add_sequence_type_option($seq_id, $tax_data = false) {
+    $uniprotSel = "selected";
+    $uniref50Sel = $uniref90Sel = "";
+    if ($tax_data !== false) {
+        $seq_type = $tax_data["id_type"];
+        if ($seq_type == "uniref50") {
+            $uniref50Sel = "selected";
+            $uniprotSel = $uniref90Sel = "";
+        } else if ($seq_type == "uniref90") {
+            $uniref90Sel = "selected";
+            $uniprotSel = $uniref50Sel = "";
+        }
+    }
+
     echo <<<HTML
                                 <tr>
                                     <td><b>Sequence database:</b></td>
                                     <td>
 <select id="$seq_id" name="seq-type">
-<option value="uniprot" selected>UniProt</option>
+<option value="uniprot" $uniprotSel>UniProt</option>
 <option value="uniprot-nf">UniProt - Exclude fragments</option>
-<option value="uniref50">UniRef50</option>
+<option value="uniref50" $uniref50Sel>UniRef50</option>
 <option value="uniref50-nf">UniRef50 - Exclude fragments</option>
-<option value="uniref90">UniRef90</option>
+<option value="uniref90" $uniref90Sel>UniRef90</option>
 <option value="uniref90-nf">UniRef90 - Exclude fragments</option>
 </select>
                                     </td>
@@ -671,12 +702,13 @@ HTML;
 }
 
 
-function add_job_title_option($title_id) {
+function add_job_title_option($title_id, $tax_data = false) {
+    $title = $tax_data !== false ? $tax_data["source_name"] : "";
     echo <<<HTML
                                 <tr>
                                     <td><b>Optional job title:</b></td>
                                     <td>
-                                        <input type="text" class="small" id="$title_id" name="title" value="">
+                                        <input type="text" class="small" id="$title_id" name="title" value="$title">
                                     </td>
                                     <td></td>
                                 </tr>
@@ -690,9 +722,14 @@ function add_blast_options() {
 
 function add_submit_button($type, $email_id, $message_id, $btn_text) {
     global $message;
+    global $submit_est_args;
+    global $est_id;
+    global $user_email;
+    global $tax_data;
+
     if (!isset($message))
         $message = "";
-    global $user_email;
+
     echo <<<HTML
 <p>
     <span class="input-name">
@@ -707,74 +744,55 @@ function add_submit_button($type, $email_id, $message_id, $btn_text) {
     $message
 </div>
 <center>
-    <div><button type="button" id="ssn_submit" name="ssn_submit" class="dark"
+    <div>
 HTML;
-    $type = "get_submit_${type}_code";
-    $js_code = $type();
+
+    if ($type == "diagram_upload") {
+        $js_args = "onclick=\"uploadDiagramFile({fileInputId: 'diagram_file', formId: 'upload_diagram_form', progressNumid: 'progress_number_diagram', progressBarId: 'progress_bar_diagram', messageId: 'diagram_message', emailId: 'diagram_email', submitId: 'diagram_submit'})\"";
+    } else if ($type == "diagram_blast") {
+        $js_args = "onclick=\"submitOptionAForm('create_diagram.php', {optionId: 'option-a-option', inputId: 'option-a-input', titleId: 'option-a-title', evalueId: 'option-a-evalue', maxSeqId: 'option-a-max-seqs', emailId: 'option-a-email', nbSizeId: 'option-a-nb-size', messageId: 'option-a-message', dbModId: 'option-a-db-mod', seqTypeId: 'option-a-seq-type'});\"";
+    } else if ($type == "diagram_fasta") {
+        $js_args = "onclick=\"submitOptionCForm('create_diagram.php', {optionId: 'option-c-option', inputId: 'option-c-input', titleId: 'option-c-title', emailId: 'option-c-email', nbSizeId: 'option-c-nb-size', fileId: 'option-c-file', progressNumId: 'option-c-progress-number', progressBarId: 'option-c-progress-bar', messageId: 'option-c-message', dbModId: 'option-c-db-mod'});\"";
+    } else if ($type == "diagram_id") {
+        $extra = "";
+        if ($tax_data !== false) {
+            $extra .= ", taxId: '" . $tax_data["source_id"] . "', taxTreeId: '" . $tax_data["tree_id"] . "', taxIdType: '" . $tax_data["id_type"] . "', taxKey: '" . $tax_data["source_key"] . "'";
+        }
+        $js_args = "onclick=\"submitOptionDForm('create_diagram.php', {optionId: 'option-d-option', inputId: 'option-d-input', titleId: 'option-d-title', emailId: 'option-d-email', nbSizeId: 'option-d-nb-size', fileId: 'option-d-file', progressNumId: 'option-d-progress-number', progressBarId: 'option-d-progress-bar', messageId: 'option-d-message', dbModId: 'option-d-db-mod', seqTypeId: 'option-d-seq-type' $extra});\"";
+    } else if ($type == "gnn") {
+        if ($est_id) {
+            $js_args = "onclick=\"submitEstJob({formId: 'upload_form', messageId: 'ssn_message', emailId: 'ssn_email', submitId: 'ssn_submit', $submit_est_args})\"";
+        } else {
+            $js_args = "onclick=\"uploadSsn({fileInputId: 'ssn_file', formId: 'upload_form', progressNumId: 'progress_number', progressBarId: 'progress_bar', messageId: 'ssn_message', emailId: 'ssn_email', submitId: 'ssn_submit'})\"";
+        }
+    }
+
     echo <<<HTML
-            $js_code
-            >$btn_text</button>
+        <button type="button" id="ssn_submit" name="ssn_submit" class="dark" $js_args>$btn_text</button>
     </div>
 </center>
 HTML;
 }
 
 
-function get_submit_diagram_upload_code() {
-    return <<<HTML
-                                onclick="uploadDiagramFile('diagram_file','upload_diagram_form','progress_number_diagram',
-                                    'progress_bar_diagram','diagram_message','diagram_email','diagram_submit')"
-HTML;
+
+function check_for_taxonomy_input($db) {
+    $id = isset($_GET["tax-id"]) ? $_GET["tax-id"] : "";
+    $key = isset($_GET["tax-key"]) ? $_GET["tax-key"] : "";
+    $tree_id = isset($_GET["tree-id"]) ? $_GET["tree-id"] : "";
+    $id_type = isset($_GET["id-type"]) ? $_GET["id-type"] : "";
+    $tax_name = isset($_GET["tax-name"]) ? $_GET["tax-name"] : "";
+    if (!$id || !$key)
+        return false;
+
+    // returns false if the job id is invalid
+    $mode_data = \efi\taxonomy\taxonomy_job::get_job_info($db, $id, $key, $tree_id, $id_type, $tax_name);
+
+    return $mode_data;
 }
 
 
-function get_submit_diagram_fasta_code() {
-    return <<<HTML
-                                            onclick="submitOptionCForm('create_diagram.php', 'option-c-option', 'option-c-input',
-                                                'option-c-title', 'option-c-email', 'option-c-nb-size', 'option-c-file',
-                                                'option-c-progress-number', 'option-c-progress-bar', 'option-c-message',
-                                                'option-c-db-mod');"
-HTML;
-}
 
-
-function get_submit_diagram_id_code() {
-    return <<<HTML
-                                            onclick="submitOptionDForm('create_diagram.php', 'option-d-option', 'option-d-input',
-                                                'option-d-title', 'option-d-email', 'option-d-nb-size', 'option-d-file',
-                                                'option-d-progress-number', 'option-d-progress-bar', 'option-d-message',
-                                                'option-d-db-mod', 'option-d-seq-type');"
-HTML;
-}
-
-
-function get_submit_diagram_blast_code() {
-    return <<<HTML
-                                            onclick="submitOptionAForm('create_diagram.php', 'option-a-option', 'option-a-input',
-                                                                       'option-a-title', 'option-a-evalue', 'option-a-max-seqs',
-                                                                       'option-a-email', 'option-a-nb-size', 'option-a-message',
-                                                                       'option-a-db-mod', 'option-a-seq-type');"
-HTML;
-}
-
-
-function get_submit_gnn_code() {
-    global $submit_est_args;
-    global $est_id;
-    if ($est_id) {
-        return <<<HTML
-                            onclick="submitEstJob('upload_form','ssn_message','ssn_email','ssn_submit',$submit_est_args)"
-HTML;
-    } else {
-        return <<<HTML
-                            onclick="uploadSsn('ssn_file','upload_form','progress_number','progress_bar','ssn_message','ssn_email','ssn_submit')"
-HTML;
-    }
-}
-
-
-?>
-
-<?php require_once(__DIR__."/inc/footer.inc.php"); ?>
+require_once(__DIR__."/inc/footer.inc.php");
 
 

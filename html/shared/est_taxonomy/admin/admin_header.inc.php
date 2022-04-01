@@ -11,6 +11,7 @@ if (isset($NumWaitingJobs) && isset($NumRunningJobs)) {
 <title>EFI-EST Statistics</title>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
     <script type="text/javascript" src="<?php echo $SiteUrlPrefix; ?>/vendor/components/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="<?php echo $SiteUrlPrefix; ?>/shared/est_taxonomy/admin/stats_nav.js"></script>
 <style>
 .running { font-weight: bold; color: green; }
 .failed { font-weight: bold; color: red; }

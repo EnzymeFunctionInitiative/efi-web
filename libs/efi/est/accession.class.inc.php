@@ -14,6 +14,8 @@ class accession extends family_shared {
     public $subject = "EFI-EST FASTA";
 
     private $domain_family;
+    private $tax_job_id;
+    private $tax_tree_id;
 
 
     public function __construct($db, $id = 0, $is_example = false) {
@@ -62,17 +64,28 @@ class accession extends family_shared {
     protected function validate($data) {
         $result = parent::validate($data);
 
-        //if (!$this->verify_fraction($data->fraction)) {
-        //    $result->errors = true;
-        //    $result->message .= "Please enter a valid fraction";
-        //}
-        if ($data->uploaded_filename && !$this->verify_accession_file($data->uploaded_filename)) {
-            $result->errors = true;
-            $result->message .= "Please upload a valid accession ID file.  The file extension must be .txt";
-        }
-        if (!$data->field_input && !$data->uploaded_filename) {
-            $result->errors = true;
-            $result->message .= "Please specify a list of accession IDs and/or upload a valid accession ID file.  The file extension must be .txt.</br>";
+        if (is_numeric($data->tax_job_id) && is_numeric($data->tax_tree_id) && $data->tax_job_id && isset($data->tax_tree_id) && $data->tax_id_type && $data->tax_job_key) {
+            $sql = "SELECT generate_key FROM generate WHERE generate_id = :id";
+            $result = $this->db->query($sql, array(":id" => $data->tax_job_id));
+            if (!$result || $result[0]["generate_key"] != $data->tax_job_key) {
+                $result->errors = true;
+                $result->message .= "Invalid taxonomy id.";
+            } else {
+                $fp = functions::get_taxonomy_file_info($data->tax_job_id);
+                if ($fp === false) {
+                    $result->errors = true;
+                    $result->message .= "Invalid taxonomy id.";
+                }
+            }
+        } else {
+            if ($data->uploaded_filename && !$this->verify_accession_file($data->uploaded_filename)) {
+                $result->errors = true;
+                $result->message .= "Please upload a valid accession ID file.  The file extension must be .txt";
+            }
+            if (!$data->field_input && !$data->uploaded_filename) {
+                $result->errors = true;
+                $result->message .= "Please specify a list of accession IDs and/or upload a valid accession ID file.  The file extension must be .txt.</br>";
+            }
         }
         if (($data->domain == 'true' || $data->domain == 1) && !$data->domain_family) {
             $result->errors = true;
@@ -94,7 +107,18 @@ class accession extends family_shared {
             $this->domain_family = $result['generate_domain_family'];
         }
 
-        $this->file_helper->on_load_generate($id, $result);
+        if (isset($result['tax_job_id'])) {
+            $this->tax_job_id = $result['tax_job_id'];
+            $this->tax_tree_id = $result['tax_tree_id'];
+            $this->tax_id_type = $result['tax_id_type'];
+
+            $file_path = functions::get_taxonomy_file_info($this->tax_job_id);
+            if ($file_path !== false) {
+                $this->file_helper->set_file_source($file_path);
+            }
+        } else {
+            $this->file_helper->on_load_generate($id, $result);
+        }
 
         return $result;
     }
@@ -117,9 +141,16 @@ class accession extends family_shared {
         if (($data->domain == 'true' || $data->domain == 1) && $data->domain_family) {
             $insert_array['generate_domain_family'] = $data->domain_family;
         }
-        
-        // We don't want to override this in case the user specifies a family to use with uniref
-        $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
+
+        // Already validated
+        if ($data->tax_job_id) {
+            $insert_array['tax_job_id'] = $data->tax_job_id;
+            $insert_array['tax_tree_id'] = $data->tax_tree_id;
+            $insert_array['tax_id_type'] = $data->tax_id_type;
+        } else {
+            // We don't want to override this in case the user specifies a family to use with uniref
+            $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
+        }
 
         return $insert_array;
     }
@@ -146,6 +177,9 @@ class accession extends family_shared {
         $parms["-no-match-file"] = $this->get_no_matches_job_file();
         if ($this->get_domain()) {
             $parms["-domain-family"] = $this->domain_family;
+        }
+        if ($this->tax_job_id) {
+            $parms["--source-tax"] = $this->tax_job_id . "," . $this->tax_tree_id . "," . $this->tax_id_type;
         }
         return $parms;
     }

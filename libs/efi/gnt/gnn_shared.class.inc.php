@@ -101,8 +101,13 @@ abstract class gnn_shared extends arrow_api {
             'gnn_email' => $parms['email'],
             'gnn_key' => $key,
             'gnn_status' => $gnn_status);
-        if ($est_job_id)
+        if ($est_job_id) {
             $insert_array['gnn_est_source_id'] = $est_job_id;
+            if (isset($parms['est_tax_tree_id']) && isset($parms['est_tax_id_type'])) {
+                $insert_array['gnn_est_tax_tree_id'] = $parts['est_tax_tree_id'];
+                $insert_array['gnn_est_tax_id_type'] = $parts['est_tax_id_type'];
+            }
+        }
         if ($parms['parent_id'] && $parms['child_type']) {
             $insert_array['gnn_parent_id'] = $parms['parent_id'];
             $insert_array['gnn_child_type'] = $parms['child_type'];

@@ -211,6 +211,10 @@ if (!isset($_POST['submit'])) {
                     $obj = new efi\est\accession($db);
                     $input->field_input = $_POST['accession_input'];
                     $input->families = $_POST['families_input'];
+                    $input->tax_job_id = $_POST['accession_tax_job_id'];
+                    $input->tax_tree_id = $_POST['accession_tax_tree_id'];
+                    $input->tax_id_type = $_POST['accession_tax_id_type'];
+                    $input->tax_job_key = $_POST['accession_tax_job_key'];
                     if (isset($_POST["domain_family"]) && $_POST["domain_family"])
                         $input->domain_family = $_POST["domain_family"];
                 } else if ($option == "colorssn" || $option == "cluster" || $option == "nc" || $option == "cr") {

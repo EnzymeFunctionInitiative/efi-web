@@ -54,7 +54,7 @@ class diagram_jobs {
         return $info;
     }
 
-    public static function create_lookup_job($db, $email, $title, $nbSize, $content, $jobType, $dbMod, $seqDbType) {
+    public static function create_lookup_job($db, $email, $title, $nbSize, $content, $jobType, $dbMod, $seqDbType, $taxParms) {
 
         if ($jobType == DiagramJob::IdLookup) {
             $content = preg_replace("/\s+/", ",", $content);
@@ -62,7 +62,7 @@ class diagram_jobs {
             $content = preg_replace("/,+$/", "", $content);
         }
 
-        return self::do_create_diagram_job($db, $email, $title, $nbSize, $jobType, "txt", $content, $dbMod, $seqDbType);
+        return self::do_create_diagram_job($db, $email, $title, $nbSize, $jobType, "txt", $content, $dbMod, $seqDbType, $taxParms);
     }
 
     public static function create_file_lookup_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, $dbMod, $seqDbType) {
@@ -72,11 +72,17 @@ class diagram_jobs {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Private Helpers
 
-    private static function do_create_diagram_job($db, $email, $title, $nbSize, $jobType, $ext, $contents, $dbMod, $seqDbType) {
+    private static function do_create_diagram_job($db, $email, $title, $nbSize, $jobType, $ext, $contents, $dbMod, $seqDbType, $taxParms) {
         $params = array('neighborhood_size' => $nbSize, 'db_mod' => $dbMod);
 
         if (isset($seqDbType))
             $params['seq_db_type'] = $seqDbType;
+
+        if (is_array($taxParms)) {
+            $params['tax_job_id'] = $taxParms['tax_job_id'];
+            $params['tax_id_type'] = $taxParms['tax_id_type'];
+            $params['tax_tree_id'] = $taxParms['tax_tree_id'];
+        }
 
         $info = self::do_database_create($db, $email, $title, $jobType, $params);
 

@@ -139,7 +139,14 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
         $("#optionD-src-tabs").tabs();
 
         resetForms();
-        $("#optionD-src-tabs").data("source", "uniprot");
+
+<?php
+    $option_d_source = "uniprot";
+    $mode_data = check_for_taxonomy_input($db);
+    if (!empty($mode_data))
+        $option_d_source = $mode_data["id_type"];
+?>
+        $("#optionD-src-tabs").data("source", "<?php echo $option_d_source; ?>");
 
         $(".tabs .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");

@@ -45,31 +45,39 @@ require_once(__DIR__."/inc/header.inc.php");
 
 <p>
 As the UniProt database increases in size, users may encounter difficulties in 
-opening and visualizing SSNs with Cytoscape (too many nodes and edges, 
-insufficient RAM available).  One solution is to restrict the input sequences 
-to specific taxonomic categories.  Options A, B, C, and D include a “Filter by 
-Taxonomy” option so that the user can select specific taxonomic categories to 
-include in their SSNs.
+opening and visualizing SSNs with Cytoscape (too many nodes and edges for the 
+RAM available on the user’s computer).  Also, low resolution SSNs (UniRef50 
+clusters and/or representative node SSNs) may be necessary to survey 
+sequence-function space.  A solution is to restrict the input sequences to 
+specific taxonomic categories (superkingdom, kingdom, phylum, class, order, 
+family, genus, species).  Options A, B, C, and D include a “Filter by Taxonomy” 
+option so that the user can select specific taxonomic categories to include in 
+their SSNs.
 </p>
 
 <p>
-This resource assists the user in selecting taxonomic categories for Options A, 
-B, C, and D by providing a preview of the taxonomic distribution of input 
-sequences (families, Option B; FASTA files, Option C; accession IDs, Option D) 
-and the number of UniProt IDs and UniRef90 cluster IDs at selected categories.    
+This Taxonomy Tool provides a preview of the taxonomic distribution of 
+user-provided sequences (Option B, families; Option C, FASTA files; Option D, 
+accession IDs).  
 </p>
 
 <p>
-This resource also allows the user to download UniProt IDs and UniRef90 cluster 
-IDs and FASTA files for selected taxonomic categories.
+The taxonomic distribution of the user-provided sequences is displayed as a 
+"sunburst" in which the levels of classification (superkingdom, kingdom, 
+phylum, class, order, family, genus, species) are displayed radially, with 
+superkingdom at the center and species in the outermost ring. The sunburst is 
+interactive, providing the ability to zoom to a selected taxonomic level.   The 
+numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at the 
+selected level are displayed.  
 </p>
 
 <p>
-UniRef90 clusters with sequences that share &ge;90% sequence identity are usually 
-taxonomically homogeneous.  UniRef50 clusters with sequences that share &ge;50% 
-sequence identity often are taxonomically heterogeneous.   Therefore, the 
-numbers of sequences at the selected level and ID/FASTA downloads are provided 
-only for UniProt and UniRef90 cluster IDs.
+UniRef90 clusters contain sequences that share &ge;90% sequence identity so 
+usually are taxonomically homogeneous.  However, UniRef50 clusters contain 
+sequences that share &ge;50% sequence identity so often are taxonomically 
+heterogeneous.  When possible (determined by the RAM available to Cytoscape), 
+users should generate taxonomy-specific SSNs with UniProt IDs or UniRef90 
+cluster IDs.
 </p>
 
 <?php

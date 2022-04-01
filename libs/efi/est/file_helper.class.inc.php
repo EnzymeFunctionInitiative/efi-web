@@ -11,6 +11,7 @@ class file_helper {
     private $uploaded_filename;
     private $file_extension;
     private $id;
+    
     private $file_source; // if this is set, it is used/copied instead of the file in the uploads directory.
 
     public function __construct($file_extension, $id = 0) {

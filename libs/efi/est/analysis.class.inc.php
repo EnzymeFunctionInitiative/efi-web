@@ -412,6 +412,9 @@ class analysis extends est_shared {
                     $exec .= " -compute-nc";
                 if (!$this->build_repnode)
                     $exec .= " -no-repnode";
+                //TODO: remove the legacy after summer 2022
+                if (functions::get_version_numeric($this->db_mod) < 88)
+                    $exec .= " --legacy-anno";
 
                 $exec .= " 2>&1 ";
 
@@ -493,6 +496,9 @@ class analysis extends est_shared {
             $gen_params = global_functions::decode_object($result[0]['generate_params']);
             if (isset($gen_params["generate_uniref"]))
                 $this->uniref = $gen_params["generate_uniref"];
+            // Handle BLAST job database
+            else if (isset($gen_params["blast_db_type"]) && substr($gen_params["blast_db_type"], 0, 6) === "uniref")
+                $this->uniref = substr($gen_params["blast_db_type"], 6);
             else
                 $this->uniref = 0;
             $this->include_all_seq = (isset($gen_params["include_all_seq"]) && $gen_params["include_all_seq"]) ? true : false;

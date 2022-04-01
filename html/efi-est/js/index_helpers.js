@@ -40,9 +40,10 @@ function getExtraData(element) {
     } else {
         var idQuery = `[data-parent-aid='${aid}']`;
         var kids = $(".archive-btn"+idQuery);
+        // To hide child elements
         for (kid of kids) {
             var jKid = $(kid);
-            elemList.push(jKid.parent().parent());
+            elemList.push(["aid", jKid.parent().parent()]);
             var jKidId = jKid.data("id");
             var cKidQuery = `[data-parent-id='${jKidId}']`;
             var cKids = $(".archive-btn"+cKidQuery);
@@ -57,7 +58,7 @@ function getExtraData(element) {
         elemList.map(x => x.hide());
     };
 
-    var otherIds = aid ? [aid] : [];
+    var otherIds = aid ? [["aid", aid]] : [];
 
     return [otherIds, elementHideFn];
 }

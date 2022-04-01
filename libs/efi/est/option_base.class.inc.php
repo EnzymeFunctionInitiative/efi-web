@@ -293,6 +293,9 @@ abstract class option_base extends stepa {
             $exec .= " --tax-search-only";
             $exec .= " --use-fasta-headers";
         }
+        //TODO: remove the legacy after summer 2022
+        if (functions::get_version_numeric($this->db_mod) < 88)
+            $exec .= " --legacy-anno";
         $exec .= " 2>&1";
 
         $exit_status = 1;

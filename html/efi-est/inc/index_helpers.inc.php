@@ -1,6 +1,6 @@
 <?php
 
-function add_submit_html($option_id, $js_id_name, $user_email) {
+function add_submit_html($option_id, $js_id_name, $user_email, $job_name = "") {
     //$js_fn = "submitOptionForm('$option_id', familySizeHelper, $js_id_name)";
     $is_interactive = is_interactive();
     $color_ssn_data = "";
@@ -25,7 +25,7 @@ function add_submit_html($option_id, $js_id_name, $user_email) {
     <span class="input-name">
         Job name:
     </span><span class="input-field">
-        <input type="text" class="email" name="job-name-$option_id" id="job-name-$option_id" value=""> (required)
+        <input type="text" class="email" name="job-name-$option_id" id="job-name-$option_id" value="$job_name"> (required)
     </span>
 </div>
 HTML;

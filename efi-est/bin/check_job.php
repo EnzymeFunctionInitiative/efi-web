@@ -59,13 +59,19 @@ else {
                     $msg = "Generate ID: " . $job_obj->get_id() . " - Job Failed - Bad Input File Format";
                     functions::log_message($msg);
                 }
+                else {
+                    $job_obj->finish_job_failed();
+                    $job_obj->email_format_error();
+                    $msg = "Generate ID: " . $job_obj->get_id() . " - Job Failed - Error in Pipeline (2)";
+                    functions::log_message($msg);
+                }
             }
         }
         elseif (!$job_running) {
             $job_obj->finish_job_failed();
             $job_obj->email_error_admin();
             $job_obj->email_general_failure();
-            $msg = "Generate ID: " . $job_obj->get_id() . " - Job Failed - Error in Pipeline";
+            $msg = "Generate ID: " . $job_obj->get_id() . " - Job Failed - Error in Pipeline (1)";
             functions::log_message($msg);
         }
     }

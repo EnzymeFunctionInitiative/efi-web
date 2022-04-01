@@ -330,6 +330,10 @@ class functions {
                 return __INTERPRO_VERSION__;
         }
     }
+    public static function get_version_numeric($interpro_version) {
+        $ver = preg_replace("/\D/", "", $interpro_version);
+        return $ver;
+    }
     public static function get_uniprot_version($db_mod_index = -1) {
         if ($db_mod_index < 0 || !defined("__UNIPROT_VERSIONS__")) {
             return __UNIPROT_VERSION__;
@@ -632,6 +636,39 @@ class functions {
         } else {
             return false;
         }
+    }
+
+    public static function get_taxonomy_file_info($tax_job_id) {
+
+        $base_est_results = self::get_results_dir();
+        $est_results_name = "output";
+        $est_results_dir = "$base_est_results/$tax_job_id/$est_results_name";
+
+        if (!is_dir($est_results_dir)) {
+            return false;
+        }
+
+        $tax_file = "$est_results_dir/tax.json";
+
+        if (!is_file($tax_file)) {
+            return false;
+        }
+
+        return $tax_file;
+    }
+
+    public static function get_job_name($db, $generate_id) {
+        $table = "generate";
+        $sql = "SELECT generate_params FROM $table WHERE generate_id = :id LIMIT 1";
+        $result = $db->query($sql, array("id" => $generate_id));
+
+        $job_name = "";
+        if ($result) {
+            $params_obj = global_functions::decode_object($result['generate_params']);
+            $job_name = isset($params_obj['generate_job_name']) ? $params_obj['generate_job_name'] : "";
+        }
+
+        return $job_name;
     }
 
     public static function endsWith($haystack, $needle) {

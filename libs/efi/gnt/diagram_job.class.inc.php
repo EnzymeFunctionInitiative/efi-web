@@ -21,6 +21,10 @@ class diagram_job extends arrow_api {
     private $eol = PHP_EOL;
     private $db_mod = "";
 
+    private $tax_job_id;
+    private $tax_tree_id;
+    private $tax_id_type;
+
 
     public function get_key() { return $this->key; }
 
@@ -52,6 +56,11 @@ class diagram_job extends arrow_api {
             }
             $this->db_mod = $db_mod;
         }
+        if (isset($this->params["tax_job_id"]) && isset($this->params["tax_id_type"]) && isset($this->params["tax_tree_id"])) {
+            $this->tax_job_id = $this->params["tax_job_id"];
+            $this->tax_id_type = $this->params["tax_id_type"];
+            $this->tax_tree_id = $this->params["tax_tree_id"];
+        }
     }
 
     public function process() {
@@ -67,41 +76,41 @@ class diagram_job extends arrow_api {
         }
     }
 
-    private function handle_upload($isUploadedDatabase = true) {
-        $jobId = $this->id;
+    private function handle_upload($is_uploaded_database = true) {
+        $job_id = $this->id;
 
-        $uploadDir = settings::get_uploads_dir();
-        $outDir = settings::get_diagram_output_dir() . "/$jobId";
+        $upload_dir = settings::get_uploads_dir();
+        $out_dir = settings::get_diagram_output_dir() . "/$job_id";
         //$ext = settings::get_diagram_extension();
-        $uploadPrefix = settings::get_diagram_upload_prefix();
+        $upload_prefix = settings::get_diagram_upload_prefix();
         
-        $source = "$uploadDir/$uploadPrefix$jobId";
-        $isZipFile = file_exists("$source.zip");
-        $ext = $isUploadedDatabase ? "." . ($isZipFile ? "zip" : settings::get_diagram_extension()) : "";
+        $source = "$upload_dir/$upload_prefix$job_id";
+        $is_zip_file = file_exists("$source.zip");
+        $ext = $is_uploaded_database ? "." . ($is_zip_file ? "zip" : settings::get_diagram_extension()) : "";
 
         $source = "$source$ext";
-        $target = "$outDir/$jobId$ext";
+        $target = "$out_dir/$job_id$ext";
 
         if (!file_exists($source))
             return false;
 
-        $this->create_output_dir($outDir);
+        $this->create_output_dir($out_dir);
         copy($source, $target);
 
         return $target;
     }
 
-    private function create_output_dir($outDir) {
-        if (@file_exists($outDir))
-            functions::rrmdir($outDir);
-        if (!file_exists($outDir))
-            mkdir($outDir);
-        chdir($outDir);
+    private function create_output_dir($out_dir) {
+        if (@file_exists($out_dir))
+            functions::rrmdir($out_dir);
+        if (!file_exists($out_dir))
+            mkdir($out_dir);
+        chdir($out_dir);
     }
 
     private function process_direct_zip_job() {
-        $isUploaded = true;
-        $target = $this->handle_upload($isUploaded);
+        $is_uploaded = true;
+        $target = $this->handle_upload($is_uploaded);
 
         $args = " -zip-file \"$target\"";
 
@@ -114,8 +123,8 @@ class diagram_job extends arrow_api {
             return false;
         }
 
-        $outDir = settings::get_diagram_output_dir() . "/" . $this->id;
-        $this->create_output_dir($outDir);
+        $out_dir = settings::get_diagram_output_dir() . "/" . $this->id;
+        $this->create_output_dir($out_dir);
 
         $args = " -blast \"" . $this->params["blast_seq"] . "\"";
         $args .= " -evalue " . $this->params["evalue"];
@@ -127,25 +136,35 @@ class diagram_job extends arrow_api {
     }
 
     private function process_lookup_job() {
-        $jobId = $this->id;
+        $job_id = $this->id;
 
-        $outDir = settings::get_diagram_output_dir() . "/" . $this->id;
-        $this->create_output_dir($outDir);
+        $out_dir = settings::get_diagram_output_dir() . "/" . $this->id;
+        $this->create_output_dir($out_dir);
 
-        $uploadDir = settings::get_uploads_dir();
-        $uploadPrefix = settings::get_diagram_upload_prefix();
-        $uploadSource = "$uploadDir/$uploadPrefix$jobId.txt";
+        if ($this->tax_job_id && $this->tax_id_type && isset($this->tax_tree_id)) {
+            $tax_dir = global_settings::get_est_results_dir() . "/" . $this->tax_job_id . "/output";
+            $tax_file = "$tax_dir/tax.json";
+            $target = "$out_dir/$job_id.json";
+            copy($tax_file, $target);
 
-        $source = "$outDir/$jobId.txt";
-        copy($uploadSource, $source);
-
-        $args = "";
-        if ($this->type == DiagramJob::IdLookup) {
-            $args = " -id-file \"$source\"";
+            $args = " --tax-file \"$target\" --tax-id-type $this->tax_id_type --tax-tree-id $this->tax_tree_id";
             if (isset($this->params["seq_db_type"]))
                 $args .= " -seq-db-type " . $this->params["seq_db_type"];
-        } elseif ($this->type == DiagramJob::FastaLookup) {
-            $args = " -fasta-file \"$source\"";
+        } else {
+            $upload_dir = settings::get_uploads_dir();
+            $upload_prefix = settings::get_diagram_upload_prefix();
+            $upload_source = "$upload_dir/$upload_prefix$job_id.txt";
+            $source = "$out_dir/$job_id.txt";
+            copy($upload_source, $source);
+
+            $args = "";
+            if ($this->type == DiagramJob::IdLookup) {
+                $args = " -id-file \"$source\"";
+                if (isset($this->params["seq_db_type"]))
+                    $args .= " -seq-db-type " . $this->params["seq_db_type"];
+            } elseif ($this->type == DiagramJob::FastaLookup) {
+                $args = " -fasta-file \"$source\"";
+            }
         }
 
         return $this->execute_job($args);
@@ -196,9 +215,9 @@ class diagram_job extends arrow_api {
             $this->db->non_select_query($update_sql);
             $this->email_started();
         } else {
-            $currentTime = date("Y-m-d H:i:s", time());
+            $current_time = date("Y-m-d H:i:s", time());
             $this->db->non_select_query("UPDATE diagram SET diagram_status = '" . __FAILED__ . "', " .
-                                        "diagram_time_completed = '$currentTime' WHERE diagram_id = " . $this->id);
+                                        "diagram_time_completed = '$current_time' WHERE diagram_id = " . $this->id);
             $this->email_failed();
             error_log("Error: $output");
         }
@@ -208,23 +227,23 @@ class diagram_job extends arrow_api {
 
     public function check_if_job_is_done() {
 
-        $outDir = $this->get_output_dir();
-        $isDone = file_exists("$outDir/" . DiagramJob::JobCompleted) || !$this->check_pbs_running();
-        $isError = file_exists("$outDir/" . DiagramJob::JobError) || !file_exists($this->get_output_file());
+        $out_dir = $this->get_output_dir();
+        $is_done = file_exists("$out_dir/" . DiagramJob::JobCompleted) || !$this->check_pbs_running();
+        $is_error = file_exists("$out_dir/" . DiagramJob::JobError) || !file_exists($this->get_output_file());
 
-        if ($isDone) {
-            $currentTime = date("Y-m-d H:i:s", time());
+        if ($is_done) {
+            $current_time = date("Y-m-d H:i:s", time());
             
             $status = __FINISH__;
-            if ($isError)
+            if ($is_error)
                 $status = __FAILED__;
             print $this->id . " has completed and has status = $status.\n";
 
             $this->db->non_select_query("UPDATE diagram SET diagram_status = '$status', " .
-                "diagram_time_completed = '$currentTime' WHERE diagram_id = " . $this->id);
+                "diagram_time_completed = '$current_time' WHERE diagram_id = " . $this->id);
             $this->set_diagram_version();
 
-            if ($isError)
+            if ($is_error)
                 $this->email_failed();
             else
                 $this->email_complete();
@@ -243,35 +262,35 @@ class diagram_job extends arrow_api {
             $message = "Check your input FASTA sequence.";
         }
 
-        $emailTitleBit = "failed to be retrieved";
-        $emailBody = "";
-        $emailBody .= "There was an error retrieving the neighborhood data for the job (job #" . $this->id . ").";
+        $email_title_bit = "failed to be retrieved";
+        $email_body = "";
+        $email_body .= "There was an error retrieving the neighborhood data for the job (job #" . $this->id . ").";
         if ($message)
-            $emailBody .= $this->eol . $message;
-        $emailBody .= $this->eol . $this->eol;
+            $email_body .= $this->eol . $message;
+        $email_body .= $this->eol . $this->eol;
 
-        $this->email_shared($emailTitleBit, $emailBody);
+        $this->email_shared($email_title_bit, $email_body);
     }
 
     private function email_complete() {
 
-        $emailTitleBit = "ready";
-        $emailBody = "";
-        $emailBody .= "The diagram data file you uploaded is ready to be viewed at ";
-        $emailBody .= "THE_URL" . $this->eol . $this->eol;
-        $emailBody .= "These data will only be retained for " . settings::get_retention_days() . " days." . $this->eol . $this->eol;
+        $email_title_bit = "ready";
+        $email_body = "";
+        $email_body .= "The diagram data file you uploaded is ready to be viewed at ";
+        $email_body .= "THE_URL" . $this->eol . $this->eol;
+        $email_body .= "These data will only be retained for " . settings::get_retention_days() . " days." . $this->eol . $this->eol;
 
-        $this->email_shared($emailTitleBit, $emailBody);
+        $this->email_shared($email_title_bit, $email_body);
     }
 
     private function email_started() {
 
-        $emailTitleBit = "started";
-        $emailBody = "";
-        $emailBody .= "The uploaded diagram data has started computation.";
-        $emailBody .= $this->eol . $this->eol;
+        $email_title_bit = "started";
+        $email_body = "";
+        $email_body .= "The uploaded diagram data has started computation.";
+        $email_body .= $this->eol . $this->eol;
 
-        $this->email_shared($emailTitleBit, $emailBody);
+        $this->email_shared($email_title_bit, $email_body);
     }
 
     private function email_shared($titleBit, $message) {
@@ -326,14 +345,14 @@ class diagram_job extends arrow_api {
     }
 
     private function get_output_file() {
-        $outDir = $this->get_output_dir();
-        $target = "$outDir/" . $this->id . "." . settings::get_diagram_extension();
+        $out_dir = $this->get_output_dir();
+        $target = "$out_dir/" . $this->id . "." . settings::get_diagram_extension();
         return $target;
     }
 
     public function get_output_dir($id = 0) {
-        $outDir = settings::get_diagram_output_dir() . "/" . $this->id;
-        return $outDir;
+        $out_dir = settings::get_diagram_output_dir() . "/" . $this->id;
+        return $out_dir;
     }
 
     public function get_message() {
@@ -341,5 +360,4 @@ class diagram_job extends arrow_api {
     }
 }
 
-?>
 

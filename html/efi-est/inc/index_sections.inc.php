@@ -16,8 +16,43 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
     $default_blast_seq = get_default_blast_seq();
     $show_example = $example_fn !== false;
     $tax_filter_text = <<<TEXT
-<p>Sequences retrieved from the UniProt and UniRef90 databases can be restricted to those that match the specified taxonomic categories. Multiple conditions are combined to be a union of each other. </p>
-<p>UniRef90 clusters with sequences that share &ge;90% sequence identity usually are taxonomically homogeneous.  UniRef50 clusters with sequences that share &ge;50% sequence identity often are taxonomically heterogeneous so this option does not support taxonomic filtering of the UniRef50 database.</p>
+
+<p>
+Sequences retrieved from the UniProt, UniRef90, and UniRef50 databases can be 
+restricted to those that match specified taxonomic categories (superkingdom, 
+kingdom, phylum, class, order, family, genus, species).  Multiple conditions 
+are combined to be a union of each other.
+</p>
+
+<p>
+Alternatively, the user can select "Bacteria, Archaea, Fungi" from the 
+"Preselected conditions" to restrict the retrieved sequences to those from 
+organisms that may provide genome context (gene clusters/operons) useful for 
+inferring functions. 
+</p>
+
+<p>
+The retrieved sequences from the UniRef90 database include 1) UniRef90 clusters 
+for which the cluster ID matches the specified taxonomic categories and 2) 
+UniRef90 clusters for which the cluster ID does not match the specified 
+taxonomic categories but UniProt IDs within the cluster do match.
+</p>
+
+<p>
+The retrieved sequences from the UniRef50 database include 1) UniRef50 clusters 
+for which the cluster ID matches the specified taxonomic categories and 2) 
+UniRef50 clusters for which the cluster ID does not match the specified 
+taxonomic categories but UniRef90 cluster IDs within the cluster do match.
+</p>
+
+<p>
+UniRef90 clusters contain sequences that share &ge;90% sequence identity so 
+usually are taxonomically homogeneous.  However, UniRef50 clusters contain 
+sequences that share &ge;50% sequence identity so often are taxonomically 
+heterogeneous.  When possible (determined by the RAM available to Cytoscape), 
+users should generate taxonomy-specific SSNs with UniProt IDs or UniRef90 
+cluster IDs.
+</p>
 TEXT;
 
     $example_fn = $example_fn === false ? function(){} : $example_fn;
@@ -149,8 +184,43 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
     $show_example = $example_fn !== false;
     $example_fn = $example_fn === false ? function(){} : $example_fn;
     $tax_filter_text = <<<TEXT
-<p>Sequences from the UniProt and UniRef90 databases can be restricted to those that match the specified taxonomic categories. Multiple conditions are combined to be a union of each other. </p>
-<p>UniRef90 clusters with sequences that share &ge;90% sequence identity usually are taxonomically homogeneous.  UniRef50 clusters with sequences that share &ge;50% sequence identity often are taxonomically heterogeneous so this option does not support taxonomic filtering of the UniRef50 database.</p>
+
+<p>
+Sequences retrieved from the UniProt, UniRef90, and UniRef50 databases can be 
+restricted to those that match specified taxonomic categories (superkingdom, 
+kingdom, phylum, class, order, family, genus, species).  Multiple conditions 
+are combined to be a union of each other.
+</p>
+
+<p>
+Alternatively, the user can select "Bacteria, Archaea, Fungi" from the 
+"Preselected conditions" to restrict the retrieved sequences to those from 
+organisms that may provide genome context (gene clusters/operons) useful for 
+inferring functions. 
+</p>
+
+<p>
+The retrieved sequences from the UniRef90 database include 1) UniRef90 clusters 
+for which the cluster ID matches the specified taxonomic categories and 2) 
+UniRef90 clusters for which the cluster ID does not match the specified 
+taxonomic categories but UniProt IDs within the cluster do match.
+</p>
+
+<p>
+The retrieved sequences from the UniRef50 database include 1) UniRef50 clusters 
+for which the cluster ID matches the specified taxonomic categories and 2) 
+UniRef50 clusters for which the cluster ID does not match the specified 
+taxonomic categories but UniRef90 cluster IDs within the cluster do match.
+</p>
+
+<p>
+UniRef90 clusters contain sequences that share &ge;90% sequence identity so 
+usually are taxonomically homogeneous.  However, UniRef50 clusters contain 
+sequences that share &ge;50% sequence identity so often are taxonomically 
+heterogeneous.  When possible (determined by the RAM available to Cytoscape), 
+users should generate taxonomy-specific SSNs with UniProt IDs or UniRef90 
+cluster IDs.
+</p>
 TEXT;
 ?>
         <div id="optionBtab" class="ui-tabs-panel ui-widget-content">
@@ -230,7 +300,19 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
     $show_example = $example_fn !== false;
     $example_fn = $example_fn === false ? function(){} : $example_fn;
     $tax_filter_text = <<<TEXT
-<p>Sequences (by default, from the UniProt database) can be restricted to those that match the specified taxonomic categories. Multiple conditions are combined to be a union of each other. </p>
+<p>
+Input sequences (by default, from the UniProt database) can be restricted to 
+those that match specified taxonomic categories (superkingdom, kingdom, phylum, 
+class, order, family, genus, species).  Multiple conditions are combined to be 
+a union of each other.
+</p>
+
+<p>
+Alternatively, the user can select "Bacteria, Archaea, Fungi" from the 
+"Preselected conditions" to restrict the retrieved sequences to those from 
+organisms that may provide genome context (gene clusters/operons) useful for 
+inferring functions. 
+</p>
 TEXT;
 ?>
         <div id="optionCtab" class="ui-tabs-panel ui-widget-content">
@@ -321,10 +403,65 @@ TEXT;
 <?php
 }
 
-function output_option_d($use_advanced_options, $db_modules, $user_email, $show_example = false) {
+function output_option_d($use_advanced_options, $db_modules, $user_email, $show_example = false, $mode_data = false) {
+    $job_name = "";
+    $active_class = "ui-tabs-active";
+    $uniprot_tab_active = $active_class;
+    $uniref_tab_active = "";
+    $ur90_id_type = "";
+    $ur50_id_type = "";
+    $filename = "";
+    if (is_array($mode_data)) {
+        $job_name = $mode_data["source_name"];
+        if ($mode_data["id_type"] == "uniref90") {
+            $uniprot_tab_active = "";
+            $uniref_tab_active = $active_class;
+            $ur90_id_type = "selected";
+        } else if ($mode_data["id_type"] == "uniref50") {
+            $uniprot_tab_active = "";
+            $uniref_tab_active = $active_class;
+            $ur50_id_type = "selected";
+        }
+        $filename = $mode_data["filename"];
+    }
     $tax_filter_text = <<<TEXT
-<p>Sequences from the UniProt and UniRef90 databases can be restricted to those that match the specified taxonomic categories. Multiple conditions are combined to be a union of each other. </p>
-<p>UniRef90 clusters with sequences that share ≥90% sequence identity usually are taxonomically homogeneous.  UniRef50 clusters with sequences that share ≥50% sequence identity often are taxonomically heterogeneous so this option does not support taxonomic filtering of UniRef50 clusters.</p>
+
+<p>
+Input sequences from the UniProt, UniRef90, and UniRef50 databases can be 
+restricted to those that match specified taxonomic categories (superkingdom, 
+kingdom, phylum, class, order, family, genus, species).  Multiple conditions 
+are combined to be a union of each other.
+</p>
+
+<p>
+Alternatively, the user can select "Bacteria, Archaea, Fungi" from the 
+"Preselected conditions" to restrict the retrieved sequences to those from 
+organisms that may provide genome context (gene clusters/operons) useful for 
+inferring functions. 
+</p>
+
+<p>
+The retrieved sequences from the UniRef90 database include 1) UniRef90 clusters 
+for which the cluster ID matches the specified taxonomic categories and 2) 
+UniRef90 clusters for which the cluster ID does not match the specified 
+taxonomic categories but UniProt IDs within the cluster do match.
+</p>
+
+<p>
+The retrieved sequences from the UniRef50 database include 1) UniRef50 clusters 
+for which the cluster ID matches the specified taxonomic categories and 2) 
+UniRef50 clusters for which the cluster ID does not match the specified 
+taxonomic categories but UniRef90 cluster IDs within the cluster do match.
+</p>
+
+<p>
+UniRef90 clusters contain sequences that share &ge;90% sequence identity so 
+usually are taxonomically homogeneous.  However, UniRef50 clusters contain 
+sequences that share &ge;50% sequence identity so often are taxonomically 
+heterogeneous.  When possible (determined by the RAM available to Cytoscape), 
+users should generate taxonomy-specific SSNs with UniProt IDs or UniRef90 
+cluster IDs.
+</p>
 TEXT;
 ?>
         <div id="optionDtab" class="ui-tabs-panel ui-widget-content">
@@ -337,13 +474,27 @@ TEXT;
             </p>
 
             <form name="optionDform" id="optionDform" method="post" action="">
+<?php
+    if (is_array($mode_data)) {
+        $tax_job_id = $mode_data["source_id"];
+        $tax_tree_id = $mode_data["tree_id"];
+        $tax_id_type = $mode_data["id_type"];
+        $tax_job_key = $mode_data["source_key"];
+?>
+                <input type="hidden" name="tax-source-job-id" id="tax-source-job-id" value="<?php echo $tax_job_id; ?>" />
+                <input type="hidden" name="tax-source-job-key" id="tax-source-job-key" value="<?php echo $tax_job_key; ?>" />
+                <input type="hidden" name="tax-source-tree-id" id="tax-source-tree-id" value="<?php echo $tax_tree_id; ?>" />
+                <input type="hidden" name="tax-source-id-type" id="tax-source-id-type" value="<?php echo $tax_id_type; ?>" />
+<?php
+    }
+?>
                 <div class="tabs tabs-efihdr" id="optionD-src-tabs">
                     <ul class="tab-headers">
-                        <li class="ui-tabs-active"><a href="#optionD-source-uniprot">Use UniProt IDs</a></li>
-                        <li><a href="#optionD-source-uniref">Use UniRef50 or UniRef90 Cluster IDs</a></li>
+                        <li class="<?php echo $uniprot_tab_active; ?>"><a href="#optionD-source-uniprot">Use UniProt IDs</a></li>
+                        <li class="<?php echo $uniref_tab_active; ?>"><a href="#optionD-source-uniref">Use UniRef50 or UniRef90 Cluster IDs</a></li>
                     </ul>
                     <div class="tab-content" style="min-height: 250px">
-                        <div id="optionD-source-uniprot" class="tab ui-tabs-active">
+                        <div id="optionD-source-uniprot" class="tab <?php echo $uniprot_tab_active; ?>">
                             <p>
                             Input a list of UniProt, NCBI, or Genbank (protein) accession IDs, or upload a text
                             file.
@@ -354,11 +505,11 @@ TEXT;
                                 </div>
                                 <textarea id="accession-input-uniprot" name="accession-input-uniprot"></textarea>
                                 <div>
-<?php echo ui::make_upload_box("Accession ID File:", "accession-file-uniprot", "progress-bar-accession-uniprot", "progress-num-accession-uniprot"); ?>
+<?php echo ui::make_upload_box("Accession ID File:", "accession-file-uniprot", "progress-bar-accession-uniprot", "progress-num-accession-uniprot", "", "", $filename); ?>
                                 </div>
                             </div>
                         </div>
-                        <div id="optionD-source-uniref" class="ui-tabs-panel ui-widget-content">
+                        <div id="optionD-source-uniref" class="<?php echo $uniprot_tab_active; ?> ui-tabs-panel ui-widget-content">
                             <p>
                             Input a list of UniRef50 or UniRef90 cluster accession IDs, or upload a text
                             file.
@@ -369,13 +520,13 @@ TEXT;
                                 </div>
                                 <textarea id="accession-input-uniref" name="accession-input-uniref"></textarea>
                                 <div>
-<?php echo ui::make_upload_box("Accession ID File:", "accession-file-uniref", "progress-bar-accession-uniref", "progress-num-accession-uniref"); ?>
+<?php echo ui::make_upload_box("Accession ID File:", "accession-file-uniref", "progress-bar-accession-uniref", "progress-num-accession-uniref", "", "", $filename); ?>
                                 </div>
                                 <div id="accession-seq-type-container" style="margin-top:15px">
                                     <span class="input-name">Input accession IDs are:</span>
                                     <select id="accession-seq-type">
-                                        <option value="uniref90">UniRef90 cluster IDs</option>
-                                        <option value="uniref50">UniRef50 cluster IDs</option>
+                                        <option value="uniref90" <?php echo $ur90_id_type; ?>>UniRef90 cluster IDs</option>
+                                        <option value="uniref50" <?php echo $ur50_id_type; ?>>UniRef50 cluster IDs</option>
                                     </select>
                                     <a class="question" title="
                                         The list of sequences that is put into
@@ -410,7 +561,7 @@ TEXT;
                     <?php } ?>
                 </div>
 
-                <?php echo add_submit_html("optd", "optDoutputIds", $user_email)[0]; ?>
+                <?php echo add_submit_html("optd", "optDoutputIds", $user_email, $job_name)[0]; ?>
             </form>
         </div>
 <?php
@@ -1143,6 +1294,12 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
                     "cr" :
                     "colorssn"))) 
                     : "";
+    $d_mode_data = array();
+    if (!$sel_tab) {
+        $d_mode_data = check_for_taxonomy_input($db);
+        if (!empty($d_mode_data))
+            $sel_tab = "option_d";
+    }
 
     output_tab_page_start();
     output_tab_page_header($show_jobs_tab, $show_tutorial, $sel_tab);
@@ -1174,7 +1331,7 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
     output_option_a($use_advanced_options, $db_modules, $user_email, $example_fn);
     output_option_b($use_advanced_options, $db_modules, $user_email, $example_fn);
     output_option_c($use_advanced_options, $db_modules, $user_email, $example_fn);
-    output_option_d($use_advanced_options, $db_modules, $user_email, $example_fn);
+    output_option_d($use_advanced_options, $db_modules, $user_email, $example_fn, $d_mode_data);
     if (settings::option_e_enabled())
         output_option_e($use_advanced_options, $db_modules, $user_email, $example_fn);
     output_utility($use_advanced_options, $db_modules, $user_email, $example_fn, $mode_data, $sel_tab);
@@ -1230,4 +1387,22 @@ function check_for_color_mode($db) {
 }
 
 
-?>
+function check_for_taxonomy_input($db) {
+    $est_id = "";
+
+    $mode = isset($_GET["mode"]) ? $_GET["mode"] : "";
+    if (isset($mode) && $mode == "tax") {
+        $id = isset($_GET["tax-id"]) ? $_GET["tax-id"] : "";
+        $key = isset($_GET["tax-key"]) ? $_GET["tax-key"] : "";
+        $tree_id = isset($_GET["tree-id"]) ? $_GET["tree-id"] : "";
+        $id_type = isset($_GET["id-type"]) ? $_GET["id-type"] : "";
+        $tax_name = isset($_GET["tax-name"]) ? $_GET["tax-name"] : "";
+        // returns false if the job id is invalid
+        $mode_data = \efi\taxonomy\taxonomy_job::get_job_info($db, $id, $key, $tree_id, $id_type, $tax_name);
+        return $mode_data;
+    }
+
+    return false;
+}
+
+

@@ -224,6 +224,31 @@ class functions extends global_functions {
         }
     }
 
+    public static function get_taxonomy_job_info($db, $tax_job_id, $tax_job_key = "") {
+        $est_db = settings::get_est_database();
+        $sql = "SELECT generate_key, generate_params FROM generate WHERE generate_id = :id";
+        $params = array(":id" => $tax_job_id);
+        // For validation.  When loading from a saved record, don't need the key
+        if ($tax_job_key) {
+            $sql .= " AND generate_key = :key";
+            $params[":key"] = $tax_job_key;
+        }
+        $result = $db->query($sql, $params);
+
+        $info = array();
+
+        if ($result) {
+            $result = $result[0];
+            $params = global_functions::decode_object($result["generate_params"]);
+            $info["job_id"] = $tax_job_id;
+            $info["job_key"] = $result["generate_key"];
+            $info["job_name"] = $params["generate_job_name"];
+            return $info;
+        } else {
+            return false;
+        }
+    }
+
     public static function sqlite_table_exists($sqliteDb, $tableName) {
         // Check if the table exists
         $checkSql = "SELECT name FROM sqlite_master WHERE type='table' AND name='$tableName'";

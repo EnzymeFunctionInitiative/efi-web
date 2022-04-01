@@ -151,7 +151,7 @@ $generate = dataset_shared::create_generate_object($gen_type, $db, $is_example);
 $uniref = dataset_shared::get_uniref_version($gen_type, $generate);
 $job_name = $generate->get_job_name();
 $use_domain = dataset_shared::get_domain($gen_type, $generate) == "on";
-$sunburstUniref = 50; //$uniref ? $uniref : "false";
+$sunburstAppUniref = 50; //$uniref ? $uniref : "false";
 $hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") ? "true" : "false";
 
 
@@ -919,7 +919,18 @@ for (var i = 0; i < acc.length; i++) {
 <?php if ($show_taxonomy) { ?>
 <script>
     var hasUniref = <?php echo $hasUniref; ?>;
-    var sunburstApp = new AppSunburst("<?php echo $gen_id; ?>", "<?php echo $key; ?>", [], <?php echo $sunburstUniref; ?>, "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php", hasUniref);
+
+    var scriptAppDir = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php";
+    var sbParams = {
+            apiId: "<?php echo $gen_id; ?>",
+            apiKey: "<?php echo $key; ?>",
+            apiExtra: [],
+            appUniRefVersion: <?php echo $sunburstAppUniref; ?>,
+            scriptApp: scriptAppDir + "/get_tax_data.php",
+            fastaApp: scriptAppDir + "/get_sunburst_fasta.php",
+            hasUniRef: hasUniref
+    };
+    var sunburstApp = new AppSunburst(sbParams);
     sunburstApp.attachToContainer("taxonomy");
     sunburstApp.addSunburstFeatureAsync();
 </script>
