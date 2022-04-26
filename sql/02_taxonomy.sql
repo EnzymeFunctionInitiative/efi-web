@@ -13,6 +13,6 @@ CREATE INDEX Family_Index ON taxonomy (Family);
 CREATE INDEX Genus_Index ON taxonomy (Genus); 
 CREATE INDEX Species_Index ON taxonomy (Species); 
 SELECT 'LOADING taxonomy' AS '';
-LOAD DATA LOCAL INFILE '/private_stores/gerlt/databases/20211118/output/taxonomy.tab' INTO TABLE taxonomy;
+/*LOAD DATA LOCAL INFILE '/private_stores/gerlt/databases/20211118/output/taxonomy.tab' INTO TABLE taxonomy;*/
 COMMIT;
 

@@ -2,7 +2,8 @@
 function setupTaxonomyUi(taxonomyApp) {
     $("button.add-tax-btn").click(function() {
         var optionId = $(this).data("option-id");
-        taxonomyApp.addTaxCondition(optionId);
+        var firstSel = taxonomyApp.getTaxonomyCategories()[0];
+        taxonomyApp.addTaxCondition(optionId, firstSel);
     });
     $(".taxonomy-preselects").change(function() {
         var opt = $(this).data("taxoption");
