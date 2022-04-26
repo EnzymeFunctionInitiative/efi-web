@@ -149,6 +149,10 @@ class global_settings {
     public static function advanced_options_enabled() {
         return defined("__ENABLE_ADVANCED_OPTIONS__") ? __ENABLE_ADVANCED_OPTIONS__ : false;
     }
+
+    public static function family_resources_enabled() {
+        return defined("__ENABLE_FAMILY_RESOURCES__") ? __ENABLE_FAMILY_RESOURCES__ : false;
+    }
     
     public static function get_interpro_version($db_mod_index = -1) {
         if ($db_mod_index < 0 || !defined("__INTERPRO_VERSIONS__")) {

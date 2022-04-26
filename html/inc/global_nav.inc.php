@@ -19,6 +19,7 @@ if (isset($IsLoggedIn))
 $use_dashboard = defined("__USE_DASHBOARD__") && __USE_DASHBOARD__;
 $use_training = defined("__USE_TRAINING__") && __USE_TRAINING__;
 $use_advanced = global_settings::advanced_options_enabled();
+$show_family_resources = global_settings::family_resources_enabled();
 $pub_text = $IsAdminUser ? "P" : "Publications";
 
 
@@ -78,7 +79,9 @@ HTML;
                 <li><a href="<?php echo $UrlPrefix; ?>/efi-cgfp/" class="shortbred">EFI-CGFP</a></li>
 <?php } ?>
                 <li><a href="<?php echo $UrlPrefix; ?>/taxonomy/" class="taxonomy">Taxonomy</a></li>
+<?php if ($show_family_resources) { ?>
                 <li><a href="<?php echo $UrlPrefix; ?>/family_resources.php" class="fam-info">Superfamily Resources</a></li>
+<?php } ?>
 <?php
 if ($IsAdminUser) { ?>
 <?php
