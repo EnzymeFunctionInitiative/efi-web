@@ -96,8 +96,9 @@ $is_dev_site = global_settings::advanced_options_enabled();
 
 <body>
 <?php
-if (!$IsDisabled || $IsAdminUser)
+if (!$IsDisabled || $IsAdminUser) {
     include(__DIR__ . "/global_nav.inc.php");
+}
 ?>
     <div id="container">
         <div class="header">
@@ -111,22 +112,37 @@ if (!$IsDisabled || $IsAdminUser)
         <div class="content-holder">
             <h1 class="ruled"><?php echo $title; ?></h1>
             <div class="funding-source">This web resource is supported by a Research Resource from the National Institute of General Medical Sciences (R24GM141196-01).</div>
-<?php if (isset($ShowCitation)) { echo global_header::get_global_citation(); } ?>
-<?php if ($IsBeta) { ?>
+
+<?php
+if (isset($ShowCitation)) {
+    echo global_header::get_global_citation();
+}
+?>
+
+<?php
+if ($IsBeta) {
+?>
             <div class="beta"><?php echo global_settings::get_release_status(); ?></div>
-<?php } else if ($IsDisabled && !$IsAdminUser && !$IsLoginPage) { ?>
-<div id="update-message" class="update-message">
-<?php echo $DisabledMsg; ?>
-</div>
+<?php
+} else if ($IsDisabled && !$IsAdminUser && !$IsLoginPage) {
+?>
+            <div id="update-message" class="update-message"><?php echo $DisabledMsg; ?></div>
 <?php
     include(__DIR__ . "/global_footer.inc.php");
     exit(0);
 }
 ?>
-<?php if ($IsDisabled && !$IsLoginPage) { ?>
-            <div class="beta"><big><i class="fas fa-exclamation-triangle"></i><br>The website is currently disabled for non-admin users or users who are not logged in.</big></div>
-<?php } else if ($DisabledMsg) { ?>
+
+
+<?php
+if ($IsDisabled || $DisabledMsg) {
+    if (!$IsLoginPage) {
+        $DisabledMsg = "The website is currently disabled for non-admin users or users who are not logged in.";
+    }
+?>
             <div class="beta"><big><i class="fas fa-exclamation-triangle"></i><br><?php echo $DisabledMsg; ?></big></div>
-<?php } ?>
+<?php
+}
+?>
 
 

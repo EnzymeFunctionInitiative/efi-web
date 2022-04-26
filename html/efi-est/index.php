@@ -33,21 +33,7 @@ $use_advanced_options = global_settings::advanced_options_enabled();
 
 $db_modules = global_settings::get_database_modules();
 
-//$update_msg =
-//    "The \"From the Bench\" article describing the tools and their use is available on the " . 
-//    "<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
-//    "Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
-//    "We now provide the \"Fragment Option\" to exclude UniProt-defined fragments from SSNs.<br>" .
-$update_msg = "";
-    //'Please cite your use of the EFI tools:<br><br>Rémi Zallot, Nils Oberg, and John A. Gerlt, <b>The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome Databases to Discover Novel Enzymes and Metabolic Pathways</b>. Biochemistry 2019 58 (41), 4169-4182. <a href="https://doi.org/10.1021/acs.biochem.9b00735">https://doi.org/10.1021/acs.biochem.9b00735</a>'
-    //;
-    //'The Color SSNs and Cluster Analysis tabs are now included on the SSN Utilities tab.<br>' .
-    //'Neighborhood Connectivity (NC) is a new tool on the SSN Utilities tab.  NC colors the input SSN according to the number of internode connections.  NC coloring helps identify families in SSNs generated with low alignment scores.<br>' .
-    //'Cluster Analysis is a new tool that provides a color SSN as well as WebLogos, MSAs, and HMMs for the clusters.<br>' .
-    //'Options B and D now provide an expanded "Family Domain Boundary Option" to generate SSNs for sequences N- or C-terminal to the specified family domain.<br>' .
-    //'A list of publications citing the tools is available on the <i class="fas fa-question"></i> Training page.<br>' .
-    //"Sequence regions adjacent to the domain can be selected in the domain option for Families and Accession IDs.<br>" .
-
+$update_msg = settings::get_update_message(); 
 
 $ShowCitation = true;
 $IncludeSubmitJs = true;

@@ -49,5 +49,9 @@ class settings {
     public static function get_ascore_maximum() {
         return __MAXIMUM__;
     }
+
+    public static function get_update_message() {
+        return defined("__UPDATE_MESSAGE__") ? __UPDATE_MESSAGE__ : "";
+    }
 }
 
