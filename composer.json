@@ -37,41 +37,32 @@
     "scripts": {
         "post-update-cmd": [
             "mkdir -p html/vendor/twbs",
-            "mkdir -p html/vendor/components",
-            "mkdir -p html/vendor/fortawesome",
-            "mkdir -p html/vendor/plotly/plotly.js",
-            "mkdir -p html/vendor/harvesthq",
-            "mkdir -p html/vendor/twitter",
-            "#change this when moving to a git repo",
-            "#mkdir -p html/vendor/efiillinois/taxonomy/php",
-            "#mkdir -p html/vendor/efiillinois/taxonomy/web",
-            "mkdir -p html/vendor/efiillinois/taxonomy",
-            "#change this when moving to a git repo",
-            "#mkdir -p html/vendor/efiillinois/sunburst/php",
-            "#mkdir -p html/vendor/efiillinois/sunburst/web",
-            "mkdir -p html/vendor/efiillinois/sunburst",
             "cp -R vendor/twbs/bootstrap html/vendor/twbs/",
+
+            "mkdir -p html/vendor/components",
             "cp -R vendor/components/jquery html/vendor/components/",
             "cp -R vendor/components/jqueryui html/vendor/components/",
+
+            "mkdir -p html/vendor/fortawesome",
             "cp -R vendor/fortawesome/font-awesome html/vendor/fortawesome/",
+
+            "mkdir -p html/vendor/plotly/plotly.js",
             "cp -R vendor/plotly/plotly.js html/vendor/plotly",
+
+            "mkdir -p html/vendor/harvesthq",
             "cp -R vendor/harvesthq/chosen html/vendor/harvesthq",
-            "#change this when moving to a git repo",
-            "#cp -R vendor/efiillinois/taxonomy/bin/* html/vendor/efiillinois/taxonomy/php",
-            "#cp -R vendor/efiillinois/taxonomy/web/* html/vendor/efiillinois/taxonomy/web",
-            "rm html/vendor/efiillinois/taxonomy/php",
-            "ln -s \"$PWD\"/vendor/efiillinois/taxonomy/bin html/vendor/efiillinois/taxonomy",
-            "mv html/vendor/efiillinois/taxonomy/bin html/vendor/efiillinois/taxonomy/php",
-            "rm html/vendor/efiillinois/taxonomy/web",
-            "ln -s \"$PWD\"/vendor/efiillinois/taxonomy/web html/vendor/efiillinois/taxonomy",
-            "#change this when moving to a git repo",
-            "#cp -R vendor/efiillinois/sunburst/bin/* html/vendor/efiillinois/sunburst/php",
-            "#cp -R vendor/efiillinois/sunburst/web/* html/vendor/efiillinois/sunburst/web",
-            "rm html/vendor/efiillinois/sunburst/php",
-            "ln -s \"$PWD\"/vendor/efiillinois/sunburst/bin html/vendor/efiillinois/sunburst",
-            "mv html/vendor/efiillinois/sunburst/bin html/vendor/efiillinois/sunburst/php",
-            "rm html/vendor/efiillinois/sunburst/web",
-            "ln -s \"$PWD\"/vendor/efiillinois/sunburst/web html/vendor/efiillinois/sunburst"
+
+            "mkdir -p html/vendor/efiillinois/taxonomy/php",
+            "mkdir -p html/vendor/efiillinois/taxonomy/web",
+            "cp -R vendor/efiillinois/taxonomy/bin/* html/vendor/efiillinois/taxonomy/php",
+            "cp -R vendor/efiillinois/taxonomy/web/* html/vendor/efiillinois/taxonomy/web",
+            "cp -R vendor-post/efiillinois/taxonomy/bin/* html/vendor/efiillinois/taxonomy/php",
+
+            "mkdir -p html/vendor/efiillinois/sunburst/php",
+            "mkdir -p html/vendor/efiillinois/sunburst/web",
+            "cp -R vendor/efiillinois/sunburst/bin/* html/vendor/efiillinois/sunburst/php",
+            "cp -R vendor/efiillinois/sunburst/web/* html/vendor/efiillinois/sunburst/web",
+            "cp -R vendor-post/efiillinois/sunburst/bin/* html/vendor/efiillinois/sunburst/php"
         ]
     }
 }
