@@ -23,16 +23,9 @@ class functions extends global_functions {
 
     public static function verify_email($email) {
         $email = strtolower($email);
-        $hostname = "";
-        if (strpos($email,"@")) {
-            list($prefix,$hostname) = explode("@",$email);
-        }
 
         $valid = 1;
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $valid = 0;
-        }
-        elseif (($hostname != "") && (!checkdnsrr($hostname,"MX"))) {
             $valid = 0;
         }
         return $valid;
@@ -328,10 +321,6 @@ class functions extends global_functions {
         $msg = 
             "The GNT database uses UniProt " . 
             settings::get_uniprot_version() . ", and ENA downloaded on " . settings::get_ena_version() . ". ";
-//            settings::get_uniprot_version() . " and ENA " . settings::get_ena_version() . ". ";
-        //$msg .=
-        //    "You now have the ability to register a user account for the purpose of viewing prior " .
-        //    "jobs in a summary table. You can also access both EFI-EST and EFI-GNT from the top of each page.";
         return $msg;
     }
 

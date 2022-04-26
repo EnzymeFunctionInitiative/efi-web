@@ -7,6 +7,9 @@ use \efi\gnt\diagram_jobs;
 use \efi\gnt\user_jobs;
 
 
+if (!global_settings::get_website_enabled())
+    exit;
+
 $id = 0;
 $key = 0;
 $message = "";

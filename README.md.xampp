@@ -17,9 +17,29 @@ Open terminal.
     php composer.phar install
 
 
+# XAMPP ON WINDOWS INSTALLATION
+
+Install XAMPP with all options.
+
+Configure Apache for the path to the efi-web/html directory:
+
+    <Directory "C:/efi/efi-web/html">
+        Options all
+        Allow from all
+        Require all granted
+    </Directory>
+    Alias /efi-web "C:/efi/efi-web/html"
+
+Open Terminal from XAMPP control panel.
+
+    cd c:\efi\efi-web\html
+    bin\setup-composer.bat
+    php composer.phar install
+
+
 # DATABASE SETUP
 
-Create database efi_web, using SQL in sql/01_COMPLETE_ALL_TOOLS.sql
+Create database efi_web, using SQL in sql\01_COMPLETE_ALL_TOOLS.sql
 
 After database is created, apply any other SQL files in sql
 
@@ -30,13 +50,15 @@ This can be done with phpMySqlAdmin control panel, or with the terminal:
 For example:
 
     mysqladmin -u root create efi_web
-    mysql -u root efi_web < sql/01_COMPLETE_ALL_TOOLS.sql
-    mysql -u root efi_web < sql/create_user.sql.example
+    mysql -u root efi_web < sql\01_COMPLETE_ALL_TOOLS.sql
+    mysql -u root efi_web < sql\create_user.sql.example
 
-MAKE SURE TO UPDATE THE PASSWORD IN sql/create_user.sql.example
+MAKE SURE TO UPDATE THE PASSWORD IN sql\create_user.sql.example
 
 
 # CREATE UPLOAD DIRECTORIES
+
+For example on Windows from the XAMPP terminal:
 
     mkdir efi-est/uploads
     chown www-data:www-data efi-est/uploads
@@ -55,6 +77,8 @@ where www-data is the Apache user/group (set appropriately).
 
 
 # EFI-WEB CONFIGURATION FILES
+
+On Windows replace the / with \
 
     cp conf/settings_base.inc.php.example conf/settings_base.inc.php
     cp conf/settings.inc.php.example conf/settings.inc.php
@@ -99,6 +123,8 @@ Change the following in conf/efi_est/settings.inc.php:
     __LOG_FILE__
     __UPLOADS_DIR__
 
+On Windows these might be c:/efi/efi-web/efi-est/log/log.txt and c:/efi/efi-web/efi-est/log/uploads
+
 ## GNT
 
 Change the following in conf/efi_gnt/settings.inc.php:
@@ -107,6 +133,12 @@ Change the following in conf/efi_gnt/settings.inc.php:
     __DIAGRAM_OUTPUT_DIR__
     __UPLOAD_DIR__
     __LOG_FILE__
+
+On Windows __LOG_FILE__ might be c:/efi/efi-web/efi-gnt/log/log.txt and __UPLOADS_DIR__ c:/efi/efi-web/efi-gnt/log/uploads.
+For __OUTPUT_DIR__ and __DIAGRAM_OUTPUT_DIR__ on Windows this can be left blank because there is no EFITools backend installation available.
+To use sample data on Windows:
+
+    __OUTPUT_DIR__ = C:/efi/web_sample_data/gnt
 
 ## CGFP
 
@@ -117,14 +149,26 @@ Change
     __LOG_FILE__
     __METAGENOME_DB_LIST__
 
+On Windows __LOG_FILE__ might be c:/efi/efi-web/efi-cgfp/log/log.txt and __UPLOADS_DIR__ c:/efi/efi-web/efi-cgfp/log/uploads.
+For __OUTPUT_DIR__ and __METAGENOME_DB_LIST__ on Windows this can be left blank because there is no EFITools backend installation available.
 
-# LOAD SAMPLE DATA
+To use sample data on Windows:
+
+    __OUTPUT_DIR__ = C:/efi/web_sample_data/cgfp
+
+
+# LOAD SAMPLE DATA ON WINDOWS
 
 To use the sample data change __RETENTION_DAYS__ and __FILE_RETENTION_DAYS__ to 1000.  This should be set to the default of 30 on production systems.
 
-Download web_sample_data and family_sizes from https://efi.igb.illinois.edu/databases/sample_data/ and unzip.
+Download web_sample_data and family_sizes from https://efi.igb.illinois.edu/databases/sample_data/
 
-    mysql -u root efi_web < web_sample_data/install_examples.sql
+Unzip data to C:/efi
+
+From XAMMP terminal:
+
+    mysql -u root efi_web < c:\efi\web_sample_data\install_examples.sql
+    cd c:\efi
     mysql -u root efi_web < load_family_sizes.sql
 
 
@@ -136,6 +180,12 @@ On Linux, symlink the following:
     ln -s (GNT)__OUTPUT_DIR__ html/efi-gnt/results
     ln -s (GNT)__DIAGRAM_OUTPUT_DIR__ html/efi-gnt/gnd_results
     ln -s (ShortBred)__OUTPUT_DIR__ html/efi-cgfp/results
+
+On Windows, open a command prompt with admin privileges (Start Menu -> Command Prompt -> right click, run as administrator):
+
+    mklink /d c:\efi\efi-web\html\efi-est\results c:\efi\web_sample_data\est
+    mklink /d c:\efi\efi-web\html\efi-gnt\results c:\efi\web_sample_data\gnt
+    mklink /d c:\efi\efi-web\html\efi-cgfp\results c:\efi\web_sample_data\cgfp
 
 Adjust paths accordingly.
 

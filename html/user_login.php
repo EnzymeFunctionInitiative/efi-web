@@ -28,8 +28,14 @@ if (!isset($_POST['action'])) {
 
 
 if ($action == "login") {
+    $email = false;
+    $password = false;
     if (isset($_POST['email']) && isset($_POST['password'])) {
-        $valid = user_auth::validate_user($db, $_POST['email'], $_POST['password']);
+        $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+        $password = $_POST['password'];
+    }
+    if ($email !== false && $password !== false) {
+        $valid = user_auth::validate_user($db, $email, $password);
         if ($valid['valid'] && $valid['cookie']) {
             $result['valid'] = true;
             $result['cookieInfo'] = $valid['cookie'];
@@ -40,9 +46,15 @@ if ($action == "login") {
         $result['message'] = "Invalid parameters.";
     }
 } elseif ($action == "create") {
+    $email = false;
+    $password = false;
     if (isset($_POST['email']) && isset($_POST['password'])) {
+        $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+        $password = $_POST['password'];
+    }
+    if ($email !== false && $password !== false) {
         $listSignup = isset($_POST['mailinglist']) && $_POST['mailinglist'] == "1";
-        $createResult = user_auth::create_user($db, $_POST['email'], $_POST['password'], $listSignup); // returns false if invalid, otherwise returns the user_id token
+        $createResult = user_auth::create_user($db, $email, $password, $listSignup); // returns false if invalid, otherwise returns the user_id token
         if ($createResult) {
             $result['valid'] = true;
             sendConfirmationEmail($_POST["email"], $createResult);
@@ -53,8 +65,14 @@ if ($action == "login") {
         $result['message'] = "Invalid parameters.";
     }
 } elseif ($action == "reset") {
+    $user_token = false;
+    $password = false;
     if (isset($_POST["reset_token"]) && isset($_POST["password"])) {
-        $valid = user_auth::reset_password($db, $_POST["reset_token"], $_POST["password"]);
+        $user_token = filter_var($_POST["reset_token"], FILTER_VALIDATE_REGEXP, array("options" => array("regexp" => "/^[a-zA-Z0-9]+$/")));
+        $password = $_POST["password"];
+    }
+    if ($user_token !== false && $password !== false) {
+        $valid = user_auth::reset_password($db, $user_token, $password);
         if ($valid) {
             $result['valid'] = true;
         } else {
@@ -64,18 +82,30 @@ if ($action == "login") {
         $result['message'] = "Invalid parameters.";
     }
 } elseif ($action == "send-reset") {
+    $email = false;
     if (isset($_POST["email"])) {
-        $userToken = user_auth::check_reset_email($db, $_POST["email"]);
+        $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+    }
+    if ($email !== false) {
+        $userToken = user_auth::check_reset_email($db, $email);
         if ($userToken) {
-            sendResetEmail($_POST["email"], $userToken);
+            sendResetEmail($email, $userToken);
         } // Don't handle the case when the user email doesn't exist; we don't want to notify the user that the email address isn't invalid in case it's an attacker.
         $result['valid'] = true;
     } else {
         $result['message'] = "Invalid parameters.";
     }
 } elseif ($action == "change") {
+    $email = false;
+    $password = false;
+    $ols_password = false;
     if (isset($_POST["email"]) && isset($_POST["old-password"]) && isset($_POST["password"])) {
-        $valid = user_auth::change_password($_POST["email"], $_POST["old-password"], $_POST["password"]);
+        $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+        $password = $_POST['password'];
+        $old_password = $_POST['old-password'];
+    }
+    if ($email !== false && $password !== false && $old_password !== false) {
+        $valid = user_auth::change_password($email, $old_password, $password);
         if ($valid) {
             $result['valid'] = true;
         } else {
@@ -90,7 +120,6 @@ if ($action == "login") {
 } else {
     $result['message'] = "Invalid operation.";
 }
-
 
 echo json_encode($result);
 

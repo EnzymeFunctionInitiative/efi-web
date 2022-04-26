@@ -8,6 +8,9 @@ use \efi\cgfp\functions;
 use \efi\cgfp\identify;
 
 
+if (!global_settings::get_website_enabled())
+    exit;
+
 $id = 0;
 $key = 0;
 $message = "";
