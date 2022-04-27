@@ -294,7 +294,8 @@ abstract class option_base extends stepa {
             $exec .= " --use-fasta-headers";
         }
         //TODO: remove the legacy after summer 2022
-        if (functions::get_version_numeric($this->db_mod) < 88)
+        $db_mod = $this->db_mod ? $this->db_mod : functions::get_efidb_module();
+        if (functions::get_version_numeric($db_mod) < 88)
             $exec .= " --legacy-anno";
         $exec .= " 2>&1";
 
