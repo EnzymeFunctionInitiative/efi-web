@@ -375,11 +375,6 @@ class functions {
         return __FRACTION_DEFAULT__;
     }
 
-    public static function get_databases($db) {
-        $sql = "SELECT * FROM db_version";
-        return $db->query($sql);
-    }
-
     public static function get_encoded_db_version($db_mod = "") {
         $db_mod_index = -1;
         if ($db_mod) {

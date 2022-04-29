@@ -152,7 +152,7 @@ $uniref = dataset_shared::get_uniref_version($gen_type, $generate);
 $job_name = $generate->get_job_name();
 $use_domain = dataset_shared::get_domain($gen_type, $generate) == "on";
 $sunburstAppUniref = 50; //$uniref ? $uniref : "false";
-$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") ? "true" : "false";
+$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION" || $gen_type == "BLAST") ? "true" : "false";
 
 
 $table = new table_builder($table_format);
