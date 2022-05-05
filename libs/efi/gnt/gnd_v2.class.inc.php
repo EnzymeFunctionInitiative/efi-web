@@ -211,9 +211,6 @@ class gnd_v2 extends gnd {
     }
 
     private function check_uniref_exists() {
-        ////TODO: debug
-        //if ($ver == 50)
-        //    return false;
         if ($this->use_cluster_id_map) {
             $status = $this->check_table_exists("cluster_id_uniref_support");
             if ($status === false || count($this->query) < 1)
@@ -265,13 +262,17 @@ class gnd_v2 extends gnd {
         $ranges = array();
 
         $db = $this->db;
-        $start_col = "start_index";
-        $end_col = "end_index";
+        $default_start_col = "start_index";
+        $default_end_col = "end_index";
         $index_table = $this->get_cluster_index_table(false);
         $id_lookup_table = $this->get_cluster_index_table(true);
         $use_uniref = $this->use_uniref;
 
-        $query_fn = function($table, $id_col, $item, $special_where = "") use ($db, $start_col, $end_col) {
+        $query_fn = function($table, $id_col, $item, $special_where = "", $start_col = "", $end_col = "") use ($db, $default_start_col, $default_end_col) {
+            if (!$start_col)
+                $start_col = $default_start_col;
+            if (!$end_col)
+                $end_col = $default_end_col;
             $cols = $start_col == $end_col ? $start_col : "$start_col, $end_col";
             $where = $special_where ? $special_where : "$id_col = '$item'";
             $sql = "SELECT $cols FROM $table WHERE $where";
@@ -291,7 +292,7 @@ class gnd_v2 extends gnd {
 
         $accession_fn = function($item) use ($db, $id_lookup_table, $query_fn) {
             $item = $db->escapeString($item);
-            return $query_fn($id_lookup_table, "accession", $item);
+            return $query_fn($id_lookup_table, "accession", $item, "", "cluster_index", "cluster_index");
         };
 
         $cluster_id_fn = function($cluster_id) use ($db, $query_fn, $use_uniref) {
@@ -328,8 +329,7 @@ class gnd_v2 extends gnd {
                 else if (strtolower(substr($item, 0, 7)) == "cluster")
                     $result = $cluster_id_fn($item);
                 else
-                    //$result = $accession_fn($item);
-                    $result = array($acc_count, $acc_count);
+                    $result = $accession_fn($item);
                 $acc_count++;
                 if (is_array($result))
                     array_push($ranges, $result);

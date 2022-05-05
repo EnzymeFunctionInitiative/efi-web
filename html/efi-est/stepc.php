@@ -11,6 +11,7 @@ use \efi\est\analysis;
 use \efi\est\dataset_shared;
 use \efi\est\plots;
 use \efi\est\functions;
+use \efi\est\settings;
 
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
@@ -109,7 +110,8 @@ if (isset($_POST['analyze_data'])) {
     $min_node_attr = isset($_POST['min_node_attr']) ? 1 : 0;
     $min_edge_attr = isset($_POST['min_edge_attr']) ? 1 : 0;
     $compute_nc = isset($_POST['compute_nc']) ? true : false;
-    $build_repnode = isset($_POST['build_repnode']) ? true : false;
+    $default_build_repnode = settings::get_create_repnode_networks();
+    $build_repnode = isset($_POST['build_repnode']) ? true : $default_build_repnode;
 
     $result = $analysis->create(
         $job_id,
@@ -152,7 +154,7 @@ $uniref = dataset_shared::get_uniref_version($gen_type, $generate);
 $job_name = $generate->get_job_name();
 $use_domain = dataset_shared::get_domain($gen_type, $generate) == "on";
 $sunburstAppUniref = 50; //$uniref ? $uniref : "false";
-$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") ? "true" : "false";
+$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION" || $gen_type == "BLAST") ? "true" : "false";
 
 
 $table = new table_builder($table_format);
@@ -227,8 +229,10 @@ function make_histo_plot_download($gen, $hdr, $plot_type) {
 
 function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {
     $plot = plots::get_plot($gen, $plot_id);
-    if (!$plot || !$plot->has_data())
-        return "";
+    if (!$plot || !$plot->has_data()) {
+        echo "Invalid data";
+        return;
+    }
 
     $data = $plot->render_data(); // Javascript notation
     $plotly = $plot->render_plotly_config(); // Javascript code

@@ -57,6 +57,7 @@ define("__TEMP_FASTA_ID_FILENAME__", "fasta.ids");
 define("__USE_LEGACY_GRAPHS__",true);
 define("__ENABLE_CUSTOM_CLUSTERING__",false);
 define("__FILE_SIZE_GRAPH_ENABLED__",false);
+define("__DEFAULT_CREATE_REPNODE_NETWORKS__",true);
 
 define("__COLORSSN_MAP_DIR_NAME__","cluster-data");
 define("__COLORSSN_MAP_FILE_NAME__","mapping_table.txt");

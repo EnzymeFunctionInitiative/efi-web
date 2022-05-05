@@ -23,7 +23,7 @@ if (isset($IncludeSubmitJs)) {
         '<script src="js/index_helpers.js?v=1" type="text/javascript"></script>',
     );
 }
-$BannerImagePath = "images/efiest_logo.png";
+$BannerImagePath = "../efi-est/images/efiest_logo.png";
 
 require_once(__BASE_DIR__ . "/html/inc/global_header.inc.php");
 
