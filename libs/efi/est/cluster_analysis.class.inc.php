@@ -87,6 +87,8 @@ class cluster_analysis extends colorssn_shared {
     }
 
     public function get_insert_array($data) {
+        if ($data->hmm_aa)
+            $data->hmm_aa = strtoupper($data->hmm_aa);
         $insert_array = parent::get_insert_array($data);
         $insert_array["make_hmm"] = (isset($data->make_hmm) && preg_match("/^[CRHMWEBLOGIST,]+$/", $data->make_hmm)) ? $data->make_hmm : "";
         $insert_array["aa_threshold"] = (isset($data->aa_threshold) && preg_match("/^[0-9\., ]+$/", $data->aa_threshold)) ? $data->aa_threshold : 0;
