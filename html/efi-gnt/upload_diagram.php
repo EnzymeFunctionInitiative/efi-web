@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
+use \efi\global_settings;
 use \efi\gnt\settings;
 use \efi\gnt\functions;
 use \efi\gnt\diagram_jobs;
