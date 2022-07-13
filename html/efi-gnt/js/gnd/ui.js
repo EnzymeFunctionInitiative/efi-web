@@ -24,10 +24,11 @@ function checkBrowserSupport() {
 
 
 class GndUi {
-    constructor(msgRouter, controller, uiFilter, uniRefSupport) {
+    constructor(msgRouter, controller, uiFilter, gndVars, uniRefSupport) {
         this.msgRouter = msgRouter;
         this.XT = controller;
         this.uiFilter = uiFilter;
+        this.gndVars = gndVars;
 
         this.filterAnnoToggleId = "";
         this.filterAnnoToggleLabelId = "";
@@ -40,6 +41,7 @@ class GndUi {
         this.uniRefIds = {};
         this.uniRefSupport = uniRefSupport;
         this.hasProtId = false;
+        this.windowValueId = "";
 
         this.msgRouter.addListener(this);
     }
@@ -146,6 +148,11 @@ class GndUi {
     initialDirectJobLoad() {
         this.doSearch("1");
     }
+    resetEverything() {
+        this.XT.resetEverything();
+        this.uiFilter.clearFilter();
+        $(this.windowValueId).val(this.gndVars.getWindow());
+    }
 
 
     updateProgressBar(pct) {
@@ -231,11 +238,18 @@ class GndUi {
             that.doSearch(query);
         });
     }
-    registerSearchResetBtn(id, inputId) {
+    registerSearchResetToInitialBtn(id, inputId) {
         var that = this;
         $(id).click(function(e) {
             $(inputId).val("");
             that.initialDirectJobLoad();
+        });
+    }
+    registerSearchClearBtn(id, inputId) {
+        var that = this;
+        $(id).click(function(e) {
+            $(inputId).val("");
+            that.resetEverything();
         });
     }
     registerUniRefControl(containerId, groupId, uniRefIds) {
@@ -256,6 +270,7 @@ class GndUi {
     }
     registerWindowUpdateBtn(id, inputId) {
         var that = this;
+        this.windowValueId = inputId;
         $(id).click(function(e) {
             var nbSize = $(inputId).val();
             that.XT.setWindow(nbSize);

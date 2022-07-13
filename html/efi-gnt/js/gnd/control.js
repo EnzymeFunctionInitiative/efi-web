@@ -9,11 +9,12 @@ const LOAD_RELOAD = 3;  // Reload what's present on the screen (scale factor/win
 
 
 class GndController {
-    constructor(msgRouter, gndDb, gndHttp, gndVars, gndView, bigscape, uniRefSupport) {
+    constructor(msgRouter, gndDb, gndHttp, gndVars, gndView, gndFilter, bigscape, uniRefSupport) {
         this.Http = gndHttp;
         this.Vars = gndVars;
         this.Db = gndDb;
         this.View = gndView;
+        this.Filter = gndFilter;
         this.getUrlFn = function(a,b){};
         this.initUrlFn = function(){};
         this.msgRouter = msgRouter;
@@ -266,6 +267,9 @@ class GndController {
         this.doLoad(LOAD_NEXT);
     }
 
+    resetEverything() {
+        this.reset(true);
+    }
     // Private
     reset(fullReset) {
         this.scaleFactor = this.Vars.getDefaultScaleFactor();
@@ -274,7 +278,7 @@ class GndController {
 
         // fullReset = true if this isn't the first load of the app.
         if (fullReset) {
-            //TODO: reset filter, scale factor, etc
+            this.Filter.reset();
             this.View.clearCanvas();
         }
     }
