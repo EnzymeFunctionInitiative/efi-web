@@ -42,6 +42,8 @@ function render_search_input($params) {
             <button type="button" class="btn btn-light" id="advanced-search-cluster-button">Query</button>
 <?php if ($params->is_direct_job || $params->is_realtime_job) { ?>
             <button type="button" class="btn btn-light" id="advanced-search-reset-button"><?php echo $params->is_realtime_job ? "Clear" : "Reset View"; ?></button>
+<?php } else { ?>
+            <button type="button" class="btn btn-light" id="advanced-search-reset-button">Clear</button>
 <?php } ?>
         </div>
     </div>

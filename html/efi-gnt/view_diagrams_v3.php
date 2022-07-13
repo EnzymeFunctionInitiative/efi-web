@@ -60,7 +60,7 @@ if ($P->is_bigscape_enabled) {
     $P->bigscape_modal_close_text = $P->bigscape_status === bigscape_job::STATUS_RUNNING ? "Close" : "No";
 }
 
-$js_version = "?v=12";
+$js_version = "?v=13";
 
 ?>
 
@@ -245,9 +245,9 @@ $js_version = "?v=12";
                     var gndPopup = new GndInfoPopup(gndRouter, gndDb, popupIds);
                     var gndView = new GndView(gndRouter, gndDb, gndFilter, gndPopup, svgCanvasId, uniRefSupport);
 
-                    var control = new GndController(gndRouter, gndDb, gndHttp, gndVars, gndView, bigscape, uniRefSupport);
+                    var control = new GndController(gndRouter, gndDb, gndHttp, gndVars, gndView, gndFilter, bigscape, uniRefSupport);
                     var filterUi = new GndFilterUi(gndRouter, gndFilter, gndColor, pfamFilterContainerId, interproFilterContainerId, legendContainerId, numDiagramsFilteredId);
-                    var ui = new GndUi(gndRouter, control, filterUi, uniRefSupport);
+                    var ui = new GndUi(gndRouter, control, filterUi, gndVars, uniRefSupport);
 <?php if ($P->is_bigscape_enabled) { ?>
                     ui.registerBigScape(bigscape, "#run-bigscape-btn", "#run-bigscape-btn-text", "#run-bigscape-modal", "#run-bigscape-confirm", "#run-bigscape-reject");
 <?php } ?>
@@ -272,7 +272,9 @@ $js_version = "?v=12";
                     ui.registerSearchBtn("#advanced-search-cluster-button", "#advanced-search-input", "#start-info", "#advanced-search-panel");
                     ui.registerUniRefControl("#advanced-search-use-uniref-container", "display-id-type", uniRefUiIds);
 <?php if ($P->is_direct_job || $P->is_realtime_job) { ?>
-                    ui.registerSearchResetBtn("#advanced-search-reset-button", "#advanced-search-input");
+                    ui.registerSearchResetToInitialBtn("#advanced-search-reset-button", "#advanced-search-input");
+<?php } else { ?>
+                    ui.registerSearchClearBtn("#advanced-search-reset-button", "#advanced-search-input");
 <?php } ?>
 
                     $(".zoom-btn").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
