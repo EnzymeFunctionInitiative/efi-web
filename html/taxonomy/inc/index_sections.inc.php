@@ -50,6 +50,9 @@ diagrams (GNDs).
                         <?php echo add_taxonomy_filter("optb")[0] ?>
                     </div>
                     <div>
+                        <?php echo add_length_filter("optb")[0] ?>
+                    </div>
+                    <div>
                         <?php echo add_fragment_option("optb")[0] ?>
                     </div>
                     <?php if ($use_advanced_options) { ?>

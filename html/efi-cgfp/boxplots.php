@@ -21,7 +21,7 @@ if (isset($_GET["filename"])) {
     <link rel="stylesheet" type="text/css" href="../css/form.css?v=2">
 
     <!--<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>-->
-    <script src="../vendor/plotly/plotly.js/plotly.min.js"></script>
+    <script src="../vendor/plotly/plotly.js/dist/plotly.min.js"></script>
     <script src="../vendor/components/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="js/heatmap.js?v=6"></script>
 

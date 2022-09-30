@@ -395,13 +395,16 @@ TEXT;
         $text
     </div>
     <div>Preselected conditions:
-        <select class="taxonomy-preselects" data-taxoption="$option_id">
+        <select class="taxonomy-preselects" id="taxonomy-$option_id-select" data-option-id="$option_id">
             <option disabled selected value>-- select a preset to auto populate --</option>
         </select>
     </div>
     <div id="taxonomy-$option_id-container"></div>
+    <div style="display: none">
+        <input type="hidden" name="taxonomy-$option_id-preset-name" id="taxonomy-$option_id-preset-name" value="" />
+    </div>
     <div>
-        <button type="button" class="light add-tax-btn" data-option-id="$option_id">Add taxonomic condition</button>
+        <button type="button" class="light add-tax-btn" data-option-id="$option_id" id="taxonomy-$option_id-add-btn">Add taxonomic condition</button>
         <!--<button type="button" class="light" onclick="appTF.addTaxCondition('$option_id')">Add taxonomic condition</button>-->
     </div>
 </div>

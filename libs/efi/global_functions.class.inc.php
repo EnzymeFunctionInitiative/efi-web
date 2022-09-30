@@ -196,12 +196,15 @@ class global_functions {
 
         if ($result) {
             $result = $result[0];
+            $params = self::decode_object($result["analysis_params"]);
+            $tax_search = (isset($params["tax_search_hash"]) && $params["tax_search_hash"]) ? "-" . $params["tax_search_hash"] : "";
+            $nc_suffix = ($params["compute_nc"] && $params["compute_nc"] === true) ? "-nc" : "";
             $info["generate_id"] = $result["analysis_generate_id"];
             $info["analysis_id"] = $est_id;
             $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
                                     $result["analysis_evalue"] . "-" .
                                     $result["analysis_min_length"] . "-" .
-                                    $result["analysis_max_length"];
+                                    $result["analysis_max_length"] . $tax_search . $nc_suffix;
             return $info;
         } else {
             return false;

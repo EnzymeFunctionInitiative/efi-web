@@ -53,6 +53,10 @@ AppEstSubmit.prototype.addCommonFormData = function(opt, fd) {
 
     var taxGroups = this.taxApp.getTaxSearchConditions(opt);
     taxGroups.forEach((group) => fd.append("tax_search[]", group));
+    var taxPresetNameId = opt ? "taxonomy-" + opt + "-preset-name" : "taxonomy-preset-name";
+    var taxPresetName = $("#" + taxPresetNameId).val();
+    if (taxPresetName)
+        fd.append("tax_name", taxPresetName);
 };
 
 AppEstSubmit.prototype.submitOptionForm = function(optionId) {
@@ -194,6 +198,10 @@ AppEstSubmit.prototype.getOptionDFormFn = function(outputIds) {
             addParam(fd, "domain_family", "domain-family-optd");
             addRadioParam(fd, "domain_region", "domain-region-optd");
         }
+
+        if ($("#family-filter-optd").val().length >= 7) {
+            addParam(fd, "family_filter", "family-filter-optd");
+        }
     
         var completionHandler = getDefaultCompletionHandler();
         if (!$("#tax-source-job-id").val()) {
@@ -300,6 +308,7 @@ AppEstSubmit.prototype.submitColorSsnForm = function(type) { // the parameters a
     }
     addParam(fd, "ssn-source-id", "ssn-source-id-" + option);
     addParam(fd, "ssn-source-idx", "ssn-source-idx-" + option);
+    addParam(fd, "ssn-source-key", "ssn-source-key-" + option);
     //addCbParam(fd, "exlude-fragments", "exclude-" + option);
     
     var completionHandler = getDefaultCompletionHandler();

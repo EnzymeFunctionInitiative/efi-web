@@ -60,7 +60,7 @@ if ($P->is_bigscape_enabled) {
     $P->bigscape_modal_close_text = $P->bigscape_status === bigscape_job::STATUS_RUNNING ? "Close" : "No";
 }
 
-$js_version = "?v=13";
+$js_version = "?v=14";
 
 ?>
 

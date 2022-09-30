@@ -42,7 +42,7 @@ if (isset($_GET["as-table"])) {
 $use_advanced_options = global_settings::advanced_options_enabled();
 
 $gen_type = $generate->get_type();
-$generate = dataset_shared::create_generate_object($gen_type, $db, false);
+$generate = dataset_shared::create_generate_object("TAXONOMY", $db, false);
 
 if (!$generate->has_tax_data()) {
     error500("Invalid job type.");
@@ -73,6 +73,8 @@ require_once(__DIR__."/inc/header.inc.php");
 
 $date_completed = $generate->get_time_completed_formatted();
 
+$histo_info = $generate->get_length_histogram_info();
+
 ?>	
 
 
@@ -87,6 +89,9 @@ $date_completed = $generate->get_time_completed_formatted();
     <ul class="">
         <li class="ui-tabs-active"><a href="#info">Dataset Summary</a></li>
         <li><a href="#taxonomy">Taxonomy Sunburst</a></li>
+<?php if ($histo_info !== false) { ?>
+        <li><a href="#histo">Length Histograms</a></li>
+<?php } ?>
     </ul>
     <div>
         <!-- JOB INFORMATION -->
@@ -104,6 +109,27 @@ $date_completed = $generate->get_time_completed_formatted();
 
         <div id="taxonomy">
         </div>
+
+<?php if ($histo_info !== false) { ?>
+        <div id="histo">
+<?php
+
+for ($i = 0; $i < count($histo_info); $i++) {
+    $type = $histo_info[$i][2];
+?>
+    <div>
+        <!--<div><?php echo $histo_info[$i][0]; ?></div>-->
+        <div>
+            <img src="<?php echo $histo_info[$i][1]; ?>" /><br />
+            <a href='graphs.php?id=<?php echo $gen_id; ?>&type=<?php echo $type; ?>&key=<?php echo $key; ?>'><button class='file_download'>Download high resolution <img src='../images/download.svg' /></button></a>
+        </div>
+    </div>
+<?php
+}
+
+?>
+        </div>
+<?php } ?>
     </div>
 </div>
 

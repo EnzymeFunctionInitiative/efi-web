@@ -160,17 +160,8 @@ class dataset_shared {
                 };
         }
 
-        $tax_row = "";
+        $tax_search = "";
         $tax_search = $generate->get_taxonomy_filter();
-        if (is_array($tax_search)) {
-            for ($i = 0; $i < count($tax_search); $i++) {
-                $name = ucfirst($tax_search[$i][0]);
-                $search = $tax_search[$i][1];
-                if ($tax_row)
-                    $tax_row .= ", ";
-                $tax_row .= "$name: $search";
-            }
-        }
 
         $total_note = "";
         
@@ -194,8 +185,8 @@ class dataset_shared {
                 $table->add_row("Actual Number of Retrieved Sequences", number_format($retrieved_seq));
             $add_fam_rows_fn($family_label, $fraction_label, "");
             $add_fam_overlap_rows_fn("Retrieved Sequences");
-            if ($tax_row)
-                $table->add_row("Taxonomy Categories:", $tax_row);
+            if ($tax_search)
+                $table->add_row("Taxonomy Categories:", $tax_search);
             $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
         elseif ($gen_type == "FAMILIES" || $gen_type == "TAXONOMY") {
@@ -216,8 +207,8 @@ class dataset_shared {
                 if ($overlap)
                     $table->add_row("Sequence Overlap", $overlap);
             }
-            if ($tax_row)
-                $table->add_row("Taxonomy Categories:", $tax_row);
+            if ($tax_search)
+                $table->add_row("Taxonomy Categories:", $tax_search);
             $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
         elseif ($gen_type == "ACCESSION" || $gen_type == "FASTA" || $gen_type == "FASTA_ID") {
@@ -258,8 +249,15 @@ class dataset_shared {
             $add_fam_rows_fn($family_label, $fraction_label, $table_dom_label);
             $table->add_row("Number of $term in Uploaded File", number_format($num_file_seq) . $match_text);
             $add_fam_overlap_rows_fn("Input $term");
-            if ($tax_row)
-                $table->add_row("Taxonomy Categories:", $tax_row);
+            if ($tax_search)
+                $table->add_row("Taxonomy Categories", $tax_search);
+            if ($gen_type == "ACCESSION") {
+                $fams = $generate->get_family_filter();
+                if ($fams) {
+                    $table->add_row("Family Filter", $fams);
+                }
+            }
+
             $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }
         elseif ($gen_type == "COLORSSN" || $gen_type == "CLUSTER" || $gen_type == "NBCONN" || $gen_type == "CONVRATIO") {

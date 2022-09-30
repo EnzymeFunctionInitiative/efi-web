@@ -23,7 +23,7 @@ $generate = new stepa($db, $_GET['id'], $is_example);
 $gen_id = $generate->get_id();
 $key = $_GET['key'];
 
-if ($generate->get_key() != $_GET['key']) {
+if ($generate->get_key() != $key) {
     error500("Unable to find the requested job.");
 }
 
@@ -39,111 +39,8 @@ if (!$is_example && $generate->is_expired()) {
 
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// This code handles submission of the form.  It exits at the end of the code block if the
-// analysis job was successfully created.
-if (isset($_POST['analyze_data'])) {
-    foreach ($_POST as $var) {
-        $var = trim(rtrim($var));
-    }
-    $min = $_POST['minimum'];
-    if ($_POST['minimum'] == "") {
-        $min = __MINIMUM__;
-    }
-    $max = $_POST['maximum'];
-    if ($_POST['maximum'] == "") {
-        $max = __MAXIMUM__;
-    }
-
-    $job_id = $_POST['id'];
-
-    $analysis = new analysis($db);
-
-    $customFile = "";
-    if (isset($_FILES['cluster_file']) && (!isset($_FILES['cluster_file']['error']) || $_FILES['cluster_file']['error'] == 0)) {
-        $customFile = $_FILES['cluster_file']['tmp_name'];
-    }
-
-    $filter = "";
-    $filter_value = 0;
-    if (isset($_POST['filter'])) {
-        $filter = $_POST['filter'];
-        if ($filter == "eval") {
-            $filter_value = $_POST['evalue'];
-        } elseif ($filter == "pid") {
-            $filter_value = $_POST['pid'];
-        } elseif ($filter == "bit") {
-            $filter_value = $_POST['bitscore'];
-        } elseif ($filter != "custom") {
-            $filter = "eval";
-        }
-    } else {
-        $filter = "eval";
-        $filter_value = $_POST['evalue'];
-    }
-
-    if (user_auth::has_token_cookie()) {
-        $email = user_auth::get_email_from_token($db, user_auth::get_user_token());
-        if (functions::is_job_sticky($db, $job_id, $email)) {
-            $parent_id = $job_id;
-            $parent_check = functions::is_parented($db, $job_id, $email);
-
-            if ($parent_check === false) {
-                $job_id = stepa::duplicate_job($db, $job_id, $email);
-                if ($job_id === false) {
-                    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-                    die("Unable to create duplicate of $parent_id for $email");
-                }
-            } else {
-                $job_id = $parent_check;
-            }
-        }
-    }
-
-    $cdhitOpt = "";
-    if (functions::custom_clustering_enabled() && isset($_POST["cdhit-opt"])) {
-        $opt = $_POST["cdhit-opt"];
-        if ($opt == "sb" || $opt == "est" || $opt == "est+")
-            $cdhitOpt = $opt;
-    }
-
-    $min_node_attr = isset($_POST['min_node_attr']) ? 1 : 0;
-    $min_edge_attr = isset($_POST['min_edge_attr']) ? 1 : 0;
-    $compute_nc = isset($_POST['compute_nc']) ? true : false;
-    $default_build_repnode = settings::get_create_repnode_networks();
-    $build_repnode = isset($_POST['build_repnode']) ? true : $default_build_repnode;
-
-    $result = $analysis->create(
-        $job_id,
-        $filter_value,
-        $_POST['network_name'],
-        $min,
-        $max,
-        $customFile,
-        $cdhitOpt,
-        $filter,
-        $min_node_attr,
-        $min_edge_attr,
-        $compute_nc,
-        $build_repnode
-    );
-
-    if ($result['RESULT']) {
-        header('Location: stepd.php');
-        exit(0);
-    }
-}
-
-// If an analysis was not submitted, then display the Step C page.
-
-
-
 $web_address = dirname($_SERVER['PHP_SELF']);
 
-$table_format = "html";
-if (isset($_GET["as-table"])) {
-    $table_format = "tab";
-}
 
 $use_advanced_options = global_settings::advanced_options_enabled();
 
@@ -155,13 +52,15 @@ $job_name = $generate->get_job_name();
 $use_domain = dataset_shared::get_domain($gen_type, $generate) == "on";
 $sunburstAppUniref = 50; //$uniref ? $uniref : "false";
 $hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION" || $gen_type == "BLAST") ? "true" : "false";
+$ex_param = $is_example ? "&x=1" : "";
 
 
+$table_format = "html";
+if (isset($_GET["as-table"]))
+    $table_format = "tab";
 $table = new table_builder($table_format);
 dataset_shared::add_generate_summary_table($generate, $table, false, $is_example);
 $table_string = $table->as_string();
-
-$ex_param = $is_example ? "&x=1" : "";
 
 if (isset($_GET["as-table"])) {
     $file_job_name = $gen_id . "_" . $gen_type;
@@ -171,88 +70,22 @@ if (isset($_GET["as-table"])) {
     exit(0);
 }
 
+
 $has_tax_data = $generate->has_tax_data();
 $is_taxonomy = ($gen_type == "TAXONOMY") && $has_tax_data;
 $show_taxonomy = true && $has_tax_data;
 
 $IncludeSunburstJs = $show_taxonomy;
 $IncludePlotlyJs = true;
+$IncludeTaxonomyJs = true;
 require_once(__DIR__."/inc/header.inc.php");
 
 
 $date_completed = $generate->get_time_completed_formatted();
 
-$url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$generate->get_id(),
-    'key'=>$generate->get_key()));
+$post_url = "stepc_do.php";
 
-function make_plot_download($gen, $hdr, $type, $preview_img, $download_img, $plot_exists) {
-    global $is_example;
-    $html = ""; //"<span class='plot-header'>$hdr</span> \n";
-    if (!$plot_exists) {
-        $html .= "Unable to be generated";
-        return;
-    }
-    if ($preview_img) {
-        $html .= <<<HTML
-<div>
-    <center>
-        <img src='$preview_img' />
-HTML;
-        $ex_param = $is_example ? "&x=1" : "";
-        $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "$ex_param'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
-        $html .= <<<HTML
-    </center>
-</div>
-HTML;
-    } else {
-        $html .= "<a href='$download_img'><button class='file_download'>Preview</button></a>\n";
-    }
 
-    return $html;
-}
-
-function make_histo_plot_download($gen, $hdr, $plot_type) {
-    $download_type = $gen->get_length_histogram_download_type($plot_type);
-    $web_path = $gen->get_length_histogram($plot_type, true, true);
-    $large_web_path = $gen->get_length_histogram($plot_type, true, false);
-    $plot_exists = $web_path ? true : false;
-    if (!$plot_exists) {
-        $plot_type = "";
-        $use_v2 = false;
-        $download_type = $gen->get_length_histogram_download_type($plot_type, $use_v2);
-        $web_path = $gen->get_length_histogram($plot_type, true, true, $use_v2);
-        $large_web_path = $gen->get_length_histogram($plot_type, true, false, $use_v2);
-        $plot_exists = $large_web_path ? true : false;
-    }
-    return make_plot_download($gen, $hdr, $download_type, $web_path, $large_web_path, $plot_exists); 
-}
-
-function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {
-    $plot = plots::get_plot($gen, $plot_id);
-    if (!$plot || !$plot->has_data()) {
-        echo "Invalid data";
-        return;
-    }
-
-    $data = $plot->render_data(); // Javascript notation
-    $plotly = $plot->render_plotly_config(); // Javascript code
-    $trace_var = $plot->get_trace_var();
-    $layout_var = $plot->get_layout_var();
-
-    $html = <<<HTML
-                <div>
-                    <center>
-                    <div id="$plot_div"></div>
-                </center>
-                    <script>
-                        $data
-                        $plotly
-                        Plotly.newPlot("$plot_div", $trace_var, $layout_var);
-                    </script>
-                </div>
-HTML;
-    echo $html;
-}
 
 
 $ssn_jobs = $generate->get_analysis_jobs();
@@ -303,7 +136,7 @@ is a measure of the similarity between sequence pairs.
             <p>
             The parameters for generating the initial dataset are summarized in the table. 
             </p>
-            
+
             <table width="100%" class="pretty no-stretch">
                 <?php echo $table_string; ?>
             </table>
@@ -343,7 +176,7 @@ is a measure of the similarity between sequence pairs.
 ?>
         </div>
     <?php } ?>
-    
+
     <?php if (!$is_taxonomy) { ?>
 
         <!-- GRAPHS -->
@@ -621,8 +454,10 @@ histogram).</p>
         <?php if (!$is_example && !$is_taxonomy) { ?>
         <!-- FINALIZATION -->
         <div id="final">
-            <form name="define_length" method="post" action="<?php echo $url; ?>" class="align_left" enctype="multipart/form-data">
-            
+            <form name="define_length" method="post" class="align_left" enctype="multipart/form-data" id="a-form">
+            <input type="hidden" name="key" value="<?php echo $key; ?>" />
+            <input type="hidden" name="id" value="<?php echo $gen_id; ?>" />
+
             <?php if ($use_advanced_options) { ?>
             <div class="tabs-efihdr tabs">
                 <ul class="tab-headers">
@@ -631,7 +466,7 @@ histogram).</p>
                     <li><a href="#threshold-bit">Bit Score Threshold</a></li>
                     <li><a href="#threshold-custom">Custom Clustering</a></li>
                 </ul>
-            
+
                 <div class="tab-content" style="min-height: 220px">
             <?php } ?>
                     <div id="threshold-eval" class="tab active">
@@ -654,27 +489,27 @@ histogram).</p>
                                 The alignment score is similar in magnitude to the negative base-10 logarithm of a BLAST e-value.
                             </div>
                         </p>
-            
+
                     </div>
             <?php if ($use_advanced_options) { ?>
                     <div id="threshold-pid" class="tab">
                         <p>Select a lower limit for the percent ID to use as a lower threshold for clustering in the SSN.</p>
-            
+
                         <p><input type="text" name="pid" <?php if (isset($_POST['pid'])) { echo "value='" . $_POST['pid'] ."'"; } ?>>
                         % ID
                         </p>
-            
+
                         This score is the similarity threshold which determine the 
                         connection of proteins with each other. All pairs of proteins with a percent
                         ID below this number will not be connected. Sets of connected proteins will 
                         form clusters.
                     </div>
                     <div id="threshold-bit" class="tab">
-                        
+
                         <p>Select a lower limit for the bit score to use as a lower threshold for clustering in the SSN.</p>
-            
+
                         <p><input type="text" name="bitscore" <?php if (isset($_POST['bitscore'])) { echo "value='" . $_POST['bitscore'] ."'"; } ?>></p>
-            
+
                         <p>
                         This score is the similarity threshold which determine the 
                         connection of proteins with each other. All pairs of proteins with a bit score
@@ -683,7 +518,7 @@ histogram).</p>
                         </p>
                     </div>
                     <div id="threshold-custom" class="tab">
-                        
+
                         A file specifying which proteins are in what cluster can be uploaded.  The file must be givein in the format below.
                         Tabs or spaces can be used instead of the ',' comma separating character.
 <pre>
@@ -700,7 +535,7 @@ Protein_ID_3,Cluster#
             </div>
             <?php } ?>
             <input type="hidden" name="filter" id="filter-type" value="eval" />
-            
+
             <div class="option-panels">
                 <div class="initial-open">
                     <h3>Sequence Length Restriction Options</h3>
@@ -726,7 +561,29 @@ Protein_ID_3,Cluster#
                         </p>
                     </div>
                 </div>
-                <div class="initial-open">
+                <div class="">
+                    <h3>Filter by Taxonomy</h3>
+                    <div>
+                        <p>
+                        Conditions on the taxonomy can be set to further restrict the set of sequences by only including the sequences that
+                        match the specific taxonomic categories.  Multiple conditions are combined to be a union of each other.
+                        </p>
+                        <div>
+                            Preselected conditions:
+                            <select class="taxonomy-preselects">
+                                <option disabled selected value>-- select a preset to auto populate --</option>
+                            </select>
+                        </div>
+                        <div style="display: none">
+                            <input type="hidden" name="taxonomy-preset-name" id="taxonomy-preset-name" value="" />
+                        </div>
+                        <div id="taxonomy-container"></div>
+                        <div>
+                            <button type="button" class="light add-tax-btn">Add taxonomic condition</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="">
                     <h3>Neighborhood Connectivity Option</h3>
                     <div>
                         <div>
@@ -771,13 +628,12 @@ Protein_ID_3,Cluster#
             <p>
             You will be notified by e-mail when the SSN is ready for download.
             </p>
-            
-            <input type='hidden' name='id' value='<?php echo $generate->get_id(); ?>'>
 
             <center>
-                <button type="submit" name="analyze_data" class="dark">Create SSN</button>
+                <div id="submit-error" style="color: red; font-size: 1.2em" class="error_message"></div>
+                <div><button type="button" class="dark" id="submit-button">Create SSN</button></div>
             </center>
-            
+
             </form>
         </div>
         <?php } ?>
@@ -824,88 +680,81 @@ Protein_ID_3,Cluster#
     </div>
 </div>
 
-        
+
 <div style="margin-top:85px"></div>
 
 <center>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</center>
 
 <script src="<?php echo $SiteUrlPrefix; ?>/js/panel-toggle.js" type="text/javascript"></script>
 <script>
-$(document).ready(function() {
-    var fileSizeIframe = $("#file-size-iframe");
-    var edgeIframe = $("#edge-evalue-iframe");
-    
-    $('#file-size-button').click(function() {
-        $header = $(this);
-        //getting the next element
-        $content = $header.next();
-        //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
-        $content.slideToggle(100, function () {
-            if ($content.is(":visible")) {
-                $header.find("i.fas").addClass("fa-minus-square");
-                $header.find("i.fas").removeClass("fa-plus-square");
+    $(document).ready(function() {
+        var fileSizeIframe = $("#file-size-iframe");
+        var edgeIframe = $("#edge-evalue-iframe");
+
+        $('#file-size-button').click(function() {
+            $header = $(this);
+            //getting the next element
+            $content = $header.next();
+            //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+            $content.slideToggle(100, function () {
+                if ($content.is(":visible")) {
+                    $header.find("i.fas").addClass("fa-minus-square");
+                    $header.find("i.fas").removeClass("fa-plus-square");
+                } else {
+                    $header.find("i.fas").removeClass("fa-minus-square");
+                    $header.find("i.fas").addClass("fa-plus-square");
+                }
+            });
+            fileSizeIframe.attr('src', function() {
+                return $(this).data('src');
+            });
+        });
+
+        $('#edge-evalue-button').click(function() {
+            edgeIframe.attr('src', function() {
+                return $(this).data('src');
+            });
+        });
+
+        fileSizeIframe.each(function() {
+            var src = $(this).attr('src');
+            $(this).data('src', src).attr('src', '');
+        });
+        edgeIframe.each(function() {
+            var src = $(this).attr('src');
+            $(this).data('src', src).attr('src', '');
+        });
+
+        $(".tabs").tabs();
+        $(".option-panels > div").accordion({
+                heightStyle: "content",
+                    collapsible: true,
+                    active: false,
+        });
+        $(".initial-open").accordion("option", {active: 0});
+
+        $("#final-link").click(function() {
+            $(".tabs").tabs({active: 2});
+        });
+    });
+
+    var acc = document.getElementsByClassName("panel-toggle");
+    for (var i = 0; i < acc.length; i++) {
+        acc[i].onclick = function() {
+            this.classList.toggle("active");
+            var panel = this.nextElementSibling;
+            if (panel.style.maxHeight){
+                panel.style.maxHeight = null;
             } else {
-                $header.find("i.fas").removeClass("fa-minus-square");
-                $header.find("i.fas").addClass("fa-plus-square");
-            }
-        });
-        fileSizeIframe.attr('src', function() {
-            return $(this).data('src');
-        });
-    });
-    
-    $('#edge-evalue-button').click(function() {
-        edgeIframe.attr('src', function() {
-            return $(this).data('src');
-        });
-    });
-
-    fileSizeIframe.each(function() {
-        var src = $(this).attr('src');
-        $(this).data('src', src).attr('src', '');
-    });
-    edgeIframe.each(function() {
-        var src = $(this).attr('src');
-        $(this).data('src', src).attr('src', '');
-    });
-
-    $(".tabs").tabs();
-    $(".option-panels > div").accordion({
-            heightStyle: "content",
-                collapsible: true,
-                active: false,
-    });
-    $(".initial-open").accordion("option", {active: 0});
-
-    $("#final-link").click(function() {
-        $(".tabs").tabs({active: 2});
-    });
-
-    //$("#sunburst").dialog({
-    //    modal: true,
-    //    buttons: {
-    //        Ok: function() {
-    //            $(this).dialog("close");
-    //        }
-    //    }
-    //});
-});
-
-
-var acc = document.getElementsByClassName("panel-toggle");
-for (var i = 0; i < acc.length; i++) {
-    acc[i].onclick = function() {
-        this.classList.toggle("active");
-        var panel = this.nextElementSibling;
-        if (panel.style.maxHeight){
-            panel.style.maxHeight = null;
-        } else {
-            panel.style.maxHeight = panel.scrollHeight + "px";
-        } 
+                panel.style.maxHeight = panel.scrollHeight + "px";
+            } 
+        }
     }
-}
-
 </script>
+
+
+
+
 <?php if (functions::custom_clustering_enabled()) { ?>
 <script>
     $(document).ready(function() {
@@ -917,31 +766,144 @@ for (var i = 0; i < acc.length; i++) {
     }).tooltip();
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
-
 <?php } ?>
+
+
+
 
 <?php if ($show_taxonomy) { ?>
 <script>
-    var hasUniref = <?php echo $hasUniref; ?>;
+    $(document).ready(function() {
+        var hasUniref = <?php echo $hasUniref; ?>;
 
-    var scriptAppDir = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php";
-    var sbParams = {
-            apiId: "<?php echo $gen_id; ?>",
-            apiKey: "<?php echo $key; ?>",
-            apiExtra: [],
-            appUniRefVersion: <?php echo $sunburstAppUniref; ?>,
-            scriptApp: scriptAppDir + "/get_tax_data.php",
-            fastaApp: scriptAppDir + "/get_sunburst_fasta.php",
-            hasUniRef: hasUniref
-    };
-    var sunburstApp = new AppSunburst(sbParams);
-    sunburstApp.attachToContainer("taxonomy");
-    sunburstApp.addSunburstFeatureAsync();
+        var scriptAppDir = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php";
+        var sbParams = {
+                apiId: "<?php echo $gen_id; ?>",
+                apiKey: "<?php echo $key; ?>",
+                apiExtra: [],
+                appUniRefVersion: <?php echo $sunburstAppUniref; ?>,
+                scriptApp: scriptAppDir + "/get_tax_data.php",
+                fastaApp: scriptAppDir + "/get_sunburst_fasta.php",
+                hasUniRef: hasUniref
+        };
+        var sunburstApp = new AppSunburst(sbParams);
+        sunburstApp.attachToContainer("taxonomy");
+        sunburstApp.addSunburstFeatureAsync();
+    });
 </script>
 <?php } ?>
+
+
+
+
+<script>
+    $(document).ready(function() {
+        var warningMsgId = "submit-error";
+        var taxSearchApp = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/taxonomy/php/get_tax_typeahead.php";
+        var taxContainerFn = function(opt) { return "#taxonomy-container"; };
+        var taxonomyApp = new AppTF(taxContainerFn, taxSearchApp);
+
+        setupTaxonomyUi(taxonomyApp);
+
+        $("#submit-button").click(function(e) {
+            var fd = new FormData($("#a-form")[0]);
+
+            var taxPresetName = $("#taxonomy-preset-name").val();
+            if (taxPresetName) {
+                fd.append("tax_name", taxPresetName);
+            }
+            var taxGroups = taxonomyApp.getTaxSearchConditions("");
+            taxGroups.forEach((group) => fd.append("tax_search[]", group));
+
+            var fileHandler = function(xhr) {};
+            var completionHandler = function(jsonObj) {
+                var nextStepScript = "stepd.php";
+                window.location.href = nextStepScript + "?id=" + jsonObj.id;
+            };
+
+            doFormPost("<?php echo $post_url; ?>", fd, warningMsgId, fileHandler, completionHandler);
+        });
+    });
+</script>
 
 <?php
 
 require_once(__DIR__."/inc/footer.inc.php");
+
+
+
+
+
+
+
+
+function make_plot_download($gen, $hdr, $type, $preview_img, $download_img, $plot_exists) {
+    global $is_example;
+    $html = ""; //"<span class='plot-header'>$hdr</span> \n";
+    if (!$plot_exists) {
+        $html .= "Unable to be generated";
+        return;
+    }
+    if ($preview_img) {
+        $html .= <<<HTML
+<div>
+    <center>
+        <img src='$preview_img' />
+HTML;
+        $ex_param = $is_example ? "&x=1" : "";
+        $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "$ex_param'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
+        $html .= <<<HTML
+    </center>
+</div>
+HTML;
+    } else {
+        $html .= "<a href='$download_img'><button class='file_download'>Preview</button></a>\n";
+    }
+
+    return $html;
+}
+
+function make_histo_plot_download($gen, $hdr, $plot_type) {
+    $download_type = $gen->get_length_histogram_download_type($plot_type);
+    $web_path = $gen->get_length_histogram($plot_type, true, true);
+    $large_web_path = $gen->get_length_histogram($plot_type, true, false);
+    $plot_exists = $web_path ? true : false;
+    if (!$plot_exists) {
+        $plot_type = "";
+        $use_v2 = false;
+        $download_type = $gen->get_length_histogram_download_type($plot_type, $use_v2);
+        $web_path = $gen->get_length_histogram($plot_type, true, true, $use_v2);
+        $large_web_path = $gen->get_length_histogram($plot_type, true, false, $use_v2);
+        $plot_exists = $large_web_path ? true : false;
+    }
+    return make_plot_download($gen, $hdr, $download_type, $web_path, $large_web_path, $plot_exists); 
+}
+
+function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {
+    $plot = plots::get_plot($gen, $plot_id);
+    if (!$plot || !$plot->has_data()) {
+        echo "Invalid data";
+        return;
+    }
+
+    $data = $plot->render_data(); // Javascript notation
+    $plotly = $plot->render_plotly_config(); // Javascript code
+    $trace_var = $plot->get_trace_var();
+    $layout_var = $plot->get_layout_var();
+
+    $html = <<<HTML
+                <div>
+                    <center>
+                    <div id="$plot_div"></div>
+                </center>
+                    <script>
+                        $data
+                        $plotly
+                        Plotly.newPlot("$plot_div", $trace_var, $layout_var);
+                    </script>
+                </div>
+HTML;
+    echo $html;
+}
 
 

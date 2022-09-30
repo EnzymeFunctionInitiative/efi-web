@@ -377,14 +377,43 @@ function add_taxonomy_filter($option_id) {
         match the specific taxonomic categories.  Multiple conditions are combined to be a union of each other.
     </div>
     <div>Preselected conditions:
-        <select class="taxonomy-preselects" data-taxoption="$option_id">
+        <select class="taxonomy-preselects" id="taxonomy-$option_id-select" data-option-id="$option_id">
             <option disabled selected value>-- select a preset to auto populate --</option>
         </select>
     </div>
     <div id="taxonomy-$option_id-container"></div>
+    <div style="display: none">
+        <input type="hidden" name="taxonomy-$option_id-preset-name" id="taxonomy-$option_id-preset-name" value="" />
+    </div>
     <div>
-        <button type="button" class="light add-tax-btn" data-option-id="$option_id">Add taxonomic condition</button>
+        <button type="button" class="light add-tax-btn" data-option-id="$option_id" id="taxonomy-$option_id-add-btn">Add taxonomic condition</button>
         <!--<button type="button" class="light" onclick="appTF.addTaxCondition('$option_id')">Add taxonomic condition</button>-->
+    </div>
+</div>
+HTML;
+    return array($html);
+}
+
+
+function add_length_filter($option_id) {
+    $html = <<<HTML
+<h3>Length Filter</h3>
+<div>
+    <div>
+    </div>
+    <div>
+        <span class="input-name">
+            Minimum Length:
+        </span><span class="input-field">
+            <input type="text" class="small fraction" id="min-seq-len-$option_id" name="min-seq-len-$option_id" value="" size="8">
+        </span>
+    </div>
+    <div>
+        <span class="input-name">
+            Maximum Length:
+        </span><span class="input-field">
+            <input type="text" class="small fraction" id="max-seq-len-$option_id" name="max-seq-len-$option_id" value="" size="8">
+        </span>
     </div>
 </div>
 HTML;

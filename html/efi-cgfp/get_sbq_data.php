@@ -197,6 +197,7 @@ if ($fh) {
             if ($val < $min)
                 $min = $val;
 
+        #print("$cluster,$i,$sum,$val,");
             // Skip the value if it's lower than the input threshold.
             if ($hits_only && $val > 0)
                 $val = 1;
@@ -204,6 +205,7 @@ if ($fh) {
                 $val = 0;
             elseif ($val > $upper_thresh)
                 $val = 0;
+        #print("$val,\n");
             
             $sum += $val;
 

@@ -8,16 +8,23 @@ array_push($StyleAdditional,
 
 
 if (!isset($JsAdditional)) $JsAdditional = array();
+
+if (isset($IncludeSubmitJs) || isset($IncludeTaxonomyJs)) {
+    array_push($JsAdditional,
+        '<script src="../shared/js/taxonomy_filter.js?v=12" type="text/javascript"></script>',
+        '<script src="'.$SiteUrlPrefix.'/vendor/efiillinois/taxonomy/web/js/taxonomy.js?v=9" type="text/javascript"></script>',
+        '<script src="../js/form.js?v=1" type="text/javascript"></script>',
+    );
+}
+
 if (isset($IncludeSubmitJs)) {
     array_push($JsAdditional,
-        '<script src="../shared/js/taxonomy_filter.js?v=6" type="text/javascript"></script>',
         '<script src="../shared/js/archive.js?v=1" type="text/javascript"></script>',
         '<script src="../shared/js/family_size_helper.js?v=7" type="text/javascript"></script>',
         '<script src="../shared/js/id_helper.js?v=1" type="text/javascript"></script>',
         '<script src="../shared/js/file_helper.js?v=1" type="text/javascript"></script>',
         '<script src="../shared/js/archive.js?v=2" type="text/javascript"></script>',
         '<script src="../js/form.js?v=1" type="text/javascript"></script>',
-        '<script src="'.$SiteUrlPrefix.'/vendor/efiillinois/taxonomy/web/js/taxonomy.js?v=6" type="text/javascript"></script>',
     );
 }
 

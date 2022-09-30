@@ -33,6 +33,7 @@ class input_data {
     public $tax_tree_id;
     public $tax_job_key;
     public $tax_id_type;
+    public $family_filter;
 
     // For option B, and E
     public $domain;
@@ -62,6 +63,7 @@ class input_data {
     public $color_ssn_source_id;  // analysis ID
     public $color_ssn_source_idx; // SSN index
     public $color_ssn_source_color_id; // Color SSN parent ID
+    public $color_ssn_source_key;
     public $extra_ram; // use extra RAM (dev site)
     public $make_hmm; // make HMMs
     public $aa_threshold; // AA probability treshold
@@ -73,6 +75,8 @@ class input_data {
     public $ascore;
 
     public $is_taxonomy_job;
+    public $tax_search;
+    public $tax_search_name;
 }
 
 class validation_result {

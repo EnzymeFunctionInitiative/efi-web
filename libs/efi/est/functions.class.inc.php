@@ -4,6 +4,8 @@ namespace efi\est;
 require_once(__DIR__."/../../../init.php");
 require_once(__EST_CONF_DIR__."/settings.inc.php");
 
+use \efi\global_functions;
+
 
 class functions {
 
@@ -570,25 +572,24 @@ class functions {
         return defined("__FILE_SIZE_GRAPH_ENABLED__") ? __FILE_SIZE_GRAPH_ENABLED__ : false;
     }
 
-    public static function get_analysis_job_info($db, $analysis_id) {
-        $sql = "SELECT analysis.*, generate_key FROM analysis LEFT JOIN generate ON analysis_generate_id = generate_id WHERE analysis_id = $analysis_id";
-        $result = $db->query($sql);
-
-        $info = array();
-
-        if ($result) {
-            $result = $result[0];
-            $info["generate_id"] = $result["analysis_generate_id"];
-            $info["generate_key"] = $result["generate_key"];
-            $info["analysis_id"] = $analysis_id;
-            $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
-                                    $result["analysis_evalue"] . "-" .
-                                    $result["analysis_min_length"] . "-" .
-                                    $result["analysis_max_length"];
-            return $info;
-        } else {
-            return false;
-        }
+    public static function get_analysis_job_info($db, $analysis_id, $ssn_source_key, $ssn_idx) {
+        return global_functions::verify_est_job($db, $analysis_id, $ssn_source_key, $ssn_idx);
+        //$sql = "SELECT analysis.*, generate_key FROM analysis LEFT JOIN generate ON analysis_generate_id = generate_id WHERE analysis_id = $analysis_id";
+        //$result = $db->query($sql);
+        //$info = array();
+        //if ($result) {
+        //    $result = $result[0];
+        //    $info["generate_id"] = $result["analysis_generate_id"];
+        //    $info["generate_key"] = $result["generate_key"];
+        //    $info["analysis_id"] = $analysis_id;
+        //    $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
+        //                            $result["analysis_evalue"] . "-" .
+        //                            $result["analysis_min_length"] . "-" .
+        //                            $result["analysis_max_length"];
+        //    return $info;
+        //} else {
+        //    return false;
+        //}
     }
 
     public static function get_analysis_ssn_file_info($info, $ssn_idx) {
@@ -601,6 +602,7 @@ class functions {
         $est_results_dir = "$base_est_results/$est_gid/$est_results_name/$a_dir";
 
         if (!is_dir($est_results_dir)) {
+            die("$est_results_dir");
             return false;
         }
 

@@ -382,12 +382,15 @@ function add_analysis_summary_table($analysis, $stats, $table) {
     $time_window = $analysis->get_time_period();
     $a_id = $analysis->get_id();
     $num_filt_seq = isset($stats[0]["Nodes"]) ? $stats[0]["Nodes"] : 0;
+    $tax_search = $analysis->get_tax_search_formatted();
 
     $table->add_row("Analysis Job Number", $a_id);
     $table->add_row("Network Name", $network_name);
     $table->add_row("Alignment Score", $analysis->get_filter_value());
     if ($use_advanced_options)
         $table->add_row("Filter", $analysis->get_filter_name());
+    if ($tax_search)
+        $table->add_row("Taxonomy Categories", $tax_search);
     $table->add_row("Minimum Length", number_format($analysis->get_min_length()));
     $table->add_row("Maximum Length", number_format($analysis->get_max_length()));
     if ($use_advanced_options) {

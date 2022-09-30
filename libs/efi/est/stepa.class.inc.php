@@ -369,6 +369,10 @@ class stepa extends est_shared {
                 $histo = "uniprot";
             elseif ($histo == "UNIREF")
                 $histo = "uniref";
+            elseif ($histo == "UNIREF90")
+                $histo = "uniref90";
+            elseif ($histo == "UNIREF50")
+                $histo = "uniref50";
             elseif ($histo == "UNIPROT_DOMAIN")
                 $histo = "uniprot_domain";
             elseif ($histo == "UNIREF_DOMAIN")
