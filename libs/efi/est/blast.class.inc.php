@@ -9,6 +9,7 @@ use \efi\est\settings;
 
 class blast extends family_shared {
 
+    const EVALUE_OUTPUT_FILE = "blast_evalue.txt";
 
     private $blast_input;
     private $blast_sequence_max;

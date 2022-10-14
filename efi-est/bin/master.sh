@@ -5,7 +5,7 @@ echo "$DATE: Start EFI-EST Master script"
 
 source /etc/profile
 
-if [[ "`ps -ef | grep $0 | grep -v grep | wc -l`" -gt 3 ]]; then echo "Already running; exiting"; exit; fi
+if [[ "`ps -ef | grep $0 | grep -v grep | wc -l`" -gt 3 ]]; then echo "Already running; exiting (`ps -ef | grep $0 | grep -v grep`)"; exit; fi
 
 #export EFI_DEBUG=1
 

@@ -91,6 +91,8 @@ abstract class gnn_shared extends arrow_api {
         $est_job_id = $parms['est_id'];
         if (!$est_job_id)
             $filename = preg_replace("([\._]{2,})", '', preg_replace("([^a-zA-Z0-9\-_\.])", '', $filename));
+        else
+            $filename = preg_replace("([\._]{2,})", '', preg_replace("([^/a-zA-Z0-9\-_\.])", '', $filename));
 
         $job_name = preg_replace('/[^A-Za-z0-9 \-_?!#\$%&*()\[\],\.<>:;{}]/', "_", $parms['job_name']);
         $gnn_status = $parms['is_sync'] ? __FINISH__ : __NEW__;

@@ -381,12 +381,12 @@ class functions extends global_functions {
     public static function validate_direct_gnd_file($rs_id, $rs_ver, $key) {
         $matches = array();
         $gnd_file = false;
-        if (!preg_match("/^\d+\.\d+$/", $rs_ver))
+        if (!preg_match("/^([A-Za-z0-9_\-]+)\-(\d+\.\d+)$/", $rs_ver, $matches))
             return false;
         $superfamily_dir = settings::get_superfamily_dir();
         if (!$superfamily_dir)
             return false;
-        $base_dir = "$superfamily_dir/rsam-$rs_ver/gnds";
+        $base_dir = "$superfamily_dir/" . $matches[1] . "/$rs_ver/gnds";
         $key_path = "$base_dir/gnd.key";
         if (!file_exists($key_path))
             return false;
@@ -409,8 +409,8 @@ class functions extends global_functions {
         if ($gnd_file === false)
             return false;
         $gnd_file = realpath($gnd_file);
-        if (strpos($gnd_file, $base_dir) !== 0 || strpos($gnd_file, $base_dir) === false)
-            return false;
+        #if (strpos($gnd_file, $base_dir) !== 0 || strpos($gnd_file, $base_dir) === false)
+        #    return false;
         if (!file_exists($gnd_file))
             return false;
         return $gnd_file;

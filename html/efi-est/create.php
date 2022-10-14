@@ -15,6 +15,7 @@ $result['RESULT'] = 0;
 $input = new input_data;
 $input->is_debug = !isset($_SERVER["HTTP_HOST"]);
 
+
 // If this is being run from the command line then we parse the command line parameters and put them into _POST so we can use
 // that below.
 if ($input->is_debug) {
@@ -84,6 +85,7 @@ if (!isset($_POST['submit'])) {
         $input->large_mem = $_POST['large-mem'] == "true" ? true : false;
     $input->exclude_fragments = (isset($_POST['exclude-fragments']) && $_POST['exclude-fragments'] == "true") ? true : false;
     $input->tax_search = parse_tax_search($_POST["tax_search"]);
+    $input->tax_search_name = $_POST['tax_name'] ? $_POST['tax_name'] : "";
 
     switch($option) {
         //Option A - BLAST Input
@@ -199,6 +201,9 @@ if (!isset($_POST['submit'])) {
                     if (isset($_POST["domain_region"]) && $_POST["domain_region"])
                         $input->domain_region = $_POST["domain_region"];
                 }
+                if (isset($_POST["family_filter"]) && $_POST["family_filter"]) {
+                    $input->family_filter = $_POST["family_filter"];
+                }
 
                 if ($option == "C" || $option == "E") {
                     $useFastaHeaders = strval($_POST['fasta_use_headers']);
@@ -222,6 +227,8 @@ if (!isset($_POST['submit'])) {
                         $input->color_ssn_source_id = $_POST['ssn-source-id'];
                     if (isset($_POST['ssn-source-idx']))
                         $input->color_ssn_source_idx = $_POST['ssn-source-idx'];
+                    if (isset($_POST['ssn-source-key']))
+                        $input->color_ssn_source_key = $_POST['ssn-source-key'];
                     $input->extra_ram = (isset($_POST['extra_ram']) && is_numeric($_POST['extra_ram'])) ? $_POST['extra_ram'] : false;
                     $input->efiref = isset($_POST['efiref']) ? $_POST['efiref'] : "";
                     $input->skip_fasta = (isset($_POST['skip_fasta']) && $_POST['skip_fasta'] == "true");

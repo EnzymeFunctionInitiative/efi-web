@@ -133,9 +133,15 @@ class est_user_jobs_shared {
     private static function get_tax_search($data) {
         $info = "";
         if (isset($data["tax_search"]) && $data["tax_search"]) {
-            $info = preg_replace("/;/", "; ", $data["tax_search"]);
-            $info = preg_replace("/:/", ": ", $info);
-            $info = "Taxonomic filter: [<small>$info</small>]";
+            $not_str = "";
+            if ($data["tax_search_name"]) {
+                $info = explode("|", $data["tax_search_name"]);
+                $info = $info[count($info)-1];
+            } else {
+                $info = preg_replace("/;/", "; ", $data["tax_search"]);
+                $info = preg_replace("/:/", ": ", $info);
+            }
+            $info = "Taxonomic filter: $not_str [<small>$info</small>]";
         }
         return $info;
     }
@@ -261,7 +267,11 @@ class est_user_jobs_shared {
         if (isset($data_row["analysis_params"])) {
             $data = global_functions::decode_object($data_row["analysis_params"]);
             if (isset($data["compute_nc"]) && $data["compute_nc"]) {
-                $job_name .= " <span class='job-metadata'>Neighborhood Connectivity</span>";
+                $job_name .= "; <span class='job-metadata'>Neighborhood Connectivity</span>";
+            }
+            $tax_search = self::get_tax_search($data);
+            if ($tax_search) {
+                $job_name .= "; <span class='job-metadata'>$tax_search</span>";
             }
         }
         return $job_name;

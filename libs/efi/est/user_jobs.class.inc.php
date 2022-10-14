@@ -161,7 +161,7 @@ class user_jobs extends \efi\user_auth {
                     "date_completed" => $comp, "is_colorssn" => $is_color));
 
             if ($isCompleted && $includeAnalysisJobs) {
-                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter FROM analysis " .
+                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter, analysis_params FROM analysis " .
                     "WHERE analysis_generate_id = $id ";
                 if (!$includeFailedAnalysisJobs)
                     $sql .= "AND analysis_status = 'FINISH'";
@@ -176,6 +176,8 @@ class user_jobs extends \efi\user_auth {
                     $filter = $arow["analysis_filter"];
                     $filter = $filter == "eval" ? "AS" : ($filter == "pid" ? "%ID" : ($filter == "bit" ? "BS" : "custom"));
 
+                    $aParams = $arow["analysis_params "];
+                    //$aJobName = est_user_jobs_shared::build_job_name_json($aParams, "", function() {});
                     $aJobName = "$filter=" . $arow["analysis_evalue"] . " $aMin $aMax Title=<i>" . $arow["analysis_name"] . "</i>";
 
                     array_push($jobs, array("id" => $id, "key" => $key, "analysis_id" => $arow["analysis_id"],

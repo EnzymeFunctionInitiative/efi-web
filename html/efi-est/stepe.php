@@ -8,6 +8,7 @@ use \efi\est\stepa;
 use \efi\est\functions;
 use \efi\est\analysis;
 use \efi\est\dataset_shared;
+use \efi\est\blast;
 
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id']) || !isset($_GET['analysis_id']) || !is_numeric($_GET['analysis_id'])) {
@@ -200,6 +201,12 @@ $gnt_link = functions::get_gnt_web_root();
 $job_name = $generate->get_job_name();
 $network_name = $analysis->get_name();
 
+$blast_evalue_file = "";
+if (blast::create_type() == $gen_type) {
+    $file_info = $analysis->get_blast_evalue_file();
+    $blast_evalue_file = $file_info["path"];
+}
+
 ?>	
 
 <h2>Download Network Files</h2>
@@ -211,6 +218,9 @@ $network_name = $analysis->get_name();
     <ul>
         <li class="ui-tabs-active"><a href="#info">SSN Overview</a></li>
         <li><a href="#results">Network Files</a></li>
+<?php if ($blast_evalue_file) { ?>
+        <li><a href="#blast">BLAST Information</a></li>
+<?php } ?>
     </ul>
 
     <div>
@@ -319,6 +329,15 @@ $network_name = $analysis->get_name();
 
             <center><p><a href="tutorial_cytoscape.php">New to Cytoscape?</a></p></center>
         </div>
+
+<?php if ($blast_evalue_file) { ?>
+        <div id="blast">
+            <div>A list of BLAST hits, e-values, and descriptions is provided in this file:</div>
+            <div style="margin-top: 10px;">
+                <a href="download.php?dl=BLASTHITS&<?php echo "analysis_id=$analysis_id&key=$key&id=$generate_id"; ?>"><button class="mini">Download file</button></a>
+            </div>
+        </div>
+<?php } ?>
     </div>
 </div>
 
@@ -382,12 +401,18 @@ function add_analysis_summary_table($analysis, $stats, $table) {
     $time_window = $analysis->get_time_period();
     $a_id = $analysis->get_id();
     $num_filt_seq = isset($stats[0]["Nodes"]) ? $stats[0]["Nodes"] : 0;
+    $tax_search = $analysis->get_tax_search_formatted();
+    $remove_fragments = $analysis->get_remove_fragments();
 
     $table->add_row("Analysis Job Number", $a_id);
     $table->add_row("Network Name", $network_name);
     $table->add_row("Alignment Score", $analysis->get_filter_value());
     if ($use_advanced_options)
         $table->add_row("Filter", $analysis->get_filter_name());
+    if ($tax_search)
+        $table->add_row("Taxonomy Categories", $tax_search);
+    if ($remove_fragments)
+        $table->add_row("Fragments", "Removed in analysis step");
     $table->add_row("Minimum Length", number_format($analysis->get_min_length()));
     $table->add_row("Maximum Length", number_format($analysis->get_max_length()));
     if ($use_advanced_options) {

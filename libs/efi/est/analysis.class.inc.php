@@ -43,6 +43,10 @@ class analysis extends est_shared {
     private $include_all_seq = false;
     private $compute_nc = false;
     private $build_repnode = true;
+    private $tax_search;
+    private $tax_search_hash;
+    private $tax_search_name;
+    private $remove_fragments = false;
 
     private $is_example = false;
     private $analysis_table = "analysis";
@@ -157,7 +161,7 @@ class analysis extends est_shared {
         }
     }
 
-    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0, $compute_nc = false, $build_repnode = true) {
+    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0, $compute_nc = false, $build_repnode = true, $tax_search = false, $tax_search_name = "", $remove_fragments = false) {
         $errors = false;
         $message = "";		
 
@@ -208,8 +212,36 @@ class analysis extends est_shared {
                 $params['use_min_edge_attr'] = 1;
             if ($compute_nc)
                 $params['compute_nc'] = true;
-            if (!$build_repnode)
-                $params['build_repnode'] = false;
+            if ($remove_fragments)
+                $params['remove_fragments'] = true;
+            if (!$build_repnode) $params['build_repnode'] = false;
+            if ($tax_search !== false) {
+
+                $the_search = "";
+                $tax_search_id = "";
+
+                if ($tax_search_name) {
+                    $parts = explode("|", $tax_search_name);
+
+                    if (count($parts) > 1) {
+                        $the_search = "PREDEFINED:" . $parts[0];
+                        $tax_search_id = $parts[0];
+                        $this->tax_search_name = $parts[1];
+                    } else {
+                        $the_search = implode(";", $tax_search);
+                        $this->tax_search_name = $parts[0];
+                    }
+
+                    $params['tax_search_name'] = $tax_search_name;
+                } else {
+                    $the_search = implode(";", $tax_search);
+                }
+                $params['tax_search'] = $the_search;
+
+                $tax_search_hash = $this->get_tax_search_hash($tax_search, $tax_search_name, $tax_search_id);
+                $this->tax_search_hash = $tax_search_hash;
+                $params['tax_search_hash'] = $tax_search_hash;
+            }
             $insert_array = array(
                 'analysis_generate_id'=>$generate_id,
                 'analysis_status' => __NEW__,
@@ -232,6 +264,28 @@ class analysis extends est_shared {
             }
         }
         return array('RESULT'=>!$errors,'MESSAGE'=>$message);
+    }
+
+    private function get_tax_search_hash($tax_search, $tax_name = "", $tax_name_id = "") {
+        // $tax_search is an array
+        $str = "";
+        if ($tax_name or $tax_name_id) {
+            if ($tax_name_id) {
+                $str = $tax_name_id;
+            } else {
+                $words = preg_split('/[ ]+/', $tax_name);
+                foreach ($words as $word) {
+                    $str .= substr($word, 0, 3);
+                }
+            }
+        } else {
+            for ($i = 0; $i < count($tax_search); $i++) {
+                $parts = explode(":", $tax_search[$i]);
+                $str .= substr($parts[0], 0, 1) . substr($parts[1], 0, 1);
+            }
+        }
+        $str = preg_replace("/[^A-Za-z0-9]/", "", $str);
+        return $str;
     }
 
     public function check_pbs_running() {
@@ -389,6 +443,10 @@ class analysis extends est_shared {
                 $exec .= " -tmp " . $relative_output_dir;
                 $exec .= " -job-id " . $this->get_generate_id();
                 $exec .= " -queue " . functions::get_analyse_queue();
+                if ($this->tax_search) {
+                    $exec .= " --tax-search \"" . $this->tax_search . "\"";
+                    $exec .= " --tax-search-hash " . $this->tax_search_hash;
+                }
                 if ($this->custom_clustering) {
                     $exec .= " -custom-cluster-file " . $this->custom_filename;
                     $exec .= " -custom-cluster-dir " . $network_dir;
@@ -412,9 +470,8 @@ class analysis extends est_shared {
                     $exec .= " -compute-nc";
                 if (!$this->build_repnode)
                     $exec .= " -no-repnode";
-                //TODO: remove the legacy after summer 2022
-                if (functions::get_version_numeric($this->db_mod) < 88)
-                    $exec .= " --legacy-anno";
+                if ($this->remove_fragments)
+                    $exec .= " --remove-fragments";
 
                 $exec .= " 2>&1 ";
 
@@ -510,6 +567,15 @@ class analysis extends est_shared {
             if (isset($a_params["build_repnode"]) && !$a_params["build_repnode"]) {
                 $this->build_repnode = false;
             }
+            if (isset($a_params["tax_search"]) && $a_params["tax_search"] && isset($a_params["tax_search_hash"]) && $a_params["tax_search_hash"]) {
+                $this->tax_search = $a_params["tax_search"];
+                $this->tax_search_hash = $a_params["tax_search_hash"];
+                $this->tax_search_name = $a_params["tax_search_name"];
+            }
+            if (isset($a_params["remove_fragments"]) && $a_params["remove_fragments"])
+                $this->remove_fragments = true;
+            else
+                $this->remove_fragments = false;
 
             $db_mod = isset($gen_params["generate_db_mod"]) ? $gen_params["generate_db_mod"] : functions::get_efidb_module();
             if ($db_mod) {
@@ -538,6 +604,10 @@ class analysis extends est_shared {
                 $path .= "-mine";
             if ($this->compute_nc)
                 $path .= "-nc";
+            if ($this->tax_search)
+                $path .= "-" . $this->tax_search_hash;
+            if ($this->remove_fragments)
+                $path .= "-nf";
         }
         return $path;
     }
@@ -685,6 +755,30 @@ class analysis extends est_shared {
         return $name;
     }
 
+    public function get_tax_search_formatted() {
+        $tax_row = "";
+        if ($this->tax_search) {
+            if ($this->tax_search_name) {
+                $tax_row = $this->tax_search_name;
+            } else {
+                $tax_cats = explode(";", $this->tax_search);
+                for ($i = 0; $i < count($tax_cats); $i++) {
+                    $parts = explode(":", $tax_cats[$i]);
+                    $name = ucfirst($parts[0]);
+                    $search = $parts[1];
+                    if ($tax_row)
+                        $tax_row .= ", ";
+                    $tax_row .= "$name: $search";
+                }
+            }
+        }
+        return $tax_row;
+    }
+
+    public function get_remove_fragments() {
+        return (isset($this->remove_fragments) && $this->remove_fragments);
+    }
+
     public function download_graph($type, $net) {
         if (preg_match("/\\//", $net)) {
             die("Invalid input.");
@@ -720,6 +814,15 @@ class analysis extends est_shared {
         if (!file_exists($nc_full_path))
             $nc_web_path = "";
         return ($name_only && $nc_web_path) ? $nc_fname : $nc_web_path;
+    }
+
+    public function get_blast_evalue_file() {
+        $the_file = $this->get_network_output_path() . "/" . blast::EVALUE_OUTPUT_FILE;
+        $blast_evalue_file = "";
+        if (file_exists($the_file))
+            $blast_evalue_file = $this->get_web_dir_path() . "/" . blast::EVALUE_OUTPUT_FILE;
+        $name = global_functions::safe_filename($this->generate_id . "_" . $this->name) . ".txt";
+        return array("path" => $blast_evalue_file, "full_path" => $the_file, "name" => $name);
     }
 
     // PARENT EMAIL-RELATED OVERLOADS

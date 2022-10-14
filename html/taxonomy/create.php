@@ -62,8 +62,13 @@ if (!isset($_POST['submit'])) {
         $input->db_mod = $_POST['db-mod'];
     $input->exclude_fragments = (isset($_POST['exclude-fragments']) && $_POST['exclude-fragments'] == "true") ? true : false;
     $input->tax_search = isset($_POST['tax_search']) ? parse_tax_search($_POST['tax_search']) : "";
+    $input->tax_search_name = $_POST['tax_name'] ? $_POST['tax_name'] : "";
     $input->is_taxonomy_job = true;
     $input->fraction = 1;
+    if ($_POST['min_seq_len'])
+        $input->min_seq_len = $_POST['min_seq_len'];
+    if ($_POST['max_seq_len'])
+        $input->max_seq_len = $_POST['max_seq_len'];
 
     switch($option) {
         case 'B':

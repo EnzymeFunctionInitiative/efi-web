@@ -183,10 +183,10 @@ abstract class colorssn_shared extends option_base {
         if (isset($result["generate_color_ssn_source_id"]) && isset($result["generate_color_ssn_source_idx"])) {
             $this->ssn_source_analysis_id = $result["generate_color_ssn_source_id"];
             $this->ssn_source_analysis_idx = $result["generate_color_ssn_source_idx"];
+            $this->ssn_source_key = $result["generate_color_ssn_source_key"];
 
-            $info = functions::get_analysis_job_info($this->db, $this->ssn_source_analysis_id);
+            $info = functions::get_analysis_job_info($this->db, $this->ssn_source_analysis_id, $this->ssn_source_key, $this->ssn_source_analysis_idx);
             if ($info) {
-                $this->ssn_source_key = $info["generate_key"];
                 $this->ssn_source_id = $info["generate_id"];
                 $file_info = functions::get_analysis_ssn_file_info($info, $this->ssn_source_analysis_idx);
                 if ($file_info) {
@@ -249,13 +249,14 @@ abstract class colorssn_shared extends option_base {
 
     public function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
-        if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx)) {
-            $ainfo = functions::get_analysis_job_info($this->db, $data->color_ssn_source_id);
+        if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx) && isset($data->color_ssn_source_key)) {
+            $ainfo = functions::get_analysis_job_info($this->db, $data->color_ssn_source_id, $data->color_ssn_source_key, $data->color_ssn_source_idx);
             if ($ainfo) {
                 $sinfo = functions::get_analysis_ssn_file_info($ainfo, $data->color_ssn_source_idx);
                 if ($sinfo) {
                     $insert_array["generate_color_ssn_source_id"] = $data->color_ssn_source_id;
                     $insert_array["generate_color_ssn_source_idx"] = $data->color_ssn_source_idx;
+                    $insert_array["generate_color_ssn_source_key"] = $data->color_ssn_source_key;
                     $insert_array["generate_fasta_file"] = $sinfo["filename"];
                 }
             }

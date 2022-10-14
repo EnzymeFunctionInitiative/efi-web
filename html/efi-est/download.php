@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
+use \efi\global_functions;
 use \efi\send_file;
 use \efi\est\nb_conn;
 use \efi\est\conv_ratio;
@@ -22,15 +23,26 @@ if (!$dl_type || !$id || !$key) {
 
 if (isset($_POST['download_network'])) {
 	$analysis_id = $_POST['analysis_id'];
-	$file = $_POST['file'];
 	$stepa = new stepa($db,$_POST['id']);
-        if ($stepa->get_key() != $_POST['key']) {
-                echo "No EFI-EST Selected. Please go back";
-                exit;
-        }
-	
+    if ($stepa->get_key() != $_POST['key']) {
+        print_error();
+        exit;
+    }
+
+    if ($dl_type === "BLASTHITS") {
         $analysis = new analysis($db,$analysis_id);
-	$analysis->download_network($file);
+        $file_info = $analysis->get_blast_evalue_file();
+        output_file($file_info["path"], $file_info["name"], SEND_FILE_TABLE);
+    } else {
+        $file = $_POST['file'];
+        if (global_functions::is_safe_filename($file)) {
+            $analysis = new analysis($db,$analysis_id);
+        	$analysis->download_network($file);
+        } else {
+            print_error();
+            exit();
+        }
+    }
 } else if ($dl_type == "CONVRATIO") {
     $obj = new conv_ratio($db, $id);
     validate_key($obj, $key);
@@ -69,6 +81,14 @@ if (isset($_POST['download_network'])) {
     }
 
     output_file($file_path, $file_name, $mime_type);
+} else if ($dl_type === "BLASTHITS") {
+    $analysis_id = $_GET['analysis_id'];
+	$stepa = new stepa($db, $id);
+    validate_key($stepa, $key);
+
+    $analysis = new analysis($db, $analysis_id);
+    $file_info = $analysis->get_blast_evalue_file();
+    output_file($file_info["full_path"], $file_info["name"], SEND_FILE_TABLE);
 } else {
     print_error();
     exit();
@@ -87,7 +107,7 @@ function output_file($file_path, $file_name, $mime_type) {
 }
 
 function validate_download_type($type) {
-    if ($type === "NBCONN" || $type === "CONVRATIO")
+    if ($type === "NBCONN" || $type === "CONVRATIO" || $type === "BLASTHITS")
         return $type;
     else
         return false;

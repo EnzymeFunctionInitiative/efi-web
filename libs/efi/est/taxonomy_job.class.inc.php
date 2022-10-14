@@ -3,16 +3,46 @@ namespace efi\est;
 
 require_once(__DIR__."/../../../init.php");
 
+use \efi\est\file_helper;
+
 
 class taxonomy_job extends family_shared {
 
     public $subject = "EFI-EST Pfam/InterPro Taxonomy";
+
+    private $file_helper;
+
+    //private $min_seq_len;
+    //private $max_seq_len;
     
     public function __construct($db, $id = 0, $is_example = false) {
+        $this->file_helper = new file_helper(".txt", $id);
         parent::__construct($db, $id, $is_example);
     }
 
     public function __destruct() {
+    }
+
+    public function get_uploaded_filename() { return $this->file_helper->get_uploaded_filename(); }
+    public function get_no_matches_download_path() {
+        return functions::get_web_root() . "/" .
+            $this->get_no_matches_download_file();
+    }
+    private function get_no_matches_download_file() {
+        $dir = $this->is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+        $dir .= "/" . $this->get_output_dir();
+        $dir .= "/" . $this->get_no_matches_filename(); 
+        return $dir;
+    }
+    private function get_no_matches_job_file() {
+        return
+            "output/" .
+            $this->get_no_matches_filename(); 
+    }
+    private function get_no_matches_filename() {
+        return
+            $this->get_id() . "_" .
+            functions::get_no_matches_filename(); 
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,17 +53,27 @@ class taxonomy_job extends family_shared {
     }
 
     public static function create_type() {
-        return "TAXONOMY";
+        // Hack to allow us to treat the jobs like family jobs
+        //return "TAXONOMY";
+        return "FAMILIES";
     }
 
     protected function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
+        //if ($data->min_seq_len)
+        //    $insert_array["min_seq_len"] = $data->min_seq_len;
+        //if ($data->max_seq_len)
+        //    $insert_array["max_seq_len"] = $data->max_seq_len;
         return $insert_array;
     }
 
     protected function get_run_script_args($out) {
         $parms = parent::get_run_script_args($out);
         $parms["--tax-search-only"] = "";
+        //if ($this->min_seq_len)
+        //    $parms["--min-seq-len"] = $this->min_seq_len;
+        //if ($this->max_seq_len)
+        //    $parms["--max-seq-len"] = $this->max_seq_len;
         return $parms;
     }
 
@@ -42,6 +82,16 @@ class taxonomy_job extends family_shared {
         if (! $result) {
             return;
         }
+
+        if (isset($result['generate_fasta_file']) && $result['generate_fasta_file']) {
+            $this->file_helper->on_load_generate($this->id, $result);
+        }
+
+        //if (isset($result["min_seq_len"]))
+        //    $this->min_seq_len = $result["min_seq_len"];
+        //if (isset($result["max_seq_len"]))
+        //    $this->max_seq_len = $result["max_seq_len"];
+
         return $result;
     }
 
@@ -63,6 +113,26 @@ class taxonomy_job extends family_shared {
             $message .= "Using UniRef" . $this->uniref_version . PHP_EOL;
         
         return $message;
+    }
+
+    public function get_length_histogram_info() {
+        $uniref50_full_path = $this->get_length_histogram("uniref50", false, false);
+        $uniref50_web_path = $this->get_length_histogram("uniref50", true, true);
+        $uniref90_full_path = $this->get_length_histogram("uniref90", false, false);
+        $uniref90_web_path = $this->get_length_histogram("uniref90", true, true);
+        $uniprot_full_path = $this->get_length_histogram("uniprot", false, false);
+        $uniprot_web_path = $this->get_length_histogram("uniprot", true, true);
+
+        $info = array();
+
+        if (file_exists($uniprot_full_path))
+            array_push($info, array("UniProt", $uniprot_web_path, "HISTOGRAM_UNIPROT"));
+        if (file_exists($uniref50_full_path))
+            array_push($info, array("UniRef50", $uniref50_web_path, "HISTOGRAM_UNIREF50"));
+        if (file_exists($uniref90_full_path))
+            array_push($info, array("UniRef90", $uniref90_web_path, "HISTOGRAM_UNIREF90"));
+
+        return $info;
     }
 
     // END OVERLOADS

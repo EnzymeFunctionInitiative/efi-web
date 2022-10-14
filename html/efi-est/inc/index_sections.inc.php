@@ -356,6 +356,12 @@ TEXT;
 <?php $example_fn("POST_TAX"); ?>
 <?php $example_fn("OPTION_WRAP_START"); ?>
                     <div>
+                        <?php echo add_family_filter("optc", "")[0]; ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FAM_FILT"); ?>
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
                         <?php echo add_family_input_option("optc", $show_example)[0]; ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
@@ -540,7 +546,10 @@ TEXT;
 
                 <div class="option-panels">
                     <div>
-                        <?php echo add_taxonomy_filter("optd", $tax_filter_text)[0] ?>
+                        <?php echo add_taxonomy_filter("optd", $tax_filter_text)[0]; ?>
+                    </div>
+                    <div>
+                        <?php echo add_family_filter("optd", "")[0]; ?>
                     </div>
                     <div>
                         <?php echo add_domain_option("optd", true, $use_advanced_options)[0]; ?>
@@ -570,6 +579,7 @@ TEXT;
 function output_colorssn($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_key = !empty($mode_data) ? $mode_data["ssn_key"] : "";
     $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="colorssntab" class="ui-tabs-panel ui-widget-content">
@@ -633,6 +643,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                 <?php if ($ssn_id) { ?>
                     <input type="hidden" name="ssn-source-id-colorssn" id="ssn-source-id-colorssn" value="<?php echo $ssn_id; ?>">
                     <input type="hidden" name="ssn-source-idx-colorssn" id="ssn-source-idx-colorssn" value="<?php echo $ssn_idx; ?>">
+                    <input type="hidden" name="ssn-source-key-colorssn" id="ssn-source-key-colorssn" value="<?php echo $ssn_key; ?>">
                 <?php } ?>
                 <?php echo add_submit_html("colorssn", "", $user_email)[0]; ?>
             </form>
@@ -643,6 +654,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
 function output_nc($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_key = !empty($mode_data) ? $mode_data["ssn_key"] : "";
     $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="nctab" class="ui-tabs-panel ui-widget-content">
@@ -697,6 +709,7 @@ function output_nc($use_advanced_options, $user_email, $show_example = false, $m
                 <?php if ($ssn_id) { ?>
                     <input type="hidden" name="ssn-source-id-nc" id="ssn-source-id-nc" value="<?php echo $ssn_id; ?>">
                     <input type="hidden" name="ssn-source-idx-nc" id="ssn-source-idx-nc" value="<?php echo $ssn_idx; ?>">
+                    <input type="hidden" name="ssn-source-key-nc" id="ssn-source-key-nc" value="<?php echo $ssn_key; ?>">
                 <?php } ?>
                 <?php echo add_submit_html("nc", "", $user_email)[0]; ?>
             </form>
@@ -846,6 +859,7 @@ function output_cr($use_advanced_options, $user_email, $show_example = false, $m
 function output_cluster($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_key = !empty($mode_data) ? $mode_data["ssn_key"] : "";
     $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="clustertab" class="ui-tabs-panel ui-widget-content">
@@ -1063,6 +1077,7 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
                 <?php if ($ssn_id) { ?>
                     <input type="hidden" name="ssn-source-id-cluster" id="ssn-source-id-cluster" value="<?php echo $ssn_id; ?>">
                     <input type="hidden" name="ssn-source-idx-cluster" id="ssn-source-idx-cluster" value="<?php echo $ssn_idx; ?>">
+                    <input type="hidden" name="ssn-source-key-cluster" id="ssn-source-key-cluster" value="<?php echo $ssn_key; ?>">
                 <?php } ?>
                 <?php echo add_submit_html("cluster", "", $user_email)[0]; ?>
             </form>
@@ -1211,7 +1226,7 @@ function output_utility($use_advanced_options, $db_modules, $user_email, $exampl
     output_cluster($use_advanced_options, $user_email, $example_fn, $mode_data);
     output_nc($use_advanced_options, $user_email, $example_fn, $mode_data);
     output_cr($use_advanced_options, $user_email, $example_fn, $mode_data);
-    output_option_taxonomy($use_advanced_options, $db_modules, $user_email, $example_fn, $mode_data);
+    //output_option_taxonomy($use_advanced_options, $db_modules, $user_email, $example_fn, $mode_data);
     output_tab_page_end();
 ?>
         </div>
@@ -1232,7 +1247,7 @@ function output_utility_tab_page_header($selected_tab = "", $class_fn = false, $
         <li <?php echo ($selected_tab == "cluster" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("clustertab"); ?>">Cluster Analysis</a></li>
         <li <?php echo ($selected_tab == "nc" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("nctab"); ?>">Neighborhood Connectivity</a></li>
         <li <?php echo ($selected_tab == "cr" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("crtab"); ?>">Convergence Ratio</a></li>
-        <li <?php echo ($selected_tab == "tax" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("tax_tab"); ?>">Taxonomy</a></li>
+        <!--<li <?php echo ($selected_tab == "tax" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("tax_tab"); ?>">Taxonomy</a></li>-->
     </ul>
 <?php
 }
@@ -1365,11 +1380,11 @@ function check_for_color_mode($db) {
                 $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);
                 if ($est_file_info !== false) {
                     $est_id = $job_info["generate_id"];
-                    $est_key = $the_key;
                     $color_filename = $est_file_info["filename"];
                     $mode_data["filename"] = $color_filename;
                     $mode_data["ssn_id"] = $the_aid;
                     $mode_data["ssn_idx"] = $the_idx;
+                    $mode_data["ssn_key"] = $the_key;
                     $mode_data["mode"] = $mode;
                 }
             }

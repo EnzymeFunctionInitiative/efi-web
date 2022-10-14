@@ -21,8 +21,10 @@ abstract class family_shared extends option_base {
     protected $max_seq_len = 0;
     protected $exclude_fragments = false;
     private $tax_search;
+    private $tax_search_name;
     private $domain;
     private $domain_region;
+    private $family_filter = "";
 
     ///////////////Public Functions///////////
 
@@ -125,8 +127,17 @@ abstract class family_shared extends option_base {
             $insert_array["generate_max_seq_len"] = $data->max_seq_len;
         if (isset($data->exclude_fragments) && $data->exclude_fragments === true)
             $insert_array["exclude_fragments"] = true;
-        if (is_array($data->tax_search) && count($data->tax_search) > 0)
-            $insert_array["tax_search"] = implode(";", $data->tax_search);
+        if ($data->tax_search_name || (is_array($data->tax_search) && count($data->tax_search) > 0)) {
+            $parts = explode("|", $data->tax_search_name);
+            if (count($parts) > 1) {
+                $insert_array["tax_search"] = "PREDEFINED:" . $parts[0];
+                $insert_array["tax_search_name"] = $parts[1];
+            } else {
+                $insert_array["tax_search"] = implode(";", $data->tax_search);
+                if ($data->tax_search_name)
+                    $insert_array["tax_search_name"] = $data->tax_search_name;
+            }
+        }
 
         $domain_bool = 0;
         if ($data->domain == 'true' || $data->domain == 1) {
@@ -135,6 +146,14 @@ abstract class family_shared extends option_base {
                 $insert_array['generate_domain_region'] = $data->domain_region;
         }
         $insert_array['generate_domain'] = $domain_bool;
+
+        if ($data->family_filter) {
+            $filt = preg_replace('/[ ;]+/', ",", $data->family_filter);
+            $filt = preg_replace('/,+/', ",", $filt);
+            if (preg_match('/^[A-Z0-9,]+$/i', $filt)) {
+                $insert_array['family_filter'] = strtoupper($filt);
+            }
+        }
 
         return $insert_array;
     }
@@ -203,8 +222,13 @@ abstract class family_shared extends option_base {
                 $parms["-domain-region"] = $this->domain_region;
         }
 
-        if ($this->tax_search)
+        if ($this->tax_search) {
             $parms["--tax-search"] = '"' . $this->tax_search . '"';
+        }
+
+        if ($this->family_filter) {
+            $parms["--family-filter"] = $this->family_filter;
+        }
 
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
 
@@ -253,7 +277,10 @@ abstract class family_shared extends option_base {
             $this->domain_region = $result['generate_domain_region'];
         if (isset($result['tax_search']))
             $this->tax_search = $result['tax_search'];
-        //die("|" . $this->exclude_fragments);
+        if (isset($result['tax_search_name']))
+            $this->tax_search_name = $result['tax_search_name'];
+        if (isset($result['family_filter']) && $result['family_filter'])
+            $this->family_filter = $result['family_filter'];
 
         return $result;
     }
@@ -301,16 +328,26 @@ abstract class family_shared extends option_base {
 
     public function get_taxonomy_filter() {
         if (!$this->tax_search)
-            return false;
+            return "";
 
-        $parts = explode(";", $this->tax_search);
-        $data = array();
-        for ($i = 0; $i < count($parts); $i++) {
-            $item = explode(":", $parts[$i]);
-            array_push($data, $item);
+        if ($this->tax_search_name) {
+            $info = explode("|", $this->tax_search_name);
+            $info = $info[count($info)-1];
+            return $info;
         }
 
-        return $data;
+        $tax_row = "";
+        $tax_cats = explode(";", $this->tax_search);
+        for ($i = 0; $i < count($tax_cats); $i++) {
+            $parts = explode(":", $tax_cats[$i]);
+            $name = ucfirst($parts[0]);
+            $search = $parts[1];
+            if ($tax_row)
+                $tax_row .= ", ";
+            $tax_row .= "$name: $search";
+        }
+
+        return $tax_row;
     }
 
     public function has_tax_data() {
@@ -328,6 +365,14 @@ abstract class family_shared extends option_base {
             return $data;
         } else {
             return null;
+        }
+    }
+
+    public function get_family_filter() {
+        if ($this->family_filter) {
+            return implode(", ", explode(",", $this->family_filter));
+        } else {
+            return "";
         }
     }
 }

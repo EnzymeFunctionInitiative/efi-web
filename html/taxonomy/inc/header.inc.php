@@ -19,7 +19,7 @@ if (!isset($JsAdditional))
     $JsAdditional = array();
 if (isset($IncludeSubmitJs)) {
     array_push($JsAdditional,
-        '<script src="js/submit_app.js?v=5" type="text/javascript"></script>',
+        '<script src="js/submit_app.js?v=9" type="text/javascript"></script>',
         '<script src="js/index_helpers.js?v=1" type="text/javascript"></script>',
     );
 }

@@ -88,7 +88,7 @@ class GndDb {
         obj.RelStart = data.rel_start;
         obj.RelWidth = data.rel_width;
         obj.IsComplement = data.direction == "complement";
-        obj.IsSwissProt = data.anno_status == 1;
+        obj.IsSwissProt = data.anno_status == 1 || data.anno_status == "Reviewed";
     }
 
     mergeFamily(famList, famDesc) {
