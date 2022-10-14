@@ -592,6 +592,20 @@ class functions {
         //}
     }
 
+    public function get_generate_job_id($analysis_id) {
+        if (!is_numeric($analysis_id))
+            return false;
+
+        $sql = "SELECT analysis_generate_id FROM analysis WHERE analysis_id = :id LIMIT 1";
+        $result = $this->db->query($sql, array("id" => $analysis_id));
+
+        if ($result) {
+            return $result["analysis_generate_id"];
+        }
+
+        return false;
+    }
+
     public static function get_analysis_ssn_file_info($info, $ssn_idx) {
 
         $est_gid = $info["generate_id"];

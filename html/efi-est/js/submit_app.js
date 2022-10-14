@@ -154,6 +154,10 @@ AppEstSubmit.prototype.getOptionCFormFn = function(outputIds) {
         addParam(fd, "fasta_input", "fasta-input");
         addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
     
+        if ($("#family-filter-optc").val().length >= 7) {
+            addParam(fd, "family_filter", "family-filter-optc");
+        }
+    
         var completionHandler = getDefaultCompletionHandler();
         var fileHandler = function(xhr) {};
         var files = document.getElementById("fasta-file").files;

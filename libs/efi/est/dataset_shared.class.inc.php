@@ -251,12 +251,12 @@ class dataset_shared {
             $add_fam_overlap_rows_fn("Input $term");
             if ($tax_search)
                 $table->add_row("Taxonomy Categories", $tax_search);
-            if ($gen_type == "ACCESSION") {
+            #if ($gen_type == "ACCESSION") {
                 $fams = $generate->get_family_filter();
                 if ($fams) {
                     $table->add_row("Family Filter", $fams);
                 }
-            }
+            #}
 
             $table->add_row("Exclude Fragments", $generate->get_exclude_fragments() ? "Yes" : "No");
         }

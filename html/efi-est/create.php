@@ -201,6 +201,9 @@ if (!isset($_POST['submit'])) {
                     if (isset($_POST["domain_region"]) && $_POST["domain_region"])
                         $input->domain_region = $_POST["domain_region"];
                 }
+                if (isset($_POST["family_filter"]) && $_POST["family_filter"]) {
+                    $input->family_filter = $_POST["family_filter"];
+                }
 
                 if ($option == "C" || $option == "E") {
                     $useFastaHeaders = strval($_POST['fasta_use_headers']);
@@ -219,8 +222,6 @@ if (!isset($_POST['submit'])) {
                     $input->tax_job_key = $_POST['accession_tax_job_key'];
                     if (isset($_POST["domain_family"]) && $_POST["domain_family"])
                         $input->domain_family = $_POST["domain_family"];
-                    if (isset($_POST["family_filter"]) && $_POST["family_filter"])
-                        $input->family_filter = $_POST["family_filter"];
                 } else if ($option == "colorssn" || $option == "cluster" || $option == "nc" || $option == "cr") {
                     if (isset($_POST['ssn-source-id']))
                         $input->color_ssn_source_id = $_POST['ssn-source-id'];

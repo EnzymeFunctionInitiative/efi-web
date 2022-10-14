@@ -16,7 +16,6 @@ class accession extends family_shared {
     private $domain_family;
     private $tax_job_id;
     private $tax_tree_id;
-    private $family_filter = "";
 
 
     public function __construct($db, $id = 0, $is_example = false) {
@@ -121,10 +120,6 @@ class accession extends family_shared {
             $this->file_helper->on_load_generate($id, $result);
         }
 
-        if (isset($result['family_filter']) && $result['family_filter']) {
-            $this->family_filter = $result['family_filter'];
-        }
-
         return $result;
     }
 
@@ -157,14 +152,6 @@ class accession extends family_shared {
             $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
         }
 
-        if ($data->family_filter) {
-            $filt = preg_replace('/[ ;]+/', ",", $data->family_filter);
-            $filt = preg_replace('/,+/', ",", $filt);
-            if (preg_match('/^[A-Z0-9,]+$/i', $filt)) {
-                $insert_array['family_filter'] = $filt;
-            }
-        }
-
         return $insert_array;
     }
 
@@ -193,9 +180,6 @@ class accession extends family_shared {
         }
         if ($this->tax_job_id) {
             $parms["--source-tax"] = $this->tax_job_id . "," . $this->tax_tree_id . "," . $this->tax_id_type;
-        }
-        if ($this->family_filter) {
-            $parms["--family-filter"] = $this->family_filter;
         }
         return $parms;
     }
@@ -243,14 +227,6 @@ class accession extends family_shared {
             $valid = false;
         }
         return $valid;
-    }
-
-    public function get_family_filter() {
-        if ($this->family_filter) {
-            return implode(", ", explode(",", $this->family_filter));
-        } else {
-            return "";
-        }
     }
 }
 

@@ -86,6 +86,10 @@ class global_functions {
         return preg_replace("([^A-Za-z0-9_\-\.])", "_", $filename);
     }
 
+    public static function is_safe_filename($filename) {
+        return preg_match("[^A-Za-z0-9_\-\.]", $filename);
+    }
+
     public static function format_short_date($date_str, $date_only = false) {
         if ($date_str == "NULL" || !$date_str)
             return "";

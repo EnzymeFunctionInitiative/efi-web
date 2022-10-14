@@ -356,6 +356,12 @@ TEXT;
 <?php $example_fn("POST_TAX"); ?>
 <?php $example_fn("OPTION_WRAP_START"); ?>
                     <div>
+                        <?php echo add_family_filter("optc", "")[0]; ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FAM_FILT"); ?>
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
                         <?php echo add_family_input_option("optc", $show_example)[0]; ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
@@ -540,18 +546,10 @@ TEXT;
 
                 <div class="option-panels">
                     <div>
-                        <?php echo add_taxonomy_filter("optd", $tax_filter_text)[0] ?>
+                        <?php echo add_taxonomy_filter("optd", $tax_filter_text)[0]; ?>
                     </div>
                     <div>
-                        <h3>Filter by Family</h3>
-                        <div>
-                            <div class="primary-input">
-                                <div class="secondary-name">
-                                    Family(s):
-                                </div>
-                                <input type="text" id="family-filter-optd" name="family-filter-optd" value="" />
-                            </div>
-                        </div>
+                        <?php echo add_family_filter("optd", "")[0]; ?>
                     </div>
                     <div>
                         <?php echo add_domain_option("optd", true, $use_advanced_options)[0]; ?>

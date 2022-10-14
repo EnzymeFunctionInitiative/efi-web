@@ -413,3 +413,20 @@ HTML;
 }
 
 
+function add_family_filter($option_id) {
+    $html = <<<HTML
+<h3>Filter by Family</h3>
+<div>
+    <div class="primary-input">
+        <div class="secondary-name">
+            Family(s):
+        </div>
+        <input type="text" id="family-filter-$option_id" name="family-filter-$option_id" value="" />
+    </div>
+</div>
+HTML;
+    return array($html);
+}
+
+
+

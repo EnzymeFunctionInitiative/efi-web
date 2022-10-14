@@ -24,6 +24,7 @@ abstract class family_shared extends option_base {
     private $tax_search_name;
     private $domain;
     private $domain_region;
+    private $family_filter = "";
 
     ///////////////Public Functions///////////
 
@@ -146,6 +147,14 @@ abstract class family_shared extends option_base {
         }
         $insert_array['generate_domain'] = $domain_bool;
 
+        if ($data->family_filter) {
+            $filt = preg_replace('/[ ;]+/', ",", $data->family_filter);
+            $filt = preg_replace('/,+/', ",", $filt);
+            if (preg_match('/^[A-Z0-9,]+$/i', $filt)) {
+                $insert_array['family_filter'] = strtoupper($filt);
+            }
+        }
+
         return $insert_array;
     }
 
@@ -217,6 +226,10 @@ abstract class family_shared extends option_base {
             $parms["--tax-search"] = '"' . $this->tax_search . '"';
         }
 
+        if ($this->family_filter) {
+            $parms["--family-filter"] = $this->family_filter;
+        }
+
         $parms["-seq-count-file"] = $this->get_accession_counts_file_full_path();
 
         return $parms;
@@ -266,7 +279,8 @@ abstract class family_shared extends option_base {
             $this->tax_search = $result['tax_search'];
         if (isset($result['tax_search_name']))
             $this->tax_search_name = $result['tax_search_name'];
-        //die("|" . $this->exclude_fragments);
+        if (isset($result['family_filter']) && $result['family_filter'])
+            $this->family_filter = $result['family_filter'];
 
         return $result;
     }
@@ -351,6 +365,14 @@ abstract class family_shared extends option_base {
             return $data;
         } else {
             return null;
+        }
+    }
+
+    public function get_family_filter() {
+        if ($this->family_filter) {
+            return implode(", ", explode(",", $this->family_filter));
+        } else {
+            return "";
         }
     }
 }

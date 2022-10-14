@@ -606,6 +606,24 @@ Protein_ID_3,Cluster#
                         </p>
                     </div>
                 </div>
+                <div class="">
+                    <h3>Fragment Option</h3>
+                    <div>
+                        <span class="input-name">
+                            Fragments:
+                        </span><span class="input-field">
+                            <label><input type="checkbox" id="remove_fragments" name="remove_fragments" />
+                                Check to exclude UniProt-defined fragments in the results.
+                                (default: off)
+                            </label>
+                        </span>
+                        <div class="input-desc">
+                            The UniProt database designates a sequence as a fragment if it is translated from a gene missing a start and/or a stop codon (Sequence Status).
+                            Fragments are included in the SSNs by default; checking this box will exclude fragmented sequences
+                            from computations.  This results in an approximately 10% smaller SSN.
+                        </div>
+                    </div>
+                </div>
                 <?php if ($use_advanced_options) { ?>
                 <div>
                     <h3>Dev Site Options</h3>

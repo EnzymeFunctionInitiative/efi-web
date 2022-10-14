@@ -46,6 +46,7 @@ class analysis extends est_shared {
     private $tax_search;
     private $tax_search_hash;
     private $tax_search_name;
+    private $remove_fragments = false;
 
     private $is_example = false;
     private $analysis_table = "analysis";
@@ -160,7 +161,7 @@ class analysis extends est_shared {
         }
     }
 
-    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0, $compute_nc = false, $build_repnode = true, $tax_search = false, $tax_search_name = "") {
+    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0, $compute_nc = false, $build_repnode = true, $tax_search = false, $tax_search_name = "", $remove_fragments = false) {
         $errors = false;
         $message = "";		
 
@@ -211,6 +212,8 @@ class analysis extends est_shared {
                 $params['use_min_edge_attr'] = 1;
             if ($compute_nc)
                 $params['compute_nc'] = true;
+            if ($remove_fragments)
+                $params['remove_fragments'] = true;
             if (!$build_repnode) $params['build_repnode'] = false;
             if ($tax_search !== false) {
 
@@ -467,9 +470,8 @@ class analysis extends est_shared {
                     $exec .= " -compute-nc";
                 if (!$this->build_repnode)
                     $exec .= " -no-repnode";
-                //TODO: remove the legacy after summer 2022
-                if (functions::get_version_numeric($this->db_mod) < 88)
-                    $exec .= " --legacy-anno";
+                if ($this->remove_fragments)
+                    $exec .= " --remove-fragments";
 
                 $exec .= " 2>&1 ";
 
@@ -570,6 +572,10 @@ class analysis extends est_shared {
                 $this->tax_search_hash = $a_params["tax_search_hash"];
                 $this->tax_search_name = $a_params["tax_search_name"];
             }
+            if (isset($a_params["remove_fragments"]) && $a_params["remove_fragments"])
+                $this->remove_fragments = true;
+            else
+                $this->remove_fragments = false;
 
             $db_mod = isset($gen_params["generate_db_mod"]) ? $gen_params["generate_db_mod"] : functions::get_efidb_module();
             if ($db_mod) {
@@ -599,7 +605,9 @@ class analysis extends est_shared {
             if ($this->compute_nc)
                 $path .= "-nc";
             if ($this->tax_search)
-                $path .= "-" . $this->tax_search_hash;;
+                $path .= "-" . $this->tax_search_hash;
+            if ($this->remove_fragments)
+                $path .= "-nf";
         }
         return $path;
     }
@@ -767,6 +775,10 @@ class analysis extends est_shared {
         return $tax_row;
     }
 
+    public function get_remove_fragments() {
+        return (isset($this->remove_fragments) && $this->remove_fragments);
+    }
+
     public function download_graph($type, $net) {
         if (preg_match("/\\//", $net)) {
             die("Invalid input.");
@@ -802,6 +814,15 @@ class analysis extends est_shared {
         if (!file_exists($nc_full_path))
             $nc_web_path = "";
         return ($name_only && $nc_web_path) ? $nc_fname : $nc_web_path;
+    }
+
+    public function get_blast_evalue_file() {
+        $the_file = $this->get_network_output_path() . "/" . blast::EVALUE_OUTPUT_FILE;
+        $blast_evalue_file = "";
+        if (file_exists($the_file))
+            $blast_evalue_file = $this->get_web_dir_path() . "/" . blast::EVALUE_OUTPUT_FILE;
+        $name = global_functions::safe_filename($this->generate_id . "_" . $this->name) . ".txt";
+        return array("path" => $blast_evalue_file, "full_path" => $the_file, "name" => $name);
     }
 
     // PARENT EMAIL-RELATED OVERLOADS
