@@ -6,6 +6,10 @@ require_once(__DIR__."/../../../init.php");
 require_once(__TRAINING_CONF_DIR__ . "/settings_examples.inc.php");
 
 use \efi\global_functions;
+use \efi\global_settings;
+use \efi\est\est_user_jobs_shared;
+use \efi\gnt\gnt_ui;
+use \efi\cgfp\cgfp_ui;
 
 
 const JOB_TYPE_EST = 1;
