@@ -134,7 +134,7 @@ class est_user_jobs_shared {
         $info = "";
         if (isset($data["tax_search"]) && $data["tax_search"]) {
             $not_str = "";
-            if ($data["tax_search_name"]) {
+            if (isset($data["tax_search_name"]) && $data["tax_search_name"]) {
                 $info = explode("|", $data["tax_search_name"]);
                 $info = $info[count($info)-1];
             } else {
