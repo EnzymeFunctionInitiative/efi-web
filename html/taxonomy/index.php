@@ -45,40 +45,57 @@ require_once(__DIR__."/inc/header.inc.php");
 
 <p>
 As the UniProt database increases in size, users may encounter difficulties in 
-opening and visualizing SSNs with Cytoscape (too many nodes and edges for the 
-RAM available on the user’s computer).  Also, low resolution SSNs (UniRef50 
+opening and visualizing SSNs with Cytoscape (too many nodes/edges for the RAM 
+available on the user’s computer). As a result, low resolution SSNs (UniRef50 
 clusters and/or representative node SSNs) may be necessary to survey 
-sequence-function space.  A solution is to restrict the input sequences to 
-specific taxonomic categories (superkingdom, kingdom, phylum, class, order, 
-family, genus, species).  Options A, B, C, and D include a “Filter by Taxonomy” 
-option so that the user can select specific taxonomic categories to include in 
-their SSNs.
+sequence-function space in large protein families. A solution for generating 
+higher resolution SSNs is to restrict the input sequences to specific taxonomic 
+categories (Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, 
+Species), thereby reducing the number of nodes/edges and/or allowing the use of 
+UniRef90 clusters or UniProt members to generate the SSN.  
 </p>
 
 <p>
-This Taxonomy Tool provides a preview of the taxonomic distribution of 
-user-provided sequences (Option B, families; Option C, FASTA files; Option D, 
-accession IDs).  
+This Taxonomy Tool provides a preview of the taxonomic distribution of the 
+UniProt IDs in datasets with three input options:   Families, list of families; 
+FASTA, FASTA-formatted sequences; Accession IDs, UniProt, UniRef90 cluster, or 
+UniRef50 cluster IDs.  These are analogous to Options B, C, and D of EFI-EST.
 </p>
 
 <p>
-The taxonomic distribution of the user-provided sequences is displayed as a 
-"sunburst" in which the levels of classification (superkingdom, kingdom, 
-phylum, class, order, family, genus, species) are displayed radially, with 
-superkingdom at the center and species in the outermost ring. The sunburst is 
-interactive, providing the ability to zoom to a selected taxonomic level.   The 
+The taxonomic distribution of the UniProt IDs in the input dataset is displayed 
+as a "sunburst" in which the levels of classification (Superkingdom, Kingdom, 
+Phylum, Class, Order, Family, Genus, Species) are displayed radially, with 
+Superkingdom at the center and Species in the outermost ring. The sunburst is 
+interactive, providing the ability to zoom to a selected taxonomic level. The 
 numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at the 
-selected level are displayed.  
+selected level/category are displayed. 
 </p>
 
 <p>
-UniRef90 clusters contain sequences that share &ge;90% sequence identity so 
-usually are taxonomically homogeneous.  However, UniRef50 clusters contain 
-sequences that share &ge;50% sequence identity so often are taxonomically 
-heterogeneous.  When possible (determined by the RAM available to Cytoscape), 
-users should generate taxonomy-specific SSNs with UniProt IDs or UniRef90 
-cluster IDs.
+UniRef90 clusters contain sequences that share &ge;90% sequence identity so usually 
+are taxonomically homogeneous. UniRef50 clusters contain sequences that share 
+&ge;50% sequence identity so often are taxonomically heterogeneous. When 
+possible (determined by the RAM available to Cytoscape), users should generate 
+taxonomy-specific SSNs with UniProt IDs or UniRef90 cluster IDs. 
 </p>
+
+<p>
+Files with the UniProt, UniRef90 cluster, and UniRef50 cluster IDs and 
+FASTA-formatted sequences at the selected taxonomy level/category can be 
+downloaded.
+</p>
+
+The UniProt, UniRef90, or UniRef50 cluster IDs can be transferred to the "Accession IDs" option
+of EFI-EST to generate the SSN.
+</p>
+
+The Sequence BLAST, Families, FASTA, and Accession IDs options of EST include a "Filter by Taxonomy" option in both the 
+Generate and Database Completed/Analysis steps so that the user can select 
+specific taxonomic categories to include in their SSNs. 
+</p>
+
+
 
 <?php
 include_once("inc/index_helpers.inc.php");

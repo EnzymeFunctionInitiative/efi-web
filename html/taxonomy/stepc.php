@@ -107,7 +107,35 @@ $histo_info = $generate->get_length_histogram_info();
             <div style="clear: both"></div>
         </div>
 
-        <div id="taxonomy">
+        <div>
+<p>
+The taxonomy distribution for the UniProt IDs identified as members of the 
+input list of families is displayed.   
+</p>
+
+<p>
+The UniRef90 and UniRef50 clusters containing the UniProt IDs are identified 
+using the lookup table provided by UniProt/UniRef.  These UniRef90 and UniRef50 
+clusters may contain UniProt IDs from other families; in addition, the UniRef90 
+and UniRef50 clusters at a selected taxonomy level/category may contain UniProt 
+IDs from other levels/categories.   This results from conflation of UniProt IDs 
+in UniRef90 and UniRef50 clusters that share &ge;90% and &ge;50% sequence identity, 
+respectively.
+</p>
+
+<p>
+The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at 
+the selected level are displayed.
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomic level by clicking on that level/category; clicking on the center 
+circle will zoom the display to the next highest level.
+</p>
+
+            <div id="taxonomy">
+            </div>
         </div>
 
 <?php if ($histo_info !== false) { ?>

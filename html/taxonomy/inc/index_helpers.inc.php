@@ -155,9 +155,12 @@ function add_fragment_option($option_id) {
         </label>
     </span>
     <div class="input-desc">
-        The UniProt database designates a sequence as a fragment if it is translated from a gene missing a start and/or a stop codon (Sequence Status).
-        Fragments are included in the SSNs by default; checking this box will exclude fragmented sequences
-        from computations.  This results in an approximately 10% smaller SSN.
+The UniProt database designates a sequence as a fragment if it is translated 
+from a nucleotide sequence missing a start and/or a stop codon (Sequence 
+Status).  Fragments are included by default; checking this box will exclude 
+fragmented sequences.  Approximately 10% of the entries in UniProtKB are 
+fragments.
+
     </div>
 </div>
 HTML;
@@ -300,9 +303,7 @@ HTML;
             </div>
         </div>
         <div>
-            The input format is a single family or comma/space separated list of families.
-            Families should be specified as PFxxxxx (five digits),
-            IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans.
+The input format is a single family or comma/space separated list of families. Families should be specified as PFxxxxx (five digits), IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans. 
         </div>
     </div>
 HTML;
@@ -373,8 +374,26 @@ function add_taxonomy_filter($option_id) {
 <h3>Filter by Taxonomy</h3>
 <div>
     <div>
-        Conditions on the taxonomy can be set to further restrict the set of sequences by only including the sequences that
-        match the specific taxonomic categories.  Multiple conditions are combined to be a union of each other.
+<p>
+The use can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
+"Fungi" to restrict the retrieved sequences from the UniProt, UniRef90, and 
+UniRef50 databases to these taxonomy groups.   "Bacteria, Archaea, Fungi" and 
+"Fungi" selects organisms that may provide genome context (gene 
+clusters/operons) useful for inferring functions. 
+</p>
+
+<p>
+Also, sequences retrieved from the UniProt, UniRef90, and UniRef50 databases 
+can be restricted to taxonomic categories (Superkingdom, Kingdom, Phylum, 
+Class, Order, Family, Genus, Species).  Multiple conditions are combined to be 
+a union of each other. 
+</p>
+
+<p>
+The selected sequences from the UniRef90 and UniRef90 databases are from the 
+UniRef90 and UniRef50 clusters for which the cluster ID ("representative 
+sequence") matches the specified taxonomic category.
+</p>
     </div>
     <div>Preselected conditions:
         <select class="taxonomy-preselects" id="taxonomy-$option_id-select" data-option-id="$option_id">
