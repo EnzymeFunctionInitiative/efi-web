@@ -1016,8 +1016,8 @@ FASTA-formatted sequences can be downloaded.
 </p>
 
 <p>
-The list of IDs can be transferred to Accession option of EFI-EST to generate an SSN.  
-Accession option provides both the Filter by Family and Filter by Taxonomy options that 
+The list of IDs can be transferred to the Accession IDs option of EFI-EST to generate an SSN.  
+The Accession IDs option provides both the Filter by Family and Filter by Taxonomy options that 
 should be used to remove internal UniProt IDs that are not members of the input 
 families and selected taxonomy level/category.
 </p>
@@ -1034,8 +1034,8 @@ be downloaded.
 </p>
 
 <p>
-The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to Accession option 
-of EFI-EST to generate an SSN.  Accession option provides both the Filter by Family and 
+The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the Accession IDs option 
+of EFI-EST to generate an SSN.  The Accession IDs option provides both the Filter by Family and 
 Filter by Taxonomy options that should be used to remove internal UniProt IDs 
 that are not members of the input families and selected taxonomy 
 level/category.
@@ -1052,8 +1052,8 @@ The UniProt IDs and FASTA-formatted sequences can be downloaded.
 </p>
 
 <p>
-The list of UniProt IDs can be transferred to Accession option of EFI-EST to generate 
-an SSN.  Accession option provides both the Filter by Family and Filter by Taxonomy 
+The list of UniProt IDs can be transferred to the Accession IDs option of EFI-EST to generate 
+an SSN.  The Accession IDs option provides both the Filter by Family and Filter by Taxonomy 
 options that should be used to remove UniProt IDs that are not members of 
 desired families and the selected taxonomy level/category.
 </p>
@@ -1066,8 +1066,8 @@ be downloaded.
 </p>
 
 <p>
-The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to Accession option 
-of EFI-EST to generate an SSN.  Accession option provides both the Filter by Family and 
+The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the Accession IDs option 
+of EFI-EST to generate an SSN.  The Accession IDs option provides both the Filter by Family and 
 Filter by Taxonomy options that should be used to remove internal UniProt IDs 
 that are not members of the input families and selected taxonomy 
 level/category.

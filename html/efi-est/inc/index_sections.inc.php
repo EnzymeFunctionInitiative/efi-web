@@ -52,6 +52,22 @@ TEXT;
             Generate a SSN for a single protein and its closest homologues in the UniProt, UniRef90, or UniRef50 database.
             </p>
 
+<p>
+The input sequence is used as the query for a search of the UniProt, UniRef90, 
+or UniRef50 database using BLAST.  For the UniRef90 and UniRef50 databases, the 
+sequence of the cluster ID (representative sequence) is used for the BLAST.
+</p>
+
+<p>
+The database is selected using the BLAST Retrieval Options.
+</p>
+
+<p>
+An all-by-all BLAST<span class="question" title="A BLAST with all retrieved sequences BLAST-ed against the same set of retrieved sequences.">?</span> is performed to obtain the similarities between sequence 
+pairs to calculate edge values to generate the SSN. 
+</p>
+
+
 <!--
 <p>
 Generate a SSN for a single protein and its closest homologues in the UniProt, 
@@ -220,7 +236,7 @@ TEXT;
 
             <p>
 The sequences from the input Pfam families, InterPro families, and/or Pfam 
-clans (input are retrieved. An all-by-all BLAST is performed to obtain the 
+clans (input are retrieved. An all-by-all BLAST<span class="question" title="A BLAST with all retrieved sequences BLAST-ed against the same set of retrieved sequences.">?</span> is performed to obtain the 
 similarities between sequence pairs to calculate edge values to generate the 
 SSN. 
 
@@ -327,7 +343,7 @@ TEXT;
             </p>
 
 <p>
-An all-by-all BLAST is performed to obtain the similarities between sequence 
+An all-by-all BLAST<span class="question" title="A BLAST with all retrieved sequences BLAST-ed against the same set of retrieved sequences.">?</span> is performed to obtain the similarities between sequence 
 pairs to calculate edge values to generate the SSN. 
 </p>
 
@@ -497,7 +513,7 @@ TEXT;
             </p>
 
             <p>
-            An all-by-all BLAST is performed to obtain the similarities between sequence pairs to calculate edge values to generate the SSN. 
+            An all-by-all BLAST<span class="question" title="A BLAST with all retrieved sequences BLAST-ed against the same set of retrieved sequences.">?</span> is performed to obtain the similarities between sequence pairs to calculate edge values to generate the SSN. 
             </p>
 
             <form name="optionDform" id="optionDform" method="post" action="">
