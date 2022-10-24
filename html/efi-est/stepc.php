@@ -834,6 +834,42 @@ UniProtKB are fragments.
     $(document).ready(function() {
         var hasUniref = <?php echo $has_uniref; ?>;
 
+        var onComplete = function(app) {
+            var estClickFn = function(app) {
+                var estPath = "<?php echo global_settings::get_web_path('est'); ?>/index.php";
+                var info = app.getCurrentNode();
+                var encTaxName = encodeURIComponent(info.name);
+                var args = [
+                    "tax-id=<?php echo $gen_id; ?>",
+                    "tax-key=<?php echo $key; ?>",
+                    "tree-id=" + info.id,
+                    "id-type=" + info.idType,
+                    "tax-name=" + encTaxName,
+                    "mode=tax",
+                ];
+                var urlArgs = args.join("&");
+                var url = estPath + "?" + urlArgs;
+                window.location = url;
+            };
+            var gndClickFn = function(app) {
+                var gntPath = "<?php echo global_settings::get_web_path('gnt'); ?>/index.php";
+                var info = app.getCurrentNode();
+                var encTaxName = encodeURIComponent(info.name);
+                var args = [
+                    "tax-id=<?php echo $gen_id; ?>",
+                    "tax-key=<?php echo $key; ?>",
+                    "tree-id=" + info.id,
+                    "id-type=" + info.idType,
+                    "tax-name=" + encTaxName,
+                ];
+                var urlArgs = args.join("&");
+                var url = gntPath + "?" + urlArgs;
+                window.location = url;
+            };
+            app.addTransferAction("sunburst-transfer-to-est", "Transfer to EFI-EST", "Transfer to EFI-EST", () => estClickFn(app));
+            app.addTransferAction("sunburst-transfer-to-gnt", "Transfer to EFI-GND Viewer", "Transfer to EFI-GND Viewer", () => gndClickFn(app));
+        };
+
         var sunburstTextFn = function() {
             return $('<div><?php echo $sunburst_post_sunburst_text; ?></div>');
         };
@@ -852,7 +888,7 @@ UniProtKB are fragments.
         };
         var sunburstApp = new AppSunburst(sbParams);
         sunburstApp.attachToContainer("taxonomy");
-        sunburstApp.addSunburstFeatureAsync();
+        sunburstApp.addSunburstFeatureAsync(onComplete);
     });
 </script>
 <?php } ?>
