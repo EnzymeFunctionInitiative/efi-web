@@ -112,9 +112,11 @@ function add_ssn_calc_option($option_id) {
         Negative log of e-value for all-by-all BLAST (&ge;1; default $default_evalue)
     </span>
     <div class="input-desc">
-        Input an alternative e-value for BLAST to calculate similarities between sequences defining edge values.
-        Default parameters are permissive and are used to obtain edges even between sequences that share low similarities.
-        We suggest using a larger e-value (smaller negative log) for short sequences.
+Input an alternate e-value for BLAST to calculate similarities/edge alignment 
+scores similarities.  The default parameter ($default_evalue) is useful for most sequences.  
+However, a larger e-value/smaller negative log should be used for short 
+sequences or when low pairwise identities may be useful for separating 
+functionally distinct SSN clusters.
     </div>
 </div>
 HTML;
@@ -155,9 +157,11 @@ function add_fragment_option($option_id) {
         </label>
     </span>
     <div class="input-desc">
-        The UniProt database designates a sequence as a fragment if it is translated from a gene missing a start and/or a stop codon (Sequence Status).
-        Fragments are included in the SSNs by default; checking this box will exclude fragmented sequences
-        from computations.  This results in an approximately 10% smaller SSN.
+The UniProt database designates a sequence as a fragment if it is translated 
+from a nucleotide sequence missing a start and/or a stop codon (Sequence 
+Status).  Fragments are included by default; checking this box will exclude 
+fragmented sequences from computations.  Approximately 10% of the entries in 
+UniProtKB are fragments.
     </div>
 </div>
 HTML;
@@ -311,6 +315,15 @@ HTML;
     if (!$show_example && $show_text) {
         $html .= <<<HTML
     <div>
+UniRef90 clusters contain UniProt IDs that share ≥90% sequence identity and 
+have 80% overlap with the longest sequence in the cluster (“seed sequence”); as 
+a result, the UniProt IDs in the cluster usually are functionally homogeneous, 
+i.e., orthologues.  UniRef50 clusters contain UniProt IDs that share ≥50% 
+sequence identity and have 80% overlap with the seed sequence; as a result, the 
+UniProt IDs in the cluster often are functionally heterogeneous, e.g., 
+paralogues.
+
+<!--
         The EST provides access to the UniRef90 and UniRef50 databases to allow the creation
         of SSNs for very large Pfam and/or InterPro families. For families that contain 
         more than $max_full_family sequences, the SSN <b>will be</b> generated 
@@ -322,6 +335,7 @@ HTML;
         Representative Node Network with each node corresponding to a UniRef cluster ID; in this
         case an additional node attribute is provided which lists all
         of the sequences represented by the UniRef node.
+-->
     </div>
 HTML;
     }
@@ -346,12 +360,21 @@ function get_fraction_html($option_id) {
             $default_fraction)
         </span>
         <div class="input-desc">
+Selects every Nth sequence in the family; the sequences are assumed to be added 
+randomly to UniProtKB, so the selected sequences are assumed to be a 
+representative sampling of the family. This allows reduction of the size of the 
+SSN.  Sequences in the family with SwissProt annotations will always be 
+included; this may result in the size of the resulting data set being slightly 
+larger than the fraction specified. 
+
+<!--
             Selects every Nth sequence in the family; the sequences are assumed to be
             added randomly to UniProt, so the selected sequences are assumed to be a
             representative sampling of the family. This allows reduction of the size of the SSN.
             Sequences in the family with Swiss-Prot annotations will always be included;
             this may result in the size of the resulting data set being slightly larger than
             the fraction specified.
+-->
         </div>
     </div>
 HTML;
@@ -384,8 +407,31 @@ HTML;
 function add_taxonomy_filter($option_id, $text = "") {
     if (!$text) {
         $text = <<<TEXT
-        Conditions on the taxonomy can be set to further restrict the set of sequences by only including the sequences that
-        match the specific taxonomic categories.  Multiple conditions are combined to be a union of each other.
+<p>
+The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
+"Fungi" to restrict the retrieved sequences to these taxonomy groups.   
+"Bacteria, Archaea, Fungi" and "Fungi" selects organisms that may provide 
+genome context (gene clusters/operons) useful for inferring functions. 
+</p>
+
+<p>
+Also, sequences retrieved from the UniProt, UniRef90, and UniRef50 databases 
+can be restricted to taxonomic categories (Superkingdom, Kingdom, Phylum, 
+Class, Order, Family, Genus, Species). Multiple conditions are combined to be a 
+union of each other. 
+</p>
+
+<p>
+The retrieved sequences from the UniRef90 and UniRef90 databases are the 
+UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
+taxonomic category.
+</p>
+
+<p>
+The taxonomy filter is applied to the list of UniProt, UniRef90, or UniRef50 
+cluster IDs that are identified in the BLAST.
+</p>
+
 TEXT;
     }
     $html = <<<HTML
@@ -413,15 +459,27 @@ HTML;
 }
 
 
-function add_family_filter($option_id) {
+function add_family_filter($option_id, $extra_text = "") {
+    if ($extra_text)
+        $extra_text = "<div>$extra_text</div>";
     $html = <<<HTML
 <h3>Filter by Family</h3>
 <div>
-    <div class="primary-input">
+    $extra_text
+    <div>Input a list of Pfam families, InterPro families, and/or Pfam clans to identify sequences for inclusion in the SSN.</div>
+    <div class="secondary-input">
         <div class="secondary-name">
             Family(s):
         </div>
-        <input type="text" id="family-filter-$option_id" name="family-filter-$option_id" value="" />
+        <div class="secondary-field">
+            <input type="text" id="family-filter-$option_id" name="family-filter-$option_id" value="" />
+        </div>
+    </div>
+    <div class="input-desc">
+        <div>
+            The input format is a single family or comma/space separated list of families. Families should be
+            specified as PFxxxxx (five digits), IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans.
+        </div>
     </div>
 </div>
 HTML;

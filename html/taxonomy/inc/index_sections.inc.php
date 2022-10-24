@@ -92,6 +92,9 @@ calculate the sunburst.
                     <div>
                         <?php echo add_taxonomy_filter("optc")[0] ?>
                     </div>
+                    <div>
+                        <?php echo add_family_filter("optc")[0]; ?>
+                    </div>
                     <?php if ($use_advanced_options) { ?>
                     <div>
                         <?php echo add_dev_site_option("optc", $db_modules)[0]; ?>
@@ -191,6 +194,9 @@ dataset before generating the sunburst.
                     </div>
                     <div class="initial-open">
                         <?php echo add_taxonomy_filter("optd")[0] ?>
+                    </div>
+                    <div>
+                        <?php echo add_family_filter("optd")[0]; ?>
                     </div>
                     <?php if ($use_advanced_options) { ?>
                     <div>

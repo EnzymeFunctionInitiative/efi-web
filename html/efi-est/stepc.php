@@ -48,10 +48,21 @@ $gen_type = $generate->get_type();
 $generate = dataset_shared::create_generate_object($gen_type, $db, $is_example);
 
 $uniref = dataset_shared::get_uniref_version($gen_type, $generate);
+
+$sunburst_app_primary_id_type = "UniProt";
+if ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") {
+    $sunburst_app_uniref = 50;
+    $has_uniref = "true";
+} else {
+    $sunburst_app_uniref = 0;
+    $has_uniref = "false";
+    if ($gen_type == "BLAST") {
+        $sunburst_app_primary_id_type = $generate->get_blast_db_type();
+    }
+}
+
 $job_name = $generate->get_job_name();
 $use_domain = dataset_shared::get_domain($gen_type, $generate) == "on";
-$sunburstAppUniref = 50; //$uniref ? $uniref : "false";
-$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION" || $gen_type == "BLAST") ? "true" : "false";
 $ex_param = $is_example ? "&x=1" : "";
 
 
@@ -80,6 +91,8 @@ $IncludePlotlyJs = true;
 $IncludeTaxonomyJs = true;
 require_once(__DIR__."/inc/header.inc.php");
 
+$tax_tab_text = $show_taxonomy ? get_tax_tab_text($gen_type) : "";
+$sunburst_post_sunburst_text = $show_taxonomy ? get_tax_sb_text($gen_type, $sunburst_app_primary_id_type) : "";;
 
 $date_completed = $generate->get_time_completed_formatted();
 
@@ -118,7 +131,7 @@ is a measure of the similarity between sequence pairs.
     <ul class="">
         <li class="ui-tabs-active"><a href="#info">Dataset Summary</a></li>
         <?php if ($show_taxonomy) { ?>
-            <li><a href="#taxonomy">Taxonomy Sunburst</a></li>
+            <li><a href="#taxonomy-tab">Taxonomy Sunburst</a></li>
         <?php } ?>
         <?php if (!$is_taxonomy) { ?>
             <li><a href="#graphs">Dataset Analysis</a></li>
@@ -167,13 +180,16 @@ is a measure of the similarity between sequence pairs.
         <?php } ?>
 
     <?php if ($show_taxonomy) { ?>
-        <div id="taxonomy">
+        <div id="taxonomy-tab">
+            <div><?php echo $tax_tab_text; ?></div>
+            <div id="taxonomy">
 <?php
                     //include(__DIR__."/../taxonomy/inc/shared.inc.php");
                     //add_sunburst_download_warning();
                     //add_sunburst_container();
                     //add_sunburst_download_dialogs();
 ?>
+            </div>
         </div>
     <?php } ?>
 
@@ -473,9 +489,7 @@ histogram).</p>
                         <p>
                         This tab is used to specify the minimum "Alignment Score Threshold" (that is a 
                         measure of the minimum sequence similarity threshold) for drawing the edges 
-                        that connect the proteins (nodes)  in the SSN.  This tab also is used to 
-                        specify Minimum and Maximum "Sequence Length Restriction Options" that exclude 
-                        fragments and/or domain architectures.
+                        that connect the proteins (nodes)  in the SSN.
                         </p>
 
                         <p>
@@ -563,11 +577,35 @@ Protein_ID_3,Cluster#
                 </div>
                 <div class="">
                     <h3>Filter by Taxonomy</h3>
-                    <div>
-                        <p>
-                        Conditions on the taxonomy can be set to further restrict the set of sequences by only including the sequences that
-                        match the specific taxonomic categories.  Multiple conditions are combined to be a union of each other.
-                        </p>
+                    <div class="initial-open">
+
+<div>
+<p>
+The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
+"Fungi" to restrict the retrieved sequences to these taxonomy groups.   
+"Bacteria, Archaea, Fungi" and "Fungi" selects organisms that may provide 
+genome context (gene clusters/operons) useful for inferring functions. 
+</p>
+
+<p>
+Also, sequences retrieved from the UniProt, UniRef90, and UniRef50 databases 
+can be restricted to taxonomic categories (Superkingdom, Kingdom, Phylum, 
+Class, Order, Family, Genus, Species). Multiple conditions are combined to be a 
+union of each other. 
+</p>
+
+<p>
+The retrieved sequences from the UniRef90 and UniRef90 databases are the 
+UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
+taxonomic category.
+</p>
+
+<p>
+The taxonomy filter is applied to the list of UniProt, UniRef90, or UniRef50 
+cluster IDs that are identified in the BLAST.
+</p>
+</div>
+
                         <div>
                             Preselected conditions:
                             <select class="taxonomy-preselects">
@@ -584,7 +622,7 @@ Protein_ID_3,Cluster#
                     </div>
                 </div>
                 <div class="">
-                    <h3>Neighborhood Connectivity Option</h3>
+                    <h3>Neighborhood Connectivity</h3>
                     <div>
                         <div>
                             <span class="input-name">Neighborhood Connectivity:</span>
@@ -618,9 +656,11 @@ Protein_ID_3,Cluster#
                             </label>
                         </span>
                         <div class="input-desc">
-                            The UniProt database designates a sequence as a fragment if it is translated from a gene missing a start and/or a stop codon (Sequence Status).
-                            Fragments are included in the SSNs by default; checking this box will exclude fragmented sequences
-                            from computations.  This results in an approximately 10% smaller SSN.
+The UniProt database designates a sequence as a fragment if it is translated 
+from a nucleotide sequence missing a start and/or a stop codon (Sequence 
+Status).  Fragments are included by default; checking this box will exclude 
+fragmented sequences from computations.  Approximately 10% of the entries in 
+UniProtKB are fragments.
                         </div>
                     </div>
                 </div>
@@ -792,14 +832,20 @@ Protein_ID_3,Cluster#
 <?php if ($show_taxonomy) { ?>
 <script>
     $(document).ready(function() {
-        var hasUniref = <?php echo $hasUniref; ?>;
+        var hasUniref = <?php echo $has_uniref; ?>;
+
+        var sunburstTextFn = function() {
+            return $('<div><?php echo $sunburst_post_sunburst_text; ?></div>');
+        };
 
         var scriptAppDir = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php";
         var sbParams = {
                 apiId: "<?php echo $gen_id; ?>",
                 apiKey: "<?php echo $key; ?>",
                 apiExtra: [],
-                appUniRefVersion: <?php echo $sunburstAppUniref; ?>,
+                appUniRefVersion: <?php echo $sunburst_app_uniref; ?>,
+                appPrimaryIdTypeText: '<?php echo $sunburst_app_primary_id_type; ?>',
+                appPostSunburstTextFn: sunburstTextFn,
                 scriptApp: scriptAppDir + "/get_tax_data.php",
                 fastaApp: scriptAppDir + "/get_sunburst_fasta.php",
                 hasUniRef: hasUniref
@@ -922,6 +968,180 @@ function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {
                 </div>
 HTML;
     echo $html;
+}
+
+function get_tax_sb_text($gen_type, $blast_id_type = "") {
+    $text = "";
+    if ($gen_type == "BLAST") {
+        $text = <<<TEXT
+<p>
+List of $blast_id_type IDs and 
+FASTA-formatted sequences can be downloaded.
+</p>
+
+<p>
+The list of IDs can be transferred to Accession option of EFI-EST to generate an SSN.  
+Accession option provides both the Filter by Family and Filter by Taxonomy options that 
+should be used to remove internal UniProt IDs that are not members of the input 
+families and selected taxonomy level/category.
+</p>
+
+<p>
+The list also can be transferred to the GND-Viewer to obtain GNDs.
+</p>
+TEXT;
+    } else if ($gen_type == "FAMILIES") {
+        $text = <<<TEXT
+<p>
+Lists of UniProt, UniRef90, and UniRef50 IDs and FASTA-formatted sequences can 
+be downloaded.
+</p>
+
+<p>
+The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to Accession option 
+of EFI-EST to generate an SSN.  Accession option provides both the Filter by Family and 
+Filter by Taxonomy options that should be used to remove internal UniProt IDs 
+that are not members of the input families and selected taxonomy 
+level/category.
+</p>
+
+<p>
+The lists also can be transferred to the GND-Viewer to obtain GNDs.
+</p>
+TEXT;
+    } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+        $text = <<<TEXT
+<p>
+The UniProt IDs and FASTA-formatted sequences can be downloaded.
+</p>
+
+<p>
+The list of UniProt IDs can be transferred to Accession option of EFI-EST to generate 
+an SSN.  Accession option provides both the Filter by Family and Filter by Taxonomy 
+options that should be used to remove UniProt IDs that are not members of 
+desired families and the selected taxonomy level/category.
+</p>
+TEXT;
+    } else if ($gen_type == "ACCESSION") {
+        $text = <<<TEXT
+<p>
+Lists of UniProt, UniRef90, and UniRef50 IDs and FASTA-formatted sequences can 
+be downloaded.
+</p>
+
+<p>
+The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to Accession option 
+of EFI-EST to generate an SSN.  Accession option provides both the Filter by Family and 
+Filter by Taxonomy options that should be used to remove internal UniProt IDs 
+that are not members of the input families and selected taxonomy 
+level/category.
+</p>
+
+<p>
+The lists also can be transferred to the GND-Viewer to obtain GNDs.
+</p>
+TEXT;
+    } else {
+        $text = "";
+    }
+
+    #$text = preg_replace('/<p>/', "##S#", $text);
+    #$text = preg_replace('/<\/p>/', "##E#", $text);
+    $text = preg_replace('/\n/', " ", $text);
+    #$text = htmlspecialchars($text);
+
+    return $text;
+}
+
+function get_tax_tab_text($gen_type) {
+    if ($gen_type == "BLAST") {
+        return <<<TEXT
+<p>The taxonomy distribution for the UniProt, UniRef90 cluster, UniRef50 cluster IDs identified in the BLAST is displayed.</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomic level by clicking on that level/category; clicking on the center 
+circle will zoom the display to the next highest level.
+</p>
+TEXT;
+    } else if ($gen_type == "FAMILIES") {
+        return <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs in the input dataset is 
+displayed.   For UniRef90 and UniRef50 cluster datasets, these are retrieved 
+from the lookup table provided by UniProt/UniRef.
+</p>
+
+<p>
+The UniRef90 and UniRef50 clusters containing the UniProt IDs then are 
+identified using the lookup table provided by UniProt/UniRef.  These UniRef90 
+and UniRef50 clusters may contain UniProt IDs from other families; in addition, 
+the UniRef90 and UniRef50 clusters at a selected taxonomy level/category may 
+contain UniProt IDs from other levels/categories.   This results from 
+conflation of UniProt IDs in UniRef90 and UniRef50 clusters that share &ge;90% and 
+&ge;50% sequence identity, respectively.
+</p>
+
+<p>
+The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at 
+the selected level are displayed.
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomic level by clicking on that level/category; clicking on the center 
+circle will zoom the display to the next highest level.
+</p>
+TEXT;
+    } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+        return <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs in the input dataset is 
+displayed.   
+</p>
+
+<p>
+The numbers of UniProt IDs at the selected level are displayed.
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomic level by clicking on that level/category; clicking on the center 
+circle will zoom the display to the next highest level.
+</p>
+TEXT;
+    } else if ($gen_type == "ACCESSION") {
+        return <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs in the input dataset is 
+displayed.   For UniRef90 and UniRef50 cluster datasets, these are retrieved 
+from the lookup table provided by UniProt/UniRef.
+</p>
+
+<p>
+The UniRef90 and UniRef50 clusters containing the UniProt IDs then are 
+identified using the lookup table provided by UniProt/UniRef.  These UniRef90 
+and UniRef50 clusters may contain UniProt IDs from other families; in addition, 
+the UniRef90 and UniRef50 clusters at a selected taxonomy level/category may 
+contain UniProt IDs from other levels/categories.   This results from 
+conflation of UniProt IDs in UniRef90 and UniRef50 clusters that share &ge;90% and 
+&ge;50% sequence identity, respectively.
+</p>
+
+<p>
+The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at 
+the selected level are displayed.
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomic level by clicking on that level/category; clicking on the center 
+circle will zoom the display to the next highest level.
+</p>
+TEXT;
+    } else {
+        return "";
+    }
 }
 
 

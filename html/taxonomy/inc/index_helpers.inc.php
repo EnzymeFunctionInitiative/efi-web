@@ -375,7 +375,7 @@ function add_taxonomy_filter($option_id) {
 <div>
     <div>
 <p>
-The use can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
+The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
 "Fungi" to restrict the retrieved sequences from the UniProt, UniRef90, and 
 UniRef50 databases to these taxonomy groups.   "Bacteria, Archaea, Fungi" and 
 "Fungi" selects organisms that may provide genome context (gene 
@@ -433,6 +433,34 @@ function add_length_filter($option_id) {
         </span><span class="input-field">
             <input type="text" class="small fraction" id="max-seq-len-$option_id" name="max-seq-len-$option_id" value="" size="8">
         </span>
+    </div>
+</div>
+HTML;
+    return array($html);
+}
+
+
+function add_family_filter($option_id, $extra_text = "") {
+    if ($extra_text)
+        $extra_text = "<div>$extra_text</div>";
+    $html = <<<HTML
+<h3>Filter by Family</h3>
+<div>
+    $extra_text
+    <div>Input a list of Pfam families, InterPro families, and/or Pfam clans to identify sequences for inclusion in the SSN.</div>
+    <div class="secondary-input">
+        <div class="secondary-name">
+            Family(s):
+        </div>
+        <div class="secondary-field">
+            <input type="text" id="family-filter-$option_id" name="family-filter-$option_id" value="" />
+        </div>
+    </div>
+    <div class="input-desc">
+        <div>
+            The input format is a single family or comma/space separated list of families. Families should be
+            specified as PFxxxxx (five digits), IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans.
+        </div>
     </div>
 </div>
 HTML;

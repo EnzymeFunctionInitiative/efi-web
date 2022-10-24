@@ -48,11 +48,19 @@ if (!$generate->has_tax_data()) {
     error500("Invalid job type.");
 }
 
-$uniref = dataset_shared::get_uniref_version($gen_type, $generate);
 $job_name = $generate->get_job_name();
-$sunburstAppUniref = $uniref ? $uniref : "false"; // Is the entire app UniRef-based?
-$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") ? "true" : "false";
 
+//$uniref = dataset_shared::get_uniref_version($gen_type, $generate);
+//$sunburst_app_uniref = $uniref ? $uniref : "false"; // Is the entire app UniRef-based?
+//$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") ? "true" : "false";
+$sunburst_app_primary_id_type = "UniProt";
+$has_uniref = "false";
+$sunburst_app_uniref = 0;
+if ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") {
+    $sunburst_app_uniref = 50;
+    $has_uniref = "true";
+}
+$sunburst_post_sunburst_text = get_tax_sb_text($gen_type);
 
 $table = new table_builder($table_format);
 dataset_shared::add_generate_summary_table($generate, $table, false, false);
@@ -88,7 +96,7 @@ $histo_info = $generate->get_length_histogram_info();
 <div class="tabs-efihdr tabs">
     <ul class="">
         <li class="ui-tabs-active"><a href="#info">Dataset Summary</a></li>
-        <li><a href="#taxonomy">Taxonomy Sunburst</a></li>
+        <li><a href="#taxonomy-tab">Taxonomy Sunburst</a></li>
 <?php if ($histo_info !== false) { ?>
         <li><a href="#histo">Length Histograms</a></li>
 <?php } ?>
@@ -107,7 +115,7 @@ $histo_info = $generate->get_length_histogram_info();
             <div style="clear: both"></div>
         </div>
 
-        <div>
+        <div id="taxonomy-tab">
 <p>
 The taxonomy distribution for the UniProt IDs identified as members of the 
 input list of families is displayed.   
@@ -184,7 +192,7 @@ for ($i = 0; $i < count($histo_info); $i++) {
         }
     }
 
-    var hasUniref = <?php echo $hasUniref; ?>;
+    var hasUniref = <?php echo $has_uniref; ?>;
 
     var onComplete = function(app) {
         var estClickFn = function(app) {
@@ -222,12 +230,18 @@ for ($i = 0; $i < count($histo_info); $i++) {
         app.addTransferAction("sunburst-transfer-to-gnt", "Transfer to EFI-GND Viewer", "Transfer to EFI-GND Viewer", () => gndClickFn(app));
     };
 
+    var sunburstTextFn = function() {
+        return $('<div><?php echo $sunburst_post_sunburst_text; ?></div>');
+    };
+
     var scriptAppDir = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php";
     var sbParams = {
             apiId: "<?php echo $gen_id; ?>",
             apiKey: "<?php echo $key; ?>",
             apiExtra: [],
-            appUniRefVersion: <?php echo $sunburstAppUniref; ?>,
+            appUniRefVersion: <?php echo $sunburst_app_uniref; ?>,
+            appPrimaryIdTypeText: "<?php echo $sunburst_app_primary_id_type; ?>",
+            appPostSunburstTextFn: sunburstTextFn,
             scriptApp: scriptAppDir + "/get_tax_data.php",
             fastaApp: scriptAppDir + "/get_sunburst_fasta.php",
             hasUniRef: hasUniref
@@ -238,6 +252,72 @@ for ($i = 0; $i < count($histo_info); $i++) {
 </script>
 
 <?php
+
+function get_tax_sb_text($gen_type) {
+    $text = "";
+
+    if ($gen_type == "FAMILIES") {
+        $text = <<<TEXT
+<p>
+Lists of UniProt, UniRef90, and UniRef50 IDs and FASTA-formatted sequences can 
+be downloaded.
+</p>
+
+<p>
+The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the Accession option 
+of EFI-EST to generate an SSN.  The Accession option provides both the Filter by Family and 
+Filter by Taxonomy options that should be used to remove internal UniProt IDs 
+that are not members of the input families and selected taxonomy 
+level/category.
+</p>
+
+<p>
+The lists also can be transferred to the GND-Viewer to obtain GNDs.
+</p>
+TEXT;
+    } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+        $text = <<<TEXT
+<p>
+The UniProt IDs and FASTA-formatted sequences can be downloaded.
+</p>
+
+<p>
+The list of UniProt IDs can be transferred to the Accession option of EFI-EST to generate 
+an SSN.  The Accession option provides both the Filter by Family and Filter by Taxonomy 
+options that should be used to remove UniProt IDs that are not members of 
+desired families and the selected taxonomy level/category.
+</p>
+
+<p>
+The list also can be transferred to the GND-Viewer to obtain GNDs.
+</p>
+TEXT;
+    } else if ($gen_type == "ACCESSION") {
+        $text = <<<TEXT
+<p>
+Lists of UniProt, UniRef90, and UniRef50 IDs and FASTA-formatted sequences can 
+be downloaded.
+</p>
+
+<p>
+The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the Accession option 
+of EFI-EST to generate an SSN.  The Accession option provides both the Filter by Family and 
+Filter by Taxonomy options that should be used to remove internal UniProt IDs 
+that are not members of the input families and selected taxonomy 
+level/category.
+</p>
+
+<p>
+The lists also can be transferred to the GND-Viewer to obtain GNDs.
+</p>
+TEXT;
+    }
+
+    $text = preg_replace('/\n/', " ", $text);
+
+    return $text;
+}
+
 
 require_once(__DIR__."/inc/footer.inc.php");
 
