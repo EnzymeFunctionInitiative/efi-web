@@ -6,6 +6,7 @@ require_once(__DIR__."/../../../init.php");
 use \efi\global_functions;
 use \efi\est\settings;
 use \efi\est\functions;
+use \efi\est\blast;
 
 
 class est_user_jobs_shared {
@@ -113,6 +114,13 @@ class est_user_jobs_shared {
         return $info;
     }
 
+    private static function get_blast_database_type($data) {
+        $info = "";
+        if (array_key_exists("blast_db_type", $data) && $data["blast_db_type"])
+            $info = "Database: " . blast::get_blast_db_type_formatted($data["blast_db_type"]);
+        return $info;
+    }
+
     private static function get_max_blast_hits($data) {
         $info = "";
         if (array_key_exists("generate_blast_max_sequence", $data) && $data["generate_blast_max_sequence"]) {
@@ -160,6 +168,7 @@ class est_user_jobs_shared {
         $uniref = self::get_uniref_version($data);
         $domain = self::get_domain($data);
         $sequence = self::get_sequence($data);
+        $dbType = self::get_blast_database_type($data);
         $blastEvalue = self::get_blast_evalue($data);
         $maxHits = self::get_max_blast_hits($data);
         $excludeFractions = self::get_exclude_fragments($data);
@@ -176,6 +185,7 @@ class est_user_jobs_shared {
             } elseif ($type == "BLAST") {
                 $job_name = $sequence;
                 $sequence = "";
+
             } else {
                 $job_name = $fileName;
                 $fileName = "";
@@ -218,6 +228,7 @@ class est_user_jobs_shared {
         if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $type != "CONVRATIO" && $excludeFractions) array_push($info, $excludeFractions);
         if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $type != "CONVRATIO" && $taxSearch) array_push($info, $taxSearch);
         if ($sequence) array_push($info, $sequence);
+        if ($dbType) array_push($info, $dbType);
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);
 
