@@ -1,4 +1,7 @@
 <?php
+require_once(__DIR__."/../../../init.php");
+
+require_once(__TRAINING_CONF_DIR__."/settings.inc.php");
 
 $Title = "EFI - Training Resources";
 if (isset($ExtraTitle) && $ExtraTitle)
@@ -12,6 +15,4 @@ array_push($StyleAdditional, '<link rel="stylesheet" type="text/css" href="css/t
 $BannerImagePath = "$SiteUrlPrefix/images/efi_logo.png";
 
 require_once(__BASE_DIR__ . "/html/inc/global_header.inc.php");
-
-?>
 
