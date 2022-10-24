@@ -154,6 +154,12 @@ AppEstSubmit.prototype.getOptionCFormFn = function(outputIds) {
         addParam(fd, "fasta_input", "fasta-input");
         addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
     
+        if ($("#domain-optc").prop("checked")) {
+            fd.append("domain", true);
+            addParam(fd, "domain_family", "domain-family-optc");
+            addRadioParam(fd, "domain_region", "domain-region-optc");
+        }
+
         if ($("#family-filter-optc").val().length >= 7) {
             addParam(fd, "family_filter", "family-filter-optc");
         }

@@ -44,9 +44,18 @@ if (!$result["valid"]) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // This code handles submission of the form.
-foreach ($_POST as $var) {
-    $var = trim(rtrim($var));
+foreach ($_POST as $key => $var) {
+    if (is_array($var)) {
+        foreach ($var as $subkey => $subvar) {
+            $val = trim(rtrim($subvar));
+            $var[$subkey] = $val;
+        }
+    } else {
+        $val = trim(rtrim($var));
+        $_POST[$key] = $val;
+    }
 }
+
 $min = $_POST['minimum'];
 if ($_POST['minimum'] == "") {
     $min = __MINIMUM__;

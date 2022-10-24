@@ -84,8 +84,8 @@ if (!isset($_POST['submit'])) {
     if (array_key_exists('large-mem', $_POST) && global_settings::advanced_options_enabled())
         $input->large_mem = $_POST['large-mem'] == "true" ? true : false;
     $input->exclude_fragments = (isset($_POST['exclude-fragments']) && $_POST['exclude-fragments'] == "true") ? true : false;
-    $input->tax_search = parse_tax_search($_POST["tax_search"]);
-    $input->tax_search_name = $_POST['tax_name'] ? $_POST['tax_name'] : "";
+    $input->tax_search = (isset($_POST["tax_search"]) && $_POST["tax_search"]) ? parse_tax_search($_POST["tax_search"]) : "";
+    $input->tax_search_name = (isset($_POST['tax_name']) && $_POST['tax_name']) ? $_POST['tax_name'] : "";
 
     switch($option) {
         //Option A - BLAST Input

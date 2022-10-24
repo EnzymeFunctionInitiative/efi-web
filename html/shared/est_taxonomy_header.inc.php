@@ -32,7 +32,7 @@ if (isset($IncludeSunburstJs) && $IncludeSunburstJs) {
     array_push($JsAdditional,
         '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/sunburst-chart.min.js?v=1"></script>',
         '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/sunburst-helpers.js" type="text/javascript"></script>',
-        '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/sunburst-taxonomy2.js?v=10" type="text/javascript"></script>',
+        '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/sunburst-taxonomy2.js?v=12" type="text/javascript"></script>',
         '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/progress.js" type="text/javascript"></script>',
     );
     array_push($StyleAdditional,
