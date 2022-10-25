@@ -96,7 +96,7 @@ $histo_info = $generate->get_length_histogram_info();
 <div class="tabs-efihdr tabs">
     <ul class="">
         <li class="ui-tabs-active"><a href="#info">Dataset Summary</a></li>
-        <li><a href="#taxonomy-tab">Taxonomy Sunburst</a></li>
+        <li data-tab-id="sunburst"><a href="#taxonomy-tab">Taxonomy Sunburst</a></li>
 <?php if ($histo_info !== false) { ?>
         <li><a href="#histo">Length Histograms</a></li>
 <?php } ?>
@@ -142,7 +142,7 @@ taxonomic level by clicking on that level/category; clicking on the center
 circle will zoom the display to the next highest level.
 </p>
 
-            <div id="taxonomy">
+            <div id="taxonomy" style="position: relative">
             </div>
         </div>
 
@@ -176,7 +176,9 @@ for ($i = 0; $i < count($histo_info); $i++) {
 
 <script>
     $(document).ready(function() {
-        $(".tabs").tabs();
+        $(".tabs").tabs({
+            activate: sunburstTabActivate // comes from shared/js/sunburst.js
+        });
     });
         
     var acc = document.getElementsByClassName("panel-toggle");
@@ -194,41 +196,11 @@ for ($i = 0; $i < count($histo_info); $i++) {
 
     var hasUniref = <?php echo $has_uniref; ?>;
 
-    var onComplete = function(app) {
-        var estClickFn = function(app) {
-            var estPath = "<?php echo global_settings::get_web_path('est'); ?>/index.php";
-            var info = app.getCurrentNode();
-            var encTaxName = encodeURIComponent(info.name);
-            var args = [
-                "tax-id=<?php echo $gen_id; ?>",
-                "tax-key=<?php echo $key; ?>",
-                "tree-id=" + info.id,
-                "id-type=" + info.idType,
-                "tax-name=" + encTaxName,
-                "mode=tax",
-            ];
-            var urlArgs = args.join("&");
-            var url = estPath + "?" + urlArgs;
-            window.location = url;
-        };
-        var gndClickFn = function(app) {
-            var gntPath = "<?php echo global_settings::get_web_path('gnt'); ?>/index.php";
-            var info = app.getCurrentNode();
-            var encTaxName = encodeURIComponent(info.name);
-            var args = [
-                "tax-id=<?php echo $gen_id; ?>",
-                "tax-key=<?php echo $key; ?>",
-                "tree-id=" + info.id,
-                "id-type=" + info.idType,
-                "tax-name=" + encTaxName,
-            ];
-            var urlArgs = args.join("&");
-            var url = gntPath + "?" + urlArgs;
-            window.location = url;
-        };
-        app.addTransferAction("sunburst-transfer-to-est", "Transfer to EFI-EST", "Transfer to EFI-EST", () => estClickFn(app));
-        app.addTransferAction("sunburst-transfer-to-gnt", "Transfer to EFI-GND Viewer", "Transfer to EFI-GND Viewer", () => gndClickFn(app));
-    };
+    var estPath = "<?php echo global_settings::get_web_path('est'); ?>/index.php";
+    var gntPath = "<?php echo global_settings::get_web_path('gnt'); ?>/index.php";
+    var jobId = "<?php echo $gen_id; ?>";
+    var jobKey = "<?php echo $key; ?>";
+    var onComplete = makeOnSunburstCompleteFn(estPath, gntPath, jobId, jobKey);
 
     var sunburstTextFn = function() {
         return $('<div><?php echo $sunburst_post_sunburst_text; ?></div>');
@@ -246,6 +218,7 @@ for ($i = 0; $i < count($histo_info); $i++) {
             fastaApp: scriptAppDir + "/get_sunburst_fasta.php",
             hasUniRef: hasUniref
     };
+
     var sunburstApp = new AppSunburst(sbParams);
     sunburstApp.attachToContainer("taxonomy");
     sunburstApp.addSunburstFeatureAsync(onComplete);
