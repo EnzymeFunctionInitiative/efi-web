@@ -11,8 +11,8 @@ if (!isset($JsAdditional)) $JsAdditional = array();
 
 if (isset($IncludeSubmitJs) || isset($IncludeTaxonomyJs)) {
     array_push($JsAdditional,
-        '<script src="../shared/js/taxonomy_filter.js?v=12" type="text/javascript"></script>',
-        '<script src="'.$SiteUrlPrefix.'/vendor/efiillinois/taxonomy/web/js/taxonomy.js?v=9" type="text/javascript"></script>',
+        '<script src="../shared/js/taxonomy_filter.js?v=13" type="text/javascript"></script>',
+        '<script src="'.$SiteUrlPrefix.'/vendor/efiillinois/taxonomy/web/js/taxonomy.js?v=10" type="text/javascript"></script>',
         '<script src="../js/form.js?v=1" type="text/javascript"></script>',
     );
 }
