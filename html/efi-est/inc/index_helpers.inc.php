@@ -147,6 +147,9 @@ function add_fragment_option($option_id) {
     $html = <<<HTML
 <h3>Fragment Option</h3>
 <div>
+<div>
+ UniProt designates a Sequence Status for each member: Complete if the encoding DNA sequence has both start and stop codons; Fragment if the start and/or stop codon is missing. Approximately 10% of the entries in UniProt are fragments. 
+</div>
     <span class="input-name">
         Fragments:
     </span><span class="input-field">
@@ -157,11 +160,15 @@ function add_fragment_option($option_id) {
         </label>
     </span>
     <div class="input-desc">
-The UniProt database designates a sequence as a fragment if it is translated 
-from a nucleotide sequence missing a start and/or a stop codon (Sequence 
-Status).  Fragments are included by default; checking this box will exclude 
-fragmented sequences from computations.  Approximately 10% of the entries in 
-UniProtKB are fragments.
+<p>
+For the UniRef90 and UniRef50 databases, clusters are excluded if the cluster 
+ID ("representative sequence") is a fragment.   
+</p>
+
+<p>
+UniProt IDs in UniRef90 and UniRef50 clusters with complete cluster IDs are 
+removed from the clusters if they are fragments. 
+</p>
     </div>
 </div>
 HTML;
@@ -276,7 +283,7 @@ HTML;
 <div>
     <div class="primary-input">
         <div class="secondary-name">
-            Pfam and/or InterPro Families:
+            Pfam and/or InterPro Families and/or Pfam clans:
         </div>
         <div>
 HTML;
@@ -298,7 +305,7 @@ HTML;
     $html .= <<<HTML
         <div>
             <input type="checkbox" id="use-uniref-$option_id" class="cb-use-uniref bigger" value="1">
-            <label for="use-uniref-$option_id">Use <select id="uniref-ver-$option_id" name="uniref-ver-$option_id" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> cluster ID sequences instead of the full family</label>
+            <label for="use-uniref-$option_id">Use <select id="uniref-ver-$option_id" name="uniref-ver-$option_id" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> cluster ID sequences instead of UniProt IDs (UniProt is default).</label>
             <div style="margin-top: 10px">
 HTML;
     $html .= make_pfam_size_box("family-size-container-$option_id", "family-count-table-$option_id", $show_example);
@@ -315,13 +322,22 @@ HTML;
     if (!$show_example && $show_text) {
         $html .= <<<HTML
     <div>
+<p>
 UniRef90 clusters contain UniProt IDs that share ≥90% sequence identity and 
-have 80% overlap with the longest sequence in the cluster (“seed sequence”); as 
+have 80% overlap with the longest sequence in the cluster ("seed sequence"); as 
 a result, the UniProt IDs in the cluster usually are functionally homogeneous, 
 i.e., orthologues.  UniRef50 clusters contain UniProt IDs that share ≥50% 
 sequence identity and have 80% overlap with the seed sequence; as a result, the 
 UniProt IDs in the cluster often are functionally heterogeneous, e.g., 
 paralogues.
+</p>
+
+<p>
+The sequences from the UniRef90 and UniRef90 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified families. The UniProt members in these UniRef90 and Uni/Ref50 
+clusters that do not match the specified families are removed from the cluster.
+</p>
 
 <!--
         The EST provides access to the UniRef90 and UniRef50 databases to allow the creation
@@ -459,7 +475,7 @@ HTML;
 }
 
 
-function add_family_filter($option_id, $extra_text = "") {
+function add_family_filter($option_id, $extra_text = "", $family_filter_post_text = "") {
     if ($extra_text)
         $extra_text = "<div>$extra_text</div>";
     $html = <<<HTML
@@ -481,6 +497,7 @@ function add_family_filter($option_id, $extra_text = "") {
             specified as PFxxxxx (five digits), IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans.
         </div>
     </div>
+    <div>$family_filter_post_text</div>
 </div>
 HTML;
     return array($html);

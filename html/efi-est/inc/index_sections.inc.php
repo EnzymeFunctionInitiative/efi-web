@@ -16,32 +16,30 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
     $default_blast_seq = get_default_blast_seq();
     $show_example = $example_fn !== false;
     $tax_filter_text = <<<TEXT
+<p>
+A taxonomy filter is applied to the list of UniProt, UniRef90, or UniRef50 
+cluster IDs retrieved by the BLAST.  
+</p>
 
 <p>
 The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the retrieved sequences to these taxonomy groups.   
-"Bacteria, Archaea, Fungi" and "Fungi" selects organisms that may provide 
-genome context (gene clusters/operons) useful for inferring functions. 
+"Fungi" to restrict the retrieved sequences to these taxonomy groups.  
+"Bacteria, Archaea, Fungi" and "Fungi" select organisms that may provide genome 
+context (gene clusters/operons) useful for inferring functions. 
 </p>
 
 <p>
-Also, sequences retrieved from the UniProt, UniRef90, and UniRef50 databases 
-can be restricted to taxonomic categories (Superkingdom, Kingdom, Phylum, 
-Class, Order, Family, Genus, Species). Multiple conditions are combined to be a 
-union of each other. 
+The retrieved sequences also can be restricted to taxonomy categories within 
+the Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species 
+ranks. Multiple conditions are combined to be a union of each other. 
 </p>
 
 <p>
-The retrieved sequences from the UniRef90 and UniRef90 databases are the 
+The retrieved sequences from the UniRef90 and UniRef50 databases are the 
 UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
-taxonomic category.
+taxonomy categories. The UniProt members in these clusters that do not match 
+the specified taxonomy categories are removed from the cluster.
 </p>
-
-<p>
-The taxonomy filter is applied to the list of UniProt, UniRef90, or UniRef50 
-cluster IDs that are identified in the BLAST.
-</p>
-
 TEXT;
 
     $example_fn = $example_fn === false ? function(){} : $example_fn;
@@ -205,27 +203,25 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
     $show_example = $example_fn !== false;
     $example_fn = $example_fn === false ? function(){} : $example_fn;
     $tax_filter_text = <<<TEXT
-
 <p>
 The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the retrieved sequences to these taxonomy groups.   
-"Bacteria, Archaea, Fungi" and "Fungi" selects organisms that may provide 
-genome context (gene clusters/operons) useful for inferring functions. 
+"Fungi" to restrict the sequences included in the SSN to these taxonomy groups.  
+"Bacteria, Archaea, Fungi" and "Fungi" select organisms that may provide genome 
+context (gene clusters/operons) useful for inferring functions. 
 </p>
 
 <p>
-Also, sequences retrieved from the UniProt, UniRef90, and UniRef50 databases 
-can be restricted to taxonomic categories (Superkingdom, Kingdom, Phylum, 
-Class, Order, Family, Genus, Species). Multiple conditions are combined to be a 
-union of each other. 
+The sequences also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
 </p>
 
 <p>
-The retrieved sequences from the UniRef90 and UniRef90 databases are the 
-UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
-taxonomic category.
+The sequences from the UniRef90 and UniRef90 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID matches the specified taxonomy 
+categories. The UniProt members in these clusters that do not match the 
+specified taxonomy categories are removed from the cluster.
 </p>
-
 TEXT;
 ?>
         <div id="optionBtab" class="ui-tabs-panel ui-widget-content">
@@ -235,10 +231,8 @@ TEXT;
             </p>
 
             <p>
-The sequences from the input Pfam families, InterPro families, and/or Pfam 
-clans (input are retrieved. An all-by-all BLAST<span class="question" title="A BLAST with all retrieved sequences BLAST-ed against the same set of retrieved sequences.">?</span> is performed to obtain the 
-similarities between sequence pairs to calculate edge values to generate the 
-SSN. 
+The members of the input Pfam families, InterPro families, and/or Pfam 
+clans are selected from the UniProt, UniRef90, or UniRef50 database.
 
             </p>
 <?php $example_fn("DESC_END"); ?>
@@ -313,33 +307,24 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
     $show_example = $example_fn !== false;
     $example_fn = $example_fn === false ? function(){} : $example_fn;
     $tax_filter_text = <<<TEXT
-
 <p>
 The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the retrieved sequences to these taxonomy groups.   
-"Bacteria, Archaea, Fungi" and "Fungi" selects organisms that may provide 
-genome context (gene clusters/operons) useful for inferring functions. 
+"Fungi" to restrict the sequences to these taxonomy groups. "Bacteria, Archaea, 
+Fungi" and "Fungi" select organisms that may provide genome context (gene 
+clusters/operons) useful for inferring functions. 
 </p>
 
 <p>
-Also, sequences retrieved from the UniProt, UniRef90, and UniRef50 databases 
-can be restricted to taxonomic categories (Superkingdom, Kingdom, Phylum, 
-Class, Order, Family, Genus, Species). Multiple conditions are combined to be a 
-union of each other. 
+The sequences also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
 </p>
-
-<p>
-The selected sequences from the UniRef90 and UniRef90 databases are the 
-UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
-taxonomic category.
-</p>
-
 TEXT;
 ?>
         <div id="optionCtab" class="ui-tabs-panel ui-widget-content">
 <?php $example_fn("DESC_START"); ?>
             <p class="p-heading">
-            Generate a SSN from FASTA-formatted sequences. 
+            Generate a SSN from FASTA-formatted UniProt sequences. 
             </p>
 
 <p>
@@ -348,8 +333,25 @@ pairs to calculate edge values to generate the SSN.
 </p>
 
 <p>
-Input a list of protein sequences in FASTA format or upload a FASTA-formatted 
-sequence file. 
+Input a list of sequences in the FASTA format or upload a FASTA-formatted 
+sequence file.
+</p>
+
+<p>
+Two options are available for generating the SSN:
+</p>
+
+<p>
+1)  The sequences are used "as is", with the node attributes including only the 
+information in the header as the description and the number of residues in the 
+sequence.
+</p>
+
+<p>
+2)  The ID in the header that immediately follows the "&gt;" is used to 
+retrieve node attribute information.   Acceptable IDs include UniProt IDs, PDB 
+IDs, and NCBI GenBank IDs that have equivalent entries in the UniProt database.  
+To use this option, check the "Read FASTA headers" box.
 </p>
 
 <?php $example_fn("DESC_END"); ?>
@@ -361,10 +363,8 @@ sequence file.
                         Sequences:
                     </div>
                     <textarea id="fasta-input" name="fasta-input"></textarea>
-                    <div>
+                    <div style="margin-bottom: 15px">
                         <input type="checkbox" id="fasta-use-headers" name="fasta-use-headers" value="1"> <label for="fasta-use-headers"><b>Read FASTA headers</b></label><br>
-                        When selected, recognized UniProt or Genbank identifiers from FASTA headers are used to retrieve
-                        node attributes from the UniProt database.
                     </div>
                     <?php echo ui::make_upload_box("FASTA File:", "fasta-file", "progress-bar-fasta", "progress-num-fasta"); ?>
                 </div>
@@ -465,44 +465,69 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
         $filename = $mode_data["filename"];
     }
     $tax_filter_text = <<<TEXT
-
 <p>
 If the input list of UniRef90 or UniRef50 IDs is obtained from the Color SSN or 
-Cluster Analysis utility for an Option B SSN job filtered for a taxonomy 
-level/category or from the Taxonomy Tool, the input list should (must!) be 
-filtered with the same taxonomy level/category used in those jobs to remove 
-internal UniProt IDs that are not members of the taxonomy level/category.
+Cluster Analysis utility for a Families option (Option B) EFI-EST SSN filtered 
+to include specific taxonomy categories, the input list should (must!) be 
+filtered with the same taxonomy categories to remove internal UniProt IDs that 
+are not members of the specified taxonomy categories. 
+</p>
+
+<p>
+If the input list of UniRef90 or UniRef50 IDs is obtained from the Taxonomy 
+Tool, the input list should (must!) be filtered with the same taxonomy 
+categories used to transfer/download the IDs to remove clusters with IDs 
+("representative sequences") that are not members of the categories and, also, 
+internal UniProt IDs that are not members of the specified taxonomy categories 
+from clusters with IDs that are members of the categories. 
 </p>
 
 <p>
 The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the retrieved sequences to these taxonomy groups.   
-"Bacteria, Archaea, Fungi" and "Fungi" selects organisms that may provide 
-genome context (gene clusters/operons) useful for inferring functions. 
+"Fungi" to restrict the retrieved sequences to these taxonomy groups. 
+"Bacteria, Archaea, Fungi" and "Fungi" select organisms that may provide genome 
+context (gene clusters/operons) useful for inferring functions. 
 </p>
 
 <p>
-Also, sequences retrieved from the UniProt, UniRef90, and UniRef50 databases 
-can be restricted to taxonomic categories (Superkingdom, Kingdom, Phylum, 
-Class, Order, Family, Genus, Species). Multiple conditions are combined to be a 
-union of each other. 
+The sequences also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
 </p>
 
 <p>
-The selected sequences from the UniRef90 and UniRef90 databases are the 
-UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
-taxonomic category.
+The selected clusters from the UniRef90 and UniRef90 databases are those for 
+which the cluster ID matches the specified taxonomy categories. The UniProt 
+members in these clusters that do not match the specified taxonomy category are 
+removed from the clusters.
 </p>
-
 TEXT;
 
     $family_filter_desc = <<<TEXT
 <p>
 If the input list of UniRef90 or UniRef50 IDs is obtained from the Color SSN or 
-Cluster Analysis utility for an Option B SSN job or from the Families option of 
-the Taxonomy Tool, the input list should (must!) be filtered with the same 
-family list used in those jobs to remove internal UniProt IDs that are not 
-members of the families.
+Cluster Analysis utility for a Families option (Option B) EFI-EST SSN, the 
+input list should (must!) be filtered with the same list of families to remove 
+internal UniProt IDs that are not members of the families. 
+</p>
+
+<p>
+If the input list of UniRef90 or UniRef50 IDs is obtained from the Families 
+option of the Taxonomy Tool, the input list should (must!) be filtered with the 
+same list of families to remove clusters with IDs ("representative sequences") 
+that are not members of the families and, also, internal UniProt IDs that are 
+not members of the families from clusters with IDs that are members of the 
+families. 
+</p>
+TEXT;
+
+    $family_filter_post_text = <<<TEXT
+<p>
+The selected sequences from the UniRef90 and UniRef90 databases are UniRef90 
+and UniRef50 clusters for which the cluster ID ("representative sequence") 
+matches the specified families. The UniProt members in these UniRef90 and 
+Uni/Ref50 clusters that do not match the specified families are removed from 
+the cluster.
 </p>
 TEXT;
 
@@ -586,7 +611,7 @@ TEXT;
                         <?php echo add_fragment_option("optd")[0] ?>
                     </div>
                     <div class="initial-open">
-                        <?php echo add_family_filter("optd", $family_filter_desc)[0]; ?>
+                        <?php echo add_family_filter("optd", $family_filter_desc, $family_filter_post_text)[0]; ?>
                     </div>
                     <div class="initial-open">
                         <?php echo add_taxonomy_filter("optd", $tax_filter_text)[0]; ?>

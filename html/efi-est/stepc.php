@@ -92,6 +92,7 @@ $IncludeTaxonomyJs = true;
 require_once(__DIR__."/inc/header.inc.php");
 
 $tax_tab_text = $show_taxonomy ? get_tax_tab_text($gen_type) : "";
+$tax_filt_text = $show_taxonomy ? get_tax_filt_text($gen_type) : "";
 $sunburst_post_sunburst_text = $show_taxonomy ? get_tax_sb_text($gen_type, $sunburst_app_primary_id_type) : "";;
 
 $date_completed = $generate->get_time_completed_formatted();
@@ -580,30 +581,7 @@ Protein_ID_3,Cluster#
                     <div class="initial-open">
 
 <div>
-<p>
-The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the retrieved sequences to these taxonomy groups.   
-"Bacteria, Archaea, Fungi" and "Fungi" selects organisms that may provide 
-genome context (gene clusters/operons) useful for inferring functions. 
-</p>
-
-<p>
-Also, sequences retrieved from the UniProt, UniRef90, and UniRef50 databases 
-can be restricted to taxonomic categories (Superkingdom, Kingdom, Phylum, 
-Class, Order, Family, Genus, Species). Multiple conditions are combined to be a 
-union of each other. 
-</p>
-
-<p>
-The retrieved sequences from the UniRef90 and UniRef90 databases are the 
-UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
-taxonomic category.
-</p>
-
-<p>
-The taxonomy filter is applied to the list of UniProt, UniRef90, or UniRef50 
-cluster IDs that are identified in the BLAST.
-</p>
+<?php echo $tax_filt_text; ?>
 </div>
 
                         <div>
@@ -647,6 +625,9 @@ cluster IDs that are identified in the BLAST.
                 <div class="">
                     <h3>Fragment Option</h3>
                     <div>
+                        <div>
+UniProt designates a Sequence Status for each member: Complete if the encoding DNA sequence has both start and stop codons; Fragment if the start and/or stop codon is missing.   Approximately 10% of the entries in UniProt are fragments. 
+                        </div>
                         <span class="input-name">
                             Fragments:
                         </span><span class="input-field">
@@ -656,11 +637,17 @@ cluster IDs that are identified in the BLAST.
                             </label>
                         </span>
                         <div class="input-desc">
-The UniProt database designates a sequence as a fragment if it is translated 
-from a nucleotide sequence missing a start and/or a stop codon (Sequence 
-Status).  Fragments are included by default; checking this box will exclude 
-fragmented sequences from computations.  Approximately 10% of the entries in 
-UniProtKB are fragments.
+<p>
+For the UniRef90 and UniRef50 databases, clusters are excluded if the cluster 
+ID ("representative sequence") is a fragment.   
+</p>
+
+<p>
+UniProt IDs in UniRef90 and UniRef50 clusters with complete cluster IDs are 
+removed from the clusters if they are fragments. 
+</p>
+
+
                         </div>
                     </div>
                 </div>
@@ -1016,10 +1003,10 @@ FASTA-formatted sequences can be downloaded.
 </p>
 
 <p>
-The list of IDs can be transferred to the Accession IDs option of EFI-EST to generate an SSN.  
-The Accession IDs option provides both the Filter by Family and Filter by Taxonomy options that 
-should be used to remove internal UniProt IDs that are not members of the input 
-families and selected taxonomy level/category.
+The list of IDs can be transferred to the Accession IDs option (Option D) of 
+EFI-EST to generate an SSN. The Accession IDs option provides Filter by 
+Taxonomy that should be used to remove internal UniProt IDs that are not 
+members of the selected taxonomy category.
 </p>
 
 <p>
@@ -1034,11 +1021,11 @@ be downloaded.
 </p>
 
 <p>
-The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the Accession IDs option 
-of EFI-EST to generate an SSN.  The Accession IDs option provides both the Filter by Family and 
-Filter by Taxonomy options that should be used to remove internal UniProt IDs 
-that are not members of the input families and selected taxonomy 
-level/category.
+The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the 
+Accession IDs option (Option D) of EFI-EST to generate an SSN. The Accession 
+IDs option provides both Filter by Family and Filter by Taxonomy that should be 
+used to remove internal UniProt IDs that are not members of the input families 
+and selected taxonomy category.
 </p>
 
 <p>
@@ -1052,10 +1039,10 @@ The UniProt IDs and FASTA-formatted sequences can be downloaded.
 </p>
 
 <p>
-The list of UniProt IDs can be transferred to the Accession IDs option of EFI-EST to generate 
-an SSN.  The Accession IDs option provides both the Filter by Family and Filter by Taxonomy 
-options that should be used to remove UniProt IDs that are not members of 
-desired families and the selected taxonomy level/category.
+The list of UniProt IDs can be transferred to the Accession IDs option (Option 
+D) of EFI-EST to generate an SSN. The Accession IDs option provides both Filter 
+by Family and Filter by Taxonomy that should be used to remove UniProt IDs that 
+are not members of desired families and the selected taxonomy category.
 </p>
 TEXT;
     } else if ($gen_type == "ACCESSION") {
@@ -1066,11 +1053,11 @@ be downloaded.
 </p>
 
 <p>
-The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the Accession IDs option 
-of EFI-EST to generate an SSN.  The Accession IDs option provides both the Filter by Family and 
-Filter by Taxonomy options that should be used to remove internal UniProt IDs 
-that are not members of the input families and selected taxonomy 
-level/category.
+The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the 
+Accession IDs option (Option D) of EFI-EST to generate an SSN. The Accession 
+IDs option provides both Filter by Family and Filter by Taxonomy that should be 
+used to remove internal UniProt IDs that are not members of the input families 
+and selected taxonomy category.
 </p>
 
 <p>
@@ -1089,15 +1076,109 @@ TEXT;
     return $text;
 }
 
+function get_tax_filt_text($gen_type) {
+    if ($gen_type == "BLAST") {
+        return <<<TEXT
+<p>
+The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
+"Fungi" to restrict the SSN nodes to these taxonomy groups. "Bacteria, Archaea, 
+Fungi" and "Fungi" select organisms that may provide genome context (gene 
+clusters/operons) useful for inferring functions. 
+</p>
+
+<p>
+Also, the SSN nodes can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
+</p>
+
+<p>
+The selected SSN nodes from the UniRef90 and UniRef90 databases are the 
+UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
+taxonomy category. The UniProt members in these nodes that do not match the 
+specified taxonomy category are removed from the cluster.
+</p>
+TEXT;
+
+    } else if ($gen_type == "FAMILIES") {
+        return <<<TEXT
+<p>
+The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
+"Fungi" to restrict the SSN nodes to these taxonomy groups. "Bacteria, Archaea, 
+Fungi" and "Fungi" select organisms that may provide genome context (gene 
+clusters/operons) useful for inferring functions. 
+</p>
+
+<p>
+Also, the SSN nodes can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
+</p>
+
+<p>
+The selected SSN nodes from the UniRef90 and UniRef90 databases are the 
+UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
+taxonomy category. The UniProt members in these nodes that do not match the 
+specified taxonomy category are removed from the cluster.
+</p>
+TEXT;
+
+    } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+        return <<<TEXT
+<p>
+The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
+"Fungi" to restrict the SSN nodes to these taxonomy groups. "Bacteria, Archaea, 
+Fungi" and "Fungi" select organisms that may provide genome context (gene 
+clusters/operons) useful for inferring functions. 
+</p>
+
+<p>
+Also, the SSN nodes can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
+</p>
+TEXT;
+
+    } else if ($gen_type == "ACCESSION") {
+        return <<<TEXT
+<p>
+The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
+"Fungi" to restrict the SSN nodes to these taxonomy groups. "Bacteria, Archaea, 
+Fungi" and "Fungi" select organisms that may provide genome context (gene 
+clusters/operons) useful for inferring functions. 
+</p>
+
+<p>
+Also, the SSN nodes can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
+</p>
+
+<p>
+The selected SSN nodes from the UniRef90 and UniRef90 databases are the 
+UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
+taxonomy category. The UniProt members in these nodes that do not match the 
+specified taxonomy category are removed from the cluster.
+</p>
+TEXT;
+
+    }
+
+    return "";
+}
+
 function get_tax_tab_text($gen_type) {
     if ($gen_type == "BLAST") {
         return <<<TEXT
-<p>The taxonomy distribution for the UniProt, UniRef90 cluster, UniRef50 cluster IDs identified in the BLAST is displayed.</p>
+<p>
+The taxonomy distribution for the UniProt, UniRef90 cluster, or UniRef50 
+cluster IDs identified in the BLAST is displayed.   
+</p>
 
 <p>
 The sunburst is interactive, providing the ability to zoom to a selected 
-taxonomic level by clicking on that level/category; clicking on the center 
-circle will zoom the display to the next highest level.
+taxonomy category by clicking on that category; clicking on the center circle 
+will zoom the display to the next highest rank.
 </p>
 TEXT;
     } else if ($gen_type == "FAMILIES") {
@@ -1110,23 +1191,23 @@ from the lookup table provided by UniProt/UniRef.
 
 <p>
 The UniRef90 and UniRef50 clusters containing the UniProt IDs then are 
-identified using the lookup table provided by UniProt/UniRef.  These UniRef90 
+identified using the lookup table provided by UniProt/UniRef. These UniRef90 
 and UniRef50 clusters may contain UniProt IDs from other families; in addition, 
-the UniRef90 and UniRef50 clusters at a selected taxonomy level/category may 
-contain UniProt IDs from other levels/categories.   This results from 
-conflation of UniProt IDs in UniRef90 and UniRef50 clusters that share &ge;90% and 
-&ge;50% sequence identity, respectively.
+the UniRef90 and UniRef50 clusters in the selected taxonomy category may 
+contain UniProt IDs from other categories. This results from conflation of 
+UniProt IDs in UniRef90 and UniRef50 clusters that share &ge;90% and &ge;50% sequence 
+identity, respectively. 
 </p>
 
 <p>
-The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at 
-the selected level are displayed.
+The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs for 
+the selected category are displayed. 
 </p>
 
 <p>
 The sunburst is interactive, providing the ability to zoom to a selected 
-taxonomic level by clicking on that level/category; clicking on the center 
-circle will zoom the display to the next highest level.
+taxonomy category by clicking on that category; clicking on the center circle 
+will zoom the display to the next highest rank. 
 </p>
 TEXT;
     } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
@@ -1137,42 +1218,42 @@ displayed.
 </p>
 
 <p>
-The numbers of UniProt IDs at the selected level are displayed.
+The numbers of UniProt IDs for the selected category are displayed. 
 </p>
 
 <p>
 The sunburst is interactive, providing the ability to zoom to a selected 
-taxonomic level by clicking on that level/category; clicking on the center 
-circle will zoom the display to the next highest level.
+taxonomy category by clicking on that category; clicking on the center circle 
+will zoom the display to the next highest rank. 
 </p>
 TEXT;
     } else if ($gen_type == "ACCESSION") {
         return <<<TEXT
 <p>
-The taxonomy distribution for the UniProt IDs in the input dataset is 
-displayed.   For UniRef90 and UniRef50 cluster datasets, these are retrieved 
-from the lookup table provided by UniProt/UniRef.
+The taxonomy distribution for the UniProt IDs in the input dataset is displayed.
+For UniRef90 and UniRef50 cluster datasets, these are retrieved from the lookup
+table provided by UniProt/UniRef.
 </p>
 
 <p>
 The UniRef90 and UniRef50 clusters containing the UniProt IDs then are 
-identified using the lookup table provided by UniProt/UniRef.  These UniRef90 
+identified using the lookup table provided by UniProt/UniRef. These UniRef90 
 and UniRef50 clusters may contain UniProt IDs from other families; in addition, 
-the UniRef90 and UniRef50 clusters at a selected taxonomy level/category may 
-contain UniProt IDs from other levels/categories.   This results from 
-conflation of UniProt IDs in UniRef90 and UniRef50 clusters that share &ge;90% and 
-&ge;50% sequence identity, respectively.
+the UniRef90 and UniRef50 clusters in the selected taxonomy category may 
+contain UniProt IDs from other categories. This results from conflation of 
+UniProt IDs in UniRef90 and UniRef50 clusters that share &ge;90% and &ge;50% sequence 
+identity, respectively. 
 </p>
 
 <p>
-The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at 
-the selected level are displayed.
+The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs for 
+the selected category are displayed. 
 </p>
 
 <p>
 The sunburst is interactive, providing the ability to zoom to a selected 
-taxonomic level by clicking on that level/category; clicking on the center 
-circle will zoom the display to the next highest level.
+taxonomy category by clicking on that category; clicking on the center circle 
+will zoom the display to the next highest rank. 
 </p>
 TEXT;
     } else {

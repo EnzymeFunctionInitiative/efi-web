@@ -43,59 +43,61 @@ require_once(__DIR__."/inc/header.inc.php");
 
 <p></p>
 
+
 <p>
 As the UniProt database increases in size, users may encounter difficulties in 
 opening and visualizing SSNs with Cytoscape (too many nodes/edges for the RAM 
 available on the user’s computer). As a result, low resolution SSNs (UniRef50 
 clusters and/or representative node SSNs) may be necessary to survey 
 sequence-function space in large protein families. A solution for generating 
-higher resolution SSNs is to restrict the input sequences to specific taxonomic 
-categories (Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, 
-Species), thereby reducing the number of nodes/edges and/or allowing the use of 
-UniRef90 clusters or UniProt members to generate the SSN.  
+higher resolution SSNs is to restrict the input sequences to specific taxonomy 
+categories (within the Superkingdom, Kingdom, Phylum, Class, Order, Family, 
+Genus, or Species), thereby reducing the number of nodes/edges and/or allowing 
+the use of UniRef90 clusters or UniProt members to generate the SSN. 
 </p>
 
 <p>
-This Taxonomy Tool provides a preview of the taxonomic distribution of the 
-UniProt IDs in datasets with three input options:   Families, list of families; 
+This Taxonomy Tool provides a preview of the taxonomy distribution of the 
+UniProt IDs in datasets with three input options: Families, list of families; 
 FASTA, FASTA-formatted sequences; Accession IDs, UniProt, UniRef90 cluster, or 
-UniRef50 cluster IDs.  These are analogous to Options B, C, and D of EFI-EST.
+UniRef50 cluster IDs. These are analogous to the Families option (Option B), FASTA 
+option (Option C) and Accession IDs option (Option D) of EFI-EST. 
 </p>
 
 <p>
-The taxonomic distribution of the UniProt IDs in the input dataset is displayed 
-as a "sunburst" in which the levels of classification (Superkingdom, Kingdom, 
+The taxonomy distribution of the UniProt IDs in the input dataset is displayed 
+as a "sunburst" in which the ranks of classification (Superkingdom, Kingdom, 
 Phylum, Class, Order, Family, Genus, Species) are displayed radially, with 
-Superkingdom at the center and Species in the outermost ring. The sunburst is 
-interactive, providing the ability to zoom to a selected taxonomic level. The 
-numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at the 
-selected level/category are displayed. 
+Superkingdom at the center and Species in the outer ring. The sunburst is 
+interactive, providing the ability to zoom to a selected taxonomy category. The 
+numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs in the 
+selected category are displayed. 
 </p>
 
 <p>
-UniRef90 clusters contain sequences that share &ge;90% sequence identity so usually 
-are taxonomically homogeneous. UniRef50 clusters contain sequences that share 
-&ge;50% sequence identity so often are taxonomically heterogeneous. When 
+UniRef90 clusters contain sequences that share &ge;90% sequence identity so 
+usually are taxonomically homogeneous. UniRef50 clusters contain sequences that 
+share &ge;50% sequence identity, so often are taxonomically heterogeneous. When 
 possible (determined by the RAM available to Cytoscape), users should generate 
 taxonomy-specific SSNs with UniProt IDs or UniRef90 cluster IDs. 
 </p>
 
 <p>
 Files with the UniProt, UniRef90 cluster, and UniRef50 cluster IDs and 
-FASTA-formatted sequences at the selected taxonomy level/category can be 
-downloaded.
+FASTA-formatted sequences at the selected taxonomy category can be downloaded. 
 </p>
 
-The UniProt, UniRef90, or UniRef50 cluster IDs can be transferred to the "Accession IDs" option
-of EFI-EST to generate the SSN.
+<p>
+The UniProt, UniRef90, or UniRef50 cluster IDs can be transferred to the 
+"Accession IDs" option (Option D) of EFI-EST to generate the SSN. 
 </p>
 
-The Sequence BLAST, Families, FASTA, and Accession IDs options of EST include a "Filter by Taxonomy" option in both the 
-Generate and Database Completed/Analysis steps so that the user can select 
-specific taxonomic categories to include in their SSNs. 
+<p>
+The Sequence BLAST, Families, FASTA, and Accession IDs options of EFI-EST also 
+include Filter by Taxonomy in both the Generate and Database Completed/Analysis 
+steps so that the user can select specific taxonomy categories when generating 
+SSNs.
 </p>
-
-
 
 <?php
 include_once("inc/index_helpers.inc.php");
