@@ -34,7 +34,7 @@ if (isset($IncludeSunburstJs) && $IncludeSunburstJs) {
         '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/sunburst-helpers.js" type="text/javascript"></script>',
         '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/sunburst-taxonomy2.js?v=12" type="text/javascript"></script>',
         '<script src="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/js/progress.js" type="text/javascript"></script>',
-        '<script src="' . $SiteUrlPrefix . '/shared/js/sunburst.js?v=1" type="text/javascript"></script>',
+        '<script src="' . $SiteUrlPrefix . '/shared/js/sunburst.js?v=2" type="text/javascript"></script>',
     );
     array_push($StyleAdditional,
         '<link rel="stylesheet" type="text/css" href="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/css/sunburst.css?v=2">',

@@ -19,8 +19,8 @@ function makeOnSunburstCompleteFn(estWebPath, gntWebPath, jobId, jobKey) {
             var info = app.getCurrentNode();
             var encTaxName = encodeURIComponent(info.name);
             var args = [
-                "tax-id=" . jobId,
-                "tax-key=" . jobKey,
+                "tax-id=" + jobId,
+                "tax-key=" + jobKey,
                 "tree-id=" + info.id,
                 "id-type=" + info.idType,
                 "tax-name=" + encTaxName,
@@ -35,8 +35,8 @@ function makeOnSunburstCompleteFn(estWebPath, gntWebPath, jobId, jobKey) {
             var info = app.getCurrentNode();
             var encTaxName = encodeURIComponent(info.name);
             var args = [
-                "tax-id=" . jobId,
-                "tax-key=" . jobKey,
+                "tax-id=" + jobId,
+                "tax-key=" + jobKey,
                 "tree-id=" + info.id,
                 "id-type=" + info.idType,
                 "tax-name=" + encTaxName,
