@@ -94,10 +94,10 @@ if (!isset($_POST['submit'])) {
 
             if (array_key_exists('families_input', $_POST))
                 $input->families = $_POST['families_input'];
-            $input->blast_evalue = $_POST['blast_evalue'];
-            $input->field_input = $_POST['blast_input'];
-            $input->max_seqs = $_POST['blast_max_seqs'];
-            $input->blast_db_type = $_POST['blast_db_type'];
+            $input->blast_evalue = isset($_POST['blast_evalue']) ? $_POST['blast_evalue'] : "";
+            $input->field_input = isset($_POST['blast_input']) ? $_POST['blast_input'] : "";
+            $input->max_seqs = isset($_POST['blast_max_seqs']) ? $_POST['blast_max_seqs'] : "";
+            $input->blast_db_type = isset($_POST['blast_db_type']) ? $_POST['blast_db_type'] : "";
             if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
                 if (isset($_POST['families_uniref_ver']) && $_POST['families_uniref_ver'])
                     $input->uniref_version = $_POST['families_uniref_ver'];
@@ -116,8 +116,8 @@ if (!isset($_POST['submit'])) {
         case 'E':
             $generate = new efi\est\family($db);
             
-            $input->families = $_POST['families_input'];
-            $input->domain = $_POST['domain'];
+            $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
+            $input->domain = isset($_POST['domain']) ? $_POST['domain'] : "";
             if (isset($_POST['pfam_seqid']))
                 $input->seq_id = $_POST['pfam_seqid'];
             if (isset($_POST['pfam_length_overlap']))
@@ -147,7 +147,7 @@ if (!isset($_POST['submit'])) {
         case 'opt_tax':
             $generate = new efi\est\taxonomy_job($db);
             
-            $input->families = $_POST['families_input'];
+            $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
             if (isset($_POST['pfam_uniref_version']))
                 $input->uniref_version = $_POST['pfam_uniref_version'];
             if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
@@ -206,20 +206,20 @@ if (!isset($_POST['submit'])) {
                 }
 
                 if ($option == "C" || $option == "E") {
-                    $useFastaHeaders = strval($_POST['fasta_use_headers']);
+                    $useFastaHeaders = strval(isset($_POST['fasta_use_headers']) ? $_POST['fasta_use_headers'] : "");
                     $includeAllSeq = isset($_POST['include-all-seq']) && $_POST['include-all-seq'] === "true";
                     $obj = new efi\est\fasta($db, 0, $useFastaHeaders == "true" ? "E" : "C");
-                    $input->field_input = $_POST['fasta_input'];
-                    $input->families = $_POST['families_input'];
+                    $input->field_input = isset($_POST['fasta_input']) ? $_POST['fasta_input'] : "";
+                    $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
                     $input->include_all_seq = $includeAllSeq;
                 } else if ($option == "D") {
                     $obj = new efi\est\accession($db);
-                    $input->field_input = $_POST['accession_input'];
-                    $input->families = $_POST['families_input'];
-                    $input->tax_job_id = $_POST['accession_tax_job_id'];
-                    $input->tax_tree_id = $_POST['accession_tax_tree_id'];
-                    $input->tax_id_type = $_POST['accession_tax_id_type'];
-                    $input->tax_job_key = $_POST['accession_tax_job_key'];
+                    $input->field_input = isset($_POST['accession_input']) ? $_POST['accession_input'] : "";
+                    $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
+                    $input->tax_job_id = isset($_POST['accession_tax_job_id']) ? $_POST['accession_tax_job_id'] : "";
+                    $input->tax_tree_id = isset($_POST['accession_tax_tree_id']) ? $_POST['accession_tax_tree_id'] : "";
+                    $input->tax_id_type = isset($_POST['accession_tax_id_type']) ? $_POST['accession_tax_id_type'] : "";
+                    $input->tax_job_key = isset($_POST['accession_tax_job_key']) ? $_POST['accession_tax_job_key'] : "";
                     if (isset($_POST["domain_family"]) && $_POST["domain_family"])
                         $input->domain_family = $_POST["domain_family"];
                 } else if ($option == "colorssn" || $option == "cluster" || $option == "nc" || $option == "cr") {
