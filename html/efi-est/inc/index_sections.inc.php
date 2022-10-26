@@ -18,14 +18,19 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
     $tax_filter_text = <<<TEXT
 <p>
 A taxonomy filter is applied to the list of UniProt, UniRef90, or UniRef50 
-cluster IDs retrieved by the BLAST.  
+cluster IDs retrieved by the BLAST. 
 </p>
 
 <p>
-The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the retrieved sequences to these taxonomy groups.  
-"Bacteria, Archaea, Fungi" and "Fungi" select organisms that may provide genome 
-context (gene clusters/operons) useful for inferring functions. 
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the retrieved sequences to these taxonomy groups. 
+</p>
+
+<p>
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
 </p>
 
 <p>
@@ -35,10 +40,10 @@ ranks. Multiple conditions are combined to be a union of each other.
 </p>
 
 <p>
-The retrieved sequences from the UniRef90 and UniRef50 databases are the 
-UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
-taxonomy categories. The UniProt members in these clusters that do not match 
-the specified taxonomy categories are removed from the cluster.
+The sequences from the UniRef90 and UniRef50 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified taxonomy categories. The UniProt members in these clusters that 
+do not match the specified taxonomy categories are removed from the cluster. 
 </p>
 TEXT;
 
@@ -204,23 +209,28 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
     $example_fn = $example_fn === false ? function(){} : $example_fn;
     $tax_filter_text = <<<TEXT
 <p>
-The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the sequences included in the SSN to these taxonomy groups.  
-"Bacteria, Archaea, Fungi" and "Fungi" select organisms that may provide genome 
-context (gene clusters/operons) useful for inferring functions. 
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the retrieved sequences to these taxonomy groups. 
 </p>
 
 <p>
-The sequences also can be restricted to taxonomy categories within the 
-Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
-Multiple conditions are combined to be a union of each other. 
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
 </p>
 
 <p>
-The sequences from the UniRef90 and UniRef90 databases are the UniRef90 and 
-UniRef50 clusters for which the cluster ID matches the specified taxonomy 
-categories. The UniProt members in these clusters that do not match the 
-specified taxonomy categories are removed from the cluster.
+The retrieved sequences also can be restricted to taxonomy categories within 
+the Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species 
+ranks. Multiple conditions are combined to be a union of each other. 
+</p>
+
+<p>
+The sequences from the UniRef90 and UniRef50 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified taxonomy categories. The UniProt members in these clusters that 
+do not match the specified taxonomy categories are removed from the cluster. 
 </p>
 TEXT;
 ?>
@@ -308,16 +318,21 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
     $example_fn = $example_fn === false ? function(){} : $example_fn;
     $tax_filter_text = <<<TEXT
 <p>
-The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the sequences to these taxonomy groups. "Bacteria, Archaea, 
-Fungi" and "Fungi" select organisms that may provide genome context (gene 
-clusters/operons) useful for inferring functions. 
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the input UniProt sequences to these taxonomy groups. 
 </p>
 
 <p>
-The sequences also can be restricted to taxonomy categories within the 
-Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
-Multiple conditions are combined to be a union of each other. 
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The input UniProt sequences also can be restricted to taxonomy categories 
+within the Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and 
+Species ranks. Multiple conditions are combined to be a union of each other. 
 </p>
 TEXT;
 ?>
@@ -483,23 +498,28 @@ from clusters with IDs that are members of the categories.
 </p>
 
 <p>
-The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the retrieved sequences to these taxonomy groups. 
-"Bacteria, Archaea, Fungi" and "Fungi" select organisms that may provide genome 
-context (gene clusters/operons) useful for inferring functions. 
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the input sequences to these taxonomy groups. 
 </p>
 
 <p>
-The sequences also can be restricted to taxonomy categories within the 
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The input sequences also can be restricted to taxonomy categories within the 
 Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
 Multiple conditions are combined to be a union of each other. 
 </p>
 
 <p>
-The selected clusters from the UniRef90 and UniRef90 databases are those for 
-which the cluster ID matches the specified taxonomy categories. The UniProt 
-members in these clusters that do not match the specified taxonomy category are 
-removed from the clusters.
+The sequences from the UniRef90 and UniRef50 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified taxonomy categories. The UniProt members in these clusters that 
+do not match the specified taxonomy categories are removed from the cluster. 
 </p>
 TEXT;
 

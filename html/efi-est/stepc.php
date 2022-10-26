@@ -1053,60 +1053,76 @@ function get_tax_filt_text($gen_type) {
     if ($gen_type == "BLAST") {
         return <<<TEXT
 <p>
-The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the SSN nodes to these taxonomy groups. "Bacteria, Archaea, 
-Fungi" and "Fungi" select organisms that may provide genome context (gene 
-clusters/operons) useful for inferring functions. 
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the SSN nodes the retrieved sequences to these taxonomy 
+groups. 
 </p>
 
 <p>
-Also, the SSN nodes can be restricted to taxonomy categories within the 
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The SSN nodes also can be restricted to taxonomy categories within the 
 Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
 Multiple conditions are combined to be a union of each other. 
 </p>
 
 <p>
-The selected SSN nodes from the UniRef90 and UniRef90 databases are the 
-UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
-taxonomy category. The UniProt members in these nodes that do not match the 
-specified taxonomy category are removed from the cluster.
+The SSN nodes from the UniRef90 and UniRef50 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified taxonomy categories. The UniProt members in these nodes that do 
+not match the specified taxonomy categories are removed from the nodes. 
 </p>
 TEXT;
 
     } else if ($gen_type == "FAMILIES") {
         return <<<TEXT
 <p>
-The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the SSN nodes to these taxonomy groups. "Bacteria, Archaea, 
-Fungi" and "Fungi" select organisms that may provide genome context (gene 
-clusters/operons) useful for inferring functions. 
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the SSN nodes to these taxonomy groups.
 </p>
 
 <p>
-Also, the SSN nodes can be restricted to taxonomy categories within the 
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The SSN nodes also can be restricted to taxonomy categories within the 
 Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
 Multiple conditions are combined to be a union of each other. 
 </p>
 
 <p>
-The selected SSN nodes from the UniRef90 and UniRef90 databases are the 
-UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
-taxonomy category. The UniProt members in these nodes that do not match the 
-specified taxonomy category are removed from the cluster.
+The SSN nodes from the UniRef90 and UniRef50 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified taxonomy categories. The UniProt members in these nodes that do 
+not match the specified taxonomy categories are removed from the nodes.  
 </p>
 TEXT;
 
     } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
         return <<<TEXT
 <p>
-The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the SSN nodes to these taxonomy groups. "Bacteria, Archaea, 
-Fungi" and "Fungi" select organisms that may provide genome context (gene 
-clusters/operons) useful for inferring functions. 
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the SSN nodes to these taxonomy groups. 
 </p>
 
 <p>
-Also, the SSN nodes can be restricted to taxonomy categories within the 
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The SSN nodes also can be restricted to taxonomy categories within the 
 Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
 Multiple conditions are combined to be a union of each other. 
 </p>
@@ -1115,23 +1131,28 @@ TEXT;
     } else if ($gen_type == "ACCESSION") {
         return <<<TEXT
 <p>
-The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
-"Fungi" to restrict the SSN nodes to these taxonomy groups. "Bacteria, Archaea, 
-Fungi" and "Fungi" select organisms that may provide genome context (gene 
-clusters/operons) useful for inferring functions. 
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the SSN nodes to these taxonomy groups. 
 </p>
 
 <p>
-Also, the SSN nodes can be restricted to taxonomy categories within the 
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The SSN nodes also can be restricted to taxonomy categories within the 
 Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
 Multiple conditions are combined to be a union of each other. 
 </p>
 
 <p>
-The selected SSN nodes from the UniRef90 and UniRef90 databases are the 
-UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
-taxonomy category. The UniProt members in these nodes that do not match the 
-specified taxonomy category are removed from the cluster.
+The SSN nodes from the UniRef90 and UniRef50 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified taxonomy categories. The UniProt members in these nodes that do 
+not match the specified taxonomy categories are removed from the nodes. 
 </p>
 TEXT;
 
