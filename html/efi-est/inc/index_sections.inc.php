@@ -1401,7 +1401,7 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
                     "cr" :
                     "colorssn"))) 
                     : "";
-    $d_mode_data = array();
+    $d_mode_data = false;
     if (!$sel_tab) {
         $d_mode_data = check_for_taxonomy_input($db);
         if (!empty($d_mode_data))

@@ -14,8 +14,7 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
 <p>
 From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
 "Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
-"Archaea" to restrict the sequences identified in the UniProt database to these 
-taxonomy groups. 
+"Archaea" to restrict the UniProt IDs in the sunburst to these taxonomy groups. 
 </p>
 
 <p>
@@ -25,10 +24,9 @@ functions.
 </p>
 
 <p>
-The sequences identified in the UniProt database also can be restricted to 
-taxonomy categories within the Superkingdom, Kingdom, Phylum, Class, Order, 
-Family, Genus, and Species ranks. Multiple conditions are combined to be a 
-union of each other. 
+The UniProt IDs also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
 </p>
 TEXT;
 ?>
@@ -78,7 +76,7 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
 <p>
 From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
 "Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
-"Archaea" to restrict the input UniProt sequences to these taxonomy groups. 
+"Archaea" to restrict the UniProt IDs in the sunburst to these taxonomy groups. 
 </p>
 
 <p>
@@ -88,10 +86,9 @@ functions.
 </p>
 
 <p>
-The input UniProt sequences identified in the UniProt database also can be 
-restricted to taxonomy categories within the Superkingdom, Kingdom, Phylum, 
-Class, Order, Family, Genus, and Species ranks. Multiple conditions are 
-combined to be a union of each other. 
+The UniProt IDs also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other.  
 </p>
 TEXT;
 ?>
@@ -149,7 +146,7 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
 <p>
 From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
 "Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
-"Archaea" to restrict the input sequences to these taxonomy groups. 
+"Archaea" to restrict the UniProt IDs in the sunburst to these taxonomy groups. 
 </p>
 
 <p>
@@ -159,16 +156,9 @@ functions.
 </p>
 
 <p>
-The input sequences also can be restricted to taxonomy categories within the 
+The UniProt IDs also can be restricted to taxonomy categories within the 
 Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
 Multiple conditions are combined to be a union of each other. 
-</p>
-
-<p>
-The sequences from the UniRef90 and UniRef50 databases are the UniRef90 and 
-UniRef50 clusters for which the cluster ID ("representative sequence") matches 
-the specified taxonomy categories. The UniProt members in these clusters that 
-do not match the specified taxonomy categories are removed from the cluster. 
 </p>
 TEXT;
 

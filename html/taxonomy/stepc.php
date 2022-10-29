@@ -61,6 +61,7 @@ if ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") {
     $has_uniref = "true";
 }
 $sunburst_post_sunburst_text = get_tax_sb_text($gen_type);
+$sunburst_tax_info_text = get_tax_info_text($gen_type);
 
 $table = new table_builder($table_format);
 dataset_shared::add_generate_summary_table($generate, $table, false, false);
@@ -116,32 +117,7 @@ $histo_info = $generate->get_length_histogram_info();
         </div>
 
         <div id="taxonomy-tab">
-<p>
-The taxonomy distribution for the UniProt IDs identified as members of the 
-input list of families is displayed.   
-</p>
-
-<p>
-The UniRef90 and UniRef50 clusters containing the UniProt IDs are identified 
-using the lookup table provided by UniProt/UniRef.  These UniRef90 and UniRef50 
-clusters may contain UniProt IDs from other families; in addition, the UniRef90 
-and UniRef50 clusters at a selected taxonomy level/category may contain UniProt 
-IDs from other levels/categories.   This results from conflation of UniProt IDs 
-in UniRef90 and UniRef50 clusters that share &ge;90% and &ge;50% sequence identity, 
-respectively.
-</p>
-
-<p>
-The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at 
-the selected level are displayed.
-</p>
-
-<p>
-The sunburst is interactive, providing the ability to zoom to a selected 
-taxonomic level by clicking on that level/category; clicking on the center 
-circle will zoom the display to the next highest level.
-</p>
-
+<?php echo $sunburst_tax_info_text; ?>
             <div id="taxonomy" style="position: relative">
             </div>
         </div>
@@ -226,6 +202,88 @@ for ($i = 0; $i < count($histo_info); $i++) {
 
 <?php
 
+function get_tax_info_text($gen_type) {
+    $text = "";
+
+    if ($gen_type == "FAMILIES") {
+        $text = <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs identified as members of the 
+input list of families is displayed. 
+</p>
+
+<p>
+The UniRef90 and UniRef50 clusters containing the UniProt IDs in the sunburst 
+are identified using the lookup table provided by UniProt/UniRef. These 
+UniRef90 and UniRef50 clusters may contain UniProt IDs from other families; in 
+addition, the UniRef90 and UniRef50 clusters at a selected taxonomy category 
+may contain UniProt IDs from other categories. This results from conflation of 
+UniProt IDs in UniRef90 and UniRef50 clusters that share &ge;90% and &ge;50% sequence 
+identity, respectively. 
+</p>
+
+<p>
+The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs for 
+the selected category are displayed. 
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomy category by clicking on that category; clicking on the center circle 
+will return the display to the next highest rank. 
+</p>
+TEXT;
+    } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+        $text = <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs identified in the input 
+FASTA-formatted sequences is displayed. 
+</p>
+
+<p>
+The number of UniProt IDs for the selected category is displayed. 
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomy category by clicking on that category; clicking on the center circle 
+will return the display to the next highest rank. 
+</p>
+TEXT;
+    } else if ($gen_type == "ACCESSION") {
+        $text = <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs identified in the input list of 
+UniProt, UniRef90 cluster, or UniRef50 cluster IDs is displayed. 
+</p>
+
+<p>
+The UniRef90 and UniRef50 clusters containing the UniProt IDs in the sunburst 
+are identified using the lookup table provided by UniProt/UniRef. The numbers 
+of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs for the selected 
+category are displayed. The UniRef90 and UniRef50 clusters may contain UniProt 
+IDs from other taxonomy categories. This results from conflation of UniProt IDs 
+in UniRef90 and UniRef50 clusters that share &ge;90% and &ge;50% sequence identity, 
+respectively. 
+</p>
+
+<p>
+The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs for 
+the selected category are displayed. 
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to selected taxonomy 
+category by clicking on that category; clicking on the center circle will 
+return the display to the next highest rank. 
+</p>
+TEXT;
+    }
+
+    return $text;
+}
+
+
 function get_tax_sb_text($gen_type) {
     $text = "";
 
@@ -233,55 +291,52 @@ function get_tax_sb_text($gen_type) {
         $text = <<<TEXT
 <p>
 Lists of UniProt, UniRef90, and UniRef50 IDs and FASTA-formatted sequences can 
-be downloaded.
+be downloaded. 
 </p>
 
 <p>
-The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the Accession option 
-of EFI-EST to generate an SSN.  The Accession option provides both the Filter by Family and 
-Filter by Taxonomy options that should be used to remove internal UniProt IDs 
-that are not members of the input families and selected taxonomy 
-level/category.
+The UniProt, UniRef90, or UniRef50 IDs can be transferred to the Accession IDs 
+option of EFI-EST to generate an SSN. The Accession IDs option provides both 
+Filter by Family and Filter by Taxonomy that should be used to remove internal 
+UniProt IDs from UniRef90 or UniRef50 clusters that are not members of the 
+selected families and/or taxonomy category. 
 </p>
 
 <p>
-The lists also can be transferred to the GND-Viewer to obtain GNDs.
+The lists also can be transferred to the GND-Viewer to obtain GNDs. 
 </p>
 TEXT;
     } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
         $text = <<<TEXT
 <p>
-The UniProt IDs and FASTA-formatted sequences can be downloaded.
+Lists of UniProt IDs and FASTA-formatted sequences can be downloaded. 
 </p>
 
 <p>
-The list of UniProt IDs can be transferred to the Accession option of EFI-EST to generate 
-an SSN.  The Accession option provides both the Filter by Family and Filter by Taxonomy 
-options that should be used to remove UniProt IDs that are not members of 
-desired families and the selected taxonomy level/category.
+The UniProt IDs can be transferred to the Accession IDs option of EFI-EST to 
+generate an SSN. 
 </p>
 
 <p>
-The list also can be transferred to the GND-Viewer to obtain GNDs.
+The list also can be transferred to the GND-Viewer to obtain GNDs. 
 </p>
 TEXT;
     } else if ($gen_type == "ACCESSION") {
         $text = <<<TEXT
 <p>
 Lists of UniProt, UniRef90, and UniRef50 IDs and FASTA-formatted sequences can 
-be downloaded.
+be downloaded. 
 </p>
 
 <p>
-The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the Accession option 
-of EFI-EST to generate an SSN.  The Accession option provides both the Filter by Family and 
-Filter by Taxonomy options that should be used to remove internal UniProt IDs 
-that are not members of the input families and selected taxonomy 
-level/category.
+The UniProt, UniRef90, or UniRef50 IDs can be transferred to the Accession IDs 
+option of EFI-EST to generate an SSN. The Accession IDs option provides Filter 
+by Taxonomy that should be used to remove internal UniProt IDs that are not 
+members of the selected taxonomy category. 
 </p>
 
 <p>
-The lists also can be transferred to the GND-Viewer to obtain GNDs.
+The lists also can be transferred to the GND-Viewer to obtain GNDs. 
 </p>
 TEXT;
     }
