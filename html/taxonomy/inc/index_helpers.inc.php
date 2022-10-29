@@ -419,7 +419,7 @@ function add_taxonomy_filter($option_id, $tax_filt_text = "") {
         <input type="hidden" name="taxonomy-$option_id-preset-name" id="taxonomy-$option_id-preset-name" value="" />
     </div>
     <div>
-        <button type="button" class="light add-tax-btn" data-option-id="$option_id" id="taxonomy-$option_id-add-btn">Add taxonomic condition</button>
+        <button type="button" class="light add-tax-btn" data-option-id="$option_id" id="taxonomy-$option_id-add-btn">Add Taxonomy category</button>
         <!--<button type="button" class="light" onclick="appTF.addTaxCondition('$option_id')">Add taxonomic condition</button>-->
     </div>
 </div>
