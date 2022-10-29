@@ -125,7 +125,7 @@ $default_build_repnode = settings::get_create_repnode_networks();
 $build_repnode = isset($_POST['build_repnode']) ? true : $default_build_repnode;
 
 $tax_search = isset($_POST['tax_search']) ? $_POST['tax_search'] : false;
-$tax_name = ($tax_search !== false && $_POST['tax_name']) ? $_POST['tax_name'] : "";
+$tax_name = ($tax_search !== false && isset($_POST['tax_name']) && $_POST['tax_name']) ? $_POST['tax_name'] : "";
 
 $job_result = $analysis->create(
     $job_id,

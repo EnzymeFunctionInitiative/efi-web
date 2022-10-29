@@ -85,6 +85,10 @@ if (!isset($_POST['submit'])) {
         case 'D':
             if (isset($_FILES['file']) && $_FILES['file']['error'] === "")
                 $_FILES['file']['error'] = 4;
+
+            if (isset($_POST["family_filter"]) && $_POST["family_filter"]) {
+                $input->family_filter = $_POST["family_filter"];
+            }
     
             if ((isset($_FILES['file']['error'])) && ($_FILES['file']['error'] !== 0)) {
                 $result['MESSAGE'] = "Error Uploading File: " . efi\est\functions::get_upload_error($_FILES['file']['error']);
