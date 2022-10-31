@@ -586,16 +586,16 @@ Protein_ID_3,Cluster#
 
                         <div>
                             Preselected conditions:
-                            <select class="taxonomy-preselects">
+                            <select id="taxonomy-stepc-select" class="taxonomy-preselects" data-option-id="stepc">
                                 <option disabled selected value>-- select a preset to auto populate --</option>
                             </select>
                         </div>
                         <div style="display: none">
-                            <input type="hidden" name="taxonomy-preset-name" id="taxonomy-preset-name" value="" />
+                            <input id="taxonomy-stepc-preset-name" type="hidden" name="taxonomy-preset-name" id="taxonomy-preset-name" value="" />
                         </div>
-                        <div id="taxonomy-container"></div>
+                        <div id="taxonomy-stepc-container"></div>
                         <div>
-                            <button type="button" class="light add-tax-btn">Add taxonomic condition</button>
+                            <button id="taxonomy-stepc-add-btn" data-option-id="stepc" type="button" class="light add-tax-btn">Add taxonomic condition</button>
                         </div>
                     </div>
                 </div>
@@ -860,7 +860,7 @@ removed from the clusters if they are fragments.
     $(document).ready(function() {
         var warningMsgId = "submit-error";
         var taxSearchApp = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/taxonomy/php/get_tax_typeahead.php";
-        var taxContainerFn = function(opt) { return "#taxonomy-container"; };
+        var taxContainerFn = function(opt) { return "#taxonomy-stepc-container"; };
         var taxonomyApp = new AppTF(taxContainerFn, taxSearchApp);
 
         setupTaxonomyUi(taxonomyApp);
