@@ -4,7 +4,7 @@ namespace efi\est;
 require_once(__DIR__."/../../../init.php");
 
 use \efi\global_functions;
-use \efi\est\settings;
+use \efi\est\settings_shared;
 use \efi\est\functions;
 use \efi\est\blast;
 
@@ -45,7 +45,7 @@ class est_user_jobs_shared {
         $evalueStr = "";
         if (array_key_exists("generate_evalue", $data)) {
             $evalue = $data["generate_evalue"];
-            if ($evalue && $evalue != settings::get_evalue())
+            if ($evalue && $evalue != settings_shared::get_evalue())
                 $evalueStr = "E-value: " . $evalue;
         }
         return $evalueStr;
@@ -55,7 +55,7 @@ class est_user_jobs_shared {
         $fractionStr = "";
         if (array_key_exists("generate_fraction", $data)) {
             $fraction = $data["generate_fraction"];
-            if ($fraction && $fraction != functions::get_fraction())
+            if ($fraction && $fraction != settings_shared::get_default_fraction())
                 $fractionStr = "Fraction: " . $fraction;
         }
         return $fractionStr;
@@ -266,8 +266,8 @@ class est_user_jobs_shared {
     }
 
     public static function build_analyze_job_name($data_row) {
-        $a_min = $data_row["analysis_min_length"] == settings::get_ascore_minimum() ? "" : "Min=".$data_row["analysis_min_length"];
-        $a_max = $data_row["analysis_max_length"] == settings::get_ascore_maximum() ? "" : "Max=".$data_row["analysis_max_length"];
+        $a_min = $data_row["analysis_min_length"] == settings_shared::get_ascore_minimum() ? "" : "Min=".$data_row["analysis_min_length"];
+        $a_max = $data_row["analysis_max_length"] == settings_shared::get_ascore_maximum() ? "" : "Max=".$data_row["analysis_max_length"];
         $job_name = "<span class='job-name'>" . $data_row["analysis_name"] . "</span><br>";
         $job_name .= "<span class='job-metadata'>SSN Threshold=" . $data_row["analysis_evalue"];
         if ($a_min)

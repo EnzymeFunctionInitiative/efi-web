@@ -230,4 +230,3 @@ class example_config {
     }
 }
 
-?>

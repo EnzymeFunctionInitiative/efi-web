@@ -365,7 +365,8 @@ sequence.
 <p>
 2)  The ID in the header that immediately follows the "&gt;" is used to 
 retrieve node attribute information.   Acceptable IDs include UniProt IDs, PDB 
-IDs, and NCBI GenBank IDs that have equivalent entries in the UniProt database.  
+IDs, and NCBI GenBank IDs that have equivalent entries in the UniProt database.
+<span class="question" title="Click for more information on FASTA header formats"><a href="FASTA_Headers.pdf">?</a></span>
 To use this option, check the "Read FASTA headers" box.
 </p>
 
