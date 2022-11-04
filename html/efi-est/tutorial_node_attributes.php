@@ -1,8 +1,8 @@
 <?php 
 require_once(__DIR__."/../../init.php");
 
-require_once(__DIR__."/inc/header.inc.php");
-require_once(__DIR__."/inc/tutorial_nav.inc.php");
+include_once("inc/header.inc.php");
+include_once("inc/tutorial_nav.inc.php");
 ?>
 
 	<h3>Node Attributes</h3>
@@ -505,6 +505,6 @@ Color SSN utility if Option C without FASTA header reading was used as input</a>
 <center><a href="tutorial_cytoscape.php"><button type='submit' class='light'>Continue Tutorial</button></a></center>
 
 
-<?php include_once('inc/tutorial_footer.inc.php'); ?>
+<?php include_once("inc/tutorial_footer.inc.php"); ?>
 
-<?php include_once('inc/footer.inc.php'); ?>
+<?php include_once("inc/footer.inc.php"); ?>
