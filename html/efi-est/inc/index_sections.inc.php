@@ -482,26 +482,23 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
     }
     $tax_filter_text = <<<TEXT
 <p>
-If the input list of UniRef90 or UniRef50 IDs is obtained from the Color SSN or 
-Cluster Analysis utility for a Families option (Option B) EFI-EST SSN filtered 
-to include specific taxonomy categories, the input list should (must!) be 
-filtered with the same taxonomy categories to remove internal UniProt IDs that 
-are not members of the specified taxonomy categories. 
+<b>
+The input list of UniRef90 or UniRef50 cluster IDs should (must!) be filtered 
+with the same taxonomy categories used to generate the IDs, if:
+</b>
 </p>
 
 <p>
-If the input list of UniRef90 or UniRef50 IDs is obtained from the Taxonomy 
-Tool, the input list should (must!) be filtered with the same taxonomy 
-categories used to transfer/download the IDs to remove clusters with IDs 
-("representative sequences") that are not members of the categories and, also, 
-internal UniProt IDs that are not members of the specified taxonomy categories 
-from clusters with IDs that are members of the categories. 
+The input list of UniRef90 or UniRef50 IDs is obtained from 1) the Color SSN or 
+Cluster Analysis utility for a Families option (Option B) EFI-EST SSN, 2) the 
+Families option of the Taxonomy Tool, or 3) the Accession IDs option of the 
+Taxonomy Tool.
 </p>
 
 <p>
 From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
 "Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
-"Archaea" to restrict the input sequences to these taxonomy groups. 
+"Archaea" to restrict the UniProt IDs in the sunburst to these taxonomy groups. 
 </p>
 
 <p>
@@ -511,44 +508,36 @@ functions.
 </p>
 
 <p>
-The input sequences also can be restricted to taxonomy categories within the 
+The UniProt IDs also can be restricted to taxonomy categories within the 
 Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
 Multiple conditions are combined to be a union of each other. 
-</p>
-
-<p>
-The sequences from the UniRef90 and UniRef50 databases are the UniRef90 and 
-UniRef50 clusters for which the cluster ID ("representative sequence") matches 
-the specified taxonomy categories. The UniProt members in these clusters that 
-do not match the specified taxonomy categories are removed from the cluster. 
 </p>
 TEXT;
 
     $family_filter_desc = <<<TEXT
 <p>
-If the input list of UniRef90 or UniRef50 IDs is obtained from the Color SSN or 
-Cluster Analysis utility for a Families option (Option B) EFI-EST SSN, the 
-input list should (must!) be filtered with the same list of families to remove 
-internal UniProt IDs that are not members of the families. 
+<b>
+The input list of UniRef90 or UniRef50 cluster IDs should (must!) be filtered 
+with the same list of Pfam families, InterPro families, and/or Pfam clans used 
+to generate the IDs, if:
+</b>
 </p>
 
 <p>
-If the input list of UniRef90 or UniRef50 IDs is obtained from the Families 
-option of the Taxonomy Tool, the input list should (must!) be filtered with the 
-same list of families to remove clusters with IDs ("representative sequences") 
-that are not members of the families and, also, internal UniProt IDs that are 
-not members of the families from clusters with IDs that are members of the 
-families. 
+The input list of UniRef90 or UniRef50 IDs is obtained from 1) the Color SSN or 
+Cluster Analysis utility for a Families option (Option B) EFI-EST SSN, 2) the 
+Families option of the Taxonomy Tool, or 3) the Accession IDs option of the 
+Taxonomy Tool.
 </p>
 TEXT;
 
     $family_filter_post_text = <<<TEXT
 <p>
-The selected sequences from the UniRef90 and UniRef90 databases are UniRef90 
-and UniRef50 clusters for which the cluster ID ("representative sequence") 
-matches the specified families. The UniProt members in these UniRef90 and 
-Uni/Ref50 clusters that do not match the specified families are removed from 
-the cluster.
+For input lists of UniRef90 and UniRef50 clusters, the cluster ID 
+(representative sequence) is used to identify those that match the list of 
+families and are included in the SSN. The UniProt members in these clusters 
+that do not match the input families are removed from the cluster and are not 
+included in the SSN node attributes. 
 </p>
 TEXT;
 

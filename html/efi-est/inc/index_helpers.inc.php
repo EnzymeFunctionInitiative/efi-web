@@ -482,7 +482,7 @@ function add_family_filter($option_id, $extra_text = "", $family_filter_post_tex
 <h3>Filter by Family</h3>
 <div>
     $extra_text
-    <div>Input a list of Pfam families, InterPro families, and/or Pfam clans to identify sequences for inclusion in the SSN.</div>
+    <div>Input a list of Pfam families, InterPro families, and/or Pfam clans to restrict the UniProt and/or UniRef IDs in the SSN to these families.</div>
     <div class="secondary-input">
         <div class="secondary-name">
             Family(s):

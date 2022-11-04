@@ -247,20 +247,21 @@ HTML;
 }
 
 
-function add_family_input_option_family_only($option_id, $show_example = false, $show_desc_text = true) {
-    return add_family_input_option_base($option_id, false, "", $show_example, $show_desc_text);
+function add_family_input_option_family_only($option_id, $show_example = false, $show_desc_text = true, $desc_text = "") {
+    return add_family_input_option_base($option_id, false, "", $show_example, $show_desc_text, $desc_text);
 }
 
 
-function add_family_input_option($option_id, $show_example = false, $show_desc_text = true) {
+function add_family_input_option($option_id, $show_example = false, $show_desc_text = true, $desc_text = "") {
     list($frac) = get_fraction_html($option_id);
-    return add_family_input_option_base($option_id, true, $frac, $show_example, $show_desc_text);
+    return add_family_input_option_base($option_id, true, $frac, $show_example, $show_desc_text, $desc_text);
 }
 
 
 
-function add_family_input_option_base($option_id, $include_intro, $fraction_html, $show_example = false, $show_text = true) {
+function add_family_input_option_base($option_id, $include_intro, $fraction_html, $show_example = false, $show_text = true, $desc_text = "") {
     $max_full_family = number_format(get_max_full_family_count(), 0);
+
 
     $html = "";
     if ($include_intro) {
@@ -277,6 +278,8 @@ function add_family_input_option_base($option_id, $include_intro, $fraction_html
         </div>
         <div class="secondary-field">
 HTML;
+
+
     // Don't include intro
     } else {
         $html .= <<<HTML
@@ -289,11 +292,13 @@ HTML;
 HTML;
     }
 
+
     $example_fam = $show_example ? "IPR004184" : "";
     $html .= <<<HTML
             <input type="text" id="families-input-$option_id" name="families-input-$option_id" value="$example_fam">
         </div>
 HTML;
+
 
     if ($include_intro) {
         $html .= <<<HTML
@@ -301,6 +306,7 @@ HTML;
     <div class="input-desc">
 HTML;
     }
+
 
     $html .= <<<HTML
         <div>
@@ -315,8 +321,13 @@ The input format is a single family or comma/space separated list of families. F
         </div>
     </div>
 HTML;
+
+
     if (!$show_example && $show_text) {
-        $html .= <<<HTML
+        if ($desc_text) {
+            $html .= $desc_text;
+        } else {
+            $html .= <<<HTML
     <div>
 <p>
 The UniRef90 and UniRef50 clusters containing the retrieved UniProt IDs then 
@@ -345,11 +356,16 @@ selected taxonomy category.
 </p>
     </div>
 HTML;
+        }
     }
+
+
     $html .= <<<HTML
 $fraction_html
 </div>
 HTML;
+
+
     return array($html);
 }
 
@@ -461,8 +477,10 @@ function add_family_filter($option_id, $extra_text = "") {
 <h3>Filter by Family</h3>
 <div>
     <div>
-        Input a list of Pfam families, InterPro families, and/or Pfam clans to select 
-        sequences for inclusion in the Taxonomy Sunburst.
+        $extra_text
+    </div>
+    <div>
+        Input a list of Pfam families, InterPro families, and/or Pfam clans to restrict the UniProt IDs in the sunburst to these families.
     </div>
     <div class="secondary-input">
         <div class="secondary-name">
@@ -477,9 +495,6 @@ function add_family_filter($option_id, $extra_text = "") {
             The input format is a single family or comma/space separated list of families. Families should be
             specified as PFxxxxx (five digits), IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans.
         </div>
-    </div>
-    <div>
-        $extra_text
     </div>
 </div>
 HTML;
