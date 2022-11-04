@@ -5,6 +5,7 @@ require_once(__DIR__."/../../../init.php");
 require_once(__EST_CONF_DIR__."/settings.inc.php");
 
 use \efi\global_functions;
+use \efi\est\settings;
 
 
 class functions {
@@ -374,7 +375,7 @@ class functions {
     }
 
     public static function get_fraction() {
-        return __FRACTION_DEFAULT__;
+        return settings::get_default_fraction();
     }
 
     public static function get_encoded_db_version($db_mod = "") {

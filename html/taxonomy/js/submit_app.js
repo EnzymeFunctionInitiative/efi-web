@@ -93,6 +93,10 @@ AppTaxSubmit.prototype.getOptionCFormFn = function(outputIds) {
         fd.append("option_selected", "C");
         that.addCommonFormData(optionId, fd);
         addParam(fd, "fasta_input", "fasta-input");
+
+        if ($("#family-filter-optc").val().length >= 7) {
+            addParam(fd, "family_filter", "family-filter-optc");
+        }
     
         var completionHandler = getDefaultCompletionHandler();
         var fileHandler = function(xhr) {};
@@ -128,6 +132,10 @@ AppTaxSubmit.prototype.getOptionDFormFn = function(outputIds) {
             addParam(fd, "accession_seq_type", "uniprot");
         else
             addParam(fd, "accession_seq_type", "accession-seq-type");
+
+        if ($("#family-filter-optd").val().length >= 7) {
+            addParam(fd, "family_filter", "family-filter-optd");
+        }
 
         console.log(source);
         var completionHandler = getDefaultCompletionHandler();

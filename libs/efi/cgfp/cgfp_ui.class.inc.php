@@ -1,8 +1,10 @@
 <?php
 namespace efi\cgfp;
+require_once(__DIR__."/../../../init.php");
 
 use \efi\global_functions;
-use \efi\cgfp\settings;
+use \efi\global_settings;
+use \efi\cgfp\settings_shared;
 
 
 class cgfp_ui {
@@ -118,10 +120,10 @@ HTML;
         if (!$identify_table)
             $identify_table = "identify";
 
-        $default_cdhit_id = settings::get_default_cdhit_id();
-        $default_ref_db = settings::get_default_ref_db();
-        $default_id_search = strtolower(settings::get_default_identify_search());
-        $default_quantify_search = strtolower(settings::get_default_quantify_search());
+        $default_cdhit_id = settings_shared::get_default_cdhit_id();
+        $default_ref_db = settings_shared::get_default_ref_db();
+        $default_id_search = strtolower(settings_shared::get_default_identify_search());
+        $default_quantify_search = strtolower(settings_shared::get_default_quantify_search());
 
         foreach ($id_rows as $id_row) {
             $iparams = global_functions::decode_object($id_row["identify_params"]);

@@ -4,8 +4,9 @@ namespace efi\est;
 require_once(__DIR__."/../../../init.php");
 
 use \efi\global_functions;
-use \efi\est\settings;
+use \efi\est\settings_shared;
 use \efi\est\functions;
+use \efi\est\blast;
 
 
 class est_user_jobs_shared {
@@ -44,7 +45,7 @@ class est_user_jobs_shared {
         $evalueStr = "";
         if (array_key_exists("generate_evalue", $data)) {
             $evalue = $data["generate_evalue"];
-            if ($evalue && $evalue != settings::get_evalue())
+            if ($evalue && $evalue != settings_shared::get_evalue())
                 $evalueStr = "E-value: " . $evalue;
         }
         return $evalueStr;
@@ -54,7 +55,7 @@ class est_user_jobs_shared {
         $fractionStr = "";
         if (array_key_exists("generate_fraction", $data)) {
             $fraction = $data["generate_fraction"];
-            if ($fraction && $fraction != functions::get_fraction())
+            if ($fraction && $fraction != settings_shared::get_default_fraction())
                 $fractionStr = "Fraction: " . $fraction;
         }
         return $fractionStr;
@@ -113,6 +114,13 @@ class est_user_jobs_shared {
         return $info;
     }
 
+    private static function get_blast_database_type($data) {
+        $info = "";
+        if (array_key_exists("blast_db_type", $data) && $data["blast_db_type"])
+            $info = "Database: " . blast::get_blast_db_type_formatted($data["blast_db_type"]);
+        return $info;
+    }
+
     private static function get_max_blast_hits($data) {
         $info = "";
         if (array_key_exists("generate_blast_max_sequence", $data) && $data["generate_blast_max_sequence"]) {
@@ -134,7 +142,7 @@ class est_user_jobs_shared {
         $info = "";
         if (isset($data["tax_search"]) && $data["tax_search"]) {
             $not_str = "";
-            if ($data["tax_search_name"]) {
+            if (isset($data["tax_search_name"]) && $data["tax_search_name"]) {
                 $info = explode("|", $data["tax_search_name"]);
                 $info = $info[count($info)-1];
             } else {
@@ -160,6 +168,7 @@ class est_user_jobs_shared {
         $uniref = self::get_uniref_version($data);
         $domain = self::get_domain($data);
         $sequence = self::get_sequence($data);
+        $dbType = self::get_blast_database_type($data);
         $blastEvalue = self::get_blast_evalue($data);
         $maxHits = self::get_max_blast_hits($data);
         $excludeFractions = self::get_exclude_fragments($data);
@@ -176,6 +185,7 @@ class est_user_jobs_shared {
             } elseif ($type == "BLAST") {
                 $job_name = $sequence;
                 $sequence = "";
+
             } else {
                 $job_name = $fileName;
                 $fileName = "";
@@ -218,6 +228,7 @@ class est_user_jobs_shared {
         if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $type != "CONVRATIO" && $excludeFractions) array_push($info, $excludeFractions);
         if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $type != "CONVRATIO" && $taxSearch) array_push($info, $taxSearch);
         if ($sequence) array_push($info, $sequence);
+        if ($dbType) array_push($info, $dbType);
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);
 
@@ -255,8 +266,8 @@ class est_user_jobs_shared {
     }
 
     public static function build_analyze_job_name($data_row) {
-        $a_min = $data_row["analysis_min_length"] == settings::get_ascore_minimum() ? "" : "Min=".$data_row["analysis_min_length"];
-        $a_max = $data_row["analysis_max_length"] == settings::get_ascore_maximum() ? "" : "Max=".$data_row["analysis_max_length"];
+        $a_min = $data_row["analysis_min_length"] == settings_shared::get_ascore_minimum() ? "" : "Min=".$data_row["analysis_min_length"];
+        $a_max = $data_row["analysis_max_length"] == settings_shared::get_ascore_maximum() ? "" : "Max=".$data_row["analysis_max_length"];
         $job_name = "<span class='job-name'>" . $data_row["analysis_name"] . "</span><br>";
         $job_name .= "<span class='job-metadata'>SSN Threshold=" . $data_row["analysis_evalue"];
         if ($a_min)

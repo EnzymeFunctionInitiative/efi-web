@@ -7,6 +7,7 @@ use \efi\global_settings;
 use \efi\global_functions;
 use \efi\est\job_factory;
 use \efi\est\queue;
+use \efi\training\example_config;
 
 
 class analysis extends est_shared {

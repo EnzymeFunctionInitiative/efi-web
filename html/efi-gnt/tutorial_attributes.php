@@ -1,13 +1,15 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
+use \efi\global_settings;
+
 $Tutorial = true;
-require_once("inc/header.inc.php");
+include_once("inc/header.inc.php");
 
 ?>
 
 <div class="tutorial-nav">
-	<?php require_once("inc/tutorial_nav.php"); ?>
+	<?php include_once("inc/tutorial_nav.php"); ?>
 </div>
   
 
@@ -140,15 +142,15 @@ available for download.  These include:
 <ol>
 <li>"UniProt ID-Color-Cluster Number Mapping Table" is a tab-delimited text file with three columns with headers, 
 "UniProt ID", "Cluster Number", and "Cluster Color"; a description of this file and its use was provided in the Color 
-SSN Utility section of the <a href="<?php echo settings::get_est_url(); ?>/tutorial.php">EST Tutorial</a>.</li>
+SSN Utility section of the <a href="<?php echo global_settings::get_est_url(); ?>/tutorial.php">EST Tutorial</a>.</li>
 
 <li>"UniProt IDs per Cluster" is a folder of files for each cluster that list the UniProt IDs for the sequences in the 
 cluster; a description of the files in this folder and their use was provided in the Color SSN Utility section
-of the <a href="<?php echo settings::get_est_url(); ?>/tutorial.php">EST Tutorial</a>.</li>
+of the <a href="<?php echo global_settings::get_est_url(); ?>/tutorial.php">EST Tutorial</a>.</li>
 
 <li>"FASTA Files per Cluster" is a folder of files for each cluster that contain the FASTA-formatted sequences for the 
 sequences in the cluster; a description of the files in this folder and their use was provided in the Color SSN Utility 
-section of the <a href="<?php echo settings::get_est_url(); ?>/tutorial.php">EST Tutorial</a>.</li>
+section of the <a href="<?php echo global_settings::get_est_url(); ?>/tutorial.php">EST Tutorial</a>.</li>
 
 <li>"Pfam Neighbor Mapping Tables" is a folder of tab-delimited text files for each neighbor Pfam family that includes 
 the following columns:  "Query ID", "Neighbor ID", "Neighbor Pfam", "SSN Query Cluster #", "SSN Query Cluster Color", 
@@ -1627,11 +1629,11 @@ selected with the Select Control Panel.
 
 <center><a href='tutorial_input.php'><button class="light">Continue Tutorial</button></a></center>
 
-<?php require_once("inc/tutorial_footer.inc.php"); ?>
+<?php include_once("inc/tutorial_footer.inc.php"); ?>
 
 </div> <!-- end of float -->
 
 <div style="clear: both"></div>
 
-<?php require_once("inc/footer.inc.php"); ?>
+<?php include_once("inc/footer.inc.php"); ?>
 

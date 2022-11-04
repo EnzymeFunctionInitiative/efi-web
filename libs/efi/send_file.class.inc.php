@@ -2,13 +2,13 @@
 namespace efi;
 
 
-const SEND_FILE_TEXT = "text/plain";
-const SEND_FILE_TABLE = "application/octet-stream";
-const SEND_FILE_PNG = "image/png";
-const SEND_FILE_BINARY = "application/octet-stream";
-const SEND_FILE_ZIP = "application/zip";
-
 class send_file {
+    const SEND_FILE_TEXT = "text/plain";
+    const SEND_FILE_TABLE = "application/octet-stream";
+    const SEND_FILE_PNG = "image/png";
+    const SEND_FILE_BINARY = "application/octet-stream";
+    const SEND_FILE_ZIP = "application/zip";
+
     public static function send_headers($file_name, $file_size, $type = SEND_FILE_BINARY) {
         header('Pragma: public');
         header('Expires: 0');

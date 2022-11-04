@@ -15,8 +15,12 @@ spl_autoload_register(function ($className) {
     if (is_readable($filename)) {
         require_once($filename);
     } else {
-        debug_print_backtrace();
-        die("Unable to find $className ($filename does not exist).");
+        if (defined("__ENABLE_DEBUG__") && __ENABLE_DEBUG__) {
+            debug_print_backtrace();
+            die("Unable to find $className ($filename does not exist).");
+        } else {
+            die("***PHP Error/ALR***");
+        }
     }
 });
 

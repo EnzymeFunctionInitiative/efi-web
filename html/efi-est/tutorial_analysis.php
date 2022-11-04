@@ -1,8 +1,8 @@
 <?php 
 require_once(__DIR__."/../../init.php");
 
-require_once(__DIR__."/inc/header.inc.php");
-require_once(__DIR__."/inc/tutorial_nav.inc.php");
+include_once("inc/header.inc.php");
+include_once("inc/tutorial_nav.inc.php");
 ?>
 
 <h3>Dataset Analysis and providing a filtering score</h3>
@@ -271,7 +271,7 @@ resources (such as <a href="http://www.physics.csbsju.edu/stats/box2.html">this 
 
 <center><a href="tutorial_download.php"><button type='submit' class='light'>Continue Tutorial</button></a></center>
 
-<?php include_once('inc/tutorial_footer.inc.php'); ?>
+<?php include_once("inc/tutorial_footer.inc.php"); ?>
 
-<?php include_once('inc/footer.inc.php'); ?>
+<?php include_once("inc/footer.inc.php"); ?>
 

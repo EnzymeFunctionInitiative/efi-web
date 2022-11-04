@@ -365,6 +365,17 @@ a.question {
     font-size: 60%;
 }
 
+span.question {
+    display: inline-block;
+    text-shadow: 1px 1px 0px #ffffff;
+    background-color: #ededed;
+    border-radius: 42px;
+    border: 1px solid #666;
+    padding: 0px 6px;
+    margin-left: 6px;
+    font-size: 80%;
+}
+
 .suggestions
 {
     background: #eee;

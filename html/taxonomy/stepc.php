@@ -48,11 +48,20 @@ if (!$generate->has_tax_data()) {
     error500("Invalid job type.");
 }
 
-$uniref = dataset_shared::get_uniref_version($gen_type, $generate);
 $job_name = $generate->get_job_name();
-$sunburstAppUniref = $uniref ? $uniref : "false"; // Is the entire app UniRef-based?
-$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") ? "true" : "false";
 
+//$uniref = dataset_shared::get_uniref_version($gen_type, $generate);
+//$sunburst_app_uniref = $uniref ? $uniref : "false"; // Is the entire app UniRef-based?
+//$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") ? "true" : "false";
+$sunburst_app_primary_id_type = "UniProt";
+$has_uniref = "false";
+$sunburst_app_uniref = 0;
+if ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") {
+    $sunburst_app_uniref = 50;
+    $has_uniref = "true";
+}
+$sunburst_post_sunburst_text = get_tax_sb_text($gen_type);
+$sunburst_tax_info_text = get_tax_info_text($gen_type);
 
 $table = new table_builder($table_format);
 dataset_shared::add_generate_summary_table($generate, $table, false, false);
@@ -88,7 +97,7 @@ $histo_info = $generate->get_length_histogram_info();
 <div class="tabs-efihdr tabs">
     <ul class="">
         <li class="ui-tabs-active"><a href="#info">Dataset Summary</a></li>
-        <li><a href="#taxonomy">Taxonomy Sunburst</a></li>
+        <li data-tab-id="sunburst"><a href="#taxonomy-tab">Taxonomy Sunburst</a></li>
 <?php if ($histo_info !== false) { ?>
         <li><a href="#histo">Length Histograms</a></li>
 <?php } ?>
@@ -107,7 +116,10 @@ $histo_info = $generate->get_length_histogram_info();
             <div style="clear: both"></div>
         </div>
 
-        <div id="taxonomy">
+        <div id="taxonomy-tab">
+<?php echo $sunburst_tax_info_text; ?>
+            <div id="taxonomy" style="position: relative">
+            </div>
         </div>
 
 <?php if ($histo_info !== false) { ?>
@@ -140,7 +152,9 @@ for ($i = 0; $i < count($histo_info); $i++) {
 
 <script>
     $(document).ready(function() {
-        $(".tabs").tabs();
+        $(".tabs").tabs({
+            activate: sunburstTabActivate // comes from shared/js/sunburst.js
+        });
     });
         
     var acc = document.getElementsByClassName("panel-toggle");
@@ -156,42 +170,16 @@ for ($i = 0; $i < count($histo_info); $i++) {
         }
     }
 
-    var hasUniref = <?php echo $hasUniref; ?>;
+    var hasUniref = <?php echo $has_uniref; ?>;
 
-    var onComplete = function(app) {
-        var estClickFn = function(app) {
-            var estPath = "<?php echo global_settings::get_web_path('est'); ?>/index.php";
-            var info = app.getCurrentNode();
-            var encTaxName = encodeURIComponent(info.name);
-            var args = [
-                "tax-id=<?php echo $gen_id; ?>",
-                "tax-key=<?php echo $key; ?>",
-                "tree-id=" + info.id,
-                "id-type=" + info.idType,
-                "tax-name=" + encTaxName,
-                "mode=tax",
-            ];
-            var urlArgs = args.join("&");
-            var url = estPath + "?" + urlArgs;
-            window.location = url;
-        };
-        var gndClickFn = function(app) {
-            var gntPath = "<?php echo global_settings::get_web_path('gnt'); ?>/index.php";
-            var info = app.getCurrentNode();
-            var encTaxName = encodeURIComponent(info.name);
-            var args = [
-                "tax-id=<?php echo $gen_id; ?>",
-                "tax-key=<?php echo $key; ?>",
-                "tree-id=" + info.id,
-                "id-type=" + info.idType,
-                "tax-name=" + encTaxName,
-            ];
-            var urlArgs = args.join("&");
-            var url = gntPath + "?" + urlArgs;
-            window.location = url;
-        };
-        app.addTransferAction("sunburst-transfer-to-est", "Transfer to EFI-EST", "Transfer to EFI-EST", () => estClickFn(app));
-        app.addTransferAction("sunburst-transfer-to-gnt", "Transfer to EFI-GND Viewer", "Transfer to EFI-GND Viewer", () => gndClickFn(app));
+    var estPath = "<?php echo global_settings::get_web_path('est'); ?>/index.php";
+    var gntPath = "<?php echo global_settings::get_web_path('gnt'); ?>/index.php";
+    var jobId = "<?php echo $gen_id; ?>";
+    var jobKey = "<?php echo $key; ?>";
+    var onComplete = makeOnSunburstCompleteFn(estPath, gntPath, jobId, jobKey);
+
+    var sunburstTextFn = function() {
+        return $('<div><?php echo $sunburst_post_sunburst_text; ?></div>');
     };
 
     var scriptAppDir = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php";
@@ -199,17 +187,165 @@ for ($i = 0; $i < count($histo_info); $i++) {
             apiId: "<?php echo $gen_id; ?>",
             apiKey: "<?php echo $key; ?>",
             apiExtra: [],
-            appUniRefVersion: <?php echo $sunburstAppUniref; ?>,
+            appUniRefVersion: <?php echo $sunburst_app_uniref; ?>,
+            appPrimaryIdTypeText: "<?php echo $sunburst_app_primary_id_type; ?>",
+            appPostSunburstTextFn: sunburstTextFn,
             scriptApp: scriptAppDir + "/get_tax_data.php",
             fastaApp: scriptAppDir + "/get_sunburst_fasta.php",
             hasUniRef: hasUniref
     };
+
     var sunburstApp = new AppSunburst(sbParams);
     sunburstApp.attachToContainer("taxonomy");
     sunburstApp.addSunburstFeatureAsync(onComplete);
 </script>
 
 <?php
+
+function get_tax_info_text($gen_type) {
+    $text = "";
+
+    if ($gen_type == "FAMILIES") {
+        $text = <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs identified as members of the 
+input list of families is displayed. 
+</p>
+
+<p>
+The UniRef90 and UniRef50 clusters containing the UniProt IDs in the sunburst 
+are identified using the lookup table provided by UniProt/UniRef. These 
+UniRef90 and UniRef50 clusters may contain UniProt IDs from other families; in 
+addition, the UniRef90 and UniRef50 clusters at a selected taxonomy category 
+may contain UniProt IDs from other categories. This results from conflation of 
+UniProt IDs in UniRef90 and UniRef50 clusters that share &ge;90% and &ge;50% sequence 
+identity, respectively. 
+</p>
+
+<p>
+The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs for 
+the selected category are displayed. 
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomy category by clicking on that category; clicking on the center circle 
+will return the display to the next highest rank. 
+</p>
+TEXT;
+    } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+        $text = <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs identified in the input 
+FASTA-formatted sequences is displayed. 
+</p>
+
+<p>
+The number of UniProt IDs for the selected category is displayed. 
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomy category by clicking on that category; clicking on the center circle 
+will return the display to the next highest rank. 
+</p>
+TEXT;
+    } else if ($gen_type == "ACCESSION") {
+        $text = <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs identified in the input list of 
+UniProt, UniRef90 cluster, or UniRef50 cluster IDs is displayed. 
+</p>
+
+<p>
+The UniRef90 and UniRef50 clusters containing the UniProt IDs in the sunburst 
+are identified using the lookup table provided by UniProt/UniRef. The numbers 
+of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs for the selected 
+category are displayed. The UniRef90 and UniRef50 clusters may contain UniProt 
+IDs from other taxonomy categories. This results from conflation of UniProt IDs 
+in UniRef90 and UniRef50 clusters that share &ge;90% and &ge;50% sequence identity, 
+respectively. 
+</p>
+
+<p>
+The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs for 
+the selected category are displayed. 
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to selected taxonomy 
+category by clicking on that category; clicking on the center circle will 
+return the display to the next highest rank. 
+</p>
+TEXT;
+    }
+
+    return $text;
+}
+
+
+function get_tax_sb_text($gen_type) {
+    $text = "";
+
+    if ($gen_type == "FAMILIES") {
+        $text = <<<TEXT
+<p>
+Lists of UniProt, UniRef90, and UniRef50 IDs and FASTA-formatted sequences can 
+be downloaded. 
+</p>
+
+<p>
+The UniProt, UniRef90, or UniRef50 IDs can be transferred to the Accession IDs 
+option of EFI-EST to generate an SSN. The Accession IDs option provides both 
+Filter by Family and Filter by Taxonomy that should be used to remove internal 
+UniProt IDs from UniRef90 or UniRef50 clusters that are not members of the 
+selected families and/or taxonomy category. 
+</p>
+
+<p>
+The lists also can be transferred to the GND-Viewer to obtain GNDs. 
+</p>
+TEXT;
+    } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+        $text = <<<TEXT
+<p>
+Lists of UniProt IDs and FASTA-formatted sequences can be downloaded. 
+</p>
+
+<p>
+The UniProt IDs can be transferred to the Accession IDs option of EFI-EST to 
+generate an SSN. 
+</p>
+
+<p>
+The list also can be transferred to the GND-Viewer to obtain GNDs. 
+</p>
+TEXT;
+    } else if ($gen_type == "ACCESSION") {
+        $text = <<<TEXT
+<p>
+Lists of UniProt, UniRef90, and UniRef50 IDs and FASTA-formatted sequences can 
+be downloaded. 
+</p>
+
+<p>
+The UniProt, UniRef90, or UniRef50 IDs can be transferred to the Accession IDs 
+option of EFI-EST to generate an SSN. The Accession IDs option provides Filter 
+by Taxonomy that should be used to remove internal UniProt IDs that are not 
+members of the selected taxonomy category. 
+</p>
+
+<p>
+The lists also can be transferred to the GND-Viewer to obtain GNDs. 
+</p>
+TEXT;
+    }
+
+    $text = preg_replace('/\n/', " ", $text);
+
+    return $text;
+}
+
 
 require_once(__DIR__."/inc/footer.inc.php");
 

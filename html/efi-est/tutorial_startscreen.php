@@ -1,8 +1,8 @@
 <?php 
 require_once(__DIR__."/../../init.php");
 
-require_once(__DIR__."/inc/header.inc.php");
-require_once(__DIR__."/inc/tutorial_nav.inc.php");
+include_once("inc/header.inc.php");
+include_once("inc/tutorial_nav.inc.php");
 
 use \efi\global_settings;
 use \efi\est\settings;
@@ -97,6 +97,7 @@ relationships in families with more than <?php echo settings::get_max_seq(1); ?>
 sequences, please submit a summary of your interests via the feedback form
 at <a href="<?php echo $feedback_url; ?>"><?php echo $feedback_url; ?></a>
 and we may be able to assist.
+</b>
 </p>
 
 <p>
@@ -715,7 +716,7 @@ relationships.</li>
 
 <center><a href="tutorial_analysis.php"><button type='submit' class='light'>Continue Tutorial</button></a></center>
 
-<?php include_once('inc/tutorial_footer.inc.php'); ?>
+<?php include_once("inc/tutorial_footer.inc.php"); ?>
 
-<?php include_once('inc/footer.inc.php'); ?>
+<?php include_once("inc/footer.inc.php"); ?>
 

@@ -145,6 +145,10 @@ function add_fragment_option($option_id) {
     $html = <<<HTML
 <h3>Fragment Option</h3>
 <div>
+    <div>
+UniProt designates a Sequence Status for each member: Complete if the encoding DNA sequence has both start and stop codons; Fragment if the start and/or stop codon is missing.   Approximately 10% of the entries in UniProt are fragments. 
+    </div>
+    <div>
     <span class="input-name">
         Fragments:
     </span><span class="input-field">
@@ -155,9 +159,16 @@ function add_fragment_option($option_id) {
         </label>
     </span>
     <div class="input-desc">
-        The UniProt database designates a sequence as a fragment if it is translated from a gene missing a start and/or a stop codon (Sequence Status).
-        Fragments are included in the SSNs by default; checking this box will exclude fragmented sequences
-        from computations.  This results in an approximately 10% smaller SSN.
+<p>
+For the UniRef90 and UniRef50 databases, clusters are excluded if the cluster 
+ID ("representative sequence") is a fragment.   
+</p>
+
+<p>
+UniProt IDs in UniRef90 and UniRef50 clusters with complete cluster IDs are 
+removed from the clusters if they are fragments. 
+</p>
+    </div>
     </div>
 </div>
 HTML;
@@ -300,15 +311,38 @@ HTML;
             </div>
         </div>
         <div>
-            The input format is a single family or comma/space separated list of families.
-            Families should be specified as PFxxxxx (five digits),
-            IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans.
+The input format is a single family or comma/space separated list of families. Families should be specified as PFxxxxx (five digits), IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans. 
         </div>
     </div>
 HTML;
     if (!$show_example && $show_text) {
         $html .= <<<HTML
     <div>
+<p>
+The UniRef90 and UniRef50 clusters containing the retrieved UniProt IDs then 
+are identified, again using the lookup table provided by UniProt/UniRef.  The 
+numbers of these are displayed on the sunburst; the cluster IDs are available 
+for download/transfer to the Accession ID option (Option D) of EFI-EST to 
+generate SSNs. 
+</p>
+
+<p>
+These UniRef90 and UniRef50 clusters may have IDs ("representative sequences") 
+that are not members of the specified families or contain UniProt IDs from 
+other families if the cluster IDs are members of the families.  In addition, 
+the UniRef90 and UniRef50 clusters at a selected taxonomy category may contain 
+UniProt IDs from other taxonomy categories. This results from conflation of 
+UniProt IDs in UniRef90 and UniRef50 clusters that share &ge;90% and &ge;50% sequence 
+identity, respectively. 
+</p>
+
+<p>
+If/when the UniRef90 and UniRef50 cluster IDs provided by this input option are 
+used to generate an SSN with the Accessions ID option (Option D) of EFI-EST, 
+Filter by Family and Filter by Taxonomy should (must!) be used to remove the 
+clusters and UniProt IDs that are not members of the families or have the 
+selected taxonomy category.
+</p>
     </div>
 HTML;
     }
@@ -368,13 +402,12 @@ HTML;
 }
 
 
-function add_taxonomy_filter($option_id) {
+function add_taxonomy_filter($option_id, $tax_filt_text = "") {
     $html = <<<HTML
 <h3>Filter by Taxonomy</h3>
 <div>
     <div>
-        Conditions on the taxonomy can be set to further restrict the set of sequences by only including the sequences that
-        match the specific taxonomic categories.  Multiple conditions are combined to be a union of each other.
+        $tax_filt_text
     </div>
     <div>Preselected conditions:
         <select class="taxonomy-preselects" id="taxonomy-$option_id-select" data-option-id="$option_id">
@@ -386,7 +419,7 @@ function add_taxonomy_filter($option_id) {
         <input type="hidden" name="taxonomy-$option_id-preset-name" id="taxonomy-$option_id-preset-name" value="" />
     </div>
     <div>
-        <button type="button" class="light add-tax-btn" data-option-id="$option_id" id="taxonomy-$option_id-add-btn">Add taxonomic condition</button>
+        <button type="button" class="light add-tax-btn" data-option-id="$option_id" id="taxonomy-$option_id-add-btn">Add Taxonomy category</button>
         <!--<button type="button" class="light" onclick="appTF.addTaxCondition('$option_id')">Add taxonomic condition</button>-->
     </div>
 </div>
@@ -414,6 +447,39 @@ function add_length_filter($option_id) {
         </span><span class="input-field">
             <input type="text" class="small fraction" id="max-seq-len-$option_id" name="max-seq-len-$option_id" value="" size="8">
         </span>
+    </div>
+</div>
+HTML;
+    return array($html);
+}
+
+
+function add_family_filter($option_id, $extra_text = "") {
+    if ($extra_text)
+        $extra_text = "<div>$extra_text</div>";
+    $html = <<<HTML
+<h3>Filter by Family</h3>
+<div>
+    <div>
+        Input a list of Pfam families, InterPro families, and/or Pfam clans to select 
+        sequences for inclusion in the Taxonomy Sunburst.
+    </div>
+    <div class="secondary-input">
+        <div class="secondary-name">
+            Family(s):
+        </div>
+        <div class="secondary-field">
+            <input type="text" id="family-filter-$option_id" name="family-filter-$option_id" value="" />
+        </div>
+    </div>
+    <div class="input-desc">
+        <div>
+            The input format is a single family or comma/space separated list of families. Families should be
+            specified as PFxxxxx (five digits), IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans.
+        </div>
+    </div>
+    <div>
+        $extra_text
     </div>
 </div>
 HTML;

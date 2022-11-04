@@ -5,8 +5,10 @@ require_once(__DIR__."/../../../init.php");
 
 require_once(__EST_CONF_DIR__ . "/settings.inc.php");
 
+use \efi\est\settings_shared;
 
-class settings {
+
+class settings extends settings_shared {
 
     public static function get_max_seq($format = 0) {
         if ($format) {
@@ -36,20 +38,9 @@ class settings {
             return __MAX_FULL_FAMILY_COUNT__;
         }
     }
-    public static function get_evalue() {
-        return __EVALUE__;
-    }
     public static function option_e_enabled() {
         return __ENABLE_E__;
     }
-
-    public static function get_ascore_minimum() {
-        return __MINIMUM__;
-    }
-    public static function get_ascore_maximum() {
-        return __MAXIMUM__;
-    }
-
     public static function get_update_message() {
         return defined("__UPDATE_MESSAGE__") ? __UPDATE_MESSAGE__ : "";
     }
