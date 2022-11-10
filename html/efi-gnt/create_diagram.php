@@ -37,6 +37,7 @@ if (isset($_POST["option"])) {
         } elseif ($opt == "c") {
             $retval = create_lookup_job($db, $email, $title, "fasta", DiagramJob::FastaLookup, $dbMod, "", null);
         } elseif ($opt == "d") {
+            $taxParms = null;
             if (isset($_POST["tax-id"]) && isset($_POST["tax-key"]) && isset($_POST["tax-tree-id"]) && isset($_POST["tax-id-type"])) {
                 $taxParms = array("tax_job_id" => $_POST["tax-id"], "tax_key" => $_POST["tax-key"], "tax_tree_id" => $_POST["tax-tree-id"], "tax_id_type" => $_POST["tax-id-type"]);
             }

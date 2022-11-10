@@ -64,7 +64,7 @@ function getExtraData(element) {
 }
 
 
-function setupSortUi() {
+function setupSortUi(selfScript) {
     var updateSortIcon = function() {
         var sortIcon = sortMethod == SORT_DATE_DESC ? "<i class='fas fa-chevron-down'></i>" : "<i class='fas fa-list-alt'></i>";
         $("#sort-jobs-toggle").html(sortIcon);
@@ -76,7 +76,7 @@ function setupSortUi() {
     updateSortIcon();
     $("#sort-jobs-toggle").click(function() {
         toggleSortIcon();
-        window.location.replace("<?php echo $_SERVER['PHP_SELF']; ?>" + (sortMethod == SORT_DATE_DESC ? "?sb=1" : ""));
+        window.location.replace(selfScript + (sortMethod == SORT_DATE_DESC ? "?sb=1" : ""));
     });
 }
 

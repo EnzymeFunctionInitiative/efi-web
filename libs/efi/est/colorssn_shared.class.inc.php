@@ -19,7 +19,6 @@ abstract class colorssn_shared extends option_base {
     const SEQ_NO_DOMAIN = 2;
     const DEFAULT_MIN_SEQ_MSA = 5;
 
-    protected $extra_ram = false;
     protected $use_efiref = false;
     private $ssn_source_analysis_id;
     private $ssn_source_analysis_idx;
@@ -162,8 +161,6 @@ abstract class colorssn_shared extends option_base {
         $parms["--conv-ratio"] = "\"" . $this->get_convergence_ratio_filename() . "\"";
         $parms["--sp-clusters-desc"] = "\"" . $this->get_swissprot_desc_filename($want_clusters_file) . "\"";
         $parms["--sp-singletons-desc"] = "\"" . $this->get_swissprot_desc_filename($want_singles_file) . "\"";
-        if ($this->extra_ram)
-            $parms["--extra-ram"] = $this->extra_ram;
         if (!global_settings::advanced_options_enabled())
             $parms["--cleanup"] = "";
         if ($this->use_efiref !== false) {
@@ -203,7 +200,6 @@ abstract class colorssn_shared extends option_base {
             }
         }
 
-        $this->extra_ram = (isset($result["extra_ram"]) && is_numeric($result["extra_ram"])) ? $result["extra_ram"] : false;
         $this->use_efiref = (isset($result["efiref"]) && is_numeric($result["efiref"])) ? $result["efiref"] : false;
 
         $this->file_helper->on_load_generate($id, $result);
@@ -269,7 +265,6 @@ abstract class colorssn_shared extends option_base {
         } else {
             $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
         }
-        $insert_array["extra_ram"] = (isset($data->extra_ram) && is_numeric($data->extra_ram)) ? $data->extra_ram : false;
         if (isset($data->efiref) && is_numeric($data->efiref))
             $insert_array["efiref"] = $data->efiref;
         return $insert_array;

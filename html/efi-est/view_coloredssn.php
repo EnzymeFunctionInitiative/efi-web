@@ -721,7 +721,7 @@ HTML;
 $type_html
 <div class="cluster-size">$size_info</div>
 <div>
-<span style="margin-right: 20px"><a class="hmm-logo" data-logo="$cluster_num-$type-$quality">Skylign <i class="fas fa-eye"></i></a></span>
+<span style="margin-right: 20px"><a class="hmm-logo hmm-logo-link" data-logo="$cluster_num-$type-$quality">Skylign <i class="fas fa-eye"></i></a></span>
 <span style="margin-right: 20px"><a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&t=hmm">HMM <i class="fas fa-download"></i></a></span>
 <a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&t=hmm-png">PNG <i class="fas fa-download"></i></a>
 </div>
@@ -767,7 +767,7 @@ HTML;
     </div>
 </div>
    
-<script src="js/progress.js" type="text/javascript"></script>
+<script src="../js/progress.js" type="text/javascript"></script>
 <script>
 $(document).ready(function() {
     $(".tabs").tabs();
