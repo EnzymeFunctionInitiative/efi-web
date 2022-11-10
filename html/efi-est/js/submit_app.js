@@ -50,6 +50,16 @@ AppEstSubmit.prototype.addCommonFormData = function(opt, fd) {
         fd.append("exclude-fragments", exlFrag);
     if (allSeq)
         fd.append("include-all-seq", allSeq);
+    
+    var extraRamId = opt + "-extra-ram";
+    var extraRamChecked = $("#" + extraRamId).prop("checked");
+    if (typeof extraRamChecked !== "undefined") {
+        if (extraRamChecked) {
+            var val2 = $("#" + extraRamId + "-val").val();
+            if (typeof val2 !== "undefined" && val2 > 1)
+                fd.append("extra_ram", val2);
+        }
+    }
 
     var taxGroups = this.taxApp.getTaxSearchConditions(opt);
     taxGroups.forEach((group) => fd.append("tax_search[]", group));

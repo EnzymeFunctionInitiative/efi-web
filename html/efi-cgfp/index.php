@@ -9,6 +9,7 @@ use \efi\ui;
 use \efi\cgfp\cgfp_ui;
 use \efi\cgfp\functions;
 use \efi\cgfp\settings;
+use \efi\cgfp\settings_shared;
 use \efi\cgfp\job_manager;
 use \efi\cgfp\job_types;
 
@@ -47,9 +48,9 @@ if (user_auth::has_token_cookie()) {
 }
 
 $db_modules = global_settings::get_database_modules();
-$default_cdhit_id = settings::get_default_cdhit_id();
-$default_ref_db = settings::get_default_ref_db();
-$default_search = settings::get_default_identify_search();
+$default_cdhit_id = settings_shared::get_default_cdhit_id();
+$default_ref_db = settings_shared::get_default_ref_db();
+$default_search = settings_shared::get_default_identify_search();
 
     //'Please cite your use of the EFI tools:<br><br>' .
     //'R&eacute;mi Zallot, Nils Oberg, and John A. Gerlt, <b>The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome Databases to Discover Novel Enzymes and Metabolic Pathways</b>. Biochemistry 2019 58 (41), 4169-4182. <a href="https://doi.org/10.1021/acs.biochem.9b00735">https://doi.org/10.1021/acs.biochem.9b00735</a>'

@@ -13,15 +13,15 @@ if (isset($EstId))
 if (!isset($StyleAdditional)) $StyleAdditional = array();
 
 array_push($StyleAdditional,
-    '<link rel="stylesheet" type="text/css" href="css/est.css?v=4">',
+    '<link rel="stylesheet" type="text/css" href="css/est.css?v=5">',
 );
 
 if (!isset($JsAdditional)) $JsAdditional = array();
 
 if (isset($IncludeSubmitJs)) {
     array_push($JsAdditional,
-        '<script src="js/submit_app.js?v=36" type="text/javascript"></script>',
-        '<script src="js/index_helpers.js?v=1" type="text/javascript"></script>',
+        '<script src="js/submit_app.js?v=37" type="text/javascript"></script>',
+        '<script src="js/index_helpers.js?v=2" type="text/javascript"></script>',
         '<script src="js/nas.js?v=1" type="text/javascript"></script>',
     );
 }

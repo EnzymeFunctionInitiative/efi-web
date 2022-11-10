@@ -41,8 +41,6 @@ class conv_ratio extends colorssn_shared {
         $parms = parent::get_run_script_args_base($out);
         $name = $this->get_base_filename();
         $parms["--ascore"] = $this->ascore;
-        if ($this->extra_ram)
-            $parms["--ram"] = $this->extra_ram;
         return $parms;
     }
 

@@ -2,11 +2,13 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\global_settings;
-use \efi\user_auth;
 use \efi\cgfp\settings;
 use \efi\cgfp\functions;
 use \efi\cgfp\identify;
+use \efi\user_auth;
 
+// settings class isn't used, so we get an error when loading global_settings because this file isn't loaded.
+require_once(__CGFP_CONF_DIR__."/settings.inc.php");
 
 if (!global_settings::get_website_enabled())
     exit;
@@ -115,4 +117,4 @@ $output = array(
 
 echo json_encode($output);
 
-?>
+

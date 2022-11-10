@@ -87,6 +87,8 @@ if (!isset($_POST['submit'])) {
     $input->tax_search = (isset($_POST["tax_search"]) && $_POST["tax_search"]) ? parse_tax_search($_POST["tax_search"]) : "";
     $input->tax_search_name = (isset($_POST['tax_name']) && $_POST['tax_name']) ? $_POST['tax_name'] : "";
 
+    $input->extra_ram = (isset($_POST['extra_ram']) && is_numeric($_POST['extra_ram'])) ? $_POST['extra_ram'] : false;
+
     switch($option) {
         //Option A - BLAST Input
         case 'A':
@@ -229,7 +231,6 @@ if (!isset($_POST['submit'])) {
                         $input->color_ssn_source_idx = $_POST['ssn-source-idx'];
                     if (isset($_POST['ssn-source-key']))
                         $input->color_ssn_source_key = $_POST['ssn-source-key'];
-                    $input->extra_ram = (isset($_POST['extra_ram']) && is_numeric($_POST['extra_ram'])) ? $_POST['extra_ram'] : false;
                     $input->efiref = isset($_POST['efiref']) ? $_POST['efiref'] : "";
                     $input->skip_fasta = (isset($_POST['skip_fasta']) && $_POST['skip_fasta'] == "true");
                     if (isset($_POST['color-ssn-source-color-id']) && is_numeric($_POST['color-ssn-source-color-id']))
@@ -311,4 +312,3 @@ function parse_tax_search($search_array) {
 }
 
 
-?>
