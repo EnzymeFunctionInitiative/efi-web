@@ -39,8 +39,6 @@ class nb_conn extends colorssn_shared {
         $parms = parent::get_run_script_args_base($out);
         $name = $this->get_base_filename();
         $parms["--output-name"] = "\"$name\"";
-        if ($this->extra_ram)
-            $parms["--ram"] = $this->extra_ram;
         return $parms;
     }
 

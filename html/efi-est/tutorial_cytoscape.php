@@ -1,8 +1,8 @@
 <?php 
 require_once(__DIR__."/../../init.php");
 
-require_once(__DIR__."/inc/header.inc.php'");
-require_once(__DIR__."/inc/tutorial_nav.inc.php");
+include_once("inc/header.inc.php");
+include_once("inc/tutorial_nav.inc.php");
 ?>
 
 <h3>An Introduction to Using Cytoscape for EFI Networks</h3>
@@ -153,7 +153,7 @@ To open the session file, click the Open Session "file folder" icon on the toolb
 <center><a href="tutorial_references.php"><button type='submit' class='light'>Continue Tutorial</button></a></center>
 
 
-<?php include_once('inc/tutorial_footer.inc.php'); ?>
+<?php include_once("inc/tutorial_footer.inc.php"); ?>
 
-<?php include_once('inc/footer.inc.php'); ?>
+<?php include_once("inc/footer.inc.php"); ?>
 

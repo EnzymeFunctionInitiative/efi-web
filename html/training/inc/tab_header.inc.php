@@ -16,7 +16,7 @@ if ($use_legacy_tab) {
         <li class="<?php echo $active_tab === "videos" ? "active" : ""; ?>"><a href="videos.php">Videos</a></li>
         <li class="<?php echo $active_tab === "pubs" ? "active" : ""; ?>"><a href="publications.php">Publications</a></li>
 <?php if ($has_advanced_options) { ?>
-        <li class="<?php echo $active_tab === "tutorial" ? "active" : ""; ?>"><a href="tutorial.php">Tutorial</a></li>
+        <li class="<?php echo $active_tab === "tutorial" ? "active" : ""; ?>"><a href="../efi-est/tutorial.php">Tutorial</a></li>
         <li class="<?php echo $active_tab === "refguide" ? "active" : ""; ?>"><a href="refguide.php">Reference Guide</a></li>
         <li class="<?php echo $active_tab === "workshops" ? "active" : ""; ?>"><a href="workshops.php">Workshops</a></li>
 <?php } ?>

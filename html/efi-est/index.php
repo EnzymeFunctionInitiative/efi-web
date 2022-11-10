@@ -169,7 +169,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
         
         setupFileInputEvents();
         setupArchiveUi();
-        setupSortUi();
+        setupSortUi("<?php echo $_SERVER['PHP_SELF']; ?>");
 
         $("button.submit-job").click(function() {
             var obj = $(this);
@@ -333,6 +333,11 @@ function add_dev_site_option($option_id, $db_modules, $extra_html = "") {
     $html = <<<HTML
 <h3>Dev Site Options</h3>
 <div>
+    <div>
+HTML;
+    $html .= add_extra_ram_option($option_id);
+    $html .= <<<HTML
+    </div>
     <div>
         <span class="input-name">
             CPUx2:

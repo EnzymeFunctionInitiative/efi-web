@@ -32,7 +32,7 @@ if (isset($_POST['download_network'])) {
     if ($dl_type === "BLASTHITS") {
         $analysis = new analysis($db,$analysis_id);
         $file_info = $analysis->get_blast_evalue_file();
-        output_file($file_info["path"], $file_info["name"], SEND_FILE_TABLE);
+        output_file($file_info["path"], $file_info["name"], send_file::SEND_FILE_TABLE);
     } else {
         $file = $_POST['file'];
         if (global_functions::is_safe_filename($file)) {
@@ -49,12 +49,12 @@ if (isset($_POST['download_network'])) {
 
     $file_path = "";
     $file_name = "";
-    $mime_type = SEND_FILE_BINARY;
+    $mime_type = send_file::SEND_FILE_BINARY;
     $sub_type = isset($_GET["ft"]) ? $_GET["ft"] : "";
     if ($sub_type === "tab") {
         $file_path = $obj->get_cr_table_full_path();
         $file_name = $obj->get_cr_table_filename();
-        $mime_type = SEND_FILE_TABLE;
+        $mime_type = send_file::SEND_FILE_TABLE;
     }
 
     output_file($file_path, $file_name, $mime_type);
@@ -64,20 +64,20 @@ if (isset($_POST['download_network'])) {
 
     $file_path = "";
     $file_name = "";
-    $mime_type = SEND_FILE_BINARY;
+    $mime_type = send_file::SEND_FILE_BINARY;
     $sub_type = isset($_GET["ft"]) ? $_GET["ft"] : "";
     if (!$sub_type || $sub_type === "ssn") {
         $file_path = $obj->get_colored_ssn_zip_full_path();
         $file_name = $obj->get_colored_ssn_zip_filename();
-        //$mime_type = SEND_FILE_ZIP;
+        //$mime_type = send_file::SEND_FILE_ZIP;
     } else if ($sub_type === "legend") {
         $file_path = $obj->get_nc_legend_full_path();
         $file_name = $obj->get_nc_legend_filename();
-        $mime_type = SEND_FILE_PNG;
+        $mime_type = send_file::SEND_FILE_PNG;
     } else if ($sub_type === "nc") {
         $file_path = $obj->get_nc_table_full_path();
         $file_name = $obj->get_nc_table_filename();
-        $mime_type = SEND_FILE_TABLE;
+        $mime_type = send_file::SEND_FILE_TABLE;
     }
 
     output_file($file_path, $file_name, $mime_type);
@@ -88,7 +88,7 @@ if (isset($_POST['download_network'])) {
 
     $analysis = new analysis($db, $analysis_id);
     $file_info = $analysis->get_blast_evalue_file();
-    output_file($file_info["full_path"], $file_info["name"], SEND_FILE_TABLE);
+    output_file($file_info["full_path"], $file_info["name"], send_file::SEND_FILE_TABLE);
 } else {
     print_error();
     exit();

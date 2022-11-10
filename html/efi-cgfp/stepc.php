@@ -4,6 +4,7 @@ require_once(__DIR__."/../../init.php");
 use \efi\global_functions;
 use \efi\table_builder;
 use \efi\user_auth;
+use \efi\cgfp\settings_shared;
 use \efi\cgfp\settings;
 use \efi\cgfp\functions;
 use \efi\cgfp\job_manager;
@@ -337,7 +338,7 @@ HTML;
                             </span>
                             <span class="input-field">
                             <?php
-                                $default_search_type = settings::get_default_quantify_search();
+                                $default_search_type = settings_shared::get_default_quantify_search();
                                 $search_usearch = $default_search_type == "USEARCH" ? "selected" : "";
                                 $search_diamond = $default_search_type == "DIAMOND" ? "selected" : "";
                             ?>

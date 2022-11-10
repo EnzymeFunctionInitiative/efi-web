@@ -62,12 +62,12 @@ if (!isset($_POST['submit'])) {
         $input->db_mod = $_POST['db-mod'];
     $input->exclude_fragments = (isset($_POST['exclude-fragments']) && $_POST['exclude-fragments'] == "true") ? true : false;
     $input->tax_search = isset($_POST['tax_search']) ? parse_tax_search($_POST['tax_search']) : "";
-    $input->tax_search_name = $_POST['tax_name'] ? $_POST['tax_name'] : "";
+    $input->tax_search_name = (isset($_POST['tax_name']) && $_POST['tax_name']) ? $_POST['tax_name'] : "";
     $input->is_taxonomy_job = true;
     $input->fraction = 1;
-    if ($_POST['min_seq_len'])
+    if (isset($_POST['min_seq_len']) && $_POST['min_seq_len'])
         $input->min_seq_len = $_POST['min_seq_len'];
-    if ($_POST['max_seq_len'])
+    if (isset($_POST['max_seq_len']) && $_POST['max_seq_len'])
         $input->max_seq_len = $_POST['max_seq_len'];
 
     switch($option) {
@@ -85,6 +85,10 @@ if (!isset($_POST['submit'])) {
         case 'D':
             if (isset($_FILES['file']) && $_FILES['file']['error'] === "")
                 $_FILES['file']['error'] = 4;
+
+            if (isset($_POST["family_filter"]) && $_POST["family_filter"]) {
+                $input->family_filter = $_POST["family_filter"];
+            }
     
             if ((isset($_FILES['file']['error'])) && ($_FILES['file']['error'] !== 0)) {
                 $result['MESSAGE'] = "Error Uploading File: " . efi\est\functions::get_upload_error($_FILES['file']['error']);

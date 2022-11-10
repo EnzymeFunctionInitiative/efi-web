@@ -9,53 +9,89 @@ use \efi\taxonomy\taxonomy_job_list_ui;
 
 function output_option_b($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
     $example_fn = $example_fn === false ? function(){} : $example_fn;
+
+    $tax_filt_text = <<<TEXT
+<p>
+This filter is applied to the UniProt IDs after they have been identified using 
+the list of Pfam families, InterPro families, and/or Pfam clans.  The remaining 
+UniProt IDs are used to generate the sunburst.
+</p>
+<p>
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the UniProt IDs in the sunburst to these taxonomy groups. 
+</p>
+<p>
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+<p>
+The UniProt IDs also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
+</p>
+TEXT;
+
+    $family_input_post_text = <<<TEXT
+<p>
+Filter by Taxonomy can be used to remove UniProt IDs that do not match the 
+specified taxonomy categories.   
+</p>
+<p>
+The remaining UniProt IDs are used to generate the sunburst.
+</p>
+<p>
+UniRef90 and UniRef50 clusters that contain the UniProt IDs are retrieved from 
+the UniRef90 andUniRef50 databases using the lookup table provided by 
+UniProt/UniRef.  Clusters for which the cluster ID (representative sequence) 
+matches the list of families are retained.  
+</p>
+<p>
+The numbers of UniProt IDs and both UniRef90 cluster and UniRef50 cluster IDs 
+are displayed on the sunburst; the UniProt IDs and both UniRef90 cluster and 
+UniRef50 cluster IDs are available for download and/or transfer to the 
+Accession ID option (Option D) of EFI-EST to generate SSNs. 
+</p>
+<p>
+<b>
+If the lists of UniRef90 or UniRef50 cluster IDs are used to generate SSNs with 
+the Accession IDs option (Option D) of EFI-EST, the lists should (must!) be 
+filtered with the same list of families (Filter by Family) and any specified 
+taxonomy categories (Filter by Taxonomy) used to generate the lists.
+</b>
+</p>
+<p>
+This filtering removes the UniRef90 and UniRef50 clusters with cluster IDs 
+("representative sequences") or internal UniProt IDs that are not members of 
+the specified families or have the selected taxonomy categories.
+</p>
+TEXT;
 ?>
         <div id="optionBtab" class="ui-tabs-panel ui-widget-content">
-            <p class="p-heading">
+<p class="p-heading">
 Retrieve taxonomy for families. 
-            </p>
-
-<p>
-The UniProt sequences from user-specified Pfam families, InterPro 
-families/domains, and/or Pfam clans are retrieved. 
 </p>
 
 <p>
-The taxonomic distribution of the UniProt IDs is displayed as a "sunburst" in 
-which the levels of classification (superkingdom, kingdom, phylum, class, 
-order, family, genus, species) are displayed radially, with superkingdom at the 
-center and species in the outermost ring. The sunburst is interactive, 
-providing the ability to zoom to a selected taxonomic level.  The numbers of 
-UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at the selected 
-taxonomic level are provided.
-</p>
-
-<p>
-The UniProt IDs, UniRef90 clusters IDs, and UniRef50 cluster IDs as well as 
-FASTA-formatted sequences at the selected level can be downloaded. 
-</p>
-
-<p>
-The UniProt IDs, UniRef90 clusters IDs, and UniRef50 cluster IDs can be 
-transferred to EFI-EST to generate an SSN and/or to the Retrieve Neighborhood 
-Diagrams/Sequence ID Lookup option of EFI-GNT to generate genome neighborhood 
-diagrams (GNDs).
+The UniProt IDs for family members are identified in UniProtKB with a list of 
+Pfam families, InterPro families, and/or Pfam clans. 
 </p>
 
             <form name="optionBform" id="optionBform" method="post" action="">
-                <?php echo add_family_input_option_family_only("optb", false)[0]; ?>
+                <?php echo add_family_input_option_family_only("optb", false, true, $family_input_post_text)[0]; ?>
 
                 <div class="option-panels">
-                    <div>
-                        <?php echo add_taxonomy_filter("optb")[0] ?>
+                    <div class="initial-open">
+                        <?php echo add_fragment_option("optb")[0]; ?>
                     </div>
                     <div>
-                        <?php echo add_length_filter("optb")[0] ?>
-                    </div>
-                    <div>
-                        <?php echo add_fragment_option("optb")[0] ?>
+                        <?php echo add_taxonomy_filter("optb", $tax_filt_text)[0]; ?>
                     </div>
                     <?php if ($use_advanced_options) { ?>
+                    <div>
+                        <?php echo add_length_filter("optb")[0]; ?>
+                    </div>
                     <div>
                         <?php echo add_dev_site_option("optb", $db_modules, get_advanced_seq_html("optb"))[0]; ?>
                     </div>
@@ -71,6 +107,26 @@ diagrams (GNDs).
 function output_option_c($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
     $show_example = $example_fn !== false;
     $example_fn = $example_fn === false ? function(){} : $example_fn;
+
+    $tax_filt_text = <<<TEXT
+<p>
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the UniProt IDs in the sunburst to these taxonomy groups. 
+</p>
+
+<p>
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The UniProt IDs also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other.  
+</p>
+TEXT;
 ?>
         <div id="optionCtab" class="ui-tabs-panel ui-widget-content">
             <p class="p-heading">
@@ -78,29 +134,14 @@ Retrieve taxonomy for FASTA files.
             </p>
 
 <p>
-The user provides a list/file of FASTA-formatted sequences in which the headers 
-contain the UniProt ID.   The UniProt ID is required because it is used to 
-retrieve the taxonomy from the UiProt database (FASTA header “reading”).    
+The input is a list of FASTA-formatted sequences in which the headers contain a 
+UniProt ID. The UniProt ID is required because it is used to retrieve the 
+taxonomy from the UniProt database (FASTA header "reading"). 
 </p>
 
 <p>
-The taxonomic distribution of the UniProt IDs is displayed as a "sunburst" in 
-which the levels of classification (superkingdom, kingdom, phylum, class, 
-order, family, genus, species) are displayed radially, with superkingdom at the 
-center and species in the outermost ring. The sunburst is interactive, 
-providing the ability to zoom to a selected taxonomic level. The number of 
-UniProt IDs at the selected taxonomic level is provided.
-</p>
-
-<p>
-The UniProt IDs and their FASTA-formatted sequences at the selected level can 
-be downloaded. 
-</p>
-
-<p>
-The UniProt IDs can be transferred to EFI-EST to generate an SSN and/or to the 
-Retrieve Neighborhood Diagrams/Sequence ID Lookup option of EFI-GNT to generate 
-genome neighborhood diagrams (GNDs).
+The UniProt IDs for the family members are retrieved; these are used to 
+calculate the sunburst.   
 </p>
 
             <form name="optionCform" id="optionCform" method="post" action="">
@@ -113,11 +154,14 @@ genome neighborhood diagrams (GNDs).
                 </div>
 
                 <div class="option-panels">
-                    <div>
-                        <?php echo add_taxonomy_filter("optc")[0] ?>
+                    <div class="initial-open">
+                        <?php echo add_fragment_option("optc")[0] ?>
                     </div>
                     <div>
-                        <?php echo add_fragment_option("optc")[0] ?>
+                        <?php echo add_taxonomy_filter("optc", $tax_filt_text)[0] ?>
+                    </div>
+                    <div>
+                        <?php echo add_family_filter("optc")[0]; ?>
                     </div>
                     <?php if ($use_advanced_options) { ?>
                     <div>
@@ -133,6 +177,34 @@ genome neighborhood diagrams (GNDs).
 }
 
 function output_option_d($use_advanced_options, $db_modules, $user_email, $show_example = false) {
+
+    $tax_filt_text = <<<TEXT
+<p>
+This filter is applied to the UniProt IDs identified in the input dataset. 
+</p>
+<p>
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the UniProt IDs in the sunburst to these taxonomy groups. 
+</p>
+<p>
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+<p>
+The UniProt IDs also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
+</p>
+TEXT;
+
+    $fam_filt_text = <<<TEXT
+<p>
+This filter is applied to the UniProt IDs identified in the input dataset.
+</p>
+TEXT;
+
 ?>
         <div id="optionDtab" class="ui-tabs-panel ui-widget-content">
             <p class="p-heading">
@@ -140,48 +212,45 @@ Retrieve taxonomy for accession IDs.
             </p>
 
 <p>
-The user provides a list/file of UniProt IDs, UniRef90 cluster IDs, or UniRef50 
-cluster IDs. 
+The input is a list of UniProt, UniRef90 cluster or UniRef50 cluster IDs. For 
+the UniRef90 and UniRef50 clusters, the UniProt IDs in the clusters are 
+retrieved using the lookup table provided by UniProt/UniRef. 
 </p>
-
 <p>
-UniRef90 cluster IDs and UniRef50 cluster IDs are expanded to UniProt IDs.   
-For a curated family, the number of UniProt IDs obtained by expansion of 
-UniRef90 cluster IDs may be larger than the number of UniProt IDs identified by 
-protein databases, e.g., Pfam.   And, the numbers of UniProt IDs and UniRef90 
-cluster IDs obtained by expansion of UniRef50 cluster IDs both may be larger 
-than the numbers identified by protein databases.  This behavior is explained 
-by the possibility that 1) the UniRef90 clusters contain divergent UniProt IDs 
-that are not members of the family and 2) the UniRef50 clusters contain 
-divergent UniRef90 clusters that are not members of the family.  Users should 
-be aware of this behavior when SSNs are generated using UniProt IDs from 
-expanded UniRef90 cluster IDs or using UniProt IDs or UniRef90 cluster IDs from 
-expanded UniRef50 clusters IDs.  This problem does not occur when UniRef90 
-clusters are identified using UniProt IDs or when UniRef50 clusters are 
-identified using UniRef90 cluster IDs, i.e., the UniRef90 and UniRef50 cluster 
-IDs identified by the Families option and Option B in EFI-EST.
+Filter by Family and/or Filter by Taxonomy can be used to remove UniProt IDs 
+that do not match a list of Pfam families, InterPro families, and/or Pfam clans 
+and/or specified taxonomy categories.  This may be desirable/necessary if the 
+input list is obtained from 1) the Color SSN or Cluster Analysis utility for a 
+Families option (Option B) EFI-EST SSN or, 2) the Families option of the 
+Taxonomy Tool.
 </p>
-
 <p>
-The taxonomic distribution of the UniProt IDs is displayed as a "sunburst" in 
-which the levels of classification (superkingdom, kingdom, phylum, class, 
-order, family, genus, species) are displayed radially, with superkingdom at the 
-center and species in the outermost ring.  The sunburst is interactive, 
-providing the ability to zoom to a selected taxonomic level.  The numbers of 
-UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs at the selected 
-taxonomic level are provided.
+The remaining UniProt IDs are used to generate the sunburst. 
 </p>
-
 <p>
-The UniProt IDs, UniRef90 clusters IDs, and UniRef50 cluster IDs as well as 
-FASTA-formatted sequences at the selected level can be downloaded. 
+UniRef90 and UniRef50 clusters that contain the UniProt IDs are retrieved from 
+the UniRef90 andUniRef50 databases using the lookup table provided by 
+UniProt/UniRef.  Clusters for which the cluster ID (representative sequence) 
+matches the list of families are retained.  
 </p>
-
 <p>
-The UniProt IDs, UniRef90 clusters IDs, and UniRef50 cluster IDs can be 
-transferred to EFI-EST to generate an SSN and/or to the Retrieve Neighborhood 
-Diagrams/Sequence ID Lookup option of EFI-GNT to generate genome neighborhood 
-diagrams (GNDs).
+The numbers of UniProt IDs and both UniRef90 cluster and UniRef50 cluster IDs 
+are displayed on the sunburst; the UniProt IDs and both UniRef90 cluster and 
+UniRef50 cluster IDs are available for download and/or transfer to the 
+Accession IDs option (Option D) of EFI-EST to generate SSNs. 
+</p>
+<p>
+<b>
+If the lists of UniRef90 or UniRef50 cluster IDs are used to generate SSNs with 
+the Accession IDs option (Option D) of EFI-EST, the lists should (must!) be 
+filtered with the same list of families (Filter by Family) and any specified 
+taxonomy categories (Filter by Taxonomy) used to generate the lists.
+</b>
+</p>
+<p>
+This filtering removes the UniRef90 and UniRef50 clusters with cluster IDs 
+("representative sequences") or internal UniProt IDs that are not members of 
+the specified families or have the selected taxonomy categories.
 </p>
 
             <form name="optionDform" id="optionDform" method="post" action="">
@@ -232,11 +301,14 @@ diagrams (GNDs).
                 </div>
 
                 <div class="option-panels">
-                    <div>
-                        <?php echo add_taxonomy_filter("optd")[0] ?>
+                    <div class="initial-open">
+                        <?php echo add_fragment_option("optd")[0]; ?>
+                    </div>
+                    <div class="initial-open">
+                        <?php echo add_taxonomy_filter("optd", $tax_filt_text)[0] ?>
                     </div>
                     <div>
-                        <?php echo add_fragment_option("optd")[0] ?>
+                        <?php echo add_family_filter("optd", $fam_filt_text)[0]; ?>
                     </div>
                     <?php if ($use_advanced_options) { ?>
                     <div>

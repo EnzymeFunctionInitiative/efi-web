@@ -6,7 +6,7 @@ require_once(__DIR__."/inc/header.inc.php");
 ?>
 
 <div class="tutorial-nav">
-	<?php include_once(__GNT_DIR__."/inc/tutorial_nav.php"); ?>
+	<?php include_once(__DIR__."/inc/tutorial_nav.php"); ?>
 </div>
 
 <div class="tutorial-content">
@@ -114,11 +114,11 @@ different functions that are found by different clusters in the input SSN.
 
 <center><a href='tutorial_generation.php'><button class="light">Continue Tutorial</button></a></center>
 
-<?php include_once('inc/tutorial_footer.inc.php'); ?>
+<?php include_once("inc/tutorial_footer.inc.php"); ?>
 
 </div> <!-- end of float -->
 
 <div style="clear: both"></div>
 
-<?php require_once(__DIR__."/inc/footer.inc.php"); ?>
+<?php include_once("inc/footer.inc.php"); ?>
 

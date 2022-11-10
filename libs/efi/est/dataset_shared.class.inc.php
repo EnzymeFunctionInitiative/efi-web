@@ -173,13 +173,14 @@ class dataset_shared {
                 $code = "<a href='blast.php?blast=$code'>View Sequence</a>";
             
             $retrieved_seq = $generate->get_counts("num_blast_retr");
-
+            $db_type = $generate->get_blast_db_type(true);
 
             if ($evalue_blast != $default_evalue)
                 $table->add_row("E-Value for UniProt BLAST Retrieval", $evalue_blast);
             if ($show_evalue)
                 $table->add_row("E-Value for SSN Edge Calculation", $evalue_option);
             $table->add_row("Sequence Submitted for BLAST", $code);
+            $table->add_row("BLAST Database", $db_type);
             $table->add_row("Maximum Number of Retrieved Sequences", number_format($generate->get_submitted_max_sequences()));
             if ($use_advanced_options || $retrieved_seq) // If this number is not set, only show this row if we're on the dev site.
                 $table->add_row("Actual Number of Retrieved Sequences", number_format($retrieved_seq));

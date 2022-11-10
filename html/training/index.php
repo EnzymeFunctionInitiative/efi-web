@@ -3,7 +3,6 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\global_settings;
 use \efi\est\est_ui;
-use \efi\est\est_user_jobs_shared;
 use \efi\gnt\gnt_ui;
 use \efi\cgfp\cgfp_ui;
 use \efi\training\example_config;

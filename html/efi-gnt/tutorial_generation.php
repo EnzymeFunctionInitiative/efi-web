@@ -2,11 +2,11 @@
 require_once(__DIR__."/../../init.php");
 
 $Tutorial = true;
-require_once("inc/header.inc.php");
+include_once("inc/header.inc.php");
 ?>
 
 <div class="tutorial-nav">
-	<?php require_once('inc/tutorial_nav.php'); ?>
+	<?php include_once("inc/tutorial_nav.php"); ?>
 </div>
 
 <div class="tutorial-content">
@@ -147,11 +147,11 @@ neighbors in the SSNs for their families.
 
 <center><a href='tutorial_attributes.php'><button class="light">Continue Tutorial</button></a></center>
 
-<?php include_once('inc/tutorial_footer.inc.php'); ?>
+<?php include_once("inc/tutorial_footer.inc.php"); ?>
 
 </div> <!-- end of float -->
 
 <div style="clear: both"></div>
 
-<?php require_once('inc/footer.inc.php'); ?>
+<?php include_once("inc/footer.inc.php"); ?>
 
