@@ -422,7 +422,7 @@ function add_analysis_summary_table($analysis, $stats, $table) {
             $table->add_row("Minimize", $min_method);
     }
     if ($num_filt_seq)
-        $table->add_row("Total Number of Sequences After Length Filtering", number_format($num_filt_seq));
+        $table->add_row("Total Number of Sequences After Filtering", number_format($num_filt_seq));
 }
 
 

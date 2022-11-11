@@ -64,19 +64,3 @@ function getExtraData(element) {
 }
 
 
-function setupSortUi(selfScript) {
-    var updateSortIcon = function() {
-        var sortIcon = sortMethod == SORT_DATE_DESC ? "<i class='fas fa-chevron-down'></i>" : "<i class='fas fa-list-alt'></i>";
-        $("#sort-jobs-toggle").html(sortIcon);
-    };
-    var toggleSortIcon = function() {
-        sortMethod = sortMethod == SORT_DATE_DESC ? SORT_DATE_GROUP : SORT_DATE_DESC;
-        updateSortIcon();
-    };
-    updateSortIcon();
-    $("#sort-jobs-toggle").click(function() {
-        toggleSortIcon();
-        window.location.replace(selfScript + (sortMethod == SORT_DATE_DESC ? "?sb=1" : ""));
-    });
-}
-
