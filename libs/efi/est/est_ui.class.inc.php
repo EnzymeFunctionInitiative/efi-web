@@ -7,23 +7,35 @@ const RT_ANALYSIS = 3;
 const RT_NESTED_COLOR = 4;
 const RT_NESTED_COLOR_X2 = 5;
 
+use \efi\est\user_jobs;
+
 
 class est_ui {
     
 
-    public static function output_job_list($jobs, $show_archive = false, $toggle_id = "", $is_example = false, $show_all_ids = false) {
-        $up = "&#x25B2;";
-        $down = "&#x25BC;";
-        if ($toggle_id)
-            $toggle_id = <<<HTML
-<span id="$toggle_id" class="sort-toggle" title="Click to toggle between primary job ordering (with analysis jobs grouped with primary job), or by most recent job activity from newest to oldest."><i class="fas fa-list-alt"></i></span> 
-HTML;
+    public static function output_job_list($jobs, $show_archive = false, $sort_method = user_jobs::SORT_TIME_COMPLETED, $is_example = false, $show_all_ids = false) {
+        $date_col_header = "<i class='fas fa-chevron-down'></i> Date Completed";
+        $date_url = "?sb=" . user_jobs::SORT_TIME_ACTIVITY;
+        $id_col_header = "<i class='fas fa-chevron-down'></i> ID";
+        $id_url = "?sb=" . user_jobs::SORT_ID;
+        if ($sort_method == user_jobs::SORT_TIME_ACTIVITY) {
+            $date_col_header = "<i class='fas fa-chevron-up'></i> Recent Activity";
+            $date_url = "?"; //"?sb=" . user_jobs::SORT_TIME_COMPLETED;
+        } else if ($sort_method == user_jobs::SORT_ID) {
+            $id_col_header = "<i class='fas fa-chevron-down'></i> ID (Desc)";
+            $id_url = "?sb=" . user_jobs::SORT_TIME_COMPLETED;
+        }
+
+//        if ($toggle_id)
+//            $toggle_id = <<<HTML
+//<span id="$toggle_id" class="sort-toggle" title="Click to toggle between primary job ordering (with analysis jobs grouped with primary job), or by most recent job activity from newest to oldest."><i class="fas fa-list-alt"></i></span> 
+//HTML;
         $html = <<<HTML
             <table class="pretty-nested" style="table-layout:fixed">
                 <thead>
-                    <th class="id-col">ID</th>
+                    <th class="id-col"><a href="$id_url">$id_col_header</a></th>
                     <th>Job Name</th>
-                    <th class="date-col">$toggle_id Date Completed</th>
+                    <th class="date-col"><a href="$date_url">$date_col_header</a></th>
                 </thead>
                 <tbody>
 HTML;

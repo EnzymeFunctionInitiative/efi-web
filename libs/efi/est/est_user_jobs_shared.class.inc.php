@@ -311,7 +311,7 @@ class est_user_jobs_shared {
         return self::build_job_name($data, $type, $familyLookupFn, $job_id);
     }
 
-    public static function process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn, $generate_table = "", $analysis_table = "", $table_db = "") {
+    public static function process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn, $sort_order = user_jobs::SORT_TIME_COMPLETED, $generate_table = "", $analysis_table = "", $table_db = "") {
 
         if (!$analysis_table)
             $analysis_table = "analysis";
@@ -324,6 +324,8 @@ class est_user_jobs_shared {
 
         $map_fn = function ($row) use($generate_table) { return $row["${generate_table}_id"]; };
         $id_order = array_map($map_fn, $rows);
+        $map_fn = function ($row) use($generate_table) { return $row["${generate_table}_status"]; };
+        $id_status = array_map($map_fn, $rows);
         $date_order = array();
 
         // First process all of the color SSN jobs.  This allows us to link them to SSN jobs.
@@ -454,12 +456,42 @@ class est_user_jobs_shared {
 
         // Remove color jobs that have been attached to an analysis job.
         $id_order_new = array();
+        $failed_ids = array();
         for ($i = 0; $i < count($id_order); $i++) {
-            if (!isset($colors_to_remove[$id_order[$i]]))
-                array_push($id_order_new, $id_order[$i]);
+            if (!isset($colors_to_remove[$id_order[$i]])) {
+                if ($id_status[$i] == __FAILED__)
+                    array_push($failed_ids, $id_order[$i]);
+                else
+                    array_push($id_order_new, $id_order[$i]);
+            }
         }
 
-        $retval = array("generate_jobs" => $jobs, "color_jobs" => $color_jobs, "order" => $id_order_new, "date_order" => $date_order);
+        if ($sort_order == user_jobs::SORT_TIME_ACTIVITY) {
+            $sort_fn = function($a, $b) use ($date_order) {
+                if (isset($date_order[$a]) && isset($date_order[$b])) {
+                    $tm1 = strtotime($date_order[$a]);
+                    $tm2 = strtotime($date_order[$b]);
+                    return $tm1 > $tm2 ? -1 : ($tm1 < $tm2 ? 1 : 0);
+                } else {
+                    return $a < $b ? 1 : ($a > $b ? -1 : 0);
+                }
+            };
+            usort($id_order_new, $sort_fn);
+            usort($failed_ids, $sort_fn);
+        } else if ($sort_order == user_jobs::SORT_ID) {
+            $sort_fn = function($a, $b) use ($id_status) {
+                if (isset($failed_ids[$a]))
+                    return -1;
+                if (isset($failed_ids[$b]))
+                    return 1;
+                return $a < $b ? 1 : ($a > $b ? -1 : 0);
+            };
+            usort($id_order_new, $sort_fn);
+            usort($failed_ids, $sort_fn);
+        }
+        $all_ids = array_merge($id_order_new, $failed_ids);
+
+        $retval = array("generate_jobs" => $jobs, "color_jobs" => $color_jobs, "order" => $all_ids, "date_order" => $date_order);
         return $retval;
     }
 }
