@@ -20,10 +20,13 @@ $IsAdminUser = false;
 if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie()) {
     $sort_method = user_jobs::SORT_TIME_COMPLETED;
     if (isset($_GET["sb"]) && is_numeric($_GET["sb"])) {
-        if ($_GET["sb"] == user_jobs::SORT_TIME_ACTIVITY)
+        if ($_GET["sb"] == user_jobs::SORT_TIME_ACTIVITY) {
             $sort_method = user_jobs::SORT_TIME_ACTIVITY;
-        else if ($_GET["sb"] == user_jobs::SORT_ID)
+        } else if ($_GET["sb"] == user_jobs::SORT_ID) {
             $sort_method = user_jobs::SORT_ID;
+        } else if ($_GET["sb"] == user_jobs::SORT_ID_REVERSE) {
+            $sort_method = user_jobs::SORT_ID_REVERSE;
+        }
     }
     $user_jobs = new user_jobs(null, array("TAXONOMY"));
     $user_jobs->load_jobs($db, user_auth::get_user_token(), $sort_method);

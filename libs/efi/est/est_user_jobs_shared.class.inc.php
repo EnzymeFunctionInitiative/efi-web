@@ -478,13 +478,14 @@ class est_user_jobs_shared {
             };
             usort($id_order_new, $sort_fn);
             usort($failed_ids, $sort_fn);
-        } else if ($sort_order == user_jobs::SORT_ID) {
-            $sort_fn = function($a, $b) use ($id_status) {
+        } else if ($sort_order == user_jobs::SORT_ID || $sort_order == user_jobs::SORT_ID_REVERSE) {
+            $comp_factor = $sort_order == user_jobs::SORT_ID_REVERSE ? -1 : 1;
+            $sort_fn = function($a, $b) use ($id_status, $comp_factor) {
                 if (isset($failed_ids[$a]))
                     return -1;
                 if (isset($failed_ids[$b]))
                     return 1;
-                return $a < $b ? 1 : ($a > $b ? -1 : 0);
+                return $a < $b ? $comp_factor : ($a > $b ? -$comp_factor : 0);
             };
             usort($id_order_new, $sort_fn);
             usort($failed_ids, $sort_fn);

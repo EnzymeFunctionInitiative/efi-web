@@ -16,14 +16,17 @@ class est_ui {
     public static function output_job_list($jobs, $show_archive = false, $sort_method = user_jobs::SORT_TIME_COMPLETED, $is_example = false, $show_all_ids = false) {
         $date_col_header = "<i class='fas fa-chevron-down'></i> Date Completed";
         $date_url = "?sb=" . user_jobs::SORT_TIME_ACTIVITY;
-        $id_col_header = "<i class='fas fa-chevron-down'></i> ID";
+        $id_col_header = "ID";
         $id_url = "?sb=" . user_jobs::SORT_ID;
         if ($sort_method == user_jobs::SORT_TIME_ACTIVITY) {
             $date_col_header = "<i class='fas fa-chevron-up'></i> Recent Activity";
-            $date_url = "?"; //"?sb=" . user_jobs::SORT_TIME_COMPLETED;
+            $date_url = "?sb=" . user_jobs::SORT_TIME_COMPLETED;
         } else if ($sort_method == user_jobs::SORT_ID) {
-            $id_col_header = "<i class='fas fa-chevron-down'></i> ID (Desc)";
-            $id_url = "?sb=" . user_jobs::SORT_TIME_COMPLETED;
+            $id_col_header = "<i class='fas fa-chevron-down'></i> ID";
+            $id_url = "?sb=" . user_jobs::SORT_ID_REVERSE;
+        } else if ($sort_method == user_jobs::SORT_ID_REVERSE) {
+            $id_col_header = "<i class='fas fa-chevron-up'></i> ID";
+            $id_url = "?sb=" . user_jobs::SORT_ID;
         }
 
 //        if ($toggle_id)

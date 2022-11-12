@@ -28,7 +28,7 @@ HTML;
             $name = $jobs[$i]["job_name"];
             $is_completed = $jobs[$i]["is_completed"];
             $date_completed = $jobs[$i]["date_completed"];
-            $is_finished = $date_completed && $date_completed != "PENDING" && $date_completed != "RUNNING";
+            $is_finished = $date_completed && $date_completed != "PENDING" && $date_completed != "RUNNING" && $date_completed != "FAILED";
             $search_type = $jobs[$i]["search_type"];
             $ref_db = $jobs[$i]["ref_db"];
         
@@ -81,7 +81,7 @@ HTML;
     
             $job_action_code = "";
             if ($allow_cancel) {
-                if (!$is_finished) {
+                if ($date_completed == "RUNNING" || $date_completed == "NEW") {
                     $job_action_code = "<div style=\"float:right\" class=\"cancel-btn\" data-type=\"gnn\" title=\"Cancel Job\" data-id=\"$id\" data-key=\"$key\"";
                     if ($quantify_id)
                         $job_action_code .= " data-quantify-id=\"$quantify_id\"";
