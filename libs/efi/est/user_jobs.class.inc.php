@@ -15,6 +15,7 @@ class user_jobs extends \efi\user_auth {
     const SORT_TIME_ACTIVITY = 2;
     // Sort by generate job ID
     const SORT_ID = 3;
+    const SORT_ID_REVERSE = 4;
 
     private $user_token = "";
     private $user_email = "";
@@ -104,6 +105,8 @@ class user_jobs extends \efi\user_auth {
         $order_by = "generate_status, generate_time_completed DESC";
         if ($sort_order == self::SORT_ID) {
             $order_by = "generate_status, generate_id DESC";
+        } else if ($sort_order == self::SORT_ID_REVERSE) {
+            $order_by = "generate_status, generate_id ASC";
         }
 
         list($job_type_clause, $job_type_params) = $this->get_job_type_clause();
