@@ -9,6 +9,7 @@ use \efi\table_builder;
 use \efi\est\job_factory;
 use \efi\est\functions;
 use \efi\est\colorssn;
+use \efi\training\example_config;
 
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
@@ -16,7 +17,7 @@ if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
 }
 
 
-$is_example = isset($_GET["x"]);
+$is_example = example_config::is_example();
 $obj = job_factory::create($db, $_GET['id'], $is_example); // Creates a color SSN or a cluster analysis job
 
 $key = $obj->get_key();
@@ -72,9 +73,8 @@ $est_id = $obj->get_id();
 $uploadedFilename = $obj->get_uploaded_filename();
 
 $url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$obj->get_id(), 'key' => $key));
-$baseUrl = functions::get_web_root() . "/results/" . $obj->get_output_dir();
 
-$ex_param = $is_example ? "&x=1" : "";
+$ex_param = $is_example ? "&x=".$is_example : "";
 $job_type = $obj->get_create_type();
 
 $baseSsnName = $obj->get_colored_xgmml_filename_no_ext();
@@ -94,13 +94,13 @@ $num_map = "";
 $hmmZipFileList = array();
     
 if ($job_type === "NBCONN") {
-    $dl_base = "download.php?dl=NBCONN&id=$est_id&key=$key";
+    $dl_base = "download.php?dl=NBCONN&id=$est_id&key=$key$ex_param";
     $ssnFileZip = "$dl_base&ft=ssn";
     array_push($fileInfo, array(""));
     array_push($fileInfo, array("Neighborhood Connectivity Color Scale (PNG)", "$dl_base&ft=legend", 0));
     array_push($fileInfo, array("Neighborhood Connectivity Table", "$dl_base&ft=nc", 0));
 } else if ($job_type === "CONVRATIO") {
-    $dl_base = "download.php?dl=CONVRATIO&id=$est_id&key=$key";
+    $dl_base = "download.php?dl=CONVRATIO&id=$est_id&key=$key$ex_param";
     array_push($fileInfo, array(""));
     array_push($fileInfo, array("Convergence Ratio Table", "$dl_base&ft=tab", 0));
 } else {
@@ -585,7 +585,7 @@ HTML;
             </table>
 
 <?php
-if ($job_type !== "NBCONN" && $job_type !== "CONVRATIO") {
+if ($job_type !== "NBCONN" && $job_type !== "CONVRATIO" && !$is_example) {
 ?>
             <center>
                 <a href="../efi-cgfp/index.php?<?php echo "est-id=$est_id&est-key=$key"; ?>"><button type="button" name="analyze_data" class="dark white">Run CGFP on Colored SSN</button></a>
@@ -608,7 +608,7 @@ if ($job_type !== "NBCONN" && $job_type !== "CONVRATIO") {
 <?php outputZipFileTable($pimZipFileList); ?>
             <br><br>
 <?php
-                    $weblogo_output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key, $alignment_list) {
+                    $weblogo_output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key, $alignment_list, $ex_param) {
                         $file = $data["path"];
                         $size_info = getClusterSizeInfo($data);
                         $class = $type ? "weblogo-$type-$quality" : "";
@@ -622,7 +622,7 @@ HTML;
                         if (isset($alignment_list[$cluster_num][$type][$quality])) {
                             $afa_file = $alignment_list[$cluster_num][$type][$quality]["path"];
                             $extra = <<<HTML
-<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=afa">MSA <i class="fas fa-download"></i></a>
+<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=afa$ex_param">MSA <i class="fas fa-download"></i></a>
 HTML;
                         }
                         return <<<HTML
@@ -631,7 +631,7 @@ $type_html
 <div class="cluster-size">$size_info</div>
 <div>
 <span style="margin-right: 20px">$extra</span>
-<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=w">PNG <i class="fas fa-download"></i></a>
+<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=w$ex_param">PNG <i class="fas fa-download"></i></a>
 </div>
 <div style="clear: both">
 <a href="$logo_graphics_dir/$file.png"><img src="$logo_graphics_dir/$file.png" width="50%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type-$quality"></a>
@@ -709,7 +709,7 @@ HTML;
             <br><br>
 
 <?php
-                    $output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key) {
+                    $output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key, $ex_param) {
                         $file = $data["path"];
                         if (isset($data["length"]))
                             $info .= ", length=" . $data["length"];
@@ -722,8 +722,8 @@ $type_html
 <div class="cluster-size">$size_info</div>
 <div>
 <span style="margin-right: 20px"><a class="hmm-logo hmm-logo-link" data-logo="$cluster_num-$type-$quality">Skylign <i class="fas fa-eye"></i></a></span>
-<span style="margin-right: 20px"><a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&t=hmm">HMM <i class="fas fa-download"></i></a></span>
-<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&t=hmm-png">PNG <i class="fas fa-download"></i></a>
+<span style="margin-right: 20px"><a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&t=hmm$ex_param">HMM <i class="fas fa-download"></i></a></span>
+<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&t=hmm-png$ex_param">PNG <i class="fas fa-download"></i></a>
 </div>
 <div>
 <img src="$logo_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num">
@@ -742,7 +742,7 @@ HTML;
 <?php outputZipFileTable($lenHistZipFileList); ?>
             <br><br>
 <?php
-                    $lenhist_output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key) {
+                    $lenhist_output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key, $ex_param) {
                         $file = $data["path"];
                         $size_info = getClusterSizeInfo($data);
                         $class = $type ? "lenhist-$type-$quality" : "";
@@ -751,7 +751,7 @@ HTML;
 <div class="$class " style="float: left; width: 50%; margin-bottom: 20px">
 $type_html
 <div class="cluster-size">$size_info</div>
-<div><a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=l">PNG <i class="fas fa-download"></i></a></div>
+<div><a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=l$ex_param">PNG <i class="fas fa-download"></i></a></div>
 <div>
 <a href="$logo_graphics_dir/$file.png"><img src="$logo_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type-$quality"></a>
 </div>
@@ -787,7 +787,7 @@ $(document).ready(function() {
     $(".hmm-logo").click(function(evt) {
         var parm = $(this).data("logo");
         var windowSize = ["width=1500,height=600"];
-        var url = "view_logo.php?<?php echo "id=$est_id&key=$key"; ?>" + "&logo=" + parm;
+        var url = "view_logo.php?<?php echo "id=$est_id&key=$key$ex_param"; ?>" + "&logo=" + parm;
         var theWindow = window.open(url, "", windowSize);
         evt.preventDefault();
     });
@@ -922,5 +922,4 @@ function make_split_button($args) {
 HTML;
 }
 
-?>
 

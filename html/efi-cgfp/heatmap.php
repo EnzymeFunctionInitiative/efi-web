@@ -2,6 +2,14 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\global_settings;
+use \efi\training\example_config;
+
+$is_example = example_config::is_example();
+if ($is_example) {
+    $is_example = "\"$is_example\"";
+} else {
+    $is_example = "false";
+}
 
 ?>
 <!DOCTYPE html>
@@ -70,7 +78,7 @@ $(document).ready(function() {
         QuantifyId: 0,
 <?php } else { ?>
         StaticExample: false,
-        DynamicExample: <?php echo (isset($_GET["x"]) ? "true" : "false"); ?>,
+        DynamicExample: <?php echo $is_example; ?>,
         Id: "<?php echo $_GET["id"]; ?>",
         Key: "<?php echo $_GET["key"]; ?>",
         QuantifyId: <?php echo(isset($_GET["quantify-id"]) ? $_GET["quantify-id"] : 0); ?>,

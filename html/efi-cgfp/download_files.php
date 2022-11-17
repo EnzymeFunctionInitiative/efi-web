@@ -5,6 +5,7 @@ use \efi\cgfp\settings;
 use \efi\cgfp\identify;
 use \efi\cgfp\quantify;
 use \efi\cgfp\quantify_example;
+use \efi\training\example_config;
 
 
 $is_error = true;
@@ -15,7 +16,7 @@ $job_obj = NULL;
 // There are two types of examples: dynamic and static.  The static example is a curated
 // example pulled into the entry screen.  The dynamic examples are the same as other
 // jobs, except they are stored in separate directories/tables.
-$is_example = isset($_GET["x"]) ? true : false;
+$is_example = example_config::is_example();
 
 if (isset($_GET["example"])) {
     $example_dir = settings::get_example_dir();
@@ -85,7 +86,7 @@ if (isset($_GET["type"])) {
         $prefix = "";
 
     if ($is_example)
-        $rel_out_dir = settings::get_rel_example_http_output_dir();
+        $rel_out_dir = settings::get_rel_example_http_output_dir() . "/$is_example/cgfp";
     else
         $rel_out_dir = settings::get_rel_http_output_dir();
 

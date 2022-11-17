@@ -62,8 +62,8 @@ class analysis extends est_shared {
         $this->db = $db;
 
         if ($is_example) {
-            $this->is_example = true;
-            $this->init_example($id);
+            $this->is_example = $is_example;
+            $this->init_example($is_example);
         }
 
         if ($id)
@@ -72,8 +72,7 @@ class analysis extends est_shared {
     }
 
     private function init_example($id) {
-        $config_file = example_config::get_config_file();
-        $config = example_config::get_config($config_file);
+        $config = example_config::get_example_data($id);
         $this->analysis_table = example_config::get_est_analysis_table($config);
         $this->generate_table = example_config::get_est_generate_table($config);
         $this->ex_data_dir = example_config::get_est_data_dir($config);
@@ -801,7 +800,7 @@ class analysis extends est_shared {
     }
 
     public function get_web_dir_path() {
-        $res_dir = $this->is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+        $res_dir = $this->is_example ? functions::get_results_example_dirname($this->is_example) : functions::get_results_dirname();
         $rel_dir_path = $this->get_output_dir() . "/" . $this->get_network_dir();
         $web_dir_path = functions::get_web_root() . "/$res_dir/$rel_dir_path";
         return $web_dir_path;

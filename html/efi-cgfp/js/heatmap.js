@@ -48,8 +48,8 @@ class QuantifyResults {
         } else {
             params.append("id", this.params.Id);
             params.append("key", this.params.Key);
-            if (this.params.DynamicExample)
-                params.append("x", 1);
+            if (this.params.DynamicExample !== false)
+                params.append("x", this.params.DynamicExample);
             if (this.params.QuantifyId)
                 params.append("quantify-id", this.params.QuantifyId);
         }

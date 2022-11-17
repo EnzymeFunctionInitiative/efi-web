@@ -12,13 +12,14 @@ use \efi\est\dataset_shared;
 use \efi\est\plots;
 use \efi\est\functions;
 use \efi\est\settings;
+use \efi\training\example_config;
 
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
     error500("Unable to find the requested job.");
 }
 
-$is_example = isset($_GET["x"]);
+$is_example = example_config::is_example();
 $generate = new stepa($db, $_GET['id'], $is_example);
 $gen_id = $generate->get_id();
 $key = $_GET['key'];
@@ -63,7 +64,7 @@ if ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") {
 
 $job_name = $generate->get_job_name();
 $use_domain = dataset_shared::get_domain($gen_type, $generate) == "on";
-$ex_param = $is_example ? "&x=1" : "";
+$ex_param = $is_example ? "&x=".$is_example : "";
 
 
 $table_format = "html";
@@ -771,7 +772,9 @@ removed from the clusters if they are fragments.
         });
 
         $(".tabs").tabs({
+<?php if ($show_taxonomy) { ?>
             activate: sunburstTabActivate // comes from shared/js/sunburst.jS
+<?php } ?>
         });
 
         $(".option-panels > div").accordion({
@@ -910,7 +913,7 @@ function make_plot_download($gen, $hdr, $type, $preview_img, $download_img, $plo
     <center>
         <img src='$preview_img' />
 HTML;
-        $ex_param = $is_example ? "&x=1" : "";
+        $ex_param = $is_example ? "&x=".$is_example : "";
         $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "$ex_param'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
         $html .= <<<HTML
     </center>

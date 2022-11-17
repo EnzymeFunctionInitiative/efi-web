@@ -31,6 +31,7 @@ class stepa extends est_shared {
     protected $is_tax_only = false;
 
     protected $is_example = false;
+    protected $ex_data_dir = "";
     private $load_table = "generate";
 
     private $alignment_length_filename = "alignment_length.png";
@@ -50,8 +51,8 @@ class stepa extends est_shared {
         parent::__construct($db, "generate");
 
         if ($is_example) {
-            $this->is_example = true;
-            $this->init_example($id);
+            $this->is_example = $is_example;
+            $this->init_example($is_example);
         }
 
         $this->db = $db;
@@ -61,9 +62,9 @@ class stepa extends est_shared {
     }
 
     private function init_example($id) {
-        $config_file = example_config::get_config_file();
-        $config = example_config::get_config($config_file);
+        $config = example_config::get_example_data($id);
         $this->load_table = example_config::get_est_generate_table($config);
+        $this->ex_data_dir = example_config::get_est_data_dir($config);
     }
 
     public function __destruct() {
@@ -252,7 +253,7 @@ class stepa extends est_shared {
 
     private function get_plot_path_shared($for_web, $file_name) {
         if ($this->is_example)
-            $dir = ($for_web ? functions::get_results_example_dirname() : functions::get_results_example_dir());
+            $dir = ($for_web ? functions::get_results_example_dirname($this->is_example) : $this->ex_data_dir);
         else
             $dir = ($for_web ? functions::get_results_dirname() : functions::get_results_dir());
         return $dir . "/" . $this->get_output_dir() . "/" . $file_name;
@@ -304,8 +305,8 @@ class stepa extends est_shared {
         $dir = "";
         $dirname = "";
         if ($this->is_example) {
-            $dir = functions::get_results_example_dir();
-            $dirname = functions::get_results_example_dirname();
+            $dir = $this->ex_data_dir;
+            $dirname = functions::get_results_example_dirname($this->is_example);
         } else {
             $dir = functions::get_results_dir();
             $dirname = functions::get_results_dirname();

@@ -38,7 +38,6 @@ define("__CLUSTER_PROCS__","48");
 define("__BLASTHITS_PROCS__",12);
 define("__RESULTS_DIRNAME__","results");
 define("__RESULTS_EXAMPLE_DIRNAME__","results_example");
-define("__RESULTS_EXAMPLE_DIR__","DIR_PATH");   // If an example with results is provided, set this to the path to the dir containing the example files [OPTIONAL]
 
 define("__UPDATE_MESSAGE__","");
 

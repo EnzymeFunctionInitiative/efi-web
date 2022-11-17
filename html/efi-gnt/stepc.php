@@ -10,13 +10,14 @@ use \efi\gnt\gnn_example;
 use \efi\gnt\gnt_ui;
 use \efi\gnt\functions;
 use \efi\gnt\settings;
+use \efi\training\example_config;
 
 
-$is_example = isset($_GET["x"]);
+$is_example = example_config::is_example();
 
 if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
     if ($is_example) {
-        $gnn = new gnn_example($db, $_GET['id']);
+        $gnn = new gnn_example($db, $_GET['id'], $is_example);
     } else {
         $gnn = new gnn($db, $_GET['id']);
     }
@@ -212,7 +213,7 @@ $gnn_name = $gnn->get_gnn_name();
 $useDiagramsV3 = $gnn->get_diagram_version() >= 3;
 
 $file_size_col_hdr = $is_example ? "(Zipped MB)" : "(Unzipped/Zipped MB)";
-$ex_param = $is_example ? "&x=1" : "";
+$ex_param = $is_example ? "&x=".$is_example : "";
 
 require_once(__DIR__."/inc/header.inc.php");
 

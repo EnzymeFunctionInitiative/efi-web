@@ -11,12 +11,13 @@ use \efi\cgfp\job_manager;
 use \efi\cgfp\identify;
 use \efi\cgfp\metagenome_db_manager;
 use \efi\ui;
+use \efi\training\example_config;
 
 
 // There are two types of examples: dynamic and static.  The static example is a curated
 // example pulled into the entry screen.  The dynamic examples are the same as other
 // jobs, except they are stored in separate directories/tables.
-$is_example = isset($_GET["x"]) ? true : false;
+$is_example = example_config::is_example();
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"])) {
     error404();
@@ -37,7 +38,7 @@ if ($user_token) {
 $id = $_GET["id"];
 $key = $_GET["key"];
 
-$ex_param = $is_example ? "&x=1" : "";
+$ex_param = $is_example ? "&x=".$is_example : "";
 
 $id_query_string = "id=$id&key=$key$ex_param";
 

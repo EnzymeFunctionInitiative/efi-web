@@ -12,6 +12,7 @@ use \efi\est\dataset_shared;
 use \efi\est\plots;
 use \efi\est\functions;
 use \efi\est\settings;
+use \efi\training\example_config;
 
 
 if (!isset($_POST['id']) || !is_numeric($_POST['id'])) {
@@ -19,7 +20,7 @@ if (!isset($_POST['id']) || !is_numeric($_POST['id'])) {
     exit;
 }
 
-$is_example = isset($_POST["x"]);
+$is_example = example_config::is_example();
 $generate = new stepa($db, $_POST['id'], $is_example);
 $gen_id = $generate->get_id();
 $key = $_POST['key'];

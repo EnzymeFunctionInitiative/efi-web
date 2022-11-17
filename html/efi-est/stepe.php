@@ -9,13 +9,14 @@ use \efi\est\functions;
 use \efi\est\analysis;
 use \efi\est\dataset_shared;
 use \efi\est\blast;
+use \efi\training\example_config;
 
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id']) || !isset($_GET['analysis_id']) || !is_numeric($_GET['analysis_id'])) {
     error500("Unable to find the requested job.");
 }
 
-$is_example = isset($_GET["x"]);
+$is_example = example_config::is_example();
 $generate = new stepa($db, $_GET['id'], $is_example);
 $generate_id = $generate->get_id();
 $email = $generate->get_email();
@@ -77,7 +78,7 @@ dataset_shared::add_generate_summary_table($generate, $table, true, $is_example)
 $table_string = $table->as_string();
 
 
-$ex_param = $is_example ? "&x=1" : "";
+$ex_param = $is_example ? "&x=".$is_example : "";
 
 if (isset($_GET["as-table"])) {
     $table_filename = functions::safe_filename($analysis->get_name()) . "_SSN_overview.txt";

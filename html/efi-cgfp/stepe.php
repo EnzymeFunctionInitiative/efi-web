@@ -11,6 +11,7 @@ use \efi\global_header;
 use \efi\cgfp\quantify;
 use \efi\cgfp\job_manager;
 use \efi\cgfp\job_types;
+use \efi\training\example_config;
 
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"]) || !isset($_GET["quantify-id"]) || !is_numeric($_GET["quantify-id"])) {
@@ -29,9 +30,9 @@ $identify_id = $_GET["id"];
 // There are two types of examples: dynamic and static.  The static example is a curated
 // example pulled into the entry screen.  The dynamic examples are the same as other
 // jobs, except they are stored in separate directories/tables.
-$is_example = isset($_GET["x"]) ? true : false;
+$is_example = example_config::is_example();
 
-$ex_param = $is_example ? "&x=1" : "";
+$ex_param = $is_example ? "&x=".$is_example : "";
 
 // Vars needed by step_vars.inc.php
 $table_format = "html";

@@ -214,11 +214,9 @@ class functions {
     public static function get_results_dirname() {
         return __RESULTS_DIRNAME__;
     }
-    public static function get_results_example_dir() {
-        return __RESULTS_EXAMPLE_DIR__; // set in the global conf file
-    }
-    public static function get_results_example_dirname() {
-        return __RESULTS_EXAMPLE_DIRNAME__;
+    // $is_example is the example dataset ID
+    public static function get_results_example_dirname($is_example) {
+        return __RESULTS_EXAMPLE_DIRNAME__ . "/$is_example/est";
     }
     public static function get_example_dir() {
         return "examples";

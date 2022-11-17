@@ -7,6 +7,7 @@ use \efi\est\nb_conn;
 use \efi\est\conv_ratio;
 use \efi\est\stepa;
 use \efi\est\analysis;
+use \efi\training\example_config;
 
 
 
@@ -20,23 +21,24 @@ if (!$dl_type || !$id || !$key) {
     exit();
 }
 
+$is_example = example_config::is_example();
 
 if (isset($_POST['download_network'])) {
 	$analysis_id = $_POST['analysis_id'];
-	$stepa = new stepa($db,$_POST['id']);
+	$stepa = new stepa($db, $_POST['id'], $is_example);
     if ($stepa->get_key() != $_POST['key']) {
         print_error();
         exit;
     }
 
     if ($dl_type === "BLASTHITS") {
-        $analysis = new analysis($db,$analysis_id);
+        $analysis = new analysis($db, $analysis_id, $is_example);
         $file_info = $analysis->get_blast_evalue_file();
         output_file($file_info["path"], $file_info["name"], send_file::SEND_FILE_TABLE);
     } else {
         $file = $_POST['file'];
         if (global_functions::is_safe_filename($file)) {
-            $analysis = new analysis($db,$analysis_id);
+            $analysis = new analysis($db, $analysis_id, $is_example);
         	$analysis->download_network($file);
         } else {
             print_error();
@@ -44,7 +46,7 @@ if (isset($_POST['download_network'])) {
         }
     }
 } else if ($dl_type == "CONVRATIO") {
-    $obj = new conv_ratio($db, $id);
+    $obj = new conv_ratio($db, $id, $is_example);
     validate_key($obj, $key);
 
     $file_path = "";
@@ -59,7 +61,7 @@ if (isset($_POST['download_network'])) {
 
     output_file($file_path, $file_name, $mime_type);
 } else if ($dl_type === "NBCONN") {
-    $obj = new nb_conn($db, $id);
+    $obj = new nb_conn($db, $id, $is_example);
     validate_key($obj, $key);
 
     $file_path = "";
@@ -83,10 +85,10 @@ if (isset($_POST['download_network'])) {
     output_file($file_path, $file_name, $mime_type);
 } else if ($dl_type === "BLASTHITS") {
     $analysis_id = $_GET['analysis_id'];
-	$stepa = new stepa($db, $id);
+	$stepa = new stepa($db, $id, $is_example);
     validate_key($stepa, $key);
 
-    $analysis = new analysis($db, $analysis_id);
+    $analysis = new analysis($db, $analysis_id, $is_example);
     $file_info = $analysis->get_blast_evalue_file();
     output_file($file_info["full_path"], $file_info["name"], send_file::SEND_FILE_TABLE);
 } else {
