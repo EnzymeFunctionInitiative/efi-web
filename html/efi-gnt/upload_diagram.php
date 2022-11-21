@@ -37,12 +37,13 @@ elseif (!functions::is_valid_diagram_file_type($file_type)) {
     $message .= "<br><b>Invalid filetype ($file_type).  The file has to be an " . settings::get_valid_diagram_file_types() . " filetype.</b>";
 }
 
-if (!functions::verify_email($_POST['email'])) {
+$email = "";
+if (!isset($_POST['email']) || !functions::verify_email($_POST['email'])) {
     $valid = 0;
     $message .= "<br><b>Please verify your e-mail address</b>";
+} else {
+    $email = $_POST['email'];
 }
-
-$email = $_POST['email'];
 $jobGroup = isset($_POST['job-group']) ? $_POST['job-group'] : '';
 
 if ($valid) {

@@ -29,7 +29,7 @@ class taxonomy_job extends family_shared {
             $this->get_no_matches_download_file();
     }
     private function get_no_matches_download_file() {
-        $dir = $this->is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+        $dir = $this->is_example ? functions::get_results_example_dirname($this->is_example) : functions::get_results_dirname();
         $dir .= "/" . $this->get_output_dir();
         $dir .= "/" . $this->get_no_matches_filename(); 
         return $dir;

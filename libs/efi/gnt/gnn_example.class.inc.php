@@ -9,11 +9,10 @@ use \efi\training\example_config;
 
 class gnn_example extends gnn {
 
-    public function __construct($db, $id) {
+    public function __construct($db, $id, $is_example_id) {
         parent::__construct($db, $id, false, false);
 
-        $config_file = example_config::get_config_file();
-        $config = example_config::get_config($config_file);
+        $config = example_config::get_example_data($is_example_id);
         $table = example_config::get_gnt_table($config);
         $this->data_dir = example_config::get_gnt_data_dir($config);
 

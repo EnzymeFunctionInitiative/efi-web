@@ -19,11 +19,22 @@ class send_file {
         header('Content-Type: ' . $type);
         header('Content-Length: ' . $file_size);
     }
+
+    // Typical use
     public static function send($file_path, $file_name, $type = SEND_FILE_BINARY) {
         $file_size = filesize($file_path);
         self::send_headers($file_name, $file_size, $type);
         self::send_file_contents($file_path);
     }
+
+    // Typical use
+    public static function send_text($text_string, $file_name, $type = SEND_FILE_TABLE) {
+        $file_size = strlen($text_string);
+        self::send_headers($file_name, $file_size, $type);
+        ob_clean();
+        echo $text_string;
+    }
+
     public static function send_file_contents($file) {
         $handle = fopen($file, 'rb');
         self::send_file_contents_handle($handle);

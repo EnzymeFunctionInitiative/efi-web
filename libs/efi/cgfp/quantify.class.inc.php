@@ -26,17 +26,15 @@ class quantify extends quantify_shared {
         $this->set_id($job_id);
         $this->db = $db;
         $this->is_debug = $is_debug;
+        $this->is_example = $is_example;
 
-        if ($this->is_example) {
-            $this->init_example();
-        }
-
+        if ($this->is_example)
+            $this->init_example($this->is_example);
         $this->load_job();
     }
 
-    private function init_example() {
-        $config_file = example_config::get_config_file();
-        $config = example_config::get_config($config_file);
+    private function init_example($id) {
+        $config = example_config::get_example_data($id);
         $this->q_table = example_config::get_cgfp_quantify_table($config);
         $this->id_table = example_config::get_cgfp_identify_table($config);
         $this->ex_data_dir = example_config::get_cgfp_data_dir($config);
