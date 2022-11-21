@@ -10,13 +10,15 @@ use \efi\est\stepa;
 use \efi\est\analysis;
 use \efi\est\dataset_shared;
 use \efi\est\functions;
+use \efi\training\example_config;
 
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
     error500("Unable to find the requested job.");
 }
 
-$generate = new stepa($db, $_GET['id'], false);
+$is_example = example_config::is_example();
+$generate = new stepa($db, $_GET['id'], $is_example);
 $gen_id = $generate->get_id();
 $key = $_GET['key'];
 
@@ -42,7 +44,7 @@ if (isset($_GET["as-table"])) {
 $use_advanced_options = global_settings::advanced_options_enabled();
 
 $gen_type = $generate->get_type();
-$generate = dataset_shared::create_generate_object("TAXONOMY", $db, false);
+$generate = dataset_shared::create_generate_object("TAXONOMY", $db, $is_example);
 
 if (!$generate->has_tax_data()) {
     error500("Invalid job type.");

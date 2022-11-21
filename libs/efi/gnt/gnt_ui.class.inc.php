@@ -161,7 +161,7 @@ HTML;
                 <tbody>
 HTML;
 
-        $example_arg = $is_example ? "&x=1" : "";
+        $example_arg = $is_example ? "&x=".$is_example : "";
         $base_url_dir = global_settings::get_gnt_web_path() . "/";
 
         $last_bg_color = "#eee";

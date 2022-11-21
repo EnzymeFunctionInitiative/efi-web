@@ -5,6 +5,7 @@ use \efi\gnt\settings;
 use \efi\gnt\functions;
 use \efi\gnt\bigscape_job;
 use \efi\gnt\gnd_params;
+use \efi\training\example_config;
 
 include(__DIR__."/inc/gnd_make_params.inc.php");
 include(__DIR__."/inc/gnd_misc.inc.php");
@@ -22,7 +23,7 @@ include(__DIR__."/inc/gnd_misc_dialogs.inc.php");
 
 $P = new gnd_params();
 
-$P->is_example = isset($_GET["x"]) ? true : false;
+$P->is_example = example_config::is_example();
 $P->is_bigscape_enabled = settings::get_bigscape_enabled() && !$P->is_example;
 $P->is_interpro_enabled = settings::get_interpro_enabled();
 $P->num_diagrams = settings::get_num_diagrams_per_page();

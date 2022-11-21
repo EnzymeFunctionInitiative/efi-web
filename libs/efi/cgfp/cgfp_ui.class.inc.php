@@ -20,7 +20,7 @@ class cgfp_ui {
                 <tbody>
 HTML;
         $last_bg_color = "#eee";
-        $ex_param = $is_example ? "&x=1" : "";
+        $ex_param = $is_example ? "&x=".$is_example : "";
         $script_dir = $is_example ? global_settings::get_cgfp_web_path() . "/" : "";
         for ($i = 0; $i < count($jobs); $i++) {
             $key = $jobs[$i]["key"];

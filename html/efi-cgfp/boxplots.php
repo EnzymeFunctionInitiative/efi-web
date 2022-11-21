@@ -2,11 +2,19 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\global_functions;
+use \efi\training\example_config;
 
 
 $filename = "";
 if (isset($_GET["filename"])) {
     $filename = pathinfo(global_functions::safe_filename($_GET["filename"]), PATHINFO_FILENAME);
+}
+
+$is_example = example_config::is_example();
+if ($is_example) {
+    $is_example = "\"$is_example\"";
+} else {
+    $is_example = "false";
 }
     
 ?>
@@ -78,7 +86,7 @@ $(document).ready(function() {
         QuantifyId: 0,
 <?php } else { ?>
         StaticExample: false,
-        DynamicExample: <?php echo (isset($_GET["x"]) ? "true" : "false"); ?>,
+        DynamicExample: <?php echo $is_example; ?>,
         Id: "<?php echo $_GET["id"]; ?>",
         Key: "<?php echo $_GET["key"]; ?>",
         QuantifyId: <?php echo(isset($_GET["quantify-id"]) ? $_GET["quantify-id"] : 0); ?>,

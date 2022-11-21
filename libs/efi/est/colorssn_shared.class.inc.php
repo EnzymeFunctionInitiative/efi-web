@@ -178,9 +178,9 @@ abstract class colorssn_shared extends option_base {
         }
 
         if (isset($result["generate_color_ssn_source_id"]) && isset($result["generate_color_ssn_source_idx"])) {
-            $this->ssn_source_analysis_id = $result["generate_color_ssn_source_id"];
-            $this->ssn_source_analysis_idx = $result["generate_color_ssn_source_idx"];
-            $this->ssn_source_key = $result["generate_color_ssn_source_key"];
+            $this->ssn_source_analysis_id = isset($result["generate_color_ssn_source_id"]) ? $result["generate_color_ssn_source_id"] : "";
+            $this->ssn_source_analysis_idx = isset($result["generate_color_ssn_source_idx"]) ? $result["generate_color_ssn_source_idx"] : "";
+            $this->ssn_source_key = isset($result["generate_color_ssn_source_key"]) ? $result["generate_color_ssn_source_key"] : "";
 
             $info = functions::get_analysis_job_info($this->db, $this->ssn_source_analysis_id, $this->ssn_source_key, $this->ssn_source_analysis_idx);
             if ($info) {
@@ -285,11 +285,11 @@ abstract class colorssn_shared extends option_base {
     // FILE NAME/PATH ACCESSORS
 
     protected function get_web_output_dir() {
-        $dir = $this->is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+        $dir = $this->is_example ? functions::get_results_example_dirname($this->is_example) : functions::get_results_dirname();
         return $dir . "/" . $this->get_output_dir();
     }
     public function get_full_output_dir() {
-        $dir = $this->is_example ? functions::get_results_example_dir() : functions::get_results_dir();
+        $dir = $this->is_example ? $this->ex_data_dir : functions::get_results_dir();
         return $dir . "/" . $this->get_output_dir();
     }
     public function get_base_filename() {
@@ -313,8 +313,8 @@ abstract class colorssn_shared extends option_base {
     }
     public function get_file_size($web_path) {
         if ($this->is_example) {
-            $dir = functions::get_results_example_dir();
-            $chop = functions::get_results_example_dirname();
+            $dir = $this->ex_data_dir;
+            $chop = functions::get_results_example_dirname($this->is_example);
             $web_path = substr($web_path, strlen($chop)+1);
             $full_path = "$dir/$web_path";
         } else {
