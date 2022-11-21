@@ -228,9 +228,9 @@ class example_config {
         if (self::is_est_job($id)) {
             $output .= est_ui::output_job_list($this->est_jobs[$id], false, false, $this->example_id);
         } else if (preg_match("/^gn/", $id)) {
-            $output .= gnt_ui::output_job_list($this->gnt_jobs[$id], true);
+            $output .= gnt_ui::output_job_list($this->gnt_jobs[$id], $this->example_id);
         } else if (preg_match("/^cgfp/", $id)) {
-            $output .= cgfp_ui::output_job_list($this->cgfp_jobs[$id], false, true);
+            $output .= cgfp_ui::output_job_list($this->cgfp_jobs[$id], false, $this->example_id);
         }
 
         return $output;
