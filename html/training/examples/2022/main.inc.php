@@ -122,7 +122,7 @@ HTML;
     $gnt1_html = "";
     $gnt1_jobs = $config->get_gnt_jobs("gnt.gre");
     if (count($gnt1_jobs) > 0)
-        $gnt1_html = gnt_ui::output_job_list($gnt1_jobs, false, false, "2022");
+        $gnt1_html = gnt_ui::output_job_list($gnt1_jobs, "2022");
     $cgfp1_html = "";
     $cgfp1_jobs = $config->get_cgfp_jobs("cgfp.gre");
     if (count($cgfp1_jobs) > 0)

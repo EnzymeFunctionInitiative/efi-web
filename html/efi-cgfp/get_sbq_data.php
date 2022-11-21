@@ -25,7 +25,7 @@ $job_obj = NULL;
 // There are two types of examples: dynamic and static.  The static example is a curated
 // example pulled into the entry screen.  The dynamic examples are the same as other
 // jobs, except they are stored in separate directories/tables.
-$is_example = example_config::is_example();
+$is_example = example_config::is_example($_POST);
 
 if (isset($_POST["static-example"])) {
     $ex_dir = settings::get_example_dir();
