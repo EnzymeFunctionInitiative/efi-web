@@ -568,9 +568,9 @@ class analysis extends est_shared {
                 $this->build_repnode = false;
             }
             if (isset($a_params["tax_search"]) && $a_params["tax_search"] && isset($a_params["tax_search_hash"]) && $a_params["tax_search_hash"]) {
-                $this->tax_search = $a_params["tax_search"];
-                $this->tax_search_hash = $a_params["tax_search_hash"];
-                $this->tax_search_name = $a_params["tax_search_name"];
+                $this->tax_search = isset($a_params["tax_search"]) ? $a_params["tax_search"] : "";
+                $this->tax_search_hash = isset($a_params["tax_search_hash"]) ? $a_params["tax_search_hash"] : "";
+                $this->tax_search_name = isset($a_params["tax_search_name"]) ? $a_params["tax_search_name"] : "";
             }
             if (isset($a_params["remove_fragments"]) && $a_params["remove_fragments"])
                 $this->remove_fragments = true;

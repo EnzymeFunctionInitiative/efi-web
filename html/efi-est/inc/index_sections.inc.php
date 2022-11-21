@@ -1471,10 +1471,14 @@ function check_for_color_mode($db) {
                 }
             }
         } else if ($mode === "cr" && isset($_GET["est-id"]) && isset($_GET["est-key"])) {
-            $job_info = colorssn_shared::get_source_color_ssn_info($db, $_GET["est-id"], $_GET["est-key"]);
+            $the_id = $_GET["est-id"];
+            $the_key = $_GET["est-key"];
+            $job_info = colorssn_shared::get_source_color_ssn_info($db, $the_id, $the_key);
             if ($job_info !== false) {
                 $mode_data["filename"] = $job_info["filename"];
-                $mode_data["ssn_id"] = $_GET["est-id"];
+                $mode_data["ssn_id"] = $the_id;
+                $mode_data["ssn_key"] = $the_key;
+                $mode_data["ssn_idx"] = 0;
                 $mode_data["mode"] = $mode;
             }
         }

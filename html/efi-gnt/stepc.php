@@ -594,7 +594,7 @@ Please change parameters or select a new file to upload before refiltering.
                 });
             } else {
                 var email = "<?php echo $IsLoggedIn ? $IsLoggedIn : ""; ?>";
-                uploadSsnFilter({fileInputId: 'ssn_file', formId: 'upload_form', progressNumId: 'progress_number', progressBarId: 'progress_bar', messageId: 'ssn_message', emailAddr: email, submitId: 'filter-btn'});
+                uploadSsnFilter({fileInputId: 'ssn_file', formId: 'upload_form', progressNumId: 'progress_number', progressBarId: 'progress_bar', messageId: 'ssn_message', emailId: email, submitId: 'filter-btn'});
             }
         });
 

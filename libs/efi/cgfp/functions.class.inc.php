@@ -149,17 +149,6 @@ class functions extends global_functions {
         else
             return false;
     }
-    
-    public static function send_table($table_filename, $table_string) {
-        header('Pragma: public');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . $table_filename . '"');
-        header('Content-Length: ' . strlen($table_string));
-        ob_clean();
-        echo $table_string;
-    }
 
     public static function is_shortbred_authorized($db, $user_id) {
         $sb_group = settings::get_shortbred_group();

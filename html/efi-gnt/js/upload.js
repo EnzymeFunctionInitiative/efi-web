@@ -17,6 +17,7 @@ function uploadSsn(args) {
 
 function uploadSsnFilter(args) {
 //function uploadSsnFilter(fileInputId, formId, progressNumId, progressBarId, messageId, emailAddr, submitId) {
+    args.isFilterSubmit = true;
     uploadFileShared(args);
     //uploadFileShared(fileInputId, formId, progressNumId, progressBarId, messageId, emailAddr, submitId, true, 0, "", 0, true);
 }

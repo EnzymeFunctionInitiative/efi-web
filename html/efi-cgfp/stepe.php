@@ -12,6 +12,7 @@ use \efi\cgfp\quantify;
 use \efi\cgfp\job_manager;
 use \efi\cgfp\job_types;
 use \efi\training\example_config;
+use \efi\send_file;
 
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"]) || !isset($_GET["quantify-id"]) || !is_numeric($_GET["quantify-id"])) {
@@ -62,7 +63,7 @@ require_once(__DIR__."/inc/stepe_vars.inc.php");
 
 if (isset($_GET["as-table"])) {
     $table_filename = "${identify_id}_q${qid}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_summary.txt";
-    functions::send_table($table_filename, $table_string);
+    send_file::send_text($table_string, $table_filename, send_file::SEND_FILE_TABLE);
     exit(0);
 }
 
