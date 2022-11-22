@@ -38,7 +38,7 @@ if (isset($IncludeSunburstJs) && $IncludeSunburstJs) {
     );
     array_push($StyleAdditional,
         '<link rel="stylesheet" type="text/css" href="' . $SiteUrlPrefix . '/vendor/efiillinois/sunburst/web/css/sunburst.css?v=2">',
-        '<link rel="stylesheet" type="text/css" href="' . $SiteUrlPrefix . '/shared/css/sunburst.css?v=1">',
+        '<link rel="stylesheet" type="text/css" href="' . $SiteUrlPrefix . '/shared/css/sunburst.css?v=2">',
     );
 }
 

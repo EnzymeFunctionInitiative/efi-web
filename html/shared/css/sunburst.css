@@ -5,12 +5,12 @@
     width: 90%;
     height: 25px;
     margin: 0px auto;
-    padding-top: 8px;
+    padding: 8px 8px 1px 8px;
     border-radius: 5px;
-    background-color: #007fff;
+    background-color: #8abfff;
     border: 1px solid #777;
     text-align: center;
-    color: #000;
+    color: #3c3c3c;
     font-weight: bold;
     top: 0;
 }
