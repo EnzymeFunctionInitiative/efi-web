@@ -86,6 +86,8 @@ $date_completed = $generate->get_time_completed_formatted();
 
 $histo_info = $generate->get_length_histogram_info();
 
+$ex_param = $is_example ? "&x=$is_example" : "";
+
 ?>	
 
 
@@ -135,7 +137,7 @@ for ($i = 0; $i < count($histo_info); $i++) {
         <!--<div><?php echo $histo_info[$i][0]; ?></div>-->
         <div>
             <img src="<?php echo $histo_info[$i][1]; ?>" /><br />
-            <a href='graphs.php?id=<?php echo $gen_id; ?>&type=<?php echo $type; ?>&key=<?php echo $key; ?>'><button class='file_download'>Download high resolution <img src='../images/download.svg' /></button></a>
+            <a href='graphs.php?id=<?php echo $gen_id; ?>&type=<?php echo $type; ?>&key=<?php echo $key; ?><?php echo $ex_param; ?>'><button class='file_download'>Download high resolution <img src='../images/download.svg' /></button></a>
         </div>
     </div>
 <?php
@@ -179,6 +181,11 @@ for ($i = 0; $i < count($histo_info); $i++) {
     var jobId = "<?php echo $gen_id; ?>";
     var jobKey = "<?php echo $key; ?>";
     var onComplete = makeOnSunburstCompleteFn(estPath, gntPath, jobId, jobKey);
+    var isExample = <?php echo $is_example ? "\"$is_example\"" : "\"\""; ?>;
+
+    var apiExtra = [];
+    if (isExample)
+        apiExtra.push(["x", isExample]);
 
     var sunburstTextFn = function() {
         return $('<div><?php echo $sunburst_post_sunburst_text; ?></div>');
@@ -188,7 +195,7 @@ for ($i = 0; $i < count($histo_info); $i++) {
     var sbParams = {
             apiId: "<?php echo $gen_id; ?>",
             apiKey: "<?php echo $key; ?>",
-            apiExtra: [],
+            apiExtra: apiExtra,
             appUniRefVersion: <?php echo $sunburst_app_uniref; ?>,
             appPrimaryIdTypeText: "<?php echo $sunburst_app_primary_id_type; ?>",
             appPostSunburstTextFn: sunburstTextFn,

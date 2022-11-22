@@ -351,13 +351,13 @@ abstract class family_shared extends option_base {
     }
 
     public function has_tax_data() {
-        $results_dir = functions::get_results_dir();
+        $results_dir = $this->get_results_dir();
         $file_path = $results_dir . "/" . $this->get_output_dir() . "/tax.json";
         return (file_exists($file_path) && filesize($file_path) > 0);
     }
 
     public function get_taxonomy_data() {
-        $results_dir = functions::get_results_dir();
+        $results_dir = $this->get_results_dir();
         $file_path = $results_dir . "/" . $this->get_output_dir() . "/tax.json";
         $data = file_get_contents($file_path);
         if ($data !== false) {

@@ -832,6 +832,11 @@ removed from the clusters if they are fragments.
         var jobId = "<?php echo $gen_id; ?>";
         var jobKey = "<?php echo $key; ?>";
         var onComplete = makeOnSunburstCompleteFn(estPath, gntPath, jobId, jobKey);
+        var isExample = <?php echo $is_example ? "\"$is_example\"" : "\"\""; ?>;
+
+        var apiExtra = [];
+        if (isExample)
+            apiExtra.push(["x", isExample]);
 
         var sunburstTextFn = function() {
             return $('<div><?php echo $sunburst_post_sunburst_text; ?></div>');
@@ -841,7 +846,7 @@ removed from the clusters if they are fragments.
         var sbParams = {
                 apiId: "<?php echo $gen_id; ?>",
                 apiKey: "<?php echo $key; ?>",
-                apiExtra: [],
+                apiExtra: apiExtra,
                 appUniRefVersion: <?php echo $sunburst_app_uniref; ?>,
                 appPrimaryIdTypeText: '<?php echo $sunburst_app_primary_id_type; ?>',
                 appPostSunburstTextFn: sunburstTextFn,

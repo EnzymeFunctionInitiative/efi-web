@@ -17,8 +17,8 @@ class gnd_v2 extends gnd {
     private $range = array(); // range of cluster_index to retrieve
 
 
-    function __construct($db, $params, $job_factory) {
-        parent::__construct($db, $params, $job_factory);
+    function __construct($db, $params, $job_factory, $is_example = false) {
+        parent::__construct($db, $params, $job_factory, $is_example);
 
         $this->parse_params($params);
     }

@@ -30,7 +30,6 @@ class stepa extends est_shared {
     protected $job_name = "";
     protected $is_tax_only = false;
 
-    protected $is_example = false;
     protected $ex_data_dir = "";
     private $load_table = "generate";
 
@@ -48,10 +47,9 @@ class stepa extends est_shared {
 
 
     public function __construct($db, $id = 0, $is_example = false) {
-        parent::__construct($db, "generate");
+        parent::__construct($db, "generate", $is_example);
 
         if ($is_example) {
-            $this->is_example = $is_example;
             $this->init_example($is_example);
         }
 
@@ -674,6 +672,20 @@ class stepa extends est_shared {
         }
 
         return $jobs;
+    }
+
+    protected function get_results_dir() {
+        $dir = "";
+        if ($this->is_example) {
+            $dir = $this->ex_data_dir;
+            #$dirname = functions::get_results_example_dirname($this->is_example);
+        } else {
+            $dir = functions::get_results_dir();
+            #$dirname = functions::get_results_dirname();
+        }
+        return $dir;
+        #$full_file = $dir . "/" . $this->get_output_dir() . "/" . $file_name;
+        #return $full_file;
     }
 }
 

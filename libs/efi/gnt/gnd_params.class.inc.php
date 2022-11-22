@@ -26,6 +26,7 @@ class gnd_params {
 
     public $blast_seq;
 
+    public $bigscape_type;
     public $bigscape_btn_icon;
     public $bigscape_status;
     public $bigscape_btn_text;

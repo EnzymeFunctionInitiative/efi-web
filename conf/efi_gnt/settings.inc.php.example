@@ -37,7 +37,7 @@ define("__CGFP_WEB_ROOT__",__CGFP_WEB_PATH__);
 // If you want sub directories to be differently these can be changed (not recommended)
 // Create symlinks for these three to the OUTPUT_DIRs above
 define("__RELATIVE_OUTPUT_DIR__","results");
-define("__RELATIVE_EXAMPLE_OUTPUT_DIR__","results_example");
+define("__RESULTS_EXAMPLE_DIRNAME__","results_example");
 define("__RELATIVE_DIAGRAM_OUTPUT_DIR__","gnd_results");
 define("__VALID_FILE_TYPE__","xgmml zip");
 define("__VALID_DIAGRAM_FILE_TYPE__","sqlite");

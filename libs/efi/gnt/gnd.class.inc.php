@@ -27,6 +27,7 @@ abstract class gnd {
     private $filter_uniref_id = "";
     private $use_cluster_id = false;
     protected $rt_id = "";
+    protected $is_example = false;
 
     public function get_error_message() { return $this->message; }
     public function parse_error() { return $this->message; }
@@ -34,8 +35,9 @@ abstract class gnd {
     public function get_job_name() { return $this->job_name; }
 
 
-    function __construct($db, $params, $factory) {
+    function __construct($db, $params, $factory, $is_example = false) {
         $this->factory = $factory;
+        $this->is_example = $is_example;
 
         $this->parse_job_id($db, $params);
         $this->parse_scale($params);
@@ -56,7 +58,7 @@ abstract class gnd {
             $gnn = $this->factory->new_gnn($db, $gnn_id);
             if ($gnn->get_key() != $params["key"]) {
                 $message = "No GNN selected.";
-            } elseif ($gnn->is_expired()) {
+            } elseif ($this->is_example === false && $gnn->is_expired()) {
                 $message = "GNN results are expired.";
             }
 
