@@ -6,6 +6,7 @@ use \efi\gnt\bigscape_job;
 use \efi\gnt\gnd_v2;
 use \efi\gnt\job_factory;
 use \efi\training\example_config;
+use \efi\gnt\gnn_example;
 
 
 // This is necessary so that the gnd class environment doesn't get clusttered
@@ -47,7 +48,7 @@ $PARAMS = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
 $is_example = example_config::is_example($PARAMS);
 
 
-$gnd = new gnd_v2($db, $PARAMS, new gnd_job_factory($is_example));
+$gnd = new gnd_v2($db, $PARAMS, new gnd_job_factory($is_example), $is_example);
 
 
 if ($gnd->parse_error()) {

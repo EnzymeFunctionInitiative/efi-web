@@ -49,7 +49,6 @@ class analysis extends est_shared {
     private $tax_search_name;
     private $remove_fragments = false;
 
-    private $is_example = false;
     private $analysis_table = "analysis";
     private $generate_table = "generate";
     private $ex_data_dir = "";
@@ -57,12 +56,11 @@ class analysis extends est_shared {
     ///////////////Public Functions///////////
 
     public function __construct($db, $id = 0, $is_example = false) {
-        parent::__construct($db, "analysis");
+        parent::__construct($db, "analysis", $is_example);
 
         $this->db = $db;
 
         if ($is_example) {
-            $this->is_example = $is_example;
             $this->init_example($is_example);
         }
 

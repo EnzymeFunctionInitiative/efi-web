@@ -2,6 +2,7 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\gnt\gnn;
+use \efi\gnt\gnn_example;
 use \efi\gnt\bigscape_job;
 use \efi\gnt\gnd_v2;
 use \efi\gnt\direct_gnd_file;
@@ -33,8 +34,7 @@ $is_example = example_config::is_example($PARAMS);
 
 $start_time = microtime(true);
 
-$gnd = new gnd_v2($db, $PARAMS, new gnd_job_factory($is_example));
-
+$gnd = new gnd_v2($db, $PARAMS, new gnd_job_factory($is_example), $is_example);
 
 
 if ($gnd->parse_error()) {

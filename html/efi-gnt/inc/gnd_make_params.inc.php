@@ -45,7 +45,7 @@ function get_gnn_params($db, $P) {
     if ($gnn->get_key() != $P->gnn_key) {
         return false;
     }
-    elseif ($gnn->is_expired()) {
+    elseif (!$P->is_example && $gnn->is_expired()) {
         return false;
         //error_404("That job has expired and doesn"t exist anymore.");
     }
