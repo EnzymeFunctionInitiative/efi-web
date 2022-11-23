@@ -26,8 +26,8 @@ superfamily (RSS).
 </p>
 
 <p>
-The <a href="examples/2022/paper.pdf">manuscript</a> and
-<a href="examples/2022/supplementary.pdf">supplementary figures and table</a>
+The <a href="examples/2022/JMB_Resource_MS_Final.pdf">manuscript</a> and
+<a href="examples/2022/JMB_Resource_SI_Final.pdf">supplementary figures and table</a>
 are both available for download.
 </p>
 
