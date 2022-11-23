@@ -2,11 +2,19 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\global_functions;
+use \efi\training\example_config;
 
 
 $filename = "";
 if (isset($_GET["filename"])) {
     $filename = pathinfo(global_functions::safe_filename($_GET["filename"]), PATHINFO_FILENAME);
+}
+
+$is_example = example_config::is_example();
+if ($is_example) {
+    $is_example = "\"$is_example\"";
+} else {
+    $is_example = "false";
 }
     
 ?>
@@ -21,7 +29,7 @@ if (isset($_GET["filename"])) {
     <link rel="stylesheet" type="text/css" href="../css/form.css?v=2">
 
     <!--<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>-->
-    <script src="../vendor/plotly/plotly.js/plotly.min.js"></script>
+    <script src="../vendor/plotly/plotly.js/dist/plotly.min.js"></script>
     <script src="../vendor/components/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="js/heatmap.js?v=6"></script>
 
@@ -78,7 +86,7 @@ $(document).ready(function() {
         QuantifyId: 0,
 <?php } else { ?>
         StaticExample: false,
-        DynamicExample: <?php echo (isset($_GET["x"]) ? "true" : "false"); ?>,
+        DynamicExample: <?php echo $is_example; ?>,
         Id: "<?php echo $_GET["id"]; ?>",
         Key: "<?php echo $_GET["key"]; ?>",
         QuantifyId: <?php echo(isset($_GET["quantify-id"]) ? $_GET["quantify-id"] : 0); ?>,

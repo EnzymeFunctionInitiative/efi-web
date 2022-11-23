@@ -5,13 +5,15 @@ use \efi\gnt\gnn;
 use \efi\gnt\bigscape_job;
 use \efi\gnt\gnd_v2;
 use \efi\gnt\job_factory;
+use \efi\training\example_config;
+use \efi\gnt\gnn_example;
 
 
 // This is necessary so that the gnd class environment doesn't get clusttered
 // with the dependencies that gnn, etc. need.
 class gnd_job_factory extends job_factory {
-    function __construct($is_example) { $this->is_example = $is_example; }
-    public function new_gnn($db, $id) { return $this->is_example ? new gnn_example($db, $id) : new gnn($db, $id); }
+    function __construct($is_example = false) { $this->is_example = $is_example; }
+    public function new_gnn($db, $id) { return $this->is_example !== false ? new gnn_example($db, $id, $this->is_example) : new gnn($db, $id); }
     public function new_gnn_bigscape_job($db, $id) { return new bigscape_job($db, $id, DiagramJob::GNN); }
     public function new_uploaded_bigscape_job($db, $id) { return new bigscape_job($db, $id, DiagramJob::Uploaded); }
     public function new_diagram_data_file($id) { return new diagram_data_file($id); }
@@ -43,10 +45,10 @@ if (is_cli()) {
 
 
 $PARAMS = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
-$is_example = isset($PARAMS["x"]) ? true : false;
+$is_example = example_config::is_example($PARAMS);
 
 
-$gnd = new gnd_v2($db, $PARAMS, new gnd_job_factory($is_example));
+$gnd = new gnd_v2($db, $PARAMS, new gnd_job_factory($is_example), $is_example);
 
 
 if ($gnd->parse_error()) {

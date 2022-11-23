@@ -9,6 +9,36 @@ require_once(__DIR__."/inc/header.inc.php");
 
 <h2>Release Notes</h2>
 
+<h3>July 6, 2022</h3>
+
+<p>
+New node attributes, TIGRFAMs and AlphaFold, have been added to SSNs.
+</p>
+<p>
+The ENA database that is used by the EFI-GNT was last updated in June 2022.
+<p>
+<?php echo get_db_size_text("2022_02", "89", 231354261, 567483); ?>
+</p>
+
+<h3>April 26, 2022</h3>
+
+<p>
+As the UniProt database increases in size, selecting sequences from specific 
+taxonomic categories may be useful for generating SSNs. Use the "Filter by 
+Taxonomy" option to specify taxonomic categories in the input sequences. The 
+"Taxonomy" tool (top of page) provides a preview of the taxonomic distribution 
+of user-specified sequences.
+</p>
+
+<p>Also, the upper limit on the number of 
+sequences from the UniProt and UniRef90 databases for EFI-EST has been 
+increased from 25,000 to 50,000 to allow the generation of SSNs for larger 
+families. Visualization of these with Cytoscape will require more RAM, but 
+access to increased amounts of sequence-function space may be useful.  The time 
+required to generate an SSN increases with the square of the number of 
+sequences.
+</p>
+
 <h3>September 15, 2020</h3>
 
 <p>

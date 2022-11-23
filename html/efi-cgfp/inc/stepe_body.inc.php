@@ -217,8 +217,8 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
                                 <?php
                                     make_results_row($id_query_string, $file_types["protein_genome_norm_mean"],
                                         "Download", $size_data["protein_genome_norm_mean"], $html_labels["protein_genome_norm_mean"]);
-                                    make_results_row($id_query_string, $file_types["cluster_genome_norm"],
-                                        "Download", $size_data["cluster_genome_norm"], $html_labels["cluster_genome_norm"]);
+                                    make_results_row($id_query_string, $file_types["cluster_genome_norm_mean"],
+                                        "Download", $size_data["cluster_genome_norm_mean"], $html_labels["cluster_genome_norm_mean"]);
                                 ?>
                             </tbody>
                         </table>

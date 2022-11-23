@@ -9,6 +9,14 @@ use efi\est\est_user_jobs_shared;
 
 class user_jobs extends \efi\user_auth {
 
+    // Sort by generate job time completion
+    const SORT_TIME_COMPLETED = 1;
+    // Sort by generate/analysis/job group time activity
+    const SORT_TIME_ACTIVITY = 2;
+    // Sort by generate job ID
+    const SORT_ID = 3;
+    const SORT_ID_REVERSE = 4;
+
     private $user_token = "";
     private $user_email = "";
     private $user_groups = array();
@@ -26,7 +34,7 @@ class user_jobs extends \efi\user_auth {
             $this->exclude_job_types = $exclude_types;
     }
 
-    public function load_jobs($db, $token) {
+    public function load_jobs($db, $token, $sort_order = self::SORT_TIME_COMPLETED) {
         $this->user_token = $token;
         $this->user_email = self::get_email_from_token($db, $token);
         if (!$this->user_email)
@@ -36,25 +44,9 @@ class user_jobs extends \efi\user_auth {
         array_unshift($this->user_groups, \efi\global_settings::get_default_group_name());
         $this->is_admin = self::get_user_admin($db, $this->user_email);
 
-        $this->load_generate_jobs($db);
+        $this->load_generate_jobs($db, $sort_order);
         $this->load_analysis_jobs($db);
         $this->load_training_jobs($db);
-    }
-
-    public static function load_jobs_for_group($db, $group_name, $show_family_names = false) {
-        if (!$group_name)
-            return array();
-
-        $group_clause = "user_group = '$group_name'";
-        $sql = self::get_group_select_statement($group_clause);
-        $rows = $db->query($sql);
-
-        $family_lookup_fn = function($family_id) use($db) { return self::lookup_family_name($db, $family_id); };
-
-        $includeAnalysisJobs = false;
-        $jobs = self::process_load_generate_rows($db, $rows, $includeAnalysisJobs, false, $family_lookup_fn);
-        
-        return $jobs;
     }
 
     // Returns true if the user has exceeded their 24-hr limit
@@ -106,22 +98,29 @@ class user_jobs extends \efi\user_auth {
         return array($type_param_str, $job_types);
     }
 
-    private function load_generate_jobs($db) {
+    private function load_generate_jobs($db, $sort_order) {
         $email = $this->user_email;
         $expDate = self::get_start_date_window();
+
+        $order_by = "generate_status, generate_time_completed DESC";
+        if ($sort_order == self::SORT_ID) {
+            $order_by = "generate_status, generate_id DESC";
+        } else if ($sort_order == self::SORT_ID_REVERSE) {
+            $order_by = "generate_status, generate_id ASC";
+        }
 
         list($job_type_clause, $job_type_params) = $this->get_job_type_clause();
 
         $sql = self::get_select_statement() .
             "WHERE (generate_email = '$email') AND generate_status != 'ARCHIVED' AND generate_status != 'CANCELLED' AND $job_type_clause (generate_is_tax_job = 0 OR generate_is_tax_job IS NULL) AND " .
             "(generate_time_completed >= '$expDate' OR (generate_time_created >= '$expDate' AND (generate_status = 'NEW' OR generate_status = 'RUNNING' OR generate_status = 'FAILED'))) " .
-            "ORDER BY generate_status, generate_time_completed DESC";
+            "ORDER BY $order_by";
         $rows = $db->query($sql, $job_type_params);
 
         $familyLookupFn = function($family_id) {};
         $includeFailedAnalysisJobs = true;
         $includeAnalysisJobs = true;
-        $this->jobs = est_user_jobs_shared::process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn);
+        $this->jobs = est_user_jobs_shared::process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn, $sort_order);
     }
 
     private function load_training_jobs($db) {
@@ -141,51 +140,6 @@ class user_jobs extends \efi\user_auth {
         $includeFailedAnalysisJobs = false;
         $includeAnalysisJobs = true;
         $this->training_jobs = est_user_jobs_shared::process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn);
-    }
-
-    private static function process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn) {
-        $jobs = array();
-
-        foreach ($rows as $row) {
-            $compResult = est_user_jobs_shared::get_completed_date_label($row["generate_time_completed"], $row["generate_status"]);
-            $jobName = est_user_jobs_shared::build_job_name_json($row["generate_params"], $row["generate_type"], $familyLookupFn);
-            $comp = $compResult[1];
-            $isCompleted = $compResult[0];
-
-            $id = $row["generate_id"];
-            $key = $row["generate_key"];
-
-            $is_color = $row["generate_type"] == "COLORSSN" || $row["generate_type"] == "CLUSTER" || $row["generate_type"] == "NBCONN" || $row["generate_type"] == "CONVRATIO";
-            array_push($jobs, array("id" => $id, "key" => $key,
-                    "job_name" => $jobName, "is_completed" => $isCompleted, "is_analysis" => false,
-                    "date_completed" => $comp, "is_colorssn" => $is_color));
-
-            if ($isCompleted && $includeAnalysisJobs) {
-                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter FROM analysis " .
-                    "WHERE analysis_generate_id = $id ";
-                if (!$includeFailedAnalysisJobs)
-                    $sql .= "AND analysis_status = 'FINISH'";
-                $arows = $db->query($sql); // Analysis Rows
-
-                foreach ($arows as $arow) {
-                    $acompResult = est_user_jobs_shared::get_completed_date_label($arow["analysis_time_completed"], $arow["analysis_status"]);
-                    $acomp = $acompResult[1];
-                    $aIsCompleted = $acompResult[0];
-                    $aMin = $arow["analysis_min_length"] == settings::get_ascore_minimum() ? "" : "Min=".$arow["analysis_min_length"];
-                    $aMax = $arow["analysis_max_length"] == settings::get_ascore_maximum() ? "" : "Max=".$arow["analysis_max_length"];
-                    $filter = $arow["analysis_filter"];
-                    $filter = $filter == "eval" ? "AS" : ($filter == "pid" ? "%ID" : ($filter == "bit" ? "BS" : "custom"));
-
-                    $aJobName = "$filter=" . $arow["analysis_evalue"] . " $aMin $aMax Title=<i>" . $arow["analysis_name"] . "</i>";
-
-                    array_push($jobs, array("id" => $id, "key" => $key, "analysis_id" => $arow["analysis_id"],
-                            "job_name" => $aJobName,
-                            "is_completed" => $aIsCompleted, "is_analysis" => true, "date_completed" => $acomp));
-                }
-            }
-        }
-
-        return $jobs;
     }
 
     private static function lookup_family_name($db, $family_id) {

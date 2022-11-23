@@ -16,42 +16,34 @@ function output_option_a($use_advanced_options, $db_modules, $user_email, $examp
     $default_blast_seq = get_default_blast_seq();
     $show_example = $example_fn !== false;
     $tax_filter_text = <<<TEXT
-
 <p>
-Sequences retrieved from the UniProt, UniRef90, and UniRef50 databases can be 
-restricted to those that match specified taxonomic categories (superkingdom, 
-kingdom, phylum, class, order, family, genus, species).  Multiple conditions 
-are combined to be a union of each other.
+A taxonomy filter is applied to the list of UniProt, UniRef90, or UniRef50 
+cluster IDs retrieved by the BLAST. 
 </p>
 
 <p>
-Alternatively, the user can select "Bacteria, Archaea, Fungi" from the 
-"Preselected conditions" to restrict the retrieved sequences to those from 
-organisms that may provide genome context (gene clusters/operons) useful for 
-inferring functions. 
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the retrieved sequences to these taxonomy groups. 
 </p>
 
 <p>
-The retrieved sequences from the UniRef90 database include 1) UniRef90 clusters 
-for which the cluster ID matches the specified taxonomic categories and 2) 
-UniRef90 clusters for which the cluster ID does not match the specified 
-taxonomic categories but UniProt IDs within the cluster do match.
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
 </p>
 
 <p>
-The retrieved sequences from the UniRef50 database include 1) UniRef50 clusters 
-for which the cluster ID matches the specified taxonomic categories and 2) 
-UniRef50 clusters for which the cluster ID does not match the specified 
-taxonomic categories but UniRef90 cluster IDs within the cluster do match.
+The retrieved sequences also can be restricted to taxonomy categories within 
+the Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species 
+ranks. Multiple conditions are combined to be a union of each other. 
 </p>
 
 <p>
-UniRef90 clusters contain sequences that share &ge;90% sequence identity so 
-usually are taxonomically homogeneous.  However, UniRef50 clusters contain 
-sequences that share &ge;50% sequence identity so often are taxonomically 
-heterogeneous.  When possible (determined by the RAM available to Cytoscape), 
-users should generate taxonomy-specific SSNs with UniProt IDs or UniRef90 
-cluster IDs.
+The sequences from the UniRef90 and UniRef50 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified taxonomy categories. The UniProt members in these clusters that 
+do not match the specified taxonomy categories are removed from the cluster. 
 </p>
 TEXT;
 
@@ -60,14 +52,47 @@ TEXT;
         <div id="optionAtab" class="ui-tabs-panel ui-widget-content">
 <?php $example_fn("DESC_START"); ?>
             <p class="p-heading">
-            Generate a SSN for a single protein and its closest homologues in the UniProt database.
+            Generate a SSN for a single protein and its closest homologues in the UniProt, UniRef90, or UniRef50 database.
             </p>
 
-            <p>
-            The input sequence is used as the query for a search of the UniProt database using BLAST.
-            Sequences that are similar to the query in UniProt are retrieved.
-            <?php echo add_blast_calc_desc()[0]; ?>
-            </p>
+<p>
+The input sequence is used as the query for a search of the UniProt, UniRef90, 
+or UniRef50 database using BLAST.  For the UniRef90 and UniRef50 databases, the 
+sequence of the cluster ID (representative sequence) is used for the BLAST.
+</p>
+
+<p>
+The database is selected using the BLAST Retrieval Options.
+</p>
+
+<p>
+An all-by-all BLAST<span class="question" title="A BLAST with all retrieved sequences BLAST-ed against the same set of retrieved sequences.">?</span> is performed to obtain the similarities between sequence 
+pairs to calculate edge values to generate the SSN. 
+</p>
+
+
+<!--
+<p>
+Generate a SSN for a single protein and its closest homologues in the UniProt, 
+UniRef90, or UniRef50 database.  
+</p>
+
+<p>
+The input sequence is used as the query for a search of the UniProt, UniRef90, 
+or UniRef50 database using BLAST.  For the UniRef90 and UniRef50 databases, the 
+sequence of the cluster ID (representative sequence) is used for the BLAST.
+</p>
+
+<p>
+The database is selected using the BLAST Retrieval Options.
+</p>
+
+<p>
+An all-by-all BLAST is performed to obtain the similarities between sequence 
+pairs to calculate edge values to generate the SSN. 
+</p>
+-->
+
 <?php $example_fn("DESC_END"); ?>
 
             <form name="optionAform" id="optionAform" method="post" action="" enctype="multipart/form-data">
@@ -86,13 +111,7 @@ TEXT;
 
                 <div class="option-panels">
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
-                    <div>
-                        <?php echo add_taxonomy_filter("opta", $tax_filter_text)[0] ?>
-                    </div>
-<?php $example_fn("OPTION_WRAP_END"); ?>
-<?php $example_fn("POST_TAX"); ?>
-<?php $example_fn("OPTION_WRAP_START"); ?>
-                    <div>
+                    <div class="initial-open">
                         <h3>BLAST Retrieval Options</h3>
                         <div>
                             <div>
@@ -104,11 +123,9 @@ TEXT;
                                     Negative log of e-value for retrieving similar sequences (&ge; 1; default: <?php echo $default_evalue; ?>)
                                 </span>
                                 <div class="input-desc">
-                                    Input an alternative e-value for BLAST to retrieve sequences from the
-                                    UniProt database. We suggest using a larger e-value
-                                    (smaller negative log) for retrieving homologues if the query
-                                    sequence is short and a smaller e-value (larger negative log) if there
-                                    is no need to retrieve divergent homologues.
+Input a larger e-value (smaller negative log) to retrieve homologues if the 
+query sequence is short.  Input a smaller e-value (larger negative log) to 
+retrieve more similar homologues. 
                                 </div>
                             </div>
                             <div>
@@ -140,12 +157,18 @@ TEXT;
 <?php $example_fn("POST_A_BLAST"); ?>
     
 <?php $example_fn("OPTION_WRAP_START"); ?>
-                    <div>
-                        <?php echo add_family_input_option("opta", $show_example)[0]; ?>
+                    <div class="initial-open">
+                        <?php echo add_fragment_option("opta")[0] ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
-<?php $example_fn("POST_A_FAM"); ?>
-<?php $example_fn("POST_FRAC"); ?>
+<?php $example_fn("POST_FRAG"); ?>
+
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div class="initial-open">
+                        <?php echo add_taxonomy_filter("opta", $tax_filter_text)[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_TAX"); ?>
 
 <?php $example_fn("OPTION_WRAP_START"); ?>
                     <div>
@@ -156,10 +179,11 @@ TEXT;
 
 <?php $example_fn("OPTION_WRAP_START"); ?>
                     <div>
-                        <?php echo add_fragment_option("opta")[0] ?>
+                        <?php echo add_family_input_option("opta", $show_example, false)[0]; ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
-<?php $example_fn("POST_FRAG"); ?>
+<?php $example_fn("POST_A_FAM"); ?>
+<?php $example_fn("POST_FRAC"); ?>
 
 <?php $example_fn("OPTION_WRAP_END_LAST"); ?>
 <?php $example_fn("DESC_START"); ?>
@@ -184,42 +208,29 @@ function output_option_b($use_advanced_options, $db_modules, $user_email, $examp
     $show_example = $example_fn !== false;
     $example_fn = $example_fn === false ? function(){} : $example_fn;
     $tax_filter_text = <<<TEXT
-
 <p>
-Sequences retrieved from the UniProt, UniRef90, and UniRef50 databases can be 
-restricted to those that match specified taxonomic categories (superkingdom, 
-kingdom, phylum, class, order, family, genus, species).  Multiple conditions 
-are combined to be a union of each other.
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the retrieved sequences to these taxonomy groups. 
 </p>
 
 <p>
-Alternatively, the user can select "Bacteria, Archaea, Fungi" from the 
-"Preselected conditions" to restrict the retrieved sequences to those from 
-organisms that may provide genome context (gene clusters/operons) useful for 
-inferring functions. 
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
 </p>
 
 <p>
-The retrieved sequences from the UniRef90 database include 1) UniRef90 clusters 
-for which the cluster ID matches the specified taxonomic categories and 2) 
-UniRef90 clusters for which the cluster ID does not match the specified 
-taxonomic categories but UniProt IDs within the cluster do match.
+The retrieved sequences also can be restricted to taxonomy categories within 
+the Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species 
+ranks. Multiple conditions are combined to be a union of each other. 
 </p>
 
 <p>
-The retrieved sequences from the UniRef50 database include 1) UniRef50 clusters 
-for which the cluster ID matches the specified taxonomic categories and 2) 
-UniRef50 clusters for which the cluster ID does not match the specified 
-taxonomic categories but UniRef90 cluster IDs within the cluster do match.
-</p>
-
-<p>
-UniRef90 clusters contain sequences that share &ge;90% sequence identity so 
-usually are taxonomically homogeneous.  However, UniRef50 clusters contain 
-sequences that share &ge;50% sequence identity so often are taxonomically 
-heterogeneous.  When possible (determined by the RAM available to Cytoscape), 
-users should generate taxonomy-specific SSNs with UniProt IDs or UniRef90 
-cluster IDs.
+The sequences from the UniRef90 and UniRef50 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified taxonomy categories. The UniProt members in these clusters that 
+do not match the specified taxonomy categories are removed from the cluster. 
 </p>
 TEXT;
 ?>
@@ -230,8 +241,9 @@ TEXT;
             </p>
 
             <p>
-            The sequences from the Pfam families, InterPro families, and/or Pfam clans (superfamilies) input are retrieved.
-            <?php echo add_blast_calc_desc()[0]; ?>
+The members of the input Pfam families, InterPro families, and/or Pfam 
+clans are selected from the UniProt, UniRef90, or UniRef50 database.
+
             </p>
 <?php $example_fn("DESC_END"); ?>
 
@@ -243,36 +255,41 @@ TEXT;
 
                 <div class="option-panels">
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
-                    <div>
+                    <div class="initial-open">
+                        <?php echo add_fragment_option("optb")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FRAG"); ?>
+
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div class="initial-open">
                         <?php echo add_taxonomy_filter("optb", $tax_filter_text)[0] ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_TAX"); ?>
+
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
+                        <h3>Protein Family Size Options</h3>
+                        <?php echo get_fraction_html("optb")[0]; ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FRAC"); ?>
+
 <?php $example_fn("OPTION_WRAP_START"); ?>
                     <div>
                         <?php echo add_domain_option("optb", false, true)[0]; ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_DOM"); ?>
-<?php $example_fn("OPTION_WRAP_START"); ?>
-                    <div>
-                        <h3>Protein Family Option</h3>
-                        <?php echo get_fraction_html("optb")[0]; ?>
-                    </div>
-<?php $example_fn("OPTION_WRAP_END"); ?>
-<?php $example_fn("POST_FRAC"); ?>
+
 <?php $example_fn("OPTION_WRAP_START"); ?>
                     <div>
                         <?php echo add_ssn_calc_option("optb")[0] ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_CALC"); ?>
-<?php $example_fn("OPTION_WRAP_START"); ?>
-                    <div>
-                        <?php echo add_fragment_option("optb")[0] ?>
-                    </div>
-<?php $example_fn("OPTION_WRAP_END"); ?>
-<?php $example_fn("POST_FRAG"); ?>
+
 <?php $example_fn("DESC_START"); ?>
 <?php $example_fn("OPTION_WRAP_END_LAST"); ?>
                     <?php if ($use_advanced_options) { ?>
@@ -301,33 +318,58 @@ function output_option_c($use_advanced_options, $db_modules, $user_email, $examp
     $example_fn = $example_fn === false ? function(){} : $example_fn;
     $tax_filter_text = <<<TEXT
 <p>
-Input sequences (by default, from the UniProt database) can be restricted to 
-those that match specified taxonomic categories (superkingdom, kingdom, phylum, 
-class, order, family, genus, species).  Multiple conditions are combined to be 
-a union of each other.
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the input UniProt sequences to these taxonomy groups. 
 </p>
 
 <p>
-Alternatively, the user can select "Bacteria, Archaea, Fungi" from the 
-"Preselected conditions" to restrict the retrieved sequences to those from 
-organisms that may provide genome context (gene clusters/operons) useful for 
-inferring functions. 
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The input UniProt sequences also can be restricted to taxonomy categories 
+within the Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and 
+Species ranks. Multiple conditions are combined to be a union of each other. 
 </p>
 TEXT;
 ?>
         <div id="optionCtab" class="ui-tabs-panel ui-widget-content">
 <?php $example_fn("DESC_START"); ?>
             <p class="p-heading">
-            Generate a SSN from provided sequences. 
+            Generate a SSN from FASTA-formatted UniProt sequences. 
             </p>
 
-            <p>
-            <?php echo add_blast_calc_desc()[0]; ?>
-            </p>
+<p>
+An all-by-all BLAST<span class="question" title="A BLAST with all retrieved sequences BLAST-ed against the same set of retrieved sequences.">?</span> is performed to obtain the similarities between sequence 
+pairs to calculate edge values to generate the SSN. 
+</p>
 
-            <p>
-            Input a list of protein sequences in FASTA format or upload a FASTA-formatted sequence file.
-            </p>
+<p>
+Input a list of sequences in the FASTA format or upload a FASTA-formatted 
+sequence file.
+</p>
+
+<p>
+Two options are available for generating the SSN:
+</p>
+
+<p>
+1)  The sequences are used "as is", with the node attributes including only the 
+information in the header as the description and the number of residues in the 
+sequence.
+</p>
+
+<p>
+2)  The ID in the header that immediately follows the "&gt;" is used to 
+retrieve node attribute information.   Acceptable IDs include UniProt IDs, PDB 
+IDs, and NCBI GenBank IDs that have equivalent entries in the UniProt database.
+<span class="question" title="Click for more information on FASTA header formats"><a href="FASTA_Headers.pdf">?</a></span>
+To use this option, check the "Read FASTA headers" box.
+</p>
+
 <?php $example_fn("DESC_END"); ?>
             
             <form name="optionCform" id="optionCform" method="post" action="">
@@ -337,10 +379,8 @@ TEXT;
                         Sequences:
                     </div>
                     <textarea id="fasta-input" name="fasta-input"></textarea>
-                    <div>
+                    <div style="margin-bottom: 15px">
                         <input type="checkbox" id="fasta-use-headers" name="fasta-use-headers" value="1"> <label for="fasta-use-headers"><b>Read FASTA headers</b></label><br>
-                        When selected, recognized UniProt or Genbank identifiers from FASTA headers are used to retrieve
-                        node attributes from the UniProt database.
                     </div>
                     <?php echo ui::make_upload_box("FASTA File:", "fasta-file", "progress-bar-fasta", "progress-num-fasta"); ?>
                 </div>
@@ -349,11 +389,26 @@ TEXT;
 
                 <div class="option-panels">
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
-                    <div>
+                    <div class="initial-open">
+                        <?php echo add_fragment_option("optc")[0] ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FRAG"); ?>
+
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div class="initial-open">
+                        <?php echo add_family_filter("optc", "")[0]; ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_FAM_FILT"); ?>
+
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div class="initial-open">
                         <?php echo add_taxonomy_filter("optc", $tax_filter_text)[0] ?>
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_TAX"); ?>
+
 <?php $example_fn("OPTION_WRAP_START"); ?>
                     <div>
                         <?php echo add_family_input_option("optc", $show_example)[0]; ?>
@@ -361,6 +416,14 @@ TEXT;
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_A_FAM"); ?>
 <?php $example_fn("POST_FRAC"); ?>
+
+<?php $example_fn("OPTION_WRAP_START"); ?>
+                    <div>
+                        <?php echo add_domain_option("optc", true, $use_advanced_options)[0]; ?>
+                    </div>
+<?php $example_fn("OPTION_WRAP_END"); ?>
+<?php $example_fn("POST_DOM"); ?>
+
 <?php /*
 <?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
                     <div>
@@ -376,13 +439,6 @@ TEXT;
                     </div>
 <?php $example_fn("OPTION_WRAP_END"); ?>
 <?php $example_fn("POST_CALC"); ?>
-
-<?php $example_fn("OPTION_WRAP_START"); ?>
-                    <div>
-                        <?php echo add_fragment_option("optc")[0] ?>
-                    </div>
-<?php $example_fn("OPTION_WRAP_END"); ?>
-<?php $example_fn("POST_FRAG"); ?>
 
 <?php $example_fn("OPTION_WRAP_END_LAST"); ?>
 <?php $example_fn("DESC_START"); ?>
@@ -425,44 +481,66 @@ function output_option_d($use_advanced_options, $db_modules, $user_email, $show_
         $filename = $mode_data["filename"];
     }
     $tax_filter_text = <<<TEXT
-
 <p>
-Input sequences from the UniProt, UniRef90, and UniRef50 databases can be 
-restricted to those that match specified taxonomic categories (superkingdom, 
-kingdom, phylum, class, order, family, genus, species).  Multiple conditions 
-are combined to be a union of each other.
+<b>
+The input list of UniRef90 or UniRef50 cluster IDs should (must!) be filtered 
+with the same taxonomy categories used to generate the IDs, if:
+</b>
 </p>
 
 <p>
-Alternatively, the user can select "Bacteria, Archaea, Fungi" from the 
-"Preselected conditions" to restrict the retrieved sequences to those from 
-organisms that may provide genome context (gene clusters/operons) useful for 
-inferring functions. 
+The input list of UniRef90 or UniRef50 IDs is obtained from 1) the Color SSN or 
+Cluster Analysis utility for a Families option (Option B) EFI-EST SSN, 2) the 
+Families option of the Taxonomy Tool, or 3) the Accession IDs option of the 
+Taxonomy Tool.
 </p>
 
 <p>
-The retrieved sequences from the UniRef90 database include 1) UniRef90 clusters 
-for which the cluster ID matches the specified taxonomic categories and 2) 
-UniRef90 clusters for which the cluster ID does not match the specified 
-taxonomic categories but UniProt IDs within the cluster do match.
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the UniProt IDs in the sunburst to these taxonomy groups. 
 </p>
 
 <p>
-The retrieved sequences from the UniRef50 database include 1) UniRef50 clusters 
-for which the cluster ID matches the specified taxonomic categories and 2) 
-UniRef50 clusters for which the cluster ID does not match the specified 
-taxonomic categories but UniRef90 cluster IDs within the cluster do match.
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
 </p>
 
 <p>
-UniRef90 clusters contain sequences that share &ge;90% sequence identity so 
-usually are taxonomically homogeneous.  However, UniRef50 clusters contain 
-sequences that share &ge;50% sequence identity so often are taxonomically 
-heterogeneous.  When possible (determined by the RAM available to Cytoscape), 
-users should generate taxonomy-specific SSNs with UniProt IDs or UniRef90 
-cluster IDs.
+The UniProt IDs also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
 </p>
 TEXT;
+
+    $family_filter_desc = <<<TEXT
+<p>
+<b>
+The input list of UniRef90 or UniRef50 cluster IDs should (must!) be filtered 
+with the same list of Pfam families, InterPro families, and/or Pfam clans used 
+to generate the IDs, if:
+</b>
+</p>
+
+<p>
+The input list of UniRef90 or UniRef50 IDs is obtained from 1) the Color SSN or 
+Cluster Analysis utility for a Families option (Option B) EFI-EST SSN, 2) the 
+Families option of the Taxonomy Tool, or 3) the Accession IDs option of the 
+Taxonomy Tool.
+</p>
+TEXT;
+
+    $family_filter_post_text = <<<TEXT
+<p>
+For input lists of UniRef90 and UniRef50 clusters, the cluster ID 
+(representative sequence) is used to identify those that match the list of 
+families and are included in the SSN. The UniProt members in these clusters 
+that do not match the input families are removed from the cluster and are not 
+included in the SSN node attributes. 
+</p>
+TEXT;
+
 ?>
         <div id="optionDtab" class="ui-tabs-panel ui-widget-content">
             <p class="p-heading">
@@ -470,7 +548,7 @@ TEXT;
             </p>
 
             <p>
-            <?php echo add_blast_calc_desc()[0]; ?>
+            An all-by-all BLAST<span class="question" title="A BLAST with all retrieved sequences BLAST-ed against the same set of retrieved sequences.">?</span> is performed to obtain the similarities between sequence pairs to calculate edge values to generate the SSN. 
             </p>
 
             <form name="optionDform" id="optionDform" method="post" action="">
@@ -539,20 +617,23 @@ TEXT;
                 </div>
 
                 <div class="option-panels">
-                    <div>
-                        <?php echo add_taxonomy_filter("optd", $tax_filter_text)[0] ?>
+                    <div class="initial-open">
+                        <?php echo add_fragment_option("optd")[0] ?>
                     </div>
-                    <div>
-                        <?php echo add_domain_option("optd", true, $use_advanced_options)[0]; ?>
+                    <div class="initial-open">
+                        <?php echo add_family_filter("optd", $family_filter_desc, $family_filter_post_text)[0]; ?>
+                    </div>
+                    <div class="initial-open">
+                        <?php echo add_taxonomy_filter("optd", $tax_filter_text)[0]; ?>
                     </div>
                     <div>
                         <?php echo add_family_input_option("optd", $show_example)[0]; ?>
                     </div>
                     <div>
-                        <?php echo add_ssn_calc_option("optd")[0] ?>
+                        <?php echo add_domain_option("optd", true, $use_advanced_options)[0]; ?>
                     </div>
                     <div>
-                        <?php echo add_fragment_option("optd")[0] ?>
+                        <?php echo add_ssn_calc_option("optd")[0] ?>
                     </div>
                     <?php if ($use_advanced_options) { ?>
                     <div>
@@ -570,6 +651,7 @@ TEXT;
 function output_colorssn($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_key = !empty($mode_data) ? $mode_data["ssn_key"] : "";
     $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="colorssntab" class="ui-tabs-panel ui-widget-content">
@@ -633,6 +715,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                 <?php if ($ssn_id) { ?>
                     <input type="hidden" name="ssn-source-id-colorssn" id="ssn-source-id-colorssn" value="<?php echo $ssn_id; ?>">
                     <input type="hidden" name="ssn-source-idx-colorssn" id="ssn-source-idx-colorssn" value="<?php echo $ssn_idx; ?>">
+                    <input type="hidden" name="ssn-source-key-colorssn" id="ssn-source-key-colorssn" value="<?php echo $ssn_key; ?>">
                 <?php } ?>
                 <?php echo add_submit_html("colorssn", "", $user_email)[0]; ?>
             </form>
@@ -643,6 +726,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
 function output_nc($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_key = !empty($mode_data) ? $mode_data["ssn_key"] : "";
     $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="nctab" class="ui-tabs-panel ui-widget-content">
@@ -697,6 +781,7 @@ function output_nc($use_advanced_options, $user_email, $show_example = false, $m
                 <?php if ($ssn_id) { ?>
                     <input type="hidden" name="ssn-source-id-nc" id="ssn-source-id-nc" value="<?php echo $ssn_id; ?>">
                     <input type="hidden" name="ssn-source-idx-nc" id="ssn-source-idx-nc" value="<?php echo $ssn_idx; ?>">
+                    <input type="hidden" name="ssn-source-key-nc" id="ssn-source-key-nc" value="<?php echo $ssn_key; ?>">
                 <?php } ?>
                 <?php echo add_submit_html("nc", "", $user_email)[0]; ?>
             </form>
@@ -795,14 +880,10 @@ function output_cr($use_advanced_options, $user_email, $show_example = false, $m
                 <div class="primary-input">
 <?php echo ui::make_upload_box("SSN File:", "cr-file", "progress-bar-cr", "progress-num-cr", "", "", $ssn_filename); ?>
                     <div>
-                        A Cytoscape-edited SNN can serve as input.
-                        The accepted format is XGMML (or compressed XGMML as zip).
+                        A Color SSN (from either the Color SSN or Cluster Analysis utility) is the required input (cluster numbers are required).  
                     </div>
                 </div>
                 
-                <div class="option-panels">
-                    <div class="initial-open">
-                        <h3>Alignment Score</h3>
                         <div>
                             <div>
                                 <span class="input-name">
@@ -813,8 +894,30 @@ function output_cr($use_advanced_options, $user_email, $show_example = false, $m
                                 </span>
                             </div>
                         </div>
+                        <div>
+<p>
+The "convergence ratio" is the ratio of the actual number of edges in the 
+cluster to the maximum possible number of edges (each node connected to every 
+other node).  For UniRef SSNs, two convergence ratios are calculated, one for 
+the edges connecting the UniRef nodes in the input SSN and the second for the 
+"hypothetical" edges that would connect the internal UniProt IDsin the cluster.   
+The user specifies the value of the alignment score to be used (usually the 
+same a alignment score used to generate the SSN).  
+</p>
+
+<p>
+The value of the convergence ratio ranges from 1.0 for sequences that are very 
+similar ("identical") to 0.0 for sequences that are unrelated at the specified 
+alignment score.  The convergence ratio can be used as a criterion to infer 
+whether an SSN cluster is isofunctional—the convergence ratio of a cluster 
+containing orthologous sequences is expected to be close to 1.0 even at large 
+alignment scores.
+</p>
+
+
                     </div>
                 <?php if ($use_advanced_options) { ?>
+                <div class="option-panels">
                     <div>
                         <h3>Dev Site Options</h3>
                         <div>
@@ -831,8 +934,8 @@ function output_cr($use_advanced_options, $user_email, $show_example = false, $m
 -->
                         </div>
                     </div>
-                <?php } ?>
                 </div>
+                <?php } ?>
 
                 <?php if ($ssn_id) { ?>
                     <input type="hidden" name="color-ssn-source-color-id" id="color-ssn-source-color-id" value="<?php echo $ssn_id; ?>">
@@ -846,6 +949,7 @@ function output_cr($use_advanced_options, $user_email, $show_example = false, $m
 function output_cluster($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_key = !empty($mode_data) ? $mode_data["ssn_key"] : "";
     $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="clustertab" class="ui-tabs-panel ui-widget-content">
@@ -863,14 +967,6 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
             are assigned in order of decreasing number of UniProt IDs in 
             the cluster; <b>Node Count Cluster Numbers</b> are assigned in order of decreasing 
             number of nodes in the cluster. 
-            </p>
-            
-            <p>
-            The convergence ratio for each cluster also is calculated.  The convergence 
-            ratio is the number of edges in each cluster to the number of sequence pairs.  
-            The value decreases from 1.0 for a cluster very similar sequences (same 
-            function?) to &lt;&lt;1.0 for clusters with distantly related sequences (different 
-            functions?).  
             </p>
             
             <p>
@@ -1063,6 +1159,7 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
                 <?php if ($ssn_id) { ?>
                     <input type="hidden" name="ssn-source-id-cluster" id="ssn-source-id-cluster" value="<?php echo $ssn_id; ?>">
                     <input type="hidden" name="ssn-source-idx-cluster" id="ssn-source-idx-cluster" value="<?php echo $ssn_idx; ?>">
+                    <input type="hidden" name="ssn-source-key-cluster" id="ssn-source-key-cluster" value="<?php echo $ssn_key; ?>">
                 <?php } ?>
                 <?php echo add_submit_html("cluster", "", $user_email)[0]; ?>
             </form>
@@ -1211,7 +1308,7 @@ function output_utility($use_advanced_options, $db_modules, $user_email, $exampl
     output_cluster($use_advanced_options, $user_email, $example_fn, $mode_data);
     output_nc($use_advanced_options, $user_email, $example_fn, $mode_data);
     output_cr($use_advanced_options, $user_email, $example_fn, $mode_data);
-    output_option_taxonomy($use_advanced_options, $db_modules, $user_email, $example_fn, $mode_data);
+    //output_option_taxonomy($use_advanced_options, $db_modules, $user_email, $example_fn, $mode_data);
     output_tab_page_end();
 ?>
         </div>
@@ -1232,7 +1329,7 @@ function output_utility_tab_page_header($selected_tab = "", $class_fn = false, $
         <li <?php echo ($selected_tab == "cluster" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("clustertab"); ?>">Cluster Analysis</a></li>
         <li <?php echo ($selected_tab == "nc" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("nctab"); ?>">Neighborhood Connectivity</a></li>
         <li <?php echo ($selected_tab == "cr" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("crtab"); ?>">Convergence Ratio</a></li>
-        <li <?php echo ($selected_tab == "tax" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("tax_tab"); ?>">Taxonomy</a></li>
+        <!--<li <?php echo ($selected_tab == "tax" ? "class=\"$active_class\"" : ""); ?>><a href="<?php echo $url_fn("tax_tab"); ?>">Taxonomy</a></li>-->
     </ul>
 <?php
 }
@@ -1282,7 +1379,7 @@ function output_tab_page_end() {
 HTML;
 }
 
-function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $example_fn = false, $show_all_ids = false) {
+function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $sort_method, $example_fn = false, $show_all_ids = false) {
 
     $mode_data = check_for_color_mode($db);
     $sel_tab = !empty($mode_data) ?
@@ -1294,7 +1391,7 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
                     "cr" :
                     "colorssn"))) 
                     : "";
-    $d_mode_data = array();
+    $d_mode_data = false;
     if (!$sel_tab) {
         $d_mode_data = check_for_taxonomy_input($db);
         if (!empty($d_mode_data))
@@ -1317,7 +1414,7 @@ function output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_optio
             <h4>EST Jobs</h4>
 <?php 
     $show_archive = true;
-    echo est_ui::output_job_list($jobs, $show_archive, "sort-jobs-toggle", $example_fn, $show_all_ids);
+    echo est_ui::output_job_list($jobs, $show_archive, $sort_method, $example_fn, $show_all_ids);
 
     if (has_jobs($tjobs)) {
         echo "            <h4>Training Resources</h4>\n";
@@ -1365,19 +1462,23 @@ function check_for_color_mode($db) {
                 $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);
                 if ($est_file_info !== false) {
                     $est_id = $job_info["generate_id"];
-                    $est_key = $the_key;
                     $color_filename = $est_file_info["filename"];
                     $mode_data["filename"] = $color_filename;
                     $mode_data["ssn_id"] = $the_aid;
                     $mode_data["ssn_idx"] = $the_idx;
+                    $mode_data["ssn_key"] = $the_key;
                     $mode_data["mode"] = $mode;
                 }
             }
         } else if ($mode === "cr" && isset($_GET["est-id"]) && isset($_GET["est-key"])) {
-            $job_info = colorssn_shared::get_source_color_ssn_info($db, $_GET["est-id"], $_GET["est-key"]);
+            $the_id = $_GET["est-id"];
+            $the_key = $_GET["est-key"];
+            $job_info = colorssn_shared::get_source_color_ssn_info($db, $the_id, $the_key);
             if ($job_info !== false) {
                 $mode_data["filename"] = $job_info["filename"];
-                $mode_data["ssn_id"] = $_GET["est-id"];
+                $mode_data["ssn_id"] = $the_id;
+                $mode_data["ssn_key"] = $the_key;
+                $mode_data["ssn_idx"] = 0;
                 $mode_data["mode"] = $mode;
             }
         }

@@ -49,10 +49,10 @@ foreach ($job_ids as $job_id) {
 
     $url = $results_page . "?" . http_build_query($get_array);
 
-	$job_html .= "<tr>";
-	if (time() < $job['time_completed'] + __RETENTION_DAYS__)
-		$job_html .= "<td>&nbsp</td>";
-	else
+	//$job_html .= "<tr>";
+	//if (time() < $job['time_completed'] + __RETENTION_DAYS__)
+	//	$job_html .= "<td>&nbsp</td>";
+	//else
         $job_html .= "<td><a href='" . $url ."'><span class='glyphicon glyphicon-share'></span></a></td>";
 
 	$job_html .= "<td>" . $id_field . "</td>";

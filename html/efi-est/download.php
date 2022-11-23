@@ -1,11 +1,13 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
+use \efi\global_functions;
 use \efi\send_file;
 use \efi\est\nb_conn;
 use \efi\est\conv_ratio;
 use \efi\est\stepa;
 use \efi\est\analysis;
+use \efi\training\example_config;
 
 
 
@@ -19,56 +21,76 @@ if (!$dl_type || !$id || !$key) {
     exit();
 }
 
+$is_example = example_config::is_example();
 
 if (isset($_POST['download_network'])) {
 	$analysis_id = $_POST['analysis_id'];
-	$file = $_POST['file'];
-	$stepa = new stepa($db,$_POST['id']);
-        if ($stepa->get_key() != $_POST['key']) {
-                echo "No EFI-EST Selected. Please go back";
-                exit;
+	$stepa = new stepa($db, $_POST['id'], $is_example);
+    if ($stepa->get_key() != $_POST['key']) {
+        print_error();
+        exit;
+    }
+
+    if ($dl_type === "BLASTHITS") {
+        $analysis = new analysis($db, $analysis_id, $is_example);
+        $file_info = $analysis->get_blast_evalue_file();
+        output_file($file_info["path"], $file_info["name"], send_file::SEND_FILE_TABLE);
+    } else {
+        $file = $_POST['file'];
+        if (global_functions::is_safe_filename($file)) {
+            $analysis = new analysis($db, $analysis_id, $is_example);
+        	$analysis->download_network($file);
+        } else {
+            print_error();
+            exit();
         }
-	
-        $analysis = new analysis($db,$analysis_id);
-	$analysis->download_network($file);
+    }
 } else if ($dl_type == "CONVRATIO") {
-    $obj = new conv_ratio($db, $id);
+    $obj = new conv_ratio($db, $id, $is_example);
     validate_key($obj, $key);
 
     $file_path = "";
     $file_name = "";
-    $mime_type = SEND_FILE_BINARY;
+    $mime_type = send_file::SEND_FILE_BINARY;
     $sub_type = isset($_GET["ft"]) ? $_GET["ft"] : "";
     if ($sub_type === "tab") {
         $file_path = $obj->get_cr_table_full_path();
         $file_name = $obj->get_cr_table_filename();
-        $mime_type = SEND_FILE_TABLE;
+        $mime_type = send_file::SEND_FILE_TABLE;
     }
 
     output_file($file_path, $file_name, $mime_type);
 } else if ($dl_type === "NBCONN") {
-    $obj = new nb_conn($db, $id);
+    $obj = new nb_conn($db, $id, $is_example);
     validate_key($obj, $key);
 
     $file_path = "";
     $file_name = "";
-    $mime_type = SEND_FILE_BINARY;
+    $mime_type = send_file::SEND_FILE_BINARY;
     $sub_type = isset($_GET["ft"]) ? $_GET["ft"] : "";
     if (!$sub_type || $sub_type === "ssn") {
         $file_path = $obj->get_colored_ssn_zip_full_path();
         $file_name = $obj->get_colored_ssn_zip_filename();
-        //$mime_type = SEND_FILE_ZIP;
+        //$mime_type = send_file::SEND_FILE_ZIP;
     } else if ($sub_type === "legend") {
         $file_path = $obj->get_nc_legend_full_path();
         $file_name = $obj->get_nc_legend_filename();
-        $mime_type = SEND_FILE_PNG;
+        $mime_type = send_file::SEND_FILE_PNG;
     } else if ($sub_type === "nc") {
         $file_path = $obj->get_nc_table_full_path();
         $file_name = $obj->get_nc_table_filename();
-        $mime_type = SEND_FILE_TABLE;
+        $mime_type = send_file::SEND_FILE_TABLE;
     }
 
     output_file($file_path, $file_name, $mime_type);
+} else if ($dl_type === "BLASTHITS") {
+    $analysis_id = $_GET['analysis_id'];
+	$stepa = new stepa($db, $id, $is_example);
+    validate_key($stepa, $key);
+
+    $analysis = new analysis($db, $analysis_id, $is_example);
+    $file_info = $analysis->get_blast_evalue_file();
+    output_file($file_info["full_path"], $file_info["name"], send_file::SEND_FILE_TABLE);
 } else {
     print_error();
     exit();
@@ -87,7 +109,7 @@ function output_file($file_path, $file_name, $mime_type) {
 }
 
 function validate_download_type($type) {
-    if ($type === "NBCONN" || $type === "CONVRATIO")
+    if ($type === "NBCONN" || $type === "CONVRATIO" || $type === "BLASTHITS")
         return $type;
     else
         return false;

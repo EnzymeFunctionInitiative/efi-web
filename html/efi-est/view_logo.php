@@ -2,6 +2,7 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\est\job_factory;
+use \efi\training\example_config;
 
 
 if ((!isset($_GET["id"])) || (!is_numeric($_GET["id"]))) {
@@ -10,7 +11,8 @@ if ((!isset($_GET["id"])) || (!is_numeric($_GET["id"]))) {
 }
 
 
-$obj = job_factory::create($db,$_GET["id"]);
+$is_example = example_config::is_example();
+$obj = job_factory::create($db, $_GET["id"], $is_example);
 
 $key = $obj->get_key();
 if ($key != $_GET["key"]) {

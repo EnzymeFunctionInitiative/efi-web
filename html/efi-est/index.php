@@ -18,8 +18,18 @@ $jobs = array();
 $tjobs = array(); // training jobs
 $IsAdminUser = false;
 if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie()) {
+    $sort_method = user_jobs::SORT_TIME_COMPLETED;
+    if (isset($_GET["sb"]) && is_numeric($_GET["sb"])) {
+        if ($_GET["sb"] == user_jobs::SORT_TIME_ACTIVITY) {
+            $sort_method = user_jobs::SORT_TIME_ACTIVITY;
+        } else if ($_GET["sb"] == user_jobs::SORT_ID) {
+            $sort_method = user_jobs::SORT_ID;
+        } else if ($_GET["sb"] == user_jobs::SORT_ID_REVERSE) {
+            $sort_method = user_jobs::SORT_ID_REVERSE;
+        }
+    }
     $user_jobs = new user_jobs(null, array("TAXONOMY"));
-    $user_jobs->load_jobs($db, user_auth::get_user_token());
+    $user_jobs->load_jobs($db, user_auth::get_user_token(), $sort_method);
     $jobs = $user_jobs->get_jobs();
     $tjobs = $user_jobs->get_training_jobs();
     $user_email = $user_jobs->get_email();
@@ -39,24 +49,6 @@ $ShowCitation = true;
 $IncludeSubmitJs = true;
 $JsAdditional = array('<script src="js/mem_calc.js?v=1" type="text/javascript"></script>');
 require_once(__DIR__."/inc/header.inc.php");
-
-$sort_by_group = true;
-if (isset($_GET["sb"]) && $_GET["sb"] == 1) {
-    $sort_by_group = false;
-
-    $sort_fn = function($a, $b) use ($jobs) {
-        if (isset($jobs["date_order"][$a]) && isset($jobs["date_order"][$b])) {
-            $tm1 = strtotime($jobs["date_order"][$a]);
-            $tm2 = strtotime($jobs["date_order"][$b]);
-            return $tm1 > $tm2 ? -1 : ($tm1 < $tm2 ? 1 : 0);
-        } else {
-            return $a < $b ? 1 : ($a > $b ? -1 : 0);
-        }
-    };
-
-    usort($jobs["order"], $sort_fn);
-}
-
 
 ?>
 
@@ -101,7 +93,7 @@ include_once("inc/index_helpers.inc.php");
 include_once("inc/index_sections.inc.php");
 $show_example = false;
 $show_tutorial = false;
-output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $show_example);
+output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_modules, $user_email, $show_tutorial, $sort_method, $show_example);
 ?>
 
 <div align="center">
@@ -112,12 +104,8 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
 </div>
 
 <script>
-    const SORT_DATE_DESC = 1;
-    const SORT_DATE_GROUP = 3;
     var AutoCheckedUniRef = false;
     var FamilySizeOk = true;
-
-    var sortMethod = <?php echo $sort_by_group ? "SORT_DATE_GROUP" : "SORT_DATE_DESC"; ?>;
 
     $(document).ready(function() {
         $("#main-tabs").tabs();
@@ -169,7 +157,6 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
         
         setupFileInputEvents();
         setupArchiveUi();
-        setupSortUi();
 
         $("button.submit-job").click(function() {
             var obj = $(this);
@@ -333,6 +320,11 @@ function add_dev_site_option($option_id, $db_modules, $extra_html = "") {
     $html = <<<HTML
 <h3>Dev Site Options</h3>
 <div>
+    <div>
+HTML;
+    $html .= add_extra_ram_option($option_id);
+    $html .= <<<HTML
+    </div>
     <div>
         <span class="input-name">
             CPUx2:

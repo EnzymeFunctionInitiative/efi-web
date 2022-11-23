@@ -3,7 +3,7 @@
 namespace efi\taxonomy;
 
 use \efi\global_functions;
-use \efi\est\functions;
+use \efi\global_settings;
 
 
 class taxonomy_job {
@@ -20,7 +20,7 @@ class taxonomy_job {
         $results = $db->query($sql);
         if ($results) {
             $results = $results[0];
-            $base_est_results = functions::get_results_dir();
+            $base_est_results = global_settings::get_est_results_dir();
             $est_results_name = "output";
             $est_results_dir = "$base_est_results/$id/$est_results_name";
             $params = global_functions::decode_object($results["generate_params"]);

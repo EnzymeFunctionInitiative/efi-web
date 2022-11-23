@@ -7,23 +7,38 @@ const RT_ANALYSIS = 3;
 const RT_NESTED_COLOR = 4;
 const RT_NESTED_COLOR_X2 = 5;
 
+use \efi\est\user_jobs;
+
 
 class est_ui {
     
 
-    public static function output_job_list($jobs, $show_archive = false, $toggle_id = "", $is_example = false, $show_all_ids = false) {
-        $up = "&#x25B2;";
-        $down = "&#x25BC;";
-        if ($toggle_id)
-            $toggle_id = <<<HTML
-<span id="$toggle_id" class="sort-toggle" title="Click to toggle between primary job ordering (with analysis jobs grouped with primary job), or by most recent job activity from newest to oldest."><i class="fas fa-list-alt"></i></span> 
-HTML;
+    public static function output_job_list($jobs, $show_archive = false, $sort_method = user_jobs::SORT_TIME_COMPLETED, $is_example = false, $show_all_ids = false, $is_taxonomy = false) {
+        $date_col_header = "<i class='fas fa-chevron-down'></i> Date Completed";
+        $date_url = "?sb=" . user_jobs::SORT_TIME_ACTIVITY;
+        $id_col_header = "ID";
+        $id_url = "?sb=" . user_jobs::SORT_ID;
+        if ($sort_method == user_jobs::SORT_TIME_ACTIVITY) {
+            $date_col_header = "<i class='fas fa-chevron-up'></i> Recent Activity";
+            $date_url = "?sb=" . user_jobs::SORT_TIME_COMPLETED;
+        } else if ($sort_method == user_jobs::SORT_ID) {
+            $id_col_header = "<i class='fas fa-chevron-down'></i> ID";
+            $id_url = "?sb=" . user_jobs::SORT_ID_REVERSE;
+        } else if ($sort_method == user_jobs::SORT_ID_REVERSE) {
+            $id_col_header = "<i class='fas fa-chevron-up'></i> ID";
+            $id_url = "?sb=" . user_jobs::SORT_ID;
+        }
+
+//        if ($toggle_id)
+//            $toggle_id = <<<HTML
+//<span id="$toggle_id" class="sort-toggle" title="Click to toggle between primary job ordering (with analysis jobs grouped with primary job), or by most recent job activity from newest to oldest."><i class="fas fa-list-alt"></i></span> 
+//HTML;
         $html = <<<HTML
             <table class="pretty-nested" style="table-layout:fixed">
                 <thead>
-                    <th class="id-col">ID</th>
+                    <th class="id-col"><a href="$id_url">$id_col_header</a></th>
                     <th>Job Name</th>
-                    <th class="date-col">$toggle_id Date Completed</th>
+                    <th class="date-col"><a href="$date_url">$date_col_header</a></th>
                 </thead>
                 <tbody>
 HTML;
@@ -38,7 +53,7 @@ HTML;
             $id = $order[$i];
     
             if (isset($gjobs[$id])) {
-                $html .= self::output_generate_job($id, $gjobs[$id], $get_bg_color, $show_archive, $is_example, $show_all_ids);
+                $html .= self::output_generate_job($id, $gjobs[$id], $get_bg_color, $show_archive, $is_example, $show_all_ids, $is_taxonomy);
             } elseif (isset($cjobs[$id])) {
                 $html .= self::output_top_color_job($id, $cjobs[$id], $get_bg_color, $show_archive, $is_example);
             }
@@ -63,10 +78,10 @@ HTML;
         return $html;
     }
     
-    private static function output_generate_job($id, $job, $get_bg_color, $show_archive, $is_example, $show_all_ids = false) {
+    private static function output_generate_job($id, $job, $get_bg_color, $show_archive, $is_example, $show_all_ids = false, $is_taxonomy = false) {
         $bg_color = $get_bg_color->get_color();
         $link_class = "hl-est";
-        $html = self::output_generate_row($id, $job, $bg_color, $show_archive, $is_example);
+        $html = self::output_generate_row($id, $job, $bg_color, $show_archive, $is_example, $is_taxonomy);
     
         foreach ($job["analysis_jobs"] as $ajob) {
             $htmla = self::output_analysis_row($id, $job["key"], $ajob, $bg_color, $show_archive, $is_example, $show_all_ids);
@@ -88,12 +103,12 @@ HTML;
         return $html;
     }
 
-    private static function output_generate_row($id, $job, $bg_color, $show_archive, $is_example) {
-        return self::output_row(RT_GENERATE, $id, NULL, $job["key"], $job, $bg_color, $show_archive, $is_example);
+    private static function output_generate_row($id, $job, $bg_color, $show_archive, $is_example, $is_taxonomy = false) {
+        return self::output_row(RT_GENERATE, $id, NULL, $job["key"], $job, $bg_color, $show_archive, $is_example, false, $is_taxonomy);
     }
 
     private static function output_colorssn_row($id, $job, $bg_color, $show_archive, $is_example) {
-        return self::output_row(RT_COLOR, $id, NULL, $job["key"], $job, $bg_color, $show_archive, $is_example);
+        return self::output_row(RT_COLOR, $id, NULL, $job["key"], $job, $bg_color, $show_archive, $is_example, false);
     }
 
     private static function output_nested_colorssn_row($id, $job, $bg_color, $show_archive, $is_example, $show_all_ids = false, $x2 = false) {
@@ -105,8 +120,11 @@ HTML;
     }
 
     // $aid = NULL to not output an analysis (nested) job
-    private static function output_row($row_type, $id, $aid, $key, $job, $bg_color, $show_archive, $is_example, $show_all_ids = false) {
-        $script = \efi\global_settings::get_est_web_path() . "/" . self::get_script($row_type);
+    private static function output_row($row_type, $id, $aid, $key, $job, $bg_color, $show_archive, $is_example, $show_all_ids = false, $is_taxonomy = false) {
+        if ($is_taxonomy)
+            $script = \efi\global_settings::get_web_path("taxonomy") . "/" . self::get_script($row_type);
+        else
+            $script = \efi\global_settings::get_web_path("est") . "/" . self::get_script($row_type);
         $link_class = self::get_link_class($row_type);
     
         $name = $job["job_name"];
@@ -123,7 +141,7 @@ HTML;
         $request_type = "cancel";
         if ($is_completed) {
             $aid_param = $row_type == RT_ANALYSIS ? "&analysis_id=$aid" : "";
-            $ex_param = $is_example ? "&x=1" : "";
+            $ex_param = ($is_example !== false) ? "&x=".$is_example : "";
             $link_start = "<a href='$script?id=$id&key=${key}${aid_param}${ex_param}' class='$link_class'>";
             $link_end = "</a>";
             $archive_icon = "fa-trash-alt";

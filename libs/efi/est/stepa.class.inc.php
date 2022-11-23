@@ -30,7 +30,7 @@ class stepa extends est_shared {
     protected $job_name = "";
     protected $is_tax_only = false;
 
-    protected $is_example = false;
+    protected $ex_data_dir = "";
     private $load_table = "generate";
 
     private $alignment_length_filename = "alignment_length.png";
@@ -47,11 +47,10 @@ class stepa extends est_shared {
 
 
     public function __construct($db, $id = 0, $is_example = false) {
-        parent::__construct($db, "generate");
+        parent::__construct($db, "generate", $is_example);
 
         if ($is_example) {
-            $this->is_example = true;
-            $this->init_example($id);
+            $this->init_example($is_example);
         }
 
         $this->db = $db;
@@ -61,9 +60,9 @@ class stepa extends est_shared {
     }
 
     private function init_example($id) {
-        $config_file = example_config::get_config_file();
-        $config = example_config::get_config($config_file);
+        $config = example_config::get_example_data($id);
         $this->load_table = example_config::get_est_generate_table($config);
+        $this->ex_data_dir = example_config::get_est_data_dir($config);
     }
 
     public function __destruct() {
@@ -252,7 +251,7 @@ class stepa extends est_shared {
 
     private function get_plot_path_shared($for_web, $file_name) {
         if ($this->is_example)
-            $dir = ($for_web ? functions::get_results_example_dirname() : functions::get_results_example_dir());
+            $dir = ($for_web ? functions::get_results_example_dirname($this->is_example) : $this->ex_data_dir);
         else
             $dir = ($for_web ? functions::get_results_dirname() : functions::get_results_dir());
         return $dir . "/" . $this->get_output_dir() . "/" . $file_name;
@@ -304,8 +303,8 @@ class stepa extends est_shared {
         $dir = "";
         $dirname = "";
         if ($this->is_example) {
-            $dir = functions::get_results_example_dir();
-            $dirname = functions::get_results_example_dirname();
+            $dir = $this->ex_data_dir;
+            $dirname = functions::get_results_example_dirname($this->is_example);
         } else {
             $dir = functions::get_results_dir();
             $dirname = functions::get_results_dirname();
@@ -369,6 +368,10 @@ class stepa extends est_shared {
                 $histo = "uniprot";
             elseif ($histo == "UNIREF")
                 $histo = "uniref";
+            elseif ($histo == "UNIREF90")
+                $histo = "uniref90";
+            elseif ($histo == "UNIREF50")
+                $histo = "uniref50";
             elseif ($histo == "UNIPROT_DOMAIN")
                 $histo = "uniprot_domain";
             elseif ($histo == "UNIREF_DOMAIN")
@@ -669,6 +672,20 @@ class stepa extends est_shared {
         }
 
         return $jobs;
+    }
+
+    protected function get_results_dir() {
+        $dir = "";
+        if ($this->is_example) {
+            $dir = $this->ex_data_dir;
+            #$dirname = functions::get_results_example_dirname($this->is_example);
+        } else {
+            $dir = functions::get_results_dir();
+            #$dirname = functions::get_results_dirname();
+        }
+        return $dir;
+        #$full_file = $dir . "/" . $this->get_output_dir() . "/" . $file_name;
+        #return $full_file;
     }
 }
 

@@ -19,7 +19,6 @@ abstract class colorssn_shared extends option_base {
     const SEQ_NO_DOMAIN = 2;
     const DEFAULT_MIN_SEQ_MSA = 5;
 
-    protected $extra_ram = false;
     protected $use_efiref = false;
     private $ssn_source_analysis_id;
     private $ssn_source_analysis_idx;
@@ -162,8 +161,6 @@ abstract class colorssn_shared extends option_base {
         $parms["--conv-ratio"] = "\"" . $this->get_convergence_ratio_filename() . "\"";
         $parms["--sp-clusters-desc"] = "\"" . $this->get_swissprot_desc_filename($want_clusters_file) . "\"";
         $parms["--sp-singletons-desc"] = "\"" . $this->get_swissprot_desc_filename($want_singles_file) . "\"";
-        if ($this->extra_ram)
-            $parms["--extra-ram"] = $this->extra_ram;
         if (!global_settings::advanced_options_enabled())
             $parms["--cleanup"] = "";
         if ($this->use_efiref !== false) {
@@ -181,12 +178,12 @@ abstract class colorssn_shared extends option_base {
         }
 
         if (isset($result["generate_color_ssn_source_id"]) && isset($result["generate_color_ssn_source_idx"])) {
-            $this->ssn_source_analysis_id = $result["generate_color_ssn_source_id"];
-            $this->ssn_source_analysis_idx = $result["generate_color_ssn_source_idx"];
+            $this->ssn_source_analysis_id = isset($result["generate_color_ssn_source_id"]) ? $result["generate_color_ssn_source_id"] : "";
+            $this->ssn_source_analysis_idx = isset($result["generate_color_ssn_source_idx"]) ? $result["generate_color_ssn_source_idx"] : "";
+            $this->ssn_source_key = isset($result["generate_color_ssn_source_key"]) ? $result["generate_color_ssn_source_key"] : "";
 
-            $info = functions::get_analysis_job_info($this->db, $this->ssn_source_analysis_id);
+            $info = functions::get_analysis_job_info($this->db, $this->ssn_source_analysis_id, $this->ssn_source_key, $this->ssn_source_analysis_idx);
             if ($info) {
-                $this->ssn_source_key = $info["generate_key"];
                 $this->ssn_source_id = $info["generate_id"];
                 $file_info = functions::get_analysis_ssn_file_info($info, $this->ssn_source_analysis_idx);
                 if ($file_info) {
@@ -203,7 +200,6 @@ abstract class colorssn_shared extends option_base {
             }
         }
 
-        $this->extra_ram = (isset($result["extra_ram"]) && is_numeric($result["extra_ram"])) ? $result["extra_ram"] : false;
         $this->use_efiref = (isset($result["efiref"]) && is_numeric($result["efiref"])) ? $result["efiref"] : false;
 
         $this->file_helper->on_load_generate($id, $result);
@@ -249,13 +245,14 @@ abstract class colorssn_shared extends option_base {
 
     public function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
-        if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx)) {
-            $ainfo = functions::get_analysis_job_info($this->db, $data->color_ssn_source_id);
+        if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx) && isset($data->color_ssn_source_key)) {
+            $ainfo = functions::get_analysis_job_info($this->db, $data->color_ssn_source_id, $data->color_ssn_source_key, $data->color_ssn_source_idx);
             if ($ainfo) {
                 $sinfo = functions::get_analysis_ssn_file_info($ainfo, $data->color_ssn_source_idx);
                 if ($sinfo) {
                     $insert_array["generate_color_ssn_source_id"] = $data->color_ssn_source_id;
                     $insert_array["generate_color_ssn_source_idx"] = $data->color_ssn_source_idx;
+                    $insert_array["generate_color_ssn_source_key"] = $data->color_ssn_source_key;
                     $insert_array["generate_fasta_file"] = $sinfo["filename"];
                 }
             }
@@ -268,7 +265,6 @@ abstract class colorssn_shared extends option_base {
         } else {
             $insert_array = $this->file_helper->on_append_insert_array($data, $insert_array);
         }
-        $insert_array["extra_ram"] = (isset($data->extra_ram) && is_numeric($data->extra_ram)) ? $data->extra_ram : false;
         if (isset($data->efiref) && is_numeric($data->efiref))
             $insert_array["efiref"] = $data->efiref;
         return $insert_array;
@@ -289,11 +285,11 @@ abstract class colorssn_shared extends option_base {
     // FILE NAME/PATH ACCESSORS
 
     protected function get_web_output_dir() {
-        $dir = $this->is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+        $dir = $this->is_example ? functions::get_results_example_dirname($this->is_example) : functions::get_results_dirname();
         return $dir . "/" . $this->get_output_dir();
     }
     public function get_full_output_dir() {
-        $dir = $this->is_example ? functions::get_results_example_dir() : functions::get_results_dir();
+        $dir = $this->is_example ? $this->ex_data_dir : functions::get_results_dir();
         return $dir . "/" . $this->get_output_dir();
     }
     public function get_base_filename() {
@@ -317,8 +313,8 @@ abstract class colorssn_shared extends option_base {
     }
     public function get_file_size($web_path) {
         if ($this->is_example) {
-            $dir = functions::get_results_example_dir();
-            $chop = functions::get_results_example_dirname();
+            $dir = $this->ex_data_dir;
+            $chop = functions::get_results_example_dirname($this->is_example);
             $web_path = substr($web_path, strlen($chop)+1);
             $full_path = "$dir/$web_path";
         } else {

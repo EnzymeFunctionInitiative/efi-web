@@ -50,9 +50,23 @@ AppEstSubmit.prototype.addCommonFormData = function(opt, fd) {
         fd.append("exclude-fragments", exlFrag);
     if (allSeq)
         fd.append("include-all-seq", allSeq);
+    
+    var extraRamId = opt + "-extra-ram";
+    var extraRamChecked = $("#" + extraRamId).prop("checked");
+    if (typeof extraRamChecked !== "undefined") {
+        if (extraRamChecked) {
+            var val2 = $("#" + extraRamId + "-val").val();
+            if (typeof val2 !== "undefined" && val2 > 1)
+                fd.append("extra_ram", val2);
+        }
+    }
 
     var taxGroups = this.taxApp.getTaxSearchConditions(opt);
     taxGroups.forEach((group) => fd.append("tax_search[]", group));
+    var taxPresetNameId = opt ? "taxonomy-" + opt + "-preset-name" : "taxonomy-preset-name";
+    var taxPresetName = $("#" + taxPresetNameId).val();
+    if (taxPresetName)
+        fd.append("tax_name", taxPresetName);
 };
 
 AppEstSubmit.prototype.submitOptionForm = function(optionId) {
@@ -150,6 +164,16 @@ AppEstSubmit.prototype.getOptionCFormFn = function(outputIds) {
         addParam(fd, "fasta_input", "fasta-input");
         addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
     
+        if ($("#domain-optc").prop("checked")) {
+            fd.append("domain", true);
+            addParam(fd, "domain_family", "domain-family-optc");
+            addRadioParam(fd, "domain_region", "domain-region-optc");
+        }
+
+        if ($("#family-filter-optc").val().length >= 7) {
+            addParam(fd, "family_filter", "family-filter-optc");
+        }
+    
         var completionHandler = getDefaultCompletionHandler();
         var fileHandler = function(xhr) {};
         var files = document.getElementById("fasta-file").files;
@@ -193,6 +217,10 @@ AppEstSubmit.prototype.getOptionDFormFn = function(outputIds) {
             fd.append("domain", true);
             addParam(fd, "domain_family", "domain-family-optd");
             addRadioParam(fd, "domain_region", "domain-region-optd");
+        }
+
+        if ($("#family-filter-optd").val().length >= 7) {
+            addParam(fd, "family_filter", "family-filter-optd");
         }
     
         var completionHandler = getDefaultCompletionHandler();
@@ -300,6 +328,7 @@ AppEstSubmit.prototype.submitColorSsnForm = function(type) { // the parameters a
     }
     addParam(fd, "ssn-source-id", "ssn-source-id-" + option);
     addParam(fd, "ssn-source-idx", "ssn-source-idx-" + option);
+    addParam(fd, "ssn-source-key", "ssn-source-key-" + option);
     //addCbParam(fd, "exlude-fragments", "exclude-" + option);
     
     var completionHandler = getDefaultCompletionHandler();

@@ -57,18 +57,16 @@ class identify extends job_shared {
         $this->set_id($job_id);
         $this->db = $db;
         $this->is_debug = $is_debug;
+        $this->is_example = $is_example;
         
         if ($this->is_example)
-            $this->init_example();
+            $this->init_example($this->is_example);
         if (!$this->load_job())
             die();
     }
 
-    private function init_example() {
-        $config_file = example_config::get_config_file();
-        $config = example_config::get_config($config_file);
-        if ($config === false)
-            die();
+    private function init_example($id) {
+        $config = example_config::get_example_data($id);
         $this->id_table = example_config::get_cgfp_identify_table($config);
         $this->ex_data_dir = example_config::get_cgfp_data_dir($config);
     }
@@ -679,4 +677,4 @@ class identify extends job_shared {
 
 }
 
-?>
+

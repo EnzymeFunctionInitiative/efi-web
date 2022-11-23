@@ -15,6 +15,7 @@ $result['RESULT'] = 0;
 $input = new input_data;
 $input->is_debug = !isset($_SERVER["HTTP_HOST"]);
 
+
 // If this is being run from the command line then we parse the command line parameters and put them into _POST so we can use
 // that below.
 if ($input->is_debug) {
@@ -83,7 +84,10 @@ if (!isset($_POST['submit'])) {
     if (array_key_exists('large-mem', $_POST) && global_settings::advanced_options_enabled())
         $input->large_mem = $_POST['large-mem'] == "true" ? true : false;
     $input->exclude_fragments = (isset($_POST['exclude-fragments']) && $_POST['exclude-fragments'] == "true") ? true : false;
-    $input->tax_search = parse_tax_search($_POST["tax_search"]);
+    $input->tax_search = (isset($_POST["tax_search"]) && $_POST["tax_search"]) ? parse_tax_search($_POST["tax_search"]) : "";
+    $input->tax_search_name = (isset($_POST['tax_name']) && $_POST['tax_name']) ? $_POST['tax_name'] : "";
+
+    $input->extra_ram = (isset($_POST['extra_ram']) && is_numeric($_POST['extra_ram'])) ? $_POST['extra_ram'] : false;
 
     switch($option) {
         //Option A - BLAST Input
@@ -92,10 +96,10 @@ if (!isset($_POST['submit'])) {
 
             if (array_key_exists('families_input', $_POST))
                 $input->families = $_POST['families_input'];
-            $input->blast_evalue = $_POST['blast_evalue'];
-            $input->field_input = $_POST['blast_input'];
-            $input->max_seqs = $_POST['blast_max_seqs'];
-            $input->blast_db_type = $_POST['blast_db_type'];
+            $input->blast_evalue = isset($_POST['blast_evalue']) ? $_POST['blast_evalue'] : "";
+            $input->field_input = isset($_POST['blast_input']) ? $_POST['blast_input'] : "";
+            $input->max_seqs = isset($_POST['blast_max_seqs']) ? $_POST['blast_max_seqs'] : "";
+            $input->blast_db_type = isset($_POST['blast_db_type']) ? $_POST['blast_db_type'] : "";
             if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
                 if (isset($_POST['families_uniref_ver']) && $_POST['families_uniref_ver'])
                     $input->uniref_version = $_POST['families_uniref_ver'];
@@ -114,8 +118,8 @@ if (!isset($_POST['submit'])) {
         case 'E':
             $generate = new efi\est\family($db);
             
-            $input->families = $_POST['families_input'];
-            $input->domain = $_POST['domain'];
+            $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
+            $input->domain = isset($_POST['domain']) ? $_POST['domain'] : "";
             if (isset($_POST['pfam_seqid']))
                 $input->seq_id = $_POST['pfam_seqid'];
             if (isset($_POST['pfam_length_overlap']))
@@ -145,7 +149,7 @@ if (!isset($_POST['submit'])) {
         case 'opt_tax':
             $generate = new efi\est\taxonomy_job($db);
             
-            $input->families = $_POST['families_input'];
+            $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
             if (isset($_POST['pfam_uniref_version']))
                 $input->uniref_version = $_POST['pfam_uniref_version'];
             if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
@@ -199,22 +203,25 @@ if (!isset($_POST['submit'])) {
                     if (isset($_POST["domain_region"]) && $_POST["domain_region"])
                         $input->domain_region = $_POST["domain_region"];
                 }
+                if (isset($_POST["family_filter"]) && $_POST["family_filter"]) {
+                    $input->family_filter = $_POST["family_filter"];
+                }
 
                 if ($option == "C" || $option == "E") {
-                    $useFastaHeaders = strval($_POST['fasta_use_headers']);
+                    $useFastaHeaders = strval(isset($_POST['fasta_use_headers']) ? $_POST['fasta_use_headers'] : "");
                     $includeAllSeq = isset($_POST['include-all-seq']) && $_POST['include-all-seq'] === "true";
                     $obj = new efi\est\fasta($db, 0, $useFastaHeaders == "true" ? "E" : "C");
-                    $input->field_input = $_POST['fasta_input'];
-                    $input->families = $_POST['families_input'];
+                    $input->field_input = isset($_POST['fasta_input']) ? $_POST['fasta_input'] : "";
+                    $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
                     $input->include_all_seq = $includeAllSeq;
                 } else if ($option == "D") {
                     $obj = new efi\est\accession($db);
-                    $input->field_input = $_POST['accession_input'];
-                    $input->families = $_POST['families_input'];
-                    $input->tax_job_id = $_POST['accession_tax_job_id'];
-                    $input->tax_tree_id = $_POST['accession_tax_tree_id'];
-                    $input->tax_id_type = $_POST['accession_tax_id_type'];
-                    $input->tax_job_key = $_POST['accession_tax_job_key'];
+                    $input->field_input = isset($_POST['accession_input']) ? $_POST['accession_input'] : "";
+                    $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
+                    $input->tax_job_id = isset($_POST['accession_tax_job_id']) ? $_POST['accession_tax_job_id'] : "";
+                    $input->tax_tree_id = isset($_POST['accession_tax_tree_id']) ? $_POST['accession_tax_tree_id'] : "";
+                    $input->tax_id_type = isset($_POST['accession_tax_id_type']) ? $_POST['accession_tax_id_type'] : "";
+                    $input->tax_job_key = isset($_POST['accession_tax_job_key']) ? $_POST['accession_tax_job_key'] : "";
                     if (isset($_POST["domain_family"]) && $_POST["domain_family"])
                         $input->domain_family = $_POST["domain_family"];
                 } else if ($option == "colorssn" || $option == "cluster" || $option == "nc" || $option == "cr") {
@@ -222,7 +229,8 @@ if (!isset($_POST['submit'])) {
                         $input->color_ssn_source_id = $_POST['ssn-source-id'];
                     if (isset($_POST['ssn-source-idx']))
                         $input->color_ssn_source_idx = $_POST['ssn-source-idx'];
-                    $input->extra_ram = (isset($_POST['extra_ram']) && is_numeric($_POST['extra_ram'])) ? $_POST['extra_ram'] : false;
+                    if (isset($_POST['ssn-source-key']))
+                        $input->color_ssn_source_key = $_POST['ssn-source-key'];
                     $input->efiref = isset($_POST['efiref']) ? $_POST['efiref'] : "";
                     $input->skip_fasta = (isset($_POST['skip_fasta']) && $_POST['skip_fasta'] == "true");
                     if (isset($_POST['color-ssn-source-color-id']) && is_numeric($_POST['color-ssn-source-color-id']))
@@ -304,4 +312,3 @@ function parse_tax_search($search_array) {
 }
 
 
-?>

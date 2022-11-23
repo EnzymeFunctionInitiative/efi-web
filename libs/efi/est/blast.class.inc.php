@@ -9,6 +9,7 @@ use \efi\est\settings;
 
 class blast extends family_shared {
 
+    const EVALUE_OUTPUT_FILE = "blast_evalue.txt";
 
     private $blast_input;
     private $blast_sequence_max;
@@ -40,6 +41,23 @@ class blast extends family_shared {
         $cut = true;
         $formatted_blast = str_replace(" ","",$this->get_blast_input());
         return wordwrap($formatted_blast,$width,$break,$cut);
+    }
+
+    public function get_blast_db_type($formatted = true) {
+        $db_type = strtolower($this->blast_db_type);
+        if ($formatted)
+            return self::get_blast_db_type_formatted($db_type);
+        else
+            return $db_type;
+    }
+    public static function get_blast_db_type_formatted($db_type) {
+        if ($db_type == "uniref90")
+            $db_type = "UniRef90";
+        else if ($db_type == "uniref50")
+            $db_type = "UniRef50";
+        else
+            $db_type = "UniProt";
+        return $db_type;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

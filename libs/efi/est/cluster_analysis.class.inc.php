@@ -94,7 +94,7 @@ class cluster_analysis extends colorssn_shared {
         $insert_array["aa_threshold"] = (isset($data->aa_threshold) && preg_match("/^[0-9\., ]+$/", $data->aa_threshold)) ? $data->aa_threshold : 0;
         $insert_array["hmm_aa"] = (isset($data->hmm_aa) && preg_match("/^[A-Z, ]+$/", $data->hmm_aa)) ? str_replace(" ", "", $data->hmm_aa) : "";
         $insert_array["min_seq_msa"] = (isset($data->min_seq_msa) && preg_match("/^[0-9\., ]+$/", $data->min_seq_msa)) ? $data->min_seq_msa : self::DEFAULT_MIN_SEQ_MSA;
-        $insert_array["max_seq_msa"] = (isset($data->max_seq_msa) && preg_match("/^[0-9\., ]+$/", $data->max_seq_msa)) ? $data->max_seq_msa : 0;
+        $insert_array["max_seq_msa"] = (isset($data->max_seq_msa) && preg_match("/^[0-9\., ]+$/", $data->max_seq_msa)) ? $data->max_seq_msa : 700;
         return $insert_array;
     }
 

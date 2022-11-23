@@ -112,9 +112,11 @@ function add_ssn_calc_option($option_id) {
         Negative log of e-value for all-by-all BLAST (&ge;1; default $default_evalue)
     </span>
     <div class="input-desc">
-        Input an alternative e-value for BLAST to calculate similarities between sequences defining edge values.
-        Default parameters are permissive and are used to obtain edges even between sequences that share low similarities.
-        We suggest using a larger e-value (smaller negative log) for short sequences.
+Input an alternate e-value for BLAST to calculate similarities/edge alignment 
+scores similarities.  The default parameter ($default_evalue) is useful for most sequences.  
+However, a larger e-value/smaller negative log should be used for short 
+sequences or when low pairwise identities may be useful for separating 
+functionally distinct SSN clusters.
     </div>
 </div>
 HTML;
@@ -129,11 +131,11 @@ function add_extra_ram_option($option_id) {
         Extra RAM:
     </span><span class="input-field">
         <input type="checkbox" id="$option_id-extra-ram" name="$option_id-extra-ram" class="extra-ram-cb" value="1">
-        <label for="$option_id-extra-ram">Check to use additional RAM (800GB) [default: off, uses 150GB]</label>
+        <label for="$option_id-extra-ram">Check to use additional RAM (700GB) [default: off, uses 70GB]</label>
         <br>
         Enter number of edges to manually specify required RAM:
         <input type="text" size="9" id="$option_id-extra-ram-edges" name="$option_id-extra-ram-edges" class="extra-ram-calc-ram-from-edges" data-dest-id="$option_id-extra-ram-val" value="">
-        RAM: <input type="text" size="3" id="$option_id-extra-ram-val" name="$option_id-extra-ram-val" class="extra-ram-val" value="800">GB
+        RAM: <input type="text" size="3" id="$option_id-extra-ram-val" name="$option_id-extra-ram-val" class="extra-ram-val" value="700">GB
     </span>
 </div>
 HTML;
@@ -145,6 +147,9 @@ function add_fragment_option($option_id) {
     $html = <<<HTML
 <h3>Fragment Option</h3>
 <div>
+<div>
+ UniProt designates a Sequence Status for each member: Complete if the encoding DNA sequence has both start and stop codons; Fragment if the start and/or stop codon is missing. Approximately 10% of the entries in UniProt are fragments. 
+</div>
     <span class="input-name">
         Fragments:
     </span><span class="input-field">
@@ -155,9 +160,15 @@ function add_fragment_option($option_id) {
         </label>
     </span>
     <div class="input-desc">
-        The UniProt database designates a sequence as a fragment if it is translated from a gene missing a start and/or a stop codon (Sequence Status).
-        Fragments are included in the SSNs by default; checking this box will exclude fragmented sequences
-        from computations.  This results in an approximately 10% smaller SSN.
+<p>
+For the UniRef90 and UniRef50 databases, clusters are excluded if the cluster 
+ID ("representative sequence") is a fragment.   
+</p>
+
+<p>
+UniProt IDs in UniRef90 and UniRef50 clusters with complete cluster IDs are 
+removed from the clusters if they are fragments. 
+</p>
     </div>
 </div>
 HTML;
@@ -272,7 +283,7 @@ HTML;
 <div>
     <div class="primary-input">
         <div class="secondary-name">
-            Pfam and/or InterPro Families:
+            Pfam and/or InterPro Families and/or Pfam clans:
         </div>
         <div>
 HTML;
@@ -294,7 +305,7 @@ HTML;
     $html .= <<<HTML
         <div>
             <input type="checkbox" id="use-uniref-$option_id" class="cb-use-uniref bigger" value="1">
-            <label for="use-uniref-$option_id">Use <select id="uniref-ver-$option_id" name="uniref-ver-$option_id" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> cluster ID sequences instead of the full family</label>
+            <label for="use-uniref-$option_id">Use <select id="uniref-ver-$option_id" name="uniref-ver-$option_id" class="bigger"><option value="90">UniRef90</option><option value="50">UniRef50</option></select> cluster ID sequences instead of UniProt IDs (UniProt is default).</label>
             <div style="margin-top: 10px">
 HTML;
     $html .= make_pfam_size_box("family-size-container-$option_id", "family-count-table-$option_id", $show_example);
@@ -311,6 +322,24 @@ HTML;
     if (!$show_example && $show_text) {
         $html .= <<<HTML
     <div>
+<p>
+UniRef90 clusters contain UniProt IDs that share ≥90% sequence identity and 
+have 80% overlap with the longest sequence in the cluster ("seed sequence"); as 
+a result, the UniProt IDs in the cluster usually are functionally homogeneous, 
+i.e., orthologues.  UniRef50 clusters contain UniProt IDs that share ≥50% 
+sequence identity and have 80% overlap with the seed sequence; as a result, the 
+UniProt IDs in the cluster often are functionally heterogeneous, e.g., 
+paralogues.
+</p>
+
+<p>
+The sequences from the UniRef90 and UniRef90 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified families. The UniProt members in these UniRef90 and Uni/Ref50 
+clusters that do not match the specified families are removed from the cluster.
+</p>
+
+<!--
         The EST provides access to the UniRef90 and UniRef50 databases to allow the creation
         of SSNs for very large Pfam and/or InterPro families. For families that contain 
         more than $max_full_family sequences, the SSN <b>will be</b> generated 
@@ -322,6 +351,7 @@ HTML;
         Representative Node Network with each node corresponding to a UniRef cluster ID; in this
         case an additional node attribute is provided which lists all
         of the sequences represented by the UniRef node.
+-->
     </div>
 HTML;
     }
@@ -346,12 +376,21 @@ function get_fraction_html($option_id) {
             $default_fraction)
         </span>
         <div class="input-desc">
+Selects every Nth sequence in the family; the sequences are assumed to be added 
+randomly to UniProtKB, so the selected sequences are assumed to be a 
+representative sampling of the family. This allows reduction of the size of the 
+SSN.  Sequences in the family with SwissProt annotations will always be 
+included; this may result in the size of the resulting data set being slightly 
+larger than the fraction specified. 
+
+<!--
             Selects every Nth sequence in the family; the sequences are assumed to be
             added randomly to UniProt, so the selected sequences are assumed to be a
             representative sampling of the family. This allows reduction of the size of the SSN.
             Sequences in the family with Swiss-Prot annotations will always be included;
             this may result in the size of the resulting data set being slightly larger than
             the fraction specified.
+-->
         </div>
     </div>
 HTML;
@@ -384,8 +423,31 @@ HTML;
 function add_taxonomy_filter($option_id, $text = "") {
     if (!$text) {
         $text = <<<TEXT
-        Conditions on the taxonomy can be set to further restrict the set of sequences by only including the sequences that
-        match the specific taxonomic categories.  Multiple conditions are combined to be a union of each other.
+<p>
+The user can select "Bacteria, Archaea, Fungi", "Eukaryota, no Fungi", or 
+"Fungi" to restrict the retrieved sequences to these taxonomy groups.   
+"Bacteria, Archaea, Fungi" and "Fungi" selects organisms that may provide 
+genome context (gene clusters/operons) useful for inferring functions. 
+</p>
+
+<p>
+Also, sequences retrieved from the UniProt, UniRef90, and UniRef50 databases 
+can be restricted to taxonomic categories (Superkingdom, Kingdom, Phylum, 
+Class, Order, Family, Genus, Species). Multiple conditions are combined to be a 
+union of each other. 
+</p>
+
+<p>
+The retrieved sequences from the UniRef90 and UniRef90 databases are the 
+UniRef90 and UniRef50 clusters for which the cluster ID matches the specified 
+taxonomic category.
+</p>
+
+<p>
+The taxonomy filter is applied to the list of UniProt, UniRef90, or UniRef50 
+cluster IDs that are identified in the BLAST.
+</p>
+
 TEXT;
     }
     $html = <<<HTML
@@ -395,18 +457,51 @@ TEXT;
         $text
     </div>
     <div>Preselected conditions:
-        <select class="taxonomy-preselects" data-taxoption="$option_id">
+        <select class="taxonomy-preselects" id="taxonomy-$option_id-select" data-option-id="$option_id">
             <option disabled selected value>-- select a preset to auto populate --</option>
         </select>
     </div>
     <div id="taxonomy-$option_id-container"></div>
+    <div style="display: none">
+        <input type="hidden" name="taxonomy-$option_id-preset-name" id="taxonomy-$option_id-preset-name" value="" />
+    </div>
     <div>
-        <button type="button" class="light add-tax-btn" data-option-id="$option_id">Add taxonomic condition</button>
+        <button type="button" class="light add-tax-btn" data-option-id="$option_id" id="taxonomy-$option_id-add-btn">Add Taxonomy category</button>
         <!--<button type="button" class="light" onclick="appTF.addTaxCondition('$option_id')">Add taxonomic condition</button>-->
     </div>
 </div>
 HTML;
     return array($html);
 }
+
+
+function add_family_filter($option_id, $extra_text = "", $family_filter_post_text = "") {
+    if ($extra_text)
+        $extra_text = "<div>$extra_text</div>";
+    $html = <<<HTML
+<h3>Filter by Family</h3>
+<div>
+    $extra_text
+    <div>Input a list of Pfam families, InterPro families, and/or Pfam clans to restrict the UniProt and/or UniRef IDs in the SSN to these families.</div>
+    <div class="secondary-input">
+        <div class="secondary-name">
+            Family(s):
+        </div>
+        <div class="secondary-field">
+            <input type="text" id="family-filter-$option_id" name="family-filter-$option_id" value="" />
+        </div>
+    </div>
+    <div class="input-desc">
+        <div>
+            The input format is a single family or comma/space separated list of families. Families should be
+            specified as PFxxxxx (five digits), IPRxxxxxx (six digits) or CLxxxx (four digits) for Pfam clans.
+        </div>
+    </div>
+    <div>$family_filter_post_text</div>
+</div>
+HTML;
+    return array($html);
+}
+
 
 

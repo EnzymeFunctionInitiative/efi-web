@@ -257,7 +257,7 @@ class job_manager {
         $id_sql .=
             "WHERE identify_email='$email' AND identify_status != '" . __ARCHIVED__ . "' AND " .
             "(identify_time_completed >= '$start_date' OR " .
-            "(identify_time_created >= '$start_date' AND (identify_status = 'NEW' OR identify_status = 'RUNNING'))) " .
+            "(identify_time_created >= '$start_date' AND (identify_status = 'NEW' OR identify_status = 'RUNNING' OR identify_status = 'FAILED'))) " .
             "ORDER BY identify_status, identify_time_completed DESC";
         $id_rows = $this->db->query($id_sql);
 

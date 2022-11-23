@@ -15,8 +15,9 @@ use \efi\est\stepa;
 
 
 class job_factory {
-    public static function get_job_type($db, $id) {
-        $sql = "SELECT generate_type, generate_params FROM generate WHERE generate_id = $id";
+    public static function get_job_type($db, $id, $is_example = false) {
+        $table = $is_example ? "generate_example" : "generate";
+        $sql = "SELECT generate_type, generate_params FROM $table WHERE generate_id = $id";
         $result = $db->query($sql);
         $result = isset($result[0]) ? $result[0] : null;
         if (isset($result))
@@ -27,7 +28,7 @@ class job_factory {
     public static function create($db, $id, $arg1 = null, $arg2 = null) {
         $type = $id;
         if (is_numeric($id))
-            $type = self::get_job_type($db, $id);
+            $type = self::get_job_type($db, $id, $arg1);
         return self::create_by_type($db, $id, $type, $arg1, $arg2);
     }
     public static function create_by_type($db, $id, $type, $arg1 = null, $arg2 = null) {

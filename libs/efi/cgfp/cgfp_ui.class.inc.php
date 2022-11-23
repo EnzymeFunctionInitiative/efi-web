@@ -1,8 +1,10 @@
 <?php
 namespace efi\cgfp;
+require_once(__DIR__."/../../../init.php");
 
 use \efi\global_functions;
-use \efi\cgfp\settings;
+use \efi\global_settings;
+use \efi\cgfp\settings_shared;
 
 
 class cgfp_ui {
@@ -18,7 +20,7 @@ class cgfp_ui {
                 <tbody>
 HTML;
         $last_bg_color = "#eee";
-        $ex_param = $is_example ? "&x=1" : "";
+        $ex_param = $is_example ? "&x=".$is_example : "";
         $script_dir = $is_example ? global_settings::get_cgfp_web_path() . "/" : "";
         for ($i = 0; $i < count($jobs); $i++) {
             $key = $jobs[$i]["key"];
@@ -26,7 +28,7 @@ HTML;
             $name = $jobs[$i]["job_name"];
             $is_completed = $jobs[$i]["is_completed"];
             $date_completed = $jobs[$i]["date_completed"];
-            $is_finished = $date_completed && $date_completed != "PENDING" && $date_completed != "RUNNING";
+            $is_finished = $date_completed && $date_completed != "PENDING" && $date_completed != "RUNNING" && $date_completed != "FAILED";
             $search_type = $jobs[$i]["search_type"];
             $ref_db = $jobs[$i]["ref_db"];
         
@@ -79,7 +81,7 @@ HTML;
     
             $job_action_code = "";
             if ($allow_cancel) {
-                if (!$is_finished) {
+                if ($date_completed == "RUNNING" || $date_completed == "NEW") {
                     $job_action_code = "<div style=\"float:right\" class=\"cancel-btn\" data-type=\"gnn\" title=\"Cancel Job\" data-id=\"$id\" data-key=\"$key\"";
                     if ($quantify_id)
                         $job_action_code .= " data-quantify-id=\"$quantify_id\"";
@@ -118,10 +120,10 @@ HTML;
         if (!$identify_table)
             $identify_table = "identify";
 
-        $default_cdhit_id = settings::get_default_cdhit_id();
-        $default_ref_db = settings::get_default_ref_db();
-        $default_id_search = strtolower(settings::get_default_identify_search());
-        $default_quantify_search = strtolower(settings::get_default_quantify_search());
+        $default_cdhit_id = settings_shared::get_default_cdhit_id();
+        $default_ref_db = settings_shared::get_default_ref_db();
+        $default_id_search = strtolower(settings_shared::get_default_identify_search());
+        $default_quantify_search = strtolower(settings_shared::get_default_quantify_search());
 
         foreach ($id_rows as $id_row) {
             $iparams = global_functions::decode_object($id_row["identify_params"]);

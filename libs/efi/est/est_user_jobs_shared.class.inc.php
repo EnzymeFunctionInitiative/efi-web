@@ -4,8 +4,9 @@ namespace efi\est;
 require_once(__DIR__."/../../../init.php");
 
 use \efi\global_functions;
-use \efi\est\settings;
+use \efi\est\settings_shared;
 use \efi\est\functions;
+use \efi\est\blast;
 
 
 class est_user_jobs_shared {
@@ -44,7 +45,7 @@ class est_user_jobs_shared {
         $evalueStr = "";
         if (array_key_exists("generate_evalue", $data)) {
             $evalue = $data["generate_evalue"];
-            if ($evalue && $evalue != settings::get_evalue())
+            if ($evalue && $evalue != settings_shared::get_evalue())
                 $evalueStr = "E-value: " . $evalue;
         }
         return $evalueStr;
@@ -54,7 +55,7 @@ class est_user_jobs_shared {
         $fractionStr = "";
         if (array_key_exists("generate_fraction", $data)) {
             $fraction = $data["generate_fraction"];
-            if ($fraction && $fraction != functions::get_fraction())
+            if ($fraction && $fraction != settings_shared::get_default_fraction())
                 $fractionStr = "Fraction: " . $fraction;
         }
         return $fractionStr;
@@ -113,6 +114,13 @@ class est_user_jobs_shared {
         return $info;
     }
 
+    private static function get_blast_database_type($data) {
+        $info = "";
+        if (array_key_exists("blast_db_type", $data) && $data["blast_db_type"])
+            $info = "Database: " . blast::get_blast_db_type_formatted($data["blast_db_type"]);
+        return $info;
+    }
+
     private static function get_max_blast_hits($data) {
         $info = "";
         if (array_key_exists("generate_blast_max_sequence", $data) && $data["generate_blast_max_sequence"]) {
@@ -133,9 +141,15 @@ class est_user_jobs_shared {
     private static function get_tax_search($data) {
         $info = "";
         if (isset($data["tax_search"]) && $data["tax_search"]) {
-            $info = preg_replace("/;/", "; ", $data["tax_search"]);
-            $info = preg_replace("/:/", ": ", $info);
-            $info = "Taxonomic filter: [<small>$info</small>]";
+            $not_str = "";
+            if (isset($data["tax_search_name"]) && $data["tax_search_name"]) {
+                $info = explode("|", $data["tax_search_name"]);
+                $info = $info[count($info)-1];
+            } else {
+                $info = preg_replace("/;/", "; ", $data["tax_search"]);
+                $info = preg_replace("/:/", ": ", $info);
+            }
+            $info = "Taxonomic filter: $not_str [<small>$info</small>]";
         }
         return $info;
     }
@@ -154,6 +168,7 @@ class est_user_jobs_shared {
         $uniref = self::get_uniref_version($data);
         $domain = self::get_domain($data);
         $sequence = self::get_sequence($data);
+        $dbType = self::get_blast_database_type($data);
         $blastEvalue = self::get_blast_evalue($data);
         $maxHits = self::get_max_blast_hits($data);
         $excludeFractions = self::get_exclude_fragments($data);
@@ -170,6 +185,7 @@ class est_user_jobs_shared {
             } elseif ($type == "BLAST") {
                 $job_name = $sequence;
                 $sequence = "";
+
             } else {
                 $job_name = $fileName;
                 $fileName = "";
@@ -212,6 +228,7 @@ class est_user_jobs_shared {
         if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $type != "CONVRATIO" && $excludeFractions) array_push($info, $excludeFractions);
         if ($type != "CLUSTER" && $type != "COLORSSN" && $type != "NBCONN" && $type != "CONVRATIO" && $taxSearch) array_push($info, $taxSearch);
         if ($sequence) array_push($info, $sequence);
+        if ($dbType) array_push($info, $dbType);
         if ($blastEvalue) array_push($info, $blastEvalue);
         if ($maxHits) array_push($info, $maxHits);
 
@@ -249,8 +266,8 @@ class est_user_jobs_shared {
     }
 
     public static function build_analyze_job_name($data_row) {
-        $a_min = $data_row["analysis_min_length"] == settings::get_ascore_minimum() ? "" : "Min=".$data_row["analysis_min_length"];
-        $a_max = $data_row["analysis_max_length"] == settings::get_ascore_maximum() ? "" : "Max=".$data_row["analysis_max_length"];
+        $a_min = $data_row["analysis_min_length"] == settings_shared::get_ascore_minimum() ? "" : "Min=".$data_row["analysis_min_length"];
+        $a_max = $data_row["analysis_max_length"] == settings_shared::get_ascore_maximum() ? "" : "Max=".$data_row["analysis_max_length"];
         $job_name = "<span class='job-name'>" . $data_row["analysis_name"] . "</span><br>";
         $job_name .= "<span class='job-metadata'>SSN Threshold=" . $data_row["analysis_evalue"];
         if ($a_min)
@@ -261,7 +278,11 @@ class est_user_jobs_shared {
         if (isset($data_row["analysis_params"])) {
             $data = global_functions::decode_object($data_row["analysis_params"]);
             if (isset($data["compute_nc"]) && $data["compute_nc"]) {
-                $job_name .= " <span class='job-metadata'>Neighborhood Connectivity</span>";
+                $job_name .= "; <span class='job-metadata'>Neighborhood Connectivity</span>";
+            }
+            $tax_search = self::get_tax_search($data);
+            if ($tax_search) {
+                $job_name .= "; <span class='job-metadata'>$tax_search</span>";
             }
         }
         return $job_name;
@@ -290,7 +311,7 @@ class est_user_jobs_shared {
         return self::build_job_name($data, $type, $familyLookupFn, $job_id);
     }
 
-    public static function process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn, $generate_table = "", $analysis_table = "", $table_db = "") {
+    public static function process_load_generate_rows($db, $rows, $includeAnalysisJobs, $includeFailedAnalysisJobs, $familyLookupFn, $sort_order = user_jobs::SORT_TIME_COMPLETED, $generate_table = "", $analysis_table = "", $table_db = "") {
 
         if (!$analysis_table)
             $analysis_table = "analysis";
@@ -303,6 +324,8 @@ class est_user_jobs_shared {
 
         $map_fn = function ($row) use($generate_table) { return $row["${generate_table}_id"]; };
         $id_order = array_map($map_fn, $rows);
+        $map_fn = function ($row) use($generate_table) { return $row["${generate_table}_status"]; };
+        $id_status = array_map($map_fn, $rows);
         $date_order = array();
 
         // First process all of the color SSN jobs.  This allows us to link them to SSN jobs.
@@ -433,12 +456,43 @@ class est_user_jobs_shared {
 
         // Remove color jobs that have been attached to an analysis job.
         $id_order_new = array();
+        $failed_ids = array();
         for ($i = 0; $i < count($id_order); $i++) {
-            if (!isset($colors_to_remove[$id_order[$i]]))
-                array_push($id_order_new, $id_order[$i]);
+            if (!isset($colors_to_remove[$id_order[$i]])) {
+                if ($id_status[$i] == __FAILED__)
+                    array_push($failed_ids, $id_order[$i]);
+                else
+                    array_push($id_order_new, $id_order[$i]);
+            }
         }
 
-        $retval = array("generate_jobs" => $jobs, "color_jobs" => $color_jobs, "order" => $id_order_new, "date_order" => $date_order);
+        if ($sort_order == user_jobs::SORT_TIME_ACTIVITY) {
+            $sort_fn = function($a, $b) use ($date_order) {
+                if (isset($date_order[$a]) && isset($date_order[$b])) {
+                    $tm1 = strtotime($date_order[$a]);
+                    $tm2 = strtotime($date_order[$b]);
+                    return $tm1 > $tm2 ? -1 : ($tm1 < $tm2 ? 1 : 0);
+                } else {
+                    return $a < $b ? 1 : ($a > $b ? -1 : 0);
+                }
+            };
+            usort($id_order_new, $sort_fn);
+            usort($failed_ids, $sort_fn);
+        } else if ($sort_order == user_jobs::SORT_ID || $sort_order == user_jobs::SORT_ID_REVERSE) {
+            $comp_factor = $sort_order == user_jobs::SORT_ID_REVERSE ? -1 : 1;
+            $sort_fn = function($a, $b) use ($id_status, $comp_factor) {
+                if (isset($failed_ids[$a]))
+                    return -1;
+                if (isset($failed_ids[$b]))
+                    return 1;
+                return $a < $b ? $comp_factor : ($a > $b ? -$comp_factor : 0);
+            };
+            usort($id_order_new, $sort_fn);
+            usort($failed_ids, $sort_fn);
+        }
+        $all_ids = array_merge($id_order_new, $failed_ids);
+
+        $retval = array("generate_jobs" => $jobs, "color_jobs" => $color_jobs, "order" => $all_ids, "date_order" => $date_order);
         return $retval;
     }
 }

@@ -32,7 +32,7 @@ function get_gnn_params($db, $P) {
     $P->gnn_id = $_GET["gnn-id"];
 
     if ($P->is_example)
-        $gnn = new gnn_example($db, $P->gnn_id);
+        $gnn = new gnn_example($db, $P->gnn_id, $P->is_example);
     else
         $gnn = new gnn($db, $P->gnn_id);
     $P->cooccurrence = $gnn->get_cooccurrence();
@@ -45,7 +45,7 @@ function get_gnn_params($db, $P) {
     if ($gnn->get_key() != $P->gnn_key) {
         return false;
     }
-    elseif ($gnn->is_expired()) {
+    elseif (!$P->is_example && $gnn->is_expired()) {
         return false;
         //error_404("That job has expired and doesn"t exist anymore.");
     }
@@ -55,7 +55,7 @@ function get_gnn_params($db, $P) {
 
     $P->id_key_query_string = "gnn-id=$P->gnn_id&key=$P->gnn_key";
     if ($P->is_example)
-        $P->id_key_query_string .= "&x=1";
+        $P->id_key_query_string .= "&x=".$P->is_example;
     $P->gnn_name_text = "GNN <i>$P->gnn_name</i>";
     $P->window_title = " for GNN $P->gnn_name (#$P->gnn_id)";
 

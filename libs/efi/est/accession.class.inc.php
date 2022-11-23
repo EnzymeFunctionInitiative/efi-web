@@ -34,7 +34,7 @@ class accession extends family_shared {
             $this->get_no_matches_download_file();
     }
     private function get_no_matches_download_file() {
-        $dir = $this->is_example ? functions::get_results_example_dirname() : functions::get_results_dirname();
+        $dir = $this->is_example ? functions::get_results_example_dirname($this->is_example) : functions::get_results_dirname();
         $dir .= "/" . $this->get_output_dir();
         $dir .= "/" . $this->get_no_matches_filename(); 
         return $dir;
@@ -66,8 +66,8 @@ class accession extends family_shared {
 
         if (is_numeric($data->tax_job_id) && is_numeric($data->tax_tree_id) && $data->tax_job_id && isset($data->tax_tree_id) && $data->tax_id_type && $data->tax_job_key) {
             $sql = "SELECT generate_key FROM generate WHERE generate_id = :id";
-            $result = $this->db->query($sql, array(":id" => $data->tax_job_id));
-            if (!$result || $result[0]["generate_key"] != $data->tax_job_key) {
+            $db_result = $this->db->query($sql, array(":id" => $data->tax_job_id));
+            if (!$db_result || $db_result[0]["generate_key"] != $data->tax_job_key) {
                 $result->errors = true;
                 $result->message .= "Invalid taxonomy id.";
             } else {

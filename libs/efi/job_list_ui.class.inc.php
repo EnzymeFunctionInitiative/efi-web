@@ -84,7 +84,7 @@ abstract class job_list_ui {
                 <tbody>
 HTML;
 
-        $example_arg = $is_example ? "&x=1" : "";
+        $example_arg = $is_example ? "&x=".$is_example : "";
 
         $last_bg_color = "#eee";
         for ($i = 0; $i < count($jobs); $i++) {

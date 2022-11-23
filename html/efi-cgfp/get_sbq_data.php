@@ -6,6 +6,7 @@ use \efi\cgfp\identify;
 use \efi\cgfp\quantify;
 use \efi\cgfp\quantify_example;
 use \efi\cgfp\metagenome_db_manager;
+use \efi\training\example_config;
 
 
 const MERGED = 1;       // Both clusters and singletons
@@ -24,7 +25,7 @@ $job_obj = NULL;
 // There are two types of examples: dynamic and static.  The static example is a curated
 // example pulled into the entry screen.  The dynamic examples are the same as other
 // jobs, except they are stored in separate directories/tables.
-$is_example = isset($_POST["x"]) ? true : false;
+$is_example = example_config::is_example($_POST);
 
 if (isset($_POST["static-example"])) {
     $ex_dir = settings::get_example_dir();
@@ -197,6 +198,7 @@ if ($fh) {
             if ($val < $min)
                 $min = $val;
 
+        #print("$cluster,$i,$sum,$val,");
             // Skip the value if it's lower than the input threshold.
             if ($hits_only && $val > 0)
                 $val = 1;
@@ -204,6 +206,7 @@ if ($fh) {
                 $val = 0;
             elseif ($val > $upper_thresh)
                 $val = 0;
+        #print("$val,\n");
             
             $sum += $val;
 

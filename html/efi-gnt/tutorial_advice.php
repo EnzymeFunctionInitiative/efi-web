@@ -1,12 +1,14 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
+use \efi\global_settings;
+
 $Tutorial = true;
-require_once 'inc/header.inc.php';
+include_once("inc/header.inc.php");
 ?>
 
 <div class="tutorial-nav">
-	<?php require_once('inc/tutorial_nav.php'); ?>
+	<?php include_once("inc/tutorial_nav.php"); ?>
 </div>
 
 <div class="tutorial-content">
@@ -148,7 +150,7 @@ single SSN cluster (or smaller number of SSN clusters).
 An iterative approach of using the GNN in the Pfam hub-node/cluster spoke-node 
 formats to guide the selection of the alignment score for the input SSN likely 
 will yield the most useful information. Please refer to the
-<a href="<?php echo settings::get_est_url(); ?>">EFI-EST tutorial</a>
+<a href="<?php echo global_settings::get_est_url(); ?>">EFI-EST tutorial</a>
 for information regarding the selection of a satisfactory alignment score 
 threshold.
 </p>
@@ -208,12 +210,12 @@ RNAs is not reported.
 
 <center><a href='tutorial_example.php'><button class="light">Continue Tutorial</button></a></center>
 
-<?php include_once('inc/tutorial_footer.inc.php'); ?>
+<?php include_once("inc/tutorial_footer.inc.php"); ?>
 
 </div> <!-- end of float -->
 
 <div style="clear: both"></div>
 
 
-<?php require_once('inc/footer.inc.php'); ?>
+<?php include_once("inc/footer.inc.php"); ?>
 

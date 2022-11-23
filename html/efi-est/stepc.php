@@ -12,18 +12,19 @@ use \efi\est\dataset_shared;
 use \efi\est\plots;
 use \efi\est\functions;
 use \efi\est\settings;
+use \efi\training\example_config;
 
 
 if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
     error500("Unable to find the requested job.");
 }
 
-$is_example = isset($_GET["x"]);
+$is_example = example_config::is_example();
 $generate = new stepa($db, $_GET['id'], $is_example);
 $gen_id = $generate->get_id();
 $key = $_GET['key'];
 
-if ($generate->get_key() != $_GET['key']) {
+if ($generate->get_key() != $key) {
     error500("Unable to find the requested job.");
 }
 
@@ -39,111 +40,8 @@ if (!$is_example && $generate->is_expired()) {
 
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// This code handles submission of the form.  It exits at the end of the code block if the
-// analysis job was successfully created.
-if (isset($_POST['analyze_data'])) {
-    foreach ($_POST as $var) {
-        $var = trim(rtrim($var));
-    }
-    $min = $_POST['minimum'];
-    if ($_POST['minimum'] == "") {
-        $min = __MINIMUM__;
-    }
-    $max = $_POST['maximum'];
-    if ($_POST['maximum'] == "") {
-        $max = __MAXIMUM__;
-    }
-
-    $job_id = $_POST['id'];
-
-    $analysis = new analysis($db);
-
-    $customFile = "";
-    if (isset($_FILES['cluster_file']) && (!isset($_FILES['cluster_file']['error']) || $_FILES['cluster_file']['error'] == 0)) {
-        $customFile = $_FILES['cluster_file']['tmp_name'];
-    }
-
-    $filter = "";
-    $filter_value = 0;
-    if (isset($_POST['filter'])) {
-        $filter = $_POST['filter'];
-        if ($filter == "eval") {
-            $filter_value = $_POST['evalue'];
-        } elseif ($filter == "pid") {
-            $filter_value = $_POST['pid'];
-        } elseif ($filter == "bit") {
-            $filter_value = $_POST['bitscore'];
-        } elseif ($filter != "custom") {
-            $filter = "eval";
-        }
-    } else {
-        $filter = "eval";
-        $filter_value = $_POST['evalue'];
-    }
-
-    if (user_auth::has_token_cookie()) {
-        $email = user_auth::get_email_from_token($db, user_auth::get_user_token());
-        if (functions::is_job_sticky($db, $job_id, $email)) {
-            $parent_id = $job_id;
-            $parent_check = functions::is_parented($db, $job_id, $email);
-
-            if ($parent_check === false) {
-                $job_id = stepa::duplicate_job($db, $job_id, $email);
-                if ($job_id === false) {
-                    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-                    die("Unable to create duplicate of $parent_id for $email");
-                }
-            } else {
-                $job_id = $parent_check;
-            }
-        }
-    }
-
-    $cdhitOpt = "";
-    if (functions::custom_clustering_enabled() && isset($_POST["cdhit-opt"])) {
-        $opt = $_POST["cdhit-opt"];
-        if ($opt == "sb" || $opt == "est" || $opt == "est+")
-            $cdhitOpt = $opt;
-    }
-
-    $min_node_attr = isset($_POST['min_node_attr']) ? 1 : 0;
-    $min_edge_attr = isset($_POST['min_edge_attr']) ? 1 : 0;
-    $compute_nc = isset($_POST['compute_nc']) ? true : false;
-    $default_build_repnode = settings::get_create_repnode_networks();
-    $build_repnode = isset($_POST['build_repnode']) ? true : $default_build_repnode;
-
-    $result = $analysis->create(
-        $job_id,
-        $filter_value,
-        $_POST['network_name'],
-        $min,
-        $max,
-        $customFile,
-        $cdhitOpt,
-        $filter,
-        $min_node_attr,
-        $min_edge_attr,
-        $compute_nc,
-        $build_repnode
-    );
-
-    if ($result['RESULT']) {
-        header('Location: stepd.php');
-        exit(0);
-    }
-}
-
-// If an analysis was not submitted, then display the Step C page.
-
-
-
 $web_address = dirname($_SERVER['PHP_SELF']);
 
-$table_format = "html";
-if (isset($_GET["as-table"])) {
-    $table_format = "tab";
-}
 
 $use_advanced_options = global_settings::advanced_options_enabled();
 
@@ -151,17 +49,30 @@ $gen_type = $generate->get_type();
 $generate = dataset_shared::create_generate_object($gen_type, $db, $is_example);
 
 $uniref = dataset_shared::get_uniref_version($gen_type, $generate);
+
+$sunburst_app_primary_id_type = "UniProt";
+if ($gen_type == "FAMILIES" || $gen_type == "ACCESSION") {
+    $sunburst_app_uniref = 50;
+    $has_uniref = "true";
+} else {
+    $sunburst_app_uniref = 0;
+    $has_uniref = "false";
+    if ($gen_type == "BLAST") {
+        $sunburst_app_primary_id_type = $generate->get_blast_db_type();
+    }
+}
+
 $job_name = $generate->get_job_name();
 $use_domain = dataset_shared::get_domain($gen_type, $generate) == "on";
-$sunburstAppUniref = 50; //$uniref ? $uniref : "false";
-$hasUniref = ($gen_type == "FAMILIES" || $gen_type == "ACCESSION" || $gen_type == "BLAST") ? "true" : "false";
+$ex_param = $is_example ? "&x=".$is_example : "";
 
 
+$table_format = "html";
+if (isset($_GET["as-table"]))
+    $table_format = "tab";
 $table = new table_builder($table_format);
 dataset_shared::add_generate_summary_table($generate, $table, false, $is_example);
 $table_string = $table->as_string();
-
-$ex_param = $is_example ? "&x=1" : "";
 
 if (isset($_GET["as-table"])) {
     $file_job_name = $gen_id . "_" . $gen_type;
@@ -171,88 +82,25 @@ if (isset($_GET["as-table"])) {
     exit(0);
 }
 
+
 $has_tax_data = $generate->has_tax_data();
 $is_taxonomy = ($gen_type == "TAXONOMY") && $has_tax_data;
 $show_taxonomy = true && $has_tax_data;
 
 $IncludeSunburstJs = $show_taxonomy;
 $IncludePlotlyJs = true;
+$IncludeTaxonomyJs = true;
 require_once(__DIR__."/inc/header.inc.php");
 
+$tax_tab_text = $show_taxonomy ? get_tax_tab_text($gen_type) : "";
+$tax_filt_text = $show_taxonomy ? get_tax_filt_text($gen_type) : "";
+$sunburst_post_sunburst_text = $show_taxonomy ? get_tax_sb_text($gen_type, $sunburst_app_primary_id_type) : "";;
 
 $date_completed = $generate->get_time_completed_formatted();
 
-$url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$generate->get_id(),
-    'key'=>$generate->get_key()));
+$post_url = "stepc_do.php";
 
-function make_plot_download($gen, $hdr, $type, $preview_img, $download_img, $plot_exists) {
-    global $is_example;
-    $html = ""; //"<span class='plot-header'>$hdr</span> \n";
-    if (!$plot_exists) {
-        $html .= "Unable to be generated";
-        return;
-    }
-    if ($preview_img) {
-        $html .= <<<HTML
-<div>
-    <center>
-        <img src='$preview_img' />
-HTML;
-        $ex_param = $is_example ? "&x=1" : "";
-        $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "$ex_param'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
-        $html .= <<<HTML
-    </center>
-</div>
-HTML;
-    } else {
-        $html .= "<a href='$download_img'><button class='file_download'>Preview</button></a>\n";
-    }
 
-    return $html;
-}
-
-function make_histo_plot_download($gen, $hdr, $plot_type) {
-    $download_type = $gen->get_length_histogram_download_type($plot_type);
-    $web_path = $gen->get_length_histogram($plot_type, true, true);
-    $large_web_path = $gen->get_length_histogram($plot_type, true, false);
-    $plot_exists = $web_path ? true : false;
-    if (!$plot_exists) {
-        $plot_type = "";
-        $use_v2 = false;
-        $download_type = $gen->get_length_histogram_download_type($plot_type, $use_v2);
-        $web_path = $gen->get_length_histogram($plot_type, true, true, $use_v2);
-        $large_web_path = $gen->get_length_histogram($plot_type, true, false, $use_v2);
-        $plot_exists = $large_web_path ? true : false;
-    }
-    return make_plot_download($gen, $hdr, $download_type, $web_path, $large_web_path, $plot_exists); 
-}
-
-function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {
-    $plot = plots::get_plot($gen, $plot_id);
-    if (!$plot || !$plot->has_data()) {
-        echo "Invalid data";
-        return;
-    }
-
-    $data = $plot->render_data(); // Javascript notation
-    $plotly = $plot->render_plotly_config(); // Javascript code
-    $trace_var = $plot->get_trace_var();
-    $layout_var = $plot->get_layout_var();
-
-    $html = <<<HTML
-                <div>
-                    <center>
-                    <div id="$plot_div"></div>
-                </center>
-                    <script>
-                        $data
-                        $plotly
-                        Plotly.newPlot("$plot_div", $trace_var, $layout_var);
-                    </script>
-                </div>
-HTML;
-    echo $html;
-}
 
 
 $ssn_jobs = $generate->get_analysis_jobs();
@@ -285,7 +133,7 @@ is a measure of the similarity between sequence pairs.
     <ul class="">
         <li class="ui-tabs-active"><a href="#info">Dataset Summary</a></li>
         <?php if ($show_taxonomy) { ?>
-            <li><a href="#taxonomy">Taxonomy Sunburst</a></li>
+            <li data-tab-id="sunburst"><a href="#taxonomy-tab">Taxonomy Sunburst</a></li>
         <?php } ?>
         <?php if (!$is_taxonomy) { ?>
             <li><a href="#graphs">Dataset Analysis</a></li>
@@ -303,7 +151,7 @@ is a measure of the similarity between sequence pairs.
             <p>
             The parameters for generating the initial dataset are summarized in the table. 
             </p>
-            
+
             <table width="100%" class="pretty no-stretch">
                 <?php echo $table_string; ?>
             </table>
@@ -334,16 +182,19 @@ is a measure of the similarity between sequence pairs.
         <?php } ?>
 
     <?php if ($show_taxonomy) { ?>
-        <div id="taxonomy">
+        <div id="taxonomy-tab">
+            <div><?php echo $tax_tab_text; ?></div>
+            <div id="taxonomy" style="position: relative">
 <?php
                     //include(__DIR__."/../taxonomy/inc/shared.inc.php");
                     //add_sunburst_download_warning();
                     //add_sunburst_container();
                     //add_sunburst_download_dialogs();
 ?>
+            </div>
         </div>
     <?php } ?>
-    
+
     <?php if (!$is_taxonomy) { ?>
 
         <!-- GRAPHS -->
@@ -621,8 +472,10 @@ histogram).</p>
         <?php if (!$is_example && !$is_taxonomy) { ?>
         <!-- FINALIZATION -->
         <div id="final">
-            <form name="define_length" method="post" action="<?php echo $url; ?>" class="align_left" enctype="multipart/form-data">
-            
+            <form name="define_length" method="post" class="align_left" enctype="multipart/form-data" id="a-form">
+            <input type="hidden" name="key" value="<?php echo $key; ?>" />
+            <input type="hidden" name="id" value="<?php echo $gen_id; ?>" />
+
             <?php if ($use_advanced_options) { ?>
             <div class="tabs-efihdr tabs">
                 <ul class="tab-headers">
@@ -631,16 +484,14 @@ histogram).</p>
                     <li><a href="#threshold-bit">Bit Score Threshold</a></li>
                     <li><a href="#threshold-custom">Custom Clustering</a></li>
                 </ul>
-            
+
                 <div class="tab-content" style="min-height: 220px">
             <?php } ?>
                     <div id="threshold-eval" class="tab active">
                         <p>
                         This tab is used to specify the minimum "Alignment Score Threshold" (that is a 
                         measure of the minimum sequence similarity threshold) for drawing the edges 
-                        that connect the proteins (nodes)  in the SSN.  This tab also is used to 
-                        specify Minimum and Maximum "Sequence Length Restriction Options" that exclude 
-                        fragments and/or domain architectures.
+                        that connect the proteins (nodes)  in the SSN.
                         </p>
 
                         <p>
@@ -654,27 +505,27 @@ histogram).</p>
                                 The alignment score is similar in magnitude to the negative base-10 logarithm of a BLAST e-value.
                             </div>
                         </p>
-            
+
                     </div>
             <?php if ($use_advanced_options) { ?>
                     <div id="threshold-pid" class="tab">
                         <p>Select a lower limit for the percent ID to use as a lower threshold for clustering in the SSN.</p>
-            
+
                         <p><input type="text" name="pid" <?php if (isset($_POST['pid'])) { echo "value='" . $_POST['pid'] ."'"; } ?>>
                         % ID
                         </p>
-            
+
                         This score is the similarity threshold which determine the 
                         connection of proteins with each other. All pairs of proteins with a percent
                         ID below this number will not be connected. Sets of connected proteins will 
                         form clusters.
                     </div>
                     <div id="threshold-bit" class="tab">
-                        
+
                         <p>Select a lower limit for the bit score to use as a lower threshold for clustering in the SSN.</p>
-            
+
                         <p><input type="text" name="bitscore" <?php if (isset($_POST['bitscore'])) { echo "value='" . $_POST['bitscore'] ."'"; } ?>></p>
-            
+
                         <p>
                         This score is the similarity threshold which determine the 
                         connection of proteins with each other. All pairs of proteins with a bit score
@@ -683,7 +534,7 @@ histogram).</p>
                         </p>
                     </div>
                     <div id="threshold-custom" class="tab">
-                        
+
                         A file specifying which proteins are in what cluster can be uploaded.  The file must be givein in the format below.
                         Tabs or spaces can be used instead of the ',' comma separating character.
 <pre>
@@ -700,7 +551,7 @@ Protein_ID_3,Cluster#
             </div>
             <?php } ?>
             <input type="hidden" name="filter" id="filter-type" value="eval" />
-            
+
             <div class="option-panels">
                 <div class="initial-open">
                     <h3>Sequence Length Restriction Options</h3>
@@ -726,8 +577,31 @@ Protein_ID_3,Cluster#
                         </p>
                     </div>
                 </div>
-                <div class="initial-open">
-                    <h3>Neighborhood Connectivity Option</h3>
+                <div class="">
+                    <h3>Filter by Taxonomy</h3>
+                    <div class="initial-open">
+
+<div>
+<?php echo $tax_filt_text; ?>
+</div>
+
+                        <div>
+                            Preselected conditions:
+                            <select id="taxonomy-stepc-select" class="taxonomy-preselects" data-option-id="stepc">
+                                <option disabled selected value>-- select a preset to auto populate --</option>
+                            </select>
+                        </div>
+                        <div style="display: none">
+                            <input id="taxonomy-stepc-preset-name" type="hidden" name="taxonomy-preset-name" id="taxonomy-preset-name" value="" />
+                        </div>
+                        <div id="taxonomy-stepc-container"></div>
+                        <div>
+                            <button id="taxonomy-stepc-add-btn" data-option-id="stepc" type="button" class="light add-tax-btn">Add taxonomic condition</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="">
+                    <h3>Neighborhood Connectivity</h3>
                     <div>
                         <div>
                             <span class="input-name">Neighborhood Connectivity:</span>
@@ -747,6 +621,35 @@ Protein_ID_3,Cluster#
                             </div>
                         </div>
                         </p>
+                    </div>
+                </div>
+                <div class="">
+                    <h3>Fragment Option</h3>
+                    <div>
+                        <div>
+UniProt designates a Sequence Status for each member: Complete if the encoding DNA sequence has both start and stop codons; Fragment if the start and/or stop codon is missing.   Approximately 10% of the entries in UniProt are fragments. 
+                        </div>
+                        <span class="input-name">
+                            Fragments:
+                        </span><span class="input-field">
+                            <label><input type="checkbox" id="remove_fragments" name="remove_fragments" />
+                                Check to exclude UniProt-defined fragments in the results.
+                                (default: off)
+                            </label>
+                        </span>
+                        <div class="input-desc">
+<p>
+For the UniRef90 and UniRef50 databases, clusters are excluded if the cluster 
+ID ("representative sequence") is a fragment.   
+</p>
+
+<p>
+UniProt IDs in UniRef90 and UniRef50 clusters with complete cluster IDs are 
+removed from the clusters if they are fragments. 
+</p>
+
+
+                        </div>
                     </div>
                 </div>
                 <?php if ($use_advanced_options) { ?>
@@ -771,13 +674,12 @@ Protein_ID_3,Cluster#
             <p>
             You will be notified by e-mail when the SSN is ready for download.
             </p>
-            
-            <input type='hidden' name='id' value='<?php echo $generate->get_id(); ?>'>
 
             <center>
-                <button type="submit" name="analyze_data" class="dark">Create SSN</button>
+                <div id="submit-error" style="color: red; font-size: 1.2em" class="error_message"></div>
+                <div><button type="button" class="dark" id="submit-button">Create SSN</button></div>
             </center>
-            
+
             </form>
         </div>
         <?php } ?>
@@ -824,88 +726,86 @@ Protein_ID_3,Cluster#
     </div>
 </div>
 
-        
+
 <div style="margin-top:85px"></div>
 
 <center>Portions of these data are derived from the Universal Protein Resource (UniProt) databases.</center>
 
 <script src="<?php echo $SiteUrlPrefix; ?>/js/panel-toggle.js" type="text/javascript"></script>
 <script>
-$(document).ready(function() {
-    var fileSizeIframe = $("#file-size-iframe");
-    var edgeIframe = $("#edge-evalue-iframe");
-    
-    $('#file-size-button').click(function() {
-        $header = $(this);
-        //getting the next element
-        $content = $header.next();
-        //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
-        $content.slideToggle(100, function () {
-            if ($content.is(":visible")) {
-                $header.find("i.fas").addClass("fa-minus-square");
-                $header.find("i.fas").removeClass("fa-plus-square");
+    $(document).ready(function() {
+        var fileSizeIframe = $("#file-size-iframe");
+        var edgeIframe = $("#edge-evalue-iframe");
+
+        $('#file-size-button').click(function() {
+            $header = $(this);
+            //getting the next element
+            $content = $header.next();
+            //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+            $content.slideToggle(100, function () {
+                if ($content.is(":visible")) {
+                    $header.find("i.fas").addClass("fa-minus-square");
+                    $header.find("i.fas").removeClass("fa-plus-square");
+                } else {
+                    $header.find("i.fas").removeClass("fa-minus-square");
+                    $header.find("i.fas").addClass("fa-plus-square");
+                }
+            });
+            fileSizeIframe.attr('src', function() {
+                return $(this).data('src');
+            });
+        });
+
+        $('#edge-evalue-button').click(function() {
+            edgeIframe.attr('src', function() {
+                return $(this).data('src');
+            });
+        });
+
+        fileSizeIframe.each(function() {
+            var src = $(this).attr('src');
+            $(this).data('src', src).attr('src', '');
+        });
+        edgeIframe.each(function() {
+            var src = $(this).attr('src');
+            $(this).data('src', src).attr('src', '');
+        });
+
+        $(".tabs").tabs({
+<?php if ($show_taxonomy) { ?>
+            activate: sunburstTabActivate // comes from shared/js/sunburst.jS
+<?php } ?>
+        });
+
+        $(".option-panels > div").accordion({
+                heightStyle: "content",
+                    collapsible: true,
+                    active: false,
+        });
+        $(".initial-open").accordion("option", {active: 0});
+
+        $("#final-link").click(function() {
+            $(".tabs").tabs({active: 2});
+        });
+    });
+
+    var acc = document.getElementsByClassName("panel-toggle");
+    for (var i = 0; i < acc.length; i++) {
+        acc[i].onclick = function() {
+            this.classList.toggle("active");
+            var panel = this.nextElementSibling;
+            if (panel.style.maxHeight){
+                panel.style.maxHeight = null;
             } else {
-                $header.find("i.fas").removeClass("fa-minus-square");
-                $header.find("i.fas").addClass("fa-plus-square");
-            }
-        });
-        fileSizeIframe.attr('src', function() {
-            return $(this).data('src');
-        });
-    });
-    
-    $('#edge-evalue-button').click(function() {
-        edgeIframe.attr('src', function() {
-            return $(this).data('src');
-        });
-    });
-
-    fileSizeIframe.each(function() {
-        var src = $(this).attr('src');
-        $(this).data('src', src).attr('src', '');
-    });
-    edgeIframe.each(function() {
-        var src = $(this).attr('src');
-        $(this).data('src', src).attr('src', '');
-    });
-
-    $(".tabs").tabs();
-    $(".option-panels > div").accordion({
-            heightStyle: "content",
-                collapsible: true,
-                active: false,
-    });
-    $(".initial-open").accordion("option", {active: 0});
-
-    $("#final-link").click(function() {
-        $(".tabs").tabs({active: 2});
-    });
-
-    //$("#sunburst").dialog({
-    //    modal: true,
-    //    buttons: {
-    //        Ok: function() {
-    //            $(this).dialog("close");
-    //        }
-    //    }
-    //});
-});
-
-
-var acc = document.getElementsByClassName("panel-toggle");
-for (var i = 0; i < acc.length; i++) {
-    acc[i].onclick = function() {
-        this.classList.toggle("active");
-        var panel = this.nextElementSibling;
-        if (panel.style.maxHeight){
-            panel.style.maxHeight = null;
-        } else {
-            panel.style.maxHeight = panel.scrollHeight + "px";
-        } 
+                panel.style.maxHeight = panel.scrollHeight + "px";
+            } 
+        }
     }
-}
-
 </script>
+
+
+
+
 <?php if (functions::custom_clustering_enabled()) { ?>
 <script>
     $(document).ready(function() {
@@ -917,31 +817,450 @@ for (var i = 0; i < acc.length; i++) {
     }).tooltip();
 </script>
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
-
 <?php } ?>
+
+
+
 
 <?php if ($show_taxonomy) { ?>
 <script>
-    var hasUniref = <?php echo $hasUniref; ?>;
+    $(document).ready(function() {
+        var hasUniref = <?php echo $has_uniref; ?>;
 
-    var scriptAppDir = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php";
-    var sbParams = {
-            apiId: "<?php echo $gen_id; ?>",
-            apiKey: "<?php echo $key; ?>",
-            apiExtra: [],
-            appUniRefVersion: <?php echo $sunburstAppUniref; ?>,
-            scriptApp: scriptAppDir + "/get_tax_data.php",
-            fastaApp: scriptAppDir + "/get_sunburst_fasta.php",
-            hasUniRef: hasUniref
-    };
-    var sunburstApp = new AppSunburst(sbParams);
-    sunburstApp.attachToContainer("taxonomy");
-    sunburstApp.addSunburstFeatureAsync();
+        var estPath = "<?php echo global_settings::get_web_path('est'); ?>/index.php";
+        var gntPath = "<?php echo global_settings::get_web_path('gnt'); ?>/index.php";
+        var jobId = "<?php echo $gen_id; ?>";
+        var jobKey = "<?php echo $key; ?>";
+        var onComplete = makeOnSunburstCompleteFn(estPath, gntPath, jobId, jobKey);
+        var isExample = <?php echo $is_example ? "\"$is_example\"" : "\"\""; ?>;
+
+        var apiExtra = [];
+        if (isExample)
+            apiExtra.push(["x", isExample]);
+
+        var sunburstTextFn = function() {
+            return $('<div><?php echo $sunburst_post_sunburst_text; ?></div>');
+        };
+
+        var scriptAppDir = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/sunburst/php";
+        var sbParams = {
+                apiId: "<?php echo $gen_id; ?>",
+                apiKey: "<?php echo $key; ?>",
+                apiExtra: apiExtra,
+                appUniRefVersion: <?php echo $sunburst_app_uniref; ?>,
+                appPrimaryIdTypeText: '<?php echo $sunburst_app_primary_id_type; ?>',
+                appPostSunburstTextFn: sunburstTextFn,
+                scriptApp: scriptAppDir + "/get_tax_data.php",
+                fastaApp: scriptAppDir + "/get_sunburst_fasta.php",
+                hasUniRef: hasUniref
+        };
+        var sunburstApp = new AppSunburst(sbParams);
+        sunburstApp.attachToContainer("taxonomy");
+        sunburstApp.addSunburstFeatureAsync(onComplete);
+    });
 </script>
 <?php } ?>
+
+
+
+
+<script>
+    $(document).ready(function() {
+        var warningMsgId = "submit-error";
+        var taxSearchApp = "<?php echo $SiteUrlPrefix; ?>/vendor/efiillinois/taxonomy/php/get_tax_typeahead.php";
+        var taxContainerFn = function(opt) { return "#taxonomy-stepc-container"; };
+        var taxonomyApp = new AppTF(taxContainerFn, taxSearchApp);
+
+        setupTaxonomyUi(taxonomyApp);
+
+        $("#submit-button").click(function(e) {
+            var fd = new FormData($("#a-form")[0]);
+
+            var taxPresetName = $("#taxonomy-preset-name").val();
+            if (taxPresetName) {
+                fd.append("tax_name", taxPresetName);
+            }
+            var taxGroups = taxonomyApp.getTaxSearchConditions("");
+            taxGroups.forEach((group) => fd.append("tax_search[]", group));
+
+            var fileHandler = function(xhr) {};
+            var completionHandler = function(jsonObj) {
+                var nextStepScript = "stepd.php";
+                window.location.href = nextStepScript + "?id=" + jsonObj.id;
+            };
+
+            doFormPost("<?php echo $post_url; ?>", fd, warningMsgId, fileHandler, completionHandler);
+        });
+    });
+</script>
 
 <?php
 
 require_once(__DIR__."/inc/footer.inc.php");
+
+
+
+
+
+
+
+
+function make_plot_download($gen, $hdr, $type, $preview_img, $download_img, $plot_exists) {
+    global $is_example;
+    $html = ""; //"<span class='plot-header'>$hdr</span> \n";
+    if (!$plot_exists) {
+        $html .= "Unable to be generated";
+        return;
+    }
+    if ($preview_img) {
+        $html .= <<<HTML
+<div>
+    <center>
+        <img src='$preview_img' />
+HTML;
+        $ex_param = $is_example ? "&x=".$is_example : "";
+        $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "$ex_param'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
+        $html .= <<<HTML
+    </center>
+</div>
+HTML;
+    } else {
+        $html .= "<a href='$download_img'><button class='file_download'>Preview</button></a>\n";
+    }
+
+    return $html;
+}
+
+function make_histo_plot_download($gen, $hdr, $plot_type) {
+    $download_type = $gen->get_length_histogram_download_type($plot_type);
+    $web_path = $gen->get_length_histogram($plot_type, true, true);
+    $large_web_path = $gen->get_length_histogram($plot_type, true, false);
+    $plot_exists = $web_path ? true : false;
+    if (!$plot_exists) {
+        $plot_type = "";
+        $use_v2 = false;
+        $download_type = $gen->get_length_histogram_download_type($plot_type, $use_v2);
+        $web_path = $gen->get_length_histogram($plot_type, true, true, $use_v2);
+        $large_web_path = $gen->get_length_histogram($plot_type, true, false, $use_v2);
+        $plot_exists = $large_web_path ? true : false;
+    }
+    return make_plot_download($gen, $hdr, $download_type, $web_path, $large_web_path, $plot_exists); 
+}
+
+function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {
+    $plot = plots::get_plot($gen, $plot_id);
+    if (!$plot || !$plot->has_data()) {
+        echo "Invalid data";
+        return;
+    }
+
+    $data = $plot->render_data(); // Javascript notation
+    $plotly = $plot->render_plotly_config(); // Javascript code
+    $trace_var = $plot->get_trace_var();
+    $layout_var = $plot->get_layout_var();
+
+    $html = <<<HTML
+                <div>
+                    <center>
+                    <div id="$plot_div"></div>
+                </center>
+                    <script>
+                        $data
+                        $plotly
+                        Plotly.newPlot("$plot_div", $trace_var, $layout_var);
+                    </script>
+                </div>
+HTML;
+    echo $html;
+}
+
+function get_tax_sb_text($gen_type, $blast_id_type = "") {
+    $text = "";
+    if ($gen_type == "BLAST") {
+        $text = <<<TEXT
+<p>
+List of $blast_id_type IDs and 
+FASTA-formatted sequences can be downloaded.
+</p>
+
+<p>
+The list of IDs can be transferred to the Accession IDs option (Option D) of 
+EFI-EST to generate an SSN. The Accession IDs option provides Filter by 
+Taxonomy that should be used to remove internal UniProt IDs that are not 
+members of the selected taxonomy category.
+</p>
+
+<p>
+The list also can be transferred to the GND-Viewer to obtain GNDs.
+</p>
+TEXT;
+    } else if ($gen_type == "FAMILIES") {
+        $text = <<<TEXT
+<p>
+Lists of UniProt, UniRef90, and UniRef50 IDs and FASTA-formatted sequences can 
+be downloaded.
+</p>
+
+<p>
+The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the 
+Accession IDs option (Option D) of EFI-EST to generate an SSN. The Accession 
+IDs option provides both Filter by Family and Filter by Taxonomy that should be 
+used to remove internal UniProt IDs that are not members of the input families 
+and selected taxonomy category.
+</p>
+
+<p>
+The lists also can be transferred to the GND-Viewer to obtain GNDs.
+</p>
+TEXT;
+    } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+        $text = <<<TEXT
+<p>
+The UniProt IDs and FASTA-formatted sequences can be downloaded.
+</p>
+
+<p>
+The list of UniProt IDs can be transferred to the Accession IDs option (Option 
+D) of EFI-EST to generate an SSN. The Accession IDs option provides both Filter 
+by Family and Filter by Taxonomy that should be used to remove UniProt IDs that 
+are not members of desired families and the selected taxonomy category.
+</p>
+TEXT;
+    } else if ($gen_type == "ACCESSION") {
+        $text = <<<TEXT
+<p>
+Lists of UniProt, UniRef90, and UniRef50 IDs and FASTA-formatted sequences can 
+be downloaded.
+</p>
+
+<p>
+The lists of UniProt, UniRef90, and UniRef50 IDs can be transferred to the 
+Accession IDs option (Option D) of EFI-EST to generate an SSN. The Accession 
+IDs option provides both Filter by Family and Filter by Taxonomy that should be 
+used to remove internal UniProt IDs that are not members of the input families 
+and selected taxonomy category.
+</p>
+
+<p>
+The lists also can be transferred to the GND-Viewer to obtain GNDs.
+</p>
+TEXT;
+    } else {
+        $text = "";
+    }
+
+    #$text = preg_replace('/<p>/', "##S#", $text);
+    #$text = preg_replace('/<\/p>/', "##E#", $text);
+    $text = preg_replace('/\n/', " ", $text);
+    #$text = htmlspecialchars($text);
+
+    return $text;
+}
+
+function get_tax_filt_text($gen_type) {
+    if ($gen_type == "BLAST") {
+        return <<<TEXT
+<p>
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the SSN nodes the retrieved sequences to these taxonomy 
+groups. 
+</p>
+
+<p>
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The SSN nodes also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
+</p>
+
+<p>
+The SSN nodes from the UniRef90 and UniRef50 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified taxonomy categories. The UniProt members in these nodes that do 
+not match the specified taxonomy categories are removed from the nodes. 
+</p>
+TEXT;
+
+    } else if ($gen_type == "FAMILIES") {
+        return <<<TEXT
+<p>
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the SSN nodes to these taxonomy groups.
+</p>
+
+<p>
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The SSN nodes also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
+</p>
+
+<p>
+The SSN nodes from the UniRef90 and UniRef50 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified taxonomy categories. The UniProt members in these nodes that do 
+not match the specified taxonomy categories are removed from the nodes.  
+</p>
+TEXT;
+
+    } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+        return <<<TEXT
+<p>
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the SSN nodes to these taxonomy groups. 
+</p>
+
+<p>
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The SSN nodes also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
+</p>
+TEXT;
+
+    } else if ($gen_type == "ACCESSION") {
+        return <<<TEXT
+<p>
+From preselected conditions, the user can select "Bacteria, Archaea, Fungi", 
+"Eukaryota, no Fungi", "Fungi", "Viruses", "Bacteria", "Eukaryota", or 
+"Archaea" to restrict the SSN nodes to these taxonomy groups. 
+</p>
+
+<p>
+"Bacteria, Archaea, Fungi", "Bacteria", "Archaea", and "Fungi" select organisms 
+that may provide genome context (gene clusters/operons) useful for inferring 
+functions. 
+</p>
+
+<p>
+The SSN nodes also can be restricted to taxonomy categories within the 
+Superkingdom, Kingdom, Phylum, Class, Order, Family, Genus, and Species ranks. 
+Multiple conditions are combined to be a union of each other. 
+</p>
+
+<p>
+The SSN nodes from the UniRef90 and UniRef50 databases are the UniRef90 and 
+UniRef50 clusters for which the cluster ID ("representative sequence") matches 
+the specified taxonomy categories. The UniProt members in these nodes that do 
+not match the specified taxonomy categories are removed from the nodes. 
+</p>
+TEXT;
+
+    }
+
+    return "";
+}
+
+function get_tax_tab_text($gen_type) {
+    if ($gen_type == "BLAST") {
+        return <<<TEXT
+<p>
+The taxonomy distribution for the UniProt, UniRef90 cluster, or UniRef50 
+cluster IDs identified in the BLAST is displayed.   
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomy category by clicking on that category; clicking on the center circle 
+will zoom the display to the next highest rank.
+</p>
+TEXT;
+    } else if ($gen_type == "FAMILIES") {
+        return <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs in the input dataset is 
+displayed.   For UniRef90 and UniRef50 cluster datasets, these are retrieved 
+from the lookup table provided by UniProt/UniRef.
+</p>
+
+<p>
+The UniRef90 and UniRef50 clusters containing the UniProt IDs then are 
+identified using the lookup table provided by UniProt/UniRef. These UniRef90 
+and UniRef50 clusters may contain UniProt IDs from other families; in addition, 
+the UniRef90 and UniRef50 clusters in the selected taxonomy category may 
+contain UniProt IDs from other categories. This results from conflation of 
+UniProt IDs in UniRef90 and UniRef50 clusters that share &ge;90% and &ge;50% sequence 
+identity, respectively. 
+</p>
+
+<p>
+The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs for 
+the selected category are displayed. 
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomy category by clicking on that category; clicking on the center circle 
+will zoom the display to the next highest rank. 
+</p>
+TEXT;
+    } else if ($gen_type == "FASTA" || $gen_type == "FASTA_ID") {
+        return <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs in the input dataset is 
+displayed.   
+</p>
+
+<p>
+The numbers of UniProt IDs for the selected category are displayed. 
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomy category by clicking on that category; clicking on the center circle 
+will zoom the display to the next highest rank. 
+</p>
+TEXT;
+    } else if ($gen_type == "ACCESSION") {
+        return <<<TEXT
+<p>
+The taxonomy distribution for the UniProt IDs in the input dataset is displayed.
+For UniRef90 and UniRef50 cluster datasets, these are retrieved from the lookup
+table provided by UniProt/UniRef.
+</p>
+
+<p>
+The UniRef90 and UniRef50 clusters containing the UniProt IDs then are 
+identified using the lookup table provided by UniProt/UniRef. These UniRef90 
+and UniRef50 clusters may contain UniProt IDs from other families; in addition, 
+the UniRef90 and UniRef50 clusters in the selected taxonomy category may 
+contain UniProt IDs from other categories. This results from conflation of 
+UniProt IDs in UniRef90 and UniRef50 clusters that share &ge;90% and &ge;50% sequence 
+identity, respectively. 
+</p>
+
+<p>
+The numbers of UniProt IDs, UniRef90 cluster IDs, and UniRef50 cluster IDs for 
+the selected category are displayed. 
+</p>
+
+<p>
+The sunburst is interactive, providing the ability to zoom to a selected 
+taxonomy category by clicking on that category; clicking on the center circle 
+will zoom the display to the next highest rank. 
+</p>
+TEXT;
+    } else {
+        return "";
+    }
+}
 
 

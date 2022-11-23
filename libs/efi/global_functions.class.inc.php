@@ -86,6 +86,10 @@ class global_functions {
         return preg_replace("([^A-Za-z0-9_\-\.])", "_", $filename);
     }
 
+    public static function is_safe_filename($filename) {
+        return preg_match("[^A-Za-z0-9_\-\.]", $filename);
+    }
+
     public static function format_short_date($date_str, $date_only = false) {
         if ($date_str == "NULL" || !$date_str)
             return "";
@@ -196,12 +200,15 @@ class global_functions {
 
         if ($result) {
             $result = $result[0];
+            $params = self::decode_object($result["analysis_params"]);
+            $tax_search = (isset($params["tax_search_hash"]) && $params["tax_search_hash"]) ? "-" . $params["tax_search_hash"] : "";
+            $nc_suffix = (isset($params["compute_nc"]) && $params["compute_nc"] === true) ? "-nc" : "";
             $info["generate_id"] = $result["analysis_generate_id"];
             $info["analysis_id"] = $est_id;
             $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
                                     $result["analysis_evalue"] . "-" .
                                     $result["analysis_min_length"] . "-" .
-                                    $result["analysis_max_length"];
+                                    $result["analysis_max_length"] . $tax_search . $nc_suffix;
             return $info;
         } else {
             return false;

@@ -19,11 +19,13 @@ abstract class est_shared {
     protected $eol = PHP_EOL;
     protected $beta;
     protected $is_sticky = false;
+    protected $is_example = false;
 
-    function __construct($db, $table) {
+    function __construct($db, $table, $is_example) {
         $this->db = $db;
         $this->table = $table;
         $this->beta = global_settings::get_release_status();
+        $this->is_example = $is_example;
     }
 
     public function get_time_created() { return $this->time_created; }
@@ -171,7 +173,7 @@ abstract class est_shared {
     }
     
     public function is_expired() {
-        if (!$this->is_sticky && time() > $this->get_unixtime_completed() + global_settings::get_retention_secs()) {
+        if (!$this->is_example && !$this->is_sticky && time() > $this->get_unixtime_completed() + global_settings::get_retention_secs()) {
             return true;
         } else {
             return false;
