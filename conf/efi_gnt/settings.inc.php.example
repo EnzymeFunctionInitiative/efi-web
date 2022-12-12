@@ -6,6 +6,7 @@
 ////////////////////////////////////
 
 require_once(__DIR__."/../../conf/settings_base.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
 
 // Options that are marked [MANDATORY] in the comment must be set
 // Options that are marked [OPTIONAL] in the comment can be set
@@ -15,10 +16,12 @@ require_once(__DIR__."/../../conf/settings_base.inc.php");
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MANDATORY OPTIONS
 
-define("__OUTPUT_DIR__","");                // Where output results are stored [MANDATORY]
-define("__DIAGRAM_OUTPUT_DIR__","");        // Where GND output results are stored [MANDATORY]
-define("__UPLOAD_DIR__","");                // Where uploaded files are temporarily stored [MANDATORY]
-define("__LOG_FILE__","");                  // Log file [MANDATORY]
+define("__OUTPUT_DIR__",__BASE_RESULTS_DIR__."/gnt_gnn");           // Where output results are stored [MANDATORY]
+define("__DIAGRAM_OUTPUT_DIR__",__BASE_RESULTS_DIR__."/gnt_gnd");   // Where GND output results are stored [MANDATORY]
+define("__UPLOAD_DIR__",__MAIN_UPLOAD_DIR__."/gnt");                // Where uploaded files are temporarily stored [MANDATORY]
+define("__LOG_FILE__",__MAIN_LOG_DIR__."/gnt_log.txt");             // Log file [MANDATORY]
+// Sort of a hack...
+define("__SUPERFAMILY_DIR__","");
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

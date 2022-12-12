@@ -292,6 +292,8 @@ class analysis extends est_shared {
         $output = "";
         $exit_status = "";
         $exec = "";
+        if (!$jobNum)
+            return false;
         if ($sched == "slurm")
             $exec = "squeue --job $jobNum 2> /dev/null | grep $jobNum";
         else

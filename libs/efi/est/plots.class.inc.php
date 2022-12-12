@@ -58,6 +58,10 @@ class plot_edge_evalue extends plot {
         $data = array();
 
         $fh = fopen($file_path, "r");
+        if (!is_resource($fh)) {
+            return array();
+        }
+
         while (!feof($fh)) {
             $line = fgets($fh, 1000);
             if (!$line)
@@ -65,6 +69,7 @@ class plot_edge_evalue extends plot {
             $parts = str_getcsv($line, "\t");
             $data[$parts[0]] = $parts[2];
         }
+
         fclose($fh);
 
         return $data;

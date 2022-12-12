@@ -6,6 +6,7 @@
 ////////////////////////////////////
 
 require_once(__DIR__ . "/../../conf/settings_base.inc.php");
+require_once(__DIR__."/../../conf/settings_paths.inc.php");
 require_once(__DIR__ . "/settings_shared.inc.php");
 
 // Options that are marked [MANDATORY] in the comment must be set
@@ -15,8 +16,8 @@ require_once(__DIR__ . "/settings_shared.inc.php");
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MANDATORY OPTIONS
 
-define("__LOG_FILE__","FILE_PATH");     // Set this to a file that HTTPD can write to 
-define("__UPLOADS_DIR__","DIR_PATH");   // Set this to a directory that HTTPD can write to 
+define("__LOG_FILE__",__MAIN_LOG_DIR__."/est_log.txt"); // Set this to a file that HTTPD can write to 
+define("__UPLOADS_DIR__",__MAIN_UPLOAD_DIR__."/est");   // Set this to a directory that HTTPD can write to 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

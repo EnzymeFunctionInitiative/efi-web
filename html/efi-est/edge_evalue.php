@@ -1,11 +1,11 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
+use \efi\est\stepa;
 
 $has_html = true;
 
 if (!defined("MAIN_UI") || !isset($GenerateJob)) {
-    use \efi\est\stepa;
 
     if (!isset($_GET["id"]) || !isset($_GET["key"])) {
         die("Invalid paramters.");

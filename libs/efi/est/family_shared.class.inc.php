@@ -241,9 +241,6 @@ abstract class family_shared extends option_base {
             return;
         }
 
-        //var_dump($result);
-        //die();
-
         if (isset($result["generate_families"]) && $result["generate_families"]) {
             $families = explode(",", $result["generate_families"]);
             $this->families = $families;

@@ -146,7 +146,7 @@ abstract class est_shared {
 
         $plain_email = "";
         if ($this->beta)
-            $plain_email = "Thank you for using the EFI beta site." . PHP_EOL . $plain_email;
+            $plain_email = "Thank you for using the EFI " . $this->beta . " site." . PHP_EOL . $plain_email;
         $plain_email .= $body;
         $plain_email .= "Submission Summary:" . PHP_EOL . PHP_EOL;
         $plain_email .= $this->get_email_job_info() . PHP_EOL . PHP_EOL;
@@ -159,6 +159,11 @@ abstract class est_shared {
             $to = $this->get_email();
         $from = global_settings::get_admin_email();
         $from_name = "EFI EST";
+
+        if (!$to || !$from) {
+            print("Missing email address $to | $from\n");
+            return;
+        }
 
         if ($full_url) {
             if (!is_array($full_url))

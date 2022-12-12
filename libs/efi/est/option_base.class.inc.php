@@ -330,7 +330,10 @@ abstract class option_base extends stepa {
         }
         else {
             functions::log_message("There was an error: " . $output . "  exit status: $exit_status" . "  " . join(',', $output_array));
-            return array('RESULT' => false, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => $output_array[18]);
+            $error = "Unknown";
+            if (isset($output_array[18]))
+                $error = $output_array[18];
+            return array('RESULT' => false, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => $error);
         }
     }
 
