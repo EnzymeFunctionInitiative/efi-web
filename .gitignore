@@ -1,6 +1,5 @@
 results
-log
-uploads
+results_example
 .htaccess
 settings.inc.php
 settings_shared.inc.php

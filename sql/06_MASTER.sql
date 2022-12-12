@@ -1,4 +1,5 @@
 
+
 --
 -- Table structure for table `PFAM_clans`
 --
@@ -33,7 +34,7 @@ CREATE TABLE `analysis` (
   `analysis_cdhit_opt` varchar(10) DEFAULT NULL,
   `analysis_params` text DEFAULT NULL,
   PRIMARY KEY (`analysis_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=53831 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=27083 DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `analysis_example`
@@ -88,22 +89,7 @@ CREATE TABLE `bigscape` (
   `bigscape_time_started` datetime DEFAULT NULL,
   `bigscape_time_completed` datetime DEFAULT NULL,
   PRIMARY KEY (`bigscape_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=278 DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `db_version`
---
-
-DROP TABLE IF EXISTS `db_version`;
-CREATE TABLE `db_version` (
-  `db_version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `db_version_date` varchar(255) DEFAULT NULL,
-  `db_version_interpro` varchar(255) DEFAULT NULL,
-  `db_version_unipro` varchar(255) DEFAULT NULL,
-  `db_version_default` tinyint(1) DEFAULT 0,
-  `db_version_created` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`db_version_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=310 DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `diagram`
@@ -118,23 +104,13 @@ CREATE TABLE `diagram` (
   `diagram_pbs_number` int(11) DEFAULT NULL,
   `diagram_title` varchar(255) DEFAULT NULL,
   `diagram_time_created` timestamp NOT NULL DEFAULT current_timestamp(),
-  `diagram_time_started` datetime NOT NULL,
-  `diagram_time_completed` datetime NOT NULL,
+  `diagram_time_started` datetime DEFAULT NULL,
+  `diagram_time_completed` datetime DEFAULT NULL,
   `diagram_type` varchar(10) DEFAULT NULL,
   `diagram_params` text DEFAULT NULL,
   `diagram_results` text DEFAULT NULL,
   PRIMARY KEY (`diagram_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2257 DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `email`
---
-
-DROP TABLE IF EXISTS `email`;
-CREATE TABLE `email` (
-  `email` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=2588 DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `email_status`
@@ -180,11 +156,12 @@ CREATE TABLE `generate` (
   `generate_sequence_max` tinyint(1) DEFAULT 0,
   `generate_db_version` int(11) DEFAULT NULL,
   `generate_program` enum('BLAST','BLAST+','DIAMOND','DIAMONDSENSITIVE') DEFAULT NULL,
-  `generate_results` text NOT NULL,
-  `generate_params` text NOT NULL,
+  `generate_results` text DEFAULT NULL,
+  `generate_params` text DEFAULT NULL,
   `generate_parent_id` int(11) DEFAULT NULL,
+  `generate_is_tax_job` tinyint(4) DEFAULT 0,
   PRIMARY KEY (`generate_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=43644 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=26676 DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `generate_example`
@@ -204,9 +181,10 @@ CREATE TABLE `generate_example` (
   `generate_sequence_max` tinyint(1) DEFAULT 0,
   `generate_db_version` int(11) DEFAULT NULL,
   `generate_program` enum('BLAST','BLAST+','DIAMOND','DIAMONDSENSITIVE') DEFAULT NULL,
-  `generate_results` text NOT NULL,
-  `generate_params` text NOT NULL,
+  `generate_results` text DEFAULT NULL,
+  `generate_params` text DEFAULT NULL,
   `generate_parent_id` int(11) DEFAULT NULL,
+  `generate_is_tax_job` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`generate_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=29550 DEFAULT CHARSET=latin1;
 
@@ -230,7 +208,7 @@ CREATE TABLE `gnn` (
   `gnn_params` text DEFAULT NULL,
   `gnn_results` text DEFAULT NULL,
   PRIMARY KEY (`gnn_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=6517 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=7605 DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `gnn_example`
@@ -285,7 +263,7 @@ CREATE TABLE `identify` (
   `identify_copy_id` int(11) DEFAULT NULL,
   `identify_params` text DEFAULT NULL,
   PRIMARY KEY (`identify_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=735 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=805 DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `identify_example`
@@ -308,6 +286,31 @@ CREATE TABLE `identify_example` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2207 DEFAULT CHARSET=latin1;
 
 --
+-- Table structure for table `job_cancel`
+--
+
+DROP TABLE IF EXISTS `job_cancel`;
+CREATE TABLE `job_cancel` (
+  `job_type` varchar(4) NOT NULL DEFAULT '',
+  `job_process_num` int(11) NOT NULL DEFAULT 0,
+  `cancel_status` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`job_type`,`job_process_num`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `job_group`
+--
+
+DROP TABLE IF EXISTS `job_group`;
+CREATE TABLE `job_group` (
+  `job_type` varchar(4) NOT NULL DEFAULT '',
+  `job_id` int(11) NOT NULL DEFAULT 0,
+  `other_id` int(11) DEFAULT NULL,
+  `user_group` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`job_type`,`job_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
 -- Table structure for table `quantify`
 --
 
@@ -323,7 +326,7 @@ CREATE TABLE `quantify` (
   `quantify_parent_id` int(11) DEFAULT NULL,
   `quantify_params` text DEFAULT NULL,
   PRIMARY KEY (`quantify_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=708 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=738 DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `quantify_example`
@@ -342,6 +345,32 @@ CREATE TABLE `quantify_example` (
   `quantify_params` text DEFAULT NULL,
   PRIMARY KEY (`quantify_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2173 DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `taxonomy`
+--
+
+DROP TABLE IF EXISTS `taxonomy`;
+CREATE TABLE `taxonomy` (
+  `Taxonomy_ID` int(11) DEFAULT NULL,
+  `Domain` varchar(25) DEFAULT NULL,
+  `Kingdom` varchar(25) DEFAULT NULL,
+  `Phylum` varchar(30) DEFAULT NULL,
+  `Class` varchar(25) DEFAULT NULL,
+  `TaxOrder` varchar(30) DEFAULT NULL,
+  `Family` varchar(25) DEFAULT NULL,
+  `Genus` varchar(40) DEFAULT NULL,
+  `Species` varchar(50) DEFAULT NULL,
+  KEY `TaxID_Index` (`Taxonomy_ID`),
+  KEY `Domain_Index` (`Domain`),
+  KEY `Kingdom_Index` (`Kingdom`),
+  KEY `Phylum_Index` (`Phylum`),
+  KEY `Class_Index` (`Class`),
+  KEY `TaxOrder_Index` (`TaxOrder`),
+  KEY `Family_Index` (`Family`),
+  KEY `Genus_Index` (`Genus`),
+  KEY `Species_Index` (`Species`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `user_group`
@@ -368,27 +397,3 @@ CREATE TABLE `user_token` (
   `user_admin` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Table structure for table `job_group`
---
-
-DROP TABLE IF EXISTS `job_group`;
-CREATE TABLE `job_group` (
-  `job_type` varchar(4) NOT NULL DEFAULT "",
-  `job_id` int(11) NOT NULL DEFAULT 0,
-  `other_id` int(11) DEFAULT NULL,
-  `user_group` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`job_type`,`job_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `job_cancel`
---
-
-DROP TABLE IF EXISTS `job_cancel`;
-CREATE TABLE `job_cancel` (
-  `job_type` varchar(4) NOT NULL DEFAULT "",
-  `job_process_num` int(11) NOT NULL DEFAULT 0,
-  `cancel_status` varchar(10) DEFAULT NULL,
-  PRIMARY KEY (`job_type`,`job_process_num`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
