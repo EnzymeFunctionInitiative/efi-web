@@ -30,6 +30,7 @@ define("__WEB_PATH__",__EST_WEB_PATH__);
 define("__WEB_ROOT__",__BASE_WEB_ROOT__.__WEB_PATH__);
 define("__GNT_WEB_ROOT__",__BASE_WEB_ROOT__.__GNT_WEB_PATH__);
 define("__CGFP_WEB_ROOT__",__BASE_WEB_ROOT__.__CGFP_WEB_PATH__);
+define("__JS_VERSION__","");
 
 //
 // CLUSTER SETTINGS

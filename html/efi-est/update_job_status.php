@@ -1,4 +1,7 @@
 <?php
+
+die("Unavailable");
+
 require_once(__DIR__."/../../init.php");
 
 use \efi\job_cancels;

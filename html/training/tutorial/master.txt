@@ -1,0 +1,7 @@
+
+[pages]
+pages[]=intro
+
+[titles]
+intro=Introduction
+

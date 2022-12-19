@@ -1,16 +1,18 @@
 <?php
 require_once(__DIR__ . "/../../init.php");
+require_once(__EST_CONF_DIR__."/settings.inc.php");
 
 use \efi\global_settings;
 use \efi\user_auth;
 use \efi\est\functions;
 use \efi\est\user_jobs;
 use \efi\est\input_data;
+use \efi\sanitize;
 
 
-$result['id'] = 0;
-$result['MESSAGE'] = "";
-$result['RESULT'] = 0;
+$result["id"] = 0;
+$result["MESSAGE"] = "";
+$result["RESULT"] = 0;
 
 $input = new input_data;
 $input->is_debug = !isset($_SERVER["HTTP_HOST"]);
@@ -25,20 +27,16 @@ if ($input->is_debug) {
         parse_str($argv[2], $file_array);
         foreach ($file_array as $parm => $file) {
             $fname = basename($file);
-            $_FILES[$parm]['tmp_name'] = $file;
-            $_FILES[$parm]['name'] = $fname;
-            $_FILES[$parm]['error'] = 0;
+            $_FILES[$parm]["tmp_name"] = $file;
+            $_FILES[$parm]["name"] = $fname;
+            $_FILES[$parm]["error"] = 0;
         }
     }
 }
 
-#$test = "";
-#foreach($_POST as $var) {
-#    $test .= " " . $var;
-#}
 
-if (isset($_POST['email'])) {
-    $input->email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+if (isset($_POST["email"])) {
+    $input->email = filter_var($_POST["email"], FILTER_VALIDATE_EMAIL);
 } else {
     if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie())
         $input->email = user_auth::get_email_from_token($db, user_auth::get_user_token());
@@ -47,214 +45,162 @@ if (isset($_POST['email'])) {
 $num_job_limit = global_settings::get_num_job_limit();
 $is_job_limited = user_jobs::check_for_job_limit($db, $input->email);
 
-$option = $_POST['option_selected'];
+$option = sanitize::post_sanitize_string("option_selected");
+$job_name = sanitize::post_sanitize_string("job-name");
 
-if (!isset($_POST['submit'])) {
+
+if (!isset($_POST["submit"])) {
     $result["MESSAGE"] = "Form is invalid.";
-} elseif (!isset($input->email) || !$input->email) {
+} else if (!isset($input->email) || !$input->email) {
     $result["MESSAGE"] = "Please enter an e-mail address.";
-} elseif ($option != "colorssn" && $option != "cluster" && $option != "nc" && $option != "cr" && (!isset($_POST['job-name']) || !$_POST['job-name'])) {
+} else if ($option != "colorssn" && $option != "cluster" && $option != "nc" && $option != "cr" && (!isset($job_name) || !$job_name)) {
     $result["MESSAGE"] = "Job name is required.";
-} elseif ($is_job_limited) {
+} else if ($is_job_limited) {
     $result["MESSAGE"] = "Due to finite computational resource constraints, you can only have $num_job_limit active or pending jobs within a 24 hour period.  Please try again when some of your jobs have completed.";
-} elseif (isset($_POST['blast_input']) && !preg_match('/\S/', $_POST['blast_input'])) {
+} else if (isset($_POST["blast_input"]) && !preg_match("/\S/", $_POST["blast_input"])) {
     $result["MESSAGE"] = "Please enter a valid BLAST sequence.";
 } else {
-    $result['RESULT'] = true;
+    $result["RESULT"] = true;
 
-    #foreach ($_POST as &$var) {
-    #    $var = trim(rtrim($var));
-    #}
     $message = "";
-    
-    if (array_key_exists('evalue', $_POST))
-        $input->evalue = $_POST['evalue'];
-    if (array_key_exists('program', $_POST))
-        $input->program = isset($_POST['program']) ? $_POST['program'] : "";
-    if (array_key_exists('fraction', $_POST))
-        $input->fraction = $_POST['fraction'];
-    if (array_key_exists('job-group', $_POST))
-        $input->job_group = $_POST['job-group'];
-    if (array_key_exists('job-name', $_POST))
-        $input->job_name = $_POST['job-name'];
-    if (array_key_exists('db-mod', $_POST))
-        $input->db_mod = $_POST['db-mod'];
-    if (array_key_exists('cpu-x2', $_POST) && global_settings::advanced_options_enabled())
-        $input->cpu_x2 = $_POST['cpu-x2'] == "true" ? true : false;
-    if (array_key_exists('large-mem', $_POST) && global_settings::advanced_options_enabled())
-        $input->large_mem = $_POST['large-mem'] == "true" ? true : false;
-    $input->exclude_fragments = (isset($_POST['exclude-fragments']) && $_POST['exclude-fragments'] == "true") ? true : false;
-    $input->tax_search = (isset($_POST["tax_search"]) && $_POST["tax_search"]) ? parse_tax_search($_POST["tax_search"]) : "";
-    $input->tax_search_name = (isset($_POST['tax_name']) && $_POST['tax_name']) ? $_POST['tax_name'] : "";
 
-    $input->extra_ram = (isset($_POST['extra_ram']) && is_numeric($_POST['extra_ram'])) ? $_POST['extra_ram'] : false;
+    $input->job_name = $job_name;
+
+    $input->evalue = sanitize::post_sanitize_num("evalue");
+    $input->program = sanitize::post_sanitize_string("program", "");
+    $input->fraction = sanitize::post_sanitize_num("fraction");
+    $input->job_group = sanitize::post_sanitize_string("job-group");
+    $input->db_mod = sanitize::post_sanitize_string("db-mod");
+    $input->cpu_x2 = sanitize::post_sanitize_flag("cpu-x2");
+    $input->large_mem = sanitize::post_sanitize_flag("large-mem", null);
+    $input->exclude_fragments = sanitize::post_sanitize_flag("exclude-fragments");
+    $input->tax_search = parse_tax_search();
+    $input->tax_search_name = sanitize::post_sanitize_string("tax_name", "", "[^A-Za-z0-9_\-:\| ,]");
+
+    $input->extra_ram = sanitize::post_sanitize_num("extra_ram", false);
 
     switch($option) {
         //Option A - BLAST Input
-        case 'A':
+        case "A":
             $blast = new efi\est\blast($db);
 
-            if (array_key_exists('families_input', $_POST))
-                $input->families = $_POST['families_input'];
-            $input->blast_evalue = isset($_POST['blast_evalue']) ? $_POST['blast_evalue'] : "";
-            $input->field_input = isset($_POST['blast_input']) ? $_POST['blast_input'] : "";
-            $input->max_seqs = isset($_POST['blast_max_seqs']) ? $_POST['blast_max_seqs'] : "";
-            $input->blast_db_type = isset($_POST['blast_db_type']) ? $_POST['blast_db_type'] : "";
-            if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
-                if (isset($_POST['families_uniref_ver']) && $_POST['families_uniref_ver'])
-                    $input->uniref_version = $_POST['families_uniref_ver'];
-                else
-                    $input->uniref_version = "90";
-            }
+            $input->blast_evalue = sanitize::post_sanitize_string("blast_evalue", "");
+            $input->field_input = sanitize::post_sanitize_seq("blast_input", "");
+            $input->max_seqs = sanitize::post_sanitize_string("blast_max_seqs", "");
+            $input->blast_db_type = sanitize::post_sanitize_string("blast_db_type", "");
+            set_family_vars($option, $input);
 
-            if (!isset($_POST['evalue']))
+            if (!isset($_POST["evalue"]))
                 $input->evalue = $input->blast_evalue; // in case we don't have family code enabled
             
             $result = $blast->create($input);
             break;
     
         //Option B - Pfam/InterPro
-        case 'B':
-        case 'E':
+        case "B":
             $generate = new efi\est\family($db);
             
-            $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
-            $input->domain = isset($_POST['domain']) ? $_POST['domain'] : "";
-            if (isset($_POST['pfam_seqid']))
-                $input->seq_id = $_POST['pfam_seqid'];
-            if (isset($_POST['pfam_length_overlap']))
-                $input->length_overlap = $_POST['pfam_length_overlap'];
-            if (isset($_POST['pfam_uniref_version']))
-                $input->uniref_version = $_POST['pfam_uniref_version'];
-            if (isset($_POST['pfam_demux']))
-                $input->no_demux = $_POST['pfam_demux'] == "true" ? true : false;
-            if (isset($_POST['pfam_random_fraction']))
-                $input->random_fraction = $_POST['pfam_random_fraction'] == "true" ? true : false;
-            if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
-                if (isset($_POST['families_uniref_ver']) && $_POST['families_uniref_ver'])
-                    $input->uniref_version = $_POST['families_uniref_ver'];
-                else
-                    $input->uniref_version = "90";
-            }
-            if (isset($_POST['pfam_min_seq_len']) && is_numeric($_POST['pfam_min_seq_len']))
-                $input->min_seq_len = $_POST['pfam_min_seq_len'];
-            if (isset($_POST['pfam_max_seq_len']) && is_numeric($_POST['pfam_max_seq_len']))
-                $input->max_seq_len = $_POST['pfam_max_seq_len'];
-            if ($input->domain && isset($_POST["domain_region"]) && $_POST["domain_region"])
-                $input->domain_region = $_POST["domain_region"];
+            $input->seq_id = sanitize::post_sanitize_string("pfam_seqid");
+            $input->length_overlap = sanitize::post_sanitize_num("pfam_length_overlap");
+            $input->no_demux = sanitize::post_sanitize_flag("pfam_demux");
+            $input->random_fraction = sanitize::post_sanitize_flag("pfam_random_fraction");
+            set_family_vars($option, $input);
 
             $result = $generate->create($input);
             break;
         
-        case 'opt_tax':
+        case "opt_tax":
             $generate = new efi\est\taxonomy_job($db);
-            
-            $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
-            if (isset($_POST['pfam_uniref_version']))
-                $input->uniref_version = $_POST['pfam_uniref_version'];
-            if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
-                if (isset($_POST['families_uniref_ver']) && $_POST['families_uniref_ver'])
-                    $input->uniref_version = $_POST['families_uniref_ver'];
-                else
-                    $input->uniref_version = "90";
-            }
-            if (isset($_POST['pfam_min_seq_len']) && is_numeric($_POST['pfam_min_seq_len']))
-                $input->min_seq_len = $_POST['pfam_min_seq_len'];
-            if (isset($_POST['pfam_max_seq_len']) && is_numeric($_POST['pfam_max_seq_len']))
-                $input->max_seq_len = $_POST['pfam_max_seq_len'];
+
+            set_family_vars($option, $input);
 
             $result = $generate->create($input);
             break;
     
         //Option C - Fasta Input
-        case 'C':
+        case "C":
         //Option D - accession list
-        case 'D':
+        case "D":
         //Option color SSN
-        case 'colorssn':
-        case 'cluster':
-        case 'nc':
-        case 'cr':
+        case "colorssn":
+        case "cluster":
+        case "nc":
+        case "cr":
             $input->seq_id = 1;
 
-            if (isset($_FILES['file']) && $_FILES['file']['error'] === "")
-                $_FILES['file']['error'] = 4;
+            if (isset($_FILES["file"]) && $_FILES["file"]["error"] === "")
+                $_FILES["file"]["error"] = 4;
     
-            if ((isset($_FILES['file']['error'])) && ($_FILES['file']['error'] !== 0)) {
-                $result['MESSAGE'] = "Error Uploading File: " . efi\est\functions::get_upload_error($_FILES['file']['error']);
-                $result['RESULT'] = false;
+            if ((isset($_FILES["file"]["error"])) && ($_FILES["file"]["error"] !== 0)) {
+                $result["MESSAGE"] = "Error Uploading File: " . efi\est\functions::get_upload_error($_FILES["file"]["error"]);
+                $result["RESULT"] = false;
             }
             else {
-                if (isset($_POST['families_use_uniref']) && $_POST['families_use_uniref'] == "true") {
-                    if (isset($_POST['families_uniref_ver']) && $_POST['families_uniref_ver'])
-                        $input->uniref_version = $_POST['families_uniref_ver'];
-                    else
-                        $input->uniref_version = "90";
-                }
-                if (isset($_POST['accession_seq_type']) && $_POST['accession_seq_type'] != "uniprot") {
-                    if ($_POST['accession_seq_type'] == "uniref50")
+                if (isset($_POST["accession_seq_type"]) && $_POST["accession_seq_type"] != "uniprot") {
+                    if ($_POST["accession_seq_type"] === "uniref50")
                         $input->uniref_version = "50";
                     else
                         $input->uniref_version = "90";
                 }
-                if ($option == "B" || $option == "D") {
-                    if (isset($_POST["domain"]) && $_POST["domain"])
-                        $input->domain = $_POST["domain"];
-                    if (isset($_POST["domain_region"]) && $_POST["domain_region"])
-                        $input->domain_region = $_POST["domain_region"];
-                }
-                if (isset($_POST["family_filter"]) && $_POST["family_filter"]) {
-                    $input->family_filter = $_POST["family_filter"];
-                }
+                $input->family_filter = sanitize::post_sanitize_string_relaxed("family_filter", "");
 
-                if ($option == "C" || $option == "E") {
-                    $useFastaHeaders = strval(isset($_POST['fasta_use_headers']) ? $_POST['fasta_use_headers'] : "");
-                    $includeAllSeq = isset($_POST['include-all-seq']) && $_POST['include-all-seq'] === "true";
-                    $obj = new efi\est\fasta($db, 0, $useFastaHeaders == "true" ? "E" : "C");
-                    $input->field_input = isset($_POST['fasta_input']) ? $_POST['fasta_input'] : "";
-                    $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
-                    $input->include_all_seq = $includeAllSeq;
-                } else if ($option == "D") {
+                set_family_vars($option, $input);
+
+                if ($option === "C") {
+                    $use_fasta_headers = sanitize::post_sanitize_flag("fasta_use_headers");
+                    $obj = new efi\est\fasta($db, 0, $use_fasta_headers ? "E" : "C");
+                    $input->field_input = sanitize::post_sanitize_seq("fasta_input", "");
+                    $input->include_all_seq = sanitize::post_sanitize_flag("include-all-seq");
+
+                } else if ($option === "D") {
+
                     $obj = new efi\est\accession($db);
-                    $input->field_input = isset($_POST['accession_input']) ? $_POST['accession_input'] : "";
-                    $input->families = isset($_POST['families_input']) ? $_POST['families_input'] : "";
-                    $input->tax_job_id = isset($_POST['accession_tax_job_id']) ? $_POST['accession_tax_job_id'] : "";
-                    $input->tax_tree_id = isset($_POST['accession_tax_tree_id']) ? $_POST['accession_tax_tree_id'] : "";
-                    $input->tax_id_type = isset($_POST['accession_tax_id_type']) ? $_POST['accession_tax_id_type'] : "";
-                    $input->tax_job_key = isset($_POST['accession_tax_job_key']) ? $_POST['accession_tax_job_key'] : "";
-                    if (isset($_POST["domain_family"]) && $_POST["domain_family"])
-                        $input->domain_family = $_POST["domain_family"];
-                } else if ($option == "colorssn" || $option == "cluster" || $option == "nc" || $option == "cr") {
-                    if (isset($_POST['ssn-source-id']))
-                        $input->color_ssn_source_id = $_POST['ssn-source-id'];
-                    if (isset($_POST['ssn-source-idx']))
-                        $input->color_ssn_source_idx = $_POST['ssn-source-idx'];
-                    if (isset($_POST['ssn-source-key']))
-                        $input->color_ssn_source_key = $_POST['ssn-source-key'];
-                    $input->efiref = isset($_POST['efiref']) ? $_POST['efiref'] : "";
-                    $input->skip_fasta = (isset($_POST['skip_fasta']) && $_POST['skip_fasta'] == "true");
-                    if (isset($_POST['color-ssn-source-color-id']) && is_numeric($_POST['color-ssn-source-color-id']))
-                        $input->color_ssn_source_color_id = $_POST['color-ssn-source-color-id'];
-                    if ($option == "cluster") {
+                    $input->field_input = sanitize::post_sanitize_seq("accession_input", "");
+                    $input->tax_job_id = sanitize::post_sanitize_string("accession_tax_job_id", "");
+                    $input->tax_tree_id = sanitize::post_sanitize_string("accession_tax_tree_id", "");
+                    $input->tax_id_type = sanitize::post_sanitize_string("accession_tax_id_type", "");
+                    $input->tax_job_key = sanitize::post_sanitize_string("accession_tax_job_key", "");
+                    $input->domain_family = sanitize::post_sanitize_string("domain_family");
+
+                } else if ($option === "colorssn" || $option === "cluster" || $option === "nc" || $option === "cr") {
+
+                    $input->color_ssn_source_id = sanitize::post_sanitize_num("ssn-source-id");
+                    $input->color_ssn_source_idx = sanitize::post_sanitize_num("ssn-source-idx");
+                    $input->color_ssn_source_key = sanitize::post_sanitize_string("ssn-source-key");
+
+                    $input->efiref = sanitize::post_sanitize_string("efiref", "");
+                    $input->skip_fasta = sanitize::post_sanitize_flag("skip_fasta");
+
+                    $input->color_ssn_source_color_id = sanitize::post_sanitize_num("color-ssn-source-color-id");
+
+                    if ($option === "cluster") {
+
                         $obj = new efi\est\cluster_analysis($db);
-                        $input->make_hmm = (isset($_POST['make-hmm']) && $_POST['make-hmm']) ? $_POST['make-hmm'] : "";
-                        $input->aa_threshold = (isset($_POST['aa-threshold']) && $_POST['aa-threshold']) ? $_POST['aa-threshold'] : 0.8;
-                        $input->hmm_aa = (isset($_POST['hmm-aa']) && $_POST['hmm-aa']) ? $_POST['hmm-aa'] : "";
-                        $input->min_seq_msa = (isset($_POST['min-seq-msa']) && $_POST['min-seq-msa']) ? $_POST['min-seq-msa'] : 0;
-                        $input->max_seq_msa = (isset($_POST['max-seq-msa']) && $_POST['max-seq-msa']) ? $_POST['max-seq-msa'] : 0;
-                    } else if ($option == "nc") {
+                        $input->make_hmm = sanitize::post_sanitize_string("make-hmm", "", "[^A-Z,]");
+                        $input->aa_threshold = sanitize::post_sanitize_string("aa-threshold", " ", "[^0-9\., ]");
+                        $input->hmm_aa = sanitize::post_sanitize_string("hmm-aa", "", "[^A-Za-z, ]");
+                        $input->min_seq_msa = sanitize::post_sanitize_num("min-seq-msa", 0);
+                        $input->max_seq_msa = sanitize::post_sanitize_num("max-seq-msa", 0);
+
+                    } else if ($option === "nc") {
+
                         $obj = new efi\est\nb_conn($db);
-                    } else if ($option == "cr") {
-                        $input->ascore = $_POST['ascore'];
+
+                    } else if ($option === "cr") {
+
                         $obj = new efi\est\conv_ratio($db);
+                        $input->ascore = sanitize::post_sanitize_num("ascore");
+
                     } else {
+
                         $obj = new efi\est\colorssn($db);
+
                     }
                 }
 
-                if (isset($_FILES['file'])) {
-                    $input->tmp_file = $_FILES['file']['tmp_name'];
-                    $input->uploaded_filename = $_FILES['file']['name'];
+                if (isset($_FILES["file"])) {
+                    $input->tmp_file = $_FILES["file"]["tmp_name"];
+                    $input->uploaded_filename = $_FILES["file"]["name"];
                 }
                 $result = $obj->create($input);
             }
@@ -262,20 +208,25 @@ if (!isset($_POST['submit'])) {
             break;
             
         default:
-            $result['RESULT'] = false;
-            $result['MESSAGE'] = "You need to select one of the above options.";
+            $result["RESULT"] = false;
+            $result["MESSAGE"] = "You need to select one of the above options.";
     
     }
+
 }
+
+
+
+
 
 
 if ($input->is_debug) {
     print "JSON: ";
 }
 
-$returnData = array('valid'=>$result['RESULT'],
-                    'id'=>$result['id'],
-                    'message'=>$result['MESSAGE']);
+$returnData = array("valid"     => $result["RESULT"],
+                    "id"        => $result["id"],
+                    "message"   => $result["MESSAGE"]);
 
 
 // This resets the expiration date of the cookie so that frequent users don't have to login in every X days as long
@@ -294,9 +245,16 @@ if ($input->is_debug) {
 
 
 
-function parse_tax_search($search_array) {
-    if (!isset($search_array) || !is_array($search_array))
+
+
+
+
+
+function parse_tax_search() {
+    if (!isset($_POST["tax_search"]) || !is_array($_POST["tax_search"]))
         return false;
+    $search_array = $_POST["tax_search"];
+
     $store = array();
     $accepted = array("superkingdom" => true, "kingdom" => true, "phylum" => true, "class" => true, "order" => true, "family" => true, "genus" => true, "species" => true);
     for ($i = 0; $i < count($search_array); $i++) {
@@ -310,5 +268,25 @@ function parse_tax_search($search_array) {
     }
     return $store;
 }
+
+
+function set_family_vars($option, $input) {
+    if ($option === "B" || $option === "opt_tax") {
+        $input->min_seq_len = sanitize::post_sanitize_num("pfam_min_seq_len");
+        $input->max_seq_len = sanitize::post_sanitize_num("pfam_max_seq_len");
+    }
+
+    $input->families = sanitize::post_sanitize_string_relaxed("families_input", "");
+    if (isset($_POST["families_use_uniref"]) && $_POST["families_use_uniref"] === "true" && !isset($input->uniref_version)) {
+        $input->uniref_version = sanitize::post_sanitize_num("families_uniref_ver", 90);
+    }
+
+    if ($option === "B" || $option === "D") {
+        $input->domain = sanitize::post_sanitize_string("domain", "");
+        if ($input->domain)
+            $input->domain_region = sanitize::post_sanitize_string("domain_region");
+    }
+}
+
 
 

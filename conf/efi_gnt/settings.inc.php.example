@@ -52,6 +52,7 @@ define("__TITLE__","EFI GNT");
 define("__ENABLE_BIGSCAPE__",false);
 define("__ENABLE_INTERPRO__",true);
 define("__NUM_DIAGRAMS_PER_PAGE__",200);
+define("__JS_VERSION__","");
 
 //
 // JOB SCHEDULING PARAMETERS
@@ -59,6 +60,11 @@ define("__GNN_SCRIPT__","submit_gnn.pl");
 define("__SYNC_GNN_SCRIPT__","cluster_gnn.pl");
 define("__PROCESS_DIAGRAM_SCRIPT__","submit_diagram.pl");
 define("__PROCESS_BIGSCAPE_SCRIPT__","submit_bigscape.pl");
+
+//
+// REALTIME JOB PARAMETERS
+define("__RT_GNN_SCRIPT__","api_diagram.pl");
+define("__RT_OUTPUT_DIR__","");
 
 //
 // DEFAULTS

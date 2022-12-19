@@ -1,0 +1,23 @@
+
+[sections]
+sections[]=efiest
+sections[]=efignt
+sections[]=eficgfp
+
+[titles]
+efiest=EFI-EST
+efignt=EFI-GNT
+eficgfp=EFI-CGFP
+
+[section.efiest]
+order[]=option_a
+order[]=option_b
+order[]=option_c
+order[]=option_d
+order[]=colorssn
+option_a="Sequence BLAST (Option A) Reference"
+option_b="Families (Option B) Reference"
+option_c="FASTA (Option C) Reference"
+option_d="Accession IDs (Option D) Reference"
+colorssn="Color SSNs Reference"
+
