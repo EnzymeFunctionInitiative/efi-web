@@ -5,6 +5,8 @@ The web interface for the EFI Tools.
 
 # LINUX INSTALLATION
 
+Ensure that the php-pdo, php-mysqlnd, php-mbstring PHP packages are installed.
+
     bin/setup-composer.sh
     php composer.phar install
 
@@ -15,6 +17,10 @@ Open terminal.
     cd efi-web
     bin/setup-composer.sh
     php composer.phar install
+
+
+# WEB SITE CONFIGURATION
+
 
 
 # DATABASE SETUP

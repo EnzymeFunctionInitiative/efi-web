@@ -12,7 +12,7 @@ family_info.tab
 sync_output
 composer.lock
 composer.phar
-*.bak*
+#*.bak*
 .*.swp
 max_debug_do_not_commit
 /vendor
