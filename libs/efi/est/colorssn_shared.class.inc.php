@@ -6,6 +6,7 @@ require_once(__DIR__."/../../../init.php");
 use \efi\global_functions;
 use \efi\global_settings;
 use \efi\est\file_helper;
+use \efi\sanitize;
 
 
 abstract class colorssn_shared extends option_base {
@@ -82,11 +83,12 @@ abstract class colorssn_shared extends option_base {
     protected function validate($data) {
         $result = new validation_result;
 
-        if (!$this->verify_email($data->email)) {
+        if (!$data->email) {
             $result->errors = true;
             //$result->message .= "<br>Please enter a valid email address</br>";
         }
 
+        // This is where we create a color SSN from an analysis job
         if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx) && is_numeric($data->color_ssn_source_id) && is_numeric($data->color_ssn_source_idx)) {
             $sql = "SELECT * FROM analysis WHERE analysis_id = " . $data->color_ssn_source_id;
             $results = $this->db->query($sql);
@@ -97,6 +99,8 @@ abstract class colorssn_shared extends option_base {
                 $result->errors = true;
                 $result->messages = "Invalid SSN selected.";
             }
+
+        // This where we create another color SSN job from a color SSN
         } elseif (isset($data->color_ssn_source_color_id) && is_numeric($data->color_ssn_source_color_id)) {
             $sql = "SELECT * FROM generate WHERE generate_id = " . $data->color_ssn_source_color_id;
             $results = $this->db->query($sql);
@@ -104,6 +108,8 @@ abstract class colorssn_shared extends option_base {
                 $result->errors = true;
                 $result->message = "Invalid Color EST job selected.";
             }
+
+        // File upload
         } elseif (!$this->verify_colorssn_file($data->uploaded_filename)) {
             $result->errors = true;
             $result->message .= "Please upload a valid XGMML (zipped or unzipped) file.  The file extension must be .xgmml or .zip";
@@ -190,6 +196,7 @@ abstract class colorssn_shared extends option_base {
                     $this->file_helper->set_file_source($file_info["full_ssn_path"]);
                 }
             }
+        // This where we create another color SSN job from a color SSN
         } else if (isset($result["color_ssn_source_color_id"])) {
             $this->color_ssn_source_color_id = $result["color_ssn_source_color_id"];
             $file_info = self::get_source_color_ssn_info($this->db, $this->color_ssn_source_color_id, false);
@@ -217,14 +224,24 @@ abstract class colorssn_shared extends option_base {
         if ($results) {
             $results = $results[0];
             $base_est_results = functions::get_results_dir();
-            $est_results_name = "output";
+            $est_results_name = global_functions::get_est_job_output_dir();
             $est_results_dir = "$base_est_results/$id/$est_results_name";
             $params = global_functions::decode_object($results["generate_params"]);
             $filename = global_functions::get_est_colorssn_filename($id, $params["generate_fasta_file"], false);
-            $full_path = "$est_results_dir/$filename.zip";
-            $info["full_path"] = $full_path;
             $info["generate_key"] = $results["generate_key"];
             $info["filename"] = $params["generate_fasta_file"];
+
+            //OLD: $full_path = "$est_results_dir/$filename.zip";
+
+            // Because we have legacy and new file naming conventions, we use glob.  In a future release
+            // this will be removed to use the proper file format.
+            $suffix = global_settings::get_est_colorssn_suffix();
+            $colorssn_files = glob("$est_results_dir/*$suffix.zip");
+            if (count($colorssn_files) == 0)
+                return false;
+            $full_path = $colorssn_files[0];
+            $info["full_path"] = $full_path;
+
             return $info;
         }
         return false;
@@ -284,6 +301,19 @@ abstract class colorssn_shared extends option_base {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // FILE NAME/PATH ACCESSORS
 
+    // This works as follows:
+    //   Internally the basic SSN is named ssn.zip
+    //   The other internal files are named FILE_TYPE
+    //   UniProt_IDs.zip
+    //   cluster_sizes.txt
+    //   ...
+    //   
+    // Public:
+    //   JOBID_UPLOADED_FILE_NAME_coloredssn.zip
+    //   JOBID_UPLOADED_FILE_NAME_coloredssn_UniProt_IDs.zip
+    //   JOBID_UPLOADED_FILE_NAME_coloredssn_cluster_sizes.txt
+    //   ...
+
     protected function get_web_output_dir() {
         $dir = $this->is_example ? functions::get_results_example_dirname($this->is_example) : functions::get_results_dirname();
         return $dir . "/" . $this->get_output_dir();
@@ -292,10 +322,21 @@ abstract class colorssn_shared extends option_base {
         $dir = $this->is_example ? $this->ex_data_dir : functions::get_results_dir();
         return $dir . "/" . $this->get_output_dir();
     }
-    public function get_base_filename() {
+    // Return the base file name that will be sent to the user (e.g. JOBID_UPLOADED_FILENAME_coloredssn)
+    protected function get_base_filename() {
         $id = $this->get_id();
         $filename = $this->get_uploaded_filename();
         return global_functions::get_est_colorssn_filename($id, $filename, false);
+    }
+    public function get_full_path($file_name) {
+        $full_path = $obj->get_full_output_dir() . "/" . $file_name;
+        return $full_path;
+    }
+    // Return the filename that will be sent to the user.  Input is the type (e.g. cluster_sizes, hmm stuff, etc)
+    // Return will look like JOBID_UPLOADED_FILENAME_coloredssn_$file_type_name
+    public function get_output_filename($file_type_name) {
+        $filename = $obj->get_base_filename() . $file_name_name;
+        return $filename;
     }
     protected function shared_get_web_path($filename) {
         $rel_path = $this->get_web_output_dir() . "/" . $filename;
@@ -457,6 +498,24 @@ abstract class colorssn_shared extends option_base {
     }
     public function get_colored_ssn_zip_filename() {
         return $this->get_base_filename() . ".zip";
+    }
+
+    // Get the pretty name
+    public function get_file_name($type) {
+        $ext = $this->get_ext($type);
+        return $this->get_base_filename() . "_${type}.$ext";
+    }
+    public function get_file_path($type) {
+        $ext = $this->get_ext($type);
+        $base_dir = $this->get_full_output_dir();
+        // Try the simple naming convention first
+        $file_path = "$base_dir/$type.$ext";
+        // Then try legacy file naming convention
+        if (!file_exists($file_path)) {
+            $file_name = $this->get_file_name($type);
+            $file_path = "$base_dir/${file_name}_${type}.$ext";
+        }
+        return $file_path;
     }
 
 

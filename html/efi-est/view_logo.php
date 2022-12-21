@@ -3,25 +3,24 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\est\job_factory;
 use \efi\training\example_config;
+use \efi\sanitize;
 
 
-if ((!isset($_GET["id"])) || (!is_numeric($_GET["id"]))) {
+
+$id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+
+if ($id === false || $key === false) {
     error_404();
     exit;
 }
 
 
 $is_example = example_config::is_example();
-$obj = job_factory::create($db, $_GET["id"], $is_example);
+$obj = job_factory::create($db, $id, $is_example);
 
-$key = $obj->get_key();
-if ($key != $_GET["key"]) {
-    error_404();
-    exit;
-}
-
-
-if (!isset($_GET["logo"])) {
+$logo = sanitize::get_sanitize_string("logo", "");
+if (!$logo) {
     error_404();
     exit;
 }
@@ -30,7 +29,7 @@ if (!isset($_GET["logo"])) {
 $hmm_graphics = $obj->get_hmm_graphics();
 $output_dir = $obj->get_full_output_dir();
 
-$parts = explode("-", $_GET["logo"]);
+$parts = explode("-", $logo);
 $cluster = $parts[0];
 $seq_type = $parts[1];
 $quality = $parts[2];
@@ -46,7 +45,7 @@ if (!isset($hmm_graphics[$cluster][$seq_type][$quality])) {
 $hmm_path = "$output_dir/" . $hmm_graphics[$cluster][$seq_type][$quality]["path"] . ".json";
 $json = file_get_contents($hmm_path);
 
-$title = isset($_GET["title"]) ? $_GET["title"] : "";
+$title = sanitize::get_sanitize_string_relaxed("title", " ");
 
 ?>
 

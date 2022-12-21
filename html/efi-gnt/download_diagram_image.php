@@ -15,13 +15,11 @@ if (strpos($gntServer, $refServer) === FALSE || !isset($_POST["svg"])) {
 
 
 $type = "svg";
-if (isset($_POST["type"]) && $_POST["type"] == "png")
-    $type = "png";
+// PNG not supported yet
+//if (sanitize::post_sanitize_string("type") == "png")
+//    $type = "png";
 
-$filename = "image";
-if (isset($_POST["name"]) && strlen($_POST["name"]) > 3)
-    $filename = $_POST["name"];
-
+$filename = sanitize::post_sanitize_string("name", "image");
 $filename .= "." . $type;
 
 $svg = $_POST["svg"];
@@ -36,10 +34,7 @@ if (isset($_POST["legend2-svg"])) {
     $legend2_svg = $_POST["legend2-svg"];
     $legend2_svg = rawurldecode($legend2_svg);
 }
-$height = "";
-if (isset($_POST["height"])) {
-    $height = $_POST["height"];
-}
+$height = sanitize::post_sanitize_num("height", 0);
 
 
 if ($type == "svg") {
@@ -54,7 +49,7 @@ if ($type == "svg") {
             if (isset($matches[1]))
                 $height = $matches[1];
         }
-        $svg = "<svg width=\"${new_width}px\" height=\"${height}px\">" . $lsvg . $legend1_svg . $legend2_svg . "</svg>";
+        $svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"${new_width}px\" height=\"${height}px\">" . $lsvg . $legend1_svg . $legend2_svg . "</svg>";
     }
 //    header('Content-type: text/plain');
     header('Content-type: image/svg+xml');

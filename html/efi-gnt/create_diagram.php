@@ -6,6 +6,7 @@ use \efi\gnt\functions;
 use \efi\gnt\diagram_jobs;
 use \efi\gnt\user_jobs;
 use \efi\gnt\DiagramJob;
+use \efi\sanitize;
 
 
 $id = 0;
@@ -14,34 +15,37 @@ $message = "";
 $valid = 0;
 $cookieInfo = "";
 
-if (isset($_POST["option"])) {
+$opt = sanitize::post_sanitize_string("option");
 
-    $opt = $_POST["option"];
-
+if (isset($opt)) {
     $valid = 1;
 
-    if (!isset($_POST["email"]) || !functions::verify_email($_POST["email"])) {
+    $email = sanitize::post_sanitize_email("email");
+    if (!isset($email)) {
         $valid = 0;
         $message .= "<br><b>Please verify your e-mail address</b>";
     }
 
     if ($valid) {
-        $email = $_POST["email"];
-        $title = isset($_POST["title"]) ? $_POST["title"] : "";
-        $dbMod = isset($_POST["db-mod"]) ? $_POST["db-mod"] : "";
-        $seqType = isset($_POST["seq-type"]) ? $_POST["seq-type"] : "";
+        $title = sanitize::post_sanitize_string("title");
+        $db_mod = sanitize::post_sanitize_string("db-mod");
+        $seqType = sanitize::post_sanitize_string("seq-type");
 
         $retval = "";
         if ($opt == "a") {
-            $retval = create_blast_job($db, $email, $title, $dbMod, $seqType);
+            $retval = create_blast_job($db, $email, $title, $db_mod, $seqType);
         } elseif ($opt == "c") {
-            $retval = create_lookup_job($db, $email, $title, "fasta", DiagramJob::FastaLookup, $dbMod, "", null);
+            $retval = create_lookup_job($db, $email, $title, "fasta", DiagramJob::FastaLookup, $db_mod, "", null);
         } elseif ($opt == "d") {
-            $taxParms = null;
-            if (isset($_POST["tax-id"]) && isset($_POST["tax-key"]) && isset($_POST["tax-tree-id"]) && isset($_POST["tax-id-type"])) {
-                $taxParms = array("tax_job_id" => $_POST["tax-id"], "tax_key" => $_POST["tax-key"], "tax_tree_id" => $_POST["tax-tree-id"], "tax_id_type" => $_POST["tax-id-type"]);
+            $tax_parms = null;
+            $tax_id = sanitize::post_sanitize_num("tax-id");
+            $tax_key = sanitize::post_sanitize_key("tax-key");
+            $tax_tree_id = sanitize::post_sanitize_num("tax-tree-id");
+            $tax_id_type = sanitize::post_sanitize_string("tax-id-type");
+            if (isset($tax_id) && isset($tax_key) && isset($tax_tree_id) && isset($tax_id_type)) {
+                $tax_parms = array("tax_job_id" => $tax_id, "tax_key" => $tax_key, "tax_tree_id" => $tax_tree_id, "tax_id_type" => $tax_id_type);
             }
-            $retval = create_lookup_job($db, $email, $title, "ids", DiagramJob::IdLookup, $dbMod, $seqType, $taxParms);
+            $retval = create_lookup_job($db, $email, $title, "ids", DiagramJob::IdLookup, $db_mod, $seqType, $tax_parms);
         }
 
         if ($retval["valid"] === false) {
@@ -79,35 +83,39 @@ echo json_encode($returnData);
 
 
 
-function create_blast_job($db, $email, $title, $dbMod, $seqDbType) {
+function create_blast_job($db, $email, $title, $db_mod, $seq_db_type) {
 
     $retval = array("id" => 0, "key" => "", "valid" => false, "message" => "");
 
-    $blast_input = functions::remove_blast_header($_POST["sequence"]);
+    $seq = sanitize::post_sanitize_seq("sequence");
+    $blast_input = functions::remove_blast_header($seq);
     
     // Ignore bad values
-    $seqDbType = sanitize_seq_db_type($seqDbType);
+    $seq_db_type = sanitize_seq_db_type($seq_db_type);
+    $nb_size = sanitize::post_sanitize_num("nb-size");
+    $evalue = sanitize::post_sanitize_num("evalue");
+    $maxSeqs = sanitize::post_sanitize_num("max-seqs");
 
-    if (!isset($_POST["evalue"]) || !functions::verify_evalue($_POST["evalue"])) {
+    if (!isset($evalue) || !functions::verify_evalue($evalue)) {
     
         $retval["message"] = "The given e-value is invalid.";
     
-    } elseif (!isset($_POST["max-seqs"]) || !functions::verify_max_seqs($_POST["max-seqs"])) {
+    } elseif (!isset($maxSeqs) || !functions::verify_max_seqs($maxSeqs)) {
     
         $retval["message"] = "The given maximum sequence value is invalid.";
 
-    } elseif (!isset($_POST["nb-size"]) || !functions::verify_neighborhood_size($_POST["nb-size"])) {
+    } elseif (!isset($nb_size) || !functions::verify_neighborhood_size($nb_size)) {
 
         $retval["message"] = "The neighborhood size is invalid.";
 
-    } elseif (!isset($_POST["sequence"]) || !functions::verify_blast_input($blast_input)) {
+    } elseif (!isset($blast_input) || !functions::verify_blast_input($blast_input)) {
 
         $retval["message"] = "The BLAST sequence is not valid.";
 
     } else {
 
         $retval["valid"] = true;
-        $jobInfo = diagram_jobs::create_blast_job($db, $email, $title, $_POST["evalue"], $_POST["max-seqs"], $_POST["nb-size"], $blast_input, $dbMod, $seqDbType);
+        $jobInfo = diagram_jobs::create_blast_job($db, $email, $title, $evalue, $maxSeqs, $nb_size, $blast_input, $db_mod, $seq_db_type);
     
         if ($jobInfo === false) {
             $retval["message"] .= " The job was unable to be created.";
@@ -122,47 +130,48 @@ function create_blast_job($db, $email, $title, $dbMod, $seqDbType) {
 }
 
 
-function create_lookup_job($db, $email, $title, $contentField, $jobType, $dbMod, $seqDbType, $taxParms) {
+function create_lookup_job($db, $email, $title, $content_field, $job_type, $db_mod, $seq_db_type, $tax_parms) {
 
     $retval = array("id" => 0, "key" => "", "valid" => false, "message" => "");
 
-    $hasInputContent = false;
-    $hasFile = false;
-    $hasTax = false;
+    $has_input_content = false;
+    $has_file = false;
+    $has_tax = false;
 
-    if (isset($taxParms)) {
+    if (isset($tax_parms)) {
         // Validate
-        $info = functions::get_taxonomy_job_info($db, $taxParms["tax_job_id"], $taxParms["tax_key"]);
+        $info = functions::get_taxonomy_job_info($db, $tax_parms["tax_job_id"], $taxParms["tax_key"]);
         if ($info !== false) {
-            $hasTax = true;
+            $has_tax = true;
         }
     } else {
         $fileType = "";
-        $hasInputContent = isset($_POST[$contentField]) && strlen($_POST[$contentField]) > 0;
-        $hasFile = isset($_FILES['file']);
+        $has_input_content = isset($_POST[$content_field]) && strlen($_POST[$content_field]) > 0;
+        $has_file = isset($_FILES['file']);
 
-        if ($hasFile) {
+        if ($has_file) {
             $fileType = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
 
             if (isset($_FILES['file']['error']) && ($_FILES['file']['error'] != 0)) {
                 $retval["message"] .= "<br><b>Error uploading file: " . functions::get_upload_error($_FILES['file']['error']) . "</b>";
-                $hasFile = false;
+                $has_file = false;
             }
             elseif (!functions::is_valid_id_file_type($fileType)) {
                 $message .= "<br><b>Invalid filetype ($fileType).  The file has to be an " . settings::get_id_diagram_file_types() . " filetype.</b>";
-                $hasFile = false;
+                $has_file = false;
             }
         }
     }
 
     // Ignore bad values
-    $seqDbType = sanitize_seq_db_type($seqDbType);
+    $seq_db_type = sanitize_seq_db_type($seq_db_type);
+    $nb_size = sanitize::post_sanitize_num("nb-size");
 
-    if (!$hasFile && !$hasInputContent && !$hasTax) {
+    if (!$has_file && !$has_input_content && !$has_tax) {
     
         $retval["message"] = "Either a list of IDs or a file containing a list of IDs must be uploaded.";
 
-    } elseif (!isset($_POST["nb-size"]) || !functions::verify_neighborhood_size($_POST["nb-size"])) {
+    } elseif (!isset($nb_size) || !functions::verify_neighborhood_size($nb_size)) {
 
         $retval["message"] = "The neighborhood size is invalid.";
 
@@ -170,10 +179,12 @@ function create_lookup_job($db, $email, $title, $contentField, $jobType, $dbMod,
 
         $retval["valid"] = true;
 
-        if ($hasFile)
-            $jobInfo = diagram_jobs::create_file_lookup_job($db, $email, $title, $_POST["nb-size"], $_FILES["file"]["tmp_name"], $_FILES["file"]["name"], $jobType, $dbMod, $seqDbType);
-        else
-            $jobInfo = diagram_jobs::create_lookup_job($db, $email, $title, $_POST["nb-size"], $_POST[$contentField], $jobType, $dbMod, $seqDbType, $taxParms);
+        if ($has_file) {
+            $jobInfo = diagram_jobs::create_file_lookup_job($db, $email, $title, $nb_size, $_FILES["file"]["tmp_name"], $_FILES["file"]["name"], $job_type, $db_mod, $seq_db_type);
+        } else {
+            $content = sanitize::post_sanitize_seq($content_field);
+            $jobInfo = diagram_jobs::create_lookup_job($db, $email, $title, $nb_size, $content, $job_type, $db_mod, $seq_db_type, $tax_parms);
+        }
 
         if ($jobInfo === false) {
             $retval["message"] .= " The job was unable to be created.";

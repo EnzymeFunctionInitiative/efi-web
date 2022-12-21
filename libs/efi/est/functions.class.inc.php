@@ -90,7 +90,7 @@ class functions {
 
     public static function get_job_status($db, $generate_id, $analysis_id, $key) {
         $result = array("generate" => "", "analysis" => "", "job_type" => "", "sql" => "");
-        if ($analysis_id) {
+        if (isset($analysis_id) && $analysis_id !== false) {
             $sql = "SELECT A.analysis_status, G.generate_status, G.generate_type ";
             $sql .= "FROM analysis AS A ";
             $sql .= "LEFT JOIN generate AS G ON A.analysis_generate_id = G.generate_id ";

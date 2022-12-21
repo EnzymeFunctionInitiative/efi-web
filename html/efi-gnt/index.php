@@ -49,11 +49,12 @@ $est_id = "";
 $est_file_name = "";
 $submit_est_args = "";
 $tax_data = false;
-if (isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])) {
-    $the_aid = $_GET["est-id"];
-    $the_key = $_GET["est-key"];
-    $the_idx = $_GET["est-ssn"];
 
+$the_aid = sanitize::validate_id("est-id", sanitize::GET);
+$the_key = sanitize::validate_key("est-key", sanitize::GET);
+$the_idx = sanitize::validate_id("est-ssn", sanitize::GET);
+
+if ($the_aid !== false && $the_key !== false && $the_idx !== false) {
     $job_info = global_functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
     if ($job_info !== false) {
         $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);
@@ -78,6 +79,8 @@ $update_msg = "";
     //"The \"From the Bench\" article describing the tools and their use is available on the " . 
     //"<i class='fas fa-question'></i> <b>Training</b> page.<br>" .
     //"Access to videos about the use of Cytoscape for interacting with SSNs is also available on the same page.<br>" .
+
+$JsVersion = settings::get_js_version();
 
 $ShowCitation = true;
 require_once(__DIR__."/inc/header.inc.php");
@@ -777,6 +780,7 @@ HTML;
 
 
 function check_for_taxonomy_input($db) {
+    //TODO: sanitize
     $id = isset($_GET["tax-id"]) ? $_GET["tax-id"] : "";
     $key = isset($_GET["tax-key"]) ? $_GET["tax-key"] : "";
     $tree_id = isset($_GET["tree-id"]) ? $_GET["tree-id"] : "";

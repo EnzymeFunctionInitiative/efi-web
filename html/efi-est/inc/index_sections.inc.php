@@ -8,6 +8,7 @@ use \efi\est\settings;
 use \efi\est\colorssn;
 use \efi\est\est_ui;
 use \efi\est\colorssn_shared;
+use \efi\sanitize;
 
 
 function output_option_a($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
@@ -1450,13 +1451,13 @@ function check_for_color_mode($db) {
     $modes_avail = array("color" => 1, "cluster" => 1, "nc" => 1, "cr" => 1);
     $mode_data = array();
 
-    if (isset($_GET["mode"])) {
-        $mode = $_GET["mode"];
-        if (isset($modes_avail[$mode]) && isset($_GET["est-id"]) && isset($_GET["est-key"]) && isset($_GET["est-ssn"])) {
-            $the_aid = $_GET["est-id"];
-            $the_key = $_GET["est-key"];
-            $the_idx = $_GET["est-ssn"];
-    
+    $mode = sanitize::get_sanitize_string("mode");
+    if (isset($mode)) {
+        $the_aid = sanitize::validate_id("est-id", sanitize::GET);
+        $the_key = sanitize::validate_key("est-key", sanitize::GET);
+        $the_idx = sanitize::validate_id("est-ssn", sanitize::GET);
+
+        if (isset($modes_avail[$mode]) && $the_aid !== false && $the_key !== false && $the_idx) {
             $job_info = global_functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
             if ($job_info !== false) {
                 $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);
@@ -1470,9 +1471,8 @@ function check_for_color_mode($db) {
                     $mode_data["mode"] = $mode;
                 }
             }
-        } else if ($mode === "cr" && isset($_GET["est-id"]) && isset($_GET["est-key"])) {
-            $the_id = $_GET["est-id"];
-            $the_key = $_GET["est-key"];
+        } else if ($mode === "cr" && $the_aid !== false && $the_key !== false) {
+            $the_id = $the_aid;
             $job_info = colorssn_shared::get_source_color_ssn_info($db, $the_id, $the_key);
             if ($job_info !== false) {
                 $mode_data["filename"] = $job_info["filename"];
@@ -1491,8 +1491,9 @@ function check_for_color_mode($db) {
 function check_for_taxonomy_input($db) {
     $est_id = "";
 
-    $mode = isset($_GET["mode"]) ? $_GET["mode"] : "";
+    $mode = sanitize::get_sanitize_string("mode");
     if (isset($mode) && $mode == "tax") {
+        //TODO: sanitize this
         $id = isset($_GET["tax-id"]) ? $_GET["tax-id"] : "";
         $key = isset($_GET["tax-key"]) ? $_GET["tax-key"] : "";
         $tree_id = isset($_GET["tree-id"]) ? $_GET["tree-id"] : "";

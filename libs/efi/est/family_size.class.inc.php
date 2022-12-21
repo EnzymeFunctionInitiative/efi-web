@@ -100,6 +100,7 @@ class family_size {
         $results["total"] = $totalFull;
         $results["total_compute"] = $totalCompute;
         $results["a"] = $table;
+        $results["result"] = true;
 
         return $results;
     }

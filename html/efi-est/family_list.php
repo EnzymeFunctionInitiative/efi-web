@@ -3,6 +3,8 @@ require_once(__DIR__."/../../init.php");
 
 require_once(__BASE_DIR__."/includes/login_check.inc.php");
 
+use \efi\sanitize;
+
 
 $defaultFilterKey = "pfam";
 $defaultFilter = "PF%";
@@ -25,8 +27,8 @@ $familyFilter = $defaultFilter;
 $pageTitle = $defaultTitle;
 $filter = $defaultFilterKey;
 
-if (isset($_GET["filter"])) {
-    $filter = $_GET["filter"];
+$filter = sanitize::get_sanitize_string("filter");
+if (isset($filter)) {
     if (array_key_exists($filter, $Filters)) {
         $familyFilter = $Filters[$filter];
         $pageTitle = $Titles[$filter];

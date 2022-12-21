@@ -3,7 +3,7 @@ $init_dir = __DIR__."/../../../../..";
 require_once("$init_dir/init.php");
 
 
-use \efi\global_functions;
+use \efi\send_file;
 use \efi\est\stepa;
 use \efi\est\functions;
 
@@ -27,11 +27,7 @@ function get_results_dir($db, $id) {
 }
 
 function send_output($filename, $output) {
-    $filesize = strlen($output);
-    global_functions::send_headers($filename, $filesize);
-    echo $output;
-    ob_flush();
-    flush();
+    send_file::send_text($filename, $output, send_file::SEND_FILE_BINARY);
 }
 
 

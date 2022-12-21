@@ -8,6 +8,7 @@ use \efi\global_functions;
 use \efi\est\job_factory;
 use \efi\est\queue;
 use \efi\training\example_config;
+use \efi\file_types;
 
 
 class analysis extends est_shared {
@@ -52,6 +53,9 @@ class analysis extends est_shared {
     private $analysis_table = "analysis";
     private $generate_table = "generate";
     private $ex_data_dir = "";
+
+    private $net_stats;
+
 
     ///////////////Public Functions///////////
 
@@ -314,30 +318,48 @@ class analysis extends est_shared {
         return file_exists($full_path);
     }
 
-    public function get_zip_file_size($ssn_file) {
-        $results_dir = $this->get_results_dir();
-        $file = $results_dir . "/" . $this->get_output_dir();
-        $file .= "/" . $this->get_network_dir() . "/" . $ssn_file . ".zip";
-        if (file_exists($file))
-            return filesize($file);
-        else
-            return 0;
+
+
+
+    public function get_num_networks() {
+        if (!isset($this->net_stats)) {
+            if ($this->load_network_stats() === false)
+                return false;
+        }
+        return count($this->net_stats);
     }
 
-    public function get_network_stats() {
-        $results_dir = $this->get_results_dir();
-        $file = $results_dir . "/" . $this->get_output_dir();
-        $file .= "/" . $this->get_network_dir() . "/" . $this->stats_file;
-        $file_handle = @fopen($file,"r") or die("Error opening $file " . $this->stats_file . "\n");
-        $i = 0; 
-        $stats_array = array();
-        $keys = array('File','Nodes','Edges','Size');
-        $row = 0;
-        while (($data = fgetcsv($file_handle,0,"\t")) !== FALSE) {
+    public function get_network_stats($ssn_idx) {
+        if (!isset($this->net_stats)) {
+            if ($this->load_network_stats() === false)
+                return false;
+        }
+        if (!isset($this->net_stats[$ssn_idx]))
+            return false;
+        $stats = $this->net_stats[$ssn_idx];
+        $info = array("file" => $stats["File"], "nodes" => $stats["Nodes"], "edges" => $stats["Edges"], "size" => $stats["Size"], "pid" => $stats["PctId"]);
+        $info["zip_file"] = isset($stats["ZipFile"]) ? $stats["ZipFile"] : false;
+        $info["zip_size"] = isset($stats["ZipSize"]) ? $stats["ZipSize"] : false;
+        return $info;
+    }
 
+    private function load_network_stats() {
+        $this->net_stats = array();
+
+        $results_dir = $this->get_network_output_path();
+        $file = $results_dir . "/" . $this->stats_file;
+        $file_handle = @fopen($file, "r");
+        if (!isset($file_handle))
+            return false;
+
+        $i = 0; 
+        $keys = array("File", "Nodes", "Edges", "Size");
+        $row = 0;
+
+        while (($data = fgetcsv($file_handle, 0, "\t")) !== FALSE) {
             $stats_row = array();
             if ($row == 1) {
-                $result = array_splice($data,1,1);
+                $result = array_splice($data, 1, 1);
                 $stats_row = array_combine($keys, $data);
             } elseif ($row > 1) {
                 $stats_row = array_combine($keys, $data);
@@ -353,13 +375,21 @@ class analysis extends est_shared {
                 $stats_row["RelPath"] = $rel_path;
                 $stats_row["PctId"] = $row == 1 ? "full" : $percent_identity;
 
-                array_push($stats_array, $stats_row);
+                $zip_file = $raw_file . ".zip";
+                if (file_exists("$results_dir/$zip_file")) {
+                    $stats_row["ZipFile"] = $zip_file;
+                    $stats_row["ZipSize"] = filesize($file);
+                }
+
+                array_push($this->net_stats, $stats_row);
             }
 
             $row++;
         }
+
         fclose($file_handle);
-        return $stats_array;
+
+        return true;
     }
 
     private function get_results_dir() {
@@ -370,31 +400,131 @@ class analysis extends est_shared {
         }
     }
 
-    public function download_network($file) {
-        $root_dir = $this->get_results_dir();	
-        $directory = $root_dir . "/" . $this->get_output_dir() . "/" . $this->get_network_dir();
-        $full_path = $directory . "/" . $file;
-        if (file_exists($full_path)) {
-            header('Pragma: public');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-            header('Content-Type: application-download');
-            //header('COntent-Type: text/xml');
-            header('Content-Disposition: attachment; filename="' . $file . '"');
-            header('Content-Length: ' . filesize($full_path));
-            ob_clean();
-            readfile($full_path);
-        }
-        else {
-            return false;
-        }
+    private function get_zip_file_size($ssn_file) {
+        $results_dir = $this->get_results_dir();
+        $file = $results_dir . "/" . $this->get_output_dir();
+        $file .= "/" . $this->get_network_dir() . "/" . $ssn_file . ".zip";
+        if (file_exists($file))
+            return filesize($file);
+        else
+            return 0;
     }
 
-    public function get_stats_full_path() {
-        $path = functions::get_web_root() . "/results/" . $this->get_output_dir() . "/" . $this->get_network_dir() . "/" . $this->stats_file;
-        return $path;
+
+
+
+
+
+
+
+
+
+
+    public function get_file_name($type, $ssn_idx = -1) {
+        $file_name = false;
+        if ($type === file_types::FT_blast_evalue) {
+            $id = $this->get_generate_id();
+            $file_name = "${id}_" . $this->get_name() . "_blast.tab";
+        } else if ($ssn_idx >= 0) {
+            $stats = $this->get_network_stats($ssn_idx);
+            if ($stats === false) {
+                return false;
+            }
+            $file_name = $stats["file"];
+            if ($type == file_types::FT_nc_legend)
+                $file_name = str_replace(".xgmml", "_nc.png", $file_name);
+            else if ($stats["zip_file"])
+                $file_name = $stats["zip_file"];
+        }
+        return $file_name;
     }
-    
+    public function get_file_path($type, $ssn_idx = -1) {
+        $file_path = false;
+        if ($type === file_types::FT_blast_evalue) {
+            $results_dir = $this->get_network_output_path();
+            $file_path = "$results_dir/" . blast::EVALUE_OUTPUT_FILE;
+        } else if ($ssn_idx >= 0) {
+            $stats = $this->get_network_stats($ssn_idx);
+            if ($stats === false) {
+                return false;
+            }
+
+            $results_dir = $this->get_network_output_path();
+
+            // Check new naming convention first.
+            $fname = $type == file_types::FT_nc_legend ? "nc_$ssn_idx.png" : "ssn_$ssn_idx.zip";
+            $file_path = "$results_dir/$fname";
+            if (!file_exists($file_path)) {
+                $ext = $stats["zip_file"] ? "xgmml.zip" : "xgmml";
+                $fname = $stats["zip_file"] ? $stats["zip_file"] : $stats["file"];
+                if ($type == file_types::FT_nc_legend)
+                    $fname = str_replace(".$ext", "_nc.png", $fname);
+                $file_path = "$results_dir/$fname";
+            }
+        }
+        if (!file_exists($file_path))
+            return false;
+        else
+            return $file_path;
+    }
+
+    public function get_graph_info($type, $ssn_idx) {
+        $info = array("file_name" => false, "file_path" => false);
+        if ($type == "NC") {
+            $stats = $this->get_network_stats($ssn_idx);
+            if ($stats === false) {
+                return false;
+            }
+
+            $file_name = $this->get_file_name($ssn_idx, true);
+            $file_path = $this->get_file_path($ssn_idx, true);
+
+            if (file_exists($file_path)) {
+                $info["file_name"] = $file_name;
+                $info["file_path"] = $file_path;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        return $info;
+    }
+
+    //public function get_nc_web_path($fname, $name_only = false) {
+    //    $web_dir_path = $this->get_web_dir_path();
+    //    $nc_web_path = "$web_dir_path/$nc_fname";
+    //    $nc_full_path = $this->get_network_output_path() . "/" . $nc_fname;
+    //    if (!file_exists($nc_full_path))
+    //        $nc_web_path = "";
+    //    return ($name_only && $nc_web_path) ? $nc_fname : $nc_web_path;
+    //}
+
+    //public function get_blast_evalue_file() {
+    //    $the_file = $this->get_network_output_path() . "/" . blast::EVALUE_OUTPUT_FILE;
+    //    $blast_evalue_file = "";
+    //    if (file_exists($the_file))
+    //        $blast_evalue_file = $this->get_web_dir_path() . "/" . blast::EVALUE_OUTPUT_FILE;
+    //    $name = global_functions::safe_filename($this->generate_id . "_" . $this->name) . ".txt";
+    //    return array("path" => $blast_evalue_file, "full_path" => $the_file, "name" => $name);
+    //}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function run_job($is_debug = false) {
         if ($this->available_pbs_slots()) {
 
@@ -779,18 +909,6 @@ class analysis extends est_shared {
         return (isset($this->remove_fragments) && $this->remove_fragments);
     }
 
-    public function download_graph($type, $net) {
-        if (preg_match("/\\//", $net)) {
-            die("Invalid input.");
-        }
-        $fname = $net;
-        if ($type == "NC") {
-            $fname = global_functions::safe_filename($fname);
-            $full_path = $this->get_network_output_path() . "/" . $fname;
-        }
-        global_functions::send_image_file_for_download($fname, $full_path);
-    }
-
     public static function get_percent_identity($fname) {
         $percent_identity = substr($fname, strrpos($fname,'-') + 1);
         $sep_char = "_";
@@ -804,25 +922,6 @@ class analysis extends est_shared {
         $rel_dir_path = $this->get_output_dir() . "/" . $this->get_network_dir();
         $web_dir_path = functions::get_web_root() . "/$res_dir/$rel_dir_path";
         return $web_dir_path;
-    }
-
-    public function get_nc_web_path($fname, $name_only = false) {
-        $nc_fname = str_replace(".xgmml", "_nc.png", $fname);
-        $web_dir_path = $this->get_web_dir_path();
-        $nc_web_path = "$web_dir_path/$nc_fname";
-        $nc_full_path = $this->get_network_output_path() . "/" . $nc_fname;
-        if (!file_exists($nc_full_path))
-            $nc_web_path = "";
-        return ($name_only && $nc_web_path) ? $nc_fname : $nc_web_path;
-    }
-
-    public function get_blast_evalue_file() {
-        $the_file = $this->get_network_output_path() . "/" . blast::EVALUE_OUTPUT_FILE;
-        $blast_evalue_file = "";
-        if (file_exists($the_file))
-            $blast_evalue_file = $this->get_web_dir_path() . "/" . blast::EVALUE_OUTPUT_FILE;
-        $name = global_functions::safe_filename($this->generate_id . "_" . $this->name) . ".txt";
-        return array("path" => $blast_evalue_file, "full_path" => $the_file, "name" => $name);
     }
 
     // PARENT EMAIL-RELATED OVERLOADS

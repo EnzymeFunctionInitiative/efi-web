@@ -13,20 +13,19 @@ use \efi\cgfp\job_manager;
 use \efi\cgfp\job_types;
 use \efi\training\example_config;
 use \efi\send_file;
+use \efi\sanitize;
 
 
-if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"]) || !isset($_GET["quantify-id"]) || !is_numeric($_GET["quantify-id"])) {
-    error500("Unable to find the requested job.");
-//} else {
-//    $job_mgr = new job_manager($db, job_types::Identify);
-//    if ($job_mgr->get_job_key($_GET["id"]) != $_GET["key"]) {
-//        error500("Unable to find the requested job.");
-//    }
+$id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+$qid = sanitize::validate_id("quantify-id", sanitize::GET);
+
+if ($id === false || $key === false || $qid === false) {
+    error_404();
+    exit;
 }
 
-$key = $_GET["key"];
-$qid = $_GET["quantify-id"];
-$identify_id = $_GET["id"];
+$identify_id = $id;
 
 // There are two types of examples: dynamic and static.  The static example is a curated
 // example pulled into the entry screen.  The dynamic examples are the same as other

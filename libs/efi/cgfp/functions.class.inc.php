@@ -22,17 +22,6 @@ class functions extends global_functions {
         8 => 'File upload stopped by extension.',
     );
 
-    public static function verify_email($email) {
-        $email = strtolower($email);
-
-        $valid = 1;
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $valid = 0;
-        }
-        return $valid;
-
-    }
-
     public static function get_upload_error($value) {
         return self::$upload_errors[$value];
 

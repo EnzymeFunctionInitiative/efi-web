@@ -3,41 +3,48 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\est\job_factory;
 use \efi\training\example_config;
+use \efi\send_file;
+use \efi\sanitize;
 
 
-if ((!isset($_GET["id"])) || (!is_numeric($_GET["id"]))) {
+$id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+
+if ($id === false || $key === false) {
     error_404();
     exit;
 }
 
 
 $is_example = example_config::is_example();
-$obj = job_factory::create($db, $_GET['id'], $is_example); // Creates a color SSN or a cluster analysis job
+$obj = job_factory::create($db, $id, $is_example); // Creates a color SSN or a cluster analysis job
 
-$key = $obj->get_key();
-if ($key != $_GET["key"]) {
+if ($key !== $obj->get_key()) {
     error_404();
     exit;
 }
 
 
-if (!isset($_GET["logo"])) {
+$logo = sanitize::get_sanitize_string("logo", "");
+if ($logo) {
     error_404();
     exit;
 }
 
+
+$type = sanitize::get_sanitize_string("t", "");
 
 $gtype = "hmm";
-if (isset($_GET["t"])) {
-    if ($_GET["t"] == "w")
+if (isset($$type)) {
+    if ($$type == "w")
         $gtype = "weblogo";
-    elseif ($_GET["t"] == "l")
+    elseif ($$type == "l")
         $gtype = "length";
-    elseif ($_GET["t"] == "afa")
+    elseif ($$type == "afa")
         $gtype = "afa";
-    elseif ($_GET["t"] == "hmm-png")
+    elseif ($$type == "hmm-png")
         $gtype = "hmm_png";
-    elseif ($_GET["t"] == "hmm")
+    elseif ($$type == "hmm")
         $gtype = "hmm";
 }
 
@@ -68,26 +75,15 @@ if ($gtype == "hmm_png" || $gtype == "hmm") {
 }
 
 
-list($cluster, $seq_type, $quality) = explode("-", $_GET["logo"]);
+list($cluster, $seq_type, $quality) = explode("-", $logo);
 if (!isset($graphics[$cluster][$seq_type][$quality])) {
     die("$cluster $seq_type $quality");
     exit;
 }
 
-$filename = $obj->get_base_filename() . "_${file_prefix}_${cluster}_${seq_type}_${quality}.$format";
-$full_path = $obj->get_full_output_dir() . "/" . $graphics[$cluster][$seq_type][$quality]["path"] . $file_ext;
+$filename = $obj->get_output_filename("${file_prefix}_${cluster}_${seq_type}_${quality}.$format");
+$full_path = $obj->get_full_path($graphics[$cluster][$seq_type][$quality]["path"] . $file_ext);
 
-
-header('Content-Description: File Transfer');
-header('Content-Type: application/octet-stream');
-header('Content-Disposition: attachment; filename="'.$filename.'"');
-header('Content-Transfer-Encoding: binary');
-header('Connection: Keep-Alive');
-header('Expires: 0');
-header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-header('Pragma: public');
-header('Content-Length: ' . filesize($full_path));
-ob_clean();
-readfile($full_path);
+send_file::send($full_path, $filename, send_file::SEND_FILE_BINARY);
 
 

@@ -3,18 +3,22 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\gnt\diagram_jobs;
 use \efi\gnt\gnn;
+use \efi\sanitize;
 
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id']) || !isset($_GET['key'])) {
+$id = sanitize::get_sanitize_string("id");
+$key = sanitize::get_sanitize_key("key");
+
+if (!isset($id) || !isset($key)) {
     error404();
 } else if (!isset($_GET['diagram'])) {
-    $gnn = new gnn($db,$_GET['id']);
-    if ($gnn->get_key() != $_GET['key']) {
+    $gnn = new gnn($db, $id);
+    if ($gnn->get_key() != $key) {
         error404();
     }
 } else {
-    $key = diagram_jobs::get_key($db, $_GET['id']);
-    if ($key != $_GET['key']) {
+    $d_key = diagram_jobs::get_key($db, $id);
+    if ($d_key != $key) {
         error404();
     }
 }

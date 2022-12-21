@@ -8,6 +8,7 @@ use \efi\job_cancels;
 use \efi\est\stepa;
 use \efi\est\analysis;
 use \efi\est\functions;
+use \efi\sanitize;
 
 
 $is_error = false;
@@ -16,24 +17,32 @@ $the_aid = "";
 $job_obj = false;
 $is_generate = true;
 
-if (isset($_POST["id"]) && is_numeric($_POST["id"]) && isset($_POST["key"])) {
-    $the_id = $_POST["id"];
-    if (isset($_POST["aid"]) && is_numeric($_POST["aid"]) && $_POST["aid"] > 0) {
-        $job_obj = new analysis($db, $_POST["aid"]);
-        $the_aid = $_POST["aid"];
+$the_id = sanitize::validate_id("id", sanitize::POST);
+$key = sanitize::validate_key("key", sanitize::POST);
+$aid = sanitize::validate_id("id", sanitize::POST);
+
+if ($id === false || $key === false) {
+    error_404();
+    exit;
+}
+
+if ($id !== false && $key !== false) {
+    if ($aid !== false && $aid > 0) {
+        $job_obj = new analysis($db, $aid);
+        $the_aid = $aid;
         $is_generate = false;
     } else {
         $job_obj = new stepa($db, $the_id);
     }
 
-    if ($job_obj->get_key() != $_POST["key"]) {
+    if ($job_obj->get_key() != $key) {
         $is_error = true;
     } else {
         $is_error = false;
     }
 }
 
-$request_type = isset($_POST["rt"]) ? $_POST["rt"] : false;
+$request_type = sanitize::post_sanitize_string("t", "");
 
 $result = array("valid" => false);
 

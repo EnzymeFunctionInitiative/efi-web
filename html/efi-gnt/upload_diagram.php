@@ -37,14 +37,12 @@ elseif (!functions::is_valid_diagram_file_type($file_type)) {
     $message .= "<br><b>Invalid filetype ($file_type).  The file has to be an " . settings::get_valid_diagram_file_types() . " filetype.</b>";
 }
 
-$email = "";
-if (!isset($_POST['email']) || !functions::verify_email($_POST['email'])) {
+$email = sanitize::post_sanitize_email("email");
+if (!isset($email)) {
     $valid = 0;
     $message .= "<br><b>Please verify your e-mail address</b>";
-} else {
-    $email = $_POST['email'];
 }
-$jobGroup = isset($_POST['job-group']) ? $_POST['job-group'] : '';
+$jobGroup = sanitize::post_sanitize_string("job-group", "");
 
 if ($valid) {
     $arrowInfo = diagram_jobs::create_file($db, $email, $_FILES['file']['tmp_name'], $_FILES['file']['name'], $jobGroup);

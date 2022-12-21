@@ -172,7 +172,7 @@ HTML;
     /////////////////////
     // Taxonomy
     $tax_html = "";
-    $tax_jobs = $config->get_est_jobs("tax.gre");
+    $tax_jobs = $config->get_est_jobs("tax.rss");
     if (isset($tax_jobs["order"]) && count($tax_jobs["order"]) > 0)
         $tax_html = est_ui::output_job_list($tax_jobs, false, false, "2022", false, true);
 

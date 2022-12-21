@@ -43,7 +43,6 @@ define("__NORMAL_QUEUE__","");                  // The partition/queue to submit
 
 define("__BASE_RESULTS_DIR__","");              // Set to the directory where results are stored; each job type will have a separate sub directory
 define("__EST_RESULTS_DIR__",__BASE_RESULTS_DIR__."/est");  // Set to the directory where results are stored for EST
-define("__TEMP_DIR__","");                      // Where the queue status gets written to
 define("__CLUSTER_USER__","");                  // Set to the user that jobs are submitted under 
 
 // Database that tables for all tools are stored in, including auth. They can be set to
@@ -97,6 +96,7 @@ define("__ENABLE_JOB_GROUPS__",false);
 define("__ENABLE_SHORTBRED__",true);
 define("__ENABLE_WEBSITE_MSG__","");
 define("__ENABLE_LOG__",true);
+//define("__ENABLE_DEBUG__",true); // This shows complete debugging information; comment out for production
 
 // CLUSTER PARAMETERS
 define("__MAX_QUEUABLE_JOBS__",1000);

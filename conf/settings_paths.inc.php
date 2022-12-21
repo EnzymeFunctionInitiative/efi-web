@@ -15,7 +15,7 @@ define("__CGFP_DIR__",__BASE_DIR__."/efi-cgfp");
 define("__TRAINING_DIR__",__BASE_DIR__."/training");
 define("__USERS_DIR__",__BASE_DIR__."/users");
 
-define("__TEMP_DIR__",__BASE_DIR__."/tmp");
+define("__TEMP_DIR__","/private_stores/gerlt/results/temp");            // Where the queue status gets written to
 define("__MAIN_LOG_DIR__",__BASE_DIR__."/logs");
 define("__MAIN_UPLOAD_DIR__",__BASE_DIR__."/uploads");
 

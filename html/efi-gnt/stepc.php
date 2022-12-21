@@ -11,27 +11,30 @@ use \efi\gnt\gnt_ui;
 use \efi\gnt\functions;
 use \efi\gnt\settings;
 use \efi\training\example_config;
+use \efi\sanitize;
 
 
 $is_example = example_config::is_example();
 
-if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) {
-    if ($is_example) {
-        $gnn = new gnn_example($db, $_GET['id'], $is_example);
-    } else {
-        $gnn = new gnn($db, $_GET['id']);
-    }
+$gnn_id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
 
-    $gnnId = $gnn->get_id();
-    $gnnKey = $gnn->get_key();
-    if ($gnnKey != $_GET['key']) {
-        error500("Unable to find the requested job.");
-    } elseif (!$is_example && $gnn->is_expired()) {
-        error404("That job has expired and doesn't exist anymore.");
-    }
-}
-else {
+if ($gnn_id === false || $key === false) {
     error500("Unable to find the requested job.");
+}
+
+if ($is_example) {
+    $gnn = new gnn_example($db, $gnn_id, $is_example);
+} else {
+    $gnn = new gnn($db, $gnn_id);
+}
+
+$gnn_key = $gnn->get_key();
+
+if ($gnn_key != $key) {
+    error500("Unable to find the requested job.");
+} elseif (!$is_example && $gnn->is_expired()) {
+    error404("That job has expired and doesn't exist anymore.");
 }
 
 $baseUrl = settings::get_web_address();
@@ -243,7 +246,7 @@ require_once(__DIR__."/inc/header.inc.php");
                     <?php echo $tableString; ?>
                 </tbody>
             </table>
-            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$gnnId&key=$gnnKey&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
+            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$gnn_id&key=$gnn_key&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
             <div style="clear: both"></div>
         </div>
 
@@ -394,9 +397,9 @@ require_once(__DIR__."/inc/header.inc.php");
                     <tr style='text-align:center;'>
                         <td class="button-col">
                             <?php if ($useDiagramsV3) { ?>
-                            <a href="view_diagrams_v3.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?><?php echo $ex_param; ?>" target="_blank"><button class="mini">View diagrams</button></a>
+                            <a href="view_diagrams_v3.php?gnn-id=<?php echo $gnn_id; ?>&key=<?php echo $gnn_key; ?><?php echo $ex_param; ?>" target="_blank"><button class="mini">View diagrams</button></a>
                             <?php } else { ?>
-                            <a href="view_diagrams.php?gnn-id=<?php echo $gnnId; ?>&key=<?php echo $gnnKey; ?>" target="_blank"><button class="mini">View diagrams</button></a>
+                            <a href="view_diagrams.php?gnn-id=<?php echo $gnn_id; ?>&key=<?php echo $gnn_key; ?>" target="_blank"><button class="mini">View diagrams</button></a>
                             <?php } ?>
                         </td>
                         <td colspan="2">
@@ -507,8 +510,8 @@ HTML;
             </p>
             
             <form id="upload_form" action="">
-            <input type="hidden" id="parent_id" value="<?php echo $gnnId; ?>">
-            <input type="hidden" id="parent_key" value="<?php echo $gnnKey; ?>">
+            <input type="hidden" id="parent_id" value="<?php echo $gnn_id; ?>">
+            <input type="hidden" id="parent_key" value="<?php echo $gnn_key; ?>">
 
             <h4>Set Neighborhood Parameters</h4>
             <p>

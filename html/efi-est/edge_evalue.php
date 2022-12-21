@@ -2,18 +2,22 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\est\stepa;
+use \efi\training\example_config;
+use \efi\sanitize;
 
 $has_html = true;
 
 if (!defined("MAIN_UI") || !isset($GenerateJob)) {
 
-    if (!isset($_GET["id"]) || !isset($_GET["key"])) {
+    $is_example = example_config::is_example();
+
+    $id = sanitize::validate_id("id", sanitize::GET);
+    $key = sanitize::validate_key("key", sanitize::GET);
+    if ($id === false || $key === false) {
         die("Invalid paramters.");
     }
-    $id = $_GET["id"];
-    $key = $_GET["key"];
 
-    $job = new stepa($db, $id);
+    $job = new stepa($db, $id, $is_example);
     
     if ($job->get_key() != $key) {
         die("Invalid key.");

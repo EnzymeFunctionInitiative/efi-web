@@ -6,6 +6,7 @@ use \efi\cgfp\settings;
 use \efi\cgfp\functions;
 use \efi\cgfp\identify;
 use \efi\user_auth;
+use \efi\sanitize;
 
 // settings class isn't used, so we get an error when loading global_settings because this file isn't loaded.
 require_once(__CGFP_CONF_DIR__."/settings.inc.php");
@@ -54,7 +55,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         }
     }
 
-    if (!functions::verify_email($_POST['email'])) {
+    if (!sanitize::post_sanitize_email("email")) {
         $valid = 0;
         $message .= "Please verify your e-mail address";
     }

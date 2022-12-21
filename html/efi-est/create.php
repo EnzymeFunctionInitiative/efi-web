@@ -36,30 +36,35 @@ if ($input->is_debug) {
 
 
 if (isset($_POST["email"])) {
-    $input->email = filter_var($_POST["email"], FILTER_VALIDATE_EMAIL);
+    $input->email = sanitize::post_sanitize_email("email");
 } else {
     if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie())
         $input->email = user_auth::get_email_from_token($db, user_auth::get_user_token());
 }
 
-$num_job_limit = global_settings::get_num_job_limit();
-$is_job_limited = user_jobs::check_for_job_limit($db, $input->email);
-
 $option = sanitize::post_sanitize_string("option_selected");
 $job_name = sanitize::post_sanitize_string("job-name");
 
-
+$is_error = false;
 if (!isset($_POST["submit"])) {
     $result["MESSAGE"] = "Form is invalid.";
+    $is_error = true;
 } else if (!isset($input->email) || !$input->email) {
     $result["MESSAGE"] = "Please enter an e-mail address.";
-} else if ($option != "colorssn" && $option != "cluster" && $option != "nc" && $option != "cr" && (!isset($job_name) || !$job_name)) {
+    $is_error = true;
+}
+
+$num_job_limit = global_settings::get_num_job_limit();
+$is_job_limited = user_jobs::check_for_job_limit($db, $input->email);
+
+
+if (!$is_error && $option != "colorssn" && $option != "cluster" && $option != "nc" && $option != "cr" && !$job_name) {
     $result["MESSAGE"] = "Job name is required.";
-} else if ($is_job_limited) {
+} else if (!$is_error && $is_job_limited) {
     $result["MESSAGE"] = "Due to finite computational resource constraints, you can only have $num_job_limit active or pending jobs within a 24 hour period.  Please try again when some of your jobs have completed.";
-} else if (isset($_POST["blast_input"]) && !preg_match("/\S/", $_POST["blast_input"])) {
+} else if (!$is_error && isset($_POST["blast_input"]) && !preg_match("/\S/", $_POST["blast_input"])) {
     $result["MESSAGE"] = "Please enter a valid BLAST sequence.";
-} else {
+} else if (!$is_error) {
     $result["RESULT"] = true;
 
     $message = "";
@@ -108,7 +113,7 @@ if (!isset($_POST["submit"])) {
 
             $result = $generate->create($input);
             break;
-        
+
         case "opt_tax":
             $generate = new efi\est\taxonomy_job($db);
 
@@ -136,8 +141,9 @@ if (!isset($_POST["submit"])) {
                 $result["RESULT"] = false;
             }
             else {
-                if (isset($_POST["accession_seq_type"]) && $_POST["accession_seq_type"] != "uniprot") {
-                    if ($_POST["accession_seq_type"] === "uniref50")
+                $accession_seq_type = sanitize::post_sanitize_string("accession_seq_type");
+                if (isset($accession_seq_type) && $accession_seq_type != "uniprot") {
+                    if ($accession_seq_type === "uniref50")
                         $input->uniref_version = "50";
                     else
                         $input->uniref_version = "90";
@@ -277,7 +283,8 @@ function set_family_vars($option, $input) {
     }
 
     $input->families = sanitize::post_sanitize_string_relaxed("families_input", "");
-    if (isset($_POST["families_use_uniref"]) && $_POST["families_use_uniref"] === "true" && !isset($input->uniref_version)) {
+    $use_uniref = sanitize::post_sanitize_flag("families_use_uniref");
+    if ($use_uniref && !isset($input->uniref_version)) {
         $input->uniref_version = sanitize::post_sanitize_num("families_uniref_ver", 90);
     }
 

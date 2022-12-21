@@ -6,6 +6,7 @@ require_once(__DIR__."/../../../init.php");
 use \efi\global_functions;
 use \efi\gnt\DiagramJob;
 use \efi\gnt\settings;
+use \efi\sanitize;
 
 
 class functions extends global_functions {
@@ -20,17 +21,6 @@ class functions extends global_functions {
         7 => 'Failed to write file to disk.',
         8 => 'File upload stopped by extension.',
     );
-
-    public static function verify_email($email) {
-        $email = strtolower($email);
-
-        $valid = 1;
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $valid = 0;
-        }
-        return $valid;
-
-    }
 
     public static function verify_neighborhood_size($nbSize) {
         $max_nbSize = 100;
@@ -381,19 +371,25 @@ class functions extends global_functions {
     public static function validate_direct_gnd_file($rs_id, $rs_ver, $key) {
         $matches = array();
         $gnd_file = false;
-        if (!preg_match("/^([A-Za-z0-9_\-]+)\-(\d+\.\d+)$/", $rs_ver, $matches))
+
+        if (!preg_match("/^(([A-Za-z0-9]+)\-)?(\d+\.\d+)$/", $rs_ver, $matches))
             return false;
+        $sp_name = $matches[2];
+        $sp_ver = $matches[3];
+
         $superfamily_dir = settings::get_superfamily_dir();
         if (!$superfamily_dir)
             return false;
-        $base_dir = "$superfamily_dir/" . $matches[1] . "/$rs_ver/gnds";
+
+        $base_dir = "$superfamily_dir/$sp_name/$rs_ver/gnds";
         $key_path = "$base_dir/gnd.key";
         if (!file_exists($key_path))
             return false;
+
         $file_key = file_get_contents($key_path);
         if ($file_key !== $key)
             return false;
-        
+
         $result = preg_match("/^(cluster-[\-\d]+):?(\d+)?$/", $rs_id, $matches);
         $dicing = false;
         if ($result) {

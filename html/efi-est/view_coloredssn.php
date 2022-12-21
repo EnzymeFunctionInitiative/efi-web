@@ -10,20 +10,24 @@ use \efi\est\job_factory;
 use \efi\est\functions;
 use \efi\est\colorssn;
 use \efi\training\example_config;
+use \efi\sanitize;
 
 
-if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
+
+$id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+
+if ($id === false || $key === false) {
     error500("Unable to find the requested job.");
+    exit;
 }
 
 
 $is_example = example_config::is_example();
-$obj = job_factory::create($db, $_GET['id'], $is_example); // Creates a color SSN or a cluster analysis job
+$obj = job_factory::create($db, $id, $is_example); // Creates a color SSN or a cluster analysis job
 
-$key = $obj->get_key();
-if ($key != $_GET['key']) {
-    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-    //echo "No EFI-EST Selected. Please go back";
+if ($key !== $obj->get_key()) {
+    error500("Unable to find the requested job.");
     exit;
 }
 
@@ -54,6 +58,8 @@ foreach ($metadata as $row) {
 
 $table_string = $table->as_string();
 
+$baseSsnName = $obj->get_colored_xgmml_filename_no_ext();
+
 if (isset($_GET["as-table"])) {
     $table_filename = functions::safe_filename($baseSsnName) . "_summary.txt";
 
@@ -77,7 +83,6 @@ $url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$obj->get_id(),
 $ex_param = $is_example ? "&x=".$is_example : "";
 $job_type = $obj->get_create_type();
 
-$baseSsnName = $obj->get_colored_xgmml_filename_no_ext();
 $ssnFile = $obj->get_colored_ssn_web_path();
 $ssnFileSize = format_file_size($obj->get_file_size($ssnFile));
 $ssnFileZip = $obj->get_colored_ssn_zip_web_path();

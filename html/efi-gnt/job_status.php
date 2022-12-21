@@ -3,6 +3,7 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\gnt\functions;
 use \efi\gnt\gnn;
+use \efi\sanitize;
 
 
 // If this is being run from the command line then we parse the command line parameters and put them into _POST so we can use
@@ -24,13 +25,13 @@ $show_error = false;
 $status = "";
 $files = array();
 
-if (!array_key_exists("id", $_GET) || !array_key_exists("key", $_GET)) {
+$gnn_id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+
+if ($gnn_id === false || $key === false) {
     $show_error = true;
 } else {
-    $gnn_id = $_GET["id"];
-    $key = $_GET["key"];
-
-    $sql = "SELECT gnn_status FROM gnn WHERE gnn_id = '" . $gnn_id . "'";
+    $sql = "SELECT gnn_status FROM gnn WHERE gnn_id = '$gnn_id' AND gnn_key = '$key'";
     $status_result = $db->query($sql);
     if (!$status_result) {
         $show_error = true;

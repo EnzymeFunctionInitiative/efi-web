@@ -9,6 +9,7 @@ use \efi\user_auth;
 use \efi\est\settings;
 use \efi\est\functions;
 use \efi\est\user_jobs;
+use \efi\sanitize;
 
 
 $user_email = "Enter your e-mail address";
@@ -17,14 +18,15 @@ $show_jobs_tab = false;
 $jobs = array();
 $tjobs = array(); // training jobs
 $IsAdminUser = false;
+$sort_method = user_jobs::SORT_TIME_COMPLETED;
 if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie()) {
-    $sort_method = user_jobs::SORT_TIME_COMPLETED;
-    if (isset($_GET["sb"]) && is_numeric($_GET["sb"])) {
-        if ($_GET["sb"] == user_jobs::SORT_TIME_ACTIVITY) {
+    $sb = sanitize::get_sanitize_num("sb");
+    if (isset($sb)) {
+        if ($sb == user_jobs::SORT_TIME_ACTIVITY) {
             $sort_method = user_jobs::SORT_TIME_ACTIVITY;
-        } else if ($_GET["sb"] == user_jobs::SORT_ID) {
+        } else if ($sb == user_jobs::SORT_ID) {
             $sort_method = user_jobs::SORT_ID;
-        } else if ($_GET["sb"] == user_jobs::SORT_ID_REVERSE) {
+        } else if ($sb == user_jobs::SORT_ID_REVERSE) {
             $sort_method = user_jobs::SORT_ID_REVERSE;
         }
     }
@@ -45,9 +47,11 @@ $db_modules = global_settings::get_database_modules();
 
 $update_msg = settings::get_update_message(); 
 
+$js_version = settings::get_js_version();
+
 $ShowCitation = true;
 $IncludeSubmitJs = true;
-$JsAdditional = array('<script src="js/mem_calc.js?v=1" type="text/javascript"></script>');
+$JsAdditional = array('<script src="js/mem_calc.js?v='.$js_version.'" type="text/javascript"></script>');
 require_once(__DIR__."/inc/header.inc.php");
 
 ?>
