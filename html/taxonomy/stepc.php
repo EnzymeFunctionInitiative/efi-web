@@ -11,18 +11,23 @@ use \efi\est\analysis;
 use \efi\est\dataset_shared;
 use \efi\est\functions;
 use \efi\training\example_config;
+use \efi\sanitize;
 
 
-if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
-    error500("Unable to find the requested job.");
+$id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+
+if ($id === false || $key === false) {
+    error_404();
+    exit;
 }
 
-$is_example = example_config::is_example();
-$generate = new stepa($db, $_GET['id'], $is_example);
-$gen_id = $generate->get_id();
-$key = $_GET['key'];
 
-if ($generate->get_key() != $_GET['key']) {
+$is_example = example_config::is_example();
+$generate = new stepa($db, $id, $is_example);
+$gen_id = $id;
+
+if ($generate->get_key() != $key) {
     error500("Unable to find the requested job.");
 }
 
@@ -116,7 +121,7 @@ $ex_param = $is_example ? "&x=$is_example" : "";
             <table width="100%" class="pretty no-stretch">
                 <?php echo $table_string; ?>
             </table>
-            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
+            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$id&key=$key&as-table=1" ?>'><button class="normal">Download Information</button></a></div>
             <div style="clear: both"></div>
         </div>
 
@@ -131,13 +136,14 @@ $ex_param = $is_example ? "&x=$is_example" : "";
 <?php
 
 for ($i = 0; $i < count($histo_info); $i++) {
-    $type = $histo_info[$i][2];
+    $type = $histo_info[$i][1];
+    $url = "graphs.php?id=$gen_id&type=len_hist&gtype=$type&key=$key$ex_param";
 ?>
     <div>
         <!--<div><?php echo $histo_info[$i][0]; ?></div>-->
         <div>
-            <img src="<?php echo $histo_info[$i][1]; ?>" /><br />
-            <a href='graphs.php?id=<?php echo $gen_id; ?>&type=<?php echo $type; ?>&key=<?php echo $key; ?><?php echo $ex_param; ?>'><button class='file_download'>Download high resolution <img src='../images/download.svg' /></button></a>
+            <img src="<?php echo $url; ?>" width="400" /><br />
+            <a href="<?php echo $url; ?>"><button class='file_download'>Download high resolution <img src='../images/download.svg' /></button></a>
         </div>
     </div>
 <?php

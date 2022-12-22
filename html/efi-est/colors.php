@@ -32,8 +32,7 @@ if (false) {//!isset($_POST["colors"])) {
         echo "<div class='color' style='background-color: ".$colors[$i]."'>".$i." ".$colors[$i]."</div>";
     }
 } else {
-    //    $colors = preg_split('/[\r\n]+/', $_POST["colors"]);
-    $lines = file("/home/groups/efi/databases/support/colors.tab");
+    $lines = file(__DIR__."/colors.tab");
     for ($i = 0; $i < count($lines); $i++) {
         $parts = explode("\t", $lines[$i]);
         echo "<div class='color' style='background-color: $parts[1]'>$parts[0] $parts[1] </div>";

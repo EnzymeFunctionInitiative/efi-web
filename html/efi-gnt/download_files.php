@@ -1,25 +1,38 @@
-<?php
-require_once(__DIR__."/../../init.php");
-
+<?php require_once(__DIR__."/../../init.php"); 
 use \efi\gnt\settings;
 use \efi\gnt\gnn;
 use \efi\gnt\diagram_data_file;
 use \efi\gnt\diagram_jobs;
+use \efi\training\example_config;
+use \efi\sanitize;
+use \efi\send_file;
 
+
+// This is for GNDs only
+
+
+$is_example = example_config::is_example();
 
 $is_error = false;
 $db_file = "";
 $arrows = NULL;
-$id = "";
 $is_gnn = false;
 $gnd_output_dir = settings::get_rel_output_dir();
 
-if (isset($_GET["gnn-id"]) && is_numeric($_GET["gnn-id"])) {
-    $id = $_GET["gnn-id"];
-    $gnn = new gnn($db, $id);
+$gnn_id = sanitize::validate_id("gnn-id", sanitize::GET);
+$direct_id = sanitize::validate_id("direct-id", sanitize::GET);
+$upload_id = sanitize::validate_id("upload-id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+$type = sanitize::get_sanitize_string("type");
+
+$id = 0;
+
+if ($gnn_id !== false) {
+    $id = $gnn_id;
+    $gnn = new gnn($db, $gnn_id, $is_example);
     $is_gnn = true;
 
-    if ($gnn->get_key() != $_GET["key"]) {
+    if ($gnn->get_key() != $key) {
         $is_error = true;
     }
     elseif ($gnn->is_expired()) {
@@ -31,15 +44,15 @@ if (isset($_GET["gnn-id"]) && is_numeric($_GET["gnn-id"])) {
         $db_file = $gnn->get_diagram_data_file_legacy();
     $arrows = $gnn; // gnn class has shared API to diagram_data_file class for the purposes of this functionality
 }
-elseif (isset($_GET["direct-id"]) && is_numeric($_GET["direct-id"])) {
-    $id = $_GET["direct-id"];
-    $arrows = get_arrow_db($db, $id);
+elseif ($direct_id !== false) {
+    $id = $direct_id;
+    $arrows = get_arrow_db($db, $direct_id, $is_example);
     $db_file = $arrows->get_diagram_data_file();
     $gnd_output_dir = settings::get_rel_diagram_output_dir();
 }
-elseif (isset($_GET["upload-id"]) && is_numeric($_GET["upload-id"])) {
-    $id = $_GET["upload-id"];
-    $arrows = get_arrow_db($db, $id);
+elseif ($upload_id !== false) {
+    $id = $upload_id;
+    $arrows = get_arrow_db($db, $upload_id, $is_example);
     $db_file = $arrows->get_diagram_data_file();
     $gnd_output_dir = settings::get_rel_diagram_output_dir();
 }
@@ -51,12 +64,10 @@ if ($is_error) {
     error404();
 }
 
-if (isset($_GET["type"])) {
-    $type = $_GET["type"];
-
+if (isset($type)) {
     if ($type == "data-file") {
-        $dl_filename = pathinfo($db_file, PATHINFO_FILENAME) . ".sqlite";
-        header("Location: $gnd_output_dir/$id/$dl_filename");
+        $dl_filename = "${id}_${gnn_name}.sqlite";
+        send_file::send($db_file, $dl_filename);
         exit(0);
     } elseif ($arrows === NULL) {
         $is_error = true;
@@ -68,33 +79,27 @@ if (isset($_GET["type"])) {
         foreach ($ids as $upId => $otherId) {
             $content .= "$upId\t$otherId\n";
         }
-        #$content = implode("\n", $ids);
-        send_headers($dl_filename, strlen($content));
-        print $content;
+        send_file::send_text($dl_filename, $content, send_file::SEND_FILE_BINARY);
         exit(0);
     } elseif ($is_gnn == false && $type == "unmatched") {
         $gnn_name = $arrows->get_gnn_name();
         $dl_filename = "${id}_${gnn_name}_Unmatched_IDs.txt";
         $ids = $arrows->get_unmatched_ids();
         $content = implode("\n", $ids);
-        send_headers($dl_filename, strlen($content));
-        print $content;
+        send_file::send_text($dl_filename, $content, send_file::SEND_FILE_BINARY);
         exit(0);
     } elseif ($is_gnn == false && $type == "blast") {
         $gnn_name = $arrows->get_gnn_name();
         $dl_filename = "${id}_${gnn_name}_BLAST_Sequence.txt";
         $content = $arrows->get_blast_sequence();
-        send_headers($dl_filename, strlen($content));
-        print $content;
+        send_file::send_text($dl_filename, $content, send_file::SEND_FILE_BINARY);
         exit(0);
     } elseif ($type == "bigscape") {
         $cluster_file = $arrows->get_bigscape_cluster_file();
         if ($cluster_file !== FALSE) {
             $gnn_name = $arrows->get_gnn_name();
             $dl_filename = "${id}_${gnn_name}_BiG-SCAPE_clusters.txt";
-            $content_size = filesize($cluster_file);
-            send_headers($dl_filename, $content_size);
-            readfile($cluster_file);
+            send_file::send($cluster_file, $dl_filename);
             exit(0);
         }
     } else {
@@ -110,31 +115,19 @@ if ($is_error) {
 
 
 
-function send_headers($dl_filename, $content_size) {
-    header('Content-Description: File Transfer');
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="' . $dl_filename . '"');
-    header('Content-Transfer-Encoding: binary');
-    header('Connection: Keep-Alive');
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-    header('Pragma: public');
-    header('Content-Length: ' . $content_size);
-    ob_clean();
-}
 
 
 
 
 
 
-
-function get_arrow_db($db, $id) {
-    $arrows = new diagram_data_file($id);
-    $key = diagram_jobs::get_key($db, $id);
+function get_arrow_db($db, $id, $key, $is_example) {
+    //TODO: handle is_example
+    $arrows = new diagram_data_file($id, $is_example);
+    $dkey = diagram_jobs::get_key($db, $id, $is_example);
     $time_comp = diagram_jobs::get_time_completed($db, $id);
 
-    if ($key != $_GET["key"]) {
+    if ($key === false || $key != $dkey) {
         $is_error = true;
     }
     elseif (!$arrows->is_loaded()) {

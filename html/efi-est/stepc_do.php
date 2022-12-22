@@ -13,20 +13,22 @@ use \efi\est\plots;
 use \efi\est\functions;
 use \efi\est\settings;
 use \efi\training\example_config;
+use \efi\sanitize;
 
 
-if (!isset($_POST['id']) || !is_numeric($_POST['id'])) {
-    echo json_encode(array("valid" => false));
+$job_id = sanitize::validate_id("id", sanitize::POST);
+$key = sanitize::validate_key("key", sanitize::POST);
+
+if ($job_id === false || $key === false) {
+    error_404();
     exit;
 }
 
 $is_example = example_config::is_example();
-$generate = new stepa($db, $_POST['id'], $is_example);
-$gen_id = $generate->get_id();
-$key = $_POST['key'];
+$generate = new stepa($db, $job_id, $is_example);
 
 $result = array("valid" => true, "message" => "");
-if ($generate->get_key() != $_POST['key']) {
+if ($generate->get_key() != $key) {
     $result["valid"] = false;
     $result["message"] = "Invalid identifier";
 }
@@ -57,40 +59,31 @@ foreach ($_POST as $key => $var) {
     }
 }
 
-$min = $_POST['minimum'];
-if ($_POST['minimum'] == "") {
-    $min = __MINIMUM__;
-}
-$max = $_POST['maximum'];
-if ($_POST['maximum'] == "") {
-    $max = __MAXIMUM__;
-}
-
-$job_id = $_POST['id'];
+$min = sanitize::post_sanitize_num("minimum", __MINIMUM__);
+$max = sanitize::post_sanitize_num("maximum", __MAXIMUM__);
 
 $analysis = new analysis($db);
 
-$customFile = "";
+$custom_file = "";
 if (isset($_FILES['cluster_file']) && (!isset($_FILES['cluster_file']['error']) || $_FILES['cluster_file']['error'] == 0)) {
-    $customFile = $_FILES['cluster_file']['tmp_name'];
+    $custom_file = $_FILES['cluster_file']['tmp_name'];
 }
 
-$filter = "";
+$filter = sanitize::post_sanitize_string("filter");
 $filter_value = 0;
-if (isset($_POST['filter'])) {
-    $filter = $_POST['filter'];
+if (isset($filter)) {
     if ($filter == "eval") {
-        $filter_value = $_POST['evalue'];
+        $filter_value = sanitize::post_sanitize_num("evalue", 0);
     } elseif ($filter == "pid") {
-        $filter_value = $_POST['pid'];
+        $filter_value = sanitize::post_sanitize_num("pid", 0);
     } elseif ($filter == "bit") {
-        $filter_value = $_POST['bitscore'];
+        $filter_value = sanitize::post_sanitize_num("bitscore", 0);
     } elseif ($filter != "custom") {
         $filter = "eval";
     }
 } else {
     $filter = "eval";
-    $filter_value = $_POST['evalue'];
+    $filter_value = sanitize::post_sanitize_num("evalue", 0);
 }
 
 if (user_auth::has_token_cookie()) {
@@ -111,31 +104,34 @@ if (user_auth::has_token_cookie()) {
     }
 }
 
-$cdhitOpt = "";
+$cdhit_opt = "";
 if (functions::custom_clustering_enabled() && isset($_POST["cdhit-opt"])) {
-    $opt = $_POST["cdhit-opt"];
+    $opt = sanitize::post_sanitize_string("cdhit-opt", "");
     if ($opt == "sb" || $opt == "est" || $opt == "est+")
-        $cdhitOpt = $opt;
+        $cdhit_opt = $opt;
 }
 
-$min_node_attr = isset($_POST['min_node_attr']) ? 1 : 0;
-$min_edge_attr = isset($_POST['min_edge_attr']) ? 1 : 0;
-$compute_nc = isset($_POST['compute_nc']) ? true : false;
-$remove_fragments = isset($_POST['remove_fragments']) ? true : false;
+$min_node_attr = sanitize::post_is_set("min_node_attr") ? 1 : 0;
+$min_edge_attr = sanitize::post_is_set("min_edge_attr") ? 1 : 0;
+$compute_nc = sanitize::post_is_set("compute_nc") ? true : false;
+$remove_fragments = sanitize::post_is_set("remove_fragments") ? true : false;
 $default_build_repnode = settings::get_create_repnode_networks();
-$build_repnode = isset($_POST['build_repnode']) ? true : $default_build_repnode;
+$build_repnode = sanitize::post_is_set("build_repnode") ? true : $default_build_repnode;
 
+#TODO: 
 $tax_search = isset($_POST['tax_search']) ? $_POST['tax_search'] : false;
 $tax_name = ($tax_search !== false && isset($_POST['tax_name']) && $_POST['tax_name']) ? $_POST['tax_name'] : "";
+
+$network_name = sanitize::post_sanitize_string("network_name", "");
 
 $job_result = $analysis->create(
     $job_id,
     $filter_value,
-    $_POST['network_name'],
+    $network_name,
     $min,
     $max,
-    $customFile,
-    $cdhitOpt,
+    $custom_file,
+    $cdhit_opt,
     $filter,
     $min_node_attr,
     $min_edge_attr,

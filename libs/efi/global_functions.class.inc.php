@@ -12,7 +12,8 @@ class global_functions {
         $hash = sha1($key);
         return $hash;
     }
-    
+
+    //TODO: check extension and file contents
     public static function copy_to_uploads_dir($tmp_file, $uploaded_filename, $id, $prefix = "", $forceExtension = "") {
         $uploads_dir = global_settings::get_uploads_dir();
 
@@ -172,8 +173,9 @@ class global_functions {
         return "$id/$out_dir";
     }
 
+    // This is the file name that the user sees (not necessarily the file as it appears on disk).
     public static function get_est_colorssn_filename($id, $filename, $include_ext = true) {
-        $suffix = defined("__EST_COLORSSN_SUFFIX__") ? __EST_COLORSSN_SUFFIX__ : "_coloredssn";
+        $suffix = global_settings::get_est_colorssn_suffix();
         $parts = pathinfo($filename);
         if (substr_compare($parts['filename'], ".xgmml", -strlen(".xgmml")) === 0) { // Ends in .zip
             $parts = pathinfo($parts['filename']);
@@ -203,12 +205,13 @@ class global_functions {
             $params = self::decode_object($result["analysis_params"]);
             $tax_search = (isset($params["tax_search_hash"]) && $params["tax_search_hash"]) ? "-" . $params["tax_search_hash"] : "";
             $nc_suffix = (isset($params["compute_nc"]) && $params["compute_nc"] === true) ? "-nc" : "";
+            $nf_suffix = (isset($params["remove_fragments"]) && $params["remove_fragments"] === true) ? "-nf" : "";
             $info["generate_id"] = $result["analysis_generate_id"];
             $info["analysis_id"] = $est_id;
             $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
                                     $result["analysis_evalue"] . "-" .
                                     $result["analysis_min_length"] . "-" .
-                                    $result["analysis_max_length"] . $tax_search . $nc_suffix;
+                                    $result["analysis_max_length"] . $tax_search . $nc_suffix . $nf_suffix;
             return $info;
         } else {
             return false;
@@ -261,55 +264,6 @@ class global_functions {
             return false;
         }
     }
-
-    public static function send_image_file_for_download($filename, $full_path) {
-        self::send_headers($filename, filesize($full_path));
-        self::send_file($full_path);
-        //header('Content-Description: File Transfer');
-        //header('Content-Type: application/octet-stream');
-        //header('Content-Disposition: attachment; filename="'.$filename.'"');
-        //header('Content-Transfer-Encoding: binary');
-        //header('Connection: Keep-Alive');
-        //header('Expires: 0');
-        //header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        //header('Pragma: public');
-        //header('Content-Length: ' . filesize($full_path));
-        //ob_clean();
-        //readfile($full_path);
-    }
-
-    public static function send_headers($filename, $filesize, $type = "application/octet-stream") {
-        header('Pragma: public');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Cache-Control: private', false);
-        header('Content-Description: File Transfer');
-        header('Content-Transfer-Encoding: binary');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-        header('Content-Type: ' . $type);
-        header('Content-Length: ' . $filesize);
-    }
-    public static function send_file($file) {
-        $handle = fopen($file, 'rb');
-        self::send_file_handle($handle);
-        fclose($handle);
-    }
-    public static function send_file_handle($handle) {
-        $chunkSize = 1024 * 1024;
-        while (!feof($handle)) {
-            $buffer = fread($handle, $chunkSize);
-            echo $buffer;
-            ob_flush();
-            flush();
-        }
-    }
-
-    public static function validate_id($id) {
-        if (!isset($id) || !is_numeric($id))
-            return false;
-        else
-            return true;
-    }
 }
 
-?>
+

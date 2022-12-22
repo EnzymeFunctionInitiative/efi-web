@@ -89,8 +89,9 @@ $year_html .= "</select>";
 
 <br>
 <hr>
-<?php echo $graph_image; ?>
+<?php
 
+echo $graph_image;
 
-<?php require_once(__DIR__."/inc/stats_footer.inc.php'; ?>
+require_once(__DIR__."/inc/stats_footer.inc.php");
 

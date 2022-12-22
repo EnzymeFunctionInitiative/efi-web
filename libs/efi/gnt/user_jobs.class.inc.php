@@ -109,7 +109,7 @@ class user_jobs extends user_auth {
                 $title = "<i>Untitled</i>";
             
             $theDate = $row["diagram_time_completed"];
-            if (substr($theDate, 0, 4) == "0000") {
+            if (!$theDate || substr($theDate, 0, 4) == "0000") {
                 $theDate = $row["diagram_status"]; // "RUNNING";
                 if ($theDate == "NEW")
                     $theDate = "PENDING";

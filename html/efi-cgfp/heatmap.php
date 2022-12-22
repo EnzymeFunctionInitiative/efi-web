@@ -3,6 +3,7 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\global_settings;
 use \efi\training\example_config;
+use \efi\sanitize;
 
 $is_example = example_config::is_example();
 if ($is_example) {
@@ -10,6 +11,29 @@ if ($is_example) {
 } else {
     $is_example = "false";
 }
+
+$filename = "";
+if (isset($_GET["filename"])) {
+    $filename = pathinfo(global_functions::safe_filename($_GET["filename"]), PATHINFO_FILENAME);
+}
+
+$id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+$qid = sanitize::get_sanitize_num("quanitfy-id", sanitize::GET, 0);
+
+$res_type = sanitize::get_sanitize_string("res", "");
+$ref_db = sanitize::get_sanitize_string("ref-db", "");
+$search_type = sanitize::get_sanitize_string("search-type", "");
+$diamond_sens = sanitize::get_sanitize_string("d-senst", "");
+$cdhit_sid = sanitize::get_sanitize_string("cdhit-sid", "");
+
+$width = sanitize::get_sanitize_num("w", sanitize::GET, 950);
+
+if ($id === false || $key === false) {
+    error_404();
+    exit;
+}
+
 
 ?>
 <!DOCTYPE html>
@@ -66,12 +90,12 @@ if ($is_example) {
 <script>
 $(document).ready(function() {
 
-    var width = <?php echo (isset($_GET["w"]) && is_numeric($_GET["w"])) ? $_GET["w"] : 950; ?>;
+    var width = <?php echo $width; ?>;
     width = width > 1000 ? 1000 : width < 600 ? 600 : width;
 
     var data = {
         Width: width,
-<?php if (isset($_GET["example"])) { ?>
+<?php if ($is_example) { ?>
         StaticExample: true,
         Id: 0,
         Key: 0,
@@ -79,16 +103,16 @@ $(document).ready(function() {
 <?php } else { ?>
         StaticExample: false,
         DynamicExample: <?php echo $is_example; ?>,
-        Id: "<?php echo $_GET["id"]; ?>",
-        Key: "<?php echo $_GET["key"]; ?>",
-        QuantifyId: <?php echo(isset($_GET["quantify-id"]) ? $_GET["quantify-id"] : 0); ?>,
+        Id: "<?php echo $id; ?>",
+        Key: "<?php echo $key; ?>",
+        QuantifyId: <?php echo $qid; ?>,
 <?php } ?>
-        ResType: "<?php echo $_GET["res"]; ?>",
-        RefDb: "<?php echo (isset($_GET["ref-db"]) ? $_GET["ref-db"] : ""); ?>",
-        SearchType: "<?php echo (isset($_GET["search-type"]) ? $_GET["search-type"] : ""); ?>",
-        FileName: "<?php echo (isset($_GET["filename"]) ? $_GET["filename"] : ""); ?>",
-        DiamondSens: "<?php echo (isset($_GET["d-sens"]) ? $_GET["d-sens"] : ""); ?>",
-        CdHitSid: "<?php echo (isset($_GET["cdhit-sid"]) ? $_GET["cdhit-sid"] : ""); ?>",
+        ResType: "<?php echo $res_type; ?>",
+        RefDb: "<?php echo $ref_db; ?>",
+        SearchType: "<?php echo $search_type; ?>",
+        FileName: "<?php echo $filename; ?>",
+        DiamondSens: "<?php echo $diamond_sense; ?>",
+        CdHitSid: "<?php echo $cdhit_sid; ?>",
     };
 
     var useBoxplots = false; //<?php echo (global_settings::advanced_options_enabled() ? "true" : "false"); ?>;

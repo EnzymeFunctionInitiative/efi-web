@@ -48,5 +48,10 @@ class settings extends settings_shared {
     public static function get_create_repnode_networks() {
         return defined("__DEFAULT_CREATE_REPNODE_NETWORKS__") ? __DEFAULT_CREATE_REPNODE_NETWORKS__ : true;
     }
+
+    public static function get_js_version() {
+        return defined("__JS_VERSION__") ? __JS_VERSION__ : "";
+    }
+
 }
 

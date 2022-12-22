@@ -6,6 +6,7 @@ use \efi\gnt\functions;
 use \efi\gnt\bigscape_job;
 use \efi\gnt\gnd_params;
 use \efi\training\example_config;
+use \efi\sanitize;
 
 include(__DIR__."/inc/gnd_make_params.inc.php");
 include(__DIR__."/inc/gnd_misc.inc.php");
@@ -31,23 +32,32 @@ $P->supports_download = true;
 $P->supports_export = true;
 $show_new_features = false;
 
-if ((isset($_GET['gnn-id'])) && (is_numeric($_GET['gnn-id']))) {
-    if (get_gnn_params($db, $P) !== true)
+$key = sanitize::validate_key("key", sanitize::GET);
+$gnn_id = sanitize::validate_id("gnn-id", sanitize::GET);
+$upload_id = sanitize::validate_id("upload-id", sanitize::GET);
+$direct_id = sanitize::validate_id("direct-id", sanitize::GET);
+$mode = sanitize::get_sanitize_string("mode", "");
+
+if ($gnn_id !== false) {
+    if ($key === false || get_gnn_params($db, $P, $gnn_id, $key) !== true)
         error_404();
-} else if (isset($_GET['upload-id']) && functions::is_diagram_upload_id_valid($_GET['upload-id'])) {
-    if (get_upload_params($db, $P) !== true)
+} else if ($upload_id !== false && functions::is_diagram_upload_id_valid($upload_id)) {
+    if (get_upload_params($db, $P, $upload_id, $key) !== true)
         error_404();
-} else if ((isset($_GET['direct-id']) && functions::is_diagram_upload_id_valid($_GET['direct-id'])) || (isset($_GET["rs-id"]) && isset($_GET["rs-ver"]))) {
-    if (get_direct_params($db, $P) !== true)
+} else if ($direct_id !== false && functions::is_diagram_upload_id_valid($direct_id)) {
+    if (get_direct_params($db, $P, $direct_id, $key) !== true)
         error_404();
-} else if (isset($_GET['mode']) && $_GET['mode'] == "rt") {
+} else if (isset($_GET["rs-id"]) && isset($_GET["rs-ver"])) {
+    if (get_direct_params_rs($db, $P, $_GET["rs-id"], $_GET["rs-ver"], $key) !== true)
+        error_404();
+} else if ($mode == "rt") {
     get_realtime_params($db, $P);
 } else {
     error404();
 }
 
-$uniref_version = isset($_GET['id-type']) ? $_GET['id-type'] : "";
-$uniref_id = isset($_GET['uniref-id']) ? $_GET['uniref-id'] : "";
+$uniref_version = sanitize::get_sanitize_string("id-type", "");
+$uniref_id = sanitize::get_sanitize_string("uniref-id", "");
 if ($uniref_version && $uniref_id)
     $P->is_direct_job = true;
 
@@ -61,7 +71,7 @@ if ($P->is_bigscape_enabled) {
     $P->bigscape_modal_close_text = $P->bigscape_status === bigscape_job::STATUS_RUNNING ? "Close" : "No";
 }
 
-$js_version = "?v=14";
+$js_version = settings::get_js_version();
 
 ?>
 
@@ -84,7 +94,7 @@ $js_version = "?v=14";
 
 
         <!-- Custom styles for this template -->
-        <link href="css/diagrams.css?v=2" rel="stylesheet">
+        <link href="css/diagrams.css?v=<?php echo $js_version; ?>" rel="stylesheet">
         <link href="css/alert.css" rel="stylesheet">
 <!--
         <script src="js/app.js" type="application/javascript"></script>
@@ -186,21 +196,21 @@ $js_version = "?v=14";
         <!-- Bootstrap Core JavaScript -->
         <script src="<?php echo $SiteUrlPrefix; ?>/vendor/twbs/bootstrap/dist/js/bootstrap.min.js"></script>
 
-        <script src="js/gnd/color.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/control.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/data.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/filter.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/http.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/message.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/popup.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/ui.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/vars.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/view.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/ui-filter.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/app-specific.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/svg-util.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/gnd/uniref.js<?php echo $js_version; ?>" content-type="text/javascript"></script>
-        <script src="js/bigscape.js?v=2" content-type="text/javascript"></script>
+        <script src="js/gnd/color.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/control.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/data.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/filter.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/http.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/message.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/popup.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/ui.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/vars.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/view.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/ui-filter.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/app-specific.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/svg-util.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/gnd/uniref.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
+        <script src="js/bigscape.js?v=<?php echo $js_version; ?>" content-type="text/javascript"></script>
         <script type="application/javascript">
             $(document).ready(function() {
                 $("#filter-cb-toggle").prop("checked", false);

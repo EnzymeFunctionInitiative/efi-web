@@ -5,6 +5,7 @@ use \efi\est\functions;
 use \efi\est\stepa;
 use \efi\est\colorssn;
 use \efi\est\cluster_analysis;
+use \efi\sanitize;
 
 
 // If this is being run from the command line then we parse the command line parameters and put them into _POST so we can use
@@ -24,23 +25,24 @@ if ($debug) {
 
 $show_error = false;
 $gen_id = "";
-$ans_id = "";
+$analysis_id = "";
 $status = "";
 $sql = "";
 $init_url = "";
-$ans_url = "";
+$analysis_url = "";
 $details = "";
 
-if (!array_key_exists("id", $_GET) || !array_key_exists("key", $_GET)) {
-    $show_error = true;
-}
-else {
-    $gen_id = $_GET["id"];
-    $key = $_GET["key"];
-    if (array_key_exists("analysis_id", $_GET))
-        $ans_id = $_GET["analysis_id"];
 
-    $job_status = functions::get_job_status($db, $gen_id, $ans_id, $key);
+$gen_id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+
+if ($gen_id === false || $key === false) {
+    $show_error = true;
+} else {
+    $analysis_id = sanitize::validate_id("analysis_id", sanitize::GET);
+
+    $job_status = functions::get_job_status($db, $gen_id, $analysis_id, $key);
+
     if (!$job_status) {
         $show_error = true;
     }
@@ -88,7 +90,7 @@ else {
             else {
                 $status = "has completed the initial processing";
                 $init_url = "stepc.php?";
-                $ans_url = "";
+                $analysis_url = "";
                 if ($ans_status) {
                     if ($ans_status == __FAILED__) {
                         $status .= " but the SSN failed to generate";
@@ -101,7 +103,7 @@ else {
                     }
                     else {
                         $status .= " and the SSN has been created";
-                        $ans_url = "stepe.php?analysis_id=" . $ans_id . "&key=" . $key . "&id=" . $gen_id;
+                        $analysis_url = "stepe.php?analysis_id=$analysis_id&key=$key&id=$gen_id";
                     }
                 }
             }
@@ -113,7 +115,7 @@ else {
 
 if ($debug) {
     print "Generate ID: $gen_id\n";
-    print "Analysis ID: $ans_id\n";
+    print "Analysis ID: $analysis_id\n";
     print "Status: $status\n";
     print "$sql\n";
     exit;
@@ -145,8 +147,8 @@ include_once 'inc/header.inc.php';
     <p>Access initial calculation results <a href="<?php echo $init_url; ?>">here</a>.</p>
 <?php } ?>
     <p>&nbsp;</p>
-<?php if ($ans_url) { ?>
-    <p>Access analysis results <a href="<?php echo $ans_url; ?>">here</a>.</p>
+<?php if ($analysis_url) { ?>
+    <p>Access analysis results <a href="<?php echo $analysis_url; ?>">here</a>.</p>
 <?php } ?>
 	<p></p>
     <p>&nbsp;</p>

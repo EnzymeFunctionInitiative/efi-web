@@ -10,20 +10,25 @@ use \efi\est\job_factory;
 use \efi\est\functions;
 use \efi\est\colorssn;
 use \efi\training\example_config;
+use \efi\sanitize;
+use \efi\file_types;
 
 
-if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
+
+$id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+
+if ($id === false || $key === false) {
     error500("Unable to find the requested job.");
+    exit;
 }
 
 
 $is_example = example_config::is_example();
-$obj = job_factory::create($db, $_GET['id'], $is_example); // Creates a color SSN or a cluster analysis job
+$obj = job_factory::create($db, $id, $is_example); // Creates a color SSN or a cluster analysis job
 
-$key = $obj->get_key();
-if ($key != $_GET['key']) {
-    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-    //echo "No EFI-EST Selected. Please go back";
+if ($key !== $obj->get_key()) {
+    error500("Unable to find the requested job.");
     exit;
 }
 
@@ -54,6 +59,8 @@ foreach ($metadata as $row) {
 
 $table_string = $table->as_string();
 
+$baseSsnName = $obj->get_colored_xgmml_filename_no_ext();
+
 if (isset($_GET["as-table"])) {
     $table_filename = functions::safe_filename($baseSsnName) . "_summary.txt";
 
@@ -77,223 +84,112 @@ $url = $_SERVER['PHP_SELF'] . "?" . http_build_query(array('id'=>$obj->get_id(),
 $ex_param = $is_example ? "&x=".$is_example : "";
 $job_type = $obj->get_create_type();
 
-$baseSsnName = $obj->get_colored_xgmml_filename_no_ext();
-$ssnFile = $obj->get_colored_ssn_web_path();
-$ssnFileSize = format_file_size($obj->get_file_size($ssnFile));
-$ssnFileZip = $obj->get_colored_ssn_zip_web_path();
-$ssnFileZipSize = format_file_size($obj->get_file_size($ssnFileZip));
 
-$fileInfo = array();
+$file_info = array();
 $hmm_graphics = "";
 $weblogo_graphics = "";
 $lenhist_graphics = "";
 $alignment_list = "";
 $cr_list = "";
-$logo_graphics_dir = "";
 $num_map = "";
-$hmmZipFileList = array();
-    
+
+$hmm_zip_file_list = array();
+$weblogo_zip_file_list = array();
+$msa_zip_file_list = array();
+$pim_zip_file_list = array();
+
+
+$dl_base = "download.php?id=$est_id&key=$key&" . ($is_example ? "x=$is_example&" : "");
+
+$ssn_file_zip = "";
+$ssn_file_zip_size = 0;
+
 if ($job_type === "NBCONN") {
-    $dl_base = "download.php?dl=NBCONN&id=$est_id&key=$key$ex_param";
-    $ssnFileZip = "$dl_base&ft=ssn";
-    array_push($fileInfo, array(""));
-    array_push($fileInfo, array("Neighborhood Connectivity Color Scale (PNG)", "$dl_base&ft=legend", 0));
-    array_push($fileInfo, array("Neighborhood Connectivity Table", "$dl_base&ft=nc", 0));
+    $dl_base .= "dl=nbconn&";
+    array_push($file_info, array(""));
+    array_push($file_info, array("Neighborhood Connectivity Color Scale (PNG)", file_types::FT_nc_legend, 0));
+    array_push($file_info, array("Neighborhood Connectivity Table", file_types::FT_nc_table, 0));
+
+    $ssn_file_zip_size = format_file_size($obj->get_file_size(file_types::FT_ssn));
+    $ssn_file_zip = $dl_base . "ft=" . file_types::FT_ssn;
 } else if ($job_type === "CONVRATIO") {
-    $dl_base = "download.php?dl=CONVRATIO&id=$est_id&key=$key$ex_param";
-    array_push($fileInfo, array(""));
-    array_push($fileInfo, array("Convergence Ratio Table", "$dl_base&ft=tab", 0));
+    $dl_base .= "dl=convratio&";
+    array_push($file_info, array(""));
+    array_push($file_info, array("Convergence Ratio Table", file_types::FT_cr_table, 0));
 } else {
     $want_clusters_file = true;
     $want_singles_file = false;
-    $uniprotNodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIPROT);
-    $uniprotNodeFilesZipSize = format_file_size($obj->get_file_size($uniprotNodeFilesZip));
-    $uniprotDomainNodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIPROT);
-    $uniprotDomainNodeFilesZipSize = format_file_size($obj->get_file_size($uniprotDomainNodeFilesZip));
-    $uniref50NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIREF50);
-    $uniref50NodeFilesZipSize = format_file_size($obj->get_file_size($uniref50NodeFilesZip));
-    $uniref50DomainNodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIREF50);
-    $uniref50DomainNodeFilesZipSize = format_file_size($obj->get_file_size($uniref50DomainNodeFilesZip));
-    $uniref90NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIREF90);
-    $uniref90NodeFilesZipSize = format_file_size($obj->get_file_size($uniref90NodeFilesZip));
-    $uniref90DomainNodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIREF90);
-    $uniref90DomainNodeFilesZipSize = format_file_size($obj->get_file_size($uniref90DomainNodeFilesZip));
-    $fastaFilesUniProtZip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIPROT);
-    $fastaFilesUniProtZipSize = format_file_size($obj->get_file_size($fastaFilesUniProtZip));
-    $fastaFilesUniProtDomainZip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIPROT);
-    $fastaFilesUniProtDomainZipSize = format_file_size($obj->get_file_size($fastaFilesUniProtDomainZip));
-    $fastaFilesUniRef90Zip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIREF90);
-    $fastaFilesUniRef90ZipSize = format_file_size($obj->get_file_size($fastaFilesUniRef90Zip));
-    $fastaFilesUniRef90DomainZip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIREF90);
-    $fastaFilesUniRef90DomainZipSize = format_file_size($obj->get_file_size($fastaFilesUniRef90DomainZip));
-    $fastaFilesUniRef50Zip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_UNIREF50);
-    $fastaFilesUniRef50ZipSize = format_file_size($obj->get_file_size($fastaFilesUniRef50Zip));
-    $fastaFilesUniRef50DomainZip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_DOMAIN, colorssn::SEQ_UNIREF50);
-    $fastaFilesUniRef50DomainZipSize = format_file_size($obj->get_file_size($fastaFilesUniRef50DomainZip));
-    $tableFile = $obj->get_table_file_web_path();
-    $tableFileSize = format_file_size($obj->get_file_size($tableFile));
-    $tableFileDomain = $obj->get_table_file_web_path(true); // true = for domain file
-    $tableFileDomainSize = format_file_size($obj->get_file_size($tableFileDomain));
-    $statsFile = $obj->get_stats_web_path();
-    $statsFileSize = format_file_size($obj->get_file_size($statsFile));
-    $clusterSizesFile = $obj->get_cluster_sizes_web_path();
-    $clusterSizesFileSize = format_file_size($obj->get_file_size($clusterSizesFile));
-    $convRatioFile = $obj->get_convergence_ratio_web_path();
-    $convRatioFileSize = format_file_size($obj->get_file_size($convRatioFile));
-    $swissprotClustersDescFile = $obj->get_swissprot_desc_web_path($want_clusters_file);
-    $swissprotClustersDescFileSize = format_file_size($obj->get_file_size($swissprotClustersDescFile));
-    $swissprotSinglesDescFile = $obj->get_swissprot_desc_web_path($want_singles_file);
-    $swissprotSinglesDescFileSize = format_file_size($obj->get_file_size($swissprotSinglesDescFile));
-    
-    $efiRef70NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_EFIREF70);
-    $efiRef70NodeFilesZipSize = format_file_size($obj->get_file_size($efiRef70NodeFilesZip));
-    $efiRef50NodeFilesZip = $obj->get_node_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_EFIREF50);
-    $efiRef50NodeFilesZipSize = format_file_size($obj->get_file_size($efiRef50NodeFilesZip));
-    $fastaFilesEfiRef70Zip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_EFIREF70);
-    $fastaFilesEfiRef70ZipSize = format_file_size($obj->get_file_size($fastaFilesEfiRef70Zip));
-    $fastaFilesEfiRef50Zip = $obj->get_fasta_files_zip_web_path(colorssn::SEQ_NO_DOMAIN, colorssn::SEQ_EFIREF50);
-    $fastaFilesEfiRef50ZipSize = format_file_size($obj->get_file_size($fastaFilesEfiRef50Zip));
 
-    $uniprotText = ($fastaFilesUniRef90ZipSize || $fastaFilesUniRef50ZipSize) ? "UniProt" : "";
-    
-    
+    $ur90_info = $obj->get_results_file_info(file_types::FT_fasta_ur90);
+    $ur50_info = $obj->get_results_file_info(file_types::FT_fasta_ur50);
+    $uniprotText = ($ur90_info !== false || $ur50_info !== false) ? "UniProt" : "";
+
     if ($obj->is_hmm_and_stuff_job()) {
-        $zipFile = $obj->get_hmm_zip_web_path("Full");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($hmmZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "HMMs for FASTA $uniprotText cluster (full length sequences)"));
-        }
-        $zipFile = $obj->get_hmm_zip_web_path("Domain");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($hmmZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "HMMs for FASTA $uniprotText cluster (domain sequences)"));
-        }
-        
-        $weblogoZipFileList = array();
-        $zipFile = $obj->get_weblogo_zip_web_path("Full");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($weblogoZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "WebLogos for FASTA $uniprotText cluster (full length sequences)"));
-        }
-        $zipFile = $obj->get_weblogo_zip_web_path("Domain");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($weblogoZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "WebLogos for FASTA $uniprotText cluster (domain sequences)"));
-        }
-        
-        $msaZipFileList = array();
-        $zipFile = $obj->get_msa_zip_web_path("Full");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($msaZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "MSAs for FASTA $uniprotText cluster (full length sequences)"));
-        }
-        $zipFile = $obj->get_msa_zip_web_path("Domain");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($msaZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "MSAs for FASTA $uniprotText cluster (domain sequences)"));
-        }
+        add_file_type($hmm_zip_file_list, array("HMMs for FASTA $uniprotText cluster (full length sequences)", file_types::FT_hmm), $obj);
+        add_file_type($hmm_zip_file_list, array("HMMs for FASTA $uniprotText cluster (domain sequences)", file_types::FT_hmm_dom), $obj);
 
-        $pimZipFileList = array();
-        $zipFile = $obj->get_pim_zip_web_path("Full");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($pimZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Percent Identity Matrix for FASTA $uniprotText cluster (full length sequences)"));
-        }
-        $zipFile = $obj->get_pim_zip_web_path("Domain");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($pimZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Percent Identity Matrix for FASTA $uniprotText cluster (domain sequences)"));
-        }
+        add_file_type($weblogo_zip_file_list, array("WebLogos for FASTA $uniprotText cluster (full length sequences)", file_types::FT_weblogo), $obj);
+        add_file_type($weblogo_zip_file_list, array("WebLogos for FASTA $uniprotText cluster (domain sequences)", file_types::FT_weblogo_dom), $obj);
         
-        $lenHistZipFileList = array();
-        $zipFile = $obj->get_lenhist_zip_web_path("Full", "UniProt");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (full length sequences, UniProt)"));
-        }
-        $zipFile = $obj->get_lenhist_zip_web_path("Full", "UniRef90");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (full length sequences, UniRef90)"));
-        }
-        $zipFile = $obj->get_lenhist_zip_web_path("Full", "UniRef50");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (full length sequences, UniRef50)"));
-        }
-        $zipFile = $obj->get_lenhist_zip_web_path("Domain", "UniProt");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (domain sequences, UniProt)"));
-        }
-        $zipFile = $obj->get_lenhist_zip_web_path("Domain", "UniRef90");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (domain sequences, UniRef90)"));
-        }
-        $zipFile = $obj->get_lenhist_zip_web_path("Domain", "UniRef50");
-        if ($zipFile) {
-            $zipFileSize = format_file_size($obj->get_file_size($zipFile));
-            array_push($lenHistZipFileList, array("path" => $zipFile, "size" => $zipFileSize, "text" => "Length Histograms for FASTA $uniprotText cluster (domain sequences, UniRef50)"));
-        }
+        add_file_type($msa_zip_file_list, array("MSAs for FASTA $uniprotText cluster (full length sequences)", file_types::FT_msa), $obj);
+        add_file_type($msa_zip_file_list, array("MSAs for FASTA $uniprotText cluster (domain sequences)", file_types::FT_msa_dom), $obj);
+
+        add_file_type($pim_zip_file_list, array("Percent Identity Matrix for FASTA $uniprotText cluster (full length sequences)", file_types::FT_pim), $obj);
+        add_file_type($pim_zip_file_list, array("Percent Identity Matrix for FASTA $uniprotText cluster (domain sequences)", file_types::FT_pim_dom), $obj);
+        
+        $len_hist_zip_file_list = array();
+        add_file_type($len_hist_zip_file_list, array("Length Histograms for FASTA $uniprotText cluster (full length sequences, UniProt)", file_types::FT_len_hist), $obj);
+        add_file_type($len_hist_zip_file_list, array("Length Histograms for FASTA $uniprotText cluster (full length sequences, UniRef90)", file_types::FT_len_hist_ur90), $obj);
+        add_file_type($len_hist_zip_file_list, array("Length Histograms for FASTA $uniprotText cluster (full length sequences, UniRef50)", file_types::FT_len_hist_ur50), $obj);
+        add_file_type($len_hist_zip_file_list, array("Length Histograms for FASTA $uniprotText cluster (domain sequences, UniProt)", file_types::FT_len_hist_dom), $obj);
+        add_file_type($len_hist_zip_file_list, array("Length Histograms for FASTA $uniprotText cluster (domain sequences, UniRef90)", file_types::FT_len_hist_dom_ur90), $obj);
+        add_file_type($len_hist_zip_file_list, array("Length Histograms for FASTA $uniprotText cluster (domain sequences, UniRef50)", file_types::FT_len_hist_dom_ur50), $obj);
+
         $hmm_graphics = $obj->get_hmm_graphics();
         $weblogo_graphics = $obj->get_weblogo_graphics();
         $lenhist_graphics = $obj->get_lenhist_graphics();
         $alignment_list = $obj->get_alignment_list();
         $cr_list = $obj->get_cr_results_list();
-        $logo_graphics_dir = $obj->get_graphics_dir();
         $num_map = $obj->get_cluster_num_map();
+        $dl_base .= "dl=ca&";
+    } else {
+        $dl_base .= "dl=colorssn&";
     }
     
-    array_push($fileInfo, array("Mapping Tables"));
-    array_push($fileInfo, array("UniProt ID-Color-Cluster number mapping table", $tableFile, $tableFileSize));
-    if ($tableFileDomain)
-        array_push($fileInfo, array("UniProt ID-Color-Cluster number mapping table (with domain)", $tableFileDomain, $tableFileDomainSize));
-    
-    array_push($fileInfo, array("ID Lists and FASTA Files per Cluster"));
-    if ($uniprotNodeFilesZip)
-        array_push($fileInfo, array("UniProt ID lists per cluster", $uniprotNodeFilesZip, $uniprotNodeFilesZipSize));
-    if ($uniprotDomainNodeFilesZip)
-        array_push($fileInfo, array("UniProt ID lists per cluster (with domain)", $uniprotDomainNodeFilesZip, $uniprotDomainNodeFilesZipSize));
-    if ($uniref90NodeFilesZip)
-        array_push($fileInfo, array("UniRef90 ID lists per cluster", $uniref90NodeFilesZip, $uniref90NodeFilesZipSize));
-    if ($uniref90DomainNodeFilesZip)
-        array_push($fileInfo, array("UniRef90 ID lists per cluster (with domain)", $uniref90DomainNodeFilesZip, $uniref90DomainNodeFilesZipSize));
-    if ($efiRef70NodeFilesZip)
-        array_push($fileInfo, array("EfiRef70 ID lists per cluster", $efiRef70NodeFilesZip, $efiRef70NodeFilesZipSize));
-    if ($efiRef50NodeFilesZip)
-        array_push($fileInfo, array("EfiRef50 ID lists per cluster", $efiRef50NodeFilesZip, $efiRef50NodeFilesZipSize));
-    if ($uniref50NodeFilesZip)
-        array_push($fileInfo, array("UniRef50 ID lists per cluster", $uniref50NodeFilesZip, $uniref50NodeFilesZipSize));
-    if ($uniref50DomainNodeFilesZip)
-        array_push($fileInfo, array("UniRef50 ID lists per cluster (with domain)", $uniref50DomainNodeFilesZip, $uniref50DomainNodeFilesZipSize));
-    
-    array_push($fileInfo, array("FASTA files per $uniprotText cluster", $fastaFilesUniProtZip, $fastaFilesUniProtZipSize));
-    if ($fastaFilesUniProtDomainZip)
-        array_push($fileInfo, array("FASTA files per $uniprotText cluster (with domain)", $fastaFilesUniProtDomainZip, $fastaFilesUniProtDomainZipSize));
-    if ($fastaFilesUniRef90Zip)
-        array_push($fileInfo, array("FASTA files per UniRef90 cluster", $fastaFilesUniRef90Zip, $fastaFilesUniRef90ZipSize));
-    if ($fastaFilesUniRef90DomainZip)
-        array_push($fileInfo, array("FASTA files per UniRef90 cluster (with domain)", $fastaFilesUniRef90DomainZip, $fastaFilesUniRef90DomainZipSize));
-    if ($fastaFilesEfiRef70Zip)
-        array_push($fileInfo, array("FASTA files per EfiRef70 cluster", $fastaFilesEfiRef70Zip, $fastaFilesEfiRef70ZipSize));
-    if ($fastaFilesEfiRef50Zip)
-        array_push($fileInfo, array("FASTA files per EfiRef50 cluster", $fastaFilesEfiRef50Zip, $fastaFilesEfiRef50ZipSize));
-    if ($fastaFilesUniRef50Zip)
-        array_push($fileInfo, array("FASTA files per UniRef50 cluster", $fastaFilesUniRef50Zip, $fastaFilesUniRef50ZipSize));
-    if ($fastaFilesUniRef50DomainZip)
-        array_push($fileInfo, array("FASTA files per UniRef50 cluster (with domain)", $fastaFilesUniRef50DomainZip, $fastaFilesUniRef50DomainZipSize));
-    
-    array_push($fileInfo, array("Miscellaneous Files"));
-    if ($clusterSizesFile)
-        array_push($fileInfo, array("Cluster sizes", $clusterSizesFile, $clusterSizesFileSize));
-    if ($convRatioFile)
-        array_push($fileInfo, array("Cluster-based convergence ratio for UniProt IDs", $convRatioFile, $convRatioFileSize));
-    if ($swissprotClustersDescFile)
-        array_push($fileInfo, array("SwissProt annotations by cluster", $swissprotClustersDescFile, $swissprotClustersDescFileSize));
-    if ($swissprotSinglesDescFile)
-        array_push($fileInfo, array("SwissProt annotations by singletons", $swissprotSinglesDescFile, $swissprotSinglesDescFileSize));
+    array_push($file_info, array("Mapping Tables"));
+    add_file_type($file_info, array("UniProt ID-Color-Cluster number mapping table", file_types::FT_mapping), $obj);
+    add_file_type($file_info, array("UniProt ID-Color-Cluster number mapping table (with domain)", file_types::FT_mapping_dom), $obj);
+
+    //array_push($file_info, array("UniRef90 ID lists per cluster", $uniref90NodeFilesZip, $uniref90NodeFilesZipSize));
+
+    array_push($file_info, array("ID Lists and FASTA Files per Cluster"));
+    add_file_type($file_info, array("UniProt ID lists per cluster", file_types::FT_ids), $obj);
+    add_file_type($file_info, array("UniProt ID lists per cluster (with domain)", file_types::FT_dom_ids), $obj);
+    add_file_type($file_info, array("UniRef90 ID lists per cluster", file_types::FT_ur90_ids), $obj);
+    add_file_type($file_info, array("UniRef90 ID lists per cluster (with domain)", file_types::FT_ur90_dom_ids), $obj);
+    add_file_type($file_info, array("UniRef50 ID lists per cluster", file_types::FT_ur50_ids), $obj);
+    add_file_type($file_info, array("UniRef50 ID lists per cluster (with domain)", file_types::FT_ur50_dom_ids), $obj);
+
+    add_file_type($file_info, array("FASTA files per $uniprotText cluster", file_types::FT_fasta), $obj);
+    add_file_type($file_info, array("FASTA files per $uniprotText cluster (with domain)", file_types::FT_fasta_dom), $obj);
+    add_file_type($file_info, array("FASTA files per UniRef90 cluster", file_types::FT_fasta_ur90), $obj);
+    add_file_type($file_info, array("FASTA files per UniRef90 cluster (with domain)", file_types::FT_fasta_dom_ur90), $obj);
+    add_file_type($file_info, array("FASTA files per UniRef50 cluster", file_types::FT_fasta_ur50), $obj);
+    add_file_type($file_info, array("FASTA files per UniRef50 cluster (with domain)", file_types::FT_fasta_dom_ur50), $obj);
+
+    array_push($file_info, array("Miscellaneous Files"));
+    add_file_type($file_info, array("Cluster sizes", file_types::FT_sizes), $obj);
+    add_file_type($file_info, array("Cluster-based convergence ratio for UniProt IDs", file_types::FT_conv_ratio), $obj);
+
+    if ($want_clusters_file)
+        add_file_type($file_info, array("SwissProt annotations by cluster", file_types::FT_sp_clusters), $obj);
+    if ($want_singles_file)
+        add_file_type($file_info, array("SwissProt annotations by singletons", file_types::FT_sp_singletons), $obj);
+
+    $ssn_file_zip_size = format_file_size($obj->get_file_size(file_types::FT_ssn));
+    $ssn_file_zip = $dl_base . "ft=" . file_types::FT_ssn;
 }
+
 
 
 require_once(__DIR__."/inc/header.inc.php");
@@ -314,138 +210,15 @@ else if ($job_type === "CLUSTER")
 
 <div>
 <?php
+
 if ($job_type === "NBCONN") {
-?>
-
-    <p>
-    Two node attributes were added to the input SSN:  1) <b>Neighborhood Connectivity</b>
-    that quantitates the internode connections and 2) <b>Neighborhood Connectivity Coloring</b>
-    that assigns a color based on the value of the NC.  
-    </p>
-    
-    <p>
-    The <b>Data File Download</b> tab provides the SSN with the nodes colored according to
-    the value of the <b>Neighborhood Connectivity Coloring</b>.
-    </p>
-    
-    <p>
-    The <b>Neighborhood Connectivity Color Scale</b> download provides the color scale in
-    the SSN.
-    </p>
-
-<!--    
-    <p>
-    If the input SSN was generated using the "domain" option, the download files
-    include information for the full-length sequences as well as the domains in the
-    node IDs. 
-    </p>
--->
-    
-<?php
+    echo get_nbconn_text();
 } else if ($job_type === "COLORSSN") {
-?>
-    <p>
-    Six node attributes were added to the input SSN:
-    <b>Cluster Sequence Count</b>, 
-    <b>Sequence Count Cluster Number</b>,
-    <b>Cluster Node Count</b>,
-    <b>Node Count Cluster Number</b>, 
-    <b>node.fillColor</b> (according to Cluster Sequence Count, hexadecimal), and
-    <b>Node Count Fill Color</b> (according to Cluster Node Count, hexadecimal).
-    </p>
-
-    <p>
-    The <b>Data File Download</b> tab provides the Color SSN with the nodes colored 
-    according to <b>Cluster Sequence Count (node.fillColor)</b>.
-    </p>
-
-    <p>
-    To change the node colors in Cytoscape to <b>Node Count Fill Color</b>:  1) select all nodes; 
-    2) on the Style Panel, click on the "?" in the Fill Color Property; 3) select 
-    "Remove Bypass"; 4) deselect the nodes (now default node color); and 5) open 
-    the Fill Color Property and select "<b>Node Count Fill Color</b>" as the Column and 
-    "Passthrough Mapping" as the Mapping Type.  The nodes will be colored with the 
-    <b>Node Count Fill Color</b>.
-    </p>
-
-    <p>
-    The <b>Data File Download</b> tab also provides files for 1) the UniProt 
-    ID-Color-Cluster Number mapping table, 2) ID Lists and FASTA Files for each 
-    cluster, 3) cluster sizes, and 4) SwissProt annotations for clusters and 
-    singletons.
-    </p>
-
-<?php
+    echo get_colorssn_text();
 } else if ($job_type === "CLUSTER") {
-?>
-
-    <p>
-    The <b>Data File Download</b> tab provides the Color SSN with the nodes colored
-    according to <b>node.fillColor (Cluster Sequence Count)</b>.
-    </p>
-    
-    <p>
-    Six node attributes were added to the input SSN:  <b>Cluster Sequence Count</b>,
-    <b>Sequence Count Cluster Number</b>, <b>Cluster Node Count</b>,
-    <b>Node Count Cluster Number</b>,
-    <b>node.fillColor</b> (according to Cluster Sequence Count, hexadecimal), and
-    <b>Node Count Fill Color</b> (according to Cluster Node Count, hexadecimal).
-    <!--, and 7) Convergence Ratio.-->
-    </p>
-    
-    <p>
-    To change the node colors in Cytoscape to <b>Node Count Fill Color</b>:  1) select all nodes; 2) on
-    the Style Panel, click on the "?" in the Fill Color Property; 3) select "Remove
-    Bypass"; 4) deselect the nodes (default node color); and 5) open the Fill Color
-    Property and select "<b>Node Count Fill Color</b>" as the Column and "Passthrough
-    Mapping" as the Mapping Type.  The nodes will be recolored.
-    </p>
-    
-    <p>
-    The <b>Data File Download</b> tab also provides files for 1) UniProt ID-Color-Cluster
-    Number mapping table, 2) ID Lists and FASTA Files for each cluster, 3) cluster
-    sizes, and 4) SwissProt annotations for clusters and singletons.
-    <!-- and 5) convergence ratios for clusters.  The value of the convergence ratio for each cluster also
-    is displayed with the-->
-    The number of UniRef/UniProt IDs for each cluster is displayed in the
-    <b>WebLogos</b>, <b>HMMs</b>, and <b>Length Histograms</b> tabs.
-    </p>
-    
-    <p>
-    The <b>WebLogos</b> tab provides the WebLogo (generated using
-    <a href="http://weblogo.threeplusone.com/">http://weblogo.threeplusone.com/</a>) and MSA (generated using MUSCLE) for the node
-    IDs in each SSN cluster containing at least the specified "Minimum Node Count".
-    The MSA can be viewed with Jalview (<a href="https://www.jalview.org/">https://www.jalview.org/</a>).
-    <?php if (count($pimZipFileList)) { ?>
-    This tab also provides the percent identity matrix for the multiple sequence alignment,
-    as computed by Clustal-Omega.
-    <?php } ?>
-    </p>
-    
-    <p>
-    The <b>Consensus Residues</b> tab provides a tab-delimited text file with the number
-    of the conserved residues and their MSA positions for each specified residue in
-    each SSN cluster (numbered by <b>Cluster Sequence Count</b>) containing at least the
-    specified "<b>Minimum Node Count</b>". 
-    </p>
-    
-    <p>
-    The <b>HMMs</b> tab provides the HMM for each SSN cluster containing at least the
-    specified "<b>Minimum Node Count</b>". The Skylign download provides the image of the
-    HMM generated from the MSA (<a href="https://skylign.org/">https://skylign.org/</a>). The HMM text file can be
-    viewed interactively by uploading to <a href="https://skylign.org/">https://skylign.org/</a> and selecting
-    "Information Content – Above Background"; the probability of each amino acid
-    residue and probability and length of an insert at each position is provided.
-    The p
-    </p>
-    
-    <p>
-    The <b>Length Histograms</b> tab provides length histograms for each cluster
-    containing at least the specified "Minimum Node Count". 
-    </p>
-
-<?php
+    echo get_cluster_text(count($pim_zip_file_list)> 0);
 }
+
 ?>
 </div>
 
@@ -511,7 +284,7 @@ if ($job_type === "NBCONN") {
 if ($job_type !== "CONVRATIO") {
 ?>
             <p>
-            <a href="<?php echo "$ssnFileZip"; ?>"><button class="normal">Download ZIP</button></a>
+            <a href="<?php echo "$ssn_file_zip"; ?>"><button class="normal">Download ZIP (<?php echo $ssn_file_zip_size; ?>)</button></a>
 <?php
     if (($job_type === "COLORSSN" || $job_type === "CLUSTER") && global_settings::advanced_options_enabled()) {
         $args = "est-id=$est_id&est-key=$key";
@@ -533,13 +306,14 @@ if ($job_type !== "CONVRATIO") {
 
             <table width="100%" class="pretty no-border">
 <?php
-                    $first = true;
-                    foreach ($fileInfo as $info) {
-                        if (count($info) == 1) {
-                            if (!$first)
-                                echo "                </tbody>\n";
-                            $first = false;
-                            echo <<<HTML
+$first = true;
+foreach ($file_info as $info) {
+    // Output the header
+    if (count($info) == 1) {
+        if (!$first)
+            echo "                </tbody>\n";
+        $first = false;
+        echo <<<HTML
                 <tbody>
                     <tr style="text-align:center;">
                         <td colspan="3" class="file-header-row">
@@ -550,37 +324,40 @@ if ($job_type !== "CONVRATIO") {
                 <tbody class="file-group">
 
 HTML;
-                        } else {
-                            echo <<<HTML
+        } else {
+            echo <<<HTML
                     <tr style="text-align:center;">
 
 HTML;
-                            if (is_array($info[1])) {
-                                $f1 = $info[1][0];
-                                $f2 = $info[1][1];
-                                echo <<<HTML
+            // Output file info
+            if (is_array($info[1])) {
+                $type1 = $info[1][0];
+                $type2 = $info[1][1];
+                echo <<<HTML
                         <td>
                             <a href="$f1"><button class='mini'>Download</button></a>
                             <a href="$f2"><button class='mini'>Download (ZIP)</button></a>
                         </td>
 
 HTML;
-                            } else {
-                                $text = substr($info[1], -4) == ".zip" ? "Download All (ZIP)" : "Download";
-                                echo <<<HTML
-                        <td><a href="$info[1]"><button class='mini'>$text</button></a></td>
+            // Output group header
+            } else {
+                $type1 = $info[1];
+                $url = $dl_base . "ft=$type1";
+                $text = substr($info[1], -4) == ".zip" ? "Download All (ZIP)" : "Download";
+                echo <<<HTML
+                        <td><a href="$url"><button class='mini'>$text</button></a></td>
 
 HTML;
-                            }
-                            echo <<<HTML
+            }
+            echo <<<HTML
                         <td>$info[0]</td>
-<!--                        <td>$info[2] MB</td>-->
                     </tr>
 
 HTML;
-                        }
-                    }
-                ?>
+        }
+    }
+?>
                 </tbody>
             </table>
 
@@ -603,39 +380,35 @@ if ($job_type !== "NBCONN" && $job_type !== "CONVRATIO" && !$is_example) {
             repeat the job with a "Maximum Node Count" in the Sequence Filter input window.  MUSCLE can fail
             with a "large" number of sequences (variable, anywhere from &gt;750 to &gt;1500).
             </p>
-<?php outputZipFileTable($weblogoZipFileList); ?>
-<?php outputZipFileTable($msaZipFileList); ?>
-<?php outputZipFileTable($pimZipFileList); ?>
+<?php output_zip_file_table($weblogo_zip_file_list, $dl_base); ?>
+<?php output_zip_file_table($msa_zip_file_list, $dl_base); ?>
+<?php output_zip_file_table($pim_zip_file_list, $dl_base); ?>
             <br><br>
 <?php
-                    $weblogo_output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key, $alignment_list, $ex_param) {
-                        $file = $data["path"];
-                        $size_info = getClusterSizeInfo($data);
+                    $weblogo_output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($est_id, $key, $alignment_list, $ex_param) {
+                        $size_info = get_cluster_size_info($data);
                         $class = $type ? "weblogo-$type-$quality" : "";
-                        /*
-                        $extra = <<<HTML
-(<a href="$logo_graphics_dir/$file.afa">Download alignment FASTA</a>)
-HTML;
-                         */
+
+                        $url = "save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality$ex_param";
                         $extra = "";
                         $type_html = $type ? '<div><b>'.ucfirst($type).' Sequences</b></div>' : "";
                         if (isset($alignment_list[$cluster_num][$type][$quality])) {
                             $afa_file = $alignment_list[$cluster_num][$type][$quality]["path"];
                             $extra = <<<HTML
-<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=afa$ex_param">MSA <i class="fas fa-download"></i></a>
+<a href="$url&t=afa">MSA <i class="fas fa-download"></i></a>
 HTML;
                         }
                         return <<<HTML
 <div class="$class " style="margin-bottom: 20px">
-$type_html
-<div class="cluster-size">$size_info</div>
-<div>
-<span style="margin-right: 20px">$extra</span>
-<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=w$ex_param">PNG <i class="fas fa-download"></i></a>
-</div>
-<div style="clear: both">
-<a href="$logo_graphics_dir/$file.png"><img src="$logo_graphics_dir/$file.png" width="50%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type-$quality"></a>
-</div>
+    $type_html
+    <div class="cluster-size">$size_info</div>
+    <div>
+        <span style="margin-right: 20px">$extra</span>
+        <a href="$url&t=w">PNG <i class="fas fa-download"></i></a>
+    </div>
+    <div style="clear: both">
+        <img src="$url&t=w" width="50%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type-$quality">
+    </div>
 </div>\n
 HTML;
                     };
@@ -679,7 +452,8 @@ HTML;
                                 //elseif ($file_type == "percentage") {
                                 //    $info_text = "Consensus residue percentage summary table ($seq_type)";
                                 //}
-                                $dl_path = "$logo_graphics_dir/$path";
+                                $ft = $file_type == "position" ? file_types::FT_cons_res_pos : ($file_type == "percentage" ? file_types::FT_cons_res_pct : file_types::FT_cons_res_full);
+                                $dl_path = "download.php?id=$est_id&key=$key&dl=ca&ft=$ft&aa=$aa";
                                 echo <<<HTML
                     <tr style="text-align:center;">
                         <td><a href="$dl_path"><button class='mini'>$dl_btn_text</button></a></td>
@@ -705,55 +479,57 @@ HTML;
             repeat the job with a "Maximum Node Count" in the Sequence Filter input window.  MUSCLE can fail
             with a "large" number of sequences (variable, anywhere from &gt;750 to &gt;1500).
             </p>
-<?php outputZipFileTable($hmmZipFileList); ?>
+<?php output_zip_file_table($hmm_zip_file_list, $dl_base); ?>
             <br><br>
 
 <?php
-                    $output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key, $ex_param) {
-                        $file = $data["path"];
-                        if (isset($data["length"]))
-                            $info .= ", length=" . $data["length"];
-                        $size_info = getClusterSizeInfo($data);
-                        $class = $type ? "hmm-$type-$quality" : "";
-                        $type_html = $type ? '<div><b>'.ucfirst($type).' Sequences</b></div>' : "";
-                        return <<<HTML
+    $output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($est_id, $key, $ex_param) {
+        $file = $data["path"];
+        if (isset($data["length"]))
+            $info .= ", length=" . $data["length"];
+        $size_info = get_cluster_size_info($data);
+        $class = $type ? "hmm-$type-$quality" : "";
+        $url = "save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality$ex_param";
+        $type_html = $type ? '<div><b>'.ucfirst($type).' Sequences</b></div>' : "";
+        return <<<HTML
 <div class="$class " style="margin-bottom: 20px">
-$type_html
-<div class="cluster-size">$size_info</div>
-<div>
-<span style="margin-right: 20px"><a class="hmm-logo hmm-logo-link" data-logo="$cluster_num-$type-$quality">Skylign <i class="fas fa-eye"></i></a></span>
-<span style="margin-right: 20px"><a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&t=hmm$ex_param">HMM <i class="fas fa-download"></i></a></span>
-<a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&t=hmm-png$ex_param">PNG <i class="fas fa-download"></i></a>
-</div>
-<div>
-<img src="$logo_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num">
-</div>
+    $type_html
+    <div class="cluster-size">$size_info</div>
+    <div>
+        <span style="margin-right: 20px"><a class="hmm-logo hmm-logo-link" data-logo="$cluster_num-$type-$quality">Skylign <i class="fas fa-eye"></i></a></span>
+        <span style="margin-right: 20px"><a href="$url&t=hmm">HMM <i class="fas fa-download"></i></a></span>
+        <a href="$url&t=hmm-png">PNG <i class="fas fa-download"></i></a>
+    </div>
+    <div>
+    <img src="$url&t=hmm-png" width="100%" alt="Cluster $cluster_num">
+    </div>
 </div>\n
 HTML;
-                    };
+    };
 
-                    $hmm_cb_id_list = output_graphics_html("Show HMMs:", "hmm", $hmm_graphics, $num_map, $output_fn);
+    $hmm_cb_id_list = output_graphics_html("Show HMMs:", "hmm", $hmm_graphics, $num_map, $output_fn);
 ?>
         </div>
 <?php } ?>
 <?php if ($lenhist_graphics) { ?>
         <div id="lenhist">
             <h4>Length Histograms</h4>
-<?php outputZipFileTable($lenHistZipFileList); ?>
+<?php output_zip_file_table($len_hist_zip_file_list, $dl_base); ?>
             <br><br>
 <?php
-                    $lenhist_output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($logo_graphics_dir, $est_id, $key, $ex_param) {
+                    $lenhist_output_fn = function($cluster_num, $data, $info = "", $type = "", $quality = "") use ($est_id, $key, $ex_param) {
                         $file = $data["path"];
-                        $size_info = getClusterSizeInfo($data);
+                        $size_info = get_cluster_size_info($data);
                         $class = $type ? "lenhist-$type-$quality" : "";
+                        $url = "save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&t=l$ex_param";
                         $type_html = $type ? '<div><b>'.ucfirst($type).' Sequences</b></div>' : "";
                         return <<<HTML
 <div class="$class " style="float: left; width: 50%; margin-bottom: 20px">
 $type_html
 <div class="cluster-size">$size_info</div>
-<div><a href="save_logo.php?id=$est_id&key=$key&logo=$cluster_num-$type-$quality&f=png&t=l$ex_param">PNG <i class="fas fa-download"></i></a></div>
+<div><a href="$url">PNG <i class="fas fa-download"></i></a></div>
 <div>
-<a href="$logo_graphics_dir/$file.png"><img src="$logo_graphics_dir/$file.png" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type-$quality"></a>
+<img src="$url" width="100%" alt="Cluster $cluster_num" data-logo="$cluster_num-$type-$quality">
 </div>
 </div>
 HTML;
@@ -813,8 +589,8 @@ require_once(__DIR__."/inc/footer.inc.php");
 function format_file_size($size) {
     $mb = round($size, 0);
     if ($mb == 0)
-        return "&lt;1";
-    return $mb;
+        return "&lt;1 MB";
+    return $mb . " MB";
 }
 
 
@@ -879,22 +655,23 @@ function output_graphics_html($header, $prefix, $graphics, $num_map, $output_fn)
     return $cb_id_list;
 }
 
-function outputZipFileTable($zipList) {
-    if (count($zipList) === 0)
+function output_zip_file_table($zip_list, $dl_base) {
+    if (count($zip_list) === 0)
         return;
     echo <<<HTML
             <table width="100%" class="pretty no-border">
                 <tbody class="file-group">
 HTML;
-    foreach ($zipList as $index => $zipData) {
-        $path = $zipData["path"];
-        $text = $zipData["text"];
-        $size = $zipData["size"];
+    foreach ($zip_list as $index => $zip_data) {
+        $text = $zip_data[0];
+        $type = $zip_data[1];
+        $size = $zip_data[2];
+        $url = $dl_base . "ft=" . $type;
         echo <<<HTML
                     <tr style="text-align:center;">
-                        <td><a href="$path"><button class='mini'>Download All (ZIP)</button></a></td>
+                        <td><a href="$url"><button class='mini'>Download All (ZIP)</button></a></td>
                         <td>$text</td>
-                        <td>$size MB</td>
+                        <td>$size</td>
                     </tr>
 HTML;
     }
@@ -904,7 +681,7 @@ HTML;
 HTML;
 }
 
-function getClusterSizeInfo($data) {
+function get_cluster_size_info($data) {
     $info = array();
     if (isset($data["num_uniprot"]) && $data["num_uniprot"])
         array_push($info, "UniProt: " . number_format($data["num_uniprot"]));
@@ -921,5 +698,170 @@ function make_split_button($args) {
 <div class="btn-split-content"><a href="index.php?mode=cr&$args">Convergence Ratio</a></div></div>
 HTML;
 }
+
+
+function add_file_type(&$data, $info, $obj) {
+    if (!isset($info[1])) {
+        array_push($data, array($info[0]));
+        return;
+    }
+    // Returns false if the file doesn't exist, other wise returns the file size
+    $file_info = $obj->get_results_file_info($info[1]);
+    if ($file_info !== false)
+        array_push($data, array($info[0], $info[1], format_file_size($file_info["file_size"])));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function get_colorssn_text() {
+    return <<<HTML
+    <p>
+    Six node attributes were added to the input SSN:
+    <b>Cluster Sequence Count</b>, 
+    <b>Sequence Count Cluster Number</b>,
+    <b>Cluster Node Count</b>,
+    <b>Node Count Cluster Number</b>, 
+    <b>node.fillColor</b> (according to Cluster Sequence Count, hexadecimal), and
+    <b>Node Count Fill Color</b> (according to Cluster Node Count, hexadecimal).
+    </p>
+
+    <p>
+    The <b>Data File Download</b> tab provides the Color SSN with the nodes colored 
+    according to <b>Cluster Sequence Count (node.fillColor)</b>.
+    </p>
+
+    <p>
+    To change the node colors in Cytoscape to <b>Node Count Fill Color</b>:  1) select all nodes; 
+    2) on the Style Panel, click on the "?" in the Fill Color Property; 3) select 
+    "Remove Bypass"; 4) deselect the nodes (now default node color); and 5) open 
+    the Fill Color Property and select "<b>Node Count Fill Color</b>" as the Column and 
+    "Passthrough Mapping" as the Mapping Type.  The nodes will be colored with the 
+    <b>Node Count Fill Color</b>.
+    </p>
+
+    <p>
+    The <b>Data File Download</b> tab also provides files for 1) the UniProt 
+    ID-Color-Cluster Number mapping table, 2) ID Lists and FASTA Files for each 
+    cluster, 3) cluster sizes, and 4) SwissProt annotations for clusters and 
+    singletons.
+    </p>
+HTML;
+}
+
+
+function get_cluster_text($has_pim) {
+    $pim_text = "";
+    if ($has_pim) {
+        $pim_text = "This tab also provides the percent identity matrix for the multiple sequence alignment, as computed by Clustal-Omega.";
+    }
+    return <<<HTML
+    <p>
+    The <b>Data File Download</b> tab provides the Color SSN with the nodes colored
+    according to <b>node.fillColor (Cluster Sequence Count)</b>.
+    </p>
+    
+    <p>
+    Six node attributes were added to the input SSN:  <b>Cluster Sequence Count</b>,
+    <b>Sequence Count Cluster Number</b>, <b>Cluster Node Count</b>,
+    <b>Node Count Cluster Number</b>,
+    <b>node.fillColor</b> (according to Cluster Sequence Count, hexadecimal), and
+    <b>Node Count Fill Color</b> (according to Cluster Node Count, hexadecimal).
+    <!--, and 7) Convergence Ratio.-->
+    </p>
+    
+    <p>
+    To change the node colors in Cytoscape to <b>Node Count Fill Color</b>:  1) select all nodes; 2) on
+    the Style Panel, click on the "?" in the Fill Color Property; 3) select "Remove
+    Bypass"; 4) deselect the nodes (default node color); and 5) open the Fill Color
+    Property and select "<b>Node Count Fill Color</b>" as the Column and "Passthrough
+    Mapping" as the Mapping Type.  The nodes will be recolored.
+    </p>
+    
+    <p>
+    The <b>Data File Download</b> tab also provides files for 1) UniProt ID-Color-Cluster
+    Number mapping table, 2) ID Lists and FASTA Files for each cluster, 3) cluster
+    sizes, and 4) SwissProt annotations for clusters and singletons.
+    <!-- and 5) convergence ratios for clusters.  The value of the convergence ratio for each cluster also
+    is displayed with the-->
+    The number of UniRef/UniProt IDs for each cluster is displayed in the
+    <b>WebLogos</b>, <b>HMMs</b>, and <b>Length Histograms</b> tabs.
+    </p>
+    
+    <p>
+    The <b>WebLogos</b> tab provides the WebLogo (generated using
+    <a href="http://weblogo.threeplusone.com/">http://weblogo.threeplusone.com/</a>) and MSA (generated using MUSCLE) for the node
+    IDs in each SSN cluster containing at least the specified "Minimum Node Count".
+    The MSA can be viewed with Jalview (<a href="https://www.jalview.org/">https://www.jalview.org/</a>).
+$pim_text
+    </p>
+    
+    <p>
+    The <b>Consensus Residues</b> tab provides a tab-delimited text file with the number
+    of the conserved residues and their MSA positions for each specified residue in
+    each SSN cluster (numbered by <b>Cluster Sequence Count</b>) containing at least the
+    specified "<b>Minimum Node Count</b>". 
+    </p>
+    
+    <p>
+    The <b>HMMs</b> tab provides the HMM for each SSN cluster containing at least the
+    specified "<b>Minimum Node Count</b>". The Skylign download provides the image of the
+    HMM generated from the MSA (<a href="https://skylign.org/">https://skylign.org/</a>). The HMM text file can be
+    viewed interactively by uploading to <a href="https://skylign.org/">https://skylign.org/</a> and selecting
+    "Information Content – Above Background"; the probability of each amino acid
+    residue and probability and length of an insert at each position is provided.
+    The p
+    </p>
+    
+    <p>
+    The <b>Length Histograms</b> tab provides length histograms for each cluster
+    containing at least the specified "Minimum Node Count". 
+    </p>
+HTML;
+}
+
+
+function get_nbconn_text() {
+    return <<<HTML
+    <p>
+    Two node attributes were added to the input SSN:  1) <b>Neighborhood Connectivity</b>
+    that quantitates the internode connections and 2) <b>Neighborhood Connectivity Coloring</b>
+    that assigns a color based on the value of the NC.  
+    </p>
+    
+    <p>
+    The <b>Data File Download</b> tab provides the SSN with the nodes colored according to
+    the value of the <b>Neighborhood Connectivity Coloring</b>.
+    </p>
+    
+    <p>
+    The <b>Neighborhood Connectivity Color Scale</b> download provides the color scale in
+    the SSN.
+    </p>
+
+<!--    
+    <p>
+    If the input SSN was generated using the "domain" option, the download files
+    include information for the full-length sequences as well as the domains in the
+    node IDs. 
+    </p>
+-->
+HTML;
+}    
+
+
+
+
 
 

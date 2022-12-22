@@ -18,10 +18,12 @@ class diagram_data_file extends arrow_api {
     private $blast_sequence;
     private $message = "";
 
-    public function __construct($id) {
+    public function __construct($id, $is_example = false) {
         parent::__construct(NULL, $id, "diagram");
         if ($id) {
             $this->loaded = $this->load_data();
+            if ($is_example)
+                ; //TODO
         } else {
             $this->loaded = false;
         }

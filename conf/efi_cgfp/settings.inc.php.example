@@ -16,9 +16,9 @@ require_once(__DIR__."/../settings_paths.inc.php");
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MANDATORY OPTIONS
 
-define("__OUTPUT_DIR__","");                                // Path to directory where computations are stored
-define("__UPLOAD_DIR__",__CGFP_DIR__."/uploads");
-define("__LOG_FILE__",__CGFP_DIR__."/log/log.txt");
+define("__OUTPUT_DIR__",__BASE_RESULTS_DIR__."/cgfp");      // Path to directory where computations are stored
+define("__UPLOAD_DIR__",__MAIN_UPLOAD_DIR__."/cgfp");
+define("__LOG_FILE__",__MAIN_LOG_DIR__."/cgfp_log.txt");
 define("__METAGENOME_DB_LIST__","");                        // Path to the metagenome database
 
 

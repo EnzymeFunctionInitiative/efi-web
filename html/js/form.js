@@ -9,8 +9,11 @@ function doFormPost(formAction, formData, messageId, fileHandler, completionHand
         fileHandler(xhr);
 
     xhr.open("POST", formAction, true);
+    console.log(formData);
     xhr.send(formData);
     xhr.onreadystatechange  = function(){
+        console.log(xhr);
+        console.log(xhr.responseText);
         if (xhr.readyState == 4  ) {
             // Javascript function JSON.parse to parse JSON data
             var jsonObj = JSON.parse(xhr.responseText);
@@ -64,6 +67,7 @@ function addUploadStuff(xhr, progressNumId, progressBarId) {
 }
 
 function uploadProgress(evt, progressTextId, progressBarId) {
+    console.log(evt);
     if (evt.lengthComputable) {
         var percentComplete = Math.round(evt.loaded * 100 / evt.total);
         document.getElementById(progressTextId).innerHTML = percentComplete.toString() + '%';
@@ -77,6 +81,7 @@ function uploadComplete(evt) {
 
 function uploadFailed(evt) {
     alert("There was an error attempting to upload the file.");
+    console.log(evt);
 }
 
 function uploadCanceled(evt) {

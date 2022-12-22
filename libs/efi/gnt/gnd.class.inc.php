@@ -7,6 +7,7 @@ use \SQLite;
 use \efi\gnt\settings;
 use \efi\gnt\functions;
 use \efi\gnt\realtime_lookup;
+use \efi\sanitize;
 
 
 abstract class gnd {
@@ -158,6 +159,7 @@ abstract class gnd {
 
     protected function parse_query($query) {
         $query = trim(strtoupper($query));
+        $query = sanitize::sanitize_string_val($query, " ");
         $items = preg_split("/[\n\r ,]+/", $query);
         return $items;
     }

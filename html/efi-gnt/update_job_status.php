@@ -6,25 +6,26 @@ use \efi\gnt\diagram;
 
 
 $is_error = false;
-$the_id = "";
+$the_id = sanitize::post_sanitize_id("id");
+$the_key = sanitize::post_sanitize_key("key");
+$job_type = sanitize::post_sanitize_string("jt", "");
 $job_obj = false;
 
-if (isset($_POST["id"]) && is_numeric($_POST["id"]) && isset($_POST["key"])) {
-    $the_id = $_POST["id"];
-    $job_type = (isset($_POST["jt"]) && $_POST["jt"] == "d") ? "d" : "g";
+if ($the_id !== false && $key !== false) {
+    $job_type = ($job_type == "d") ? "d" : "g";
     if ($job_type == "d")
         $job_obj = new diagram_job($db, $the_id);
     else
         $job_obj = new gnn($db, $the_id);
 
-    if ($job_obj->get_key() != $_POST["key"]) {
+    if ($job_obj->get_key() != $key) {
         $is_error = true;
     } else {
         $is_error = false;
     }
 }
 
-$request_type = isset($_POST["rt"]) ? $_POST["rt"] : false;
+$request_type = sanitize::post_sanitize_flag("rt");
 
 $result = array("valid" => false);
 

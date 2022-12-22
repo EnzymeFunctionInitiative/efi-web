@@ -1,0 +1,5 @@
+
+Database structure files are contained in here.  Major updates are labeled in all caps and should be
+the file used when creating the database.  Any minor revisions should be applied after the last major
+revision in the numerical prefix order.
+

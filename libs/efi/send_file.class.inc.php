@@ -14,6 +14,7 @@ class send_file {
         header('Expires: 0');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Cache-Control: private', false);
+        header('Content-Description: File Transfer');
         header('Content-Transfer-Encoding: binary');
         header('Content-Disposition: attachment; filename="' . $file_name . '";');
         header('Content-Type: ' . $type);

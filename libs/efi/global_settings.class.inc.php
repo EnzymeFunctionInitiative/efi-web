@@ -240,5 +240,9 @@ class global_settings {
     public static function get_global_citation() {
         return defined("__GLOBAL_CITATION__") ? __GLOBAL_CITATION__ : "";
     }
+
+    public static function get_est_colorssn_suffix() {
+        return defined("__EST_COLORSSN_SUFFIX__") ? __EST_COLORSSN_SUFFIX__ : "_coloredssn";
+    }
 }
 

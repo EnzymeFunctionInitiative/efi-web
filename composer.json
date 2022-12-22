@@ -20,6 +20,9 @@
         "efiillinois/taxonomy": "main-dev",
         "efiillinois/sunburst": "main-dev"
     },
+    "require-dev": {
+        "phpmd/phpmd" : "@stable"
+    },
     "repositories" : [
         {
             "type": "vcs",

@@ -161,9 +161,13 @@ abstract class family_shared extends option_base {
     protected function validate($data) {
         $result = parent::validate($data);
 
-        if (($data->families != "") && (!$this->verify_families($data->families))) {
+        if ($data->families != "" && !$this->verify_families($data->families)) {
             $result->errors = true;
-            $result->message .= "Please enter valid InterPro and Pfam numbers";
+            $result->message .= "Please enter valid InterPro and Pfam numbers (".$data->families.")";
+        }
+        if ($data->family_filter != "" && !$this->verify_families($data->family_filter)) {
+            $result->errors = true;
+            $result->message .= "Please enter valid InterPro and Pfam numbers for family filter (".$data->family_filter.")";
         }
         //if (($data->domain == 'true' || $data->domain == 1) && !$data->domain_family) {
         //    $result->errors = true;
@@ -240,9 +244,6 @@ abstract class family_shared extends option_base {
         if (! $result) {
             return;
         }
-
-        //var_dump($result);
-        //die();
 
         if (isset($result["generate_families"]) && $result["generate_families"]) {
             $families = explode(",", $result["generate_families"]);

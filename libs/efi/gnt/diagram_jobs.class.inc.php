@@ -23,17 +23,17 @@ class diagram_jobs {
 
     public static function create_file($db, $email, $tmp_filename, $filename) {
 
-        $uploadPrefix = settings::get_diagram_upload_prefix();
+        $upload_prefix = settings::get_diagram_upload_prefix();
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
         $title = self::get_diagram_title_from_file($filename);
 
-        $jobType = $ext == "zip" ? DiagramJob::UploadedZip : DiagramJob::Uploaded;
+        $job_type = $ext == "zip" ? DiagramJob::UploadedZip : DiagramJob::Uploaded;
         
-        $info = self::do_database_create($db, $email, $title, $jobType, array());
+        $info = self::do_database_create($db, $email, $title, $job_type, array());
 
         if ($info['id']) {
-            functions::copy_to_uploads_dir($tmp_filename, $filename, $info['id'], $uploadPrefix, $ext);
+            functions::copy_to_uploads_dir($tmp_filename, $filename, $info['id'], $upload_prefix, $ext);
         } else {
             return false;
         }
@@ -41,50 +41,50 @@ class diagram_jobs {
         return $info;
     }
 
-    public static function create_blast_job($db, $email, $title, $evalue, $maxNumSeqs, $nbSize, $blastSeq, $dbMod, $seqDbType) {
+    public static function create_blast_job($db, $email, $title, $evalue, $max_num_seqs, $nb_size, $blast_seq, $db_mod, $seq_db_type) {
         
-        $jobType = DiagramJob::BLAST;
-        $params = array('blast_seq' => $blastSeq, 'evalue' => $evalue, 'max_num_sequence' => $maxNumSeqs,
-            'neighborhood_size' => $nbSize, 'db_mod' => $dbMod);
-        if ($seqDbType)
-            $params['seq_db_type'] = $seqDbType;
+        $job_type = DiagramJob::BLAST;
+        $params = array('blast_seq' => $blast_seq, 'evalue' => $evalue, 'max_num_sequence' => $max_num_seqs,
+            'neighborhood_size' => $nb_size, 'db_mod' => $db_mod);
+        if ($seq_db_type)
+            $params['seq_db_type'] = $seq_db_type;
 
-        $info = self::do_database_create($db, $email, $title, $jobType, $params);
+        $info = self::do_database_create($db, $email, $title, $job_type, $params);
 
         return $info;
     }
 
-    public static function create_lookup_job($db, $email, $title, $nbSize, $content, $jobType, $dbMod, $seqDbType, $taxParms) {
+    public static function create_lookup_job($db, $email, $title, $nb_size, $content, $job_type, $db_mod, $seq_db_type, $tax_parms) {
 
-        if ($jobType == DiagramJob::IdLookup) {
+        if ($job_type == DiagramJob::IdLookup) {
             $content = preg_replace("/\s+/", ",", $content);
             $content = preg_replace("/,,+/", ",", $content);
             $content = preg_replace("/,+$/", "", $content);
         }
 
-        return self::do_create_diagram_job($db, $email, $title, $nbSize, $jobType, "txt", $content, $dbMod, $seqDbType, $taxParms);
+        return self::do_create_diagram_job($db, $email, $title, $nb_size, $job_type, "txt", $content, $db_mod, $seq_db_type, $tax_parms);
     }
 
-    public static function create_file_lookup_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, $dbMod, $seqDbType) {
-        return self::do_create_file_diagram_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, "txt", $dbMod, $seqDbType);
+    public static function create_file_lookup_job($db, $email, $title, $nb_size, $temp_name, $file_name, $job_type, $db_mod, $seq_db_type) {
+        return self::do_create_file_diagram_job($db, $email, $title, $nb_size, $temp_name, $file_name, $job_type, "txt", $db_mod, $seq_db_type);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Private Helpers
 
-    private static function do_create_diagram_job($db, $email, $title, $nbSize, $jobType, $ext, $contents, $dbMod, $seqDbType, $taxParms) {
-        $params = array('neighborhood_size' => $nbSize, 'db_mod' => $dbMod);
+    private static function do_create_diagram_job($db, $email, $title, $nb_size, $job_type, $ext, $contents, $db_mod, $seq_db_type, $tax_parms) {
+        $params = array('neighborhood_size' => $nb_size, 'db_mod' => $db_mod);
 
-        if (isset($seqDbType))
-            $params['seq_db_type'] = $seqDbType;
+        if (isset($seq_db_type))
+            $params['seq_db_type'] = $seq_db_type;
 
-        if (is_array($taxParms)) {
-            $params['tax_job_id'] = $taxParms['tax_job_id'];
-            $params['tax_id_type'] = $taxParms['tax_id_type'];
-            $params['tax_tree_id'] = $taxParms['tax_tree_id'];
+        if (is_array($tax_parms)) {
+            $params['tax_job_id'] = $tax_parms['tax_job_id'];
+            $params['tax_id_type'] = $tax_parms['tax_id_type'];
+            $params['tax_tree_id'] = $tax_parms['tax_tree_id'];
         }
 
-        $info = self::do_database_create($db, $email, $title, $jobType, $params);
+        $info = self::do_database_create($db, $email, $title, $job_type, $params);
 
         if ($info === false || !$info["id"]) {
             return false;
@@ -95,8 +95,8 @@ class diagram_jobs {
         if ($uploadsDir === false)
             return false;
         
-        $fileName = $prefix . $info["id"] . ".$ext";
-        $filePath = "$uploadsDir/$fileName";
+        $file_name = $prefix . $info["id"] . ".$ext";
+        $filePath = "$uploadsDir/$file_name";
 
         $retCode = file_put_contents($filePath, $contents);
         if ($retCode === false)
@@ -105,21 +105,21 @@ class diagram_jobs {
         return $info;
     }
 
-    private static function do_create_file_diagram_job($db, $email, $title, $nbSize, $tempName, $fileName, $jobType, $ext, $dbMod, $seqDbType) {
+    private static function do_create_file_diagram_job($db, $email, $title, $nb_size, $temp_name, $file_name, $job_type, $ext, $db_mod, $seq_db_type) {
 
-        $uploadPrefix = settings::get_diagram_upload_prefix();
-        $params = array('neighborhood_size' => $nbSize, 'db_mod' => $dbMod);
+        $upload_prefix = settings::get_diagram_upload_prefix();
+        $params = array('neighborhood_size' => $nb_size, 'db_mod' => $db_mod);
 
-        if (isset($seqDbType))
-            $params['seq_db_type'] = $seqDbType;
+        if (isset($seq_db_type))
+            $params['seq_db_type'] = $seq_db_type;
 
         if (!$title)
-            $title = self::get_diagram_title_from_file($fileName);
+            $title = self::get_diagram_title_from_file($file_name);
 
-        $info = self::do_database_create($db, $email, $title, $jobType, $params);
+        $info = self::do_database_create($db, $email, $title, $job_type, $params);
 
         if ($info !== false && $info['id']) {
-            functions::copy_to_uploads_dir($tempName, $fileName, $info['id'], $uploadPrefix, $ext);
+            functions::copy_to_uploads_dir($temp_name, $file_name, $info['id'], $upload_prefix, $ext);
         } else {
             return false;
         }
@@ -131,16 +131,16 @@ class diagram_jobs {
         return $info;
     }
 
-    private static function do_database_create($db, $email, $title, $jobType, $paramsArray) {
+    private static function do_database_create($db, $email, $title, $job_type, $parms_array) {
         $key = functions::generate_key();
 
-        $paramsJson = functions::encode_object($paramsArray);
+        $paramsJson = functions::encode_object($parms_array);
 
         $insertArray = array(
             'diagram_key' => $key,
             'diagram_email' => $email,
             'diagram_title' => $title,
-            'diagram_type' => $jobType,
+            'diagram_type' => $job_type,
             'diagram_status' => __NEW__,
             'diagram_params' => $paramsJson,
         );
@@ -188,7 +188,7 @@ class diagram_jobs {
         return $jobs;
     }
 
-    public static function get_key($db, $id) {
+    public static function get_key($db, $id, $is_example = false) {
         $sql = "SELECT diagram_key FROM diagram WHERE diagram_id = $id";
         $result = $db->query($sql);
         if (!$result)
@@ -197,7 +197,7 @@ class diagram_jobs {
             return $result[0]['diagram_key'];
     }
 
-    public static function get_time_completed($db, $id) {
+    public static function get_time_completed($db, $id, $is_example = false) {
         $sql = "SELECT diagram_time_completed FROM diagram WHERE diagram_id = $id";
         $result = $db->query($sql);
         if (!$result)
@@ -208,5 +208,4 @@ class diagram_jobs {
 }
 
 
-?>
 

@@ -6,6 +6,7 @@ use \efi\cgfp\identify;
 use \efi\cgfp\quantify;
 use \efi\cgfp\quantify_example;
 use \efi\training\example_config;
+use \efi\sanitize;
 
 
 $is_error = true;
@@ -18,7 +19,12 @@ $job_obj = NULL;
 // jobs, except they are stored in separate directories/tables.
 $is_example = example_config::is_example();
 
-if (isset($_GET["example"])) {
+$the_id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+$q_id = sanitize::validate_id("quantify-id", sanitize::GET);
+$type = sanitize::get_sanitize_string("type", "");
+
+if ($is_example) {
     $example_dir = settings::get_example_dir();
     $example_web_path = settings::get_example_web_path();
     if (file_exists($example_dir) && $example_web_path) {
@@ -26,16 +32,14 @@ if (isset($_GET["example"])) {
         $is_error = false;
     }
     $q_id = isset($_GET["identify"]) ? 0 : 1;
-} elseif (isset($_GET["id"]) && is_numeric($_GET["id"]) && isset($_GET["key"])) {
-    $the_id = $_GET["id"];
-    if (isset($_GET["quantify-id"]) && is_numeric($_GET["quantify-id"])) {
-        $q_id = $_GET["quantify-id"];
+} elseif ($the_id !== false && $key !== false) {
+    if ($q_id !== false) {
         $job_obj = new quantify($db, $q_id, $is_example);
     } else {
         $job_obj = new identify($db, $the_id, $is_example);
     }
 
-    if ($job_obj->get_key() != $_GET["key"]) {
+    if ($key === false || $job_obj->get_key() != $key) {
         $is_error = true;
     } elseif ($job_obj->is_expired()) {
         $is_error = true;
@@ -48,10 +52,7 @@ if ($is_error) {
     error404();
 }
 
-if (isset($_GET["type"])) {
-
-    $type = $_GET["type"];
-
+if ($type !== false) {
     if (!$q_id) {
         $file_info = array(
             "markers"       => array("file_path" => $job_obj->get_marker_file_path(), "suffix" => ".faa"),
@@ -82,7 +83,7 @@ if (isset($_GET["type"])) {
     }
 
     $prefix = "${the_id}_${q_id}_";
-    if (isset($_GET["example"]))
+    if ($is_example)
         $prefix = "";
 
     if ($is_example)
