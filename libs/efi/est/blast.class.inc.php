@@ -71,10 +71,6 @@ class blast extends family_shared {
         return "BLAST";
     }
 
-    protected function get_length_histogram_file_name() {
-        return "length_histogram";
-    }
-
     protected function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
         $insert_array["generate_blast_max_sequence"] = $data->max_seqs;

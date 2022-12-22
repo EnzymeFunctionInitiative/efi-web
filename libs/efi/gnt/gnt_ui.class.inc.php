@@ -102,7 +102,7 @@ HTML;
         $idx = 0;
         foreach ($rows as $row) {
             $comp = $row["${gnn_table}_time_completed"];
-            if (substr($comp, 0, 4) == "0000") {
+            if (!$comp || substr($comp, 0, 4) == "0000") {
                 $comp = $row["${gnn_table}_status"]; // "RUNNING";
                 if ($comp == "NEW")
                     $comp = "PENDING";

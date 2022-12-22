@@ -4,6 +4,7 @@ namespace efi\est;
 require_once(__DIR__."/../../../init.php");
 
 use \efi\global_functions;
+use \efi\file_types;
 
 
 class cluster_analysis extends colorssn_shared {
@@ -103,26 +104,7 @@ class cluster_analysis extends colorssn_shared {
     // END OVERLOADS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Relative for HTTP paths
-    public function get_weblogo_zip_web_path($type) {
-        return $this->get_zip_web_path("WebLogos", $type);
-    }
-    public function get_msa_zip_web_path($type) {
-        return $this->get_zip_web_path("MSAs", $type);
-    }
-    public function get_pim_zip_web_path($type) {
-        return $this->get_zip_web_path("PIMs", $type);
-    }
-    public function get_lenhist_zip_web_path($type, $seqType) {
-        return $this->get_zip_web_path("LenHist_$seqType", $type);
-    }
-    public function get_hmm_zip_web_path($type) {
-        return $this->get_zip_web_path("HMMs", $type);
-    }
-    private function get_zip_web_path($job_type, $node_type) {
-        $filename = $this->get_base_filename() . "_${job_type}_${node_type}.zip";
-        return $this->shared_get_web_path($filename);
-    }
+
     public function get_hmm_graphics() {
         return $this->get_logo_graphics_data("hmm_logos");
     }
@@ -159,6 +141,54 @@ class cluster_analysis extends colorssn_shared {
         $data = $this->get_logo_graphics_data("consensus_residue");
         return $data;
     }
+
+
+
+    public function get_cons_res_file_name($type, $aa) {
+        $ext = file_types::ext($type);
+        if ($ext === false)
+            return false;
+        $suffix = file_types::suffix($type);
+        if ($suffix === false)
+            return false;
+
+        $suffix .= "_$aa";
+        if ($type == file_types::FT_cons_res_pct)
+            $suffix .= "_Percentage_Summary";
+        else if ($type == file_types::FT_cons_res_pos)
+            $suffix .= "_Position_Summary";
+        $suffix .= "_Full";
+
+        $name = $this->get_base_filename();
+        $name .= "_$suffix.$ext";
+        return $name; 
+    }
+    public function get_cons_res_file_path($type, $aa) {
+        $ext = file_types::ext($type);
+        if ($ext === false)
+            return false;
+        $name = file_types::suffix($type);
+        if ($name === false)
+            return false;
+        $base_dir = $this->get_full_output_dir();
+
+        // Try the simple naming convention first
+        $file_path = "$base_dir/$name.$ext";
+
+        // Then try legacy file naming convention if the new convention doesn't exist
+        if (!file_exists($file_path)) {
+            $file_name = $this->get_cons_res_file_name($type, $aa);
+            $file_path = "$base_dir/${file_name}";
+        }
+
+        if (!file_exists($file_path))
+            return false;
+        return $file_path;
+    }
+
+
+
+
     private function get_logo_graphics_data($graphics_type) {
         $base_dir = $this->get_full_output_dir();
         $full_path = "$base_dir/$graphics_type.txt";
@@ -202,8 +232,10 @@ class cluster_analysis extends colorssn_shared {
     public function get_graphics_dir() {
         return $this->get_web_output_dir();
     }
+
+
     private function parse_cluster_sizes() {
-        $filename = $this->get_cluster_sizes_filename();
+        $filename = $this->get_file_name(file_types::FT_sizes);
         $full_path = $this->get_full_output_dir() . "/" . $filename;
         $lines = file($full_path);
         $nums = array();

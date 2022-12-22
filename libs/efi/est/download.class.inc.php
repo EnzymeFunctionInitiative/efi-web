@@ -29,6 +29,7 @@ class download {
             "ssn" => true,
             "blasthits" => true,
             "stepc" => true,
+            "colorssn" => true,
         );
         return isset($valid_files[$type]) ? $type : false;
     }

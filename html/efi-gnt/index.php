@@ -9,6 +9,7 @@ use \efi\gnt\settings;
 use \efi\gnt\gnt_ui;
 use \efi\gnt\user_jobs;
 use \efi\gnt\functions;
+use \efi\sanitize;
 
 
 $user_email = "Enter your e-mail address";

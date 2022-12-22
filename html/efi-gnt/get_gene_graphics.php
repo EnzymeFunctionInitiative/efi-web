@@ -7,6 +7,7 @@ use \efi\gnt\gnd_v2;
 use \efi\gnt\job_factory;
 use \efi\training\example_config;
 use \efi\gnt\gnn_example;
+use \efi\send_file;
 
 
 // This is necessary so that the gnd class environment doesn't get clusttered

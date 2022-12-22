@@ -61,7 +61,7 @@ define("__SMTP_PORT__",25);
 define("__EFI_EST_MODULE__","");
 define("__EFI_DB_MODULE__","");
 define("__EFI_GNT_MODULE__","");
-define("__BLAST_MODULE__","");
+define("__BLAST_MODULE__",__BIN_DIR__."/fastacmd");
 
 // These are to support multiple database versions.  This should only be anbled on a dev site
 //define("__EFIDB_MODULES__","efidb/ipXX|IPXX,efidb/ipXX|IPXX");

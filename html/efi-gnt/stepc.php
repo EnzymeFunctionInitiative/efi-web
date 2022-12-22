@@ -12,6 +12,7 @@ use \efi\gnt\functions;
 use \efi\gnt\settings;
 use \efi\training\example_config;
 use \efi\sanitize;
+use \efi\file_types;
 
 
 $is_example = example_config::is_example();
@@ -77,146 +78,66 @@ $cooccurrence = $gnn->get_cooccurrence();
 
 
 
-$ssnFile = $gnn->get_relative_color_ssn();
-$ssnZipFile = $gnn->get_relative_color_ssn_zip_file();
-$ssnFilesize = format_file_size($gnn->get_color_ssn_filesize());
-$ssnZipFilesize = format_file_size($gnn->get_color_ssn_zip_filesize());
-$gnnFile = $gnn->get_relative_gnn();
-$gnnZipFile = $gnn->get_relative_gnn_zip_file();
-$gnnFilesize = format_file_size($gnn->get_gnn_filesize());
-$gnnZipFilesize = format_file_size($gnn->get_gnn_zip_filesize());
-$pfamFile = $gnn->get_relative_pfam_hub();
-$pfamZipFile = $gnn->get_relative_pfam_hub_zip_file();
-$pfamFilesize = format_file_size($gnn->get_pfam_hub_filesize());
-$pfamZipFilesize = format_file_size($gnn->get_pfam_hub_zip_filesize());
 
-$uniprotIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIPROT);
-$uniprotIdDataZipFilesize = format_file_size($gnn->get_file_size($uniprotIdDataZip));
-$uniprotDomIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIPROT_DOMAIN);
-$uniprotDomIdDataZipFilesize = format_file_size($gnn->get_file_size($uniprotDomIdDataZip));
-$uniref50IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF50);
-$uniref50IdDataZipFilesize = format_file_size($gnn->get_file_size($uniref50IdDataZip));
-$uniref50DomainIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIREF50);
-$uniref50DomainIdDataZipFilesize = format_file_size($gnn->get_file_size($uniref50DomainIdDataZip));
-$uniref90IdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF90);
-$uniref90IdDataZipFilesize = format_file_size($gnn->get_file_size($uniref90IdDataZip));
-$uniref90DomainIdDataZip = $gnn->get_relative_cluster_data_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIREF90);
-$uniref90DomainIdDataZipFilesize = format_file_size($gnn->get_file_size($uniref90DomainIdDataZip));
 
-$pfamDataZip = $gnn->get_relative_pfam_data_zip_file();
-$pfamDataZipFilesize = $gnn->get_pfam_data_zip_filesize();
-$allPfamDataZip = $gnn->get_relative_all_pfam_data_zip_file();
-$allPfamDataZipFilesize = $gnn->get_all_pfam_data_zip_filesize();
-$splitPfamDataZip = $gnn->get_relative_split_pfam_data_zip_file();
-$splitPfamDataZipFilesize = $gnn->get_split_pfam_data_zip_filesize();
-$allSplitPfamDataZip = $gnn->get_relative_all_split_pfam_data_zip_file();
-$allSplitPfamDataZipFilesize = $gnn->get_all_split_pfam_data_zip_filesize();
-$warningFile = $gnn->get_relative_warning_file();
-$warningFilesize = $gnn->get_warning_filesize();
-$idTableFile = $gnn->get_relative_id_table_file();
-$idTableFilesize = $gnn->get_id_table_filesize();
-$idDomTableFile = $gnn->get_relative_id_table_file(true);
-$idDomTableFilesize = $gnn->get_id_table_filesize(true);
-$pfamNoneZip = $gnn->get_relative_pfam_none_zip_file();
-$pfamNoneZipFilesize = $gnn->get_pfam_none_zip_filesize();
+$ur50_fasta = $gnn->get_results_file_info(file_types::FT_fasta_ur50);
+$ur90_fasta = $gnn->get_results_file_info(file_types::FT_fasta_ur90);
+$uniprot_text = ($ur50_fasta !== false || $ur90_fasta !== false) ? "UniProt" : "";
 
-$fastaUniProtZip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIPROT);
-$fastaUniProtZipFilesize = $gnn->get_file_size($fastaUniProtZip);
-$fastaUniProtDomainZip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIPROT);
-$fastaUniProtDomainZipFilesize = $gnn->get_file_size($fastaUniProtDomainZip);
-$fastaUniRef90Zip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF90);
-$fastaUniRef90ZipFilesize = $gnn->get_file_size($fastaUniRef90Zip);
-$fastaUniRef90DomainZip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIREF90);
-$fastaUniRef90DomainZipFilesize = $gnn->get_file_size($fastaUniRef90DomainZip);
-$fastaUniRef50Zip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF50);
-$fastaUniRef50ZipFilesize = $gnn->get_file_size($fastaUniRef50Zip);
-$fastaUniRef50DomainZip = $gnn->get_relative_fasta_zip_file(gnn::SEQ_DOMAIN, gnn::SEQ_UNIREF50);
-$fastaUniRef50DomainZipFilesize = $gnn->get_file_size($fastaUniRef50DomainZip);
+$has_diagrams = $gnn->does_job_have_arrows();
 
-$coocTableFile = $gnn->get_relative_cooc_table_file();
-$coocTableFilesize = $gnn->get_cooc_table_filesize();
-$hubCountFile = $gnn->get_relative_hub_count_file();
-$hubCountFilesize = $gnn->get_hub_count_filesize();
-$hasDiagrams = $gnn->does_job_have_arrows();
-$diagramFile = $gnn->get_relative_diagram_data_file();
-$diagramZipFile = $gnn->get_relative_diagram_zip_file();
-$diagramFilesize = format_file_size($gnn->get_diagram_data_filesize());
-$diagramZipFilesize = format_file_size($gnn->get_diagram_zip_filesize());
-$clusterSizesFile = $gnn->get_relative_cluster_sizes_file();
-$clusterSizesFilesize = $gnn->get_cluster_sizes_filesize();
-$swissprotClustersDescFile = $gnn->get_relative_swissprot_desc_file(true);
-$swissprotClustersDescFilesize = $gnn->get_swissprot_desc_filesize(true);
-$swissprotSinglesDescFile = $gnn->get_relative_swissprot_desc_file(false);
-$swissprotSinglesDescFilesize = $gnn->get_swissprot_desc_filesize(false);
+$other_files = array();
 
-$otherFiles = array();
+$mapping_files = array();
+add_file_type($mapping_files, array(file_types::FT_gnn_mapping, "UniProt ID-Color-Cluster number"), $gnn);
+add_file_type($mapping_files, array(file_types::FT_gnn_mapping_dom, "UniProt ID-Color-Cluster (domain) number"), $gnn);
+add_file_type($mapping_files, array(file_types::FT_pfam_dom, "Neighbor Pfam domain fusions at specified minimal co-occurrence frequency"), $gnn);
+add_file_type($mapping_files, array(file_types::FT_split_pfam_dom, "Neighbor Pfam domains at specified minimal co-occurrence frequency"), $gnn);
+add_file_type($mapping_files, array(file_types::FT_all_pfam_dom, "Neighbor Pfam domain fusions at 0% minimal co-occurrence frequency"), $gnn);
+add_file_type($mapping_files, array(file_types::FT_split_all_pfam_dom, "Neighbor Pfam domains at 0% minimal co-occurrence frequency"), $gnn);
+if (count($mapping_files)) {
+    $other_files = array_merge($other_files, array(array("Mapping Tables")), $mapping_files);
+}
 
-if ($idTableFile or $pfamDataZip or $splitPfamDataZip or $allPfamDataZip or $allSplitPfamDataZip)
-    array_push($otherFiles, array("Mapping Tables"));
-if ($idTableFile)
-    array_push($otherFiles, array($idTableFile, format_file_size($idTableFilesize), "UniProt ID-Color-Cluster number"));
-if ($idDomTableFilesize !== false)
-    array_push($otherFiles, array($idDomTableFile, format_file_size($idDomTableFilesize), "UniProt ID-Color-Cluster (domain) number"));
-if ($pfamDataZip)
-    array_push($otherFiles, array($pfamDataZip, format_file_size($pfamDataZipFilesize), "Neighbor Pfam domain fusions at specified minimal co-occurrence frequency"));
-if ($splitPfamDataZip)
-    array_push($otherFiles, array($splitPfamDataZip, format_file_size($splitPfamDataZipFilesize), "Neighbor Pfam domains at specified minimal co-occurrence frequency"));
-if ($allPfamDataZip)
-    array_push($otherFiles, array($allPfamDataZip, format_file_size($allPfamDataZipFilesize), "Neighbor Pfam domain fusions at 0% minimal co-occurrence frequency"));
-if ($allSplitPfamDataZip)
-    array_push($otherFiles, array($allSplitPfamDataZip, format_file_size($allSplitPfamDataZipFilesize), "Neighbor Pfam domains at 0% minimal co-occurrence frequency"));
+$data_files = array();
+add_file_type($data_files, array(file_types::FT_ids, "UniProt ID lists per cluster"), $gnn);
+add_file_type($data_files, array(file_types::FT_dom_ids, "UniProt ID lists per cluster (with domain_"), $gnn);
+add_file_type($data_files, array(file_types::FT_ur90_ids, "UniRef90 ID lists per cluster"), $gnn);
+add_file_type($data_files, array(file_types::FT_ur90_dom_ids, "UniRef90 ID lists per cluster (with domain)"), $gnn);
+add_file_type($data_files, array(file_types::FT_ur50_ids, "UniRef50 ID lists per cluster"), $gnn);
+add_file_type($data_files, array(file_types::FT_ur50_dom_ids, "UniRef50 ID lists per cluster (with domain)"), $gnn);
+if (count($data_files)) {
+    $other_files = array_merge($other_files, array(array("Data Files per SSN Cluster")), $data_files);
+}
 
-if ($uniprotIdDataZip or $uniref50IdDataZip or $uniref90IdDataZip or $fastaUniProtZip or $pfamNoneZip)
-    array_push($otherFiles, array("Data Files per SSN Cluster"));
-if ($uniprotIdDataZip)
-    array_push($otherFiles, array($uniprotIdDataZip, format_file_size($uniprotIdDataZipFilesize), "UniProt ID lists per cluster"));
-if ($uniprotDomIdDataZip)
-    array_push($otherFiles, array($uniprotDomIdDataZip, format_file_size($uniprotDomIdDataZipFilesize), "UniProt ID lists per cluster (with domain_"));
-if ($uniref90IdDataZip)
-    array_push($otherFiles, array($uniref90IdDataZip, format_file_size($uniref90IdDataZipFilesize), "UniRef90 ID lists per cluster"));
-if ($uniref90DomainIdDataZip)
-    array_push($otherFiles, array($uniref90DomainIdDataZip, format_file_size($uniref90DomainIdDataZipFilesize), "UniRef90 ID lists per cluster (with domain)"));
-if ($uniref50IdDataZip)
-    array_push($otherFiles, array($uniref50IdDataZip, format_file_size($uniref50IdDataZipFilesize), "UniRef50 ID lists per cluster"));
-if ($uniref50DomainIdDataZip)
-    array_push($otherFiles, array($uniref50DomainIdDataZip, format_file_size($uniref50DomainIdDataZipFilesize), "UniRef50 ID lists per cluster (with domain)"));
+$fasta_files = array();
+add_file_type($fasta_files, array(file_types::FT_fasta, "FASTA files per $uniprot_text cluster"), $gnn);
+add_file_type($fasta_files, array(file_types::FT_fasta_dom, "FASTA files per $uniprot_text cluster (with domain)"), $gnn);
+add_file_type($fasta_files, array(file_types::FT_fasta_ur90, "FASTA files per UniRef90 cluster"), $gnn);
+add_file_type($fasta_files, array(file_types::FT_fasta_dom_ur90, "FASTA files per UniRef90 cluster (with domain)"), $gnn);
+add_file_type($fasta_files, array(file_types::FT_fasta_ur50, "FASTA files per UniRef50 cluster"), $gnn);
+add_file_type($fasta_files, array(file_types::FT_fasta_dom_ur50, "FASTA files per UniRef50 cluster (with domain)"), $gnn);
+add_file_type($fasta_files, array(file_types::FT_pfam_nn, "Neighbors without Pfam assigned"), $gnn);
+$other_files = array_merge($other_files, $fasta_files);
 
-$uniprotText = ($fastaUniRef90ZipFilesize || $fastaUniRef50ZipFilesize) ? "UniProt" : "";
-if ($fastaUniProtZipFilesize)
-    array_push($otherFiles, array($fastaUniProtZip, format_file_size($fastaUniProtZipFilesize), "FASTA files per $uniprotText cluster"));
-if ($fastaUniProtDomainZipFilesize)
-    array_push($otherFiles, array($fastaUniProtDomainZip, format_file_size($fastaUniProtDomainZipFilesize), "FASTA files per $uniprotText cluster (with domain)"));
-if ($fastaUniRef90ZipFilesize)
-    array_push($otherFiles, array($fastaUniRef90Zip, format_file_size($fastaUniRef90ZipFilesize), "FASTA files per UniRef90 cluster"));
-if ($fastaUniRef90DomainZipFilesize)
-    array_push($otherFiles, array($fastaUniRef90DomainZip, format_file_size($fastaUniRef90DomainZipFilesize), "FASTA files per UniRef90 cluster (with domain)"));
-if ($fastaUniRef50ZipFilesize)
-    array_push($otherFiles, array($fastaUniRef50Zip, format_file_size($fastaUniRef50ZipFilesize), "FASTA files per UniRef50 cluster"));
-if ($fastaUniRef50DomainZipFilesize)
-    array_push($otherFiles, array($fastaUniRef50DomainZip, format_file_size($fastaUniRef50DomainZipFilesize), "FASTA files per UniRef50 cluster (with domain)"));
-if ($pfamNoneZip)
-    array_push($otherFiles, array($pfamNoneZip, format_file_size($pfamNoneZipFilesize), "Neighbors without Pfam assigned"));
-
-if ($warningFile or $coocTableFile or $hubCountFile or $clusterSizesFilesize !== false or $swissprotClustersDescFilesize !== false or $swissprotSinglesDescFilesize !== false)
-    array_push($otherFiles, array("Miscellaneous Files"));
-if ($warningFile)
-    array_push($otherFiles, array($warningFile, format_file_size($warningFilesize), "No matches/no neighbors file"));
-if ($coocTableFile)
-    array_push($otherFiles, array($coocTableFile, format_file_size($coocTableFilesize), "Pfam family/cluster co-occurrence table file"));
-if ($hubCountFile)
-    array_push($otherFiles, array($hubCountFile, format_file_size($hubCountFilesize), "GNN hub cluster sequence count file"));
-if ($clusterSizesFilesize !== false)
-    array_push($otherFiles, array($clusterSizesFile, format_file_size($clusterSizesFilesize), "Cluster size file"));
-if ($swissprotClustersDescFilesize !== false)
-    array_push($otherFiles, array($swissprotClustersDescFile, format_file_size($swissprotClustersDescFilesize), "SwissProt annotations per SSN cluster"));
-if ($swissprotSinglesDescFilesize !== false)
-    array_push($otherFiles, array($swissprotSinglesDescFile, format_file_size($swissprotSinglesDescFilesize), "SwissProt annotations by singleton"));
+$misc_files = array();
+add_file_type($misc_files, array(file_types::FT_gnn_nn, "No matches/no neighbors file"), $gnn);
+add_file_type($misc_files, array(file_types::FT_cooc_table, "Pfam family/cluster co-occurrence table file"), $gnn);
+add_file_type($misc_files, array(file_types::FT_hub_count, "GNN hub cluster sequence count file"), $gnn);
+add_file_type($misc_files, array(file_types::FT_sizes, "Cluster size file"), $gnn);
+add_file_type($misc_files, array(file_types::FT_sp_clusters, "SwissProt annotations per SSN cluster"), $gnn);
+add_file_type($misc_files, array(file_types::FT_sp_singletons, "SwissProt annotations by singleton"), $gnn);
+if (count($misc_files)) {
+    $other_files = array_merge($other_files, array(array("Miscellaneous Files")), $misc_files);
+}
 
 $gnn_name = $gnn->get_gnn_name();
-$useDiagramsV3 = $gnn->get_diagram_version() >= 3;
 
-$file_size_col_hdr = $is_example ? "(Zipped MB)" : "(Unzipped/Zipped MB)";
+//$file_size_col_hdr = $is_example ? "(Zipped MB)" : "(Unzipped/Zipped MB)";
+$file_size_col_hdr = "(Zipped MB)";
 $ex_param = $is_example ? "&x=".$is_example : "";
+
+$dl_base = "download.php?id=$gnn_id&key=$key$ex_param&dl=gnn";
 
 require_once(__DIR__."/inc/header.inc.php");
 
@@ -271,26 +192,11 @@ require_once(__DIR__."/inc/header.inc.php");
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
-                            <?php if (!$is_example) { ?>
-                            <a href="<?php echo "$baseUrl/$ssnFile" ?>"><button class="mini">Download</button></a>
-                            <?php } ?>
-                            <?php if ($ssnZipFile) { ?>
-                            <a href="<?php echo "$baseUrl/$ssnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
-                            <?php } ?>
+                            <a href="<?php echo "$dl_base&ft=" . file_types::FT_gnn_ssn; ?>"><button class="mini">Download ZIP</button></a>
                         </td>
                         <td><?php echo number_format($gnn->get_ssn_nodes()); ?></td>
                         <td><?php echo number_format($gnn->get_ssn_edges()); ?></td>
-                        <td>
-                            <?php
-                            if ($is_example) {
-                                echo "$ssnZipFilesize MB";
-                            } else {
-                                echo "$ssnFilesize MB";
-                                if ($ssnZipFilesize)
-                                    echo "/ $ssnZipFilesize MB";
-                            }
-                            ?>
-                        </td>
+                        <td><?php echo format_size($gnn, file_types::FT_gnn_ssn); ?></td>
                     </tr>
                 </tbody>
             </table>
@@ -318,24 +224,9 @@ require_once(__DIR__."/inc/header.inc.php");
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
-                            <?php if (!$is_example) { ?>
-                            <a href="<?php echo "$baseUrl/$gnnFile"; ?>"><button class="mini">Download</button></a>
-                            <?php } ?>
-                            <?php if ($gnnZipFile) { ?>
-                            <a href="<?php echo "$baseUrl/$gnnZipFile"; ?>"><button class="mini">Download ZIP</button></a>
-                            <?php } ?>
+                            <a href="<?php echo "$dl_base&ft=" . file_types::FT_ssn_gnn; ?>"><button class="mini">Download ZIP</button></a>
                         </td>
-                        <td>
-                            <?php
-                            if ($is_example) {
-                                echo "$gnnZipFilesize MB";
-                            } else {
-                                echo "$gnnFilesize MB";
-                                if ($gnnZipFilesize)
-                                    echo "/ $gnnZipFilesize MB";
-                            }
-                            ?>
-                        </td>
+                        <td><?php echo format_size($gnn, file_types::FT_ssn_gnn); ?></td>
                     </tr>
                 </tbody>
             </table>
@@ -355,29 +246,14 @@ require_once(__DIR__."/inc/header.inc.php");
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
-                            <?php if (!$is_example) { ?>
-                            <a href="<?php echo "$baseUrl/$pfamFile"; ?>"><button class="mini">Download</button></a>
-                            <?php } ?>
-                            <?php if ($pfamZipFile) { ?>
-                            <a href="<?php echo "$baseUrl/$pfamZipFile"; ?>"><button class="mini">Download ZIP</button></a>
-                            <?php } ?>
+                            <a href="<?php echo "$dl_base&ft=" . file_types::FT_pfam_gnn; ?>"><button class="mini">Download ZIP</button></a>
                         </td>
-                        <td>
-                            <?php
-                            if ($is_example) {
-                                echo "$pfamZipFilesize MB";
-                            } else {
-                                echo "$pfamFilesize MB";
-                                if ($pfamZipFilesize)
-                                    echo "/ $pfamZipFilesize MB";
-                            }
-                            ?>
-                        </td>
+                        <td><?php echo format_size($gnn, file_types::FT_pfam_gnn); ?></td>
                     </tr>
                 </tbody>
             </table>
         
-            <?php if ($hasDiagrams) { ?>
+            <?php if ($has_diagrams) { ?>
             <h4>Genome Neighborhood Diagrams (GNDs)</h4> 
             <p>
             Diagrams representing genomic regions around the genes encoded for the 
@@ -396,11 +272,7 @@ require_once(__DIR__."/inc/header.inc.php");
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
-                            <?php if ($useDiagramsV3) { ?>
                             <a href="view_diagrams_v3.php?gnn-id=<?php echo $gnn_id; ?>&key=<?php echo $gnn_key; ?><?php echo $ex_param; ?>" target="_blank"><button class="mini">View diagrams</button></a>
-                            <?php } else { ?>
-                            <a href="view_diagrams.php?gnn-id=<?php echo $gnn_id; ?>&key=<?php echo $gnn_key; ?>" target="_blank"><button class="mini">View diagrams</button></a>
-                            <?php } ?>
                         </td>
                         <td colspan="2">
                             Opens GND explorer in a new tab.
@@ -408,27 +280,12 @@ require_once(__DIR__."/inc/header.inc.php");
                     </tr>
                     <tr style="text-align:center;">
                         <td class="button-col">
-                            <?php if (!$is_example) { ?>
-                            <a href="<?php echo "$baseUrl/$diagramFile"; ?>"><button class="mini">Download</button></a>
-                            <?php } ?>
-                            <?php if ($diagramZipFilesize) { ?>
-                            <a href="<?php echo "$baseUrl/$diagramZipFile"; ?>"><button class="mini">Download ZIP</button></a>
-                            <?php } ?>
+                            <a href="<?php echo "$dl_base&ft=" . file_types::FT_gnd; ?>"><button class="mini">Download ZIP</button></a>
                         </td>
                         <td>
                             Diagram data for later review
                         </td>
-                        <td>
-                            <?php
-                            if ($is_example) {
-                                echo "$diagramZipFilesize MB";
-                            } else {
-                                echo "$diagramFilesize MB";
-                                if ($diagramZipFilesize)
-                                    echo "/ $diagramZipFilesize MB";
-                            }
-                            ?>
-                        </td>
+                        <td><?php echo format_size($gnn, file_types::FT_gnd); ?></td>
                     </tr>
                 </tbody>
             </table>
@@ -442,7 +299,7 @@ require_once(__DIR__."/inc/header.inc.php");
             <table width="100%" class="pretty no-border">
 <?php
                     $first = true;
-                    foreach ($otherFiles as $info) {
+                    foreach ($other_files as $info) {
                         if (count($info) == 1) {
                             if (!$first)
                                 echo "                </tbody>\n";
@@ -459,14 +316,15 @@ require_once(__DIR__."/inc/header.inc.php");
 
 HTML;
                         } else {
-                            $btnText = strpos($info[0], ".zip") > 0 ? "Download All (ZIP)" : "Download";
+                            $type = $info[0];
+                            $btn_text = file_types::ext($type) == "zip" ? "Download All (ZIP)" : "Download";
                             echo <<<HTML
                     <tr style="text-align:center;">
                         <td>
-                            <a href="$baseUrl/$info[0]"><button class="mini">$btnText</button></a>
+                        <a href="$dl_base&ft=$type"><button class="mini">$btn_text</button></a>
                         </td>
-                        <td>$info[2]</td>
-                        <td>$info[1] MB</td>
+                        <td>$info[1]</td>
+                        <td>$info[2] MB</td>
                     </tr>
 
 HTML;
@@ -607,13 +465,31 @@ Please change parameters or select a new file to upload before refiltering.
 <script src="<?php echo $SiteUrlPrefix; ?>/js/custom-file-input.js" type="text/javascript"></script>
 
 <?php
+
+
+
+function format_size($gnn, $type) {
+    $size = $gnn->get_file_size($type);
+    return format_file_size($size);
+}
+
+
 function format_file_size($size) {
     $mb = round($size, 0);
     if ($mb == 0)
         return "&lt;1";
     return $mb;
 }
-?>
 
-<?php require_once(__DIR__."/inc/footer.inc.php"); ?>
+
+function add_file_type(&$data, $info, $gnn) {
+    $file_info = $gnn->get_results_file_info($info[0]);
+    if ($file_info !== false)
+        array_push($data, array($info[0], $info[1], format_file_size($file_info["file_size"])));
+}
+
+
+
+
+require_once(__DIR__."/inc/footer.inc.php");
 

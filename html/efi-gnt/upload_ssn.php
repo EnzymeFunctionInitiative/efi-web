@@ -17,6 +17,7 @@ $key = 0;
 $message = "";
 $valid = 0;
 $cookieInfo = "";
+$is_sync = 0;
 
 if (empty($_POST) && empty($_FILES) && $_SERVER["CONTENT_LENGTH"] > 0) {
     $valid = 0;
@@ -38,10 +39,11 @@ if (empty($_POST) && empty($_FILES) && $_SERVER["CONTENT_LENGTH"] > 0) {
     if ($file_name)
         $file_type = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
+    $gnn_parent_id = false;
     $parent_file_name = "";
     $parent_id = sanitize::validate_id("parent_id", sanitize::POST);
     $parent_key = sanitize::validate_key("parent_key", sanitize::POST);
-    if ($gnn_parent_id !== false && $parent_key !== false) {
+    if ($parent_id !== false && $parent_key !== false) {
         $job_info = functions::verify_gnt_job($db, $parent_id, $parent_key);
         if ($job_info !== false) {
             $gnn_parent_id = $parent_id;

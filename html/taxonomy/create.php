@@ -6,6 +6,7 @@ use \efi\user_auth;
 use \efi\est\functions;
 use \efi\est\user_jobs;
 use \efi\est\input_data;
+use \efi\sanitize;
 
 
 $result['id'] = 0;

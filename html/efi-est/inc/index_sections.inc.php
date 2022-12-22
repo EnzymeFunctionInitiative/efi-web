@@ -1457,7 +1457,7 @@ function check_for_color_mode($db) {
         $the_key = sanitize::validate_key("est-key", sanitize::GET);
         $the_idx = sanitize::validate_id("est-ssn", sanitize::GET);
 
-        if (isset($modes_avail[$mode]) && $the_aid !== false && $the_key !== false && $the_idx) {
+        if (isset($modes_avail[$mode]) && $the_aid !== false && $the_key !== false && $the_idx !== false) {
             $job_info = global_functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
             if ($job_info !== false) {
                 $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);

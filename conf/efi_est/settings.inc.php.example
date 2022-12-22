@@ -61,8 +61,6 @@ define("__FILE_SIZE_GRAPH_ENABLED__",false);
 define("__DEFAULT_CREATE_REPNODE_NETWORKS__",true);
 
 define("__COLORSSN_MAP_DIR_NAME__","cluster-data");
-define("__COLORSSN_MAP_FILE_NAME__","mapping_table.txt");
-define("__COLORSSN_DOMAIN_MAP_FILE_NAME__","domain_mapping_table.txt");
 define("__ACC_COUNT_FILENAME__","acc_counts.txt");
 define("__CDHIT_STATS_FILE__","cdhit.stats");
 

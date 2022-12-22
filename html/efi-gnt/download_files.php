@@ -1,12 +1,14 @@
-<?php
-require_once(__DIR__."/../../init.php");
-
+<?php require_once(__DIR__."/../../init.php"); 
 use \efi\gnt\settings;
 use \efi\gnt\gnn;
 use \efi\gnt\diagram_data_file;
 use \efi\gnt\diagram_jobs;
 use \efi\training\example_config;
 use \efi\sanitize;
+use \efi\send_file;
+
+
+// This is for GNDs only
 
 
 $is_example = example_config::is_example();

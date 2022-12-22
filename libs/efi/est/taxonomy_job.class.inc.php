@@ -116,21 +116,18 @@ class taxonomy_job extends family_shared {
     }
 
     public function get_length_histogram_info() {
-        $uniref50_full_path = $this->get_length_histogram("uniref50", false, false);
-        $uniref50_web_path = $this->get_length_histogram("uniref50", true, true);
-        $uniref90_full_path = $this->get_length_histogram("uniref90", false, false);
-        $uniref90_web_path = $this->get_length_histogram("uniref90", true, true);
-        $uniprot_full_path = $this->get_length_histogram("uniprot", false, false);
-        $uniprot_web_path = $this->get_length_histogram("uniprot", true, true);
+        $uniprot_info = $this->get_graph_info("histogram_uniprot");
+        $uniref90_info = $this->get_graph_info("histogram_uniref90");
+        $uniref50_info = $this->get_graph_info("histogram_uniref50");
 
         $info = array();
 
-        if (file_exists($uniprot_full_path))
-            array_push($info, array("UniProt", $uniprot_web_path, "HISTOGRAM_UNIPROT"));
-        if (file_exists($uniref50_full_path))
-            array_push($info, array("UniRef50", $uniref50_web_path, "HISTOGRAM_UNIREF50"));
-        if (file_exists($uniref90_full_path))
-            array_push($info, array("UniRef90", $uniref90_web_path, "HISTOGRAM_UNIREF90"));
+        if ($uniprot_info !== false)
+            array_push($info, array("UniProt", "histogram_uniprot"));
+        if ($uniref50_info !== false)
+            array_push($info, array("UniRef50", "histogram_uniref50"));
+        if ($uniref90_info !== false)
+            array_push($info, array("UniRef90", "histogram_uniref90"));
 
         return $info;
     }

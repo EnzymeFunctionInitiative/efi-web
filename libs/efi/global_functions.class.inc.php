@@ -205,12 +205,13 @@ class global_functions {
             $params = self::decode_object($result["analysis_params"]);
             $tax_search = (isset($params["tax_search_hash"]) && $params["tax_search_hash"]) ? "-" . $params["tax_search_hash"] : "";
             $nc_suffix = (isset($params["compute_nc"]) && $params["compute_nc"] === true) ? "-nc" : "";
+            $nf_suffix = (isset($params["remove_fragments"]) && $params["remove_fragments"] === true) ? "-nf" : "";
             $info["generate_id"] = $result["analysis_generate_id"];
             $info["analysis_id"] = $est_id;
             $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
                                     $result["analysis_evalue"] . "-" .
                                     $result["analysis_min_length"] . "-" .
-                                    $result["analysis_max_length"] . $tax_search . $nc_suffix;
+                                    $result["analysis_max_length"] . $tax_search . $nc_suffix . $nf_suffix;
             return $info;
         } else {
             return false;

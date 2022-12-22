@@ -136,13 +136,14 @@ $ex_param = $is_example ? "&x=$is_example" : "";
 <?php
 
 for ($i = 0; $i < count($histo_info); $i++) {
-    $type = $histo_info[$i][2];
+    $type = $histo_info[$i][1];
+    $url = "graphs.php?id=$gen_id&type=len_hist&gtype=$type&key=$key$ex_param";
 ?>
     <div>
         <!--<div><?php echo $histo_info[$i][0]; ?></div>-->
         <div>
-            <img src="<?php echo $histo_info[$i][1]; ?>" /><br />
-            <a href='graphs.php?id=<?php echo $gen_id; ?>&type=<?php echo $type; ?>&key=<?php echo $key; ?><?php echo $ex_param; ?>'><button class='file_download'>Download high resolution <img src='../images/download.svg' /></button></a>
+            <img src="<?php echo $url; ?>" width="400" /><br />
+            <a href="<?php echo $url; ?>"><button class='file_download'>Download high resolution <img src='../images/download.svg' /></button></a>
         </div>
     </div>
 <?php

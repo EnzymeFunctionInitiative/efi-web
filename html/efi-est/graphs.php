@@ -10,8 +10,7 @@ use \efi\sanitize;
 use \efi\send_file;
 
 
-$type = isset($_GET["type"]) ? $_GET["type"] : "";
-$type = download::validate_file_type($type);
+$type = sanitize::get_sanitize_string("type", "");
 $gen_id = sanitize::validate_id("id", sanitize::GET);
 $analysis_id = sanitize::validate_id("aid", sanitize::GET);
 $key = sanitize::validate_key("key", sanitize::GET);
@@ -59,6 +58,16 @@ if ($type === "stepc") {
     }
 
     output_file($info["file_path"], $info["file_name"], $mime_type);
+
+} else if ($type === "hmm") {
+
+    //$ca = new cluster_analysis($db, $gen_id, $is_example);
+    //validate_key($ca, $key);
+
+    //$ca->get_results_file_info
+    
+
+
 } else {
     echo "No EFI-EST Selected. Please go back";
     exit;

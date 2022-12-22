@@ -38,11 +38,11 @@ if (isset($opt)) {
             $retval = create_lookup_job($db, $email, $title, "fasta", DiagramJob::FastaLookup, $db_mod, "", null);
         } elseif ($opt == "d") {
             $tax_parms = null;
-            $tax_id = sanitize::post_sanitize_num("tax-id");
-            $tax_key = sanitize::post_sanitize_key("tax-key");
+            $tax_id = sanitize::validate_id("tax-id", sanitize::POST);
+            $tax_key = sanitize::validate_key("tax-key", sanitize::POST);
             $tax_tree_id = sanitize::post_sanitize_num("tax-tree-id");
             $tax_id_type = sanitize::post_sanitize_string("tax-id-type");
-            if (isset($tax_id) && isset($tax_key) && isset($tax_tree_id) && isset($tax_id_type)) {
+            if ($tax_id !== false && $tax_key !== false && isset($tax_tree_id) && isset($tax_id_type)) {
                 $tax_parms = array("tax_job_id" => $tax_id, "tax_key" => $tax_key, "tax_tree_id" => $tax_tree_id, "tax_id_type" => $tax_id_type);
             }
             $retval = create_lookup_job($db, $email, $title, "ids", DiagramJob::IdLookup, $db_mod, $seqType, $tax_parms);
@@ -140,7 +140,7 @@ function create_lookup_job($db, $email, $title, $content_field, $job_type, $db_m
 
     if (isset($tax_parms)) {
         // Validate
-        $info = functions::get_taxonomy_job_info($db, $tax_parms["tax_job_id"], $taxParms["tax_key"]);
+        $info = functions::get_taxonomy_job_info($db, $tax_parms["tax_job_id"], $tax_parms["tax_key"]);
         if ($info !== false) {
             $has_tax = true;
         }
@@ -157,7 +157,7 @@ function create_lookup_job($db, $email, $title, $content_field, $job_type, $db_m
                 $has_file = false;
             }
             elseif (!functions::is_valid_id_file_type($fileType)) {
-                $message .= "<br><b>Invalid filetype ($fileType).  The file has to be an " . settings::get_id_diagram_file_types() . " filetype.</b>";
+                $retval["message"] .= "<br><b>Invalid filetype ($fileType).  The file has to be an " . settings::get_valid_file_type() . " filetype.</b>";
                 $has_file = false;
             }
         }

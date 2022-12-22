@@ -285,11 +285,11 @@ class stepa extends est_shared {
         return strlen($path) > 0 ? 1 : 2;
     }
 
-    protected function get_length_histogram_file_name() {
-        if ($this->get_type() == "BLAST") {
+    protected function get_length_histogram_file_name($type) {
+        if ($this->get_type() == "BLAST" && $type == "uniprot") {
             return $this->length_histogram_filename;
         } else {
-            return $this->length_histogram_filename . "_uniprot";
+            return $this->length_histogram_filename . "_$type";
         }
     }
 
@@ -303,7 +303,7 @@ class stepa extends est_shared {
             $type = substr($type, 10);
             $types = array("uniprot" => 1, "uniref" => 1, "uniref90" => 1, "uniref50" => 1, "uniprot_domain" => 1, "uniref_domain" => 1);
             if (isset($types[$type]))
-                $file_name = $this->get_length_histogram_file_name();
+                $file_name = $this->get_length_histogram_file_name($type);
         } elseif ($type == "histogram") {
             $file_name = $this->length_histogram_filename;
         } elseif ($type == "identity") {

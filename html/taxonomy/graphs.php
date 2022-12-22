@@ -5,6 +5,7 @@ use \efi\est\functions;
 use \efi\est\stepa;
 use \efi\training\example_config;
 use \efi\est\download;
+use \efi\send_file;
 use \efi\sanitize;
 
 $is_example = example_config::is_example();
@@ -17,17 +18,17 @@ if ($id === false || $key === false) {
     exit;
 }
 
-$type = isset($_GET["type"]) ? $_GET["type"] : "";
-$type = download::validate_image_type($type);
+$type = sanitize::get_sanitize_string("type", "");
 
 $mime_type = send_file::SEND_FILE_BINARY;
 
 
-if ($type) {
+if ($type == "len_hist") {
     $stepa = new stepa($db, $id, $is_example);
     validate_key($stepa, $key);
 
-    $info = $stepa->get_graph_info($graph);
+    $graph_type = sanitize::get_sanitize_string("gtype", "");
+    $info = $stepa->get_graph_info($graph_type);
     if ($info === false) {
         print_error();
         exit();

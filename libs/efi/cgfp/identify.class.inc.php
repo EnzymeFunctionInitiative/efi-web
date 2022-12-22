@@ -207,6 +207,7 @@ class identify extends job_shared {
         // EST job is verified at this point
         
         $create_params["est_id"] = $est_id;
+        // This filename will be stored as the job name in the database.
         $filename = functions::get_est_job_filename($db, $est_id, $est_key);
 
         $info = self::create_shared($db, $email, "", $filename, "", false, $create_params);
@@ -585,8 +586,10 @@ class identify extends job_shared {
 
     private function get_full_ssn_path() {
         if ($this->est_id) {
+            //TODO: fix this to the new file format
             $dir = global_functions::get_est_job_results_path($this->est_id);
-            $file_path = $dir . "/" . $this->get_filename();
+            $filename = functions::get_est_job_filename($db, $this->est_id);
+            $file_path = $dir . "/" . $filename;
             return $file_path;
         } else {
             $uploads_dir = settings::get_uploads_dir();

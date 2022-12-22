@@ -37,3 +37,5 @@ else
 
 require_once(__BASE_DIR__ . "/includes/error_helpers.inc.php");
 
+ini_set("upload_max_size", "30M");
+

@@ -6,10 +6,10 @@ use \efi\gnt\gnn;
 use \efi\sanitize;
 
 
-$id = sanitize::get_sanitize_string("id");
-$key = sanitize::get_sanitize_key("key");
+$id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
 
-if (!isset($id) || !isset($key)) {
+if ($id === false || $key === false) {
     error404();
 } else if (!isset($_GET['diagram'])) {
     $gnn = new gnn($db, $id);

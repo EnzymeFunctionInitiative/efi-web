@@ -2,10 +2,13 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\gnt\settings;
+use \efi\sanitize;
 
+// Take SVG from the browser and send it back as a file.
 
 $gntServer = settings::get_web_root();
 $refServer = parse_url($_SERVER['HTTP_REFERER'],  PHP_URL_HOST);
+
 
 $isError = false;
 if (strpos($gntServer, $refServer) === FALSE || !isset($_POST["svg"])) {

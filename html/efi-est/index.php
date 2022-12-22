@@ -185,6 +185,19 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
             else
                 $("#domain-region-domain-optd").prop("checked", true)
         });
+        $("#domain-optc").change(function() {
+            var status = $(this).prop("checked");
+            var disableFamilyInput = status;
+            $("#domain-family-optc").prop("disabled", !status);
+            $(".domain-region-cptd").prop("disabled", !status);
+            familySizeHelper.setDisabledState("optc", disableFamilyInput);
+            if (disableFamilyInput)
+                familySizeHelper.resetInput("optc");
+            if (!status)
+                $(".domain-region-optc").prop("checked", false);
+            else
+                $("#domain-region-domain-optc").prop("checked", true)
+        });
         $("#domain-optb").change(function() {
             var status = $(this).prop("checked");
             $(".domain-region-optb").prop("disabled", !status);

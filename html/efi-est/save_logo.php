@@ -26,7 +26,7 @@ if ($key !== $obj->get_key()) {
 
 
 $logo = sanitize::get_sanitize_string("logo", "");
-if ($logo) {
+if (!$logo) {
     error_404();
     exit;
 }
@@ -35,21 +35,21 @@ if ($logo) {
 $type = sanitize::get_sanitize_string("t", "");
 
 $gtype = "hmm";
-if (isset($$type)) {
-    if ($$type == "w")
+if (isset($type)) {
+    if ($type == "w")
         $gtype = "weblogo";
-    elseif ($$type == "l")
+    else if ($type == "l")
         $gtype = "length";
-    elseif ($$type == "afa")
+    else if ($type == "afa")
         $gtype = "afa";
-    elseif ($$type == "hmm-png")
+    else if ($type == "hmm-png")
         $gtype = "hmm_png";
-    elseif ($$type == "hmm")
+    else if ($type == "hmm")
         $gtype = "hmm";
 }
 
 
-$output_dir = $obj->get_full_output_dir();
+$mime_type = send_file::SEND_FILE_PNG;
 
 $file_prefix = "";
 $file_ext = ".png";
@@ -60,6 +60,7 @@ if ($gtype == "hmm_png" || $gtype == "hmm") {
     if ($gtype == "hmm") {
         $file_ext = ".hmm";
         $format = "hmm";
+        $mime_type = send_file::SEND_FILE_BINARY;
     }
 } elseif ($gtype == "weblogo") {
     $graphics = $obj->get_weblogo_graphics();
@@ -72,6 +73,7 @@ if ($gtype == "hmm_png" || $gtype == "hmm") {
     $file_prefix = "Alignment";
     $file_ext = "";
     $format = "afa";
+    $mime_type = send_file::SEND_FILE_BINARY;
 }
 
 
@@ -81,9 +83,10 @@ if (!isset($graphics[$cluster][$seq_type][$quality])) {
     exit;
 }
 
-$filename = $obj->get_output_filename("${file_prefix}_${cluster}_${seq_type}_${quality}.$format");
-$full_path = $obj->get_full_path($graphics[$cluster][$seq_type][$quality]["path"] . $file_ext);
+// This adds the SSN name on to the front
+$filename = $obj->get_output_file_name("${file_prefix}_${cluster}_${seq_type}_${quality}.$format");
+$full_path = $obj->get_hmm_file_full_path($graphics[$cluster][$seq_type][$quality]["path"] . $file_ext);
 
-send_file::send($full_path, $filename, send_file::SEND_FILE_BINARY);
+send_file::send($full_path, $filename, $mime_type);
 
 

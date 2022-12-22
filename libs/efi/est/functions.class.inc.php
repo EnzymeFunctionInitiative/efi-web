@@ -477,12 +477,6 @@ class functions {
     public static function get_colorssn_map_dir_name() {
         return __COLORSSN_MAP_DIR_NAME__;
     }
-    public static function get_colorssn_map_filename() {
-        return __COLORSSN_MAP_FILE_NAME__;
-    }
-    public static function get_colorssn_domain_map_filename() {
-        return __COLORSSN_DOMAIN_MAP_FILE_NAME__;
-    }
 
     public static function get_accession_counts_filename() {
         return __ACC_COUNT_FILENAME__ ? __ACC_COUNT_FILENAME__ : "";

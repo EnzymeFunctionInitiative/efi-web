@@ -11,6 +11,7 @@ use \efi\est\dataset_shared;
 use \efi\est\blast;
 use \efi\training\example_config;
 use \efi\sanitize;
+use \efi\file_types;
 
 
 $id = sanitize::validate_id("id", sanitize::GET);
@@ -195,10 +196,10 @@ $gnt_link = functions::get_gnt_web_root();
 $job_name = $generate->get_job_name();
 $network_name = $analysis->get_name();
 
-$blast_evalue_file = "";
+$has_blast_evalue_file = false;
 if (blast::create_type() == $gen_type) {
-    $file_info = $analysis->get_blast_evalue_file();
-    $blast_evalue_file = $file_info["path"];
+    $file_path = $analysis->get_file_path(file_types::FT_blast_evalue);
+    $has_blast_evalue_file = $file_path !== false;
 }
 
 ?>	
@@ -212,7 +213,7 @@ if (blast::create_type() == $gen_type) {
     <ul>
         <li class="ui-tabs-active"><a href="#info">SSN Overview</a></li>
         <li><a href="#results">Network Files</a></li>
-<?php if ($blast_evalue_file) { ?>
+<?php if ($has_blast_evalue_file) { ?>
         <li><a href="#blast">BLAST Information</a></li>
 <?php } ?>
     </ul>
@@ -321,11 +322,11 @@ if (blast::create_type() == $gen_type) {
             <center><p><a href="tutorial_cytoscape.php">New to Cytoscape?</a></p></center>
         </div>
 
-<?php if ($blast_evalue_file) { ?>
+<?php if ($has_blast_evalue_file) { ?>
         <div id="blast">
             <div>A list of BLAST hits, e-values, and descriptions is provided in this file:</div>
             <div style="margin-top: 10px;">
-                <a href="download.php?dl=BLASTHITS&<?php echo "analysis_id=$analysis_id&key=$key&id=$id"; ?>"><button class="mini">Download file</button></a>
+                <a href="download.php?dl=blast_evalue&<?php echo "analysis_id=$analysis_id&key=$key&id=$id"; ?>"><button class="mini">Download file</button></a>
             </div>
         </div>
 <?php } ?>

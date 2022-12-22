@@ -9,13 +9,15 @@ class sanitize {
 
 
     public static function sanitize_email($env, $var, $default_val = null) {
-        $val = filter_var($email, FILTER_VALIDATE_EMAIL);
+        if (!isset($env[$var]))
+            return $default_val;
+        $val = filter_var($env[$var], FILTER_VALIDATE_EMAIL);
         return $val;
     }
-    public static function get_sanitize_email($env, $var, $default_val = null) {
+    public static function get_sanitize_email($var, $default_val = null) {
         return self::sanitize_email($_GET, $var, $default_val);
     }
-    public static function post_sanitize_email($env, $var, $default_val = null) {
+    public static function post_sanitize_email($var, $default_val = null) {
         return self::sanitize_email($_POST, $var, $default_val);
     }
 

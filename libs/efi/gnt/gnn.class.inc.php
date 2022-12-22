@@ -7,6 +7,7 @@ use \efi\global_settings;
 use \efi\global_functions;
 use \efi\gnt\settings;
 use \efi\gnt\functions;
+use \efi\file_types;
 
 
 class gnn extends gnn_shared {
@@ -652,14 +653,6 @@ class gnn extends gnn_shared {
             return false;
     }
 
-    public function get_file_size($web_path) {
-        if (!$web_path)
-            return 0;
-        $web_path = str_replace("results/", "", $web_path);
-        $full_path = settings::get_output_dir() . "/" . $web_path;
-        return $this->get_shared_file_size($full_path);
-    }
-
     // Legacy Jobs
     public function get_no_matches_file() {
         return $this->shared_get_full_file_path("_no_matches", ".xgmml");
@@ -691,6 +684,82 @@ class gnn extends gnn_shared {
         else
             return settings::get_rel_output_dir();
     }
+
+
+
+
+
+
+    // Return the base file name that will be sent to the user (e.g. JOBID_UPLOADED_FILENAME_coloredssn)
+    private function get_base_filename() {
+        $name = $this->get_id() . "_" . $this->basefilename;
+        return $name;
+    }
+
+    // Get the pretty name
+    public function get_file_name($type) {
+        $ext = file_types::ext($type);
+        if ($ext === false)
+            return false;
+
+        $suffix = file_types::suffix($type);
+        if ($suffix === false)
+            return false;
+
+        $name = $this->get_base_filename();
+        $name .= "_" . $suffix . "_co" . $this->get_cooccurrence() . "_ns" . $this->get_size();
+        $name .= ".$ext";
+        return $name; 
+    }
+    public function get_file_path($type) {
+        $ext = file_types::ext($type);
+        if ($ext === false)
+            return false;
+        $name = file_types::suffix($type);
+        if ($name === false)
+            return false;
+        $base_dir = $this->get_output_dir();
+
+        // Try the simple naming convention first
+        $file_path = "$base_dir/$name.$ext";
+
+        // Then try legacy file naming convention if the new convention doesn't exist
+        if (!file_exists($file_path)) {
+            $file_name = $this->get_file_name($type);
+            $file_path = "$base_dir/${file_name}";
+        }
+
+        if (!file_exists($file_path))
+            return false;
+        return $file_path;
+    }
+
+    public function get_file_size($type) {
+        $file_path = $this->get_file_path($type);
+        if (!file_exists($file_path))
+            return 0;
+        $size = filesize($file_path);
+        return $this->format_size($size);
+    }
+    private function format_size($size) {
+        return round($size / 1048576, 5);
+    }
+
+    public function get_results_file_info($type) {
+        $name = $this->get_file_name($type);
+        if ($name === false)
+            return false;
+        $path = $this->get_file_path($type);
+        if ($path === false)
+            return false;
+        $size = $this->format_size(filesize($path));
+        return array("file_name" => $name, "file_path" => $path, "file_size" => $size);
+    }
+
+
+
+
+
 
     public function set_time_started() {
         $current_time = date("Y-m-d H:i:s",time());
@@ -1065,4 +1134,4 @@ class gnn extends gnn_shared {
         return $jobs;
     }
 }
-?>
+

@@ -45,6 +45,7 @@ if (isset($_POST["email"])) {
 $option = sanitize::post_sanitize_string("option_selected");
 $job_name = sanitize::post_sanitize_string("job-name");
 
+
 $is_error = false;
 if (!isset($_POST["submit"])) {
     $result["MESSAGE"] = "Form is invalid.";
@@ -72,12 +73,14 @@ if (!$is_error && $option != "colorssn" && $option != "cluster" && $option != "n
     $input->job_name = $job_name;
 
     $input->evalue = sanitize::post_sanitize_num("evalue");
-    $input->program = sanitize::post_sanitize_string("program", "");
+    $input->program = sanitize::post_sanitize_string("program");
     $input->fraction = sanitize::post_sanitize_num("fraction");
     $input->job_group = sanitize::post_sanitize_string("job-group");
     $input->db_mod = sanitize::post_sanitize_string("db-mod");
-    $input->cpu_x2 = sanitize::post_sanitize_flag("cpu-x2");
-    $input->large_mem = sanitize::post_sanitize_flag("large-mem", null);
+    if (global_settings::advanced_options_enabled())
+        $input->cpu_x2 = sanitize::post_sanitize_flag("cpu-x2");
+    if (global_settings::advanced_options_enabled())
+        $input->large_mem = sanitize::post_sanitize_flag("large-mem", null);
     $input->exclude_fragments = sanitize::post_sanitize_flag("exclude-fragments");
     $input->tax_search = parse_tax_search();
     $input->tax_search_name = sanitize::post_sanitize_string("tax_name", "", "[^A-Za-z0-9_\-:\| ,]");

@@ -1,6 +1,7 @@
 <?php
 
 define("__BASE_DIR__",__DIR__."/..");
+define("__BIN_DIR__",__BASE_DIR__."/bin");
 
 define("__CONF_DIR__",__DIR__);
 define("__EST_CONF_DIR__",__CONF_DIR__."/efi_est");
