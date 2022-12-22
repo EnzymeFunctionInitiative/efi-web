@@ -6,6 +6,7 @@ use \efi\gnt\settings;
 use \efi\gnt\functions;
 use \efi\gnt\gnn;
 use \efi\gnt\user_jobs;
+use \efi\sanitize;
 
 
 if (!global_settings::get_website_enabled())
@@ -16,39 +17,39 @@ $key = 0;
 $message = "";
 $valid = 0;
 $cookieInfo = "";
+$is_sync = 0;
 
-if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
+if (empty($_POST) && empty($_FILES) && $_SERVER["CONTENT_LENGTH"] > 0) {
     $valid = 0;
-    $displayMaxSize = ini_get('post_max_size');
-    $message = "<br><b>The file was too large.  Please upload a file smaller than $displayMaxSize.</b>";
-} elseif (isset($_POST['submit'])) {
+    $display_max_size = ini_get("post_max_size");
+    $message = "<br><b>The file was too large.  Please upload a file smaller than $display_max_size.</b>";
+} elseif (isset($_POST["submit"])) {
 
     $valid = 1;
 
-    $email = isset($_POST['email']) ? $_POST['email'] : "";
-    $file_is_error = (isset($_FILES['file']['error']) && $_FILES['file']['error'] != 0) ? $_FILES['file']['error'] : 0;
-    $file_name = (!$file_is_error && isset($_FILES['file']) && $_FILES['file']['name']) ? $_FILES['file']['name'] : "";
-    $tmp_name = $file_name ? $_FILES['file']['tmp_name'] : "";
+    $email = sanitize::post_sanitize_email("email");
+
+    $file_is_error = (isset($_FILES["file"]["error"]) && $_FILES["file"]["error"] != 0) ? $_FILES["file"]["error"] : 0;
+    $file_name = (!$file_is_error && isset($_FILES["file"]) && $_FILES["file"]["name"]) ? $_FILES["file"]["name"] : "";
+    $tmp_name = $file_name ? $_FILES["file"]["tmp_name"] : "";
     $file_type = "";
 
     //Sets default % Co-Occurrence value if nothing was inputted.
-    $cooccurrence = settings::get_default_cooccurrence();
-    if ($_POST['cooccurrence'] != "")
-        $cooccurrence = (int)$_POST['cooccurrence'];
+    $cooccurrence = sanitize::post_sanitize_num("cooccurrence", settings::get_default_cooccurrence());
     if ($file_name)
         $file_type = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
+    $gnn_parent_id = false;
     $parent_file_name = "";
-    $gnn_parent_id = 0;
-    if (isset($_POST["parent_id"]) && isset($_POST["parent_key"])) {
-        $parent_id = $_POST["parent_id"];
-        $parent_key = $_POST["parent_key"];
+    $parent_id = sanitize::validate_id("parent_id", sanitize::POST);
+    $parent_key = sanitize::validate_key("parent_key", sanitize::POST);
+    if ($parent_id !== false && $parent_key !== false) {
         $job_info = functions::verify_gnt_job($db, $parent_id, $parent_key);
         if ($job_info !== false) {
             $gnn_parent_id = $parent_id;
-            $parent_file_name = $job_info['filename'];
+            $parent_file_name = $job_info["filename"];
             if (!$email) // we want to set the email address to the parent job email address if none is specified.
-                $email = $job_info['email'];
+                $email = $job_info["email"];
         }
     }
 
@@ -57,11 +58,10 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     $est_file_Name = "";
 
     if (!$file_name) {
-        if (isset($_POST["est-id"]) && isset($_POST["est-key"]) && isset($_POST["est-ssn"])) {
-            $the_aid = $_POST["est-id"];
-            $the_key = $_POST["est-key"];
-            $the_idx = $_POST["est-ssn"];
-
+        $the_aid = sanitize::validate_id("est-id", sanitize::POST);
+        $the_key = sanitize::validate_key("est-key", sanitize::POST);
+        $the_idx = sanitize::validate_id("est-ssn", sanitize::POST);
+        if ($the_aid !== false && $the_key !== false && $the_idx !== false) {
             $job_info = functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
             if ($job_info !== false) {
                 $est_file_info = functions::get_est_filename($job_info, $the_aid, $the_idx);
@@ -88,7 +88,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         $message .= "<br><b>Invalid filetype ($file_type).</b>";
     }
 
-    if (!$gnn_parent_id && !functions::verify_email($email)) {
+    if (!$gnn_parent_id && !isset($email)) {
         $valid = 0;
         $message .= "<br><b>Please verify your e-mail address</b>";
     }
@@ -98,45 +98,38 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         $message .= "<br><b>Invalid % Co-Occurrence.  It must be an integer between 0 and 100.</b>";
     }
 
-    $job_name = isset($_POST['job_name']) ? $_POST['job_name'] : "";
-    $db_mod = isset($_POST['db_mod']) ? $_POST['db_mod'] : "";
-    $extra_ram = (
-        global_settings::advanced_options_enabled() &&
-        isset($_POST['extra_ram']) &&
-        $_POST['extra_ram'] === "true") ? true : false;
-
-    $is_sync = false;
-    if ($valid && isset($_POST["sync_key"]) && functions::check_sync_key($_POST["sync_key"])) {
-        $is_sync = true;
-    }
+    $job_name = sanitize::post_sanitize_string("job_name");
+    $db_mod = sanitize::post_sanitize_string("db_mod");
+    $extra_ram = global_settings::advanced_options_enabled() && sanitize::post_sanitize_flag("extra_ram");
 
     if ($valid) {
+        $nb_size = sanitize::post_sanitize_num("neighbor_size");
         if ($est_analysis_id) {
-            $gnnInfo = gnn::create_from_est_job($db, $email, $_POST['neighbor_size'], $cooccurrence, $est_file_path, $est_analysis_id, $db_mod, $extra_ram);
+            $gnnInfo = gnn::create_from_est_job($db, $email, $nb_size, $cooccurrence, $est_file_path, $est_analysis_id, $db_mod, $extra_ram);
         } else {
             $parms = array(
-                'size' => $_POST['neighbor_size'],
-                'cooccurrence' => $cooccurrence,
-                'job_name' => $job_name,
-                'is_sync' => $is_sync,
-                'db_mod' => $db_mod,
-                'extra_ram' => $extra_ram,
+                "size" => $nb_size,
+                "cooccurrence" => $cooccurrence,
+                "job_name" => $job_name,
+                "is_sync" => $is_sync,
+                "db_mod" => $db_mod,
+                "extra_ram" => $extra_ram,
             );
 
             if ($gnn_parent_id) {
-                $parms['parent_id'] = $gnn_parent_id;
+                $parms["parent_id"] = $gnn_parent_id;
                 if (!$file_name) {
-                    $parms['child_type'] = 'filter';
-                    $parms['filename'] = $parent_file_name;
+                    $parms["child_type"] = "filter";
+                    $parms["filename"] = $parent_file_name;
                 } else {
-                    $parms['child_type'] = 'upload';
+                    $parms["child_type"] = "upload";
                 }
             }
-            $parms['email'] = $email;
+            $parms["email"] = $email;
 
             if ($file_name && $tmp_name) {
-                $parms['tmp_filename'] = $tmp_name;
-                $parms['filename'] = $file_name;
+                $parms["tmp_filename"] = $tmp_name;
+                $parms["filename"] = $file_name;
             }
 
             $gnnInfo = gnn::create4($db, $parms);
@@ -144,19 +137,8 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         if ($gnnInfo === false) {
             $valid = false;
         } else {
-            $id = $gnnInfo['id'];
-            $key = $gnnInfo['key'];
-        }
-    }
-
-    if ($is_sync) {
-        $gnn = new gnn($db, $id, $is_sync);
-        $result = $gnn->run_gnn_sync(functions::get_is_debug());
-        if ($result['RESULT']) {
-            $message = functions::dump_gnn_info($gnn, $is_sync);
-        } else {
-            $valid = false;
-            $message = "Unable to run synchronously: " . $result['MESSAGE'];
+            $id = $gnnInfo["id"];
+            $key = $gnnInfo["key"];
         }
     }
 }
@@ -169,13 +151,13 @@ if ($valid && settings::get_recent_jobs_enabled() && user_jobs::has_token_cookie
 }
 
 $output = array(
-    'valid' => $valid,
-    'id' => $id,
-    'key' => $key,
-    'message' => $message,
-    'cookieInfo' => $cookieInfo
+    "valid" => $valid,
+    "id" => $id,
+    "key" => $key,
+    "message" => $message,
+    "cookieInfo" => $cookieInfo
 );
 
 echo json_encode($output);
 
-?>
+

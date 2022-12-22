@@ -12,6 +12,7 @@ use \efi\cgfp\identify;
 use \efi\cgfp\metagenome_db_manager;
 use \efi\ui;
 use \efi\training\example_config;
+use \efi\sanitize;
 
 
 // There are two types of examples: dynamic and static.  The static example is a curated
@@ -19,13 +20,13 @@ use \efi\training\example_config;
 // jobs, except they are stored in separate directories/tables.
 $is_example = example_config::is_example();
 
-if (!isset($_GET["id"]) || !is_numeric($_GET["id"]) || !isset($_GET["key"])) {
-    error404();
-//} else {
-//    $job_mgr = new job_manager($db, job_types::Identify);
-//    if ($job_mgr->get_job_key($_GET["id"]) != $_GET["key"]) {
-//        error404();
-//    }
+
+$id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+
+if ($id === false || $key === false) {
+    error_404();
+    exit;
 }
 
 $user_token = user_auth::get_user_token();
@@ -34,9 +35,6 @@ if ($user_token) {
     $user_email = user_auth::get_email_from_token($db, $user_token);
 }
 
-
-$id = $_GET["id"];
-$key = $_GET["key"];
 
 $ex_param = $is_example ? "&x=".$is_example : "";
 

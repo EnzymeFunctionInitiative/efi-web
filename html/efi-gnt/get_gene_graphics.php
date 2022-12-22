@@ -7,6 +7,7 @@ use \efi\gnt\gnd_v2;
 use \efi\gnt\job_factory;
 use \efi\training\example_config;
 use \efi\gnt\gnn_example;
+use \efi\send_file;
 
 
 // This is necessary so that the gnd class environment doesn't get clusttered
@@ -77,9 +78,9 @@ foreach ($data["data"] as $row) {
 
 
 $gnn_name = $gnd->get_job_name();
-if (!is_cli())
-    send_headers("${gnn_name}_gene_graphics.tsv", strlen($output));
-print $output;
+
+$file_name = "${gnn_name}_gene_graphics.tsv";
+send_file::send_text($file_name, $output);
 
 
 
@@ -114,17 +115,5 @@ function get_line($organism, $data, $add_ipro = false) {
 
 
 
-function send_headers($dl_filename, $content_size) {
-    header("Content-Description: File Transfer");
-    header("Content-Type: application/octet-stream");
-    header("Content-Disposition: attachment; filename=\"" . $dl_filename . "\"");
-    header("Content-Transfer-Encoding: binary");
-    header("Connection: Keep-Alive");
-    header("Expires: 0");
-    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Pragma: public");
-    header("Content-Length: " . $content_size);
-    ob_clean();
-}
 
 

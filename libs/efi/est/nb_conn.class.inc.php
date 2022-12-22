@@ -59,24 +59,6 @@ class nb_conn extends colorssn_shared {
         $name = parent::get_base_filename();
         return $name .= "_NC";
     }
-    public function get_nc_legend_filename() {
-        return $this->get_base_filename() . "_legend.png";
-    }
-    public function get_nc_legend_full_path() {
-        $filename = "legend.png";
-        return $this->shared_get_full_path($filename);
-    }
-    public function get_nc_table_filename() {
-        return $this->get_base_filename() . "_table.tab";
-    }
-    public function get_nc_table_full_path() {
-        $filename = "nc.tab";
-        return $this->shared_get_full_path($filename);
-    }
-    public function get_colored_ssn_zip_full_path() {
-        $filename = "ssn.zip";
-        return $this->shared_get_full_path($filename);
-    }
 
     // END OVERLOADS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

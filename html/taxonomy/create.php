@@ -6,6 +6,7 @@ use \efi\user_auth;
 use \efi\est\functions;
 use \efi\est\user_jobs;
 use \efi\est\input_data;
+use \efi\sanitize;
 
 
 $result['id'] = 0;
@@ -33,23 +34,27 @@ if ($input->is_debug) {
 }
 
 
-if (isset($_POST['email'])) {
-    $input->email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
-} else {
+$input->email = sanitize::post_sanitize_email("email");
+if (!isset($input->email)) {
     if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie())
         $input->email = user_auth::get_email_from_token($db, user_auth::get_user_token());
+}
+
+$is_error = false;
+if (!isset($_POST['submit'])) {
+    $result["MESSAGE"] = "Form is invalid.";
+    $is_error = true;
+} elseif (!isset($input->email) || !$input->email) {
+    $result["MESSAGE"] = "Please enter an e-mail address.";
+    $is_error = true;
 }
 
 $num_job_limit = global_settings::get_num_job_limit();
 $is_job_limited = user_jobs::check_for_job_limit($db, $input->email);
 
-if (!isset($_POST['submit'])) {
-    $result["MESSAGE"] = "Form is invalid.";
-} elseif (!isset($input->email) || !$input->email) {
-    $result["MESSAGE"] = "Please enter an e-mail address.";
-} elseif ($is_job_limited) {
+if (!$is_error && $is_job_limited) {
     $result["MESSAGE"] = "Due to finite computational resource constraints, you can only have $num_job_limit active or pending jobs within a 24 hour period.  Please try again when some of your jobs have completed.";
-} else {
+} else if (!$is_error) {
     $result['RESULT'] = true;
 
     $message = "";

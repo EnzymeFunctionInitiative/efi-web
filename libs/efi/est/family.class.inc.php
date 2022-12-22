@@ -51,10 +51,6 @@ class family extends family_shared {
             $result->errors = true;
             $result->message .= "Please enter a valid fraction";
         }
-        if ($data->families == "") {
-            $result->errors = true;
-            $result->message .= "Please enter valid InterPro and Pfam numbers";
-        }
 
         return $result;
     }

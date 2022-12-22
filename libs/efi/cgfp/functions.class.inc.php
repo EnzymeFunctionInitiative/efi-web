@@ -22,17 +22,6 @@ class functions extends global_functions {
         8 => 'File upload stopped by extension.',
     );
 
-    public static function verify_email($email) {
-        $email = strtolower($email);
-
-        $valid = 1;
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $valid = 0;
-        }
-        return $valid;
-
-    }
-
     public static function get_upload_error($value) {
         return self::$upload_errors[$value];
 
@@ -159,18 +148,24 @@ class functions extends global_functions {
         return in_array($sb_group, $groups);
     }
 
-    public static function get_est_job_filename($db, $est_id, $est_key) {
+    public static function get_est_job_filename($db, $est_id, $est_key = null) {
         if (!is_numeric($est_id))
             return false;
-        $est_key = preg_replace("/[^A-Za-z0-9]/", "", $est_key);
+
+        //$est_key is allowed to be null, because this function can be called from an internal function to retrieve the filename only
+        $key_where = isset($est_key) ? " AND generate_key = '$est_key'" : "";
 
         $est_db = global_settings::get_est_database();
-        $sql = "SELECT generate_params FROM $est_db.generate WHERE generate_id = $est_id AND generate_key = '$est_key'";
+        $sql = "SELECT generate_params FROM $est_db.generate WHERE generate_id = $est_id $key_where";
         $result = $db->query($sql);
         if ($result) {
             $params = global_functions::decode_object($result[0]["generate_params"]);
             $filename = isset($params["generate_fasta_file"]) ? $params["generate_fasta_file"] :
                 (isset($params["file"]) ? $params["file"] : "");
+
+            // Get the file name only, for display purposes.  If $est_key, then this is
+            // going to be used for the full path to the original source EST file.  The original 
+            // 'safe' EST file will be used as the source for the identify job.
             $filename = global_functions::get_est_colorssn_filename($est_id, $filename);
             return $filename;
         } else {

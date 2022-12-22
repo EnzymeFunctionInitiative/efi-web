@@ -12,6 +12,7 @@ use \efi\cgfp\settings;
 use \efi\cgfp\settings_shared;
 use \efi\cgfp\job_manager;
 use \efi\cgfp\job_types;
+use \efi\sanitize;
 
 
 $user_email = "Enter your e-mail address";
@@ -64,11 +65,11 @@ if (!global_settings::get_shortbred_enabled()) {
     error404();
 }
 
-$est_id = isset($_GET["est-id"]) ? $_GET["est-id"] : 0;
-$est_key = isset($_GET["est-key"]) ? $_GET["est-key"] : "";
+$est_id = sanitize::validate_id("est-id", sanitize::GET);
+$est_key = sanitize::validate_key("est-key", sanitize::GET);
 
 $est_filename = "";
-if ($est_id && $est_key) {
+if ($est_id !== false && $est_key !== false) {
     $est_filename = functions::get_est_job_filename($db, $est_id, $est_key);
 }
 

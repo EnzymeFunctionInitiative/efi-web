@@ -128,6 +128,12 @@ FamilySizeHelper.prototype.checkFamilyInput = function (optionName) {
     }
 
     var handleResponse = function(data, countOutputId) {
+        console.log(data);
+        if (!data || data.result == false) {
+            container.hide();
+            return;
+        }
+
         var sumCounts = getFamilyCountsTableHandler(data, countOutputId);
         var resetFormStyleError = true;
         var resetFormStyleWarning = true;

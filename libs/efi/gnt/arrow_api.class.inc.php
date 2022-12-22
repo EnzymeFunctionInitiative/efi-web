@@ -98,5 +98,3 @@ abstract class arrow_api extends job_shared {
 }
 
 
-?>
-

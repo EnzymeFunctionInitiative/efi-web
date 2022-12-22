@@ -9,6 +9,8 @@ use \efi\est\est_shared;
 use \efi\est\settings;
 use \efi\est\functions;
 use \efi\training\example_config;
+use \efi\sanitize;
+use \efi\send_file;
 
 
 class stepa extends est_shared {
@@ -33,17 +35,10 @@ class stepa extends est_shared {
     protected $ex_data_dir = "";
     private $load_table = "generate";
 
-    private $alignment_length_filename = "alignment_length.png";
-    private $alignment_length_new = "alignment_length_new.png";
-    private $alignment_length_new_html = "alignment_length_new.html";
-    private $percent_identity_filename = "percent_identity.png";
-    private $percent_identity_new = "percent_identity_new.png";
-    private $percent_identity_new_html = "percent_identity_new.html";
-    private $number_of_edges_filename = "number_of_edges.png";
-    private $alignment_length_sm_filename = "alignment_length_sm.png";
-    private $percent_identity_sm_filename = "percent_identity_sm.png";
-    private $number_of_edges_sm_filename = "number_of_edges_sm.png";
-    private $length_histogram_filename = "length_histogram.png";
+    private $alignment_length_filename = "alignment_length";
+    private $percent_identity_filename = "percent_identity";
+    private $number_of_edges_filename = "number_of_edges";
+    private $length_histogram_filename = "length_histogram"; // blast jobs are "length_histogram", all others are "length_histogram_uniprot"
 
 
     public function __construct($db, $id = 0, $is_example = false) {
@@ -249,54 +244,22 @@ class stepa extends est_shared {
         return $result;
     }
 
-    private function get_plot_path_shared($for_web, $file_name) {
+    private function get_results_path() {
         if ($this->is_example)
-            $dir = ($for_web ? functions::get_results_example_dirname($this->is_example) : $this->ex_data_dir);
+            $dir = $this->ex_data_dir;
         else
-            $dir = ($for_web ? functions::get_results_dirname() : functions::get_results_dir());
-        return $dir . "/" . $this->get_output_dir() . "/" . $file_name;
-    }
-    public function get_alignment_plot($for_web = 0) {
-        return $this->get_plot_path_shared($for_web, $this->alignment_length_filename);
-    }
-    public function get_alignment_plot_new($for_web = 0) {
-        return $this->get_plot_path_shared($for_web, $this->alignment_length_new);
-    }
-    public function get_alignment_plot_new_html($for_web = 0) {
-        return $this->get_plot_path_shared($for_web, $this->alignment_length_new_html);
-    }
-    public function alignment_plot_exists() {
-        return file_exists($this->get_alignment_plot(0));
+            $dir = functions::get_results_dir();
+        // /path/to/base/est/results_dir/JOB_ID  . "/" . results . "/" ...
+        return $dir . "/" . $this->get_output_dir();
     }
     public function alignment_plot_new_exists() {
-        return file_exists($this->get_alignment_plot_new(0));
-    }
-    public function get_length_histogram_plot($for_web = 0) {
-        return $this->get_plot_path_shared($for_web, $this->length_histogram_filename);
-    }
-    public function length_histogram_plot_exists() {
-        return file_exists($this->get_length_histogram_plot(0));
-    }
-    public function get_percent_identity_plot($for_web = 0) {
-        return $this->get_plot_path_shared($for_web, $this->percent_identity_filename);
-    }
-    public function get_percent_identity_plot_new($for_web = 0) {
-        return $this->get_plot_path_shared($for_web, $this->percent_identity_new);
+        return false;
     }
     public function get_percent_identity_plot_new_html($for_web = 0) {
-        return $this->get_plot_path_shared($for_web, $this->percent_identity_new_html);
-    }
-    public function percent_identity_plot_exists() {
-        return file_exists($this->get_percent_identity_plot(0));
+        return "";
     }
     public function percent_identity_plot_new_exists() {
-        return file_exists($this->get_percent_identity_plot_new(0));
-    }
-    public function get_number_edges_plot($for_web = 0) {
-        return $this->get_plot_path_shared($for_web, $this->number_of_edges_filename);
-    }
-    public function number_edges_plot_exists() {
-        return file_exists($this->get_number_edges_plot(0));
+        return false;
     }
 
     private function get_plot_webpath_sm_shared($file_name) {
@@ -316,104 +279,61 @@ class stepa extends est_shared {
             return "";
         }
     }
-    public function get_alignment_plot_sm() {
-        return $this->get_plot_webpath_sm_shared($this->alignment_length_sm_filename);
-    }
-    public function get_percent_identity_plot_sm() {
-        return $this->get_plot_webpath_sm_shared($this->percent_identity_sm_filename);
-    }
-    public function get_number_edges_plot_sm() {
-        return $this->get_plot_webpath_sm_shared($this->number_of_edges_sm_filename);
-    }
-
-    public function get_length_histogram_filename($type, $small = false) {
-        if ($type)
-            $type = "_$type";
-        else
-            $type = "";
-        $filename = "length_histogram$type";
-        if ($small)
-            $filename .= "_sm";
-        $filename .= ".png";
-        return $filename;
-    }
-    public function get_length_histogram_download_type($type) {
-        if ($type)
-            return "HISTOGRAM_" . strtoupper($type);
-        else
-            return "HISTOGRAM";
-    }
-    public function get_length_histogram($type, $for_web = false, $small = false) {
-        $filename = $this->get_length_histogram_filename($type, $small);
-        if ($for_web)
-            $path = $this->get_plot_webpath_sm_shared($filename);
-        else
-            $path = $this->get_plot_path_shared(0, $filename);
-        return $path;
-    }
 
     public function get_graphs_version() {
         $path = $this->get_plot_webpath_sm_shared($this->length_histogram_filename);
         return strlen($path) > 0 ? 1 : 2;
     }
 
-    public function download_graph($type) {
-        $filename = "";
-        if ($type == "ALIGNMENT") {
-            $full_path = $this->get_alignment_plot(0);
-            $filename = $this->alignment_length_filename;
-        } elseif (strlen($type) > 9 && substr($type, 0, 9) == "HISTOGRAM") {
-            $histo = substr($type, 10);
-            if ($histo == "UNIPROT")
-                $histo = "uniprot";
-            elseif ($histo == "UNIREF")
-                $histo = "uniref";
-            elseif ($histo == "UNIREF90")
-                $histo = "uniref90";
-            elseif ($histo == "UNIREF50")
-                $histo = "uniref50";
-            elseif ($histo == "UNIPROT_DOMAIN")
-                $histo = "uniprot_domain";
-            elseif ($histo == "UNIREF_DOMAIN")
-                $histo = "uniref_domain";
-            else
-                $histo = "";
-            if ($histo) {
-                $full_path = $this->get_length_histogram($histo, false);
-                $filename = $this->get_length_histogram_filename($histo);
-            }
-        } elseif ($type == "HISTOGRAM") {
-            $full_path = $this->get_length_histogram("", false, false);
-            $filename = $this->get_length_histogram_filename("", false);
-        } elseif ($type == "IDENTITY") {
-            $full_path = $this->get_percent_identity_plot(0);
-            $filename = $this->percent_identity_filename;
-        } elseif ($type == "EDGES") {
-            $full_path = $this->get_number_edges_plot(0);
-            $filename = $this->number_of_edges_filename;
+    protected function get_length_histogram_file_name($type) {
+        if ($this->get_type() == "BLAST" && $type == "uniprot") {
+            return $this->length_histogram_filename;
+        } else {
+            return $this->length_histogram_filename . "_$type";
         }
-        $job_name = global_functions::safe_filename($this->get_job_name());
+    }
+
+    public function get_graph_info($type) {
+        $file_name = "";
+        $dir_path = $this->get_results_path();
+
+        if ($type == "alignment") {
+            $file_name = $this->alignment_length_filename;
+        } elseif (strlen($type) > 9 && substr($type, 0, 9) == "histogram") {
+            $type = substr($type, 10);
+            $types = array("uniprot" => 1, "uniref" => 1, "uniref90" => 1, "uniref50" => 1, "uniprot_domain" => 1, "uniref_domain" => 1);
+            if (isset($types[$type]))
+                $file_name = $this->get_length_histogram_file_name($type);
+        } elseif ($type == "histogram") {
+            $file_name = $this->length_histogram_filename;
+        } elseif ($type == "identity") {
+            $file_name = $this->percent_identity_filename;
+        } elseif ($type == "edges") {
+            $file_name = $this->number_of_edges_filename;
+        }
+        $info = array("file_path" => false, "file_name" => false);
+        $file_path = "$dir_path/$file_name";
+
+        if (!file_exists("$file_path.png"))
+            return false;
+
+        $job_name = $this->get_job_name();
         $id = $this->get_id();
         if ($job_name)
-            $filename = "${job_name}_$filename";
-        $filename = "${id}_$filename";
-        if (file_exists($full_path)) {
-            global_functions::send_image_file_for_download($filename, $full_path);
-#            header('Content-Description: File Transfer');
-#            header('Content-Type: application/octet-stream');
-#            header('Content-Disposition: attachment; filename="'.$filename.'"');
-#            header('Content-Transfer-Encoding: binary');
-#            header('Connection: Keep-Alive');
-#            header('Expires: 0');
-#            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-#            header('Pragma: public');
-#            header('Content-Length: ' . filesize($full_path));
-#            ob_clean();
-#            readfile($full_path);
-        }
-        else {
-            return false;
-        }
+            $file_name = "${job_name}_$file_name";
+        $file_name = "${id}_$file_name";
+
+        $info["file_path"] = "$file_path.png";
+        $info["file_name"] = "$file_name.png";
+        if (file_exists("${file_path}_sm.png"))
+            $info["small_path"] = "${file_path}_sm.png";
+
+        return $info;
+    }
+
+    public function graph_exists($type) {
+        $info = $this->get_graph_info($type);
+        return $info !== false;
     }
 
     // PARENT EMAIL-RELATED OVERLOADS
@@ -606,16 +526,6 @@ class stepa extends est_shared {
 
     protected function encode_object($obj) {
         return global_functions::encode_object($obj);
-    }
-
-    protected function verify_email($email) {
-        $email = strtolower($email);
-        $valid = 1;
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $valid = 0;
-        }
-        return $valid;
-
     }
 
     protected function verify_evalue($evalue) {

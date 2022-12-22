@@ -90,7 +90,7 @@ class functions {
 
     public static function get_job_status($db, $generate_id, $analysis_id, $key) {
         $result = array("generate" => "", "analysis" => "", "job_type" => "", "sql" => "");
-        if ($analysis_id) {
+        if (isset($analysis_id) && $analysis_id !== false) {
             $sql = "SELECT A.analysis_status, G.generate_status, G.generate_type ";
             $sql .= "FROM analysis AS A ";
             $sql .= "LEFT JOIN generate AS G ON A.analysis_generate_id = G.generate_id ";
@@ -476,12 +476,6 @@ class functions {
 
     public static function get_colorssn_map_dir_name() {
         return __COLORSSN_MAP_DIR_NAME__;
-    }
-    public static function get_colorssn_map_filename() {
-        return __COLORSSN_MAP_FILE_NAME__;
-    }
-    public static function get_colorssn_domain_map_filename() {
-        return __COLORSSN_DOMAIN_MAP_FILE_NAME__;
     }
 
     public static function get_accession_counts_filename() {

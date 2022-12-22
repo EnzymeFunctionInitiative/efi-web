@@ -3,13 +3,17 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\cgfp\job_manager;
 use \efi\cgfp\job_types;
+use \efi\sanitize;
 
+$id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id']) || !isset($_GET['key'])) {
-    error500("Unable to find the requested job.");
+if ($id === false || $key === false) {
+    error_404();
+    exit;
 } else {
     $job_mgr = new job_manager($db, job_types::Identify);
-    if ($job_mgr->get_job_key($_GET['id']) != $_GET['key']) {
+    if ($job_mgr->get_job_key($id) != $key) {
         error500("Unable to find the requested job.");
     }
 }

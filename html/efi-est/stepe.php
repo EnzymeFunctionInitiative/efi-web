@@ -10,23 +10,27 @@ use \efi\est\analysis;
 use \efi\est\dataset_shared;
 use \efi\est\blast;
 use \efi\training\example_config;
+use \efi\sanitize;
+use \efi\file_types;
 
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id']) || !isset($_GET['analysis_id']) || !is_numeric($_GET['analysis_id'])) {
+$id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+$analysis_id = sanitize::validate_id("analysis_id", sanitize::GET);
+
+if ($id === false || $key === false || $analysis_id === false) {
     error500("Unable to find the requested job.");
 }
 
 $is_example = example_config::is_example();
-$generate = new stepa($db, $_GET['id'], $is_example);
-$generate_id = $generate->get_id();
+
+$generate = new stepa($db, $id, $is_example);
 $email = $generate->get_email();
 
-if ($generate->get_key() != $_GET['key']) {
+if ($generate->get_key() != $key) {
     error500("Unable to find the requested job.");
 }
-$key = $_GET['key'];
 
-$analysis_id = $_GET['analysis_id'];
 $analysis = new analysis($db, $analysis_id, $is_example);
 
 
@@ -65,11 +69,10 @@ $table = new table_builder($table_format);
 
 $gen_type = $generate->get_type();
 $generate = dataset_shared::create_generate_object($gen_type, $db, $is_example);
-$stats = $analysis->get_network_stats();
 
 $table = new table_builder($table_format);
 
-add_analysis_summary_table($analysis, $stats, $table);
+add_analysis_summary_table($analysis, $table);
 
 $table->add_html('</table><br><h4>Dataset Summary</h4><table width="100%" class="pretty no-stretch">');
 
@@ -87,16 +90,17 @@ if (isset($_GET["as-table"])) {
     exit(0);
 } elseif (isset($_GET["stats-as-table"])) {
 
-    $stats = $analysis->get_network_stats();
     $stats_table = new table_builder("tab");
     $stats_table->add_row("Network", "# Nodes", "# Edges", "File Size (MB)");
 
-    for ($i = 0; $i < count($stats); $i++) {
-        $percent_id = "Full";
-        if ($i > 0)
-            $percent_id = analysis::get_percent_identity($fname);
-        $stats_table->add_row($percent_id, number_format($stats[$i]['Nodes'],0), number_format($stats[$i]['Edges'],0),
-            functions::bytes_to_megabytes($stats[$i]['Size'],0) . " MB");
+    $num_networks = $analysis->get_num_networks();
+    for ($idx = 0; $idx < $num_networks; $idx++) {
+        $info = $analysis->get_network_stats($idx);
+        //$percent_id = "Full";
+        //if ($idx > 0)
+        //    $percent_id = analysis::get_percent_identity($fname);
+        $stats_table->add_row($info["pid"], number_format($info["nodes"], 0), number_format($info["edges"], 0),
+            functions::bytes_to_megabytes($info["size"], 0) . " MB");
     }
 
     $table_string = $stats_table->as_string();
@@ -112,7 +116,6 @@ $has_repnode = $analysis->get_build_repnode();
 $IncludeSubmitJs = true;
 require_once(__DIR__."/inc/header.inc.php");
 
-// $stats is set above
 $rep_network_html = "";
 $full_network_html = "";
 $full_edge_count = 0;
@@ -122,41 +125,32 @@ $color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
     $html = " <button class='mini colorssn-btn' type='button' onclick='$js_code' data-aid='$analysis_id' data-ssn-index='$ssn_index'>Color SSN</button>";
     return $html;
 };
-$get_nc_dl_btn = function($nc_web_path) {
-    //return" <span style=\"padding-left:15px\"></span><a href=\"$nc_web_path\" title=\"Download NC legend\">NC <i class=\"fas fa-file-image\"></i></a>";
-    return " <span style=\"padding-left:15px\"></span><a href='$nc_web_path'><button class='mini'>Download NC color scale</button></a>";
-};
-$get_ssn_dl_btn = function($web_path, $btn_text = "Download") {
-    //return " <span style=\"padding-left:15px\"></span><a href=\"$web_path.zip\" title=\"$btn_text\"><i class=\"fas fa-file-archive\"></i></a>";
-    return " <a href='$web_path.zip'><button class='mini'>$btn_text</button></a>";
-};
 
-for ($i = 0; $i < count($stats); $i++) {
-    $gnt_args = "est-id=$analysis_id&est-key=$key&est-ssn=$i";
-    $fname = $stats[$i]['File'];
 
-    $web_dir_path = $analysis->get_web_dir_path();
-    $web_path = "$web_dir_path/$fname";
-    $nc_file = $analysis->get_nc_web_path($fname, true); // true for filename only
-    $nc_web_path = "graphs.php?aid=$analysis_id&key=$key&net=$nc_file&atype=NC";
+$num_ssns = $analysis->get_num_networks();
+for ($idx = 0; $idx < $num_ssns; $idx++) {
+    $gnt_args = "est-id=$analysis_id&est-key=$key&est-ssn=$idx";
 
-    $size = $analysis->get_zip_file_size($fname);
+    $stats = $analysis->get_network_stats($idx);
+    $fname = $stats["file"];
 
-    if ($i == 0) {
-        $full_edge_count = number_format($stats[$i]['Edges'], 0);
-        if ($stats[$i]['Nodes'] == 0)
+    $size = $stats["zip_size"];
+
+    if ($idx == 0) {
+        $full_edge_count = number_format($stats["edges"], 0);
+        if ($stats["nodes"] == 0)
             continue;
         $full_network_html = "<tr>";
         $full_network_html .= "<td>";
         //if (!$is_example)
-        //    $full_network_html .= $get_ssn_dl_btn($web_path);
+        //    $full_network_html .= get_ssn_dl_btn($web_path);
 
-        $full_network_html .= $get_ssn_dl_btn($web_path, "Download ZIP");
-        if ($has_nc && $nc_web_path)
-            $full_network_html .= $get_nc_dl_btn($nc_web_path);
+        $full_network_html .= get_ssn_dl_btn($idx, "Download ZIP");
+        if ($has_nc)
+            $full_network_html .= get_nc_dl_btn($idx);
         $full_network_html .= "</td>\n";
-        $full_network_html .= "<td>" . number_format($stats[$i]['Nodes'],0) . "</td>\n";
-        $full_network_html .= "<td>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
+        $full_network_html .= "<td>" . number_format($stats["nodes"], 0) . "</td>\n";
+        $full_network_html .= "<td>" . number_format($stats["edges"], 0) . "</td>\n";
         //$full_network_html .= "<td>" . functions::bytes_to_megabytes($size, 0) . " MB</td>\n";
         if (!$is_example) {
             $full_network_html .= "<td>";
@@ -165,26 +159,26 @@ for ($i = 0; $i < count($stats); $i++) {
         }
         $full_network_html .= "</tr>";
     } else {
-        $percent_identity = analysis::get_percent_identity($fname);
+        $percent_identity = $stats["pid"];
         $rep_network_html .= "<tr>";
-        if ($stats[$i]['Nodes'] == 0) {
+        if ($stats["nodes"] == 0) {
             $rep_network_html .= "<td>";
         } else {
             $rep_network_html .= "<td>";
             //if (!$is_example)
-            //    $rep_network_html .= $get_ssn_dl_btn($web_path);
-            $rep_network_html .= $get_ssn_dl_btn($web_path, "Download ZIP");
-            if ($has_nc && $nc_web_path)
-                $rep_network_html .= $get_nc_dl_btn($nc_web_path);
+            //    $rep_network_html .= get_ssn_dl_btn($web_path);
+            $rep_network_html .= get_ssn_dl_btn($idx, "Download ZIP");
+            if ($has_nc)
+                $rep_network_html .= get_nc_dl_btn($idx);
             $rep_network_html .= "</td>\n";
         }
         $rep_network_html .= "<td>" . $percent_identity . "</td>\n";
-        if ($stats[$i]['Nodes'] == 0) {
+        if ($stats["nodes"] == 0) {
             $rep_network_html .= "<td colspan='4'>The output file was too large (edges=" . 
-                number_format($stats[$i]['Edges'], 0) . ") to be generated by EST.</td>\n";
+                number_format($stats["edges"], 0) . ") to be generated by EST.</td>\n";
         } else {
-            $rep_network_html .= "<td>" . number_format($stats[$i]['Nodes'],0) . "</td>\n";
-            $rep_network_html .= "<td>" . number_format($stats[$i]['Edges'],0) . "</td>\n";
+            $rep_network_html .= "<td>" . number_format($stats["nodes"], 0) . "</td>\n";
+            $rep_network_html .= "<td>" . number_format($stats["edges"], 0) . "</td>\n";
             //$rep_network_html .= "<td>" . functions::bytes_to_megabytes($size, 0) . " MB</td>\n";
             if (!$is_example) {
                 $rep_network_html .= "<td>";
@@ -202,10 +196,10 @@ $gnt_link = functions::get_gnt_web_root();
 $job_name = $generate->get_job_name();
 $network_name = $analysis->get_name();
 
-$blast_evalue_file = "";
+$has_blast_evalue_file = false;
 if (blast::create_type() == $gen_type) {
-    $file_info = $analysis->get_blast_evalue_file();
-    $blast_evalue_file = $file_info["path"];
+    $file_path = $analysis->get_file_path(file_types::FT_blast_evalue);
+    $has_blast_evalue_file = $file_path !== false;
 }
 
 ?>	
@@ -219,7 +213,7 @@ if (blast::create_type() == $gen_type) {
     <ul>
         <li class="ui-tabs-active"><a href="#info">SSN Overview</a></li>
         <li><a href="#results">Network Files</a></li>
-<?php if ($blast_evalue_file) { ?>
+<?php if ($has_blast_evalue_file) { ?>
         <li><a href="#blast">BLAST Information</a></li>
 <?php } ?>
     </ul>
@@ -234,7 +228,7 @@ if (blast::create_type() == $gen_type) {
             <table width="100%" class="pretty no-stretch">
                 <?php echo $table_string; ?>
             </table>
-            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=" . $_GET['key'] . "&analysis_id=" . $_GET['analysis_id'] . "&as-table=1$ex_param" ?>'><button class='normal'>Download Information</button></a></div>
+            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$id&key=$key&analysis_id=$analysis_id&as-table=1$ex_param" ?>'><button class='normal'>Download Information</button></a></div>
             <div style="clear: both"></div>
             <?php if ($is_migrated) { ?>
                 <div style="margin-top: 20px;">
@@ -320,10 +314,7 @@ if (blast::create_type() == $gen_type) {
             </table>
         
             <div style="margin-top: 10px; float: right;">
-                <a href="<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] .
-                                    "&key=" . $_GET['key'] .
-                                    "&analysis_id=" . $_GET['analysis_id'] .
-                                    "&stats-as-table=1$ex_param" ?>"><button class='mini'>Download Network Statistics as Table</button></a>
+                <a href="<?php echo $_SERVER['PHP_SELF'] . "?id=$id&key=$key&analysis_id=$analysis_id&stats-as-table=1$ex_param" ?>"><button class='mini'>Download Network Statistics as Table</button></a>
             </div>
             <div style="clear:both"></div>
 <?php } ?>
@@ -331,11 +322,11 @@ if (blast::create_type() == $gen_type) {
             <center><p><a href="tutorial_cytoscape.php">New to Cytoscape?</a></p></center>
         </div>
 
-<?php if ($blast_evalue_file) { ?>
+<?php if ($has_blast_evalue_file) { ?>
         <div id="blast">
             <div>A list of BLAST hits, e-values, and descriptions is provided in this file:</div>
             <div style="margin-top: 10px;">
-                <a href="download.php?dl=BLASTHITS&<?php echo "analysis_id=$analysis_id&key=$key&id=$generate_id"; ?>"><button class="mini">Download file</button></a>
+                <a href="download.php?dl=blast_evalue&<?php echo "analysis_id=$analysis_id&key=$key&id=$id"; ?>"><button class="mini">Download file</button></a>
             </div>
         </div>
 <?php } ?>
@@ -386,6 +377,23 @@ require_once(__DIR__."/inc/footer.inc.php");
 
 
 
+
+
+
+
+function get_ssn_dl_btn($ssn_idx, $btn_text = "Download") {
+    global $analysis_id, $key;
+    //return " <span style=\"padding-left:15px\"></span><a href=\"$web_path.zip\" title=\"$btn_text\"><i class=\"fas fa-file-archive\"></i></a>";
+    $web_path = "download.php?aid=$analysis_id&key=$key&dl=ssn&idx=$ssn_idx";
+    return " <a href='$web_path'><button class='mini'>$btn_text</button></a>";
+}
+
+function get_nc_dl_btn($ssn_idx) {
+    global $analysis_id, $key;
+    $nc_web_path = "graphs.php?aid=$analysis_id&key=$key&net=$ssn_idx&atype=NC";
+    return " <span style=\"padding-left:15px\"></span><a href='$nc_web_path'><button class='mini'>Download NC color scale</button></a>";
+}
+
 function make_split_button($args, $show_nc_xfer = true) {
     $nc_link_text = $show_nc_xfer ? "<a href=\"index.php?mode=nc&$args\">Neighborhood Connectivity</a>" : "";
     return <<<HTML
@@ -395,13 +403,15 @@ HTML;
 }
 
 
-function add_analysis_summary_table($analysis, $stats, $table) {
+function add_analysis_summary_table($analysis, $table) {
     $use_advanced_options = global_settings::advanced_options_enabled();
-    
+
+    $stats = $analysis->get_network_stats(0);
+
     $network_name = $analysis->get_name();
     $time_window = $analysis->get_time_period();
     $a_id = $analysis->get_id();
-    $num_filt_seq = isset($stats[0]["Nodes"]) ? $stats[0]["Nodes"] : 0;
+    $num_filt_seq = (isset($stats) && isset($stats["nodes"])) ? $stats["nodes"] : 0;
     $tax_search = $analysis->get_tax_search_formatted();
     $remove_fragments = $analysis->get_remove_fragments();
 

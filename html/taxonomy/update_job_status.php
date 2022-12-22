@@ -3,13 +3,14 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\est\job_status;
 use \efi\global_functions;
+use \efi\sanitize;
 
 
 $is_error = false;
-$id = $_POST["id"];
-$key = $_POST["key"];
+$id = sanitize::validate_id("id", sanitize::POST);
+$key = sanitize::validate_key("key", sanitize::POST);
 
-if (!global_functions::validate_id($id)) {
+if ($id === false || $key === false) {
     echo json_encode(array("valid" => false));
     exit(1);
 }
@@ -23,7 +24,7 @@ if (!$job->load_validate($key)) {
 }
 
 
-$request_type = isset($_POST["rt"]) ? $_POST["rt"] : false;
+$request_type = sanitize::post_sanitize_string("rt", false);
 
 if ($request_type == "c") {
     $job->cancel();

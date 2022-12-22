@@ -6,6 +6,7 @@ use \efi\cgfp\settings;
 use \efi\cgfp\functions;
 use \efi\cgfp\identify;
 use \efi\user_auth;
+use \efi\sanitize;
 
 // settings class isn't used, so we get an error when loading global_settings because this file isn't loaded.
 require_once(__CGFP_CONF_DIR__."/settings.inc.php");
@@ -29,14 +30,14 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     $file_type = "";
     //Sets default % Co-Occurrence value if nothing was inputted.
 
-    $est_id = isset($_POST['est-id']) ? $_POST['est-id'] : 0;
-    $est_key = isset($_POST['est-key']) ? $_POST['est-key'] : "";
+    $est_id = sanitize::validate_id("est-id", sanitize::POST);
+    $est_key = sanitize::validate_key("key-key", sanitize::POST);
 
     if (isset($_FILES['file'])) {
         $file_type = strtolower(pathinfo($_FILES['file']['name'],PATHINFO_EXTENSION));
     }
 
-    if ($est_id && $est_key) {
+    if ($est_id !== false && $est_key !== false) {
         if (!functions::get_est_job_filename($db, $est_id, $est_key)) {
             $valid = 0;
             $message .= "Invalid EST job.";
@@ -54,21 +55,21 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         }
     }
 
-    if (!functions::verify_email($_POST['email'])) {
+    $email = sanitize::post_sanitize_email("email"); // returns null if not valid
+    if (!$email) {
         $valid = 0;
         $message .= "Please verify your e-mail address";
     }
 
-    $email          = $_POST['email'];
-    $update_id      = isset($_POST['update-id']) ? $_POST['update-id'] : "";
-    $update_key     = isset($_POST['update-key']) ? $_POST['update-key'] : "";
-    $min_seq_len    = isset($_POST['min-seq-len']) ? $_POST['min-seq-len'] : "";
-    $max_seq_len    = isset($_POST['max-seq-len']) ? $_POST['max-seq-len'] : "";
-    $search_type    = isset($_POST['search-type']) ? $_POST['search-type'] : "";
-    $ref_db         = isset($_POST['ref-db']) ? $_POST['ref-db'] : "";
-    $cdhit_sid      = isset($_POST['cdhit-sid']) ? $_POST['cdhit-sid'] : "";
-    $diamond_sens   = isset($_POST['diamond-sens']) ? $_POST['diamond-sens'] : "";
-    $db_mod         = isset($_POST['db-mod']) ? $_POST['db-mod'] : "";
+    $update_id      = sanitize::post_sanitize_string("update-id", "");
+    $update_key     = sanitize::post_sanitize_string("update-key", "");
+    $min_seq_len    = sanitize::post_sanitize_num("min-seq-len", "");
+    $max_seq_len    = sanitize::post_sanitize_num("max-seq-len", "");
+    $search_type    = sanitize::post_sanitize_string("search-type", "");
+    $ref_db         = sanitize::post_sanitize_string("ref-db", "");
+    $cdhit_sid      = sanitize::post_sanitize_string("cdhit-sid", "");
+    $diamond_sens   = sanitize::post_sanitize_string("diamond-sens", "");
+    $db_mod         = sanitize::post_sanitize_string("db-mod", "");
 
     if ($valid) {
         if ($update_id && $update_key) {

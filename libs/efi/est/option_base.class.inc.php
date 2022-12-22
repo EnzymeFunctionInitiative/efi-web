@@ -8,6 +8,7 @@ use \efi\global_functions;
 use \efi\est\input;
 use \efi\est\output;
 use \efi\est\queue;
+use \efi\sanitize;
 
 
 abstract class option_base extends stepa {
@@ -178,7 +179,7 @@ abstract class option_base extends stepa {
         );
         if (isset($data->job_name))
             $insert_array['generate_job_name'] = $data->job_name;
-        if (isset($data->db_mod) && preg_match("/^[A-Z0-9]{4}/", $data->db_mod))
+        if (isset($data->db_mod) && preg_match("/^[IP0-9]{4,5}$/", $data->db_mod))
             $insert_array['generate_db_mod'] = $data->db_mod;
         if (isset($data->cpu_x2) && $data->cpu_x2 === true)
             $insert_array['generate_cpu_x2'] = $data->cpu_x2;
@@ -200,7 +201,7 @@ abstract class option_base extends stepa {
         $result = new validation_result;
         $result->errors = false;
 
-        if (!$this->verify_email($data->email)) {
+        if (!$data->email) {
             $result->errors = true;
             $result->message .= "Please enter a valid email address";
         }
@@ -330,7 +331,10 @@ abstract class option_base extends stepa {
         }
         else {
             functions::log_message("There was an error: " . $output . "  exit status: $exit_status" . "  " . join(',', $output_array));
-            return array('RESULT' => false, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => $output_array[18]);
+            $error = "Unknown";
+            if (isset($output_array[18]))
+                $error = $output_array[18];
+            return array('RESULT' => false, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => $error);
         }
     }
 

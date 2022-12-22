@@ -2,11 +2,16 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\est\fasta;
+use \efi\sanitize;
 
 
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-	$fasta = new fasta($db,$_GET['id']);
+$id = sanitize::validate_id("id", sanitize::GET);
+
+if ($id !== false) {
+	$fasta = new fasta($db, $id);
 	echo $fasta->view_fasta_file();
+} else {
+    exit;
 }
 
 

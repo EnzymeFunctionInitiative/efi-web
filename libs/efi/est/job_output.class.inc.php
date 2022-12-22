@@ -8,6 +8,8 @@ use \efi\global_functions;
 use \efi\est\est_shared;
 use \efi\est\settings;
 use \efi\training\example_config;
+use \efi\sanitize;
+use \efi\send_file;
 
 
 class stepa extends est_shared {
@@ -391,20 +393,8 @@ class stepa extends est_shared {
             $filename = "${job_name}_$filename";
         $filename = "${id}_$filename";
         if (file_exists($full_path)) {
-            global_functions::send_image_file_for_download($filename, $full_path);
-#            header('Content-Description: File Transfer');
-#            header('Content-Type: application/octet-stream');
-#            header('Content-Disposition: attachment; filename="'.$filename.'"');
-#            header('Content-Transfer-Encoding: binary');
-#            header('Connection: Keep-Alive');
-#            header('Expires: 0');
-#            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-#            header('Pragma: public');
-#            header('Content-Length: ' . filesize($full_path));
-#            ob_clean();
-#            readfile($full_path);
-        }
-        else {
+            send_file::send($full_path, $filename);
+        } else {
             return false;
         }
     }
@@ -601,16 +591,6 @@ class stepa extends est_shared {
         return global_functions::encode_object($obj);
     }
 
-    protected function verify_email($email) {
-        $email = strtolower($email);
-        $valid = 1;
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $valid = 0;
-        }
-        return $valid;
-
-    }
-
     protected function verify_evalue($evalue) {
         $max_evalue = 100;
         $valid = 1;
@@ -625,8 +605,6 @@ class stepa extends est_shared {
             $valid = 0;
         }
         return $valid;
-
-
     }
 
     protected function verify_fraction($fraction) {

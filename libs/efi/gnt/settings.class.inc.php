@@ -166,6 +166,11 @@ class settings extends global_settings {
     public static function get_realtime_script() {
         return defined("__RT_GNN_SCRIPT__") ? __RT_GNN_SCRIPT__ : "";
     }
+
+    public static function get_js_version() {
+        return defined("__JS_VERSION__") ? __JS_VERSION__ : "";
+    }
+
 }
 
 

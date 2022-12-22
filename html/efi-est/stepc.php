@@ -13,16 +13,19 @@ use \efi\est\plots;
 use \efi\est\functions;
 use \efi\est\settings;
 use \efi\training\example_config;
+use \efi\sanitize;
 
 
-if ((!isset($_GET['id'])) || (!is_numeric($_GET['id']))) {
+$gen_id = sanitize::validate_id("id", sanitize::GET);
+$key = sanitize::validate_key("key", sanitize::GET);
+
+if ($gen_id === false || $key === false) {
     error500("Unable to find the requested job.");
 }
 
 $is_example = example_config::is_example();
-$generate = new stepa($db, $_GET['id'], $is_example);
-$gen_id = $generate->get_id();
-$key = $_GET['key'];
+
+$generate = new stepa($db, $gen_id, $is_example);
 
 if ($generate->get_key() != $key) {
     error500("Unable to find the requested job.");
@@ -108,6 +111,14 @@ $ssn_jobs = $generate->get_analysis_jobs();
 // Still use old EST graphing code, but this is the new length histogram graphs.
 $use_v2_graphs = $generate->get_graphs_version() >= 2;
 
+
+$post_evalue = sanitize::post_sanitize_num("evalue");
+$post_pid = sanitize::post_sanitize_num("pid");
+$post_bitscore = sanitize::post_sanitize_num("bitscore");
+$post_min = sanitize::post_sanitize_num("minimum");
+$post_max = sanitize::post_sanitize_num("maximum");
+
+
 ?>	
 
 
@@ -155,7 +166,7 @@ is a measure of the similarity between sequence pairs.
             <table width="100%" class="pretty no-stretch">
                 <?php echo $table_string; ?>
             </table>
-            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=" . $_GET['id'] . "&key=$key&as-table=1$ex_param" ?>'><button class="normal">Download Information</button></a></div>
+            <div style="float: right"><a href='<?php echo $_SERVER['PHP_SELF'] . "?id=$gen_id&key=$key&as-table=1$ex_param" ?>'><button class="normal">Download Information</button></a></div>
             <div style="clear: both"></div>
         </div>
 
@@ -276,7 +287,7 @@ or select multidomain fusion proteins. </p>
                 <div class="initial-open">
                     <h3>Alignment Length vs Alignment Score Box Plot (Second Step for Alignment Score Threshold Selection)</h3>
                     <div>
-            <?php echo make_plot_download($generate, "Alignment Length vs Alignment Score", "ALIGNMENT", $generate->get_alignment_plot_sm(), $generate->get_alignment_plot(1), $generate->alignment_plot_exists()); ?>
+            <?php echo make_plot_download($generate, "Alignment Length vs Alignment Score", "alignment"); ?>
                         <div>
 <?php if ($use_domain) { ?>
 <p>This box plot describes the relationship between the query-subject alignment 
@@ -309,7 +320,7 @@ Histogram"; previous histogram). In that region, the
                 <div class="initial-open">
                     <h3>Percent Identity vs Alignment Score Box Plot (Third Step for Alignment Score Threshold Selection)</h3>
                     <div>
-            <?php echo make_plot_download($generate, "Percent Identity vs Alignment Score", "IDENTITY", $generate->get_percent_identity_plot_sm(), $generate->get_percent_identity_plot(1), $generate->percent_identity_plot_exists()); ?>
+            <?php echo make_plot_download($generate, "Percent Identity vs Alignment Score", "identity"); ?>
                         <div>
 <?php if ($use_domain) { ?>
 <p>This box plot describes the pairwise percent sequence identity as a function 
@@ -365,7 +376,7 @@ can be expanded to provide the full SSNs. </p>
                 <div>
                     <h3>Edges as a Function of Alignment Score Histogram (Preview of SSN Diversity)</h3>
                     <div>
-            <?php echo make_plot_download($generate, "Number of Edges at Alignment Score", "EDGES", $generate->get_number_edges_plot_sm(), $generate->get_number_edges_plot(1), $generate->number_edges_plot_exists()); ?>
+            <?php echo make_plot_download($generate, "Number of Edges at Alignment Score", "edges"); ?>
                         <div>
 <p>This histogram describes the number of edges calculated at each alignment 
 score. This plot is not used to select the alignment score for the initial SSN; 
@@ -444,7 +455,7 @@ histogram).</p>
                 <div>
                     <h3>Alignment Length vs Alignment Score (dynamic)</h3>
                     <div>
-            <?php echo make_plot_download($generate, "Alignment Length vs Alignment Score", "ALIGNMENT", $generate->get_alignment_plot_new(1), $generate->get_alignment_plot_new(1), $generate->alignment_plot_new_exists()); ?>
+            <?php echo make_plot_download($generate, "Alignment Length vs Alignment Score", "alignment"); ?>
                     <iframe src="<?php echo $generate->get_alignment_length_plot_new_html(1); ?>"></iframe>
                     </div>
                 </div>
@@ -453,7 +464,7 @@ histogram).</p>
                 <div>
                     <h3>Percent Identity vs Alignment Score (dynamic)</h3>
                     <div>
-            <?php echo make_plot_download($generate, "Percent Identity vs Alignment Score", "IDENTITY", $generate->get_percent_identity_plot_new(1), $generate->get_percent_identity_plot_new(1), $generate->percent_identity_plot_new_exists()); ?>
+            <?php echo make_plot_download($generate, "Percent Identity vs Alignment Score", "identity"); ?>
                     <iframe src="<?php echo $generate->get_percent_identity_plot_new_html(1); ?>" border="0" width="100%" height="500"></iframe>
                     </div>
                 </div>
@@ -497,7 +508,7 @@ histogram).</p>
                         <p>
                             <span class="input-name">Alignment Score Threshold:</span>
                             <span class="input-field">
-                                <input type="text" name="evalue" size="5" <?php if (isset($_POST['evalue'])) { echo "value='" . $_POST['evalue'] ."'"; } ?>>
+                                <input type="text" name="evalue" size="5" <?php if (isset($post_evalue)) { echo "value='$post_evalue'"; } ?>>
                                 <a href="tutorial_analysis.php" class="question">?</a>
                             </span>
                             <div class="input-desc">
@@ -511,7 +522,7 @@ histogram).</p>
                     <div id="threshold-pid" class="tab">
                         <p>Select a lower limit for the percent ID to use as a lower threshold for clustering in the SSN.</p>
 
-                        <p><input type="text" name="pid" <?php if (isset($_POST['pid'])) { echo "value='" . $_POST['pid'] ."'"; } ?>>
+                        <p><input type="text" name="pid" <?php if (isset($post_pid)) { echo "value='$post_pid'"; } ?>>
                         % ID
                         </p>
 
@@ -524,7 +535,7 @@ histogram).</p>
 
                         <p>Select a lower limit for the bit score to use as a lower threshold for clustering in the SSN.</p>
 
-                        <p><input type="text" name="bitscore" <?php if (isset($_POST['bitscore'])) { echo "value='" . $_POST['bitscore'] ."'"; } ?>></p>
+                        <p><input type="text" name="bitscore" <?php if (isset($post_bitscore)) { echo "value='$post_bitscore'"; } ?>></p>
 
                         <p>
                         This score is the similarity threshold which determine the 
@@ -565,13 +576,13 @@ Protein_ID_3,Cluster#
                             <div>
                                 <span class="input-name">Minimum:</span>
                                 <span class="input-field">
-                                    <input type="text" name="minimum" size="7" maxlength='20' <?php if (isset($_POST['minimum'])) { echo "value='" . $_POST['minimum'] . "'"; } ?>> (default: <?php echo __MINIMUM__; ?>)
+                                    <input type="text" name="minimum" size="7" maxlength='20' <?php if (isset($post_min)) { echo "value='$post_min'"; } ?>> (default: <?php echo __MINIMUM__; ?>)
                                 </span>
                             </div>
                             <div>
                                 <span class="input-name">Maximum:</span>
                                 <span class="input-field">
-                                    <input type="text" name="maximum" size="7" maxlength='20' <?php if (isset($_POST['maximum'])) { echo "value='" . $_POST['maximum'] . "'"; } ?>> (default: <?php echo __MAXIMUM__; ?>)
+                                    <input type="text" name="maximum" size="7" maxlength='20' <?php if (isset($post_max)) { echo "value='$post_max'"; } ?>> (default: <?php echo __MAXIMUM__; ?>)
                                 </span>
                             </div>
                         </p>
@@ -905,46 +916,33 @@ require_once(__DIR__."/inc/footer.inc.php");
 
 
 
-function make_plot_download($gen, $hdr, $type, $preview_img, $download_img, $plot_exists) {
-    global $is_example;
+function make_plot_download($gen, $hdr, $type) {
+    global $is_example, $gen_id, $key;
     $html = ""; //"<span class='plot-header'>$hdr</span> \n";
-    if (!$plot_exists) {
-        $html .= "Unable to be generated";
-        return;
+    $ex_param = $is_example ? "&x=".$is_example : "";
+    $info = $gen->get_graph_info($type);
+    if ($info === false) {
+        $html .= "Invalid data";
+        return $html;
     }
-    if ($preview_img) {
-        $html .= <<<HTML
+    $url = "graphs.php?id=$gen_id&key=$key&$ex_param&type=stepc&graph=$type";
+    $html .= <<<HTML
 <div>
     <center>
-        <img src='$preview_img' />
+        <img src="$url&small=1" width="800" />
 HTML;
-        $ex_param = $is_example ? "&x=".$is_example : "";
-        $html .= "<a href='graphs.php?id=" . $gen->get_id() . "&type=" . $type . "&key=" . $_GET["key"] . "$ex_param'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
+        
+        $html .= "<a href='$url'><button class='file_download'>Download high resolution <img src='images/download.svg' /></button></a>";
         $html .= <<<HTML
     </center>
 </div>
 HTML;
-    } else {
-        $html .= "<a href='$download_img'><button class='file_download'>Preview</button></a>\n";
-    }
 
     return $html;
 }
 
 function make_histo_plot_download($gen, $hdr, $plot_type) {
-    $download_type = $gen->get_length_histogram_download_type($plot_type);
-    $web_path = $gen->get_length_histogram($plot_type, true, true);
-    $large_web_path = $gen->get_length_histogram($plot_type, true, false);
-    $plot_exists = $web_path ? true : false;
-    if (!$plot_exists) {
-        $plot_type = "";
-        $use_v2 = false;
-        $download_type = $gen->get_length_histogram_download_type($plot_type, $use_v2);
-        $web_path = $gen->get_length_histogram($plot_type, true, true, $use_v2);
-        $large_web_path = $gen->get_length_histogram($plot_type, true, false, $use_v2);
-        $plot_exists = $large_web_path ? true : false;
-    }
-    return make_plot_download($gen, $hdr, $download_type, $web_path, $large_web_path, $plot_exists); 
+    return make_plot_download($gen, $hdr, "histogram_" . $plot_type);
 }
 
 function make_interactive_plot($gen, $hdr, $plot_div, $plot_id) {

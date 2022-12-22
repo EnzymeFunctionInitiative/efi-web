@@ -151,7 +151,7 @@ class metagenome_db_manager {
         }
         $info["db_desc"] = $desc;
         $info["version"] = $version;
-        $info["categories"] = $cats;
+        $info["categories"] = $cats !== false ? $cats : array();
 
         return $info;
     }

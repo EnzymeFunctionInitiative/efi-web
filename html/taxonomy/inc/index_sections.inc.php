@@ -85,7 +85,7 @@ Pfam families, InterPro families, and/or Pfam clans.
                     <div class="initial-open">
                         <?php echo add_fragment_option("optb")[0]; ?>
                     </div>
-                    <div>
+                    <div class="initial-open">
                         <?php echo add_taxonomy_filter("optb", $tax_filt_text)[0]; ?>
                     </div>
                     <?php if ($use_advanced_options) { ?>
