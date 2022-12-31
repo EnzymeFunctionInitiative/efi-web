@@ -79,7 +79,7 @@ class diagram_job extends arrow_api {
     private function handle_upload($is_uploaded_database = true) {
         $job_id = $this->id;
 
-        $upload_dir = settings::get_uploads_dir();
+        $upload_dir = settings::get_gnd_uploads_dir();
         $out_dir = settings::get_diagram_output_dir() . "/$job_id";
         //$ext = settings::get_diagram_extension();
         $upload_prefix = settings::get_diagram_upload_prefix();
@@ -151,7 +151,7 @@ class diagram_job extends arrow_api {
             if (isset($this->params["seq_db_type"]))
                 $args .= " -seq-db-type " . $this->params["seq_db_type"];
         } else {
-            $upload_dir = settings::get_uploads_dir();
+            $upload_dir = settings::get_gnd_uploads_dir();
             $upload_prefix = settings::get_diagram_upload_prefix();
             $upload_source = "$upload_dir/$upload_prefix$job_id.txt";
             $source = "$out_dir/$job_id.txt";
@@ -336,7 +336,12 @@ class diagram_job extends arrow_api {
     }
 
     public function get_output_dir($id = 0) {
-        $out_dir = settings::get_diagram_output_dir() . "/" . $this->id;
+        $job_dir = settings::get_diagram_output_dir() . "/" . $this->id;
+        $rel_dir = settings::get_rel_output_dir();
+        if ($rel_dir)
+            $out_dir = "$job_dir/$rel_dir";
+        if (!file_exists($out_dir))
+            $out_dir = $job_dir;
         return $out_dir;
     }
 

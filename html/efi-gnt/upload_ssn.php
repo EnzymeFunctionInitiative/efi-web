@@ -132,7 +132,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER["CONTENT_LENGTH"] > 0) {
                 $parms["filename"] = $file_name;
             }
 
-            $gnnInfo = gnn::create4($db, $parms);
+            $gnnInfo = gnn::create($db, $parms);
         }
         if ($gnnInfo === false) {
             $valid = false;

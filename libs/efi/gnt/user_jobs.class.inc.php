@@ -109,12 +109,15 @@ class user_jobs extends user_auth {
                 $title = "<i>Untitled</i>";
             
             $theDate = $row["diagram_time_completed"];
-            if (!$theDate || substr($theDate, 0, 4) == "0000") {
-                $theDate = $row["diagram_status"]; // "RUNNING";
-                if ($theDate == "NEW")
-                    $theDate = "PENDING";
-            } else {
+            $status = $row["diagram_status"];
+            $isFinished = false;
+            if ($status == __FINISH__) {
                 $theDate = date_format(date_create($theDate), "n/j h:i A");
+                $isFinished = true;
+            } else if ($status == __NEW__) {
+                $theDate = "PENDING";
+            } else {
+                $theDate = $status;
             }
 
             $isDirect = $row["diagram_type"] != DiagramJob::Uploaded && $row["diagram_type"] != DiagramJob::UploadedZip;
@@ -125,7 +128,8 @@ class user_jobs extends user_auth {
 
             array_push($this->diagram_jobs, array("id" => $row["diagram_id"], "key" => $row["diagram_key"],
                 "filename" => $title, "completed" => $theDate, "id_field" => $idField, "db_version" => $version,
-                "verbose_type" => functions::get_verbose_job_type($row["diagram_type"])));
+                "verbose_type" => functions::get_verbose_job_type($row["diagram_type"]),
+                "is_finished" => $isFinished));
         }
     }
 

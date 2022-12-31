@@ -19,6 +19,7 @@ require_once(__DIR__."/../../conf/settings_paths.inc.php");
 define("__OUTPUT_DIR__",__BASE_RESULTS_DIR__."/gnt_gnn");           // Where output results are stored [MANDATORY]
 define("__DIAGRAM_OUTPUT_DIR__",__BASE_RESULTS_DIR__."/gnt_gnd");   // Where GND output results are stored [MANDATORY]
 define("__UPLOAD_DIR__",__MAIN_UPLOAD_DIR__."/gnt");                // Where uploaded files are temporarily stored [MANDATORY]
+define("__GND_UPLOAD_DIR__",__MAIN_UPLOAD_DIR__."/gnd");                // Where uploaded files are temporarily stored [MANDATORY]
 define("__LOG_FILE__",__MAIN_LOG_DIR__."/gnt_log.txt");             // Log file [MANDATORY]
 // Sort of a hack...
 define("__SUPERFAMILY_DIR__","");
@@ -34,6 +35,11 @@ define("__SYNC_OUTPUT_DIR__","");
 define("__WEB_PATH__",__GNT_WEB_PATH__);
 define("__WEB_ROOT__",__BASE_WEB_ROOT__."/".__WEB_PATH__);
 define("__CGFP_WEB_ROOT__",__CGFP_WEB_PATH__);
+
+//
+// REALTIME JOB PARAMETERS
+define("__RT_GNN_SCRIPT__","api_diagram.pl");
+define("__RT_OUTPUT_DIR__","");
 
 //
 // FILE INFO
@@ -60,11 +66,6 @@ define("__GNN_SCRIPT__","submit_gnn.pl");
 define("__SYNC_GNN_SCRIPT__","cluster_gnn.pl");
 define("__PROCESS_DIAGRAM_SCRIPT__","submit_diagram.pl");
 define("__PROCESS_BIGSCAPE_SCRIPT__","submit_bigscape.pl");
-
-//
-// REALTIME JOB PARAMETERS
-define("__RT_GNN_SCRIPT__","api_diagram.pl");
-define("__RT_OUTPUT_DIR__","");
 
 //
 // DEFAULTS

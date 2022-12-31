@@ -96,26 +96,6 @@ class functions extends global_functions {
         return $hash;
     }
 
-    public static function copy_to_uploads_dir($tmp_file, $uploaded_filename, $id, $prefix = "", $forceExtension = "") {
-        $uploads_dir = settings::get_uploads_dir();
-
-        // By this time we have verified that the uploaded file is valid. Now we need to retain the
-        // extension in case the file is a zipped file.
-        if ($forceExtension)
-            $file_type = $forceExtension;
-        else
-            $file_type = strtolower(pathinfo($uploaded_filename, PATHINFO_EXTENSION));
-        $filename = $prefix . $id . "." . $file_type;
-        $full_path = $uploads_dir . "/" . $filename;
-        if (is_uploaded_file($tmp_file)) {
-            if (move_uploaded_file($tmp_file,$full_path)) { return $filename; }
-        }
-        else {
-            if (copy($tmp_file,$full_path)) { return $filename; }
-        }
-        return false;
-    }
-
     public static function is_valid_file_type($filetype) {
         $filetypes = explode(" ", settings::get_valid_file_types());
         return in_array($filetype, $filetypes);

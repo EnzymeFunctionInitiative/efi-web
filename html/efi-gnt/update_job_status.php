@@ -2,7 +2,7 @@
 require_once(__DIR__."/../../init.php");
 
 use \efi\gnt\gnn;
-use \efi\gnt\diagram;
+use \efi\gnt\diagram_job;
 use \efi\sanitize;
 
 

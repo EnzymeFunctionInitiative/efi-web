@@ -257,19 +257,26 @@ class gnn extends gnn_shared {
         } else {
             $exec .= $binary . " ";
         }
+
+        $output_filename = $this->get_base_filename();
+
         $exec .= " --output-dir \"$output_dir\"";
         $exec .= " --queue " . $queue;
         $exec .= " --ssnin \"" . $target_ssnin . "\"";
+        $exec .= " --name \"${id}_" . $output_filename . "\"";
         $exec .= " --nb-size " . $this->get_size();
         $exec .= " --cooc " . $this->get_cooccurrence();
-        $exec .= " --gnn " . file_types::suffix(file_types::FT_ssn_gnn);
-        $exec .= " --ssnout " . file_types::suffix(file_types::FT_gnn_ssn);
+        $exec .= " --gnn " . $this->get_file_name(file_types::FT_ssn_gnn);
+        $exec .= " --ssnout " . $this->get_file_name(file_types::FT_gnn_ssn);
+        $exec .= " --pfam " . $this->get_file_name(file_types::FT_pfam_gnn);
+        //$exec .= " --gnn " . file_types::suffix(file_types::FT_ssn_gnn);
+        //$exec .= " --ssnout " . file_types::suffix(file_types::FT_gnn_ssn);
+        //$exec .= " --pfam " . file_types::suffix(file_types::FT_pfam_gnn);
         $exec .= " --stats " . file_types::suffix(file_types::FT_stats);
         $exec .= " --cluster-sizes " . file_types::suffix(file_types::FT_sizes);
         $exec .= " --sp-clusters-desc " . file_types::suffix(file_types::FT_sp_clusters);
         $exec .= " --sp-singletons-desc " . file_types::suffix(file_types::FT_sp_singletons);
         $exec .= " --warning-file " . file_types::suffix(file_types::FT_gnn_nn);
-        $exec .= " --pfam " . file_types::suffix(file_types::FT_pfam_gnn);
         $exec .= " --id-out " . file_types::suffix(file_types::FT_gnn_mapping);
         $exec .= " --id-out-domain " . file_types::suffix(file_types::FT_gnn_mapping_dom);
         if ($this->extra_ram)
@@ -529,7 +536,8 @@ class gnn extends gnn_shared {
         return $this->shared_get_relative_file_path("_arrow_data", ".zip");
     }
     public function does_job_have_arrows() {
-        return file_exists($this->get_diagram_data_file());
+        $file = $this->get_file_path(file_types::FT_gnd);
+        return file_exists($file);
     }
 
     public function get_cooc_table_file() {
@@ -717,7 +725,11 @@ class gnn extends gnn_shared {
         $name = file_types::suffix($type);
         if ($name === false)
             return false;
-        $base_dir = $this->get_output_dir();
+        $job_dir = $this->get_output_dir();
+
+        $base_dir = "$job_dir/output";
+        if (!file_exists($base_dir))
+            $base_dir = $job_dir;
 
         // Try the simple naming convention first
         $file_path = "$base_dir/$name.$ext";
@@ -1134,13 +1146,13 @@ class gnn extends gnn_shared {
     }
 
     public function process_error() {
-        $gnn->error_gnn();
+        $this->error_gnn();
         $msg = "GNN ID: " . $this->get_id() . " - Job Failed";
         functions::log_message($msg);
     }
 
     public function process_finish() {
-        $gnn->complete_gnn();
+        $this->complete_gnn();
         $msg = "GNN ID: " . $this->get_id() . " - Job Completed Successfully";
         functions::log_message($msg);
     }

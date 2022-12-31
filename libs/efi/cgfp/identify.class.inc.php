@@ -163,7 +163,8 @@ class identify extends job_shared {
 
         if ($new_id) {
             if (!$est_id && (!$parent_id || $tmp_filename)) {
-                global_functions::copy_to_uploads_dir($tmp_filename, $filename, $new_id);
+                if (global_functions::copy_to_uploads_dir($tmp_filename, $filename, $new_id) === false)
+                    return false;
             }
         } else {
             return false;

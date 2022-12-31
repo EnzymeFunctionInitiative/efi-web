@@ -113,7 +113,7 @@ class file_types {
         self::FT_gnn_nn => array("suffix" => "nomatches_noneighbors", "ext" => "txt"),
         self::FT_cooc_table => array("suffix" => "cooc_table", "ext" => "txt"),
         self::FT_hub_count => array("suffix" => "hub_count", "ext" => "txt"),
-        self::FT_gnd => array("suffix" => "arrow_data", "ext" => "zip"),
+        self::FT_gnd => array("suffix" => "arrow_data", "ext" => "sqlite"),
         self::FT_pfam_dom => array("suffix" => "pfam_mapping", "ext" => "zip"),
         self::FT_split_pfam_dom => array("suffix" => "split_pfam_mapping", "ext" => "zip"),
         self::FT_all_pfam_dom => array("suffix" => "all_pfam_mapping", "ext" => "zip"),

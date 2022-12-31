@@ -161,10 +161,10 @@ for ($i = 0; $i < count($gnnJobs); $i++) {
     $id = $gnnJobs[$i]["id"];
     $name = $gnnJobs[$i]["filename"];
     $dateCompleted = $gnnJobs[$i]["completed"];
-    $isActive = $dateCompleted == "PENDING" || $dateCompleted == "RUNNING";
+    $isFinished = $gnnJobs[$i]["is_finished"];
 
-    $linkStart = $isActive ? "" : "<a href=\"stepc.php?id=$id&key=$key\">";
-    $linkEnd = $isActive ? "" : "</a>";
+    $linkStart = $isFinished ? "<a href=\"stepc.php?id=$id&key=$key\">" : "";
+    $linkEnd = $isFinished ? "</a>" : "";
     $linkStart .= "<span title='$id'>";
     $linkEnd = "</span>" . $linkEnd;
     $idText = "$linkStart${id}$linkEnd";
@@ -209,15 +209,15 @@ for ($i = 0; $i < count($diagramJobs); $i++) {
     $id = $diagramJobs[$i]["id"];
     $name = $diagramJobs[$i]["filename"];
     $dateCompleted = $diagramJobs[$i]["completed"];
-    $isActive = $dateCompleted == "PENDING" || $dateCompleted == "RUNNING";
+    $isFinished = $diagramJobs[$i]["is_finished"];
 
     $version = isset($diagramJobs[$i]["db_version"]) ? $diagramJobs[$i]["db_version"] : 0;
     $script = $version >= 3 ? "view_diagrams_v3.php" : "view_diagrams.php";
 
     $idField = $diagramJobs[$i]["id_field"];
     $jobType = $diagramJobs[$i]["verbose_type"];
-    $linkStart = $isActive ? "" : "<a href=\"$script?$idField=$id&key=$key\">";
-    $linkEnd = $isActive ? "" : "</a>";
+    $linkStart = $isFinished ? "<a href=\"$script?$idField=$id&key=$key\">" : "";
+    $linkEnd = $isFinished ? "</a>" : "";
 
     echo <<<HTML
                     <tr>
