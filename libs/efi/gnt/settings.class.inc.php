@@ -39,6 +39,13 @@ class settings extends global_settings {
         return false;
     }
 
+    public static function get_gnd_uploads_dir() {
+        $dir = __GND_UPLOAD_DIR__;
+        if (is_dir($dir))
+            return $dir;
+        return false;
+    }
+
     public static function get_valid_file_type($type = "") {
         return $type == "diagram" ? __VALID_DIAGRAM_FILE_TYPE__ : ($type == "id" ? __VALID_ID_FILE_TYPE__ : __VALID_FILE_TYPE__);
     }
@@ -120,7 +127,7 @@ class settings extends global_settings {
     }
 
     public static function get_diagram_upload_prefix() {
-        return "diagram_";
+        return defined("__DIAGRAM_UPLOAD_PREFIX__") ? __DIAGRAM_UPLOAD_PREFIX__ : "";
     }
 
     public static function get_default_evalue() {

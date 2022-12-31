@@ -146,10 +146,9 @@ class job_status {
         else if ($time === self::ZERO_TIME)
             $time = "0000-00-00 00:00:00";
         $col = $this->get_col_pfx();
-        $sql = "UPDATE $table SET ${col}time_completed = :time WHERE ${col}id = :id";
-        $params = array(":time" => $time, ":id" => $this->id);
-        $sql .= "WHERE ${table}_id='" . $this->get_id() . "' LIMIT 1";
-        $this->db->non_select_query($sql);
+        $sql = "UPDATE $table SET ${col}time_completed = :the_tm WHERE ${col}id = :id";
+        $params = array(":the_tm" => $time, ":id" => $this->get_id());
+        $this->db->non_select_query($sql, $params);
         $this->time_completed = $time;
     }
 

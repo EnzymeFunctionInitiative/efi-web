@@ -114,7 +114,7 @@ if (!$IsDisabled || $IsAdminUser) {
             <div class="funding-source">This web resource is supported by a Research Resource from the National Institute of General Medical Sciences (R24GM141196-01).</div>
 
 <?php
-if (isset($ShowCitation)) {
+if (isset($ShowCitation) && !$IsDisabled) {
     echo global_header::get_global_citation();
 }
 ?>
@@ -136,7 +136,7 @@ if ($IsBeta) {
 
 <?php
 if ($IsDisabled || $DisabledMsg) {
-    if (!$IsLoginPage) {
+    if (!$IsLoginPage && $IsAdminUser) {
         $DisabledMsg = "The website is currently disabled for non-admin users or users who are not logged in.";
     }
 ?>

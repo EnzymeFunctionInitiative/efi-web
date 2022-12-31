@@ -14,19 +14,23 @@ class global_functions {
     }
 
     //TODO: check extension and file contents
-    public static function copy_to_uploads_dir($tmp_file, $uploaded_filename, $id, $prefix = "", $forceExtension = "") {
-        $uploads_dir = global_settings::get_uploads_dir();
+    public static function copy_to_uploads_dir($tmp_file, $uploaded_filename, $id, $uploads_dir = "", $force_extension = "") {
+        if (!$uploads_dir || !is_dir($uploads_dir))
+            $uploads_dir = global_settings::get_uploads_dir();
 
         // By this time we have verified that the uploaded file is valid. Now we need to retain the
         // extension in case the file is a zipped file.
-        if ($forceExtension)
-            $file_type = $forceExtension;
+        if ($force_extension)
+            $file_type = $force_extension;
         else
             $file_type = strtolower(pathinfo($uploaded_filename, PATHINFO_EXTENSION));
-        $filename = $prefix . $id . "." . $file_type;
+        $filename = $id . "." . $file_type;
         $full_path = $uploads_dir . "/" . $filename;
         if (is_uploaded_file($tmp_file)) {
-            if (move_uploaded_file($tmp_file,$full_path)) { return $filename; }
+            if (move_uploaded_file($tmp_file, $full_path))
+                return $filename;
+            else
+                return false;
         }
         else {
             if (copy($tmp_file,$full_path)) { return $filename; }

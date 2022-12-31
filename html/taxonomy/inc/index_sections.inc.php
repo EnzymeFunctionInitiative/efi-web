@@ -88,10 +88,10 @@ Pfam families, InterPro families, and/or Pfam clans.
                     <div class="initial-open">
                         <?php echo add_taxonomy_filter("optb", $tax_filt_text)[0]; ?>
                     </div>
-                    <?php if ($use_advanced_options) { ?>
                     <div>
                         <?php echo add_length_filter("optb")[0]; ?>
                     </div>
+                    <?php if ($use_advanced_options) { ?>
                     <div>
                         <?php echo add_dev_site_option("optb", $db_modules, get_advanced_seq_html("optb"))[0]; ?>
                     </div>

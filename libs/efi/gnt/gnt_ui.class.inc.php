@@ -101,20 +101,22 @@ HTML;
 
         $idx = 0;
         foreach ($rows as $row) {
-            $comp = $row["${gnn_table}_time_completed"];
-            if (!$comp || substr($comp, 0, 4) == "0000") {
-                $comp = $row["${gnn_table}_status"]; // "RUNNING";
-                if ($comp == "NEW")
-                    $comp = "PENDING";
-            } else {
+            $is_finished = false;
+            $status = $row["${gnn_table}_status"];
+            $comp = $status;
+            if ($status == __FINISH__) {
+                $comp = $row["${gnn_table}_time_completed"];
                 $comp = date_format(date_create($comp), "n/j h:i A");
+                $is_finished = true;
+            } else if ($status == __NEW__) {
+                $comp = "PENDING";
             }
             $params = global_functions::decode_object($row["${gnn_table}_params"]);
             $filename = pathinfo($params["filename"], PATHINFO_BASENAME);
             $job_name = "<span class='job-name'>$filename</span><br><span class='job-metadata'>Neighborhood Size=" . $params["neighborhood_size"] . " Co-occurrence=" . $params["cooccurrence"] . "</span>";
 
             $id = $row["${gnn_table}_id"];
-            $job_info = array("id" => $id, "key" => $row["${gnn_table}_key"], "filename" => $job_name, "completed" => $comp, "is_child" => false);
+            $job_info = array("id" => $id, "key" => $row["${gnn_table}_key"], "filename" => $job_name, "completed" => $comp, "is_child" => false, "is_finished" => $is_finished);
 
             $is_child = false;
             if (isset($row["${gnn_table}_parent_id"]) && $row["${gnn_table}_parent_id"]) {
@@ -208,4 +210,4 @@ HTML;
     }
 }
 
-?>
+

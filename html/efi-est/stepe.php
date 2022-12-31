@@ -129,7 +129,7 @@ $color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
 
 $num_ssns = $analysis->get_num_networks();
 for ($idx = 0; $idx < $num_ssns; $idx++) {
-    $gnt_args = "est-id=$analysis_id&est-key=$key&est-ssn=$idx";
+    $gnt_args = "est-id=$analysis_id&est-key=$key&est-ssn=${idx}$ex_param";
 
     $stats = $analysis->get_network_stats($idx);
     $fname = $stats["file"];
@@ -382,15 +382,15 @@ require_once(__DIR__."/inc/footer.inc.php");
 
 
 function get_ssn_dl_btn($ssn_idx, $btn_text = "Download") {
-    global $analysis_id, $key;
+    global $analysis_id, $key, $ex_param;
     //return " <span style=\"padding-left:15px\"></span><a href=\"$web_path.zip\" title=\"$btn_text\"><i class=\"fas fa-file-archive\"></i></a>";
-    $web_path = "download.php?aid=$analysis_id&key=$key&dl=ssn&idx=$ssn_idx";
+    $web_path = "download.php?aid=$analysis_id&key=$key&dl=ssn&idx=$ssn_idx$ex_param";
     return " <a href='$web_path'><button class='mini'>$btn_text</button></a>";
 }
 
 function get_nc_dl_btn($ssn_idx) {
-    global $analysis_id, $key;
-    $nc_web_path = "graphs.php?aid=$analysis_id&key=$key&net=$ssn_idx&atype=NC";
+    global $analysis_id, $key, $ex_param;
+    $nc_web_path = "graphs.php?aid=$analysis_id&key=$key&net=$ssn_idx&atype=NC$ex_param";
     return " <span style=\"padding-left:15px\"></span><a href='$nc_web_path'><button class='mini'>Download NC color scale</button></a>";
 }
 

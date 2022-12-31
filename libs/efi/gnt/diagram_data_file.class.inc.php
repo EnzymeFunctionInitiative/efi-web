@@ -49,6 +49,8 @@ class diagram_data_file extends arrow_api {
         );
 
         $result = $db->build_insert('diagram', $insert_array);
+        \efi\job_shared::insert_new($db, "diagram", $result);
+
         if ($result) {
             functions::copy_to_uploads_dir($tmp_filename, $filename, $result, $uploadPrefix, $ext);
         } else {
@@ -227,5 +229,9 @@ class diagram_data_file extends arrow_api {
 
     public function get_output_dir($id = 0) {}
     protected function update_results_object($data) {}
+
+    public function process_error() {}
+    public function process_start() {}
+    public function process_finish() {}
 }
 

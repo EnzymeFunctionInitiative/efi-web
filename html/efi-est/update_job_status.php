@@ -1,7 +1,5 @@
 <?php
 
-die("Unavailable");
-
 require_once(__DIR__."/../../init.php");
 
 use \efi\job_cancels;
@@ -12,14 +10,12 @@ use \efi\sanitize;
 
 
 $is_error = false;
-$the_id = "";
-$the_aid = "";
 $job_obj = false;
 $is_generate = true;
 
-$the_id = sanitize::validate_id("id", sanitize::POST);
+$id = sanitize::validate_id("id", sanitize::POST);
 $key = sanitize::validate_key("key", sanitize::POST);
-$aid = sanitize::validate_id("id", sanitize::POST);
+$aid = sanitize::validate_id("aid", sanitize::POST);
 
 if ($id === false || $key === false) {
     error_404();
@@ -29,12 +25,12 @@ if ($id === false || $key === false) {
 if ($id !== false && $key !== false) {
     if ($aid !== false && $aid > 0) {
         $job_obj = new analysis($db, $aid);
-        $the_aid = $aid;
         $is_generate = false;
     } else {
-        $job_obj = new stepa($db, $the_id);
+        $job_obj = new stepa($db, $id);
     }
 
+    $jkey = $job_obj->get_key();
     if ($job_obj->get_key() != $key) {
         $is_error = true;
     } else {
@@ -42,7 +38,7 @@ if ($id !== false && $key !== false) {
     }
 }
 
-$request_type = sanitize::post_sanitize_string("t", "");
+$request_type = sanitize::post_sanitize_string("rt", "");
 
 $result = array("valid" => false);
 
@@ -58,7 +54,7 @@ if (!$is_error && $request_type !== false && $job_obj !== false && ($request_typ
         $job_obj->mark_job_as_cancelled();
     } else { // archive NEW, FAILED.
         if ($is_generate) {
-            $ajobs = functions::get_analysis_jobs_for_generate($db, $the_id);
+            $ajobs = functions::get_analysis_jobs_for_generate($db, $id);
     
             foreach ($ajobs as $row) {
                 $anum = $row["analysis_id"];
@@ -81,7 +77,7 @@ if (!$is_error && $request_type !== false && $job_obj !== false && ($request_typ
                 }
             }
         } else {
-            $cjobs = functions::get_color_jobs_for_analysis($db, $the_aid);
+            $cjobs = functions::get_color_jobs_for_analysis($db, $aid);
             foreach ($cjobs as $crow) {
                 $c_obj = new stepa($db, $crow["generate_id"]);
                 $c_obj->mark_job_as_archived();

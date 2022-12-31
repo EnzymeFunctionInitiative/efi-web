@@ -79,7 +79,7 @@ class diagram_job extends arrow_api {
     private function handle_upload($is_uploaded_database = true) {
         $job_id = $this->id;
 
-        $upload_dir = settings::get_uploads_dir();
+        $upload_dir = settings::get_gnd_uploads_dir();
         $out_dir = settings::get_diagram_output_dir() . "/$job_id";
         //$ext = settings::get_diagram_extension();
         $upload_prefix = settings::get_diagram_upload_prefix();
@@ -151,7 +151,7 @@ class diagram_job extends arrow_api {
             if (isset($this->params["seq_db_type"]))
                 $args .= " -seq-db-type " . $this->params["seq_db_type"];
         } else {
-            $upload_dir = settings::get_uploads_dir();
+            $upload_dir = settings::get_gnd_uploads_dir();
             $upload_prefix = settings::get_diagram_upload_prefix();
             $upload_source = "$upload_dir/$upload_prefix$job_id.txt";
             $source = "$out_dir/$job_id.txt";
@@ -225,28 +225,13 @@ class diagram_job extends arrow_api {
         return $exit_status == 0;
     }
 
-    public function check_if_job_is_done() {
+    private function check_if_job_is_done() {
 
-        $out_dir = $this->get_output_dir();
-        $is_done = file_exists("$out_dir/" . DiagramJob::JobCompleted) || !$this->check_pbs_running();
         $is_error = file_exists("$out_dir/" . DiagramJob::JobError) || !file_exists($this->get_output_file());
 
         if ($is_done) {
             $current_time = date("Y-m-d H:i:s", time());
             
-            $status = __FINISH__;
-            if ($is_error)
-                $status = __FAILED__;
-            print $this->id . " has completed and has status = $status.\n";
-
-            $this->db->non_select_query("UPDATE diagram SET diagram_status = '$status', " .
-                "diagram_time_completed = '$current_time' WHERE diagram_id = " . $this->id);
-            $this->set_diagram_version();
-
-            if ($is_error)
-                $this->email_failed();
-            else
-                $this->email_complete();
         }
     }
 
@@ -351,12 +336,41 @@ class diagram_job extends arrow_api {
     }
 
     public function get_output_dir($id = 0) {
-        $out_dir = settings::get_diagram_output_dir() . "/" . $this->id;
+        $job_dir = settings::get_diagram_output_dir() . "/" . $this->id;
+        $rel_dir = settings::get_rel_output_dir();
+        if ($rel_dir)
+            $out_dir = "$job_dir/$rel_dir";
+        if (!file_exists($out_dir))
+            $out_dir = $job_dir;
         return $out_dir;
     }
 
     public function get_message() {
         return $this->message;
+    }
+
+    public function process_error() {
+        $this->set_status(__FAILED__);
+        $this->set_time_completed();
+        $this->set_diagram_version();
+        $this->email_failed();
+        $msg = "GND ID: " . $this->get_id() . " - Job Failed";
+        functions::log_message($msg);
+    }
+
+    public function process_finish() {
+        $this->set_status(__FINISH__);
+        $this->set_time_completed();
+        $this->set_diagram_version();
+        $this->email_complete();
+        $msg = "GND ID: " . $this->get_id() . " - Job Completed Successfully";
+        functions::log_message($msg);
+    }
+
+    public function process_start() {
+        $this->set_time_started();
+        $this->set_status(__RUNNING__);
+        $this->email_started();
     }
 }
 

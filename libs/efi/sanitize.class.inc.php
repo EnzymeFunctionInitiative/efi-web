@@ -21,10 +21,10 @@ class sanitize {
         return self::sanitize_email($_POST, $var, $default_val);
     }
 
-    public static function sanitize_num($env, $var, $default_val = null) {
-        $result = filter_input(INPUT_POST, $var, FILTER_VALIDATE_INT);
+    public static function sanitize_num($method, $var, $default_val = null) {
+        $result = filter_input($method, $var, FILTER_VALIDATE_INT);
         if ($result === false)
-            $result = filter_input(INPUT_POST, $var, FILTER_VALIDATE_FLOAT);
+            $result = filter_input($method, $var, FILTER_VALIDATE_FLOAT);
 
         if ($result === false)
             return $default_val;
@@ -32,10 +32,10 @@ class sanitize {
             return $result;
     }
     public static function get_sanitize_num($var, $default_val = null) {
-        return self::sanitize_num($_GET, $var, $default_val);
+        return self::sanitize_num(INPUT_GET, $var, $default_val);
     }
     public static function post_sanitize_num($var, $default_val = null) {
-        return self::sanitize_num($_POST, $var, $default_val);
+        return self::sanitize_num(INPUT_POST, $var, $default_val);
     }
 
 

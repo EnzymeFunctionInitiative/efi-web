@@ -71,6 +71,7 @@ class quantify extends quantify_shared {
         $result = $db->build_insert("quantify", $insert_array);
         if (!$result)
             return false;
+        \efi\job_shared::insert_new($db, "quantify", $result);
 
         $info = array("id" => $result);
         return $info;

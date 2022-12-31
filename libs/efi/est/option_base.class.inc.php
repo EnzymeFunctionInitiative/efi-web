@@ -103,6 +103,7 @@ abstract class option_base extends stepa {
             }
             else {
                 $insert_result = $this->db->build_insert($table_name, $insert_array);
+                \efi\job_shared::insert_new($this->db, $table_name, $insert_result);
             }
 
             $result = $this->post_insert_action($data, $insert_result);
@@ -323,9 +324,8 @@ abstract class option_base extends stepa {
             functions::log_message("no error");
             if (!$is_debug) {
                 $this->set_pbs_number($pbs_job_number);
-                $this->set_time_started();
+                $this->set_job_started();
                 $this->email_started();
-                $this->set_status(__RUNNING__);
             }
             return array('RESULT' => true, 'PBS_NUMBER' => $pbs_job_number, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => 'Job Successfully Submitted');
         }
@@ -380,5 +380,49 @@ abstract class option_base extends stepa {
         return false;
     }
 
+    public function process_error() {
+        $nonblastjob_blast_failed_file_exists = $this->check_max_blast_failed_file();
+        $blastjob_fail_file_exists = $this->get_create_type() == blast::create_type() ? $this->check_fail_file() : false;
+        $finish_file_exists = $this->check_finish_file();
+        $nonblastjob_bad_input_format_file_exists = $this->check_bad_input_format_file();
+
+        if ($nonblastjob_blast_failed_file_exists) {
+            $this->set_num_blast();
+            $this->set_job_failed();
+            $this->email_number_seq();
+            $msg = "Generate ID: " . $this->get_id() . " - Job Failed - Max Number of Sequences";
+            functions::log_message($msg);
+        } else if ($blastjob_fail_file_exists) {
+            $this->set_num_blast();
+            $this->set_job_failed();
+            $this->email_bad_sequence();
+            $msg = "Generate ID: " . $this->get_id() . " - Job Failed - Invalid Input Sequence";
+            functions::log_message($msg);
+        } else if ($nonblastjob_bad_input_format_file_exists) {
+            $this->set_num_blast();
+            $this->set_job_failed();
+            $this->email_format_error();
+            $msg = "Generate ID: " . $this->get_id() . " - Job Failed - Bad Input File Format";
+            functions::log_message($msg);
+        } else {
+            $this->set_job_failed();
+            $this->email_format_error();
+            $msg = "Generate ID: " . $this->get_id() . " - Job Failed - Error in Pipeline (2)";
+            functions::log_message($msg);
+        }
+    }
+
+    public function process_start() {
+        $this->set_job_started();
+        $this->email_started();
+    }
+
+    public function process_finish() {
+        $this->load_num_sequence_from_file();
+        $this->set_job_complete();
+        $this->email_complete();
+        $msg = "Generate ID: " . $this->get_id() . " - Job Completed Successfully";
+        functions::log_message($msg);
+    }
 }
 

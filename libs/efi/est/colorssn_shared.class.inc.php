@@ -190,10 +190,10 @@ abstract class colorssn_shared extends option_base {
             return;
         }
 
-        if (isset($result["generate_color_ssn_source_id"]) && isset($result["generate_color_ssn_source_idx"])) {
-            $this->ssn_source_analysis_id = isset($result["generate_color_ssn_source_id"]) ? $result["generate_color_ssn_source_id"] : "";
-            $this->ssn_source_analysis_idx = isset($result["generate_color_ssn_source_idx"]) ? $result["generate_color_ssn_source_idx"] : "";
-            $this->ssn_source_key = isset($result["generate_color_ssn_source_key"]) ? $result["generate_color_ssn_source_key"] : "";
+        if (isset($result["generate_color_ssn_source_id"]) && isset($result["generate_color_ssn_source_idx"]) && isset($result["generate_color_ssn_source_key"])) {
+            $this->ssn_source_analysis_id = $result["generate_color_ssn_source_id"];
+            $this->ssn_source_analysis_idx = $result["generate_color_ssn_source_idx"];
+            $this->ssn_source_key = $result["generate_color_ssn_source_key"];
 
             $info = functions::get_analysis_job_info($this->db, $this->ssn_source_analysis_id, $this->ssn_source_key, $this->ssn_source_analysis_idx);
             if ($info) {

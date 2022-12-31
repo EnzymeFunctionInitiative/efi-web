@@ -98,7 +98,7 @@ class analysis extends est_shared {
     public function get_sequence_file() { return $this->sequence_file; }
     public function get_db_version() { return $this->db_version; }
     public function get_output_dir() { return $this->get_generate_id() . "/" . $this->output_dir; }
-    public function get_network_output_path() { return functions::get_results_dir() . "/" . $this->get_output_dir() . "/" . $this->get_network_dir(); }
+    public function get_network_output_path() { return $this->get_results_dir() . "/" . $this->get_output_dir() . "/" . $this->get_network_dir(); }
     public function get_min_option_nice() {
         if ($this->use_min_node_attr && $this->use_min_edge_attr)
             return "Node + Edge";
@@ -259,6 +259,7 @@ class analysis extends est_shared {
             $insert_array['analysis_params'] = global_functions::encode_object($params);
 
             $result = $this->db->build_insert("analysis",$insert_array);
+            \efi\job_shared::insert_new($this->db, "analysis", $result);
             if ($result) {
                 return array('RESULT'=>true,'id'=>$result);
             } else {
@@ -348,9 +349,11 @@ class analysis extends est_shared {
 
         $results_dir = $this->get_network_output_path();
         $file = $results_dir . "/" . $this->stats_file;
-        $file_handle = @fopen($file, "r");
-        if (!isset($file_handle))
+        $file_handle = fopen($file, "r");
+        if (!is_resource($file_handle)) {
+            error_log("Unable to read network file stats $file");
             return false;
+        }
 
         $i = 0; 
         $keys = array("File", "Nodes", "Edges", "Size");
@@ -620,8 +623,7 @@ class analysis extends est_shared {
                     $pbs_job_number = substr($output,0,strpos($output,"."));
                 if ($pbs_job_number && !$exit_status) {
                     $this->set_pbs_number($pbs_job_number);
-                    $this->set_time_started();
-                    $this->set_status(__RUNNING__);
+                    $this->set_job_started();
                     $this->email_started();
                     return array('RESULT'=>true,
                         'PBS_NUMBER'=>$pbs_job_number,
@@ -1014,6 +1016,25 @@ class analysis extends est_shared {
         $plain_email .= "why this occurred." . PHP_EOL . PHP_EOL;
 
         $this->email_error($subject, $plain_email);
+    }
+
+    public function process_start() {
+        $this->set_job_started();
+        $this->email_started();
+    }
+
+    public function process_error() {
+        $this->set_job_failed();
+        $this->email_failed();
+        $msg = "Analaysis ID: " . $this->get_id() . " - Job Failed";
+        functions::log_message($msg);
+    }
+
+    public function process_finish() {
+        $this->set_job_complete();
+        $this->email_complete();
+        $msg = "Analaysis ID: " . $this->get_id() . " - Job Completed Successfully";
+        functions::log_message($msg);	
     }
 }
 

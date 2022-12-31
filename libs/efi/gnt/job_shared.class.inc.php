@@ -16,6 +16,7 @@ abstract class job_shared {
     protected $time_completed;
     protected $status;
     protected $pbs_number;
+    private $table;
 
     public function get_id() { return $this->id; }
     public function get_time_created() { return $this->time_created; }
@@ -23,15 +24,16 @@ abstract class job_shared {
     public function get_time_completed() { return $this->time_completed; }
     public function get_pbs_number() { return $this->pbs_number; }
     public function get_unixtime_completed() { return strtotime($this->time_completed); }
+    public function get_table() { return $this->table; }
 
-    public function __construct($db, $id, $db_field_prefix) {
+    public function __construct($db, $id, $table) {
         $this->db = $db;
-        $this->db_field_prefix = $db_field_prefix;
+        $this->table = $table;
         $this->id = $id;
     }
 
     protected function set_status($status) {
-        $table = $this->db_field_prefix;
+        $table = $this->table;
         $sql = "UPDATE ${table} ";
         $sql .= "SET ${table}_status='" . $status . "' ";
         $sql .= "WHERE ${table}_id='" . $this->get_id() . "' LIMIT 1";
@@ -42,7 +44,7 @@ abstract class job_shared {
     }
     
     public function set_time_completed($current_time = false) {
-        $table = $this->db_field_prefix;
+        $table = $this->table;
         if ($current_time === false)
             $current_time = date("Y-m-d H:i:s",time());
         $sql = "UPDATE ${table} SET ${table}_time_completed='" . $current_time . "' ";
@@ -87,6 +89,10 @@ abstract class job_shared {
             return false;
         }
     }
+
+    public abstract function process_error();
+    public abstract function process_start();
+    public abstract function process_finish();
 }
 
 

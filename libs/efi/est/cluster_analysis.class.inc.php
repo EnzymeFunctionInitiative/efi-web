@@ -144,7 +144,7 @@ class cluster_analysis extends colorssn_shared {
 
 
 
-    public function get_cons_res_file_name($type, $aa) {
+    public function get_cons_res_file_name($type, $aa, $suffix_only = false) {
         $ext = file_types::ext($type);
         if ($ext === false)
             return false;
@@ -159,6 +159,9 @@ class cluster_analysis extends colorssn_shared {
             $suffix .= "_Position_Summary";
         $suffix .= "_Full";
 
+        if ($suffix_only)
+            return $suffix;
+
         $name = $this->get_base_filename();
         $name .= "_$suffix.$ext";
         return $name; 
@@ -167,13 +170,14 @@ class cluster_analysis extends colorssn_shared {
         $ext = file_types::ext($type);
         if ($ext === false)
             return false;
-        $name = file_types::suffix($type);
-        if ($name === false)
-            return false;
         $base_dir = $this->get_full_output_dir();
 
         // Try the simple naming convention first
+        $name = $this->get_cons_res_file_name($type, $aa, true);
+        if ($name === false)
+            return false;
         $file_path = "$base_dir/$name.$ext";
+        die("$base_dir|$file_path|");
 
         // Then try legacy file naming convention if the new convention doesn't exist
         if (!file_exists($file_path)) {
@@ -235,8 +239,9 @@ class cluster_analysis extends colorssn_shared {
 
 
     private function parse_cluster_sizes() {
-        $filename = $this->get_file_name(file_types::FT_sizes);
-        $full_path = $this->get_full_output_dir() . "/" . $filename;
+        //$filename = $this->get_file_name(file_types::FT_sizes);
+        //$full_path = $this->get_full_output_dir() . "/" . $filename;
+        $full_path = $this->get_file_path(file_types::FT_sizes);
         $lines = file($full_path);
         $nums = array();
         foreach ($lines as $line) {

@@ -6,6 +6,7 @@ require_once(__DIR__."/../../../init.php");
 use \efi\gnt\settings;
 use \efi\gnt\functions;
 use \efi\gnt\DiagramJob;
+use \efi\global_functions;
 
 
 class diagram_jobs {
@@ -23,7 +24,6 @@ class diagram_jobs {
 
     public static function create_file($db, $email, $tmp_filename, $filename) {
 
-        $upload_prefix = settings::get_diagram_upload_prefix();
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
         $title = self::get_diagram_title_from_file($filename);
@@ -32,8 +32,10 @@ class diagram_jobs {
         
         $info = self::do_database_create($db, $email, $title, $job_type, array());
 
+        $upload_dir = settings::get_gnd_uploads_dir();
+
         if ($info['id']) {
-            functions::copy_to_uploads_dir($tmp_filename, $filename, $info['id'], $upload_prefix, $ext);
+            global_functions::copy_to_uploads_dir($tmp_filename, $filename, $info['id'], $upload_dir);
         } else {
             return false;
         }
@@ -90,12 +92,11 @@ class diagram_jobs {
             return false;
         }
 
-        $prefix = settings::get_diagram_upload_prefix();
-        $uploadsDir = settings::get_uploads_dir();
+        $uploadsDir = settings::get_gnd_uploads_dir();
         if ($uploadsDir === false)
             return false;
         
-        $file_name = $prefix . $info["id"] . ".$ext";
+        $file_name = $info["id"] . ".$ext";
         $filePath = "$uploadsDir/$file_name";
 
         $retCode = file_put_contents($filePath, $contents);
@@ -107,7 +108,6 @@ class diagram_jobs {
 
     private static function do_create_file_diagram_job($db, $email, $title, $nb_size, $temp_name, $file_name, $job_type, $ext, $db_mod, $seq_db_type) {
 
-        $upload_prefix = settings::get_diagram_upload_prefix();
         $params = array('neighborhood_size' => $nb_size, 'db_mod' => $db_mod);
 
         if (isset($seq_db_type))
@@ -118,8 +118,10 @@ class diagram_jobs {
 
         $info = self::do_database_create($db, $email, $title, $job_type, $params);
 
+        $upload_dir = settings::get_gnd_uploads_dir();
+
         if ($info !== false && $info['id']) {
-            functions::copy_to_uploads_dir($temp_name, $file_name, $info['id'], $upload_prefix, $ext);
+            global_functions::copy_to_uploads_dir($temp_name, $file_name, $info['id'], $upload_dir, $ext);
         } else {
             return false;
         }
@@ -147,6 +149,7 @@ class diagram_jobs {
 
         $result = $db->build_insert('diagram', $insertArray);
         $info = array('id' => $result, 'key' => $key);
+        \efi\job_shared::insert_new($db, "diagram", $result);
 
         return $info;
     }
