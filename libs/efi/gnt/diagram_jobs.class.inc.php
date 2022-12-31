@@ -147,6 +147,7 @@ class diagram_jobs {
 
         $result = $db->build_insert('diagram', $insertArray);
         $info = array('id' => $result, 'key' => $key);
+        \efi\job_shared::insert_new($db, "diagram", $info);
 
         return $info;
     }

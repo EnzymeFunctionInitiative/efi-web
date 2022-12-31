@@ -13,13 +13,13 @@ class functions extends global_functions {
 
     //Possible errors when you upload a file
     private static $upload_errors = array(
-        1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-        2 => 'The uploaded file exceeds the maximum file size.',
+        1 => 'The uploaded file was too large (system settings).',
+        2 => 'The uploaded file too large.',
         3 => 'The uploaded file was only partially uploaded.',
         4 => 'No file was uploaded.',
-        6 => 'Missing a temporary folder.',
-        7 => 'Failed to write file to disk.',
-        8 => 'File upload stopped by extension.',
+        6 => 'Server processing failed (temp).',
+        7 => 'Server processing failed (write).',
+        8 => 'Invalid file extension.'
     );
 
     public static function get_upload_error($value) {

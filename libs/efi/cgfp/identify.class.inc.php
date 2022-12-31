@@ -159,6 +159,7 @@ class identify extends job_shared {
         $insert_array['identify_params'] = global_functions::encode_object($parms_array);
 
         $new_id = $db->build_insert('identify', $insert_array);
+        \efi\job_shared::insert_new($db, "identify", $new_id);
 
         if ($new_id) {
             if (!$est_id && (!$parent_id || $tmp_filename)) {

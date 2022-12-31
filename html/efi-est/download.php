@@ -36,7 +36,7 @@ $mime_type = send_file::SEND_FILE_BINARY;
 if ($dl_type == "ssn" && $aid !== false) {
     $ssn_idx = sanitize::validate_id("idx", sanitize::GET);
     if ($aid === false || $ssn_idx === false) {
-        print_error();
+        print_error("Invalid IDs specified");
         exit;
     }
 
@@ -46,7 +46,7 @@ if ($dl_type == "ssn" && $aid !== false) {
     $file_name = $analysis->get_file_name(file_types::FT_ssn, $ssn_idx);
     $file_path = $analysis->get_file_path(file_types::FT_ssn, $ssn_idx);
     if ($file_name === false || $file_path === false) {
-        print_error();
+        print_error("Unable to find files for $ssn_idx");
         exit;
     }
 
@@ -137,13 +137,15 @@ function output_file($file_path, $file_name, $mime_type) {
 
 function validate_key($obj, $key) {
     if (!download::validate_key($obj, $key)) {
-        print_error();
+        print_error("efi-est/download.php: Invalid key $key");
         exit();
     }
 }
 
-function print_error() {
+function print_error($error = "") {
     echo "Error";
+    if ($error)
+        error_log("efi-est/download.php: $error");
 }
 
 

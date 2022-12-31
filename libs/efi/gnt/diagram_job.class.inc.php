@@ -225,28 +225,13 @@ class diagram_job extends arrow_api {
         return $exit_status == 0;
     }
 
-    public function check_if_job_is_done() {
+    private function check_if_job_is_done() {
 
-        $out_dir = $this->get_output_dir();
-        $is_done = file_exists("$out_dir/" . DiagramJob::JobCompleted) || !$this->check_pbs_running();
         $is_error = file_exists("$out_dir/" . DiagramJob::JobError) || !file_exists($this->get_output_file());
 
         if ($is_done) {
             $current_time = date("Y-m-d H:i:s", time());
             
-            $status = __FINISH__;
-            if ($is_error)
-                $status = __FAILED__;
-            print $this->id . " has completed and has status = $status.\n";
-
-            $this->db->non_select_query("UPDATE diagram SET diagram_status = '$status', " .
-                "diagram_time_completed = '$current_time' WHERE diagram_id = " . $this->id);
-            $this->set_diagram_version();
-
-            if ($is_error)
-                $this->email_failed();
-            else
-                $this->email_complete();
         }
     }
 
@@ -357,6 +342,30 @@ class diagram_job extends arrow_api {
 
     public function get_message() {
         return $this->message;
+    }
+
+    public function process_error() {
+        $this->set_status(__FAILED__);
+        $this->set_time_completed();
+        $this->set_diagram_version();
+        $this->email_failed();
+        $msg = "GND ID: " . $this->get_id() . " - Job Failed";
+        functions::log_message($msg);
+    }
+
+    public function process_finish() {
+        $this->set_status(__FINISH__);
+        $this->set_time_completed();
+        $this->set_diagram_version();
+        $this->email_complete();
+        $msg = "GND ID: " . $this->get_id() . " - Job Completed Successfully";
+        functions::log_message($msg);
+    }
+
+    public function process_start() {
+        $this->set_time_started();
+        $this->set_status(__RUNNING__);
+        $this->email_started();
     }
 }
 

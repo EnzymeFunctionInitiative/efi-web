@@ -115,11 +115,21 @@ class global_settings {
     }
 
     public static function get_website_enabled() {
-        return __ENABLE_WEBSITE__; 
+        if (defined("__ENABLE_WEBSITE__"))
+            return __ENABLE_WEBSITE__ == true;
+        else
+            return false;
     }
 
     public static function get_website_enabled_message() {
-        return (defined("__ENABLE_WEBSITE_MSG__") && __ENABLE_WEBSITE_MSG__) ? "Website is currently under maintenance.  Please check back later." : "";
+        if (!self::get_website_enabled()) {
+            if (defined("__ENABLE_WEBSITE_MSG__") && __ENABLE_WEBSITE_MSG__)
+                return __ENABLE_WEBSITE_MSG__;
+            else
+                return "Website is currently under maintenance.  Please check back later.";
+        } else {
+            return "";
+        }
     }
 
     public static function get_release_status() {

@@ -34,6 +34,8 @@ abstract class est_shared {
     public function get_time_completed_formatted() { return functions::format_datetime(functions::parse_datetime($this->time_completed)); }
     public function get_time_period() { $window = global_functions::format_short_date($this->get_time_started()) . " -- " . global_functions::format_short_date($this->get_time_completed()); return $window; }
     public function get_unixtime_completed() { return strtotime($this->time_completed); }
+
+    public function get_table() { return $this->table; }
     
     public function get_email() { return $this->email; }
     public function set_email($email) { $this->email = $email; }
@@ -79,19 +81,28 @@ abstract class est_shared {
         $this->email_cancelled();
     }
 
-    public function finish_job_complete() {
+    public function set_job_complete() {
         $this->set_status(__FINISH__);
         $this->set_time_completed();
     }
 
-    public function finish_job_failed() {
+    public function set_job_failed() {
         $this->set_status(__FAILED__);
         $this->set_time_completed();
+    }
+
+    public function set_job_started() {
+        $this->set_status(__RUNNING__);
+        $this->set_time_started();
     }
 
     public abstract function get_key();
     public abstract function get_id();
     protected abstract function get_generate_results_script();
+
+    public abstract function process_error();
+    public abstract function process_start();
+    public abstract function process_finish();
 
 
     protected abstract function get_email_job_info();

@@ -470,6 +470,8 @@ class stepa extends est_shared {
         }
 
         $new_id = $db->build_insert("generate", $copy);
+        \efi\job_shared::insert_new($db, $table_name, $new_id);
+
         if ($new_id)
             return $new_id;
         else
@@ -597,5 +599,9 @@ class stepa extends est_shared {
         #$full_file = $dir . "/" . $this->get_output_dir() . "/" . $file_name;
         #return $full_file;
     }
+
+    public function process_error() {}
+    public function process_start() {}
+    public function process_finish() {}
 }
 

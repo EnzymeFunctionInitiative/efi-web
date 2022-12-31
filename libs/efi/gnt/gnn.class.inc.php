@@ -201,9 +201,7 @@ class gnn extends gnn_shared {
         if ($pbs_job_number && !$exit_status) {
             if (!$is_debug) {
                 $this->set_pbs_number($pbs_job_number);
-                $this->set_time_started();
-                $this->email_started();
-                $this->set_status(__RUNNING__);
+                $this->process_start();
                 if ($this->est_id) {
                     $this->update_est_job_file_field($ssnin);
                 }
@@ -259,51 +257,51 @@ class gnn extends gnn_shared {
         } else {
             $exec .= $binary . " ";
         }
-        $exec .= " -output-dir \"$output_dir\"";
-        $exec .= " -queue " . $queue;
-        $exec .= " -ssnin \"" . $target_ssnin . "\"";
-        $exec .= " -nb-size " . $this->get_size();
-        $exec .= " -cooc " . $this->get_cooccurrence();
-        $exec .= " -gnn \"" . $this->get_gnn() . "\"";
-        $exec .= " -ssnout \"" . $this->get_color_ssn() . "\"";
-        $exec .= " -stats \"" . $this->get_stats_file() . "\"";
-        $exec .= " -cluster-sizes \"" . $this->get_cluster_sizes_file() . "\"";
-        $exec .= " -sp-clusters-desc \"" . $this->get_swissprot_desc_file($want_clusters) . "\"";
-        $exec .= " -sp-singletons-desc \"" . $this->get_swissprot_desc_file($want_singles) . "\"";
-        $exec .= " -warning-file \"" . $this->get_warning_file() . "\"";
-        $exec .= " -pfam \"" . $this->get_pfam_hub() . "\"";
-        $exec .= " -id-out \"" . $this->get_id_table_file() . "\"";
-        $exec .= " -id-out-domain \"" . $this->get_id_table_file(true) . "\"";
+        $exec .= " --output-dir \"$output_dir\"";
+        $exec .= " --queue " . $queue;
+        $exec .= " --ssnin \"" . $target_ssnin . "\"";
+        $exec .= " --nb-size " . $this->get_size();
+        $exec .= " --cooc " . $this->get_cooccurrence();
+        $exec .= " --gnn " . file_types::suffix(file_types::FT_ssn_gnn);
+        $exec .= " --ssnout " . file_types::suffix(file_types::FT_gnn_ssn);
+        $exec .= " --stats " . file_types::suffix(file_types::FT_stats);
+        $exec .= " --cluster-sizes " . file_types::suffix(file_types::FT_sizes);
+        $exec .= " --sp-clusters-desc " . file_types::suffix(file_types::FT_sp_clusters);
+        $exec .= " --sp-singletons-desc " . file_types::suffix(file_types::FT_sp_singletons);
+        $exec .= " --warning-file " . file_types::suffix(file_types::FT_gnn_nn);
+        $exec .= " --pfam " . file_types::suffix(file_types::FT_pfam_gnn);
+        $exec .= " --id-out " . file_types::suffix(file_types::FT_gnn_mapping);
+        $exec .= " --id-out-domain " . file_types::suffix(file_types::FT_gnn_mapping_dom);
         if ($this->extra_ram)
-            $exec .= " -extra-ram";
+            $exec .= " --extra-ram";
         
         if (!$this->is_sync) {
-            $exec .= " -pfam-zip \"" . $this->get_pfam_data_zip_file() . "\"";
-            $exec .= " -all-pfam-zip \"" . $this->get_all_pfam_data_zip_file() . "\"";
-            $exec .= " -split-pfam-zip \"" . $this->get_split_pfam_data_zip_file() . "\"";
-            $exec .= " -all-split-pfam-zip \"" . $this->get_all_split_pfam_data_zip_file() . "\"";
-            $exec .= " -uniprot-id-zip \"" . $this->get_cluster_data_zip_file(self::SEQ_NO_DOMAIN, self::SEQ_UNIPROT) . "\"";
-            $exec .= " -uniprot-domain-id-zip \"" . $this->get_cluster_data_zip_file(gnn::SEQ_DOMAIN, self::SEQ_UNIPROT) . "\"";
-            $exec .= " -uniref50-id-zip \"" . $this->get_cluster_data_zip_file(self::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF50) . "\"";
-            $exec .= " -uniref50-domain-id-zip \"" . $this->get_cluster_data_zip_file(self::SEQ_DOMAIN, gnn::SEQ_UNIREF50) . "\"";
-            $exec .= " -uniref90-id-zip \"" . $this->get_cluster_data_zip_file(self::SEQ_NO_DOMAIN, gnn::SEQ_UNIREF90) . "\"";
-            $exec .= " -uniref90-domain-id-zip \"" . $this->get_cluster_data_zip_file(self::SEQ_DOMAIN, gnn::SEQ_UNIREF90) . "\"";
-            $exec .= " -none-zip \"" . $this->get_pfam_none_zip_file() . "\"";
-            $exec .= " -fasta-zip \"" . $this->get_fasta_zip_file(self::SEQ_NO_DOMAIN, self::SEQ_UNIPROT) . "\"";
-            $exec .= " -fasta-domain-zip \"" . $this->get_fasta_zip_file(self::SEQ_DOMAIN, self::SEQ_UNIPROT) . "\"";
-            $exec .= " -fasta-uniref90-zip \"" . $this->get_fasta_zip_file(self::SEQ_NO_DOMAIN, self::SEQ_UNIREF90) . "\"";
-            $exec .= " -fasta-uniref90-domain-zip \"" . $this->get_fasta_zip_file(self::SEQ_DOMAIN, self::SEQ_UNIREF90) . "\"";
-            $exec .= " -fasta-uniref50-zip \"" . $this->get_fasta_zip_file(self::SEQ_NO_DOMAIN, self::SEQ_UNIREF50) . "\"";
-            $exec .= " -fasta-uniref50-domain-zip \"" . $this->get_fasta_zip_file(self::SEQ_DOMAIN, self::SEQ_UNIREF50) . "\"";
-            $exec .= " -arrow-file \"" . $this->get_diagram_data_file() . "\"";
-            $exec .= " -cooc-table \"" . $this->get_cooc_table_file() . "\"";
-            $exec .= " -hub-count-file \"" . $this->get_hub_count_file() . "\"";
+            $exec .= " --pfam-zip " . file_types::suffix(file_types::FT_pfam_dom);
+            $exec .= " --all-pfam-zip " . file_types::suffix(file_types::FT_all_pfam_dom);
+            $exec .= " --split-pfam-zip " . file_types::suffix(file_types::FT_split_pfam_dom);
+            $exec .= " --all-split-pfam-zip " . file_types::suffix(file_types::FT_split_all_pfam_dom);
+            $exec .= " --uniprot-id-zip " . file_types::suffix(file_types::FT_ids);
+            $exec .= " --uniprot-domain-id-zip " . file_types::suffix(file_types::FT_dom_ids);
+            $exec .= " --uniref50-id-zip " . file_types::suffix(file_types::FT_ur50_ids);
+            $exec .= " --uniref50-domain-id-zip " . file_types::suffix(file_types::FT_ur50_dom_ids);
+            $exec .= " --uniref90-id-zip " . file_types::suffix(file_types::FT_ur90_ids);
+            $exec .= " --uniref90-domain-id-zip " . file_types::suffix(file_types::FT_ur90_dom_ids);
+            $exec .= " --none-zip " . file_types::suffix(file_types::FT_pfam_nn);
+            $exec .= " --fasta-zip " . file_types::suffix(file_types::FT_fasta);
+            $exec .= " --fasta-domain-zip " . file_types::suffix(file_types::FT_fasta_dom);
+            $exec .= " --fasta-uniref90-zip " . file_types::suffix(file_types::FT_fasta_ur90);
+            $exec .= " --fasta-uniref90-domain-zip " . file_types::suffix(file_types::FT_fasta_dom_ur90);
+            $exec .= " --fasta-uniref50-zip " . file_types::suffix(file_types::FT_fasta_ur50);
+            $exec .= " --fasta-uniref50-domain-zip " . file_types::suffix(file_types::FT_fasta_dom_ur50);
+            $exec .= " --arrow-file " . file_types::suffix(file_types::FT_gnd);
+            $exec .= " --cooc-table " . file_types::suffix(file_types::FT_cooc_table);
+            $exec .= " --hub-count-file " . file_types::suffix(file_types::FT_hub_count);
             if ($this->gnn_parent_id)
-                $exec .= " -parent-dir " . $this->get_parent_dir();
+                $exec .= " --parent-dir " . $this->get_parent_dir();
         }
         if ($sched)
-            $exec .= " -scheduler $sched";
-        $exec .= " -job-id " . $this->get_id();
+            $exec .= " --scheduler $sched";
+        $exec .= " --job-id " . $this->get_id();
 
         return $exec;
     }
@@ -321,6 +319,7 @@ class gnn extends gnn_shared {
 
     public function error_gnn() {
         $this->set_status(__FAILED__);
+        $this->set_time_completed();
         $this->email_error();
     }
 
@@ -1132,6 +1131,24 @@ class gnn extends gnn_shared {
             );
         }
         return $jobs;
+    }
+
+    public function process_error() {
+        $gnn->error_gnn();
+        $msg = "GNN ID: " . $this->get_id() . " - Job Failed";
+        functions::log_message($msg);
+    }
+
+    public function process_finish() {
+        $gnn->complete_gnn();
+        $msg = "GNN ID: " . $this->get_id() . " - Job Completed Successfully";
+        functions::log_message($msg);
+    }
+
+    public function process_start() {
+        $this->set_time_started();
+        $this->set_status(__RUNNING__);
+        $this->email_started();
     }
 }
 

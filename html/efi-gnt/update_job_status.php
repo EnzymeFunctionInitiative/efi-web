@@ -3,20 +3,21 @@ require_once(__DIR__."/../../init.php");
 
 use \efi\gnt\gnn;
 use \efi\gnt\diagram;
+use \efi\sanitize;
 
 
 $is_error = false;
-$the_id = sanitize::post_sanitize_id("id");
-$the_key = sanitize::post_sanitize_key("key");
+$id = sanitize::validate_id("id", sanitize::POST);
+$key = sanitize::validate_key("key", sanitize::POST);
 $job_type = sanitize::post_sanitize_string("jt", "");
 $job_obj = false;
 
-if ($the_id !== false && $key !== false) {
+if ($id !== false && $key !== false) {
     $job_type = ($job_type == "d") ? "d" : "g";
     if ($job_type == "d")
-        $job_obj = new diagram_job($db, $the_id);
+        $job_obj = new diagram_job($db, $id);
     else
-        $job_obj = new gnn($db, $the_id);
+        $job_obj = new gnn($db, $id);
 
     if ($job_obj->get_key() != $key) {
         $is_error = true;
@@ -25,7 +26,7 @@ if ($the_id !== false && $key !== false) {
     }
 }
 
-$request_type = sanitize::post_sanitize_flag("rt");
+$request_type = sanitize::post_sanitize_string("rt");
 
 $result = array("valid" => false);
 

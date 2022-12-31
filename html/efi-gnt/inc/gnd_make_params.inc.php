@@ -11,7 +11,7 @@ use \efi\gnt\diagram_data_file;
 use \efi\gnt\diagram_jobs;
 
 
-function get_realtime_params($db, $P, $ids) {
+function get_realtime_params($db, $P) {
     $P->id_key_query_string = "mode=rt";
     $P->gnn_name_text = "A";
     $P->window_title = "";

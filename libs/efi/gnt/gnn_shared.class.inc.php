@@ -130,6 +130,7 @@ abstract class gnn_shared extends arrow_api {
         $insert_array['gnn_params'] = global_functions::encode_object($params_array);
 
         $result = $db->build_insert('gnn',$insert_array);
+        \efi\job_shared::insert_new($db, "gnn", $result);
         if (!$est_job_id && (!$parms['child_type'] || $parms['child_type'] != 'filter')) {
             if ($result) {	
                 functions::copy_to_uploads_dir($parms['tmp_filename'], $filename, $result);
