@@ -722,7 +722,7 @@ class gnn extends gnn_shared {
         $ext = file_types::ext($type);
         if ($ext === false)
             return false;
-        $name = file_types::suffix($type);
+        $name = $type == file_types::FT_gnd ? $this->get_id() : file_types::suffix($type);
         if ($name === false)
             return false;
         $job_dir = $this->get_output_dir();
@@ -771,16 +771,6 @@ class gnn extends gnn_shared {
 
 
 
-
-    public function set_time_started() {
-        $current_time = date("Y-m-d H:i:s",time());
-        $sql = "UPDATE gnn SET gnn_time_started='" . $current_time . "' ";
-        $sql .= "WHERE gnn_id='" . $this->get_id() . "' LIMIT 1";
-        $result = $this->db->non_select_query($sql);
-        if ($result) {
-            $this->time_started = $current_time;
-        } 
-    }
 
     private function set_gnn_stats() {
         $result = $this->count_nodes_edges($this->get_gnn());
@@ -875,7 +865,9 @@ class gnn extends gnn_shared {
             if ($ext_pos !== false)
                 $this->basefilename = substr($basefilename, 0, $ext_pos);
 
-            $this->set_diagram_data_file($this->shared_get_full_file_path("_arrow_data", ".sqlite"));
+            $gnd_file = $this->get_file_path(file_types::FT_gnd);
+            error_log("Unable to find GND file for GNN ID $this->id: $gnd_file");
+            $this->set_diagram_data_file($gnd_file);
             $this->set_gnn_name($this->basefilename);
         }	
     }

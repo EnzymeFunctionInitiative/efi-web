@@ -791,83 +791,10 @@ function output_nc($use_advanced_options, $user_email, $show_example = false, $m
 }
 
 
-function output_option_taxonomy($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
-    $show_example = $example_fn !== false;
-    $example_fn = $example_fn === false ? function(){} : $example_fn;
-?>
-        <div id="tax_tab" class="ui-tabs-panel ui-widget-content">
-<?php $example_fn("DESC_START"); ?>
-            <p class="p-heading">
-            Retrieve taxonomy for families.
-            </p>
-
-            <p>
-            The sequences from the Pfam families, InterPro families, and/or Pfam clans (superfamilies)
-            input are retrieved. The taxonomic distribution of the sequences is displayed as a
-            "sunburst" with the levels of classification (superkingdom, kingdom, phylum, class, order,
-            family, genus, species) displayed radically, with superkingdom at the center and species
-            in the outermost ring.
-            </p>
-
-            <p>
-            The sunburst is interactive, providing the ability to zoom to the selected taxonomic level.
-            </p>
-
-            <p>
-            The UniProt/UniRef90/UniRef50 IDs and/or UniProt/UniRef90/UniRef50 FASTA-formatted sequences
-            can be downloaded.
-            </p>
-
-            <p>
-            This preview of the taxonomic distribution also can be used to guide taxonomic restrictions
-            in the "Filter by Taxonomy" option of Option B.
-            </p>
-
-<?php $example_fn("DESC_END"); ?>
-
-            <form name="option_tax_form" id="option_tax_form" method="post" action="">
-<?php $example_fn("WRAP_START"); ?>
-                <?php echo add_family_input_option_family_only("opt_tax", $show_example, false)[0]; ?>
-<?php $example_fn("WRAP_END"); ?>
-<?php $example_fn("POST_TAX_FAM"); ?>
-
-                <div class="option-panels">
-<?php $example_fn("OPTION_WRAP_START_FIRST"); ?>
-                    <div>
-                        <?php echo add_taxonomy_filter("opt_tax")[0] ?>
-                    </div>
-<?php $example_fn("OPTION_WRAP_END"); ?>
-<?php $example_fn("POST_TAX"); ?>
-<?php $example_fn("OPTION_WRAP_START"); ?>
-                    <div>
-                        <?php echo add_fragment_option("opt_tax")[0] ?>
-                    </div>
-<?php $example_fn("OPTION_WRAP_END"); ?>
-<?php $example_fn("POST_FRAG"); ?>
-                    <?php if ($use_advanced_options) { ?>
-                    <div>
-                        <?php echo add_dev_site_option("opt_tax", $db_modules, get_advanced_seq_html("opt_tax"))[0]; ?>
-                    </div>
-                    <?php } ?>
-                    <?php if (!$use_advanced_options) { ?>
-                        <input type="hidden" id="seqid-opt_tax" value="">
-                        <input type="hidden" id="length-overlap-opt_tax" value="">
-                    <?php } ?>
-<?php $example_fn("DESC_END"); ?>
-                </div>
-
-<?php $example_fn("WRAP_START"); ?>
-                <?php echo add_submit_html("opt_tax", "opt_tax_output_ids", $user_email)[0]; ?>
-<?php $example_fn("WRAP_END"); ?>
-<?php $example_fn("POST_SUBMIT"); ?>
-            </form>
-        </div>
-<?php
-}
-
 function output_cr($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
+    $ssn_key = !empty($mode_data) ? $mode_data["ssn_key"] : "";
 ?>
         <div id="crtab" class="ui-tabs-panel ui-widget-content">
 
@@ -940,6 +867,7 @@ alignment scores.
 
                 <?php if ($ssn_id) { ?>
                     <input type="hidden" name="color-ssn-source-color-id" id="color-ssn-source-color-id" value="<?php echo $ssn_id; ?>">
+                    <input type="hidden" name="color-ssn-source-color-key" id="color-ssn-source-color-key" value="<?php echo $ssn_key; ?>">
                 <?php } ?>
                 <?php echo add_submit_html("cr", "", $user_email)[0]; ?>
             </form>
@@ -1309,7 +1237,6 @@ function output_utility($use_advanced_options, $db_modules, $user_email, $exampl
     output_cluster($use_advanced_options, $user_email, $example_fn, $mode_data);
     output_nc($use_advanced_options, $user_email, $example_fn, $mode_data);
     output_cr($use_advanced_options, $user_email, $example_fn, $mode_data);
-    //output_option_taxonomy($use_advanced_options, $db_modules, $user_email, $example_fn, $mode_data);
     output_tab_page_end();
 ?>
         </div>
@@ -1457,7 +1384,17 @@ function check_for_color_mode($db) {
         $the_key = sanitize::validate_key("est-key", sanitize::GET);
         $the_idx = sanitize::validate_id("est-ssn", sanitize::GET);
 
-        if (isset($modes_avail[$mode]) && $the_aid !== false && $the_key !== false && $the_idx !== false) {
+        if ($mode === "cr" && $the_aid !== false && $the_key !== false) {
+            $the_id = $the_aid;
+            $job_info = colorssn_shared::get_source_color_ssn_info($db, $the_id, $the_key);
+            if ($job_info !== false) {
+                $mode_data["filename"] = $job_info["filename"];
+                $mode_data["ssn_id"] = $the_id;
+                $mode_data["ssn_key"] = $the_key;
+                $mode_data["ssn_idx"] = 0;
+                $mode_data["mode"] = $mode;
+            }
+        } else if (isset($modes_avail[$mode]) && $the_aid !== false && $the_key !== false && $the_idx !== false) {
             $job_info = global_functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
             if ($job_info !== false) {
                 $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);
@@ -1470,16 +1407,6 @@ function check_for_color_mode($db) {
                     $mode_data["ssn_key"] = $the_key;
                     $mode_data["mode"] = $mode;
                 }
-            }
-        } else if ($mode === "cr" && $the_aid !== false && $the_key !== false) {
-            $the_id = $the_aid;
-            $job_info = colorssn_shared::get_source_color_ssn_info($db, $the_id, $the_key);
-            if ($job_info !== false) {
-                $mode_data["filename"] = $job_info["filename"];
-                $mode_data["ssn_id"] = $the_id;
-                $mode_data["ssn_key"] = $the_key;
-                $mode_data["ssn_idx"] = 0;
-                $mode_data["mode"] = $mode;
             }
         }
     }

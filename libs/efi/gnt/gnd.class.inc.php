@@ -159,7 +159,7 @@ abstract class gnd {
 
     protected function parse_query($query) {
         $query = trim(strtoupper($query));
-        $query = sanitize::sanitize_string_val($query, " ");
+        $query = sanitize::sanitize_string_val($query, " ", "[^A-Za-z0-9_\-:]");
         $items = preg_split("/[\n\r ,]+/", $query);
         return $items;
     }
@@ -487,6 +487,8 @@ abstract class gnd {
     //
     protected function open_db_file() {
         $db_file = $this->db_file;
+        if (!file_exists($db_file))
+            error_log("Unable to find $db_file");
         $this->db = new \SQLite3($db_file);
         return $db_file;
     }

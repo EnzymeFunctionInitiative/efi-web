@@ -139,7 +139,8 @@ class functions extends global_functions {
         if ($hasInvalidChars === 1 || strlen($id) > 64)
             return false;
 
-        return file_exists(self::get_diagram_file_path($id));
+        $file_path = self::get_diagram_file_path($id);
+        return file_exists($file_path);
     }
 
     public static function get_diagram_file_name($id) {
@@ -147,7 +148,9 @@ class functions extends global_functions {
     }
 
     public static function get_diagram_file_path($id) {
-        $filePath = settings::get_diagram_output_dir() . "/$id/" . self::get_diagram_file_name($id);
+        //TODO: determine this
+        $results_dir = settings::get_rel_diagram_output_dir();
+        $filePath = settings::get_diagram_output_dir() . "/$id/$results_dir/" . self::get_diagram_file_name($id);
         return $filePath;
     }
 

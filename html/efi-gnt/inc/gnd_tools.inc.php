@@ -30,7 +30,7 @@ function render_gnd_tools($params) {
                             </div>
 <?php } ?>
                             <div>
-                                <a href="view_diagrams_v3.php?<?php echo $params->id_key_query_string; ?>" target="_blank">
+                                <a href="view_diagrams.php?<?php echo $params->id_key_query_string; ?>" target="_blank">
                                     <button type="button" class="btn btn-default tool-button">
                                         <i class="fas fa-window-restore" aria-hidden="true"></i> New Window
                                     </button>

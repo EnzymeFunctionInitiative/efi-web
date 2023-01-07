@@ -26,6 +26,8 @@ function error_base($message, $IsPretty, $errType, $IsExpiredPage) {
         include(__DIR__."/../html/not_found.php");
     else
         include(__DIR__."/../html/not_found.php");
+    if ($message)
+        print("Info: <b>$message</b>\n<br>");
     if ($IsPretty)
         include("inc/footer.inc.php");
     die();

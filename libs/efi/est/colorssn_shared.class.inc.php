@@ -243,11 +243,18 @@ abstract class colorssn_shared extends option_base {
             // Because we have legacy and new file naming conventions, we use glob.  In a future release
             // this will be removed to use the proper file format.
             $suffix = global_settings::get_est_colorssn_suffix();
-            $colorssn_files = glob("$est_results_dir/*$suffix.zip");
-            if (count($colorssn_files) == 0)
-                return false;
-            $full_path = $colorssn_files[0];
-            $info["full_path"] = $full_path;
+            $fp = "";
+            if (file_exists("$est_results_dir/ssn.xgmml")) {
+                $fp = "$est_results_dir/ssn.xgmml";
+            } else if (file_exists("$est_results_dir/ssn.zip")) {
+                $fp = "$est_results_dir/ssn.zip";
+            } else {
+                $colorssn_files = glob("$est_results_dir/*$suffix.zip");
+                if (count($colorssn_files) == 0)
+                    return false;
+                $fp = $colorssn_files[0];
+            }
+            $info["full_path"] = $fp;
 
             return $info;
         }

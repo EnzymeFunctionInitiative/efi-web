@@ -163,7 +163,24 @@ class analysis extends est_shared {
         }
     }
 
-    public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0, $compute_nc = false, $build_repnode = true, $tax_search = false, $tax_search_name = "", $remove_fragments = false) {
+    //public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0, $compute_nc = false, $build_repnode = true, $tax_search = false, $tax_search_name = "", $remove_fragments = false) {
+    public function create($params) {
+        $generate_id = $params["job_id"];
+        $filter_value = $params["filter_value"];
+        $name = $params["network_name"];
+        $minimum = $params["min"];
+        $maximum = $params["max"];
+        $customFile = $params["custom_file"];
+        $cdhitOpt = $params["cdhit_opt"];
+        $filter = $params["filter"];
+        $min_node_attr = $params["min_node_attr"];
+        $min_edge_attr = $params["min_edge_attr"];
+        $compute_nc = $params["compute_nc"];
+        $build_repnode = $params["build_repnode"];
+        $tax_search = $params["tax_search"];
+        $tax_search_name = $params["tax_name"];
+        $remove_fragments = $params["remove_fragments"];
+
         $errors = false;
         $message = "";		
 

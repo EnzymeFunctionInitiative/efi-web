@@ -338,6 +338,49 @@ abstract class option_base extends stepa {
         }
     }
 
+    public function export_job($file_path) {
+        $max_full_fam = settings::get_maximum_full_family_count();
+
+        $fh = fopen($file_path, "w");
+        if (!is_resource($fh))
+            return false;
+
+        $write_param = function($key, $value) use ($fh) {
+            fwrite($fh, "$key\t$value\n");
+        };
+
+        $out = null;
+        $parms = $this->get_run_script_args($out);
+
+        $db_mod = functions::get_efidb_module();
+        if ($this->db_mod)
+            $db_mod = $this->db_mod;
+        $write_param("db_mod", $db_mod);
+
+        if (functions::get_use_legacy_graphs())
+            $write_param("--oldgraphs", "");
+        if ($max_full_fam && $max_full_fam > 0)
+            $write_param("--max-full-family", $max_full_fam);
+        foreach ($parms as $key => $value) {
+            $write_param($key, $value);
+        }
+        $write_param("--job-id", $this->id);
+        if (!global_settings::advanced_options_enabled())
+            $write_param("--remove-temp", "");
+        if ($this->is_tax_only) { // From stepa
+            $write_param("--tax-search-only", "");
+            $write_param("--use-fasta-headers", "");
+        }
+        if ($this->extra_ram) {
+            $write_param("--large-mem", "");
+            $write_param("--extra-ram", $this->extra_ram);
+        }
+
+        fclose($fh);
+
+        return true;
+    }
+
     public function set_sequence_max($num_seq) {
         $sql ="UPDATE generate ";
         $sql .= "SET generate_sequence_max='1' ";
@@ -405,8 +448,9 @@ abstract class option_base extends stepa {
             $msg = "Generate ID: " . $this->get_id() . " - Job Failed - Bad Input File Format";
             functions::log_message($msg);
         } else {
+            $this->set_num_blast();
             $this->set_job_failed();
-            $this->email_format_error();
+            $this->email_general_failure();
             $msg = "Generate ID: " . $this->get_id() . " - Job Failed - Error in Pipeline (2)";
             functions::log_message($msg);
         }
