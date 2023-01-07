@@ -19,6 +19,9 @@ if (isset($IsExpiredPage) && $IsExpiredPage)
 require_once(__BASE_DIR__ . "/includes/login_check.inc.php");
 
 
+if (defined("__GLOBAL_UPDATE_MESSAGE__")) {
+    $UpdateMsg = __GLOBAL_UPDATE_MESSAGE__;
+}
 
 if (!isset($HeaderAdditional))
     $HeaderAdditional = array();
@@ -117,9 +120,12 @@ if (!$IsDisabled || $IsAdminUser) {
 if (isset($ShowCitation) && !$IsDisabled) {
     echo global_header::get_global_citation();
 }
-?>
 
+if (isset($UpdateMsg) && $UpdateMsg) {
+?>
+            <div id="update-message" class="update-message"><?php echo $UpdateMsg; ?></div>
 <?php
+}
 if ($IsBeta) {
 ?>
             <div class="beta"><?php echo global_settings::get_release_status(); ?></div>

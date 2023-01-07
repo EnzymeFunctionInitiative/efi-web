@@ -128,12 +128,12 @@ function get_direct_params_rs($db, $P, $rs_id, $rs_ver, $key) {
     $P->is_superfamily_job = true;
 
     if ($validated)
-        return get_direct_params_shared($db, $P, $arrows, $query_type);
+        return get_direct_params_shared($db, $P, $arrows, $query_type, $rs_id, $rs_ver);
     else
         return false;
 }
 
-function get_direct_params_shared($db, $P, $arrows, $query_type) {
+function get_direct_params_shared($db, $P, $arrows, $query_type, $rs_id = false, $rs_ver = "") {
     if (!$arrows->is_loaded()) {
         error_log($arrows->get_message());
         return false;

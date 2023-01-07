@@ -124,23 +124,26 @@ $tax_name = ($tax_search !== false && isset($_POST['tax_name']) && $_POST['tax_n
 
 $network_name = sanitize::post_sanitize_string("network_name", "");
 
-$job_result = $analysis->create(
-    $job_id,
-    $filter_value,
-    $network_name,
-    $min,
-    $max,
-    $custom_file,
-    $cdhit_opt,
-    $filter,
-    $min_node_attr,
-    $min_edge_attr,
-    $compute_nc,
-    $build_repnode,
-    $tax_search,
-    $tax_name,
-    $remove_fragments
+$a_params = array(
+    "job_id" => $job_id,
+    "filter_value" => $filter_value,
+    "network_name" => $network_name,
+    "min" => $min,
+    "max" => $max,
+    "custom_file" => $custom_file,
+    "cdhit_opt" => $cdhit_opt,
+    "filter" => $filter,
+    "min_node_attr" => $min_node_attr,
+    "min_edge_attr" => $min_edge_attr,
+    "compute_nc" => $compute_nc,
+    "build_repnode" => $build_repnode,
+    "tax_search" => $tax_search,
+    "tax_name" => $tax_name,
+    "remove_fragments" => $remove_fragments
 );
+
+
+$job_result = $analysis->create($a_params);
 
 
 if ($job_result['RESULT']) {

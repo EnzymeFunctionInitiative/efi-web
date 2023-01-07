@@ -25,7 +25,6 @@ if (isset($_GET['year'])) {
     $year = $_GET['year'];
 }
 $stepc_page = $job_type == "diagram" ? "../view_diagrams.php" : "../stepc.php";
-$stepc_page_diagram_v2 = "../view_diagrams_v3.php";
 $jobs = statistics::get_jobs($db, $month, $year, $job_type);
 
 $id_field = "$job_text";
@@ -56,7 +55,7 @@ foreach ($jobs as $job) {
     if ($job_type == "diagram") {
         $results = isset($job["results"]) ? global_functions::decode_object($job["results"]) : array();
         $version = isset($results["diagram_version"]) ? $results["diagram_version"] : 0;
-        $script = $version >= 3 ? $stepc_page_diagram_v2 : $stepc_page;
+        $script = $stepc_page;
     }
 
 	$url = $script . "?" . http_build_query($get_array);

@@ -272,7 +272,7 @@ require_once(__DIR__."/inc/header.inc.php");
                 <tbody>
                     <tr style='text-align:center;'>
                         <td class="button-col">
-                            <a href="view_diagrams_v3.php?gnn-id=<?php echo $gnn_id; ?>&key=<?php echo $gnn_key; ?><?php echo $ex_param; ?>" target="_blank"><button class="mini">View diagrams</button></a>
+                            <a href="view_diagrams.php?gnn-id=<?php echo $gnn_id; ?>&key=<?php echo $gnn_key; ?><?php echo $ex_param; ?>" target="_blank"><button class="mini">View diagrams</button></a>
                         </td>
                         <td colspan="2">
                             Opens GND explorer in a new tab.
