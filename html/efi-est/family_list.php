@@ -27,9 +27,8 @@ $isClan = false;
 $isPfamClanMap = false;
 $familyFilter = $defaultFilter;
 $pageTitle = $defaultTitle;
-$filter = $defaultFilterKey;
 
-$filter = sanitize::get_sanitize_string("filter");
+$filter = sanitize::get_sanitize_string("filter", $defaultFilterKey);
 if (isset($filter)) {
     if (array_key_exists($filter, $Filters)) {
         $familyFilter = $Filters[$filter];
