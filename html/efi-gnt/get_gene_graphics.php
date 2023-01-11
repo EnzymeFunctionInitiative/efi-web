@@ -14,11 +14,11 @@ use \efi\send_file;
 // with the dependencies that gnn, etc. need.
 class gnd_job_factory extends job_factory {
     function __construct($is_example = false) { $this->is_example = $is_example; }
-    public function new_gnn($db, $id) { return $this->is_example !== false ? new gnn_example($db, $id, $this->is_example) : new gnn($db, $id); }
-    public function new_gnn_bigscape_job($db, $id) { return new bigscape_job($db, $id, DiagramJob::GNN); }
-    public function new_uploaded_bigscape_job($db, $id) { return new bigscape_job($db, $id, DiagramJob::Uploaded); }
-    public function new_diagram_data_file($id) { return new diagram_data_file($id); }
-    public function new_direct_gnd_file($file) { return new direct_gnd_file($file); }
+    public function new_gnn($db, $id) { return $this->is_example !== false ? new \efi\gnt\gnn_example($db, $id, $this->is_example) : new gnn($db, $id); }
+    public function new_gnn_bigscape_job($db, $id) { return new \efi\gnt\bigscape_job($db, $id, DiagramJob::GNN); }
+    public function new_uploaded_bigscape_job($db, $id) { return new \efi\gnt\bigscape_job($db, $id, DiagramJob::Uploaded); }
+    public function new_diagram_data_file($id) { return new \efi\gnt\diagram_data_file($id); }
+    public function new_direct_gnd_file($file) { return new \efi\gnt\direct_gnd_file($file); }
 }
 
 function is_cli() {
@@ -80,7 +80,7 @@ foreach ($data["data"] as $row) {
 $gnn_name = $gnd->get_job_name();
 
 $file_name = "${gnn_name}_gene_graphics.tsv";
-send_file::send_text($file_name, $output);
+send_file::send_text($output, $file_name);
 
 
 

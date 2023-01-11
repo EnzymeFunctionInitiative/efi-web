@@ -73,7 +73,7 @@ if (isset($_GET["as-table"])) {
 }
 
 
-$allow_regenerate = !$gnn->has_parent() && !$is_example;
+$allow_regenerate = global_settings::advanced_options_enabled() && !$gnn->has_parent() && !$is_example;
 $cooccurrence = $gnn->get_cooccurrence();
 
 

@@ -46,13 +46,13 @@ if ($gnn_id !== false) {
 }
 elseif ($direct_id !== false) {
     $id = $direct_id;
-    $arrows = get_arrow_db($db, $direct_id, $is_example);
+    $arrows = get_arrow_db($db, $direct_id, $key, $is_example);
     $db_file = $arrows->get_diagram_data_file();
     $gnd_output_dir = settings::get_rel_diagram_output_dir();
 }
 elseif ($upload_id !== false) {
     $id = $upload_id;
-    $arrows = get_arrow_db($db, $upload_id, $is_example);
+    $arrows = get_arrow_db($db, $upload_id, $key, $is_example);
     $db_file = $arrows->get_diagram_data_file();
     $gnd_output_dir = settings::get_rel_diagram_output_dir();
 }
@@ -66,6 +66,7 @@ if ($is_error) {
 
 if (isset($type)) {
     if ($type == "data-file") {
+        $gnn_name = $arrows->get_gnn_name();
         $dl_filename = "${id}_${gnn_name}.sqlite";
         send_file::send($db_file, $dl_filename);
         exit(0);
@@ -79,20 +80,20 @@ if (isset($type)) {
         foreach ($ids as $upId => $otherId) {
             $content .= "$upId\t$otherId\n";
         }
-        send_file::send_text($dl_filename, $content, send_file::SEND_FILE_BINARY);
+        send_file::send_text($content, $dl_filename, send_file::SEND_FILE_BINARY);
         exit(0);
     } elseif ($is_gnn == false && $type == "unmatched") {
         $gnn_name = $arrows->get_gnn_name();
         $dl_filename = "${id}_${gnn_name}_Unmatched_IDs.txt";
         $ids = $arrows->get_unmatched_ids();
         $content = implode("\n", $ids);
-        send_file::send_text($dl_filename, $content, send_file::SEND_FILE_BINARY);
+        send_file::send_text($content, $dl_filename, send_file::SEND_FILE_BINARY);
         exit(0);
     } elseif ($is_gnn == false && $type == "blast") {
         $gnn_name = $arrows->get_gnn_name();
         $dl_filename = "${id}_${gnn_name}_BLAST_Sequence.txt";
         $content = $arrows->get_blast_sequence();
-        send_file::send_text($dl_filename, $content, send_file::SEND_FILE_BINARY);
+        send_file::send_text($content, $dl_filename, send_file::SEND_FILE_BINARY);
         exit(0);
     } elseif ($type == "bigscape") {
         $cluster_file = $arrows->get_bigscape_cluster_file();

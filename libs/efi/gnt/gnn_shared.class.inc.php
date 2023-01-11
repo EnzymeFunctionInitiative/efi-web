@@ -14,19 +14,6 @@ abstract class gnn_shared extends arrow_api {
         parent::__construct($db, $id, $db_field_prefix);
     }
 
-    public static function create_from_est_job($db, $email, $size, $cooccurrence, $ssn_file_path, $est_id, $db_mod, $extra_ram) {
-        $parms = array(
-            "email" => $email,
-            "size" => $size,
-            "cooccurrence" => $cooccurrence,
-            "filename" => $ssn_file_path,
-            "est_id" => $est_id,
-            "db_mod" => $db_mod,
-            "extra_ram" => $extra_ram,
-        );
-        return self::create($db, $parms); // create adds default parameters
-    }
-
     public static function create($db, $parms) {
         if (!isset($parms["email"]))
             return false;
@@ -34,7 +21,7 @@ abstract class gnn_shared extends arrow_api {
             return false;
         if (!isset($parms["cooccurrence"]))
             return false;
-        if (!isset($parms["filename"]))
+        if (!isset($parms["filename"]) && !isset($parms["job_name"]))
             return false;
 
         if (!isset($parms["tmp_filename"]))
@@ -43,6 +30,8 @@ abstract class gnn_shared extends arrow_api {
             $parms["job_name"] = "";
         if (!isset($parms["est_id"]))
             $parms["est_id"] = 0;
+        if (!isset($parms["est_idx"]))
+            $parms["est_idx"] = 0;
         if (!isset($parms["is_sync"]))
             $parms["is_sync"] = false;
         if (!isset($parms["db_mod"]))
@@ -63,39 +52,39 @@ abstract class gnn_shared extends arrow_api {
         //$email, $size, $cooccurrence, $tmp_filename, $filename, $est_job_id, $job_name, $is_sync) {
 
         // Sanitize the filename
-        $filename = $parms["filename"];
         $est_job_id = $parms["est_id"];
-        if (!$est_job_id)
-            $filename = preg_replace("([\._]{2,})", "", preg_replace("([^a-zA-Z0-9\-_\.])", "", $filename));
-        else
-            $filename = preg_replace("([\._]{2,})", "", preg_replace("([^/a-zA-Z0-9\-_\.])", "", $filename));
+        //$filename = "";
+        //if ($est_job_id)
+        //    $filename = $parms["job_name"];
+        //else
+            $filename = preg_replace("([\._]{2,})", "", preg_replace("([^a-zA-Z0-9\-_\.])", "", $parms["filename"]));
 
         $job_name = preg_replace("/[^A-Za-z0-9 \-_?!#\$%&*()\[\],\.<>:;{}]/", "_", $parms["job_name"]);
         $gnn_status = $parms["is_sync"] ? __FINISH__ : __NEW__;
 
         $result = false;
         $key = global_functions::generate_key();
+
         $insert_array = array(
             "gnn_email" => $parms["email"],
             "gnn_key" => $key,
-            "gnn_status" => $gnn_status);
+            "gnn_status" => $gnn_status,
+        );
+        $params_array = array(
+            "neighborhood_size" => $parms["size"],
+            "filename" => $filename,
+            "cooccurrence" => $parms["cooccurrence"],
+        );
+
         if ($est_job_id) {
             $insert_array["gnn_est_source_id"] = $est_job_id;
-            if (isset($parms["est_tax_tree_id"]) && isset($parms["est_tax_id_type"])) {
-                $insert_array["gnn_est_tax_tree_id"] = $parts["est_tax_tree_id"];
-                $insert_array["gnn_est_tax_id_type"] = $parts["est_tax_id_type"];
-            }
+            $params_array["ssn_idx"] = $parms["est_idx"];
         }
         if ($parms["parent_id"] && $parms["child_type"]) {
             $insert_array["gnn_parent_id"] = $parms["parent_id"];
             $insert_array["gnn_child_type"] = $parms["child_type"];
         }
 
-        $params_array = array(
-            "neighborhood_size" => $parms["size"],
-            "filename" => $filename,
-            "cooccurrence" => $parms["cooccurrence"],
-        );
         if ($parms["job_name"])
             $params_array["job_name"] = $parms["job_name"];
         if ($parms["db_mod"] && preg_match("/^[A-Z0-9]{4}$/", $parms["db_mod"]))

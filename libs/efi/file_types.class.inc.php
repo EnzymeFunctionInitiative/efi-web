@@ -61,6 +61,7 @@ class file_types {
     const FT_split_all_pfam_dom = "all_split_pfam_map";
     const FT_gnn_mapping = "gnn_map_table";
     const FT_gnn_mapping_dom = "gnn_map_table_dom";
+    const OPT_xgmml = 1;
 
 
     private static $types = array(
@@ -106,9 +107,9 @@ class file_types {
         self::FT_conv_ratio => array("suffix" => "conv_ratio", "ext" => "txt"),
         self::FT_cr_table => array("suffix" => "conv_ratio", "ext" => "txt"),
         self::FT_blast_evalue => array("suffix" => "blast_evalue", "ext" => "tab"),
-        self::FT_gnn_ssn => array("suffix" => "coloredssn", "ext" => "zip"), // the ssns that come from GNN
-        self::FT_ssn_gnn => array("suffix" => "ssn_cluster_gnn", "ext" => "zip"),
-        self::FT_pfam_gnn => array("suffix" => "pfam_family_gnn", "ext" => "zip"),
+        self::FT_gnn_ssn => array("suffix" => "coloredssn", "ext" => "zip", "other" => "xgmml"), // the ssns that come from GNN
+        self::FT_ssn_gnn => array("suffix" => "ssn_cluster_gnn", "ext" => "zip", "other" => "xgmml"),
+        self::FT_pfam_gnn => array("suffix" => "pfam_family_gnn", "ext" => "zip", "other" => "xgmml"),
         self::FT_pfam_nn => array("suffix" => "no_pfam_neighbors", "ext" => "zip"),
         self::FT_gnn_nn => array("suffix" => "nomatches_noneighbors", "ext" => "txt"),
         self::FT_cooc_table => array("suffix" => "cooc_table", "ext" => "txt"),
@@ -120,15 +121,20 @@ class file_types {
         self::FT_split_all_pfam_dom => array("suffix" => "all_split_pfam_mapping", "ext" => "zip"),
         self::FT_gnn_mapping => array("suffix" => "mapping_table", "ext" => "tab"),
         self::FT_gnn_mapping_dom => array("suffix" => "domain_mapping_table", "ext" => "tab"),
+        self::OPT_xgmml => 1,
     );
 
 
 
-    public static function ext($type) {
-        if (isset(self::$types[$type]))
-            return self::$types[$type]["ext"];
-        else
+    public static function ext($type, $option = 0) {
+        if (isset(self::$types[$type])) {
+            if ($option)
+                return self::$types[$type]["other"];
+            else
+                return self::$types[$type]["ext"];
+        } else {
             return false;
+        }
     }
 
     public static function suffix($type) {

@@ -13,11 +13,13 @@ $clanKey = "clan";
 $clanMapKey = "pfam-clan";
 
 $Filters = array("pfam" => $defaultFilter, "interpro" => "IPR%", $clanKey => "CL%", "ssf" => "SSF%", "g3d" => "G3D%");
-$LinkTemplate = array("pfam" => "http://pfam.xfam.org/family/%FAMILY%",
-                      "interpro" => "http://www.ebi.ac.uk/interpro/entry/%FAMILY%",
-                      $clanKey => "http://pfam.xfam.org/clan/%FAMILY%",
-                      "ssf" => "",
-                      "g3d" => "");
+$LinkTemplate = array(
+                        "pfam" => "https://www.ebi.ac.uk/interpro/entry/pfam/%FAMILY%",
+                        "interpro" => "http://www.ebi.ac.uk/interpro/entry/%FAMILY%",
+                        $clanKey => "https://www.ebi.ac.uk/interpro/set/pfam/%FAMILY%",
+                        "ssf" => "",
+                        "g3d" => "",
+                    );
 $Titles = array("pfam" => $defaultTitle, "interpro" => "InterPro Families", $clanKey => "Pfam Clans",
                 "ssf" => "SSF Families", "g3d" => "Gene3D Families", $clanMapKey => "Clan-Pfam Mapping");
 
