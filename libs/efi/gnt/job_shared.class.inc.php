@@ -44,15 +44,21 @@ abstract class job_shared {
     }
     
     public function set_time_completed($current_time = false) {
-        $table = $this->table;
         if ($current_time === false)
-            $current_time = date("Y-m-d H:i:s",time());
-        $sql = "UPDATE ${table} SET ${table}_time_completed='" . $current_time . "' ";
-        $sql .= "WHERE ${table}_id='" . $this->get_id() . "' LIMIT 1";
-        $result = $this->db->non_select_query($sql);
-        if ($result) {
+            $current_time = date("Y-m-d H:i:s", time());
+        $result = $this->set_time($current_time, "time_completed");
+        if ($result)
             $this->time_completed = $current_time;
-        }
+    }
+    public function set_time_started() {
+        $the_time = date("Y-m-d H:i:s", time());
+        $this->time_started = $this->set_time($the_time, "time_started");
+    }
+    private function set_time($the_time, $field) { 
+        $table = $this->table;
+        $sql = "UPDATE ${table} SET ${table}_${field} = :the_time WHERE ${table}_id = :id";
+        $result = $this->db->non_select_query($sql, array(":the_time" => $the_time, ":id" => $this->get_id()));
+        return $result;
     }
 
     public function mark_job_as_archived() {
