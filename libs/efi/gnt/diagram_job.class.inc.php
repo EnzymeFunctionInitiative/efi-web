@@ -367,7 +367,8 @@ class diagram_job extends arrow_api {
     public function process_start() {
         $this->set_time_started();
         $this->set_status(__RUNNING__);
-        $this->email_started();
+        if ($this->type != DiagramJob::Uploaded && $this->type != DiagramJob::UploadedZip)
+            $this->email_started();
     }
 }
 
