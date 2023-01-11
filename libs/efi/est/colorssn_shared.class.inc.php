@@ -231,7 +231,7 @@ abstract class colorssn_shared extends option_base {
         if ($results) {
             $results = $results[0];
             $base_est_results = functions::get_results_dir();
-            $est_results_name = global_functions::get_est_job_output_dir();
+            $est_results_name = global_functions::get_job_results_dir_name();
             $est_results_dir = "$base_est_results/$id/$est_results_name";
             $params = global_functions::decode_object($results["generate_params"]);
             $filename = global_functions::get_est_colorssn_filename($id, $params["generate_fasta_file"], false);

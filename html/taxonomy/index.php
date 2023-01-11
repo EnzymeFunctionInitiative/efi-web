@@ -99,6 +99,11 @@ steps so that the user can select specific taxonomy categories when generating
 SSNs.
 </p>
 
+<p>
+Information on Pfam families and clans and InterPro family sizes is available on
+the <a href="../efi-est/family_list.php">Family Information page</a>.
+</p>
+
 <?php
 include_once("inc/index_helpers.inc.php");
 include_once("inc/index_sections.inc.php");

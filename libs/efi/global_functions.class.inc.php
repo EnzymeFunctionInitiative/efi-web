@@ -167,13 +167,13 @@ class global_functions {
         return self::get_est_results_path() . "/$out_dir";
     }
 
-    public static function get_est_job_output_dir() {
+    public static function get_job_results_dir_name() {
         $out_dir = defined("__EST_JOB_RESULTS_DIRNAME__") ? __EST_JOB_RESULTS_DIRNAME__ : "output";
         return $out_dir;
     }
 
     public static function get_est_job_results_relative_path($id) {
-        $out_dir = self::get_est_job_output_dir();
+        $out_dir = self::get_job_results_dir_name();
         return "$id/$out_dir";
     }
 

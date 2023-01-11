@@ -142,7 +142,7 @@ define("__NUM_JOB_LIMIT__","6");            // Number of jobs that a user can ru
 //
 
 // PATHS
-define("__EST_JOB_RESULTS_DIRNAME__","output");
+define("__JOB_RESULTS_DIRNAME__","output");
 define("__EST_COLORSSN_SUFFIX__","_coloredssn");
 
 // CLUSTER/BACKEND OPTIONS

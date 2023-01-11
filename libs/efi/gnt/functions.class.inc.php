@@ -148,10 +148,12 @@ class functions extends global_functions {
     }
 
     public static function get_diagram_file_path($id) {
-        //TODO: determine this
         $results_dir = settings::get_rel_diagram_output_dir();
-        $filePath = settings::get_diagram_output_dir() . "/$id/$results_dir/" . self::get_diagram_file_name($id);
-        return $filePath;
+        $dir_path = settings::get_diagram_output_dir() . "/$id/$results_dir";
+        if (!file_exists($dir_path))
+            $dir_path = settings::get_diagram_output_dir() . "/$id";
+        $file_path = $dir_path . "/" . self::get_diagram_file_name($id);
+        return $file_path;
     }
 
     public static function verify_gnt_job($db, $gnn_id, $gnn_key) {
@@ -172,21 +174,6 @@ class functions extends global_functions {
             return $result[0]["gnn_key"];
         else
             return false;
-    }
-
-    public static function get_est_job_info_from_gnn_id($db, $gnn_id) {
-
-        $sql = "SELECT gnn_est_source_id FROM gnn WHERE gnn_id = $gnn_id";
-        $result = $db->query($sql);
-        if ($result)
-            $analysis_id = $result[0]["gnn_est_source_id"];
-        else
-            return false;
-
-        if (!$analysis_id)
-            return false;
-
-        return self::get_est_job_info_from_est_id($db, $analysis_id);
     }
 
     public static function get_est_job_info_from_est_id($db, $analysis_id) {

@@ -286,7 +286,7 @@ HTML;
 <div>
     <div class="primary-input">
         <div class="secondary-name">
-            Pfam and/or InterPro Families:
+            Pfam and/or InterPro Families and/or Pfam clans:
         </div>
         <div>
 HTML;

@@ -16,6 +16,7 @@ if (isset($NumWaitingJobs) && isset($NumRunningJobs)) {
 .failed { font-weight: bold; color: red; }
 .cancelled { color: orange; }
 .completed { }
+b.c { color: green; font-size: 1.25em; }
 /*.families-col {
     max-width: 200px;
     overflow: auto;

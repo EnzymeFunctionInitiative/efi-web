@@ -313,7 +313,7 @@ class gnn extends gnn_shared {
         return $exec;
     }
 
-    public function complete_gnn() {
+    private function complete_gnn() {
         $this->set_gnn_stats();
         $this->set_ssn_stats();
         $this->set_diagram_version();
@@ -324,7 +324,7 @@ class gnn extends gnn_shared {
         $this->email_complete();
     }
 
-    public function error_gnn() {
+    private function error_gnn() {
         $this->set_status(__FAILED__);
         $this->set_time_completed();
         $this->email_error();
@@ -704,8 +704,8 @@ class gnn extends gnn_shared {
     }
 
     // Get the pretty name
-    public function get_file_name($type) {
-        $ext = file_types::ext($type);
+    public function get_file_name($type, $option = 0) {
+        $ext = file_types::ext($type, $option);
         if ($ext === false)
             return false;
 
@@ -718,8 +718,8 @@ class gnn extends gnn_shared {
         $name .= ".$ext";
         return $name; 
     }
-    public function get_file_path($type) {
-        $ext = file_types::ext($type);
+    public function get_file_path($type, $option = 0) {
+        $ext = file_types::ext($type, $option);
         if ($ext === false)
             return false;
         $name = $type == file_types::FT_gnd ? $this->get_id() : file_types::suffix($type);
@@ -727,7 +727,7 @@ class gnn extends gnn_shared {
             return false;
         $job_dir = $this->get_output_dir();
 
-        $base_dir = "$job_dir/output";
+        $base_dir = "$job_dir/" . global_functions::get_job_results_dir_name();
         if (!file_exists($base_dir))
             $base_dir = $job_dir;
 
@@ -736,7 +736,7 @@ class gnn extends gnn_shared {
 
         // Then try legacy file naming convention if the new convention doesn't exist
         if (!file_exists($file_path)) {
-            $file_name = $this->get_file_name($type);
+            $file_name = $this->get_file_name($type, $option);
             $file_path = "$base_dir/${file_name}";
         }
 
@@ -773,7 +773,8 @@ class gnn extends gnn_shared {
 
 
     private function set_gnn_stats() {
-        $result = $this->count_nodes_edges($this->get_gnn());
+        $gnn_file = $this->get_file_path(file_types::FT_ssn_gnn, file_types::OPT_xgmml);
+        $result = $this->count_nodes_edges($gnn_file);
         $data = array("gnn_edges" => $result["edges"], "gnn_nodes" => $result["nodes"]);
         $query_result = $this->update_results_object($data);
         if ($query_result) {
@@ -783,7 +784,8 @@ class gnn extends gnn_shared {
     }
 
     private function set_ssn_stats() {
-        $result = $this->count_nodes_edges($this->get_color_ssn());
+        $ssn_file = $this->get_file_path(file_types::FT_gnn_ssn, file_types::OPT_xgmml);
+        $result = $this->count_nodes_edges($ssn_file);
         $data = array("ssn_edges" => $result["edges"], "ssn_nodes" => $result["nodes"]);
         $query_result = $this->update_results_object($data);
         if ($query_result) {
@@ -866,7 +868,6 @@ class gnn extends gnn_shared {
                 $this->basefilename = substr($basefilename, 0, $ext_pos);
 
             $gnd_file = $this->get_file_path(file_types::FT_gnd);
-            error_log("Unable to find GND file for GNN ID $this->id: $gnd_file");
             $this->set_diagram_data_file($gnd_file);
             $this->set_gnn_name($this->basefilename);
         }	
@@ -887,7 +888,7 @@ class gnn extends gnn_shared {
     }
 
 
-    public function count_nodes_edges($xgmml_file) {
+    private function count_nodes_edges($xgmml_file) {
         $result = array('nodes' => 0, 'edges' => 0);
         if (file_exists($xgmml_file)) {
             // For now we use grep and wc to count how many edges and nodes there are in the network.

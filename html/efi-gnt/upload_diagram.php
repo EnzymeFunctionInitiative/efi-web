@@ -6,6 +6,7 @@ use \efi\gnt\settings;
 use \efi\gnt\functions;
 use \efi\gnt\diagram_jobs;
 use \efi\gnt\user_jobs;
+use \efi\sanitize;
 
 
 if (!global_settings::get_website_enabled())

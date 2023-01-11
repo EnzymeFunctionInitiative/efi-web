@@ -1,9 +1,16 @@
 <?php
 require_once(__DIR__."/../../../init.php");
-require_once(__DIR__."/inc/stats_admin_header.inc.php");
 
 $tmp_dir = defined("__TEMP_DIR__") ? __TEMP_DIR__ : "/tmp";
 $tmp_file = "$tmp_dir/efi.queue";
+
+$stats = file_get_contents("$tmp_file.running");
+$stats = trim($stats);
+$NumRunningJobs = $stats;
+$NumWaitingJobs = 0;
+
+require_once(__DIR__."/inc/stats_admin_header.inc.php");
+
 
 #$output = "N/A";
 #if (is_dir($tmp_dir)) {

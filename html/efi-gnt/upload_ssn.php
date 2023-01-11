@@ -53,12 +53,15 @@ if (empty($_POST) && empty($_FILES) && $_SERVER["CONTENT_LENGTH"] > 0) {
         }
     }
 
-    $est_analysis_id = 0;
-    $est_file_path = ""; // relative to the EST job dir
-    $est_file_Name = "";
+    $job_name = sanitize::post_sanitize_string("job_name");
+    $db_mod = sanitize::post_sanitize_string("db_mod");
+    $extra_ram = global_settings::advanced_options_enabled() && sanitize::post_sanitize_flag("extra_ram");
 
-    if (!$file_name) {
-        $the_aid = sanitize::validate_id("est-id", sanitize::POST);
+    $est_analysis_id = 0;
+    $est_ssn_idx = 0;
+
+    $the_aid = sanitize::validate_id("est-id", sanitize::POST);
+    if ($the_aid && !$file_name) {
         $the_key = sanitize::validate_key("est-key", sanitize::POST);
         $the_idx = sanitize::validate_id("est-ssn", sanitize::POST);
         if ($the_aid !== false && $the_key !== false && $the_idx !== false) {
@@ -66,9 +69,9 @@ if (empty($_POST) && empty($_FILES) && $_SERVER["CONTENT_LENGTH"] > 0) {
             if ($job_info !== false) {
                 $est_file_info = functions::get_est_filename($job_info, $the_aid, $the_idx);
                 if ($est_file_info !== false) {
-                    $est_analysis_id = $job_info["analysis_id"];
-                    $est_file_path = $est_file_info["full_ssn_path"];
-                    $est_file_name = $est_file_info["filename"];
+                    $est_analysis_id = $the_aid;
+                    $est_ssn_idx = $the_idx;
+                    $file_name = $est_file_info["filename"];
                 }
             }
         }
@@ -98,14 +101,20 @@ if (empty($_POST) && empty($_FILES) && $_SERVER["CONTENT_LENGTH"] > 0) {
         $message .= "<br><b>Invalid % Co-Occurrence.  It must be an integer between 0 and 100.</b>";
     }
 
-    $job_name = sanitize::post_sanitize_string("job_name");
-    $db_mod = sanitize::post_sanitize_string("db_mod");
-    $extra_ram = global_settings::advanced_options_enabled() && sanitize::post_sanitize_flag("extra_ram");
-
     if ($valid) {
         $nb_size = sanitize::post_sanitize_num("neighbor_size");
         if ($est_analysis_id) {
-            $gnnInfo = gnn::create_from_est_job($db, $email, $nb_size, $cooccurrence, $est_file_path, $est_analysis_id, $db_mod, $extra_ram);
+            $parms = array(
+                "email" => $email,
+                "size" => $nb_size,
+                "cooccurrence" => $cooccurrence,
+                "est_id" => $est_analysis_id,
+                "est_idx" => $est_ssn_idx,
+                "db_mod" => $db_mod,
+                "extra_ram" => $extra_ram,
+                "filename" => $file_name,
+            );
+            $gnnInfo = gnn::create($db, $parms);
         } else {
             $parms = array(
                 "size" => $nb_size,
