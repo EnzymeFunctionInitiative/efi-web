@@ -656,6 +656,16 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
     $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="colorssntab" class="ui-tabs-panel ui-widget-content">
+
+            <p>
+            <b>
+            An input SSN from the EFI-EST FASTA option should be generated using "Read
+            FASTA headers" from FASTA files with UniProt IDs in the headers.  Otherwise,
+            the summary tables and sets of IDs and sequences per cluster will not be
+            generated.
+            </b>
+            </p>
+
             <p>
                 <b>Clusters in the submitted SSN are identified, numbered and colored.</b>
                 Summary tables, sets of IDs and sequences per cluster are provided.
@@ -882,6 +892,15 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
     $ssn_idx = !empty($mode_data) ? $mode_data["ssn_idx"] : "";
 ?>
         <div id="clustertab" class="ui-tabs-panel ui-widget-content">
+
+            <p>
+            <b>
+            An input SSN from the EFI-EST FASTA option should be generated using "Read
+            FASTA headers" from FASTA files with UniProt IDs in the headers.  Otherwise,
+            sets of IDs and sequences, MSAs, WebLogos, HMMs, consensus residues, and length
+            histograms will not be generated.
+            </b>
+            </p>
 
             <p>
             <b>

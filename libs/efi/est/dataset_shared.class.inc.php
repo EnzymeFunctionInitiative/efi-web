@@ -119,7 +119,8 @@ class dataset_shared {
 //        $generate->print_raw_counts();
         $evalue_option = $generate->get_evalue();
         $default_evalue = settings::get_evalue();
-        $show_evalue = $evalue_option != $default_evalue;
+        //$show_evalue = $evalue_option != $default_evalue;
+        $show_evalue = true;
 
         $add_fam_rows_fn = function() {};
         $add_fam_overlap_rows_fn = function() {};
@@ -175,7 +176,7 @@ class dataset_shared {
             $retrieved_seq = $generate->get_counts("num_blast_retr");
             $db_type = $generate->get_blast_db_type(true);
 
-            if ($evalue_blast != $default_evalue)
+            //if ($evalue_blast != $default_evalue)
                 $table->add_row("E-Value for UniProt BLAST Retrieval", $evalue_blast);
             if ($show_evalue)
                 $table->add_row("E-Value for SSN Edge Calculation", $evalue_option);

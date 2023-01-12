@@ -419,6 +419,17 @@ abstract class colorssn_shared extends option_base {
         return $this->get_base_filename();
     }
 
+    public function get_has_results() {
+        $all_nodes_file = $this->get_full_output_dir() . "/" . functions::get_colorssn_map_dir_name() . "/uniprot-nodes/cluster_All_UniProt_IDs.txt";
+        if (!file_exists($all_nodes_file))
+            return null;
+        // Contains a zzz
+        if (strpos(file_get_contents($all_nodes_file), "zzz") !== false)
+            return false;
+        else
+            return true;
+    }
+
 
 
 
