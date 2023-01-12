@@ -26,22 +26,34 @@ class gnd_v2 extends gnd {
 
     protected function parse_params($params) {
         $this->page_size = 20;
-        if (isset($params["pagesize"]) && is_numeric($params["pagesize"]))
+        if (isset($params["pagesize"]) && is_numeric($params["pagesize"])) {
             $this->page_size = $params["pagesize"];
-        if (isset($params["sidx"]) && isset($params["eidx"]) && is_numeric($params["sidx"]) && is_numeric($params["eidx"]))
+        }
+
+        if (isset($params["sidx"]) && isset($params["eidx"]) && is_numeric($params["sidx"]) && is_numeric($params["eidx"])) {
             $this->page_size = array($params["sidx"], $params["eidx"]);
-        if (isset($params["stats"]) && (isset($params["query"]) || isset($params["rs-id"])))
+        }
+
+        if (isset($params["stats"]) && (isset($params["query"]) || isset($params["rs-id"]))) {
             $this->has_stats = true;
+        }
+
         if (isset($params["rs-id"])) {
             $this->query = $this->parse_query($params["rs-id"]);
             $this->use_cluster_id_map = true;
         } else if (isset($params["query"]) && !isset($params["range"])) {
             $this->query = $this->parse_query($params["query"]);
         }
-        if (isset($params["mode"]) && $params["mode"] == "rt")
-            $this->query = $this->parse_query($params["query"]);
-        if (isset($params["range"]))
+
+        if (isset($params["mode"]) && $params["mode"] == "rt") {
+            if (isset($params["query"]))
+                $this->query = $this->parse_query($params["query"]);
+        }
+
+        if (isset($params["range"])) {
             $this->range = $this->parse_range($params["range"]);
+        }
+
         if (isset($params["id-type"])) {
             $this->query_set_idtype = true;
             if ($params["id-type"] == 50 || $params["id-type"] == 90) {
