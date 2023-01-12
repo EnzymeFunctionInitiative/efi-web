@@ -44,19 +44,17 @@ class realtime_lookup {
         file_put_contents($input_file, $ids);
 
         $binary = settings::get_realtime_script();
-        $exec = "source /etc/profile\n";
-        $exec .= "module load " . settings::get_gnn_module() . "\n";
-        $exec .= "module load " . settings::get_efidb_module() . "\n";
-        $exec .= $binary . " ";
+        $exec = $binary . " ";
         $exec .= " --id-file \"$input_file\"";
         $exec .= " --output \"$output_file\"";
 
-        $exit_status = 1;
-        $output_array = array();
-        $output = exec($exec, $output_array, $exit_status);
-        $output = trim(rtrim($output));
+        $handle = popen($exec . " 2>&1", "r");
+        $read = fread($handle, 2096);
+        pclose($handle);
+        $read = trim(rtrim($read));
 
-        if ($exit_status) {
+        // If $read contains text the command failed.
+        if ($read) {
             return array("rt_id" => $id, "status" => false);
         }
 

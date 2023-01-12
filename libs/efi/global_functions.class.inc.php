@@ -197,10 +197,8 @@ class global_functions {
         $est_key = preg_replace("/[^A-Za-z0-9]/", "", $est_key);
 
         $est_db = global_settings::get_est_database();
-        $sql = "SELECT analysis.*, generate_key FROM $est_db.analysis " .
-            "JOIN $est_db.generate ON generate_id = analysis_generate_id " .
-            "WHERE analysis_id = $est_id AND generate_key = '$est_key'";
-        $result = $db->query($sql);
+        $sql = "SELECT analysis.*, generate_key FROM $est_db.analysis JOIN $est_db.generate ON generate_id = analysis_generate_id WHERE analysis_id = :est_id AND generate_key = :est_key";
+        $result = $db->query($sql, array(":est_id" => $est_id, ":est_key" => $est_key));
 
         $info = array();
 
