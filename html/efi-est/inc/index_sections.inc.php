@@ -657,7 +657,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
 ?>
         <div id="colorssntab" class="ui-tabs-panel ui-widget-content">
 
-            <p>
+            <p style="color: red">
             <b>
             An input SSN from the EFI-EST FASTA option should be generated using "Read
             FASTA headers" from FASTA files with UniProt IDs in the headers.  Otherwise,
@@ -893,7 +893,7 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
 ?>
         <div id="clustertab" class="ui-tabs-panel ui-widget-content">
 
-            <p>
+            <p style="color: red">
             <b>
             An input SSN from the EFI-EST FASTA option should be generated using "Read
             FASTA headers" from FASTA files with UniProt IDs in the headers.  Otherwise,

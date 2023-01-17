@@ -124,10 +124,10 @@ class taxonomy_job extends family_shared {
 
         if ($uniprot_info !== false)
             array_push($info, array("UniProt", "histogram_uniprot"));
-        if ($uniref50_info !== false)
-            array_push($info, array("UniRef50", "histogram_uniref50"));
         if ($uniref90_info !== false)
             array_push($info, array("UniRef90", "histogram_uniref90"));
+        if ($uniref50_info !== false)
+            array_push($info, array("UniRef50", "histogram_uniref50"));
 
         return $info;
     }
