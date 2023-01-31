@@ -7,6 +7,8 @@ $use_legacy_tab = true;
 $tab_class = "";
 if ($use_legacy_tab) {
     $tab_class = "tab active";
+if (!isset($active_tab))
+    $active_tab = "";
 ?>
 
 

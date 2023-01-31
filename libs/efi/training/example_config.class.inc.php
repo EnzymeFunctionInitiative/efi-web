@@ -146,14 +146,14 @@ class example_config {
 
         $info = array();
         foreach ($data as $key => $conf) {
-            if (self::is_est_job($key) && !isset($info["est_generate_table"])) {
+            if (self::is_est_job($conf["job_type"]) && !isset($info["est_generate_table"])) {
                 $info["est_generate_table"] = $conf["table_name"][0];
                 $info["est_analysis_table"] = $conf["table_name"][1];
                 $info["est_data_dir"] = $conf["data_dir"];
-            } else if (preg_match("/^gn/", $key) && !isset($info["gnt_table"])) {
+            } else if ($conf["job_type"] == "gnt" && !isset($info["gnt_table"])) {
                 $info["gnt_table"] = $conf["table_name"];
                 $info["gnt_data_dir"] = $conf["data_dir"];
-            } else if (preg_match("/^cgfp/", $key) && !isset($info["cgfp_identify_table"])) {
+            } else if ($conf["job_type"] == "cgfp" && !isset($info["cgfp_identify_table"])) {
                 $info["cgfp_identify_table"] = $conf["table_name"][0];
                 $info["cgfp_quantify_table"] = $conf["table_name"][1];
                 $info["cgfp_data_dir"] = $conf["data_dir"];
@@ -185,7 +185,8 @@ class example_config {
         if (isset($config["sections"])) {
             $conf = $config["sections"];
             if (isset($conf["order"])) {
-                $sections = explode(",", $conf["order"]);
+                $order = preg_replace("/ /", "", $conf["order"]);
+                $sections = explode(",", $order);
                 for ($i = 0; $i < count($sections); $i++) {
                     $S = $sections[$i];
                     if (isset($conf[$S]))
@@ -207,49 +208,69 @@ class example_config {
             $job_ids = (isset($conf["job_id"]) && is_array($conf["job_id"])) ? $conf["job_id"] : array();
             $title = isset($titles[$key]) ? $titles[$key] : strtoupper($key);
             $data_dir = isset($conf["data_dir"]) ? $conf["data_dir"] : "";
-            $table_name = self::parse_table_name($key, $conf); // if cgfp or est, returns array
+            $job_type = isset($conf["job_type"]) ? $conf["job_type"] : "";
+            $tab = isset($conf["tab"]) ? $conf["tab"] : "";
+            $table_name = self::parse_table_name($job_type); // if cgfp or est, returns array
 
-            $data[$key] = array("id" => $key, "title" => $title, "data_dir" => $data_dir, "job_ids" => $job_ids, "table_name" => $table_name);
+            $data[$key] = array("id" => $key, "title" => $title, "data_dir" => $data_dir, "job_ids" => $job_ids, "table_name" => $table_name, "job_type" => $job_type, "tab" => $tab);
         }
 
         return array($sort_by_id, $use_tabs, $sections, $data);
     }
 
-    public function output_section($id) {
+    public function get_title($id) {
+        if (!isset($this->config[$id]))
+            return "";
+        $data = $this->config[$id];
+        return isset($data["title"]) ? $data["title"] : "";
+    }
+
+    public function get_tab($id) {
+        if (!isset($this->config[$id]))
+            return "";
+        $data = $this->config[$id];
+        return isset($data["tab"]) ? $data["tab"] : "";
+    }
+
+    public function output_section($id, $show_title = true) {
         if (!isset($this->config[$id]))
             return "";
 
         $data = $this->config[$id];
 
         $output = "";
-        if (isset($data["title"]))
+        if (isset($data["title"]) && $show_title)
             $output = "<h4 style=\"margin-top:50px\">" . $data["title"] . "</h4>\n";
 
-        if (self::is_est_job($id)) {
-            $output .= est_ui::output_job_list($this->est_jobs[$id], false, false, $this->example_id);
-        } else if (preg_match("/^gn/", $id)) {
+        $job_type = $data["job_type"];
+        if (self::is_est_job($job_type)) {
+            if ($job_type == "est")
+                $output .= est_ui::output_job_list($this->est_jobs[$id], false, false, $this->example_id, false, false, false); // last false means to hide sort button
+            else // taxonomy job
+                $output .= est_ui::output_job_list($this->est_jobs[$id], false, false, $this->example_id, false, true);
+        } else if ($job_type == "gnt") {
             $output .= gnt_ui::output_job_list($this->gnt_jobs[$id], $this->example_id);
-        } else if (preg_match("/^cgfp/", $id)) {
+        } else if ($job_type == "cgfp") {
             $output .= cgfp_ui::output_job_list($this->cgfp_jobs[$id], false, $this->example_id);
         }
 
         return $output;
     }
 
-    private static function parse_table_name($id, $config) {
+    private static function parse_table_name($job_type) {
         $retval = "";
-        if (self::is_est_job($id)) {
+        if (self::is_est_job($job_type)) {
             $retval = array(self::DEFAULT_EST_GENERATE_TABLE, self::DEFAULT_EST_ANALYSIS_TABLE);
             if (isset($config["generate_table_name"]))
                 $retval[0] = $config["generate_table_name"];
             if (isset($config["analysis_table_name"]))
                 $retval[1] = $config["analysis_table_name"];
-        } else if (preg_match("/^gn/", $id)) {
+        } else if ($job_type == "gnt") {
             if (isset($config["gnt_table_name"]))
                 $retval = $config["gnt_table_name"];
             else
                 $retval = self::DEFAULT_GNT_TABLE;
-        } else if (preg_match("/^cgfp/", $id)) {
+        } else if ($job_type == "cgfp") {
             $retval = array(self::DEFAULT_CGFP_IDENTIFY_TABLE, self::DEFAULT_CGFP_QUANTIFY_TABLE);
             if (isset($config["identify_table_name"]))
                 $retval[0] = $config["identify_table_name"];
@@ -264,7 +285,7 @@ class example_config {
         $generate_table = $this->est_generate_table;
 
         foreach ($this->config as $id => $data) {
-            if (!self::is_est_job($id))
+            if (!self::is_est_job($data["job_type"]))
                 continue;
 
             $sql = "SELECT generate_id, generate_key, generate_time_completed, generate_status, generate_type, generate_params FROM ${est_db}.${generate_table} ";
@@ -280,7 +301,7 @@ class example_config {
     
             $family_lookup_fn = function($family_id) {};
             $include_failed_analysis_jobs = false;
-            $include_analysis_jobs = true;
+            $include_analysis_jobs = 2;
             $analysis_table = "analysis_example";
             $est_jobs = est_user_jobs_shared::process_load_generate_rows($this->db, $rows, $include_analysis_jobs, $include_failed_analysis_jobs, $family_lookup_fn, user_jobs::SORT_TIME_COMPLETED, "", $analysis_table, $est_db);
 
@@ -296,7 +317,7 @@ class example_config {
         $gnn_table = $this->gnt_table;
 
         foreach ($this->config as $id => $data) {
-            if (!preg_match("/^gn/", $id))
+            if ($data["job_type"] != "gnt")
                 continue;
 
             $sql = "SELECT gnn_id, gnn_key, gnn_time_completed, gnn_status, gnn_params, gnn_parent_id, gnn_child_type FROM ${gnt_db}.${gnn_table} ";
@@ -326,7 +347,7 @@ class example_config {
         $qu_table = $this->cgfp_quantify_table;
 
         foreach ($this->config as $id => $data) {
-            if (!preg_match("/^cgfp/", $id))
+            if ($data["job_type"] != "cgfp")
                 continue;
 
             $sql = "SELECT identify_id, identify_key, identify_time_completed, identify_params, identify_status, identify_parent_id FROM ${cgfp_db}.${id_table} ";
@@ -349,8 +370,8 @@ class example_config {
         return true;
     }
 
-    private static function is_est_job($id) {
-        return preg_match("/^(est|tax)/", $id);
+    private static function is_est_job($job_type) {
+        return ($job_type == "est" || $job_type == "tax");
     }
 }
 

@@ -48,32 +48,13 @@ use \efi\training\training_ui;
 
 echo training_ui::get_tab_header(["gre-tab" => "GRE", "rss-tab" => "RSS"], 0);
 
-$gre_html = get_gre_html($config, 4);
-$rss_html = get_rss_html($config, 4);
+$gre_html = get_gre_html($config, false);
+$rss_html = get_tab_html($config, "rss_sb.png", "rss");
 
 echo training_ui::get_tab("gre-tab", "GRE", $gre_html, 2);
 echo training_ui::get_tab("rss-tab", "RSS", $rss_html, 2);
 
 echo training_ui::get_tab_footer();
-
-
-//echo "<h4>EST Jobs</h4>\n";
-//$est_jobs = $config->get_est_jobs("est.jobs");
-//if (isset($est_jobs["order"]) && count($est_jobs["order"]) > 0) {
-//    echo est_ui::output_job_list($est_jobs, false, false, "biochem");
-//}
-//
-//echo "<h4 style=\"margin-top:50px\">GNT Job</h4>\n";
-//$gnt_jobs = $config->get_gnt_jobs("gnt.jobs");
-//if (count($gnt_jobs) > 0) {
-//    echo gnt_ui::output_job_list($gnt_jobs, "biochem");
-//}
-//
-//echo "<h4 style=\"margin-top:50px\">CGFP Job</h4>\n";
-//$cgfp_jobs = $config->get_cgfp_jobs("cgfp.jobs");
-//if (count($cgfp_jobs) > 0) {
-//    echo cgfp_ui::output_job_list($cgfp_jobs, false, "biochem");
-//}
 
 ?>
 
@@ -84,9 +65,17 @@ echo training_ui::get_tab_footer();
 <script>
 $(document).ready(function() {
     $("#jobs").tabs();
+    $(".option-panels > div").accordion({
+        heightStyle: "content",
+            collapsible: true,
+            active: false,
+    });
+    $(".initial-open").accordion("option", {active: 0});
+    /*
     $("#gre-tab").tabs();
     $("#rss-tab").tabs();
     $("#est-gre-1").tabs();
+     */
 }).tooltip();
 </script>
 
@@ -96,108 +85,82 @@ $(document).ready(function() {
 <?php
 
 
-function get_gre_html($config) {
+function get_gre_html($config, $use_tabs = false) {
     $html = <<<HTML
 
 <div><img src="examples/2022/gre_sb.png" width="90%" /></div>
 
+<div class="option-panels">
 HTML;
 
-    $html .= training_ui::get_tab_header(["tax-gre" => "Tax. Tool", "est-gre-1" => "Filter by Tax. Analysis Step",
-        "est-gre-2" => "Filter by Tax. Generate Step", "est-gre-3" => "Tax. Tool Transfer to Option D"]);
+    $sections = $config->get_section_order();
 
-    /////////////////////
-    // Taxonomy
-    $tax_html = "";
-    $tax_jobs = $config->get_est_jobs("tax.gre");
-    if (isset($tax_jobs["order"]) && count($tax_jobs["order"]) > 0)
-        $tax_html = est_ui::output_job_list($tax_jobs, false, false, "2022", false, true); // last true is $is_taxonomy = true
+    $show_title = false;
+    for ($i = 0; $i < count($sections); $i++) {
+        $id = $sections[$i];
+        $tab = $config->get_tab($id);
 
-    /////////////////////
-    // Version 1
-    $est1_html = "";
-    $est1_jobs = $config->get_est_jobs("est.gre.1");
-    if (isset($est1_jobs["order"]) && count($est1_jobs["order"]) > 0)
-        $est1_html = est_ui::output_job_list($est1_jobs, false, false, "2022");
-    $gnt1_html = "";
-    $gnt1_jobs = $config->get_gnt_jobs("gnt.gre");
-    if (count($gnt1_jobs) > 0)
-        $gnt1_html = gnt_ui::output_job_list($gnt1_jobs, "2022");
-    $cgfp1_html = "";
-    $cgfp1_jobs = $config->get_cgfp_jobs("cgfp.gre");
-    if (count($cgfp1_jobs) > 0)
-        $cgfp1_html = cgfp_ui::output_job_list($cgfp1_jobs, false, "2022");
+        if ($tab != "gre")
+            continue;
 
-    $gre2_html = training_ui::get_tab_header(["est-gre-1-est" => "EFI-EST", "est-gre-1-gnt" => "EFI-GNT", "est-gre-1-cgfp" => "EFI-CGFP"]);
-    $gre2_html .= training_ui::get_tab("est-gre-1-est", "EFI-EST", $est1_html);
-    $gre2_html .= training_ui::get_tab("est-gre-1-gnt", "EFI-GNT", $gnt1_html);
-    $gre2_html .= training_ui::get_tab("est-gre-1-cgfp", "EFI-CGFP", $cgfp1_html);
-    $gre2_html .= training_ui::get_tab_footer();
+        $section_html = $config->output_section($id, $show_title);
+        $title = $config->get_title($id);
 
-    /////////////////////
-    // Version 2
-    $est2_html = "";
-    $est2_jobs = $config->get_est_jobs("est.gre.2");
-    if (isset($est2_jobs["order"]) && count($est2_jobs["order"]) > 0)
-        $est2_html = est_ui::output_job_list($est2_jobs, false, false, "2022");
-    
-    /////////////////////
-    // Version 3
-    $est3_html = "";
-    $est3_jobs = $config->get_est_jobs("est.gre.3");
-    if (isset($est3_jobs["order"]) && count($est3_jobs["order"]) > 0)
-        $est3_html = est_ui::output_job_list($est3_jobs, false, false, "2022");
+        $html .= output_accordion($section_html, $title);
+    }
 
-    $html .= training_ui::get_tab("tax-gre", "Taxonomy Tool", $tax_html);
-    $html .= training_ui::get_tab("est-gre-1", "Filter by Taxonomy Analysis Step", $gre2_html);
-    $html .= training_ui::get_tab("est-gre-2", "Filter by Taxonomy Generate Step", $est2_html);
-    $html .= training_ui::get_tab("est-gre-3", "Taxonomy Tool Transfer to Option D", $est3_html);
-
-    $html .= training_ui::get_tab_footer();
+    $html .= <<<HTML
+</div>
+HTML;
 
     return $html;
 }
 
 
-function get_rss_html($config) {
+function get_tab_html($config, $image, $target_tab) {
     $html = <<<HTML
 
-<div><img src="examples/2022/rss_sb.png" width="90%" /></div>
+<div><img src="examples/2022/$image" width="90%" /></div>
 
+<div class="option-panels">
 HTML;
 
-    $html .= training_ui::get_tab_header(["tax-rss" => "Tax. Tool", "est-rss-1" => "Filter by Tax. Generate Step",
-        "est-rss-2" => "Tax. Tool Transfer to Option D"]);
+    $sections = $config->get_section_order();
 
-    /////////////////////
-    // Taxonomy
-    $tax_html = "";
-    $tax_jobs = $config->get_est_jobs("tax.rss");
-    if (isset($tax_jobs["order"]) && count($tax_jobs["order"]) > 0)
-        $tax_html = est_ui::output_job_list($tax_jobs, false, false, "2022", false, true);
+    $show_title = false;
+    for ($i = 0; $i < count($sections); $i++) {
+        $id = $sections[$i];
+        $tab = $config->get_tab($id);
 
-    /////////////////////
-    // Version 1
-    $est1_html = "";
-    $est1_jobs = $config->get_est_jobs("est.rss.1");
-    if (isset($est1_jobs["order"]) && count($est1_jobs["order"]) > 0)
-        $est1_html = est_ui::output_job_list($est1_jobs, false, false, "2022");
+        if ($tab != $target_tab)
+            continue;
 
-    /////////////////////
-    // Version 2
-    $est2_html = "";
-    $est2_jobs = $config->get_est_jobs("est.rss.2");
-    if (isset($est2_jobs["order"]) && count($est2_jobs["order"]) > 0)
-        $est2_html = est_ui::output_job_list($est2_jobs, false, false, "2022");
+        $section_html = $config->output_section($id, $show_title);
+        $title = $config->get_title($id);
 
-    $html .= training_ui::get_tab("tax-rss", "Taxonomy Tool", $tax_html);
-    $html .= training_ui::get_tab("est-rss-1", "Filter by Taxonomy Generate Step", $est1_html);
-    $html .= training_ui::get_tab("est-rss-2", "Taxonomy Tool Transfer to Option D", $est2_html);
+        $html .= output_accordion($section_html, $title);
+    }
 
-    $html .= training_ui::get_tab_footer();
+    $html .= <<<HTML
+</div>
+HTML;
 
     return $html;
 }
+
+
+function output_accordion($html, $title) {
+    $html = <<<HTML
+<div>
+    <h3>$title</h3>
+    <div>
+        $html
+    </div>
+</div>
+HTML;
+    return $html;
+}
+
 
 
 
