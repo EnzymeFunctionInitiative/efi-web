@@ -61,6 +61,29 @@ class file_types {
     const FT_split_all_pfam_dom = "all_split_pfam_map";
     const FT_gnn_mapping = "gnn_map_table";
     const FT_gnn_mapping_dom = "gnn_map_table_dom";
+
+    const FT_sb_ssn = "sb_ssn";
+    const FT_sb_cdhit = "sb_sdhit";
+    const FT_sb_markers = "markers";
+    const FT_sb_meta_cluster_sizes = "sb_cl_size";
+    const FT_sb_meta_sp_clusters = "sb_sp_cl";
+    const FT_sb_meta_cp_sing = "sb_sp_sg";
+
+    const FT_sbq_ssn = "sb_qssn";
+    const FT_sbq_protein_abundance_median = "sb_qprot";
+    const FT_sbq_cluster_abundance_median = "sb_qclust";
+    const FT_sbq_protein_abundance_norm_median = "sb_qprot_n";
+    const FT_sbq_cluster_abundance_norm_median = "sb_qclust_n";
+    const FT_sbq_protein_abundance_genome_norm_median = "sb_qprot_gn";
+    const FT_sbq_cluster_abundance_genome_norm_median = "sb_qclust_gn";
+    const FT_sbq_protein_abundance_mean = "sb_qprot_mean";
+    const FT_sbq_cluster_abundance_mean = "sb_qclust_mean";
+    const FT_sbq_protein_abundance_norm_mean = "sb_qprot_n_mean";
+    const FT_sbq_cluster_abundance_norm_mean = "sb_qclust_n_mean";
+    const FT_sbq_protein_abundance_genome_norm_mean = "sb_qprot_gn_mean";
+    const FT_sbq_cluster_abundance_genome_norm_mean = "sb_qclust_gn_mean";
+    const FT_sbq_meta_info = "sb_q_mg_info";
+
     const OPT_xgmml = 1;
 
 
@@ -121,6 +144,28 @@ class file_types {
         self::FT_split_all_pfam_dom => array("suffix" => "all_split_pfam_mapping", "ext" => "zip"),
         self::FT_gnn_mapping => array("suffix" => "mapping_table", "ext" => "tab"),
         self::FT_gnn_mapping_dom => array("suffix" => "domain_mapping_table", "ext" => "tab"),
+
+        self::FT_sb_ssn => array("suffix" => "identify_ssn", "ext" => "zip"),
+        self::FT_sb_cdhit => array("suffix" => "cdhit", "ext" => "txt"),
+        self::FT_sb_markers => array("suffix" => "markers", "ext" => "faa"),
+        self::FT_sb_meta_cluster_sizes => array("suffix" => "cluster_sizes", "ext" => "tab"),
+        self::FT_sb_meta_sp_clusters => array("suffix" => "swissprot_clusters", "ext" => "tab"),
+        self::FT_sb_meta_cp_sing => array("suffix" => "swissprot_singletons", "ext" => "tab"),
+        self::FT_sbq_ssn => array("suffix" => "quantify_ssn", "ext" => "zip"),
+        self::FT_sbq_protein_abundance_median => array("suffix" => "protein_abundance", "ext" => "txt"),
+        self::FT_sbq_cluster_abundance_median => array("suffix" => "cluster_abundance", "ext" => "txt"),
+        self::FT_sbq_protein_abundance_norm_median => array("suffix" => "protein_abundance_norm", "ext" => "txt"),
+        self::FT_sbq_cluster_abundance_norm_median => array("suffix" => "cluster_abundance_norm", "ext" => "txt"),
+        self::FT_sbq_protein_abundance_genome_norm_median => array("suffix" => "protein_abundance_genome_norm", "ext" => "txt"),
+        self::FT_sbq_cluster_abundance_genome_norm_median => array("suffix" => "cluster_abundance_genome_norm", "ext" => "txt"),
+        self::FT_sbq_protein_abundance_mean => array("suffix" => "protein_abundance_mean", "ext" => "txt"),
+        self::FT_sbq_cluster_abundance_mean => array("suffix" => "cluster_abundance_mean", "ext" => "txt"),
+        self::FT_sbq_protein_abundance_norm_mean => array("suffix" => "protein_abundance_norm_mean", "ext" => "txt"),
+        self::FT_sbq_cluster_abundance_norm_mean => array("suffix" => "cluster_abundance_norm_mean", "ext" => "txt"),
+        self::FT_sbq_protein_abundance_genome_norm_mean => array("suffix" => "protein_abundance_genome_norm_mean", "ext" => "txt"),
+        self::FT_sbq_cluster_abundance_genome_norm_mean => array("suffix" => "cluster_abundance_genome_norm_mean", "ext" => "txt"),
+        self::FT_sbq_meta_info=> array("suffix" => "metagenome_desc", "ext" => "txt"),
+
         self::OPT_xgmml => 1,
     );
 
