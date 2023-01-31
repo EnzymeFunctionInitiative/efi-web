@@ -29,6 +29,7 @@ if ($id === false || $key === false) {
     exit;
 }
 
+
 $user_token = user_auth::get_user_token();
 $user_email = "";
 if ($user_token) {
@@ -44,6 +45,12 @@ $job = new identify($db, $id, $is_example);
 if ($job->get_key() != $key) {
     error_404();
 }
+if ($job->is_expired()) {
+    $header_file = __DIR__ . "/inc/header.inc.php";
+    $footer_file = __DIR__ . "/inc/footer.inc.php";
+    error_expired($header_file, $footer_file, $job->get_time_completed());
+}
+
 
 $status = $job->get_status();
 

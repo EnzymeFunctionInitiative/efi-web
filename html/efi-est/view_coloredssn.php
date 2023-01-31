@@ -33,12 +33,9 @@ if ($key !== $obj->get_key()) {
 }
 
 if (!$is_example && $obj->is_expired()) {
-    require_once(__DIR__."/inc/header.inc.php");
-    echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days(). " days";
-    echo "<br>Your job was completed on " . $obj->get_time_completed();
-    echo "<br>Please go back to the <a href='" . functions::get_server_name() . "'>homepage</a></p>";
-    require_once(__DIR__."/inc/footer.inc.php");
-    exit;
+    $header_file = __DIR__ . "/inc/header.inc.php";
+    $footer_file = __DIR__ . "/inc/footer.inc.php";
+    error_expired($header_file, $footer_file, $generate->get_time_completed());
 }
 
 

@@ -32,12 +32,9 @@ if ($generate->get_key() != $key) {
 }
 
 if ($generate->is_expired()) {
-    require_once(__DIR__."/inc/header.inc.php");
-    echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days(). " days";
-    echo "<br>Your job was completed on " . $generate->get_time_completed();
-    echo "<br>Please go back to the <a href='" . functions::get_server_name() . "'>homepage</a></p>";
-    require_once(__DIR__."/inc/footer.inc.php");
-    exit;
+    $header_file = __DIR__ . "/inc/header.inc.php";
+    $footer_file = __DIR__ . "/inc/footer.inc.php";
+    error_expired($header_file, $footer_file, $generate->get_time_completed());
 }
 
 
@@ -140,9 +137,9 @@ for ($i = 0; $i < count($histo_info); $i++) {
     $url = "graphs.php?id=$gen_id&type=len_hist&gtype=$type&key=$key$ex_param";
 ?>
     <div>
-        <!--<div><?php echo $histo_info[$i][0]; ?></div>-->
+        <h5 style="margin-top: 30px">Number of sequences at each length - <?php echo $histo_info[$i][0]; ?></h5>
         <div>
-            <img src="<?php echo $url; ?>" width="400" /><br />
+            <img src="<?php echo $url; ?>" width="700" /><br />
             <a href="<?php echo $url; ?>"><button class='file_download'>Download high resolution <img src='../images/download.svg' /></button></a>
         </div>
     </div>
