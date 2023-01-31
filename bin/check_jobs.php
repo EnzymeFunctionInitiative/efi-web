@@ -8,6 +8,8 @@ const JOB_GENERATE = "generate";
 const JOB_ANALYSIS = "analysis";
 const JOB_GNN = "gnn";
 const JOB_GND = "diagram";
+const JOB_CGFP_IDENTIFY = "identify";
+const JOB_CGFP_QUANTIFY = "quantify";
 
 $sapi_type = php_sapi_name();
 
@@ -96,6 +98,10 @@ function get_job($db, $type, $id) {
         return new \efi\gnt\gnn($db, $id);
     } else if ($type == JOB_GND) {
         return new \efi\gnt\diagram_job($db, $id);
+    } else if ($type == JOB_CGFP_IDENTIFY) {
+        return new \efi\cgfp\identify($db, $id, false);
+    } else if ($type == JOB_CGFP_QUANTIFY) {
+        return new \efi\cgfp\quantify($db, $id, false);
     }
 }
 

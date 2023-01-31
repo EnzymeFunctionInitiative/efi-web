@@ -16,6 +16,10 @@ sleep 1
 php $DIR/check_jobs.php gnn
 sleep 1
 php $DIR/check_jobs.php diagram
+sleep 1
+php $DIR/check_jobs.php identify
+sleep 1
+php $DIR/check_jobs.php quantify
 
 DATE=$(date +"%Y-%m-%d %H:%M:%S")
 echo "$DATE: Finish EFI Master script"
