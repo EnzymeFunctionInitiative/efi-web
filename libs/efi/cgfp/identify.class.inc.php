@@ -10,6 +10,7 @@ use \efi\cgfp\functions;
 use \efi\cgfp\settings;
 use \efi\cgfp\job_manager;
 use \efi\cgfp\job_types;
+use \efi\cgfp\job_shared;
 
 
 // ShortBRED-Identify
@@ -55,6 +56,7 @@ class identify extends job_shared {
     public function __construct($db, $job_id, $is_example = false, $is_debug = false) {
         parent::__construct($db, $is_example);
         $this->set_id($job_id);
+        $this->set_identify_id($job_id);
         $this->db = $db;
         $this->is_debug = $is_debug;
         $this->is_example = $is_example;
@@ -400,8 +402,7 @@ class identify extends job_shared {
     }
 
 
-    public function check_if_job_is_done() {
-
+    public function process_error() {
         $id = $this->get_id();
         $out_dir = settings::get_output_dir() . "/" . $id;
         $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
@@ -417,37 +418,32 @@ class identify extends job_shared {
 
         $result = 1;
         if ($is_fasta_error) {
-            $result = 0;
-            $this->set_status(__FAILED__);
-            $this->set_time_completed();
             $this->email_failure("Unable to find any accession IDs in the SSN.  Is it in the correct format?");
         } elseif ($is_clnum_error) {
-            $result = 0;
-            $this->set_status(__FAILED__);
-            $this->set_time_completed();
             $this->email_failure("The input SSN must have the Cluster Number attribute; run it through the Color SSN "
                                  . "utility or GNT to number the clusters.");
-        } elseif (!$is_running && !$is_finished) {
-            $result = 0;
-            $this->set_status(__FAILED__);
-            $this->set_time_completed();
+        } else { //if (!$is_running && !$is_finished) {
             $this->email_failure();
             $this->email_admin_failure("Job died.");
-        } elseif (!$is_running) {
-            $result = 2;
-
-            $parent_id = $this->get_parent_id();
-            if ($parent_id) {
-                $this->create_quantify_jobs_from_parent();
-            }
-
-            $this->set_status(__FINISH__);
-            $this->set_time_completed();
-            $this->email_completed();
         }
-        // Else the job is still running
+
+        $this->set_job_failed();
 
         return $result;
+    }
+
+    public function process_finish() {
+        $parent_id = $this->get_parent_id();
+        if ($parent_id) {
+            $this->create_quantify_jobs_from_parent();
+        }
+        $this->set_job_complete();
+        $this->email_completed();
+    }
+
+    public function process_start() {
+        $this->set_job_started();
+        $this->email_started();
     }
 
 
@@ -541,8 +537,15 @@ class identify extends job_shared {
 
 
 
+    // For the job_shared API, called by get_file_path
+    public function get_identify_output_path($parent_id = 0) {
+        return $this->get_output_path($parent_id);
+    }
+    protected function get_quantify_output_path($parent_id = 0) {
+        return "";
+    }
 
-    public function get_results_path($parent_id = 0) {
+    private function get_output_path($parent_id = 0) {
         $id = $parent_id > 0 ? $parent_id : $this->get_id();
         if ($this->is_example)
             $out_dir = $this->ex_data_dir;
@@ -553,66 +556,11 @@ class identify extends job_shared {
         return $res_dir;
     }
 
-    public function get_ssn_http_path() {
-        $id = $this->get_id();
-        
-        if ($this->is_example)
-            $out_dir = $this->ex_data_dir;
-        else
-            $out_dir = settings::get_output_dir();
-        $test_path = "$out_dir/$id/" . settings::get_rel_output_dir();
-
-        $res_dir = settings::get_rel_output_dir();
-        return "$id/$res_dir/" . $this->get_ssn_name();
-    }
-    
-    public function get_output_ssn_zip_http_path() {
-        $path = $this->get_ssn_http_path() . ".zip";
-        return $path;
-    }
-
     private function get_ssn_name() {
-        return self::make_ssn_name($this->get_id(), $this->get_filename());
+        return $this->make_ssn_name($this->get_id(), "markers");
     }
 
-    public static function make_ssn_name($id, $filename) {
-        $name = preg_replace("/.zip$/", ".xgmml", $filename);
-        $name = preg_replace("/.xgmml$/", "_markers.xgmml", $name);
-        return "${id}_$name";
-    }
 
-    public function get_output_ssn_path() {
-        $path = $this->get_results_path() . "/" . $this->get_ssn_name();
-        return $path;
-    }
-
-    private function get_full_ssn_path() {
-        if ($this->est_id) {
-            //TODO: fix this to the new file format
-            $dir = global_functions::get_est_job_results_path($this->est_id);
-            $filename = functions::get_est_job_filename($db, $this->est_id);
-            $file_path = $dir . "/" . $filename;
-            return $file_path;
-        } else {
-            $uploads_dir = settings::get_uploads_dir();
-            return $uploads_dir . "/" . $this->get_id() . "." . pathinfo($this->get_filename(), PATHINFO_EXTENSION);
-        }
-    }
-
-    public function get_output_ssn_file_size() {
-        $path = $this->get_output_ssn_path();
-        return self::get_web_filesize($path);
-    }
-
-    public function get_output_ssn_zip_file_size() {
-        $path = $this->get_output_ssn_zip_file_path();
-        return self::get_web_filesize($path);
-    }
-
-    public function get_output_ssn_zip_file_path() {
-        $path = $this->get_output_ssn_path() . ".zip";
-        return $path;
-    }
 
     protected function get_table_name() {
         return job_types::Identify;
@@ -624,7 +572,7 @@ class identify extends job_shared {
 
         $parent_id = $this->get_parent_id();
         if ($parent_id) {
-            $res_dir = $this->get_results_path($parent_id);
+            $res_dir = $this->get_output_path($parent_id);
             $meta_file = "$res_dir/metadata.tab";
             if (file_exists($meta_file))
                 $parent_metadata = $this->get_metadata_shared($meta_file);
@@ -632,7 +580,7 @@ class identify extends job_shared {
 
         $job_metadata = array();
 
-        $res_dir = $this->get_results_path();
+        $res_dir = $this->get_output_path();
         $meta_file = "$res_dir/metadata.tab";
         if (file_exists($meta_file))
             $job_metadata = $this->get_metadata_shared($meta_file);
@@ -644,42 +592,16 @@ class identify extends job_shared {
         return $parent_metadata;
     }
 
-    public function get_metadata_swissprot_singles_file_path() {
-        $res_dir = $this->get_results_path();
-        return $this->get_metadata_swissprot_singles_file_shared($res_dir);
+
+    public function get_file_size($file_type) {
+        return $this->get_file_size_base($file_type, self::Identify);
     }
-
-    public function get_metadata_swissprot_clusters_file_path() {
-        $res_dir = $this->get_results_path();
-        return $this->get_metadata_swissprot_clusters_file_shared($res_dir);
+    public function get_file_path($file_type) {
+        return $this->get_file_path_base($file_type, self::Identify);
     }
-
-    public function get_metadata_cluster_sizes_file_path() {
-        $res_dir = $this->get_results_path();
-        return $this->get_metadata_cluster_sizes_file_shared($res_dir);
+    public function get_file_name($file_type) {
+        return $this->get_file_name_base($file_type, self::Identify);
     }
-    
-    public function get_cdhit_file_path() {
-        $res_dir = $this->get_results_path();
-        return $this->get_cdhit_file_shared($res_dir);
-    }
-
-    public function get_marker_file_path() {
-        $id = $this->get_id();
-        $parent_id = $this->get_parent_id();
-        if ($parent_id)
-            $id = $parent_id;
-
-        if ($this->is_example)
-            $out_dir = $this->ex_data_dir;
-        else
-            $out_dir = settings::get_output_dir();
-        $out_dir .= "/" . $id;
-        $res_dir = $out_dir . "/" . settings::get_rel_output_dir();
-
-        return $this->get_marker_file_shared($res_dir);
-    }
-
 }
 
 

@@ -125,7 +125,7 @@ class quantify extends quantify_shared {
 
 
     private function start_job() {
-        $id = $this->identify_id;
+        $id = $this->get_identify_id();
         $qid = $this->get_id();
 
         $script = settings::get_quantify_script();
@@ -260,7 +260,7 @@ class quantify extends quantify_shared {
 
         $this->load_job_shared($result, $params);
 
-        $this->identify_id = $result['quantify_identify_id'];
+        $this->set_identify_id($result['quantify_identify_id']);
         $this->set_email($result['identify_email']);
         $this->set_key($result['identify_key']);
         
@@ -301,40 +301,25 @@ class quantify extends quantify_shared {
         return true;
     }
 
+    public function process_error() {
+        $this->set_job_failed();
+        $this->email_failure();
+        $this->email_admin_failure("Job died.");
+    }
 
-    public function check_if_job_is_done() {
-        $qid = $this->get_id(); // quantify_id
-        $id = $this->identify_id;
-        $out_dir = settings::get_output_dir() . "/" . $id;
-        $id_dir = $out_dir . "/" . settings::get_rel_output_dir();
-        $res_dir = $id_dir . "/" . settings::get_quantify_rel_output_dir() . "-$qid";
+    public function process_finish() {
+        $this->set_job_complete();
+        $this->email_completed();
+    }
 
-        $finish_file = "$res_dir/job.completed";
-
-        $is_finished = file_exists($finish_file);
-        $is_running = $this->is_job_running();
-
-        $result = 1; // still running
-        if (!$is_running && !$is_finished) {
-            $result = 0;
-            $this->set_status(__FAILED__);
-            $this->set_time_completed();
-            $this->email_failure();
-            $this->email_admin_failure("Job died.");
-        } elseif (!$is_running) {
-            $result = 2;
-            $this->set_status(__FINISH__);
-            $this->set_time_completed();
-            $this->email_completed();
-        }
-        // Else the job is still running
-
-        return $result;
+    public function process_start() {
+        $this->set_job_started();
+        $this->email_started();
     }
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // OVERRIDES
+    // OVERLOADS
     //
 
     protected function get_quantify_res_dir() {
@@ -343,7 +328,7 @@ class quantify extends quantify_shared {
         return "$res_dir-$id";
     }
     public function get_identify_output_path($parent_id = 0) {
-        $id = $parent_id ? $parent_id : $this->identify_id;
+        $id = $parent_id ? $parent_id : $this->get_identify_id();
         if ($this->is_example)
             $out_dir = $this->ex_data_dir;
         else
@@ -352,22 +337,11 @@ class quantify extends quantify_shared {
         $path = $base_path . "/" . settings::get_rel_output_dir();
         return $path;
     }
-    protected function get_quantify_output_path() {
+    protected function get_quantify_output_path($parent_id = 0) {
         $path = $this->get_identify_output_path() . "/" . $this->get_quantify_res_dir();
         return $path;
     }
-    // LOCAL TO JOB
-    protected function get_ssn_file_path_shared() {
-        $path = $this->get_identify_output_path();
-        $q_dir = $this->get_quantify_res_dir();
-        $ssn = $this->get_ssn_name();
 
-        $ssn_path = "$path/$q_dir/$ssn";
-        if (file_exists($ssn_path))
-            return $ssn_path;
-        else
-            return "$path/$ssn";
-    }
     public function get_metadata() {
         $metadata = array();
         if ($this->identify_parent_id) {
@@ -381,7 +355,7 @@ class quantify extends quantify_shared {
         $meta_file = "$res_dir/metadata.tab";
         $id_metadata = array();
         if (file_exists($meta_file))
-            $id_metadata = $this->get_metadata_shared($meta_file, $this->identify_id);
+            $id_metadata = $this->get_metadata_shared($meta_file, $this->get_identify_id());
 
         foreach ($id_metadata as $idx => $data) {
             $metadata[$idx] = $data;
@@ -403,48 +377,15 @@ class quantify extends quantify_shared {
 
 
 
-
-
-
-
-
-
-
-
-    public function get_ssn_http_path() {
-        $test_path = settings::get_output_dir() . "/" . $this->identify_id . "/" . settings::get_rel_output_dir();
-        $rel_dir = settings::get_rel_output_dir();
-
-        $path = $this->identify_id . "/" . $rel_dir . "/";
-        $q_dir = $this->get_quantify_res_dir();
-
-        $ssn = $this->get_ssn_name();
-        $local_ssn = $this->get_quantify_output_path() . "/" . $ssn;
-
-        if (file_exists($local_ssn)) {
-            return "$path/$q_dir/$ssn";
-        } else {
-            return "$path/$ssn";
-        }
-    }
-    public function get_zip_ssn_http_path() {
-        $path = $this->get_ssn_http_path() . ".zip";
-        return $path;
-    }
-
     private function get_ssn_name() {
-        $id = $this->identify_id;
-        $name = preg_replace("/.zip$/", ".xgmml", $this->get_filename());
-        $name = preg_replace("/.xgmml$/", "_quantify.xgmml", $name);
-        return "${id}_$name";
+        return $this->make_ssn_name($this->get_identify_id(), "quantify");
     }
 
     private function get_input_identify_ssn_path() {
-        $id_ssn_name = identify::make_ssn_name($this->identify_id, $this->get_filename());
-        $path = $this->get_identify_output_path() . "/" .
-            $id_ssn_name;
+        $id_ssn_name = $this->get_ssn_name();
+        $path = $this->get_identify_output_path() . "/" . $id_ssn_name;
         return $path;
     }
 }
 
-?>
+

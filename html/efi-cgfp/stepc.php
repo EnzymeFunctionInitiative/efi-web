@@ -13,6 +13,9 @@ use \efi\cgfp\metagenome_db_manager;
 use \efi\ui;
 use \efi\training\example_config;
 use \efi\sanitize;
+use \efi\cgfp\result_table;
+use \efi\file_types;
+use \efi\cgfp\job_types;
 
 
 // There are two types of examples: dynamic and static.  The static example is a curated
@@ -143,10 +146,12 @@ else
 
 $ExtraCssLinks = array("$SiteUrlPrefix/chosen/chosen.min.css");
 
-$ssnZipFileSize = $job->get_output_ssn_zip_file_size();
-$clusterSizesFileSize = $job->get_metadata_cluster_sizes_file_size();
-$swissProtClustersFileSize = $job->get_metadata_swissprot_clusters_file_size();
-$swissProtSinglesFileSize = $job->get_metadata_swissprot_singles_file_size();
+$size_data = array(
+    file_types::FT_sb_ssn => $job->get_file_size(file_types::FT_sb_ssn),
+    file_types::FT_sb_markers => $job->get_file_size(file_types::FT_sb_markers),
+    file_types::FT_sb_cdhit => $job->get_file_size(file_types::FT_sb_cdhit),
+);
+$res_table = new result_table($id_query_string, $size_data);
 
 $table_string = $table->as_string();
 
@@ -246,18 +251,7 @@ HTML;
                 <thead><th></th><th>File</th><th>Size</th></thead>
                 <tbody>
                     <?php
-                        $types = array();
-                        $text = array();
-                        $sizes = array();
-                        if (!$is_example) {
-                            $types = array("ssn-c");
-                            $text = array("Download");
-                            $sizes = array($job->get_output_ssn_file_size());
-                        }
-                        array_push($types, "ssn-c-zip");
-                        array_push($text, "Download (ZIP)");
-                        array_push($sizes, $ssnZipFileSize);
-                        make_output_row($id_query_string, $types, $text, "SSN with marker results", $sizes);
+                        echo $res_table->make_results_row(file_types::FT_sb_ssn, "Download (ZIP)");
                     ?>
                 </tbody>
             </table>
@@ -274,8 +268,8 @@ HTML;
                 <thead><th></th><th>File</th><th>Size</th></thead>
                 <tbody>
                     <?php
-                        make_output_row($id_query_string, "cdhit", "Download", "CD-HIT ShortBRED families by cluster", $job->get_cdhit_file_size());
-                        make_output_row($id_query_string, "markers", "Download", "ShortBRED marker data", $job->get_marker_file_size());
+                        echo $res_table->make_results_row(file_types::FT_sb_cdhit);
+                        echo $res_table->make_results_row(file_types::FT_sb_markers);
                     ?>
                 </tbody>
             </table>
@@ -518,33 +512,6 @@ HTML;
 <div>
 <center>Use the arrow buttons to select metagenomes for quantification.</center>
 </div>
-HTML;
-}
-
-function make_output_row($id_query_string, $type, $btn_text, $desc, $size) {
-    $link_fn = function($arg, $btn_text) use($id_query_string) {
-        return "<a href='download_files.php?type=$arg&$id_query_string'><button class='mini'>$btn_text</button></a>\n";
-    };
-
-    $link_text = "";
-    $size_text = "";
-    if (is_array($type)) {
-        for ($i = 0; $i < count($type); $i++) {
-            $link_text .= $link_fn($type[$i], $btn_text[$i]);
-        }
-        if (isset($size))
-            $size_text = implode(" / ", array_map(function($size){return ($size ? "$size MB" : "--");}, $size));
-    } else {
-        $link_text = $link_fn($type, $btn_text);
-        $size_text = ($size ? "$size MB" : "--");
-    }
-
-    echo <<<HTML
-                    <tr>
-                        <td style='text-align:center;'>$link_text</td>
-                        <td>$desc</td>
-                        <td style='text-align:center;'>$size_text</td>
-                    </tr>
 HTML;
 }
 

@@ -1,19 +1,17 @@
 <?php
 
+use \efi\file_types;
+
+
 if (!isset($HeatmapWidth))
     $HeatmapWidth = 940;
 $HeatmapIframeWidth = $HeatmapWidth + 30;
 
 // Vars that are set in stepe_vars.inc.php:
 //     $table_string
-//     $size_data
-//     $file_types
 //     $html_labels
-//     $dl_ssn_items
-//     $dl_misc_items
-//     $dl_median_items
-//     $dl_mean_items
 //     $hm_parm_string
+//     $res_table object for outputing table line
 //
 //
 // Vars that are set in the main .php page:
@@ -85,36 +83,26 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
                             <thead><th></th><th>File</th><th>Size</th></thead>
                             <tbody>
                             <?php 
-                                $ssn_row_file_array = (!$IsExample && $size_data["ssn"]) ? array($file_types["ssn"], $file_types["ssn_zip"]) : $file_types["ssn_zip"];
-                                $ssn_row_label_array = (!$IsExample && $size_data["ssn"]) ? array("Download", "Download (ZIP)") : "Download (ZIP)";
-                                $ssn_row_size_array = (!$IsExample && $size_data["ssn"]) ? array($size_data["ssn"], $size_data["ssn_zip"]) : $size_data["ssn_zip"];
-                                make_results_row($id_query_string,
-                                    $ssn_row_file_array,
-                                    $ssn_row_label_array,
-                                    $ssn_row_size_array,
-                                    $html_labels["ssn"]);
+                                echo $res_table->make_results_row(file_types::FT_sbq_ssn, "Download (ZIP)");
                             ?>
                             </tbody>
                         </table>
 
                         <h4>CGFP Family and Marker Data</h4>
                         <p>
-                        The <b><?php echo $html_labels["cdhit"]; ?></b> file contains mappings of ShortBRED
+                        The <b><?php echo $res_table->get_label(file_types::FT_sb_cdhit); ?></b> file contains mappings of ShortBRED
                         families to SSN cluster number as well as a color that is assigned to each unique
-                        ShortBRED family.  The <b><?php echo $html_labels["markers"]; ?></b> file lists the markers
-                        that were identified.  Finally, the <b><?php echo $html_labels["mg-info"]; ?></b> file
+                        ShortBRED family.  The <b><?php echo $res_table->get_label(file_types::FT_sb_markers); ?></b> file lists the markers
+                        that were identified.  Finally, the <b><?php echo $res_table->get_label(file_types::FT_sbq_meta_info); ?></b> file
                         provides available metadata associated with the selected metagenomes.
                         </p>
                         <table class="pretty">
                             <thead><th></th><th>File</th><th>Size</th></thead>
                             <tbody>
                             <?php 
-                                make_results_row($identify_only_id_query_string, $file_types["cdhit"],
-                                    "Download", $size_data["cdhit"], $html_labels["cdhit"]);
-                                make_results_row($identify_only_id_query_string, $file_types["markers"],
-                                    "Download", $size_data["markers"], $html_labels["markers"]);
-                                make_results_row($id_query_string, $file_types["mg-info"],
-                                    "Download", $size_data["mg-info"], $html_labels["mg-info"]);
+                                echo $res_table->make_results_row(file_types::FT_sb_cdhit, "Download", $identify_only_id_query_string);
+                                echo $res_table->make_results_row(file_types::FT_sb_markers, "Download", $identify_only_id_query_string);
+                                echo $res_table->make_results_row(file_types::FT_sbq_meta_info);
                             ?>
                             </tbody>
                         </table>
@@ -137,18 +125,16 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
 
                         <h4>Raw Abundance Data</h4>
                         <p>
-                        Raw results for the individual proteins in the SSN (<?php echo $html_labels["protein"]; ?>)
-                        as well as summarized by SSN cluster (<?php echo $html_labels["cluster"]; ?>)
+                        Raw results for the individual proteins in the SSN (<?php echo $res_table->get_label(file_types::FT_sbq_protein_abundance_median); ?>)
+                        as well as summarized by SSN cluster (<?php echo $res_table->get_label(file_types::FT_sbq_cluster_abundance_median); ?>)
                         are provided.  Units are in reads per kilobase of sequence per million sample reads (RPKM).
                         </p>
                         <table class="pretty">
                             <thead><th></th><th>File</th><th>Size</th></thead>
                             <tbody>
                                 <?php
-                                    make_results_row($id_query_string, $file_types["protein"],
-                                        "Download", $size_data["protein"], $html_labels["protein"]);
-                                    make_results_row($id_query_string, $file_types["cluster"],
-                                        "Download", $size_data["cluster"], $html_labels["cluster"]);
+                                    echo $res_table->make_results_row(file_types::FT_sbq_protein_abundance_median);
+                                    echo $res_table->make_results_row(file_types::FT_sbq_cluster_abundance_median);
                                 ?>
                             </tbody>
                         </table>
@@ -164,10 +150,8 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
                             <thead><th></th><th>File</th><th>Size</th></thead>
                             <tbody>
                                 <?php
-                                    make_results_row($id_query_string, $file_types["protein_genome_norm"],
-                                        "Download", $size_data["protein_genome_norm"], $html_labels["protein_genome_norm"]);
-                                    make_results_row($id_query_string, $file_types["cluster_genome_norm"],
-                                        "Download", $size_data["cluster_genome_norm"], $html_labels["cluster_genome_norm"]);
+                                    echo $res_table->make_results_row(file_types::FT_sbq_protein_abundance_genome_norm_median);
+                                    echo $res_table->make_results_row(file_types::FT_sbq_cluster_abundance_genome_norm_median);
                                 ?>
                             </tbody>
                         </table>
@@ -188,18 +172,16 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
 
                         <h4>Raw Abundance Data</h4>
                         <p>
-                        Raw results for the individual proteins in the SSN (<?php echo $html_labels["protein_mean"]; ?>)
-                        as well as summarized by SSN cluster (<?php echo $html_labels["cluster_mean"]; ?>)
+                        Raw results for the individual proteins in the SSN (<?php echo $res_table->get_label(file_types::FT_sbq_protein_abundance_mean); ?>)
+                        as well as summarized by SSN cluster (<?php echo $res_table->get_label(file_types::FT_sbq_cluster_abundance_mean); ?>)
                         are provided.  Units are in reads per kilobase of sequence per million sample reads (RPKM).
                         </p>
                         <table class="pretty">
                             <thead><th></th><th>File</th><th>Size</th></thead>
                             <tbody>
                                 <?php
-                                    make_results_row($id_query_string, $file_types["protein_mean"],
-                                        "Download", $size_data["protein_mean"], $html_labels["protein_mean"]);
-                                    make_results_row($id_query_string, $file_types["cluster_mean"],
-                                        "Download", $size_data["cluster_mean"], $html_labels["cluster_mean"]);
+                                    echo $res_table->make_results_row(file_types::FT_sbq_protein_abundance_mean);
+                                    echo $res_table->make_results_row(file_types::FT_sbq_cluster_abundance_mean);
                                 ?>
                             </tbody>
                         </table>
@@ -215,10 +197,8 @@ $HeatmapIframeWidth = $HeatmapWidth + 30;
                             <thead><th></th><th>File</th><th>Size</th></thead>
                             <tbody>
                                 <?php
-                                    make_results_row($id_query_string, $file_types["protein_genome_norm_mean"],
-                                        "Download", $size_data["protein_genome_norm_mean"], $html_labels["protein_genome_norm_mean"]);
-                                    make_results_row($id_query_string, $file_types["cluster_genome_norm_mean"],
-                                        "Download", $size_data["cluster_genome_norm_mean"], $html_labels["cluster_genome_norm_mean"]);
+                                    echo $res_table->make_results_row(file_types::FT_sbq_protein_abundance_genome_norm_mean);
+                                    echo $res_table->make_results_row(file_types::FT_sbq_cluster_abundance_genome_norm_mean);
                                 ?>
                             </tbody>
                         </table>

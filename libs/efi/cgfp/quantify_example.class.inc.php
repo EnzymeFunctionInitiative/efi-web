@@ -3,8 +3,11 @@ namespace efi\cgfp;
 
 require_once(__DIR__."/../../../init.php");
 
+use \efi\global_functions;
 use \efi\cgfp\functions;
 use \efi\cgfp\settings;
+use \efi\cgfp\job_shared;
+use \efi\file_types;
 
 
 class quantify_example extends quantify_shared {
@@ -17,6 +20,7 @@ class quantify_example extends quantify_shared {
         $this->example_dir = $example_dir;
         $this->example_web_path = $example_web_path;
         $this->load_from_example();
+        $this->set_use_prefix(false);
     }
 
     private function load_from_example() {
@@ -68,16 +72,8 @@ class quantify_example extends quantify_shared {
         return $this->example_dir;
     }
 
-    protected function get_quantify_output_path() {
+    protected function get_quantify_output_path($parent_id = 0) {
         return $this->example_dir;
-    }
-
-    protected function get_ssn_file_path_shared() {
-        return $this->example_dir . "/" . $this->get_filename();
-    }
-    
-    public function get_zip_ssn_http_path() {
-        return $this->example_web_path . "/" . $this->get_filename() . ".zip";
     }
 
     public function get_metadata() {
@@ -85,6 +81,37 @@ class quantify_example extends quantify_shared {
         $metadata = $this->get_metadata_shared($md_file);
         return $metadata;
     }
+
+    public function get_file_size($file_type) {
+        if ($file_type == file_types::FT_sbq_ssn) {
+            $file_path = $this->get_ssn_file_path();
+            $size = filesize($file_path);
+            $mb_size = global_functions::bytes_to_megabytes(filesize($file_path));
+            if ($mb_size)
+                return $mb_size;
+            else
+                return "<1";
+        } else {
+            return $this->get_file_size_base($file_type, self::Quantify);
+        }
+    }
+    public function get_file_path($file_type) {
+        if ($file_type == file_types::FT_sbq_ssn) {
+            return $this->get_ssn_file_path();
+        } else {
+            return $this->get_file_path_base($file_type, self::Quantify);
+        }
+    }
+    public function get_file_name($file_type) {
+        if ($file_type == file_types::FT_sbq_ssn) {
+            return $this->get_filename();
+        } else {
+            return $this->get_file_name_base($file_type, self::Quantify);
+        }
+    }
+    private function get_ssn_file_path() {
+        return $this->example_dir . "/" . $this->get_filename();
+    }
 }
 
-?>
+

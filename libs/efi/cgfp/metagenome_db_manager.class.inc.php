@@ -19,6 +19,9 @@ class metagenome_db_manager {
             $mg_meta = self::get_metagenome_db_metadata($db_file);
             $mg_info = self::load_db($db_file);
 
+            if (!isset($mg_meta["sites"]))
+                continue;
+
             //$db_info = array("file" => $db_file, "sites" => $mg_meta["sites"], "mgs" => $mg_info, "id" => $i, "name" => $mg_meta["db_name"]);
             $db_info = new metagenome_db();
             $db_info->file = $db_file;
@@ -166,7 +169,8 @@ class metagenome_db_manager {
         $meta = self::get_metagenome_db_metadata($mg_db);
         $db_info = self::load_db($mg_db);
 
-        $info = array("site" => array(), "secondary" => array(), "categories" => $meta["categories"]);
+        $cats = is_array($meta) ? $meta["categories"] : array();
+        $info = array("site" => array(), "secondary" => array(), "categories" => $cats);
 
         foreach ($db_info as $mg_id => $data) {
             $site = $data["name"];

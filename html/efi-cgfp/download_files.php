@@ -7,42 +7,47 @@ use \efi\cgfp\quantify;
 use \efi\cgfp\quantify_example;
 use \efi\training\example_config;
 use \efi\sanitize;
+use \efi\file_types;
+use \efi\send_file;
 
 
 $is_error = true;
+$is_expired = false;
 $the_id = "";
 $q_id = "";
-$job_obj = NULL;
+$job = NULL;
 
 // There are two types of examples: dynamic and static.  The static example is a curated
 // example pulled into the entry screen.  The dynamic examples are the same as other
 // jobs, except they are stored in separate directories/tables.
 $is_example = example_config::is_example();
+$is_static_example = sanitize::get_sanitize_string("example");
 
 $the_id = sanitize::validate_id("id", sanitize::GET);
 $key = sanitize::validate_key("key", sanitize::GET);
 $q_id = sanitize::validate_id("quantify-id", sanitize::GET);
 $type = sanitize::get_sanitize_string("type", "");
 
-if ($is_example) {
+if ($is_static_example) {
     $example_dir = settings::get_example_dir();
     $example_web_path = settings::get_example_web_path();
     if (file_exists($example_dir) && $example_web_path) {
-        $job_obj = new quantify_example($db, $example_dir, $example_web_path);
+        $job = new quantify_example($db, $example_dir, $example_web_path);
         $is_error = false;
     }
     $q_id = isset($_GET["identify"]) ? 0 : 1;
 } elseif ($the_id !== false && $key !== false) {
     if ($q_id !== false) {
-        $job_obj = new quantify($db, $q_id, $is_example);
+        $job = new quantify($db, $q_id, $is_example);
     } else {
-        $job_obj = new identify($db, $the_id, $is_example);
+        $job = new identify($db, $the_id, $is_example);
     }
 
-    if ($key === false || $job_obj->get_key() != $key) {
+    if ($key === false || $job->get_key() != $key) {
         $is_error = true;
-    } elseif ($job_obj->is_expired()) {
+    } elseif ($job->is_expired()) {
         $is_error = true;
+        $is_expired = true;
     } else {
         $is_error = false;
     }
@@ -53,71 +58,32 @@ if ($is_error) {
 }
 
 if ($type !== false) {
-    if (!$q_id) {
-        $file_info = array(
-            "markers"       => array("file_path" => $job_obj->get_marker_file_path(), "suffix" => ".faa"),
-            "cdhit"         => array("file_path" => $job_obj->get_cdhit_file_path(), "suffix" => "_cdhit.txt"),
-            "meta-cl-size"  => array("file_path" => $job_obj->get_metadata_cluster_sizes_file_path(), "suffix" => "_cluster_sizes.txt"),
-            "meta-sp-cl"    => array("file_path" => $job_obj->get_metadata_swissprot_clusters_file_path(), "suffix" => "_swissprot_clusters.txt"),
-            "meta-sp-si"    => array("file_path" => $job_obj->get_metadata_swissprot_singles_file_path(), "suffix" => "_swissprot_singletons.txt"),
-        );
-    } else {
-        $want_mean = true;
-        $file_info = array(
-            // MEDIAN
-            "q-prot"            => array("file_path" => $job_obj->get_protein_file_path(), "suffix" => "_protein_abundance_median.txt"),
-            "q-clust"           => array("file_path" => $job_obj->get_cluster_file_path(), "suffix" => "_cluster_abundance_median.txt"),
-            "q-prot-n"          => array("file_path" => $job_obj->get_normalized_protein_file_path(), "suffix" => "_protein_abundance_norm_median.txt"),
-            "q-clust-n"         => array("file_path" => $job_obj->get_normalized_cluster_file_path(), "suffix" => "_cluster_abundance_norm_median.txt"),
-            "q-prot-gn"         => array("file_path" => $job_obj->get_genome_normalized_protein_file_path(), "suffix" => "_protein_abundance_genome_norm_median.txt"),
-            "q-clust-gn"        => array("file_path" => $job_obj->get_genome_normalized_cluster_file_path(), "suffix" => "_cluster_abundance_genome_norm_median.txt"),
-
-            // MEAN
-            "q-prot-mean"       => array("file_path" => $job_obj->get_protein_file_path($want_mean), "suffix" => "_protein_abundance_mean.txt"),
-            "q-clust-mean"      => array("file_path" => $job_obj->get_cluster_file_path($want_mean), "suffix" => "_cluster_abundance_mean.txt"),
-            "q-prot-n-mean"     => array("file_path" => $job_obj->get_normalized_protein_file_path($want_mean), "suffix" => "_protein_abundance_norm_mean.txt"),
-            "q-clust-n-mean"    => array("file_path" => $job_obj->get_normalized_cluster_file_path($want_mean), "suffix" => "_cluster_abundance_norm_mean.txt"),
-            "q-prot-gn-mean"    => array("file_path" => $job_obj->get_genome_normalized_protein_file_path($want_mean), "suffix" => "_protein_abundance_genome_norm_mean.txt"),
-            "q-clust-gn-mean"   => array("file_path" => $job_obj->get_genome_normalized_cluster_file_path($want_mean), "suffix" => "_cluster_abundance_genome_norm_mean.txt"),
-        );
-    }
-
     $prefix = "${the_id}_${q_id}_";
     if ($is_example)
         $prefix = "";
+
+    $is_valid_type = $job->get_is_valid_type($type);
 
     if ($is_example)
         $rel_out_dir = settings::get_rel_example_http_output_dir() . "/$is_example/cgfp";
     else
         $rel_out_dir = settings::get_rel_http_output_dir();
 
-    if (isset($file_info[$type])) {
-        $file_path = $file_info[$type]["file_path"];
-        $suffix = $file_info[$type]["suffix"];
-        $file_name = $job_obj->get_filename();
-        $is_error = ! send_text_file($prefix, $file_path, $file_name, $suffix);
-    } elseif ($type == "ssn-q") {
-        $ssn_file = $job_obj->get_ssn_http_path();
-        $url = $rel_out_dir . "/" . $ssn_file;
-        header("Location: $url");
-    } elseif ($type == "ssn-q-zip") {
-        $ssn_file = $job_obj->get_zip_ssn_http_path();
-        $url = $rel_out_dir . "/" . $ssn_file;
-        header("Location: $url");
-    } elseif ($type == "ssn-c") {
-        $ssn_file = $job_obj->get_ssn_http_path();
-        $url = $rel_out_dir . "/" . $ssn_file;
-        header("Location: $url");
-    } elseif ($type == "ssn-c-zip") {
-        $ssn_file = $job_obj->get_output_ssn_zip_http_path();
-        $url = $rel_out_dir . "/" . $ssn_file;
-        header("Location: $url");
-    } elseif ($type == "q-mg-info") {
-        $suffix = "_metagenome_desc.txt";
-        $file_name = $job_obj->get_filename();
-        $text_data = $job_obj->get_metagenome_info_as_text();
-        $is_error = ! send_text_data($prefix, $text_data, $file_name, $suffix);
+    if ($type == file_types::FT_sbq_meta_info) {
+        $file_name = $job->get_file_name(file_types::FT_sbq_meta_info);
+        $text_data = $job->get_metagenome_info_as_text();
+        $is_error = send_file::send_text($text_data, $file_name);
+    } else if ($is_valid_type) {
+        $file_path = $job->get_file_path($type);
+        $file_name = $job->get_file_name($type);
+        if ($file_path !== false) {
+            $is_error = ! send_file::send($file_path, $file_name);
+        } else {
+            error_log("Unable to send ft=$type, file path not found (fn=$file_name)");
+            $is_error = true;
+        }
     } else {
+        error_log("Invalid download type given ft=$type");
         $is_error = true;
     }
 }
@@ -130,39 +96,4 @@ if ($is_error) {
 
 
 
-function send_text_file($download_prefix, $file_path, $download_name, $download_suffix) {
-    if (file_exists($file_path)) {
-        $download_filename = $download_prefix . pathinfo($download_name, PATHINFO_FILENAME) . $download_suffix;
-        $content_size = filesize($file_path);
-        sendHeaders($download_filename, $content_size);
-        readfile($file_path);
-        return true;
-    } else {
-        return false;
-    }
-}
 
-function send_text_data($download_prefix, $text_data, $download_name, $download_suffix) {
-    $download_filename = $download_prefix . pathinfo($download_name, PATHINFO_FILENAME) . $download_suffix;
-    $content_size = strlen($text_data);
-    sendHeaders($download_filename, $content_size);
-    echo $text_data;
-    return true;
-}
-
-
-function sendHeaders($download_filename, $content_size) {
-    header('Content-Description: File Transfer');
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="' . $download_filename . '"');
-    header('Content-Transfer-Encoding: binary');
-    header('Connection: Keep-Alive');
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-    header('Pragma: public');
-    header('Content-Length: ' . $content_size);
-    ob_clean();
-}
-
-
-?>

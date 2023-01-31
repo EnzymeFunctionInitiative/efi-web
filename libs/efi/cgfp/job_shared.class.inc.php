@@ -7,6 +7,7 @@ use \efi\global_functions;
 use \efi\global_settings;
 use \efi\cgfp\functions;
 use \efi\cgfp\settings;
+use \efi\file_types;
 
 
 abstract class job_shared {
@@ -18,7 +19,11 @@ abstract class job_shared {
     const REFDB_UNIREF50 = "uniref50";
     const DEFAULT_REFDB = "uniprot";
 
+    const Quantify = 1;
+    const Identify = 2;
+
     private $id;
+    private $identify_id; // Same as $id for identify jobs
     private $pbs_number;
     private $key;
     private $status;
@@ -31,9 +36,42 @@ abstract class job_shared {
     private $filename = "";
     private $min_seq_len = "";
     private $max_seq_len = "";
+    private $use_prefix = true;
 
     private $db;
     private $beta;
+
+
+    // These are to allow us to determine where to get the files from if the job is a quantify job.
+    private $itypes = array(
+        file_types::FT_sb_cdhit => 1,
+        file_types::FT_sb_markers => 1,
+        file_types::FT_sb_meta_cluster_sizes => 1,
+        file_types::FT_sb_meta_sp_clusters => 1,
+        file_types::FT_sb_meta_cp_sing => 1,
+        file_types::FT_sb_ssn => 1,
+    );
+    private $qtypes = array(
+        file_types::FT_sbq_protein_abundance_median => 1,
+        file_types::FT_sbq_cluster_abundance_median => 1,
+        file_types::FT_sbq_protein_abundance_norm_median => 1,
+        file_types::FT_sbq_cluster_abundance_norm_median => 1,
+        file_types::FT_sbq_protein_abundance_genome_norm_median => 1,
+        file_types::FT_sbq_cluster_abundance_genome_norm_median => 1,
+        file_types::FT_sbq_protein_abundance_mean => 1,
+        file_types::FT_sbq_cluster_abundance_mean => 1,
+        file_types::FT_sbq_protein_abundance_norm_mean => 1,
+        file_types::FT_sbq_cluster_abundance_norm_mean => 1,
+        file_types::FT_sbq_protein_abundance_genome_norm_mean => 1,
+        file_types::FT_sbq_cluster_abundance_genome_norm_mean => 1,
+        file_types::FT_sbq_meta_info => 1,
+        file_types::FT_sbq_ssn => 1,
+    );
+
+
+
+
+
 
     protected $eol = PHP_EOL;
     protected $is_example = false;
@@ -51,6 +89,12 @@ abstract class job_shared {
     }
     public function set_id($theId) {
         $this->id = $theId;
+    }
+    protected function get_identify_id() {
+        return $this->identify_id;
+    }
+    protected function set_identify_id($id) {
+        $this->identify_id = $id;
     }
 
     public function get_key() {
@@ -117,9 +161,19 @@ abstract class job_shared {
         $this->max_seq_len = $max_seq_len;
     }
 
-    public function mark_job_as_failed() {
+    public function set_job_complete() {
+        $this->set_status(__FINISH__);
+        $this->set_time_completed();
+    }
+
+    public function set_job_failed() {
         $this->set_status(__FAILED__);
         $this->set_time_completed();
+    }
+
+    public function set_job_started() {
+        $this->set_status(__RUNNING__);
+        $this->set_time_started();
     }
 
     public function mark_job_as_cancelled() {
@@ -521,29 +575,81 @@ abstract class job_shared {
         return $data;
     }
 
-    public function get_metadata_swissprot_singles_file_size() {
-        $file_path = $this->get_metadata_swissprot_singles_file_path();
-        return self::get_web_filesize($file_path);
-    }
-    public function get_metadata_swissprot_clusters_file_size() {
-        $file_path = $this->get_metadata_swissprot_clusters_file_path();
-        return self::get_web_filesize($file_path);
-    }
-    public function get_metadata_cluster_sizes_file_size() {
-        $file_path = $this->get_metadata_cluster_sizes_file_path();
-        return self::get_web_filesize($file_path);
-    }
-    public function get_marker_file_size() {
-        $file_path = $this->get_marker_file_path();
-        return self::get_web_filesize($file_path);
-    }
-    public function get_cdhit_file_size() {
-        $file_path = $this->get_cdhit_file_path();
-        return self::get_web_filesize($file_path);
-    }
 
-    protected static function get_web_filesize($file_path) {
+
+    //public function get_file_info($file_type) {
+    //    if (isset($this->itypes[$file_type])) {
+    //        $file_name = $this->get_file_name_base($file_type, self::Identify);
+    //        $file_path = $this->get_file_path_base($file_type, self::Identify);
+    //    } else if (isset($this->qtypes[$file_type])) {
+    //        $file_name = $this->get_file_name_base($file_type, self::Quantify);
+    //        $file_path = $this->get_file_path_base($file_type, $q_type, self::Quantify);
+    //    }
+    //    if (isset($file_name) && isset($file_path)) {
+    //        return array("file_name" => $file_name, "file_path" => $file_path);
+    //    } else {
+    //        return false;
+    //    }
+    //}
+
+    // Public, because it's used in get_sbq_data.php
+    public abstract function get_identify_output_path($parent_id = 0);
+    protected abstract function get_quantify_output_path($parent_id = 0);
+
+    protected function get_file_name_base($file_type, $result_type) {
+        // this->get_filename returns the basic name of the file, here we add the suffix
+        $ext = file_types::ext($file_type);
+        if ($ext === false)
+            return false;
+        $suffix = file_types::suffix($file_type);
+        if ($suffix === false)
+            return false;
+
+        if ($file_type !== file_types::FT_sb_ssn && $file_type !== file_types::FT_sbq_ssn) {
+            $name = $this->get_filename();
+            $name .= "_$suffix.$ext";
+        } else {
+            $identify_id = $this->get_identify_id();
+            $name = $this->make_ssn_name($identify_id, $suffix);
+            $name .= ".$ext";
+        }
+
+        return $name; 
+    }
+    protected function get_file_path_base($file_type, $result_type) {
+        $ext = file_types::ext($file_type);
+        if ($ext === false)
+            return false;
+        $name = file_types::suffix($file_type);
+        if ($name === false)
+            return false;
+
+        $base_dir = "";
+        if ($result_type == self::Quantify) {
+            if (isset($this->itypes[$file_type]))
+                $base_dir = $this->get_identify_output_path();
+            else
+                $base_dir = $this->get_quantify_output_path();
+        } else {
+            $base_dir = $this->get_identify_output_path();
+        }
+
+        // Try the simple naming convention first
+        $file_path = "$base_dir/$name.$ext";
+
+        // Then try legacy file naming convention if the new convention doesn't exist
+        if (!file_exists($file_path)) {
+            $file_name = $this->get_file_name_base($file_type, $result_type);
+            $file_path = "$base_dir/${file_name}";
+        }
+
         if (!file_exists($file_path))
+            return false;
+        return $file_path;
+    }
+    protected function get_file_size_base($file_type, $result_type) {
+        $file_path = $this->get_file_path_base($file_type, $result_type);
+        if ($file_path === false || !file_exists($file_path))
             return 0;
 
         $size = filesize($file_path);
@@ -555,29 +661,24 @@ abstract class job_shared {
             return "<1";
     }
 
-
-    public abstract function get_metadata_swissprot_singles_file_path();
-    public abstract function get_metadata_swissprot_clusters_file_path();
-    public abstract function get_metadata_cluster_sizes_file_path();
-    public abstract function get_marker_file_path();
-    public abstract function get_cdhit_file_path();
-
-    protected function get_metadata_swissprot_singles_file_shared($results_dir) {
-        return "$results_dir/swissprot_singletons.tab";
-    }
-    protected function get_metadata_swissprot_clusters_file_shared($results_dir) {
-        return "$results_dir/swissprot_clusters.tab";
-    }
-    protected function get_metadata_cluster_sizes_file_shared($results_dir) {
-        return "$results_dir/cluster_sizes.tab";
-    }
-    protected function get_marker_file_shared($results_dir) {
-        return "$results_dir/markers.faa";
-    }
-    protected function get_cdhit_file_shared($results_dir) {
-        return "$results_dir/cdhit.txt";
+    public function get_is_valid_type($type) {
+        return (isset($this->itypes[$type]) || isset($this->qtypes[$type]));
     }
 
+    protected function make_ssn_name($id, $suffix = "") {
+        $filename = $this->get_filename();
+        if ($suffix)
+            $suffix = "_$suffix";
+        $name = preg_replace("/.zip$/", ".xgmml", $filename);
+        $name = preg_replace("/.xgmml$/", "$suffix.xgmml", $name);
+        $prefix = $this->use_prefix ? "${id}_" : "";
+        return "$prefix$name";
+    }
+
+    // For static training job
+    protected function set_use_prefix($use_prefix = true) {
+        $this->use_prefix = $use_prefix;
+    }
 }
 
-?>
+

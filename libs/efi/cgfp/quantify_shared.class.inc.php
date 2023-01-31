@@ -6,11 +6,12 @@ require_once(__DIR__."/../../../init.php");
 use \efi\cgfp\functions;
 use \efi\cgfp\settings;
 use \efi\cgfp\identify;
+use \efi\cgfp\job_shared;
+use \efi\file_types;
 
 
 abstract class quantify_shared extends job_shared {
 
-    protected $identify_id;
     protected $metagenome_ids;
     protected $ref_db = "";
     protected $identify_search_type = "";
@@ -115,12 +116,12 @@ abstract class quantify_shared extends job_shared {
     }
 
     protected function get_completed_url_params() {
-        $query_params = array('id' => $this->identify_id, 'quantify-id' => $this->get_id(), 'key' => $this->get_key());
+        $query_params = array('id' => $this->get_identify_id(), 'quantify-id' => $this->get_id(), 'key' => $this->get_key());
         return $query_params;
     }
 
     protected function get_job_info() {
-        $message = "EFI-CGFP Job ID: " . $this->identify_id . $this->eol;
+        $message = "EFI-CGFP Job ID: " . $this->get_identify_id() . $this->eol;
         $message .= "Quantify ID: " . $this->get_id() . $this->eol;
         $message .= "Time Submitted: " . $this->get_time_created() . $this->eol;
         return $message;
@@ -131,141 +132,17 @@ abstract class quantify_shared extends job_shared {
 
 
 
-    public abstract function get_identify_output_path($parent_id = 0);
-    protected abstract function get_quantify_output_path();
-    protected abstract function get_ssn_file_path_shared();
     public abstract function get_metadata();
-
-    public function get_protein_file_path($use_mean = false) {
-        $path = $this->get_quantify_output_path() . "/" . self::get_protein_file_name();
-        if ($use_mean)
-            $path .= ".mean";
-        return $path;
-    }
-    public function get_cluster_file_path($use_mean = false) {
-        $path = $this->get_quantify_output_path() . "/" . self::get_cluster_file_name();
-        if ($use_mean)
-            $path .= ".mean";
-        return $path;
-    }
-    public function get_normalized_protein_file_path($use_mean = false) {
-        $path = $this->get_quantify_output_path() . "/" . self::get_normalized_protein_file_name();
-        if ($use_mean)
-            $path .= ".mean";
-        return $path;
-    }
-    public function get_normalized_cluster_file_path($use_mean = false) {
-        $path = $this->get_quantify_output_path() . "/" . self::get_normalized_cluster_file_name();
-        if ($use_mean)
-            $path .= ".mean";
-        return $path;
-    }
-    public function get_genome_normalized_protein_file_path($use_mean = false) {
-        $path = $this->get_quantify_output_path() . "/" . self::get_genome_normalized_protein_file_name();
-        if ($use_mean)
-            $path .= ".mean";
-        return $path;
-    }
-    public function get_genome_normalized_cluster_file_path($use_mean = false) {
-        $path = $this->get_quantify_output_path() . "/" . self::get_genome_normalized_cluster_file_name();
-        if ($use_mean)
-            $path .= ".mean";
-        return $path;
-    }
-
-    public function get_protein_file_size($use_mean = false) {
-        $path = $this->get_protein_file_path($use_mean);
-        return self::get_web_filesize($path);
-    }
-    public function get_cluster_file_size($use_mean = false) {
-        $path = $this->get_cluster_file_path($use_mean);
-        return self::get_web_filesize($path);
-    }
-    public function get_normalized_protein_file_size($use_mean = false) {
-        $path = $this->get_normalized_protein_file_path($use_mean);
-        return self::get_web_filesize($path);
-    }
-    public function get_normalized_cluster_file_size($use_mean = false) {
-        $path = $this->get_normalized_cluster_file_path($use_mean);
-        return self::get_web_filesize($path);
-    }
-    public function get_genome_normalized_protein_file_size($use_mean = false) {
-        $path = $this->get_genome_normalized_protein_file_path($use_mean);
-        return self::get_web_filesize($path);
-    }
-    public function get_genome_normalized_cluster_file_size($use_mean = false) {
-        $path = $this->get_genome_normalized_cluster_file_path($use_mean);
-        return self::get_web_filesize($path);
-    }
-
-    public static function get_protein_file_name() {
-        return "protein_abundance.txt";
-    }
-    public static function get_normalized_protein_file_name() {
-        return "protein_abundance_normalized.txt";
-    }
-    public static function get_genome_normalized_protein_file_name() {
-        return "protein_abundance_genome_normalized.txt";
-    }
-    public static function get_cluster_file_name() {
-        return "cluster_abundance.txt";
-    }
-    public static function get_normalized_cluster_file_name() {
-        return "cluster_abundance_normalized.txt";
-    }
-    public static function get_genome_normalized_cluster_file_name() {
-        return "cluster_abundance_genome_normalized.txt";
-    }
-
-    public function get_ssn_zip_file_path() {
-        $path = $this->get_ssn_file_path_shared() . ".zip";
-        return $path;
-    }
-    public function get_ssn_file_size() {
-        $file = $this->get_ssn_file_path_shared();
-        return self::get_web_filesize($file);
-    }
-    public function get_ssn_zip_file_size() {
-        $file = $this->get_ssn_zip_file_path();
-        return self::get_web_filesize($file);
-    }
 
     protected function get_table_name() {
         return job_types::Quantify;
     }
 
-
-    public function get_metadata_swissprot_singles_file_path() {
-        $res_dir = $this->get_identify_output_path();
-        return $this->get_metadata_swissprot_singles_file_shared($res_dir);
-    }
-
-    public function get_metadata_swissprot_clusters_file_path() {
-        $res_dir = $this->get_identify_output_path();
-        return $this->get_metadata_swissprot_clusters_file_shared($res_dir);
-    }
-
-    public function get_metadata_cluster_sizes_file_path() {
-        $res_dir = $this->get_identify_output_path();
-        return $this->get_metadata_cluster_sizes_file_shared($res_dir);
-    }
-    
-    public function get_cdhit_file_path() {
-        $res_dir = $this->get_identify_output_path();
-        return $this->get_cdhit_file_shared($res_dir);
-    }
-
-    public function get_marker_file_path() {
-        $res_dir = $this->get_identify_output_path($this->identify_parent_id);
-        return $this->get_marker_file_shared($res_dir);
-    }
-
-
     public function get_metagenome_data() {
 
         $mg_data = array();
     
-        $clust_file = $this->get_genome_normalized_cluster_file_path();
+        $clust_file = $this->get_file_path(file_types::FT_sbq_cluster_abundance_genome_norm_median); //get_genome_normalized_cluster_file_path();
     
         if (!file_exists($clust_file)) {
             $mgs = $this->get_metagenome_ids();
@@ -309,6 +186,16 @@ abstract class quantify_shared extends job_shared {
         }
         return $text_data;
     }
+
+    public function get_file_size($file_type) {
+        return $this->get_file_size_base($file_type, self::Quantify);
+    }
+    public function get_file_path($file_type) {
+        return $this->get_file_path_base($file_type, self::Quantify);
+    }
+    public function get_file_name($file_type) {
+        return $this->get_file_name_base($file_type, self::Quantify);
+    }
 }
 
-?>
+

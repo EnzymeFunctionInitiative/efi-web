@@ -71,6 +71,8 @@ $est_key = sanitize::validate_key("est-key", sanitize::GET);
 $est_filename = "";
 if ($est_id !== false && $est_key !== false) {
     $est_filename = functions::get_est_job_filename($db, $est_id, $est_key);
+} else {
+    $est_id = 0;
 }
 
 $ShowCitation = true;

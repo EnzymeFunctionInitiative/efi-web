@@ -7,6 +7,7 @@ use \efi\cgfp\quantify;
 use \efi\cgfp\quantify_example;
 use \efi\cgfp\metagenome_db_manager;
 use \efi\training\example_config;
+use \efi\file_types;
 
 
 const MERGED = 1;       // Both clusters and singletons
@@ -89,7 +90,10 @@ if ($is_error || !$q_id) {
 }
 
 $id_dir = $job_obj->get_identify_output_path();
-$clust_file = $job_obj->get_genome_normalized_cluster_file_path($use_mean);
+$file_type = file_types::FT_sbq_cluster_abundance_genome_norm_median;
+if ($use_mean)
+    $file_type = file_types::FT_sbq_cluster_abundance_genome_norm_mean;
+$clust_file = $job_obj->get_file_path($file_type);
 
 
 if (!file_exists($clust_file)) {
@@ -263,8 +267,7 @@ function cmp_singles($a, $b) {
 
 
 function parse_clusters($params) {
-    $params = str_replace(" ", "", $params);
-    $parts = explode(",", $params);
+    $parts = explode(",", preg_replace("/[, ]+/", ",", $params));
     $nums = array();
     foreach ($parts as $part) {
         $part = strtoupper($part);
@@ -296,4 +299,3 @@ function parse_clusters($params) {
 
 
 
-?>

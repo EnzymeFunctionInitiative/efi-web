@@ -6,11 +6,7 @@ use \efi\training\example_config;
 use \efi\sanitize;
 
 $is_example = example_config::is_example();
-if ($is_example) {
-    $is_example = "\"$is_example\"";
-} else {
-    $is_example = "false";
-}
+$is_static_example = sanitize::get_sanitize_string("example");
 
 $filename = "";
 if (isset($_GET["filename"])) {
@@ -19,7 +15,13 @@ if (isset($_GET["filename"])) {
 
 $id = sanitize::validate_id("id", sanitize::GET);
 $key = sanitize::validate_key("key", sanitize::GET);
-$qid = sanitize::get_sanitize_num("quanitfy-id", sanitize::GET, 0);
+$qid = sanitize::validate_id("quantify-id", sanitize::GET);
+
+if ($is_static_example) {
+    $is_example = "false";
+} else if (!$is_example) {
+    $is_example = "false";
+}
 
 $res_type = sanitize::get_sanitize_string("res", "");
 $ref_db = sanitize::get_sanitize_string("ref-db", "");
@@ -27,7 +29,7 @@ $search_type = sanitize::get_sanitize_string("search-type", "");
 $diamond_sens = sanitize::get_sanitize_string("d-senst", "");
 $cdhit_sid = sanitize::get_sanitize_string("cdhit-sid", "");
 
-if ($id === false || $key === false) {
+if (!$is_static_example && ($id === false || $key === false)) {
     error_404();
     exit;
 }
@@ -94,7 +96,7 @@ $(document).ready(function() {
     }
     
     var params = {
-<?php if ($is_example) { ?>
+<?php if ($is_static_example) { ?>
         StaticExample: true,
         Id: 0,
         Key: 0,
@@ -110,7 +112,7 @@ $(document).ready(function() {
         RefDb: "<?php echo $ref_db; ?>",
         SearchType: "<?php echo $search_type; ?>",
         FileName: "<?php echo $filename; ?>",
-        DiamondSens: "<?php echo $diamond_sense; ?>",
+        DiamondSens: "<?php echo $diamond_sens; ?>",
         CdHitSid: "<?php echo $cdhit_sid; ?>",
     };
 
