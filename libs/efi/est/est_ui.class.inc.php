@@ -13,20 +13,26 @@ use \efi\est\user_jobs;
 class est_ui {
     
 
-    public static function output_job_list($jobs, $show_archive = false, $sort_method = user_jobs::SORT_TIME_COMPLETED, $is_example = false, $show_all_ids = false, $is_taxonomy = false) {
-        $date_col_header = "<i class='fas fa-chevron-down'></i> Date Completed";
-        $date_url = "?sb=" . user_jobs::SORT_TIME_ACTIVITY;
-        $id_col_header = "ID";
-        $id_url = "?sb=" . user_jobs::SORT_ID;
-        if ($sort_method == user_jobs::SORT_TIME_ACTIVITY) {
-            $date_col_header = "<i class='fas fa-chevron-up'></i> Recent Activity";
-            $date_url = "?sb=" . user_jobs::SORT_TIME_COMPLETED;
-        } else if ($sort_method == user_jobs::SORT_ID) {
-            $id_col_header = "<i class='fas fa-chevron-down'></i> ID";
-            $id_url = "?sb=" . user_jobs::SORT_ID_REVERSE;
-        } else if ($sort_method == user_jobs::SORT_ID_REVERSE) {
-            $id_col_header = "<i class='fas fa-chevron-up'></i> ID";
+    public static function output_job_list($jobs, $show_archive = false, $sort_method = user_jobs::SORT_TIME_COMPLETED, $is_example = false, $show_all_ids = false, $is_taxonomy = false, $show_sort_method = true) {
+        $date_sort_link = "Recent Activity";
+        $id_sort_link = "ID";
+        if ($show_sort_method) {
+            $date_col_header = "<i class='fas fa-chevron-down'></i> Date Completed";
+            $date_url = "?sb=" . user_jobs::SORT_TIME_ACTIVITY;
+            $id_col_header = "ID";
             $id_url = "?sb=" . user_jobs::SORT_ID;
+            if ($sort_method == user_jobs::SORT_TIME_ACTIVITY) {
+                $date_col_header = "<i class='fas fa-chevron-up'></i> Recent Activity";
+                $date_url = "?sb=" . user_jobs::SORT_TIME_COMPLETED;
+            } else if ($sort_method == user_jobs::SORT_ID) {
+                $id_col_header = "<i class='fas fa-chevron-down'></i> ID";
+                $id_url = "?sb=" . user_jobs::SORT_ID_REVERSE;
+            } else if ($sort_method == user_jobs::SORT_ID_REVERSE) {
+                $id_col_header = "<i class='fas fa-chevron-up'></i> ID";
+                $id_url = "?sb=" . user_jobs::SORT_ID;
+            }
+            $date_sort_link = "<a href=\"$date_url\">$date_col_header</a>";
+            $id_sort_link = "<a href=\"$id_url\">$id_col_header</a>";
         }
 
 //        if ($toggle_id)
@@ -36,9 +42,9 @@ class est_ui {
         $html = <<<HTML
             <table class="pretty-nested" style="table-layout:fixed">
                 <thead>
-                    <th class="id-col"><a href="$id_url">$id_col_header</a></th>
+                    <th class="id-col">$id_sort_link</th>
                     <th>Job Name</th>
-                    <th class="date-col"><a href="$date_url">$date_col_header</a></th>
+                    <th class="date-col">$date_sort_link</th>
                 </thead>
                 <tbody>
 HTML;

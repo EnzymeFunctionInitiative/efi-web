@@ -418,7 +418,10 @@ class est_user_jobs_shared {
                     " WHERE analysis_generate_id = $id AND analysis_status != 'ARCHIVED'";
                 if (!$includeFailedAnalysisJobs)
                     $sql .= " AND analysis_status = 'FINISH'";
-                $sql .= " ORDER BY analysis_time_completed DESC";
+                if ($includeAnalysisJobs === 2)
+                    $sql .= " ORDER BY analysis_id ASC";
+                else
+                    $sql .= " ORDER BY analysis_time_completed DESC";
                 $arows = $db->query($sql); // Analysis Rows
     
                 foreach ($arows as $arow) {
