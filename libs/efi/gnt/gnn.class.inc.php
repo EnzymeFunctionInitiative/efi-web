@@ -34,7 +34,6 @@ class gnn extends gnn_shared {
     protected $gnn_pfams;
     protected $log_file = "log.txt";
     protected $eol = PHP_EOL;
-    protected $finish_file = "gnn.completed";
     protected $beta;
     protected $est_id = 0; // gnn_est_source_id, we use the EST job with this analysis ID
     protected $gnn_parent_id = 0; // parent GNT job
@@ -1024,14 +1023,6 @@ class gnn extends gnn_shared {
 
     /////////////////////////////////////////////////////////////////////////////////////////
     // Code to support asynchronous, cluster queued execution
-
-    public function check_finish_file() {
-        return file_exists($this->get_finish_file());
-    }
-
-    public function get_finish_file() {
-        return $this->get_output_dir() . "/" . $this->finish_file;
-    }
 
     public function get_output_dir($id = 0) {
         if (!$id)

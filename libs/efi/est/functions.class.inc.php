@@ -203,10 +203,6 @@ class functions {
 
     }
 
-    public static function get_server_name() {
-        return $_SERVER['SERVER_NAME'] . dirname($_SERVER['PHP_SELF']) . "/";
-
-    }
 
     public static function get_results_dir() {
         return __EST_RESULTS_DIR__; // set in the global conf file
@@ -563,26 +559,6 @@ class functions {
 
     public static function file_size_graph_enabled() {
         return defined("__FILE_SIZE_GRAPH_ENABLED__") ? __FILE_SIZE_GRAPH_ENABLED__ : false;
-    }
-
-    public static function get_analysis_job_info($db, $analysis_id, $ssn_source_key, $ssn_idx) {
-        return global_functions::verify_est_job($db, $analysis_id, $ssn_source_key, $ssn_idx);
-        //$sql = "SELECT analysis.*, generate_key FROM analysis LEFT JOIN generate ON analysis_generate_id = generate_id WHERE analysis_id = $analysis_id";
-        //$result = $db->query($sql);
-        //$info = array();
-        //if ($result) {
-        //    $result = $result[0];
-        //    $info["generate_id"] = $result["analysis_generate_id"];
-        //    $info["generate_key"] = $result["generate_key"];
-        //    $info["analysis_id"] = $analysis_id;
-        //    $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
-        //                            $result["analysis_evalue"] . "-" .
-        //                            $result["analysis_min_length"] . "-" .
-        //                            $result["analysis_max_length"];
-        //    return $info;
-        //} else {
-        //    return false;
-        //}
     }
 
     public function get_generate_job_id($analysis_id) {

@@ -1,5 +1,8 @@
 <?php
 
+use \efi\global_settings;
+
+
 const TYPE404 = 404;
 const TYPE500 = 500;
 
@@ -45,5 +48,13 @@ function pretty_error_expired($message = "") {
 }
 function prettyErrorExpired($message = "") {
     error_base($message, true, TYPE500, true);
+}
+function error_expired($header_file, $footer_file, $time_completed) {
+    require_once($header_file);
+    echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days(). " days";
+    echo "<br>Your job was completed on " . $completed_time;
+    echo "<br>Please go back to the <a href='" . global_settings::get_server_name() . "'>homepage</a></p>";
+    require_once($footer_file);
+    exit(0);
 }
 

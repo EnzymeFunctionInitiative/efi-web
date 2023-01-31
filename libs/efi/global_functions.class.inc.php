@@ -190,6 +190,7 @@ class global_functions {
     }
 
     public static function verify_est_job($db, $est_id, $est_key, $ssn_idx) {
+        // $est_id is the analysis ID
         if (!is_numeric($est_id))
             return false;
         if (!is_numeric($ssn_idx))
@@ -210,7 +211,9 @@ class global_functions {
             $nf_suffix = (isset($params["remove_fragments"]) && $params["remove_fragments"] === true) ? "-nf" : "";
             $info["generate_id"] = $result["analysis_generate_id"];
             $info["analysis_id"] = $est_id;
-            $info["analysis_dir"] = $result["analysis_filter"] . "-" . 
+            $info["analysis_dir"] = $est_id;
+            $info["analysis_dir_old"] =
+                                    $result["analysis_filter"] . "-" . 
                                     $result["analysis_evalue"] . "-" .
                                     $result["analysis_min_length"] . "-" .
                                     $result["analysis_max_length"] . $tax_search . $nc_suffix . $nf_suffix;
@@ -220,7 +223,8 @@ class global_functions {
         }
     }
 
-    public static function get_est_filename($job_info, $est_aid, $ssn_idx) {
+    // Input is a info from verify_est_job
+    public static function get_est_filename($job_info, $ssn_idx) {
 
         $est_gid = $job_info["generate_id"];
         $a_dir = $job_info["analysis_dir"];
@@ -229,8 +233,12 @@ class global_functions {
         $est_results_name = "output";
         $est_results_dir = "$base_est_results/$est_gid/$est_results_name/$a_dir";
 
+        // Handle legacy naming convention
         if (!is_dir($est_results_dir)) {
-            $est_results_dir = "$est_results_dir-nc";
+            $est_results_dir = "$base_est_results/$est_gid/$est_results_name/";
+            $est_results_dir .= $job_info["analysis_dir_old"];
+            if (!is_dir($est_results_dir))
+                $est_results_dir = "$est_results_dir-nc";
         }
         if (!is_dir($est_results_dir)) {
             return false;

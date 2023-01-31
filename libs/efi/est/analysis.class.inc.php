@@ -27,7 +27,6 @@ class analysis extends est_shared {
     private $blast_id;
     private $generate_id;
     private $filter;
-    private $finish_file = "stats.tab.completed";
     private $sequence_file = "sequences.fa";
     private $stats_file = "stats.tab";
     protected $output_dir = "output";
@@ -55,6 +54,8 @@ class analysis extends est_shared {
     private $ex_data_dir = "";
 
     private $net_stats;
+    private $debug_params = array();
+    private $debug_results = array();
 
 
     ///////////////Public Functions///////////
@@ -93,12 +94,10 @@ class analysis extends est_shared {
     public function get_pbs_number() { return $this->pbs_number; }
     public function get_name() { return $this->name; }
     public function get_filter() { return $this->filter; }
-    public function get_finish_file() { return $this->finish_file; }
     public function get_filter_sequences() { return $filter_sequences; }
-    public function get_sequence_file() { return $this->sequence_file; }
+    private function get_sequence_file() { return $this->sequence_file; }
     public function get_db_version() { return $this->db_version; }
     public function get_output_dir() { return $this->get_generate_id() . "/" . $this->output_dir; }
-    public function get_network_output_path() { return $this->get_results_dir() . "/" . $this->get_output_dir() . "/" . $this->get_network_dir(); }
     public function get_min_option_nice() {
         if ($this->use_min_node_attr && $this->use_min_edge_attr)
             return "Node + Edge";
@@ -137,18 +136,15 @@ class analysis extends est_shared {
         return false;
     }		
 
-    public function get_num_sequences_post_filter() {
-        $root_dir = functions::get_results_dir();
-        $directory = $root_dir . "/" . $this->get_output_dir() . "/" . $this->get_network_dir();
-        $full_path = $directory . "/" . $this->get_sequence_file();
+    private function get_num_sequences_post_filter() {
+        $analysis_dir = $this->get_network_output_path();
+        $full_path = $analysis_dir . "/" . $this->get_sequence_file();
         $num_seq = 0;
         if (file_exists($full_path)) {
-
             $exec = "cat " . $full_path . " | grep '>' | wc -l";
             $output = exec($exec);
             $output = trim(rtrim($output));
             list($num_seq,) = explode(" ",$output);
-
         }
         return $num_seq;
     }
@@ -329,16 +325,6 @@ class analysis extends est_shared {
         }
     }
 
-    public function check_finish_file() {
-        $directory = functions::get_results_dir() . "/".  $this->get_output_dir();
-        $directory .= "/" . $this->get_network_dir();
-        $full_path = $directory . "/" . $this->get_finish_file();
-        return file_exists($full_path);
-    }
-
-
-
-
     public function get_num_networks() {
         if (!isset($this->net_stats)) {
             if ($this->load_network_stats() === false)
@@ -391,8 +377,6 @@ class analysis extends est_shared {
                 $percent_identity = substr($percent_identity, 0, strrpos($percent_identity, "_"));
                 $percent_identity = str_replace(".", "", $percent_identity);
 
-                $rel_path = $this->get_output_dir() . "/" . $this->get_network_dir() . "/" . $raw_file;
-                $stats_row["RelPath"] = $rel_path;
                 $stats_row["PctId"] = $row == 1 ? "full" : $percent_identity;
 
                 $zip_file = $raw_file . ".zip";
@@ -421,9 +405,8 @@ class analysis extends est_shared {
     }
 
     private function get_zip_file_size($ssn_file) {
-        $results_dir = $this->get_results_dir();
-        $file = $results_dir . "/" . $this->get_output_dir();
-        $file .= "/" . $this->get_network_dir() . "/" . $ssn_file . ".zip";
+        $results_dir = $this->get_network_output_path();
+        $file = "$results_dir/$ssn_file.zip";
         if (file_exists($file))
             return filesize($file);
         else
@@ -511,25 +494,6 @@ class analysis extends est_shared {
         return $info;
     }
 
-    //public function get_nc_web_path($fname, $name_only = false) {
-    //    $web_dir_path = $this->get_web_dir_path();
-    //    $nc_web_path = "$web_dir_path/$nc_fname";
-    //    $nc_full_path = $this->get_network_output_path() . "/" . $nc_fname;
-    //    if (!file_exists($nc_full_path))
-    //        $nc_web_path = "";
-    //    return ($name_only && $nc_web_path) ? $nc_fname : $nc_web_path;
-    //}
-
-    //public function get_blast_evalue_file() {
-    //    $the_file = $this->get_network_output_path() . "/" . blast::EVALUE_OUTPUT_FILE;
-    //    $blast_evalue_file = "";
-    //    if (file_exists($the_file))
-    //        $blast_evalue_file = $this->get_web_dir_path() . "/" . blast::EVALUE_OUTPUT_FILE;
-    //    $name = global_functions::safe_filename($this->generate_id . "_" . $this->name) . ".txt";
-    //    return array("path" => $blast_evalue_file, "full_path" => $the_file, "name" => $name);
-    //}
-
-
 
 
 
@@ -551,11 +515,8 @@ class analysis extends est_shared {
             $sched = functions::get_cluster_scheduler();
 
             //Setup Directories
-            $job_dir = functions::get_results_dir() . "/" . $this->get_generate_id();
-            $relative_output_dir = "output";
-            $network_dir = $this->get_network_dir();
-            $gen_output_dir = "$job_dir/$relative_output_dir";
-            $full_output_dir = "$gen_output_dir/$network_dir";
+            $gen_output_dir = $this->get_generate_path();
+            $full_output_dir = $this->get_network_output_path();
 
             $parent_dir_opt = "";
             $parent_id = $this->parent_id;
@@ -599,6 +560,7 @@ class analysis extends est_shared {
                 }
                 if ($this->custom_clustering) {
                     $exec .= " -custom-cluster-file " . $this->custom_filename;
+                    $network_dir = $this->get_legacy_network_dir();
                     $exec .= " -custom-cluster-dir " . $network_dir;
                 }
                 if ($this->uniref)
@@ -710,6 +672,7 @@ class analysis extends est_shared {
             $this->include_all_seq = (isset($gen_params["include_all_seq"]) && $gen_params["include_all_seq"]) ? true : false;
 
             $a_params = isset($result[0]['analysis_params']) ? global_functions::decode_object($result[0]['analysis_params']) : array();
+            $this->debug_params = $a_params;
             $this->use_min_edge_attr = isset($a_params["use_min_edge_attr"]) && $a_params["use_min_edge_attr"];
             $this->use_min_node_attr = isset($a_params["use_min_node_attr"]) && $a_params["use_min_node_attr"];
             $this->compute_nc = (isset($a_params["compute_nc"]) && $a_params["compute_nc"]) ? true : false;
@@ -740,7 +703,30 @@ class analysis extends est_shared {
         }
     }
 
-    public function get_network_dir() {
+    protected function get_debug_param_values() {
+        return $this->debug_params;
+    }
+    protected function get_debug_result_values() {
+        return array();
+    }
+
+    private function get_generate_path() {
+        $generate_path = $this->get_results_dir() . "/" . $this->get_output_dir();
+        return $generate_path;
+    }
+
+    private function get_network_output_path() {
+        $generate_path = $this->get_generate_path();
+        $new_path = "$generate_path/" . $this->get_id();
+        if (is_dir($new_path)) {
+            return $new_path;
+        } else {
+            $legacy_name = $this->get_legacy_network_dir();
+            return "$generate_path/$legacy_name";
+        }
+    }
+
+    private function get_legacy_network_dir() {
         $path = "";
         if ($this->custom_clustering) {
             $path = "custom_cluster_" . $this->get_id();
@@ -936,12 +922,6 @@ class analysis extends est_shared {
         return $percent_identity;
     }
 
-    public function get_web_dir_path() {
-        $res_dir = $this->is_example ? functions::get_results_example_dirname($this->is_example) : functions::get_results_dirname();
-        $rel_dir_path = $this->get_output_dir() . "/" . $this->get_network_dir();
-        $web_dir_path = functions::get_web_root() . "/$res_dir/$rel_dir_path";
-        return $web_dir_path;
-    }
 
     // PARENT EMAIL-RELATED OVERLOADS
 

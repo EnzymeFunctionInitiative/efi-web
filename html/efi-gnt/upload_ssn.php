@@ -67,7 +67,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER["CONTENT_LENGTH"] > 0) {
         if ($the_aid !== false && $the_key !== false && $the_idx !== false) {
             $job_info = functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
             if ($job_info !== false) {
-                $est_file_info = functions::get_est_filename($job_info, $the_aid, $the_idx);
+                $est_file_info = functions::get_est_filename($job_info, $the_idx);
                 if ($est_file_info !== false) {
                     $est_analysis_id = $the_aid;
                     $est_ssn_idx = $the_idx;

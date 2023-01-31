@@ -1416,7 +1416,7 @@ function check_for_color_mode($db) {
         } else if (isset($modes_avail[$mode]) && $the_aid !== false && $the_key !== false && $the_idx !== false) {
             $job_info = global_functions::verify_est_job($db, $the_aid, $the_key, $the_idx);
             if ($job_info !== false) {
-                $est_file_info = global_functions::get_est_filename($job_info, $the_aid, $the_idx);
+                $est_file_info = global_functions::get_est_filename($job_info, $the_idx);
                 if ($est_file_info !== false) {
                     $est_id = $job_info["generate_id"];
                     $color_filename = $est_file_info["filename"];

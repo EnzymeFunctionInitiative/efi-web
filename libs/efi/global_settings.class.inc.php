@@ -28,6 +28,10 @@ class global_settings {
         return dirname($_SERVER['PHP_SELF']);
     }
 
+    public static function get_server_name() {
+        return $_SERVER['SERVER_NAME'] . dirname($_SERVER['PHP_SELF']) . "/";
+    }
+
     public static function get_web_root() {
         return __WEB_ROOT__;
     }

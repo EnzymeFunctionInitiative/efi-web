@@ -195,10 +195,10 @@ abstract class colorssn_shared extends option_base {
             $this->ssn_source_analysis_idx = $result["generate_color_ssn_source_idx"];
             $this->ssn_source_key = $result["generate_color_ssn_source_key"];
 
-            $info = functions::get_analysis_job_info($this->db, $this->ssn_source_analysis_id, $this->ssn_source_key, $this->ssn_source_analysis_idx);
+            $info = global_functions::verify_est_job($this->db, $this->ssn_source_analysis_id, $this->ssn_source_key, $this->ssn_source_analysis_idx);
             if ($info) {
                 $this->ssn_source_id = $info["generate_id"];
-                $file_info = functions::get_analysis_ssn_file_info($info, $this->ssn_source_analysis_idx);
+                $file_info = global_functions::get_est_filename($info, $this->ssn_source_analysis_idx);
                 if ($file_info) {
                     $this->file_helper->set_file_source($file_info["full_ssn_path"]);
                 }
@@ -277,9 +277,9 @@ abstract class colorssn_shared extends option_base {
     public function get_insert_array($data) {
         $insert_array = parent::get_insert_array($data);
         if (isset($data->color_ssn_source_id) && isset($data->color_ssn_source_idx) && isset($data->color_ssn_source_key)) {
-            $ainfo = functions::get_analysis_job_info($this->db, $data->color_ssn_source_id, $data->color_ssn_source_key, $data->color_ssn_source_idx);
+            $ainfo = global_functions::verify_est_job($this->db, $data->color_ssn_source_id, $data->color_ssn_source_key, $data->color_ssn_source_idx);
             if ($ainfo) {
-                $sinfo = functions::get_analysis_ssn_file_info($ainfo, $data->color_ssn_source_idx);
+                $sinfo = global_functions::get_est_filename($ainfo, $data->color_ssn_source_idx);
                 if ($sinfo) {
                     $insert_array["generate_color_ssn_source_id"] = $data->color_ssn_source_id;
                     $insert_array["generate_color_ssn_source_idx"] = $data->color_ssn_source_idx;

@@ -21,7 +21,6 @@ class stepa extends est_shared {
     protected $status;
     protected $evalue;
     protected $pbs_number;
-    protected $finish_file = "1.out.completed";
     protected $type;
     protected $accession_file = "allsequences.fa";
     protected $counts_file;
@@ -94,7 +93,6 @@ class stepa extends est_shared {
 
     public function get_program() { return $this->program; }
     public function get_fraction() { return $this->fraction; }
-    public function get_finish_file() { return global_functions::get_est_job_results_path($this->get_id()) . "/" . $this->finish_file; }
     public function get_accession_file() {return $this->get_output_dir() . "/".  $this->accession_file;}
     public function get_accession_counts_file() {return $this->get_output_dir() . "/".  $this->counts_file;}
     public function get_accession_counts_file_full_path() {return functions::get_results_dir() . "/" . $this->get_output_dir() . "/".  $this->counts_file;}
@@ -140,12 +138,6 @@ class stepa extends est_shared {
         else {
             return false;
         }
-
-    }
-
-    public function check_finish_file() {
-        $full_path = $this->get_finish_file();
-        return file_exists($full_path);
 
     }
 

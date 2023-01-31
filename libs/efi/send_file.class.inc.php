@@ -24,8 +24,21 @@ class send_file {
     // Typical use
     public static function send($file_path, $file_name, $type = self::SEND_FILE_BINARY) {
         $file_size = filesize($file_path);
-        self::send_headers($file_name, $file_size, $type);
-        self::send_file_contents($file_path);
+        $handle = fopen($file_path, "rb");
+        if (is_resource($handle)) {
+            self::send_headers($file_name, $file_size, $type);
+            $result = self::send_file_contents_handle($handle);
+            fclose($handle);
+            if ($result === false) {
+                error_log("Something happened during an fread of $file_path");
+                return false;
+            }
+            return true;
+        } else {
+            $error_text = " 500 Interal Server Error (serving file)";
+            header($_SERVER["SERVER_PROTOCOL"] . $error_text, true, 500);
+            return false;
+        }
     }
 
     // Typical use
@@ -36,19 +49,17 @@ class send_file {
         echo $text_string;
     }
 
-    public static function send_file_contents($file) {
-        $handle = fopen($file, 'rb');
-        self::send_file_contents_handle($handle);
-        fclose($handle);
-    }
     public static function send_file_contents_handle($handle) {
         $chunkSize = 1024 * 1024;
         while (!feof($handle)) {
             $buffer = fread($handle, $chunkSize);
+            if ($buffer === false)
+                return false;
             echo $buffer;
             ob_flush();
             flush();
         }
+        return true;
     }
 }
 

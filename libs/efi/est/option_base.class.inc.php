@@ -426,34 +426,28 @@ abstract class option_base extends stepa {
     public function process_error() {
         $nonblastjob_blast_failed_file_exists = $this->check_max_blast_failed_file();
         $blastjob_fail_file_exists = $this->get_create_type() == blast::create_type() ? $this->check_fail_file() : false;
-        $finish_file_exists = $this->check_finish_file();
         $nonblastjob_bad_input_format_file_exists = $this->check_bad_input_format_file();
 
         if ($nonblastjob_blast_failed_file_exists) {
             $this->set_num_blast();
-            $this->set_job_failed();
             $this->email_number_seq();
             $msg = "Generate ID: " . $this->get_id() . " - Job Failed - Max Number of Sequences";
-            functions::log_message($msg);
         } else if ($blastjob_fail_file_exists) {
             $this->set_num_blast();
-            $this->set_job_failed();
             $this->email_bad_sequence();
             $msg = "Generate ID: " . $this->get_id() . " - Job Failed - Invalid Input Sequence";
-            functions::log_message($msg);
         } else if ($nonblastjob_bad_input_format_file_exists) {
             $this->set_num_blast();
-            $this->set_job_failed();
             $this->email_format_error();
             $msg = "Generate ID: " . $this->get_id() . " - Job Failed - Bad Input File Format";
-            functions::log_message($msg);
         } else {
             $this->set_num_blast();
-            $this->set_job_failed();
             $this->email_general_failure();
             $msg = "Generate ID: " . $this->get_id() . " - Job Failed - Error in Pipeline (2)";
-            functions::log_message($msg);
         }
+
+        $this->set_job_failed();
+        functions::log_message($msg);
     }
 
     public function process_start() {

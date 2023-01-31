@@ -27,7 +27,6 @@ spl_autoload_register(function ($className) {
 require_once(__BASE_DIR__ . "/includes/debug_check.inc.php");
 
 date_default_timezone_set(__TIMEZONE__);
-//$db = new \database(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
 $db = new \IGBIllinois\db(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
 
 if (defined("__BASE_WEB_PATH__"))
