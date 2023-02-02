@@ -29,8 +29,8 @@
             "url": "https://www.github.com/nilsoberg2/IGBIllinois-php"
         },
         {
-            "type": "path",
-            "url": "/home/n-z/noberg/dev/taxonomy"
+            "type": "vcs",
+            "url": "https://www.github.com/EnzymeFunctionInitiative/taxonomy"
         },
         {
             "type": "path",
