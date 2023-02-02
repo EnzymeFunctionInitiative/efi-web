@@ -96,7 +96,7 @@ if ($use_mean)
 $clust_file = $job_obj->get_file_path($file_type);
 
 
-if (!file_exists($clust_file)) {
+if ($clust_file === false || !file_exists($clust_file)) {
     echo json_encode($result);
     exit(0);
 }

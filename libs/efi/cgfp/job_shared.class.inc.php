@@ -596,7 +596,7 @@ abstract class job_shared {
     public abstract function get_identify_output_path($parent_id = 0);
     protected abstract function get_quantify_output_path($parent_id = 0);
 
-    protected function get_file_name_base($file_type, $result_type) {
+    protected function get_file_name_base($file_type, $result_type, $is_legacy = 0) {
         // this->get_filename returns the basic name of the file, here we add the suffix
         $ext = file_types::ext($file_type);
         if ($ext === false)
@@ -610,6 +610,12 @@ abstract class job_shared {
             $name .= "_$suffix.$ext";
         } else {
             $identify_id = $this->get_identify_id();
+            if ($is_legacy) {
+                if ($file_type == file_types::FT_sb_ssn)
+                    $suffix = "markers";
+                else
+                    $suffix = "quantify";
+            }
             $name = $this->make_ssn_name($identify_id, $suffix);
             $name .= ".$ext";
         }
@@ -641,6 +647,11 @@ abstract class job_shared {
         if (!file_exists($file_path)) {
             $file_name = $this->get_file_name_base($file_type, $result_type);
             $file_path = "$base_dir/${file_name}";
+            // Legacy
+            if (!file_exists($file_path)) {
+                $file_name = $this->get_file_name_base($file_type, $result_type, 1);
+                $file_path = "$base_dir/${file_name}";
+            }
         }
 
         if (!file_exists($file_path))
