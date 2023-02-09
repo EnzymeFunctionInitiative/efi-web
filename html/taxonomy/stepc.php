@@ -48,9 +48,7 @@ $use_advanced_options = global_settings::advanced_options_enabled();
 $gen_type = $generate->get_type();
 $generate = dataset_shared::create_generate_object("TAXONOMY", $db, $is_example);
 
-if (!$generate->has_tax_data()) {
-    error500("Invalid job type.");
-}
+$has_tax_data = $generate->has_tax_data();
 
 $job_name = $generate->get_job_name();
 
@@ -99,6 +97,12 @@ $ex_param = $is_example ? "&x=$is_example" : "";
 <?php if ($job_name) { ?>
 <h4 class="job-display">Submission Name: <b><?php echo $job_name; ?></b></h4>
 <?php } ?>
+
+<?php if (!$has_tax_data) { ?>
+
+<div>No sequences were identified. If Taxonomy Filtering was used, please verify that the selected taxonomy parameters are spelled correctly.</div>
+
+<?php } else { ?>
 
 <div class="tabs-efihdr tabs">
     <ul class="">
@@ -152,6 +156,7 @@ for ($i = 0; $i < count($histo_info); $i++) {
     </div>
 </div>
 
+<?php } ?>
         
 <div style="margin-top:85px"></div>
 
