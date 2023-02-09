@@ -600,7 +600,7 @@ Protein_ID_3,Cluster#
                             </select>
                         </div>
                         <div style="display: none">
-                            <input id="taxonomy-stepc-preset-name" type="hidden" name="taxonomy-preset-name" id="taxonomy-preset-name" value="" />
+                            <input type="hidden" name="taxonomy-preset-name" id="taxonomy-preset-name" value="" />
                         </div>
                         <div id="taxonomy-stepc-container"></div>
                         <div>
