@@ -63,6 +63,8 @@ where www-data is the Apache user/group (set appropriately).
 # EFI-WEB CONFIGURATION FILES
 
     cp conf/settings_base.inc.php.example conf/settings_base.inc.php
+    cp conf/settings_paths.inc.php.example conf/settings_paths.inc.php
+    cp conf/settings_auth.inc.php.example conf/settings_auth.inc.php
     cp conf/settings.inc.php.example conf/settings.inc.php
     cp conf/efi_est/settings.inc.php.example conf/efi_est/settings.inc.php
     cp conf/efi_est/settings_shared.inc.php.example conf/efi_est/settings_shared.inc.php

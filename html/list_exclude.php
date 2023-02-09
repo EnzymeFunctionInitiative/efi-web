@@ -7,12 +7,18 @@ $cola = $colb = $colc = "";
 if (isset($_POST["cola"]) && isset($_POST["colb"])) {
     $cola = $_POST["cola"];
     $colb = $_POST["colb"];
-    $rowa = preg_split("/\r\n|\n|\r/", $_POST["cola"]);
-    $rowb = preg_split("/\r\n|\n|\r/", $_POST["colb"]);
+    $rowa_split = preg_split("/\r\n|\n|\r/", $_POST["cola"]);
+    $rowb_split = preg_split("/\r\n|\n|\r/", $_POST["colb"]);
+    foreach ($rowa_split as $i => $v) {
+        $rowa[$v] = $i;
+    }
+    foreach ($rowb_split as $i => $v) {
+        $rowb[$v] = $i;
+    }
     $rowc = array();
-    for ($i = 0; $i < count($rowa); $i++) {
-        if (!in_array($rowa[$i], $rowb))
-            array_push($rowc, $rowa[$i]);
+    foreach ($rowa as $k => $v) {
+        if (!isset($rowb[$k]))
+            array_push($rowc, $k);
     }
     $colc = implode("\n", $rowc);
 }

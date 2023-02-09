@@ -24,7 +24,7 @@ my $dbh = DBI->connect("dbi:SQLite:dbname=$dbFile", "", "");
 die "Failed to establish database connection" if not $dbh;
 
 
-my $sql = "SELECT id, date, title, author, year, pages, volume, number, secondary_title, edition, publisher, place_published, url, electronic_resource_number FROM refs WHERE trash_state = 0 ORDER BY access_date";
+my $sql = "SELECT id, date, title, author, year, pages, volume, number, secondary_title, edition, publisher, place_published, url, electronic_resource_number FROM refs WHERE trash_state = 0 ORDER BY year, access_date";
 
 my $sth = $dbh->prepare($sql);
 $sth->execute;
