@@ -16,7 +16,7 @@ if (!isset($active_tab))
     <ul class="tab-headers">
         <li class="<?php echo $active_tab === "pubs" ? "active" : ""; ?>"><a href="index.php">Publications</a></li>
         <li class="<?php echo $active_tab === "biochem" ? "active" : ""; ?>"><a href="example.php?id=biochem">From The Bench</a></li>
-        <li class="<?php echo $active_tab === "2022" ? "active" : ""; ?>"><a href="example.php?id=2022">2022</a></li>
+        <li class="<?php echo $active_tab === "2022" ? "active" : ""; ?>"><a href="example.php?id=2022">JMB Resources</a></li>
         <li class="<?php echo $active_tab === "videos" ? "active" : ""; ?>"><a href="videos.php">Videos</a></li>
 <?php if ($has_advanced_options) { ?>
         <li class="<?php echo $active_tab === "tutorial" ? "active" : ""; ?>"><a href="../efi-est/tutorial.php">Tutorial</a></li>

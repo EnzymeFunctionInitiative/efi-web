@@ -27,7 +27,7 @@ $main_html = "";
 if ($id === "biochem") {
     $ExtraTitle = "From The Bench";
 } else if ($id === "2022") {
-    $ExtraTitle = "2022";
+    $ExtraTitle = "JMB Resources";
 }
 
 $config = new example_config($db, $id);
