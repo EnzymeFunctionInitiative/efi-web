@@ -9,31 +9,42 @@ SSNs for Taxonomy Categories:   Taxonomy Tool and Filter by Taxonomy
 </div>
 
 <p>
-As the UniProtKB database and the protein families identified by Pfam and 
-InterPro continue to increase in size, analyses of sequence-function space in 
-SSNs is increasingly difficult.  We have developed the ability to generate SSNs 
-from taxonomy categories, allowing higher resolution analyses of focused 
-regions of sequence-function space using UniProt IDs instead of UniRef90 
-clusters or UniRef90 clusters instead of UniRef50 clusters.  
+As the UniProtKB database and the protein families identified by Pfam and
+InterPro continue to increase in size, analyses of sequence-function space in
+SSNs is increasingly difficult.  We have developed the ability to generate SSNs
+from taxonomy categories, allowing higher resolution analyses of focused
+regions of sequence-function space using UniProt IDs instead of UniRef90
+clusters or UniRef90 clusters instead of UniRef50 clusters.  </p>
+
+<p>
+An article has been published in the 2023 Computational Resources for Molecular
+Biology issue of Journal of Molecular Biology that describes the Taxonomy Tool
+and Filter by Taxonomy features that we have developed. The article includes
+examples of the use of both the Taxonomy Tool and Filter by Taxonomy with
+analyses of both the glycyl radical enzyme superfamily (GRE; IPR004184) and the
+radical SAM superfamily (RSS).  </p>
+
+<p>
+Please use the following to cite the EFI tools: </p>
+
+<p style="margin-left: 50px">
+Nils Oberg, Rémi Zallot, and John A. Gerlt, EFI-EST, EFI-GNT, and EFI-CGFP:  Enzyme Function Initiative (EFI) Web Resource for Genomic Enzymology Tools. J Mol Biol 2023. <a href="https://doi.org/10.1016/j.jmb.2023.168018">https://doi.org/10.1016/j.jmb.2023.168018</a>
 </p>
 
 <p>
-A manuscript has been submitted that describes the Taxonomy Tool and Filter by 
-Taxonomy feature that we have developed.  The manuscript also includes examples 
-of the use of both the Taxonomy Tool and Filter by Taxonomy with analyses of 
-both the glycyl radical enzyme superfamily (GRE; IPR004184) and the radical SAM 
-superfamily (RSS).
+<a href="examples/2022/JMB_Resource.pdf">Download the paper in PDF format.</a>
 </p>
 
 <p>
-The <a href="examples/2022/JMB_Resource_MS_Final.pdf">manuscript</a> and
-<a href="examples/2022/JMB_Resource_SI_Final.pdf">supplementary figures and table</a>
-are both available for download.
+<a href="examples/2022/JMB_Resource_SI_figures.pdf">Download the supplementary figures.</a>
 </p>
 
 <p>
-On this page we provide access to the EFI-EST, EFI-GNT, EFI-CGFP, and Taxonomy 
-Tool jobs described in the manuscript.  
+<a href="examples/2022/JMB_Resource_SI_tutorials.pdf">Download the supplementary tutorials.</a>
+</p>
+
+<p>
+We also provide access to the EFI-EST, EFI-GNT and EFI-CGFP jobs that were generated in the analyses described in the article. 
 </p>
 
 <?php
