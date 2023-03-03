@@ -39,9 +39,10 @@ elseif (!functions::is_valid_diagram_file_type($file_type)) {
 }
 
 $email = sanitize::post_sanitize_email("email");
-if (!isset($email)) {
+if (!$email) {
     $valid = 0;
     $message .= "<br><b>Please verify your e-mail address</b>";
+    die("Here");
 }
 $jobGroup = sanitize::post_sanitize_string("job-group", "");
 

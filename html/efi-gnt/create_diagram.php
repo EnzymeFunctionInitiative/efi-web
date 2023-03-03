@@ -21,7 +21,7 @@ if (isset($opt)) {
     $valid = 1;
 
     $email = sanitize::post_sanitize_email("email");
-    if (!isset($email)) {
+    if (!$email) {
         $valid = 0;
         $message .= "<br><b>Please verify your e-mail address</b>";
     }

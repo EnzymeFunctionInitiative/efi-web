@@ -91,7 +91,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER["CONTENT_LENGTH"] > 0) {
         $message .= "<br><b>Invalid filetype ($file_type).</b>";
     }
 
-    if (!$gnn_parent_id && !isset($email)) {
+    if (!$gnn_parent_id && !$email) {
         $valid = 0;
         $message .= "<br><b>Please verify your e-mail address</b>";
     }
