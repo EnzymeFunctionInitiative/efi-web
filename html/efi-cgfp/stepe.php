@@ -51,7 +51,7 @@ $job_obj = new quantify($db, $qid, $is_example);
 if ($job_obj->get_key() != $key) {
     error_404();
 }
-if ($job_obj->is_expired()) {
+if (!$is_example && $job_obj->is_expired()) {
     $header_file = __DIR__ . "/inc/header.inc.php";
     $footer_file = __DIR__ . "/inc/footer.inc.php";
     error_expired($header_file, $footer_file, $job_obj->get_time_completed());

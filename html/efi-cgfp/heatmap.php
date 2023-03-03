@@ -31,6 +31,8 @@ if ($is_static_example) {
     $qid = 0;
 } else if (!$is_example) {
     $is_example = "false";
+} else if ($is_example !== false) {
+    $is_example = '"' . $is_example . '"';
 }
 
 if (!$is_static_example && ($id === false || $key === false)) {

@@ -48,7 +48,7 @@ $job = new identify($db, $id, $is_example);
 if ($job->get_key() != $key) {
     error_404();
 }
-if ($job->is_expired()) {
+if (!$is_example && $job->is_expired()) {
     $header_file = __DIR__ . "/inc/header.inc.php";
     $footer_file = __DIR__ . "/inc/footer.inc.php";
     error_expired($header_file, $footer_file, $job->get_time_completed());

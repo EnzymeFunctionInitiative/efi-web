@@ -45,7 +45,7 @@ if ($is_static_example) {
 
     if ($key === false || $job->get_key() != $key) {
         $is_error = true;
-    } elseif ($job->is_expired()) {
+    } elseif (!$is_example && $job->is_expired()) {
         $is_error = true;
         $is_expired = true;
     } else {

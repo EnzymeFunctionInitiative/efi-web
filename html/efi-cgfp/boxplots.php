@@ -21,6 +21,8 @@ if ($is_static_example) {
     $is_example = "false";
 } else if (!$is_example) {
     $is_example = "false";
+} else if ($is_example !== false) {
+    $is_example = '"' . $is_example . '"';
 }
 
 $res_type = sanitize::get_sanitize_string("res", "");

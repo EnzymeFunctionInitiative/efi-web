@@ -31,7 +31,7 @@ if (empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
     //Sets default % Co-Occurrence value if nothing was inputted.
 
     $est_id = sanitize::validate_id("est-id", sanitize::POST);
-    $est_key = sanitize::validate_key("key-key", sanitize::POST);
+    $est_key = sanitize::validate_key("est-key", sanitize::POST);
 
     if (isset($_FILES['file'])) {
         $file_type = strtolower(pathinfo($_FILES['file']['name'],PATHINFO_EXTENSION));
