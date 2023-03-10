@@ -470,8 +470,7 @@ class stepa extends est_shared {
         }
 
         $new_id = $db->build_insert("generate", $copy);
-        $this->get_job_status_obj()->insert_new($new_id);
-        //\efi\job_status::insert_new_manual($db, $new_id, $this->table_name, $new_id);
+        \efi\job_status::insert_new_manual($db, $new_id, "generate");
 
         if ($new_id)
             return $new_id;

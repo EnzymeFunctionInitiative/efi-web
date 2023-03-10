@@ -42,7 +42,6 @@ if (!$is_example && $analysis->is_expired()) {
 
 
 
-//print $analysis->get_unixtime_completed();
 
 $mig_info = functions::get_gnt_migrate_info($db, $analysis_id);
 $is_migrated = false;
