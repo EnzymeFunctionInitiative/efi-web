@@ -6,7 +6,6 @@ use \efi\global_functions;
 use \efi\sanitize;
 
 
-$is_error = false;
 $id = sanitize::validate_id("id", sanitize::POST);
 $key = sanitize::validate_key("key", sanitize::POST);
 
@@ -15,13 +14,14 @@ if ($id === false || $key === false) {
     exit(1);
 }
 
-$job = new job_status($db, $id);
+$generate = new stepa($db, $id);
 
-if (!$job->load_validate($key)) {
+if ($generate->get_key() != $key) {
     echo json_encode(array("valid" => false));
-    die("HI");
     exit(1);
 }
+
+$job = new job_status($db, $generate);
 
 
 $request_type = sanitize::post_sanitize_string("rt", false);

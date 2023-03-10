@@ -13,9 +13,6 @@ abstract class est_shared {
     private $db;
 
     protected $email;
-    protected $time_created;
-    protected $time_completed;
-    protected $time_started;
     protected $eol = PHP_EOL;
     protected $beta;
     protected $is_sticky = false;
@@ -28,73 +25,14 @@ abstract class est_shared {
         $this->is_example = $is_example;
     }
 
-    public function get_time_created() { return $this->time_created; }
-    public function get_time_started() { return $this->time_started; }
-    public function get_time_completed() { return $this->time_completed; }
-    public function get_time_completed_formatted() { return functions::format_datetime(functions::parse_datetime($this->time_completed)); }
-    public function get_time_period() { $window = global_functions::format_short_date($this->get_time_started()) . " -- " . global_functions::format_short_date($this->get_time_completed()); return $window; }
-    public function get_unixtime_completed() { return strtotime($this->time_completed); }
 
-    public function get_table() { return $this->table; }
+    public function get_table_name() { return $this->table; }
     
     public function get_email() { return $this->email; }
     public function set_email($email) { $this->email = $email; }
 
-    protected function set_time_started() {
-        $table = $this->table;
-        $current_time = self::get_current_datetime();
-        $sql = "UPDATE ${table} SET ${table}_time_started='" . $current_time . "' ";
-        $sql .= "WHERE ${table}_id='" . $this->get_id() . "' LIMIT 1";
-        $this->db->non_select_query($sql);
-        $this->time_started = $current_time;
-    }
-
-    protected function set_time_completed($current_time = false) {
-        $table = $this->table;
-        if ($current_time === false)
-            $current_time = self::get_current_datetime();
-        $sql = "UPDATE ${table} SET ${table}_time_completed='" . $current_time . "' ";
-        $sql .= "WHERE ${table}_id='" . $this->get_id() . "' LIMIT 1";
-        $this->db->non_select_query($sql);
-        $this->time_completed = $current_time;
-    }
-
-    protected static function get_current_datetime() {
-        $current_time = date("Y-m-d H:i:s",time());
-        return $current_time;
-    }
-
     public abstract function get_status();
     public abstract function set_status($status);
-
-    public function mark_job_as_archived() {
-        // This marks the job as archived-failed. If the job is archived but the
-        // time completed is non-zero, then the job successfully completed.
-        if ($this->get_status() == __FAILED__)
-            $this->set_time_completed("0000-00-00 00:00:00");
-        $this->set_status(__ARCHIVED__);
-    }
-
-    public function mark_job_as_cancelled() {
-        $this->set_status(__CANCELLED__);
-        $this->set_time_completed();
-        $this->email_cancelled();
-    }
-
-    public function set_job_complete() {
-        $this->set_status(__FINISH__);
-        $this->set_time_completed();
-    }
-
-    public function set_job_failed() {
-        $this->set_status(__FAILED__);
-        $this->set_time_completed();
-    }
-
-    public function set_job_started() {
-        $this->set_status(__RUNNING__);
-        $this->set_time_started();
-    }
 
     public abstract function get_key();
     public abstract function get_id();
@@ -112,6 +50,8 @@ abstract class est_shared {
     protected abstract function get_email_completion_body();
     protected abstract function get_email_cancelled_subject();
     protected abstract function get_email_cancelled_body();
+
+    protected abstract function get_job_status_obj();
 
 
     public function email_started() {
@@ -189,11 +129,18 @@ abstract class est_shared {
     }
     
     public function is_expired() {
-        if (!$this->is_example && !$this->is_sticky && time() > $this->get_unixtime_completed() + global_settings::get_retention_secs()) {
+        if (!$this->is_example && !$this->is_sticky && $this->get_job_status_obj()->is_expired()) {
             return true;
         } else {
             return false;
         }
+    }
+
+    public function get_time_completed() {
+        return $this->get_job_status_obj()->get_time_completed();
+    }
+    public function get_time_completed_formatted() {
+        return $this->get_job_status_obj()->get_time_completed_formatted();
     }
 }
 

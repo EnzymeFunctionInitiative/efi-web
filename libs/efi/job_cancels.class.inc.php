@@ -16,34 +16,9 @@ class job_cancels {
 
     function __construct($db) {
         $this->db = $db;
-        $this->get_jobs();
     }
 
-    public static function request_job_cancellation($db, $job_process_num, $prefix = "") {
-        $table = "job_cancel";
-        //if ($prefix)
-        //    $table = "${prefix}_$table";
-        $sql = "INSERT INTO $table (job_process_num, cancel_status) VALUES ('$job_process_num', '" . self::CANCEL_NEW . "')";
-        $db->non_select_query($sql);
-    }
-
-    private function get_jobs($prefix = "") {
-        $table = "job_cancel";
-        if ($prefix)
-            $table = "${prefix}_$table";
-        $sql = "SELECT * FROM $table WHERE cancel_status = '" . self::CANCEL_NEW . "'";
-        $rows = $this->db->query($sql);
-
-        foreach ($rows as $row) {
-            array_push($this->jobs, $row['job_process_num']);
-        }
-    }
-
-    public function get_cancelable_jobs() {
-        return $this->jobs;
-    }
-
-    public function cancel_job($job_process_num, $prefix = "") {
+    public function cancel_job($job_process_num) {
 
         $cancel_process_nums = array($job_process_num);
 
@@ -65,16 +40,10 @@ class job_cancels {
         if ($exit_status)
             return implode(",", $output) . " Exit status: $exit_status";
 
-        $table = "job_cancel";
-        if ($prefix)
-            $table = "${prefix}_$table";
-        $sql = "UPDATE $table SET cancel_status = '" . self::CANCEL_FINISH . "' WHERE job_process_num = " . $job_process_num;
-        $this->db->non_select_query($sql);
-
         return "";
     }
 
-    public static function get_job_deps($process_num, $sched) {
+    private static function get_job_deps($process_num, $sched) {
         $output = "";
         $exit_status = "";
         $exec = "";

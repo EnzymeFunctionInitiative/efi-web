@@ -32,12 +32,14 @@ class stepa extends est_shared {
     protected $is_tax_only = false;
 
     protected $ex_data_dir = "";
-    private $load_table = "generate";
+    private $table_name = "generate";
 
     private $alignment_length_filename = "alignment_length";
     private $percent_identity_filename = "percent_identity";
     private $number_of_edges_filename = "number_of_edges";
     private $length_histogram_filename = "length_histogram"; // blast jobs are "length_histogram", all others are "length_histogram_uniprot"
+
+    private $job_status_obj;
 
 
     public function __construct($db, $id = 0, $is_example = false) {
@@ -51,16 +53,20 @@ class stepa extends est_shared {
         if ($id)
             $this->load_generate($id);
         $this->counts_file = functions::get_accession_counts_filename();
+        $this->job_status_obj = new \efi\job_status($db, $this);
     }
 
     private function init_example($id) {
         $config = example_config::get_example_data($id);
-        $this->load_table = example_config::get_est_generate_table($config);
+        $this->table_name = example_config::get_est_generate_table($config);
         $this->ex_data_dir = example_config::get_est_data_dir($config);
     }
 
     public function __destruct() {
     }
+
+    protected function get_job_status_obj() { return $this->job_status_obj; }
+
     public function get_type() { return $this->type; }
     public function get_status() { return $this->status; }
     public function get_id() { return $this->id; }
@@ -102,6 +108,8 @@ class stepa extends est_shared {
     public function get_db_version() { return $this->db_version; }
     public function get_job_name() { return $this->job_name; }
     public function is_cd_hit_job() { return FALSE; } //HACK: this is a temporary hack for research purposes
+
+    public function get_time_period() { return $this->get_job_status_obj()->get_time_period(); }
 
     // This function is here so we don't have to do a full instantiation of the object from the
     // database if we are just looking for the job type.
@@ -462,7 +470,8 @@ class stepa extends est_shared {
         }
 
         $new_id = $db->build_insert("generate", $copy);
-        \efi\job_shared::insert_new($db, $table_name, $new_id);
+        $this->get_job_status_obj()->insert_new($new_id);
+        //\efi\job_status::insert_new_manual($db, $new_id, $this->table_name, $new_id);
 
         if ($new_id)
             return $new_id;
@@ -479,7 +488,7 @@ class stepa extends est_shared {
 
 
     protected function load_generate($id) {
-        $table = $this->load_table;
+        $table = $this->table_name;
         $sql = "SELECT * FROM $table WHERE generate_id = :id LIMIT 1";
         $result = $this->db->query($sql, array("id" => $id));
 
@@ -490,10 +499,7 @@ class stepa extends est_shared {
             $this->id = $id;
             $this->key = $result['generate_key'];
             $this->pbs_number = $result['generate_pbs_number'];
-            $this->time_created = $result['generate_time_created'];
             $this->status = $result['generate_status'];
-            $this->time_started = $result['generate_time_started'];
-            $this->time_completed = $result['generate_time_completed'];
             $this->type = $result['generate_type'];
             $this->email = $result['generate_email'];
             $this->program = $result['generate_program'];

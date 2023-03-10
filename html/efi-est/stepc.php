@@ -600,7 +600,7 @@ Protein_ID_3,Cluster#
                             </select>
                         </div>
                         <div style="display: none">
-                            <input type="hidden" name="taxonomy-preset-name" id="taxonomy-preset-name" value="" />
+                            <input type="hidden" name="taxonomy-stepc-preset-name" id="taxonomy-stepc-preset-name" value="" />
                         </div>
                         <div id="taxonomy-stepc-container"></div>
                         <div>
@@ -884,7 +884,7 @@ removed from the clusters if they are fragments.
         $("#submit-button").click(function(e) {
             var fd = new FormData($("#a-form")[0]);
 
-            var taxPresetName = $("#taxonomy-preset-name").val();
+            var taxPresetName = $("#taxonomy-stepc-preset-name").val();
             if (taxPresetName) {
                 fd.append("tax_name", taxPresetName);
             }

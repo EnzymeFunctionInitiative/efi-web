@@ -35,7 +35,7 @@ if ($key !== $obj->get_key()) {
 if (!$is_example && $obj->is_expired()) {
     $header_file = __DIR__ . "/inc/header.inc.php";
     $footer_file = __DIR__ . "/inc/footer.inc.php";
-    error_expired($header_file, $footer_file, $generate->get_time_completed());
+    error_expired($header_file, $footer_file);
 }
 
 

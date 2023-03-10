@@ -1,4 +1,5 @@
 <?php
+require_once(__DIR__."/../init.php");
 
 use \efi\global_settings;
 
@@ -49,11 +50,13 @@ function pretty_error_expired($message = "") {
 function prettyErrorExpired($message = "") {
     error_base($message, true, TYPE500, true);
 }
-function error_expired($header_file, $footer_file, $time_completed) {
+function error_expired($header_file, $footer_file, $time_completed = "") {
+    require(__DIR__."/../init.php"); // Scope of variables has changed, so we need to re-include it.
     require_once($header_file);
     echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days(). " days";
-    echo "<br>Your job was completed on " . $completed_time;
-    echo "<br>Please go back to the <a href='" . global_settings::get_server_name() . "'>homepage</a></p>";
+    if ($time_completed)
+        echo "<br>Your job was completed on $time_completed";
+    echo "<br>Please go back to the <a href='" . global_settings::get_server_name() . "'>homepage</a></p><br><br><br><br>";
     require_once($footer_file);
     exit(0);
 }

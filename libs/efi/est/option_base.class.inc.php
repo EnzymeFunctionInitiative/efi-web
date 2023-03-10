@@ -103,7 +103,7 @@ abstract class option_base extends stepa {
             }
             else {
                 $insert_result = $this->db->build_insert($table_name, $insert_array);
-                \efi\job_shared::insert_new($this->db, $table_name, $insert_result);
+                $this->get_job_status_obj()->insert_new($insert_result);
             }
 
             $result = $this->post_insert_action($data, $insert_result);
@@ -324,7 +324,7 @@ abstract class option_base extends stepa {
             functions::log_message("no error");
             if (!$is_debug) {
                 $this->set_pbs_number($pbs_job_number);
-                $this->set_job_started();
+                $this->get_job_status_obj()->start();
                 $this->email_started();
             }
             return array('RESULT' => true, 'PBS_NUMBER' => $pbs_job_number, 'EXIT_STATUS' => $exit_status, 'MESSAGE' => 'Job Successfully Submitted');
@@ -446,18 +446,18 @@ abstract class option_base extends stepa {
             $msg = "Generate ID: " . $this->get_id() . " - Job Failed - Error in Pipeline (2)";
         }
 
-        $this->set_job_failed();
+        $this->get_job_status_obj()->failed();
         functions::log_message($msg);
     }
 
     public function process_start() {
-        $this->set_job_started();
+        $this->get_job_status_obj()->start();
         $this->email_started();
     }
 
     public function process_finish() {
         $this->load_num_sequence_from_file();
-        $this->set_job_complete();
+        $this->get_job_status_obj()->complete();
         $this->email_complete();
         $msg = "Generate ID: " . $this->get_id() . " - Job Completed Successfully";
         functions::log_message($msg);
