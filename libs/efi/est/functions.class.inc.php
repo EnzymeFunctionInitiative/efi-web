@@ -77,13 +77,13 @@ class functions {
 
     public static function get_color_jobs_for_analysis($db, $generate_id, $status = "") {
         //$sql = "SELECT generate_id FROM generate WHERE generate_type = 'COLORSSN' AND generate_params LIKE '%\"generate_color_ssn_source_id\":\"$generate_id\"%'";
-        $sql = "SELECT generate_id FROM generate WHERE generate_params LIKE '%\"generate_color_ssn_source_id\":\"$generate_id\"%'";
+        $sql = "SELECT generate_id FROM generate WHERE generate_params LIKE '%\"generate_color_ssn_source_id\":$generate_id%'";
         $result = $db->query($sql);
         return $result;
     }
 
     public static function get_color_jobs_for_color_job($db, $generate_id, $status = "") {
-        $sql = "SELECT generate_id FROM generate WHERE generate_params LIKE '%\"color_ssn_source_color_id\":\"$generate_id\"%'";
+        $sql = "SELECT generate_id FROM generate WHERE generate_params LIKE '%\"color_ssn_source_color_id\":$generate_id%'";
         $result = $db->query($sql);
         return $result;
     }
