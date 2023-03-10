@@ -12,9 +12,16 @@ family_info.tab
 sync_output
 composer.lock
 composer.phar
-#*.bak*
+*.bak*
 .*.swp
+.*.swo
 max_debug_do_not_commit
 /vendor
 html/vendor
 /composer-setup.php
+html/efi-est/php_info.php
+html/efi-est/stepc_nils.php
+html/efi-est/user_index.php
+html/efi-est/user_index2.php
+*.eni
+
