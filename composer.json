@@ -16,7 +16,7 @@
         "plotly/plotly.js": ">=1.42",
         "harvesthq/chosen": ">=1.8",
         "php-console/php-console": "^3.1",
-        "igbillinois/igbillinois-php": "main-dev",
+        "igbillinois/igbillinois-php": "dev-main",
         "efiillinois/taxonomy": "main-dev",
         "efiillinois/sunburst": "main-dev"
     },
@@ -26,7 +26,7 @@
     "repositories" : [
         {
             "type": "vcs",
-            "url": "https://www.github.com/nilsoberg2/IGBIllinois-php"
+            "url": "https://www.github.com/IGBIllinois/IGBIllinois-php"
         },
         {
             "type": "vcs",
