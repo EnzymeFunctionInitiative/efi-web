@@ -55,7 +55,8 @@ if (!$is_example && $job->is_expired()) {
 }
 
 
-$status = $job->get_status();
+$status = new \efi\job_status($db, $job);
+
 
 $parent_id = $job->get_parent_id();
 $parent_key = "";
@@ -63,27 +64,24 @@ if ($parent_id) {
     $job_mgr = new job_manager($db, job_types::Identify);
     $parent_key = $job_mgr->get_job_key($parent_id);
 }
-$child_data = $job->get_child_jobs();
 
 $is_submittable = ! functions::is_job_sticky($db, $id, $user_email);
 
 
 $is_failed = false;
 $is_running = false;
-$is_finished = false;
 
-if ($status == __FAILED__) {
+if ($status->is_failed()) {
     $ExtraTitle = "Computation Failed";
     $is_failed = true;
-} elseif ($status == __RUNNING__) {
+} elseif ($status->is_running()) {
     $ExtraTitle = "Computation Still Running";
     $is_running = true;
-} elseif ($status == __CANCELLED__) {
+} elseif ($status->is_cancelled()) {
     $ExtraTitle = "Computation Cancelled";
     $is_failed = true;
 } else {
     $ExtraTitle = "Markers Computation Results";
-    $is_finished = true;
 }
 
 $filename = $job->get_filename();

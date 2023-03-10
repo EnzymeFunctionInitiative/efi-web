@@ -10,7 +10,7 @@ use \efi\cgfp\settings;
 use \efi\file_types;
 
 
-abstract class job_shared {
+abstract class cgfp_shared {
 
     const DEFAULT_DIAMOND_SENSITIVITY = "sensitive";
     const DEFAULT_CDHIT_SID = "85";
@@ -28,9 +28,6 @@ abstract class job_shared {
     private $key;
     private $status;
     private $email;
-    private $time_created;
-    private $time_started;
-    private $time_completed;
     private $parent_id = 0;
     private $search_type = "";
     private $filename = "";
@@ -40,6 +37,7 @@ abstract class job_shared {
 
     private $db;
     private $beta;
+    protected $is_debug = false;
 
 
     // These are to allow us to determine where to get the files from if the job is a quantify job.
@@ -76,13 +74,20 @@ abstract class job_shared {
     protected $eol = PHP_EOL;
     protected $is_example = false;
 
-    function __construct($db, $is_example = false) {
+    function __construct($db, $table_name, $is_example = false, $is_debug = false) {
         $this->db = $db;
         $this->is_example = $is_example ? true : false;
         $this->beta = settings::get_release_status();
+        $this->table_name = $table_name;
+        $this->is_debug = $is_debug;
     }
 
-    protected abstract function get_table_name();
+    protected function make_job_status_obj() { $this->job_status_obj = new \efi\job_status($this->db, $this); }
+    protected function get_job_status_obj() { return $this->job_status_obj; }
+
+    public function get_table_name() {
+        return $this->table_name;
+    }
 
     public function get_id() {
         return $this->id;
@@ -104,20 +109,9 @@ abstract class job_shared {
         $this->key = $newKey;
     }
 
-    public function get_pbs_number() {
-        return $this->pbs_number;
-    }
     protected function set_pbs_number($theNumber) {
         $this->pbs_number = $theNumber;
         $this->update_pbs_number();
-    }
-
-    protected function set_status($status) {
-        $this->status = $status;
-        $this->update_status($status);
-    }
-    public function get_status() {
-        return $this->status;
     }
 
     protected function set_email($email) {
@@ -161,48 +155,27 @@ abstract class job_shared {
         $this->max_seq_len = $max_seq_len;
     }
 
-    public function set_job_complete() {
-        $this->set_status(__FINISH__);
-        $this->set_time_completed();
+    protected function set_job_complete() {
+        $this->get_job_status_obj()->complete();
+        $this->email_completed();
     }
 
-    public function set_job_failed() {
-        $this->set_status(__FAILED__);
-        $this->set_time_completed();
+    protected function set_job_failed() {
+        $this->get_job_status_obj()->failed();
+        $this->email_failure();
     }
 
-    public function set_job_started() {
-        $this->set_status(__RUNNING__);
-        $this->set_time_started();
+    protected function set_job_started() {
+        $this->get_job_status_obj()->start();
+        $this->email_started();
     }
 
-    public function mark_job_as_cancelled() {
-        $this->set_status(__CANCELLED__);
-        $this->set_time_completed();
-        $this->email_cancelled();
-    }
 
-    public function mark_job_as_archived() {
-        // This marks the job as archived-failed. If the job is archived but the
-        // time completed is non-zero, then the job successfully completed.
-        if ($this->status == __FAILED__)
-            $this->set_time_completed("0000-00-00 00:00:00");
-        $this->set_status(__ARCHIVED__);
-    }
-
-    public function get_child_jobs() {
-        $table = $this->get_table_name();
-        $jobs = array();
-        return $jobs;
-    }
-
+    protected abstract function load_job();
 
     protected function load_job_shared($result, $params) {
         $table = $this->get_table_name();
         $this->status = $result["${table}_status"];
-        $this->time_created = $result["${table}_time_created"];
-        $this->time_started = $result["${table}_time_started"];
-        $this->time_completed = $result["${table}_time_completed"];
         $this->pbs_number = $result["${table}_pbs_number"];
         $parent_field = "${table}_parent_id";
         if (isset($result[$parent_field]) && $result[$parent_field])
@@ -218,6 +191,12 @@ abstract class job_shared {
         $this->max_seq_len = isset($params['identify_max_seq_len']) ? $params['identify_max_seq_len'] : "";
     }
 
+    protected static function insert_new($db, $table_name, $insert_array) {
+        $new_id = $db->build_insert($table_name, $insert_array);
+        if ($new_id)
+            \efi\job_status::insert_new_manual($db, $new_id, $table_name);
+        return $new_id;
+    }
 
 
 
@@ -251,7 +230,6 @@ abstract class job_shared {
     
     protected function get_job_info() {
         $message = "EFI-CGFP Job ID: " . $this->get_id() . $this->eol;
-        $message .= "Time Submitted: " . $this->get_time_created() . $this->eol;
         return $message;
     }
 
@@ -277,7 +255,11 @@ abstract class job_shared {
         $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
         $plain_email .= settings::get_email_footer();
 
-        $this->send_email($subject, $plain_email);
+        if (!$this->is_debug) {
+            $this->send_email($subject, $plain_email);
+        } else {
+            print("Would have sent email_started\n");
+        }
     }
 
     protected function email_failure($result = "") {
@@ -289,7 +271,11 @@ abstract class job_shared {
         $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
         $plain_email .= settings::get_email_footer();
 
-        $this->send_email($subject, $plain_email);
+        if (!$this->is_debug) {
+            $this->send_email($subject, $plain_email);
+        } else {
+            print("Would have sent email_failure $result\n");
+        }
     }
 
     protected function email_cancelled() {
@@ -301,7 +287,11 @@ abstract class job_shared {
         $plain_email .= $this->get_job_info() . $this->eol . $this->eol;
         $plain_email .= settings::get_email_footer();
 
-        $this->send_email($subject, $plain_email);
+        if (!$this->is_debug) {
+            $this->send_email($subject, $plain_email);
+        } else {
+            print("Would have sent cancelled email\n");
+        }
     }
 
     protected function email_admin_failure($result = "") {
@@ -315,7 +305,11 @@ abstract class job_shared {
         $plain_email .= settings::get_email_footer();
 
         $to = global_settings::get_error_admin_email();
-        $this->send_email($subject, $plain_email, "", $to);
+        if (!$this->is_debug) {
+            $this->send_email($subject, $plain_email, "", $to);
+        } else {
+            print("Would have sent email_admin_failure $result\n");
+        }
     }
 
     protected function email_completed($result = "") {
@@ -346,7 +340,11 @@ abstract class job_shared {
         $plain_email .= "These data will only be retained for " . settings::get_retention_days() . " days." . $this->eol . $this->eol;
         $plain_email .= settings::get_email_footer();
 
-        $this->send_email($subject, $plain_email, $full_url);
+        if (!$this->is_debug) {
+            $this->send_email($subject, $plain_email, $full_url);
+        } else {
+            print("Would have sent email_completed $result\n");
+        }
     }
 
     private function send_email($subject, $plain_email, $full_url = "", $to = "") {
@@ -381,55 +379,8 @@ abstract class job_shared {
     // TIME FUNCTIONS
     //
 
-    protected static function get_current_time() {
-        return date("Y-m-d H:i:s", time());
-    }
-
-    protected function get_time_started() {
-        return $this->time_started;
-    }
-
-    public function get_time_completed() {
-        return $this->time_completed;
-    }
-    public function get_unixtime_completed() {
-        return strtotime($this->time_completed);
-    }
-
-    protected function get_time_created() {
-        return $this->time_created;
-    }
-
-    protected function set_time_started() {
-        $tableName = $this->get_table_name();
-        $current_time = self::get_current_time();
-        $sql = "UPDATE ${tableName} SET ${tableName}_time_started='" . $current_time . "' ";
-        $sql .= "WHERE ${tableName}_id='" . $this->get_id() . "' LIMIT 1";
-        $result = $this->db->non_select_query($sql);
-        $this->time_started = $current_time;
-    }
-    
-    protected function set_time_completed($current_time = false) {
-        $tableName = $this->get_table_name();
-        if ($current_time === false)
-            $current_time = self::get_current_time();
-        $sql = "UPDATE ${tableName} SET ${tableName}_time_completed='" . $current_time . "' ";
-        $sql .= "WHERE ${tableName}_id='" . $this->get_id() . "' LIMIT 1";
-        $result = $this->db->non_select_query($sql);
-        $this->time_completed = $current_time;
-    }
-    
-    protected function set_time_created() {
-        $tableName = $this->get_table_name();
-        $current_time = self::get_current_time();
-        $sql = "UPDATE ${tableName} SET ${tableName}_time_created='" . $current_time . "' ";
-        $sql .= "WHERE ${tableName}_id='" . $this->get_id() . "' LIMIT 1";
-        $result = $this->db->non_select_query($sql);
-        $this->time_created = $current_time;
-    }
-
     public function is_expired() {
-        if (time() > $this->get_unixtime_completed() + global_settings::get_retention_secs()) {
+        if (!$this->is_example && $this->get_job_status_obj()->is_expired()) {
             return true;
         } else {
             return false;
@@ -438,19 +389,19 @@ abstract class job_shared {
 
 
 
-    private function update_status($status) {
-        $tableName = $this->get_table_name();
-        $sql = "UPDATE ${tableName} ";
-        $sql .= "SET ${tableName}_status='" . $status . "' ";
-        $sql .= "WHERE ${tableName}_id='" . $this->get_id() . "' LIMIT 1";
-        $result = $this->db->non_select_query($sql);
-    }
-
     private function update_pbs_number() {
-        $tableName = $this->get_table_name();
+        $table_name = $this->get_table_name();
         $sql = "UPDATE ${tableName} SET ${tableName}_pbs_number='" . $this->pbs_number . "' ";
         $sql .= "WHERE ${tableName}_id='" . $this->id . "'";
-        $this->db->non_select_query($sql);
+        $this->db_query($sql);
+    }
+
+    private function db_query($sql, $params = array()) {
+        if (!$this->is_debug) {
+            $this->db->non_select_query($sql, $params);
+        } else {
+            print("SQL: $sql\n");
+        }
     }
 
 
@@ -689,6 +640,13 @@ abstract class job_shared {
     // For static training job
     protected function set_use_prefix($use_prefix = true) {
         $this->use_prefix = $use_prefix;
+    }
+
+    public function get_time_completed() {
+        return $this->get_job_status_obj()->get_time_completed();
+    }
+    public function get_time_completed_formatted() {
+        return $this->get_job_status_obj()->get_time_completed_formatted();
     }
 }
 

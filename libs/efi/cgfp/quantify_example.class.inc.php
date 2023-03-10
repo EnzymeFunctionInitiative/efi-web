@@ -6,7 +6,6 @@ require_once(__DIR__."/../../../init.php");
 use \efi\global_functions;
 use \efi\cgfp\functions;
 use \efi\cgfp\settings;
-use \efi\cgfp\job_shared;
 use \efi\file_types;
 
 
@@ -62,6 +61,9 @@ class quantify_example extends quantify_shared {
             }
         }
         fclose($fh);
+    }
+
+    protected function load_job() {
     }
 
     protected function get_extra_metadata($id, $tab_data) {

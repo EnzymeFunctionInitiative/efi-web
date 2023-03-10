@@ -13,7 +13,6 @@ use \efi\cgfp\identify;
 // ShortBRED-Identify
 class quantify extends quantify_shared {
 
-    private $is_debug = false;
     private $loaded = false;
     private $db;
     private $error_message = "";
@@ -22,15 +21,16 @@ class quantify extends quantify_shared {
     
     // job_id represents the analysis id, not the identify id.
     public function __construct($db, $job_id, $is_example = false, $is_debug = false) {
-        parent::__construct($db, $is_example);
+        parent::__construct($db, $is_example, $is_debug);
         $this->set_id($job_id);
         $this->db = $db;
-        $this->is_debug = $is_debug;
-        $this->is_example = $is_example;
 
         if ($this->is_example)
             $this->init_example($this->is_example);
-        $this->load_job();
+        if (!$this->load_job())
+            die();
+
+        $this->make_job_status_obj();
     }
 
     private function init_example($id) {
@@ -49,7 +49,6 @@ class quantify extends quantify_shared {
         $insert_array = array(
             "quantify_identify_id" => $identify_id,
             "quantify_status" => __NEW__,
-            "quantify_time_created" => self::get_current_time(),
         );
         if ($parent_id)
             $insert_array["quantify_parent_id"] = $parent_id; // the parent QUANTIFY job ID, not identify
@@ -68,12 +67,11 @@ class quantify extends quantify_shared {
 
         $insert_array["quantify_params"] = $params;
 
-        $result = $db->build_insert("quantify", $insert_array);
-        if (!$result)
+        $new_id = self::insert_new($db, job_types::Quantify, $insert_array);
+        if ($new_id === false)
             return false;
-        \efi\job_shared::insert_new($db, "quantify", $result);
 
-        $info = array("id" => $result);
+        $info = array("id" => $new_id);
         return $info;
     }
     
@@ -95,21 +93,10 @@ class quantify extends quantify_shared {
     public function run_job() {
         $result = $this->start_job();
         if ($result === true) {
-            if (!$this->is_debug) {
-                $this->set_time_started();
-                $this->set_status(__RUNNING__);
-                $this->email_started();
-            } else {
-                print "would have sent email started\n";
-            }
+            $this->set_job_started();
         } else {
-            functions::log_message("Error running job: $result");
-            if (!$this->is_debug) {
-                $this->email_admin_failure($result); // Don't email the user
-                $this->set_status(__FAILED__);
-            } else {
-                print "would have sent email failure $result\n";
-            }
+            $this->set_job_failed();
+            $this->email_admin_failure($result); // Don't email the user
         }
         return $result;
     }
@@ -221,18 +208,14 @@ class quantify extends quantify_shared {
         }
 
         if ($pbs_job_number && !$exit_status) {
-            if (!$this->is_debug) {
-                $this->set_pbs_number($pbs_job_number);
-            }  else {
-                print "Setting pbs time_started running\n";
-            }
+            $this->set_pbs_number($pbs_job_number);
             return true;
         } else {
             return "Failed to execute job: exit=$exit_status job=$pbs_job_number exec=$exec";
         }
     }
 
-    private function load_job() {
+    protected function load_job() {
         $q_table = $this->is_example ? $this->q_table : "quantify";
         $id_table = $this->is_example ? $this->id_table : "identify";
 
@@ -273,7 +256,7 @@ class quantify extends quantify_shared {
         if (isset($params['identify_ref_db']))
             $this->ref_db = $params['identify_ref_db'];
         else
-            $this->ref_db = job_shared::DEFAULT_REFDB;
+            $this->ref_db = cgfp_shared::DEFAULT_REFDB;
 
         $this->identify_search_type = "";
         $this->identify_diamond_sens = "";
@@ -290,12 +273,12 @@ class quantify extends quantify_shared {
         if ($this->identify_search_type != "diamond")
             $this->identify_diamond_sens = "";
         elseif (!$this->identify_diamond_sens)
-            $this->identify_diamond_sens = job_shared::DEFAULT_DIAMOND_SENSITIVITY;
+            $this->identify_diamond_sens = cgfp_shared::DEFAULT_DIAMOND_SENSITIVITY;
 
         if (isset($params['identify_cdhit_sid']))
             $this->identify_cdhit_sid = $params['identify_cdhit_sid'];
         else
-            $this->identify_cdhit_sid = job_shared::DEFAULT_CDHIT_SID;
+            $this->identify_cdhit_sid = cgfp_shared::DEFAULT_CDHIT_SID;
 
         $this->loaded = true;
         return true;
@@ -303,18 +286,15 @@ class quantify extends quantify_shared {
 
     public function process_error() {
         $this->set_job_failed();
-        $this->email_failure();
         $this->email_admin_failure("Job died.");
     }
 
     public function process_finish() {
         $this->set_job_complete();
-        $this->email_completed();
     }
 
     public function process_start() {
         $this->set_job_started();
-        $this->email_started();
     }
 
 

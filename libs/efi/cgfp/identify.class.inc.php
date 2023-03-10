@@ -10,17 +10,15 @@ use \efi\cgfp\functions;
 use \efi\cgfp\settings;
 use \efi\cgfp\job_manager;
 use \efi\cgfp\job_types;
-use \efi\cgfp\job_shared;
+use \efi\cgfp\cgfp_shared;
 
 
 // ShortBRED-Identify
-class identify extends job_shared {
+class identify extends cgfp_shared {
 
-    private $is_debug = false;
     private $loaded = false;
     private $db;
     private $error_message = "";
-    //$search_type is defined in job_shared
     private $cdhit_sid = "";
     private $ref_db = "";
     private $cons_thresh = "";
@@ -35,7 +33,7 @@ class identify extends job_shared {
         if ($sid)
             return $sid;
         else
-            return job_shared::DEFAULT_CDHIT_SID;
+            return cgfp_shared::DEFAULT_CDHIT_SID;
     }
     public function get_ref_db() {
         return $this->ref_db;
@@ -48,23 +46,23 @@ class identify extends job_shared {
         if ($sens)
             return $sens;
         else
-            return ""; //job_shared::DEFAULT_DIAMOND_SENSITIVITY;
+            return "";
     }
 
 
 
     public function __construct($db, $job_id, $is_example = false, $is_debug = false) {
-        parent::__construct($db, $is_example);
+        parent::__construct($db, job_types::Identify, $is_example, $is_debug);
         $this->set_id($job_id);
         $this->set_identify_id($job_id);
         $this->db = $db;
-        $this->is_debug = $is_debug;
-        $this->is_example = $is_example;
-        
+
         if ($this->is_example)
             $this->init_example($this->is_example);
         if (!$this->load_job())
             die();
+
+        $this->make_job_status_obj();
     }
 
     private function init_example($id) {
@@ -95,7 +93,6 @@ class identify extends job_shared {
             'identify_email' => $email,
             'identify_key' => $key,
             'identify_status' => $status,
-            'identify_time_created' => self::get_current_time(),
         );
         if ($true_copy && $parent_id)
             $insert_array['identify_copy_id'] = $parent_id;
@@ -124,7 +121,7 @@ class identify extends job_shared {
 
         if (isset($create_params['ref_db'])) {
             $ref_db = $create_params['ref_db'];
-            if ($ref_db == job_shared::REFDB_UNIPROT || $ref_db == job_shared::REFDB_UNIREF50 || $ref_db == job_shared::REFDB_UNIREF90) 
+            if ($ref_db == cgfp_shared::REFDB_UNIPROT || $ref_db == cgfp_shared::REFDB_UNIREF50 || $ref_db == cgfp_shared::REFDB_UNIREF90) 
                 $parms_array['identify_ref_db'] = $create_params['ref_db'];
         }
 
@@ -160,10 +157,9 @@ class identify extends job_shared {
 
         $insert_array['identify_params'] = global_functions::encode_object($parms_array);
 
-        $new_id = $db->build_insert('identify', $insert_array);
-        \efi\job_shared::insert_new($db, "identify", $new_id);
+        $new_id = self::insert_new($db, job_types::Identify, $insert_array);
 
-        if ($new_id) {
+        if ($new_id !== false) {
             if (!$est_id && (!$parent_id || $tmp_filename)) {
                 if (global_functions::copy_to_uploads_dir($tmp_filename, $filename, $new_id) === false)
                     return false;
@@ -221,21 +217,11 @@ class identify extends job_shared {
     public function run_job() {
         $result = $this->start_job();
         if ($result === true) {
-            if (!$this->is_debug) {
-                $this->set_time_started();
-                $this->set_status(__RUNNING__);
-                $this->email_started();
-            } else {
-                print "would have sent email started\n";
-            }
+            $this->set_job_started();
         } else {
+            $this->set_job_failed();
             functions::log_message("Error running job: $result");
-            if (!$this->is_debug) {
-                $this->email_admin_failure($result); // Don't email the user
-                $this->set_status(__FAILED__);
-            } else {
-                print "would have sent email failure $result\n";
-            }
+            $this->email_admin_failure($result); // Don't email the user
         }
         return $result;
     }
@@ -341,19 +327,16 @@ class identify extends job_shared {
         }
 
         if ($pbs_job_number && !$exit_status) {
-            if (!$this->is_debug) {
-                $this->set_pbs_number($pbs_job_number);
-            }  else {
-                print "Setting pbs time_started running\n";
-            }
+            $this->set_job_started();
+            $this->set_pbs_number($pbs_job_number);
             return true;
         } else {
             return "Failed to execute job: exit=$exit_status job=$pbs_job_number exec=$exec";
         }
     }
 
-    private function load_job() {
-        $table = $this->is_example ? $this->id_table : "identify";
+    protected function load_job() {
+        $table = $this->is_example ? $this->id_table : $this->table_name;
 
         $sql = "SELECT * FROM $table WHERE identify_id='" . $this->get_id() . "'";
         $result = $this->db->query($sql);
@@ -438,12 +421,10 @@ class identify extends job_shared {
             $this->create_quantify_jobs_from_parent();
         }
         $this->set_job_complete();
-        $this->email_completed();
     }
 
     public function process_start() {
         $this->set_job_started();
-        $this->email_started();
     }
 
 
@@ -537,7 +518,7 @@ class identify extends job_shared {
 
 
 
-    // For the job_shared API, called by get_file_path
+    // For the cgfp_shared API, called by get_file_path
     public function get_identify_output_path($parent_id = 0) {
         return $this->get_output_path($parent_id);
     }
@@ -562,10 +543,6 @@ class identify extends job_shared {
 
 
 
-    protected function get_table_name() {
-        return job_types::Identify;
-    }
-    
     public function get_metadata() {
 
         $parent_metadata = array();

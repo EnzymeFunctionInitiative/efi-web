@@ -25,6 +25,9 @@ if (isset($_POST["id"]) && is_numeric($_POST["id"]) && isset($_POST["key"])) {
     } else {
         $is_error = false;
     }
+
+    if (!$is_error)
+        $status = new \efi\job_status($db, $job_obj);
 }
 
 $request_type = isset($_POST["rt"]) ? $_POST["rt"] : false;
@@ -32,15 +35,10 @@ $request_type = isset($_POST["rt"]) ? $_POST["rt"] : false;
 $result = array("valid" => false);
 
 if (!$is_error && $request_type !== false && $job_obj !== false) {
-    if ($request_type == "c") { // cancel
-        $pbs_num = $job_obj->get_pbs_number();
-        $status = $job_obj->get_status();
-        if ($pbs_num) { 
-            job_cancels::request_job_cancellation($db, $pbs_num, "cgfp");
-        }
-        $job_obj->mark_job_as_cancelled();
-    } elseif ($request_type == "a") { // archive
-        $job_obj->mark_job_as_archived();
+    if ($status->is_running()) { // cancel
+        $status->cancel();
+    } else {
+        $status->archive();
     }
     $result["valid"] = true;
 }

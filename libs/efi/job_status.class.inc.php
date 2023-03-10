@@ -124,7 +124,6 @@ class job_status {
 
     public static function insert_new_manual($db, $job_id, $job_type) {
         $info = array("job_info_type" => $job_type, "job_info_id" => $job_id, "job_info_status" => __NEW__);
-        $this->info_type = $job_type;
         if (!defined("DEBUG"))
             $db->build_insert("job_info", $info);
     }
@@ -140,19 +139,22 @@ class job_status {
 
 
     public function is_running() {
-        return $this->status === __RUNNING__;
+        return $this->status == __RUNNING__;
     }
     public function is_finished() {
-        return $this->status === __FINISHED__;
+        return $this->status == __FINISHED__;
     }
     public function is_archived() {
-        return $this->status === __ARCHIVED__;
+        return $this->status == __ARCHIVED__;
+    }
+    public function is_cancelled() {
+        return $this->status == __CANCELLED__;
     }
     public function is_failed() {
-        return $this->status === __FAILED__;
+        return $this->status == __FAILED__;
     }
     public function is_new() {
-        return $this->status === __NEW__;
+        return $this->status == __NEW__;
     }
 
 

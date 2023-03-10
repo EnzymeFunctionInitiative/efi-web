@@ -6,11 +6,11 @@ require_once(__DIR__."/../../../init.php");
 use \efi\cgfp\functions;
 use \efi\cgfp\settings;
 use \efi\cgfp\identify;
-use \efi\cgfp\job_shared;
+use \efi\cgfp\cgfp_shared;
 use \efi\file_types;
 
 
-abstract class quantify_shared extends job_shared {
+abstract class quantify_shared extends cgfp_shared {
 
     protected $metagenome_ids;
     protected $ref_db = "";
@@ -51,8 +51,8 @@ abstract class quantify_shared extends job_shared {
     }
 
 
-    public function __construct($db, $is_example = false) {
-        parent::__construct($db, $is_example);
+    public function __construct($db, $is_example = false, $is_debug = false) {
+        parent::__construct($db, job_types::Quantify, $is_example, $is_debug);
     }
 
 
@@ -123,20 +123,16 @@ abstract class quantify_shared extends job_shared {
     protected function get_job_info() {
         $message = "EFI-CGFP Job ID: " . $this->get_identify_id() . $this->eol;
         $message .= "Quantify ID: " . $this->get_id() . $this->eol;
-        $message .= "Time Submitted: " . $this->get_time_created() . $this->eol;
         return $message;
     }
 
 
 
+    protected abstract function load_job();
 
 
 
     public abstract function get_metadata();
-
-    protected function get_table_name() {
-        return job_types::Quantify;
-    }
 
     public function get_metagenome_data() {
 
