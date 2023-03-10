@@ -11,9 +11,10 @@ function setupTaxonomyUi(taxonomyApp) {
         $(theId).empty();
         var sel = $("#taxonomy-" + optionId + "-select").get(0);
         sel.selectedIndex = 0;
-        $("#taxonomy-" + optionId + "-add-btn").off("click").click(addTaxCatBtn);
-        $("#taxonomy-" + optionId + "-add-btn").text("Add taxonomic condition");
-        $("#taxonomy-" + optionId + "-preset-name").val("");
+        var optIdStr = optionId ? optionId + "-" : "";
+        $("#taxonomy-" + optIdStr + "add-btn").off("click").click(addTaxCatBtn);
+        $("#taxonomy-" + optIdStr + "add-btn").text("Add taxonomic condition");
+        $("#taxonomy-" + optIdStr + "preset-name").val("");
     };
 
     $("button.add-tax-btn").click(addTaxCatBtn);
@@ -28,6 +29,7 @@ function setupTaxonomyUi(taxonomyApp) {
         $("#taxonomy-" + optIdStr + "add-btn").off("click").click(clearTaxBtn);
         $("#taxonomy-" + optIdStr + "add-btn").text("Reset");
         $("#taxonomy-" + optIdStr + "preset-name").val(nameId + "|" + name);
+        alert("#taxonomy-" + optIdStr + "preset-name");
     });
 
     var bafPreselect = [

@@ -118,9 +118,8 @@ $remove_fragments = sanitize::post_is_set("remove_fragments") ? true : false;
 $default_build_repnode = settings::get_create_repnode_networks();
 $build_repnode = sanitize::post_is_set("build_repnode") ? true : $default_build_repnode;
 
-#TODO: 
 $tax_search = isset($_POST['tax_search']) ? $_POST['tax_search'] : false;
-$tax_name = ($tax_search !== false && isset($_POST['tax_name']) && $_POST['tax_name']) ? $_POST['tax_name'] : "";
+$tax_name = sanitize::post_sanitize_string("tax_name", "", "[^A-Za-z0-9_\-:\| ,]");
 
 $network_name = sanitize::post_sanitize_string("network_name", "");
 
