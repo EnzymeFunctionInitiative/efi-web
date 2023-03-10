@@ -226,8 +226,12 @@ class cluster_analysis extends colorssn_shared {
             $graphics[$cluster_num][$seq_type][$sub_type] = $data;
         }
 
-        if (count($num_map) > 0) {
-            uksort($graphics, function ($a, $b) use ($num_map) { return ($num_map[$a] < $num_map[$b] ? -1 : ($num_map[$a] > $num_map[$b] ? 1 : 0)); });
+        if ($graphics_type == "consensus_residue") {
+            ksort($graphics);
+        } else {
+            if (count($num_map) > 0) {
+                uksort($graphics, function ($a, $b) use ($num_map) { return ($num_map[$a] < $num_map[$b] ? -1 : ($num_map[$a] > $num_map[$b] ? 1 : 0)); });
+            }
         }
 
         return $graphics;
