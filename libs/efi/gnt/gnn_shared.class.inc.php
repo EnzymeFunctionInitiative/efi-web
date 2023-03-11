@@ -94,24 +94,24 @@ abstract class gnn_shared extends arrow_api {
 
         $insert_array["gnn_params"] = global_functions::encode_object($params_array);
 
-        $result = $db->build_insert("gnn",$insert_array);
+        $new_id = $db->build_insert("gnn",$insert_array);
         $file_result = true;
         if (!$est_job_id && (!$parms["child_type"] || $parms["child_type"] != "filter")) {
-            if ($result) {	
-                if (global_functions::copy_to_uploads_dir($parms["tmp_filename"], $filename, $result) === false)
+            if ($new_id) {	
+                if (global_functions::copy_to_uploads_dir($parms["tmp_filename"], $filename, $new_id) === false)
                     $file_result = false;
             } else {
                 $file_result = false;
             }
         }
 
-        if ($result && !$file_result) {
-            $db->non_select_query("DELETE FROM gnn WHERE gnn_id = :id", array(":id" => $result));
+        if ($new_id && !$file_result) {
+            $db->non_select_query("DELETE FROM gnn WHERE gnn_id = :id", array(":id" => $new_id));
             return false;
         }
 
-        \efi\job_shared::insert_new($db, "gnn", $result);
-        $info = array("id" => $result, "key" => $key);
+        \efi\job_status::insert_new_manual($db, $new_id, "gnn");
+        $info = array("id" => $new_id, "key" => $key);
 
         return $info;
     }

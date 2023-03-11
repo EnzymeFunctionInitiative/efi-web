@@ -57,10 +57,13 @@ class gnn extends gnn_shared {
 
         $this->beta = settings::get_release_status();
         $this->is_sync = $is_sync;
+        $this->job_status_obj = new \efi\job_status($this->db, $this);
     }
 
     public function __destruct() {
     }
+
+    protected function get_job_status_obj() { return $this->job_status_obj; }
 
     public function get_email() { return $this->email; }
     public function get_key() { return $this->key; }
@@ -140,7 +143,6 @@ class gnn extends gnn_shared {
 
     public function run_gnn_sync($is_debug = false) {
         $this->delete_outputs();
-        $this->set_time_started();
         $id = $this->get_id();
 
         $output_dir = $this->get_output_dir();
@@ -157,7 +159,6 @@ class gnn extends gnn_shared {
         $output = shell_exec($script);
         $error = 0;
 
-        $this->set_time_completed();
         $formatted_output = implode("\n",$output_array);
 
         file_put_contents($this->get_log_file(), $exec . "\n");
@@ -317,15 +318,13 @@ class gnn extends gnn_shared {
         $this->set_ssn_stats();
         $this->set_diagram_version();
 
-        $this->set_status(__FINISH__);
-        $this->set_time_completed();
+        $this->set_job_completed();
 
         $this->email_complete();
     }
 
     private function error_gnn() {
-        $this->set_status(__FAILED__);
-        $this->set_time_completed();
+        $this->set_job_failed();
         $this->email_error();
     }
 
@@ -814,9 +813,6 @@ class gnn extends gnn_shared {
             $this->id = $result["gnn_id"];
             $this->email = $result["gnn_email"];
             $this->key = $result["gnn_key"];
-            $this->time_created = $result["gnn_time_created"];
-            $this->time_started = $result["gnn_time_started"];
-            $this->time_completed = $result["gnn_time_completed"];
             $this->pbs_number = $result["gnn_pbs_number"];
             $this->status = $result["gnn_status"];
             if (isset($result["gnn_est_source_id"]))
@@ -1049,22 +1045,12 @@ class gnn extends gnn_shared {
         $this->filename = $file_name;
     }
 
-    public function mark_job_as_archived() {
-        // This marks the job as archived-failed. If the job is archived but the
-        // time completed is non-zero, then the job successfully completed.
-        if ($this->status == __FAILED__)
-            $this->set_time_completed("0000-00-00 00:00:00");
-        $this->set_status(__ARCHIVED__);
-    }
-
     public function get_job_info($eol = "\r\n") {
         $filename = pathinfo($this->get_filename(), PATHINFO_BASENAME);
         $message = "EFI-GNT Job ID: " . $this->get_id() . $eol;
         $message .= "Uploaded Filename: " . $filename . $this->eol;
         $message .= "Neighborhood Size: " . $this->get_size() . $this->eol;
         $message .= "% Co-Occurrence Lower Limit (Default: " . settings::get_default_cooccurrence() . "%): " . $this->get_cooccurrence() . "%" . $this->eol;
-        $message .= "Time Submitted: " . $this->get_time_created() . $this->eol;
-        //$message .= "Time Completed: " . $this->get_time_completed() . $this->eol . $this->eol;
         return $message;
     }
 
@@ -1085,8 +1071,7 @@ class gnn extends gnn_shared {
                     array_push($metadata, array("Original EST Job Number", "$gid/$aid (<a href='../efi-est/stepc.php?id=$gid&key=$key' class='hl-est'>Original EST Dataset</a> | <a href='../efi-est/stepe.php?id=$gid&key=$key&analysis_id=$aid' class='hl-est'>Original SSN Download</a>)"));
                 }
             }
-            array_push($metadata, array("Time Started -- Finished", global_functions::format_short_date($this->time_started) . " -- " .
-                global_functions::format_short_date($this->time_completed)));
+            array_push($metadata, array("Time Started -- Finished", $this->get_job_status_obj()->get_time_period()));
         }
         array_push($metadata, array("Uploaded Filename", $this->get_filename()));
         array_push($metadata, array("Neighborhood Size", $this->get_size()));
@@ -1142,8 +1127,7 @@ class gnn extends gnn_shared {
     }
 
     public function process_start() {
-        $this->set_time_started();
-        $this->set_status(__RUNNING__);
+        $this->set_job_started();
         $this->email_started();
     }
 }

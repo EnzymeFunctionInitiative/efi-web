@@ -33,7 +33,10 @@ class diagram_job extends arrow_api {
         $this->db = $db;
         $this->beta = settings::get_release_status();
         $this->load_job();
+        $this->job_status_obj = new \efi\job_status($this->db, $this);
     }
+
+    protected function get_job_status_obj() { return $this->job_status_obj; }
 
     private function load_job() {
         $sql = "SELECT * FROM diagram WHERE diagram_id = " . $this->id;
@@ -347,8 +350,7 @@ class diagram_job extends arrow_api {
     }
 
     public function process_error() {
-        $this->set_status(__FAILED__);
-        $this->set_time_completed();
+        $this->set_job_failed();
         $this->set_diagram_version();
         $this->email_failed();
         $msg = "GND ID: " . $this->get_id() . " - Job Failed";
@@ -356,8 +358,7 @@ class diagram_job extends arrow_api {
     }
 
     public function process_finish() {
-        $this->set_status(__FINISH__);
-        $this->set_time_completed();
+        $this->set_job_completed();
         $this->set_diagram_version();
         $this->email_complete();
         $msg = "GND ID: " . $this->get_id() . " - Job Completed Successfully";
@@ -365,8 +366,7 @@ class diagram_job extends arrow_api {
     }
 
     public function process_start() {
-        $this->set_time_started();
-        $this->set_status(__RUNNING__);
+        $this->set_job_started();
         if ($this->type != DiagramJob::Uploaded && $this->type != DiagramJob::UploadedZip)
             $this->email_started();
     }
