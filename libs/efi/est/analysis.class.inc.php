@@ -156,16 +156,6 @@ class analysis extends est_shared {
         return $num_seq;
     }
 
-    public function set_status($status) {
-        $sql = "UPDATE analysis ";
-        $sql .= "SET analysis_status='" . $status . "' ";
-        $sql .= "WHERE analysis_id='" . $this->get_id() . "' LIMIT 1";
-        $result = $this->db->non_select_query($sql);
-        if ($result) {
-            $this->status = $status;
-        }
-    }
-
     //public function create($generate_id, $filter_value, $name, $minimum, $maximum, $customFile = "", $cdhitOpt = "", $filter = "eval", $min_node_attr = 0, $min_edge_attr = 0, $compute_nc = false, $build_repnode = true, $tax_search = false, $tax_search_name = "", $remove_fragments = false) {
     public function create($params) {
         $generate_id = $params["job_id"];
@@ -278,10 +268,10 @@ class analysis extends est_shared {
                 $insert_array['analysis_cdhit_opt'] = $cdhitOpt;
             $insert_array['analysis_params'] = global_functions::encode_object($params);
 
-            $result = $this->db->build_insert("analysis",$insert_array);
-            \efi\job_shared::insert_new($this->db, "analysis", $result);
-            if ($result) {
-                return array('RESULT'=>true,'id'=>$result);
+            $new_id = $this->db->build_insert("analysis",$insert_array);
+            $this->get_job_status_obj()->insert_new($new_id);
+            if ($new_id) {
+                return array('RESULT'=>true,'id'=>$new_id);
             } else {
                 $message = "Unknown database error";
             }

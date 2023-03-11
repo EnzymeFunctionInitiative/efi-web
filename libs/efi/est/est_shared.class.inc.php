@@ -31,9 +31,6 @@ abstract class est_shared {
     public function get_email() { return $this->email; }
     public function set_email($email) { $this->email = $email; }
 
-    public abstract function get_status();
-    public abstract function set_status($status);
-
     public abstract function get_key();
     public abstract function get_id();
     protected abstract function get_generate_results_script();

@@ -149,16 +149,6 @@ class stepa extends est_shared {
 
     }
 
-    public function set_status($status) {
-        $sql = "UPDATE generate ";
-        $sql .= "SET generate_status='" . $status . "' ";
-        $sql .= "WHERE generate_id='" . $this->get_id() . "' LIMIT 1";
-        $result = $this->db->non_select_query($sql);
-        if ($result) {
-            $this->status = $status;
-        }
-    }
-
     public function load_num_sequence_from_file() {
         $results_path = functions::get_results_dir();
         $full_count_path = $results_path . "/" . $this->get_accession_counts_file();

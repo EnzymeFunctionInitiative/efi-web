@@ -160,7 +160,7 @@ class accession extends family_shared {
     
     protected function post_output_structure_create() {
         if (!$this->file_helper->copy_file_to_results_dir()) {
-            $this->set_status(__FAILED__);
+            $this->get_job_status_obj()->failed();
             return 'Accession file did not copy';
         } else {
             return '';
