@@ -1,7 +1,6 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
-use \efi\est\job_status;
 use \efi\global_functions;
 use \efi\sanitize;
 
@@ -14,14 +13,14 @@ if ($id === false || $key === false) {
     exit(1);
 }
 
-$generate = new stepa($db, $id);
+$generate = new \efi\est\stepa($db, $id);
 
 if ($generate->get_key() != $key) {
     echo json_encode(array("valid" => false));
     exit(1);
 }
 
-$job = new job_status($db, $generate);
+$job = new \efi\job_status($db, $generate);
 
 
 $request_type = sanitize::post_sanitize_string("rt", false);
