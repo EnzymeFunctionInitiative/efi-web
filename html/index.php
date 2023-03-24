@@ -47,16 +47,30 @@ and Network Resource Group</a> at IGB.
 </div>
 
 <p>
-A "From The Bench" article was recently published in Biochemistry and is available on
+An article in the 2023 Journal of Molecular Biology Computation Resources for Molecular Biology
+was recently published and is available on
+<a href="training/">the training resources page</a>.
+</p>
+
+<p>
+A "From The Bench" article was published in Biochemistry in 2019 and is available on
 <a href="training/">the training resources page</a>.
 </p>
 
 <p>
 <a name="citeus"></a>
-The web tools have been described in four publications:
+The web tools have been described in five publications:
 </p>
 
 <div style="margin-left: 50px">
+
+<p>
+Nils Oberg, R&eacute;mi Zallot, and John A. Gerlt,
+<b>EFI-EST, EFI-GNT, and EFI-CGFP: Enzyme Function Initiative (EFI) Web Resource for Genomic Enzymology Tools.</b>
+J Mol Biol 2023.
+<a href="https://doi.org/10.1016/j.jmb.2023.168018">https://doi.org/10.1016/j.jmb.2023.168018</a>
+</p>
+
 <p>
 R&eacute;mi Zallot, Nils Oberg, and John A. Gerlt,
 <b>The EFI Web Resource for Genomic Enzymology Tools: Leveraging Protein, Genome, and Metagenome 
