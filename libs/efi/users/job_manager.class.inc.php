@@ -85,8 +85,9 @@ class job_manager {
 
         $sql = "SELECT $cols FROM $dbn.generate " . 
             "JOIN $auth_db.user_token ON $dbn.generate.generate_email = $auth_db.user_token.user_email " .
-            "JOIN $auth_db.job_group ON $dbn.generate.generate_id = $auth_db.job_group.job_id " .
-            "WHERE $auth_db.job_group.job_type = 'EST' AND $auth_db.user_token.user_admin = 1 ORDER BY $col_id DESC";
+//            "JOIN $auth_db.job_group ON $dbn.generate.generate_id = $auth_db.job_group.job_id " .
+//            "WHERE $auth_db.job_group.job_type = 'EST'
+            "AND $auth_db.user_token.user_admin = 1 ORDER BY $col_id DESC LIMIT 500";
 
         $rows = $this->db->query($sql);
 

@@ -1,7 +1,7 @@
 <?php
 require_once(__DIR__."/../../init.php");
 
-use \efi\job_manager;
+use \efi\users\job_manager;
 
 
 $result = array("valid" => false, "message" => "");

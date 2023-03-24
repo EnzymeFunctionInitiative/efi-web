@@ -23,9 +23,11 @@ $cur_page_title = isset($pages[$cur_page]) ? "<h2>" . $pages[$cur_page] . "</h2>
 <!doctype html>
 <head>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/components/jqueryui/themes/base/jquery-ui.min.css">
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/shared.css">
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/tabs.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/buttons.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/table.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/dropdown.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/jquery-custom.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/fortawesome/font-awesome/css/fontawesome-all.min.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="shortcut icon" href="<?php echo $SiteUrlPrefix; ?>/images/favicon_efi.ico" type="image/x-icon">
@@ -41,17 +43,20 @@ $cur_page_title = isset($pages[$cur_page]) ? "<h2>" . $pages[$cur_page] . "</h2>
     <div class="system-nav-container">
         <div class="system-nav">
             <ul>
-                <li><a href="<?php echo $SiteUrlPrefix; ?>/" class="est">EFI Home</a></li>
+                <li><a href="<?php echo $SiteUrlPrefix; ?>/" class="about">EFI Home</a></li>
 <?php
 foreach ($pages as $page => $page_title) {
     $the_class = "";
     if ($page == $cur_page)
         $the_class = "class=\"user-mgmt\"";
+    else
+        $the_class = "class=\"about\"";
 
     echo "                <li><a href=\"$page\" $the_class>$page_title</a></li>\n";
 }
 ?>
             </ul>
+            <div class="clear"></div>
         </div>
     </div>
 
