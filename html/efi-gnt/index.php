@@ -19,7 +19,8 @@ $showPreviousJobs = false;
 $gnnJobs = array();
 $diagramJobs = array();
 $IsAdminUser = false;
-$trainingJobs = array();
+$gnnTrainingJobs = array();
+$gndTrainingJobs = array();
 $max_debug = false;
 
 if (settings::get_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
@@ -31,11 +32,12 @@ if (settings::get_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $userJobs->load_jobs($db, $token);
     $gnnJobs = $userJobs->get_jobs();
     $diagramJobs = $userJobs->get_diagram_jobs();
-    $trainingJobs = $userJobs->get_training_jobs();
+    $gnnTrainingJobs = $userJobs->get_training_jobs("GNT");
+    $gndTrainingJobs = $userJobs->get_training_jobs("GND");
     $jobEmail = $userJobs->get_email();
     if ($jobEmail)
         $user_email = $jobEmail;
-    $showPreviousJobs = count($gnnJobs) > 0 || count($diagramJobs) > 0 || count($trainingJobs) > 0;
+    $showPreviousJobs = count($gnnJobs) > 0 || count($diagramJobs) > 0 || count($gnnTrainingJobs) > 0 || count($gndTrainingJobs) > 0;
     if ($user_email)
         $IsLoggedIn = $user_email;
     $IsAdminUser = $userJobs->is_admin();
@@ -155,44 +157,14 @@ A listing of new features and other information pertaining to GNT is available o
                 </thead>
                 <tbody>
 <?php
-$lastBgColor = "#eee";
-for ($i = 0; $i < count($gnnJobs); $i++) {
-    $key = $gnnJobs[$i]["key"];
-    $id = $gnnJobs[$i]["id"];
-    $name = $gnnJobs[$i]["filename"];
-    $dateCompleted = $gnnJobs[$i]["completed"];
-    $isFinished = $gnnJobs[$i]["is_finished"];
-
-    $linkStart = $isFinished ? "<a href=\"stepc.php?id=$id&key=$key\">" : "";
-    $linkEnd = $isFinished ? "</a>" : "";
-    $linkStart .= "<span title='$id'>";
-    $linkEnd = "</span>" . $linkEnd;
-    $idText = "$linkStart${id}$linkEnd";
-
-    $nameStyle = "";
-    if ($gnnJobs[$i]["is_child"]) {
-        $idText = "";
-        $nameStyle = "style=\"padding-left: 50px;\"";
-    } else {
-        if ($lastBgColor == "#eee")
-            $lastBgColor = "#fff";
-        else
-            $lastBgColor = "#eee";
-    }
-
-    echo <<<HTML
-                    <tr style="background-color: $lastBgColor">
-                        <td>$idText</td>
-                        <td $nameStyle>$linkStart${name}$linkEnd</td>
-                        <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="gnn" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
-                    </tr>
-HTML;
-}
+    echo output_gnn_jobs($gnnJobs);
 ?>
                 </tbody>
             </table>
 <?php } ?>
-            
+
+
+
 <?php if (count($diagramJobs) > 0) { ?>
             <a name="gnd"></a>
             <h4>Retrieved Genomic Neighborhood Diagrams</h4>
@@ -204,28 +176,7 @@ HTML;
                 </thead>
                 <tbody>
 <?php
-for ($i = 0; $i < count($diagramJobs); $i++) {
-    $key = $diagramJobs[$i]["key"];
-    $id = $diagramJobs[$i]["id"];
-    $name = $diagramJobs[$i]["filename"];
-    $dateCompleted = $diagramJobs[$i]["completed"];
-    $isFinished = $diagramJobs[$i]["is_finished"];
-
-    $script = "view_diagrams.php";
-
-    $idField = $diagramJobs[$i]["id_field"];
-    $jobType = $diagramJobs[$i]["verbose_type"];
-    $linkStart = $isFinished ? "<a href=\"$script?$idField=$id&key=$key\">" : "";
-    $linkEnd = $isFinished ? "</a>" : "";
-
-    echo <<<HTML
-                    <tr>
-                        <td>$linkStart${id}$linkEnd</td>
-                        <td>$linkStart<span class='job-name'>$name</span><br><span class='job-metadata'>$jobType</span>$linkEnd</td>
-                        <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="diagram" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
-                    </tr>
-HTML;
-}
+    echo output_gnd_jobs($diagramJobs);
 ?>
                 </tbody>
             </table>
@@ -233,10 +184,19 @@ HTML;
 
 
 
+
 <?php
-if (count($trainingJobs) > 0) {
-    gnt_ui::output_job_list($trainingJobs);
-}
+    if (count($gnnTrainingJobs) > 0 || count($gndTrainingJobs) > 0) {
+        echo "<h4>Training Resources</h4>\n<hr>\n";
+    }
+    if (count($gnnTrainingJobs) > 0) {
+        echo "<h4>GNT Jobs</h4>\n";
+        echo gnt_ui::output_job_list($gnnTrainingJobs);
+    }
+    if (count($gndTrainingJobs) > 0) {
+        echo "<h4>GND Jobs</h4>\n";
+        echo gnt_ui::output_job_list($gndTrainingJobs);
+    }
 ?>
 
 
@@ -793,6 +753,73 @@ function check_for_taxonomy_input($db) {
     $mode_data = \efi\taxonomy\taxonomy_job::get_job_info($db, $id, $key, $tree_id, $id_type, $tax_name);
 
     return $mode_data;
+}
+
+
+function output_gnn_jobs($gnnJobs) {
+    $lastBgColor = "#eee";
+    $html = "";
+    for ($i = 0; $i < count($gnnJobs); $i++) {
+        $key = $gnnJobs[$i]["key"];
+        $id = $gnnJobs[$i]["id"];
+        $name = $gnnJobs[$i]["filename"];
+        $dateCompleted = $gnnJobs[$i]["completed"];
+        $isFinished = $gnnJobs[$i]["is_finished"];
+    
+        $linkStart = $isFinished ? "<a href=\"stepc.php?id=$id&key=$key\">" : "";
+        $linkEnd = $isFinished ? "</a>" : "";
+        $linkStart .= "<span title='$id'>";
+        $linkEnd = "</span>" . $linkEnd;
+        $idText = "$linkStart${id}$linkEnd";
+    
+        $nameStyle = "";
+        if ($gnnJobs[$i]["is_child"]) {
+            $idText = "";
+            $nameStyle = "style=\"padding-left: 50px;\"";
+        } else {
+            if ($lastBgColor == "#eee")
+                $lastBgColor = "#fff";
+            else
+                $lastBgColor = "#eee";
+        }
+    
+        $html .= <<<HTML
+                    <tr style="background-color: $lastBgColor">
+                        <td>$idText</td>
+                        <td $nameStyle>$linkStart${name}$linkEnd</td>
+                        <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="gnn" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
+                    </tr>
+HTML;
+    }
+    return $html;
+}
+
+
+function output_gnd_jobs($diagramJobs) {
+    $html = "";
+    for ($i = 0; $i < count($diagramJobs); $i++) {
+        $key = $diagramJobs[$i]["key"];
+        $id = $diagramJobs[$i]["id"];
+        $name = $diagramJobs[$i]["filename"];
+        $dateCompleted = $diagramJobs[$i]["completed"];
+        $isFinished = $diagramJobs[$i]["is_finished"];
+    
+        $script = "view_diagrams.php";
+    
+        $idField = $diagramJobs[$i]["id_field"];
+        $jobType = $diagramJobs[$i]["verbose_type"];
+        $linkStart = $isFinished ? "<a href=\"$script?$idField=$id&key=$key\">" : "";
+        $linkEnd = $isFinished ? "</a>" : "";
+    
+        $html .= <<<HTML
+                        <tr>
+                            <td>$linkStart${id}$linkEnd</td>
+                            <td>$linkStart<span class='job-name'>$name</span><br><span class='job-metadata'>$jobType</span>$linkEnd</td>
+                            <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="diagram" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
+                        </tr>
+HTML;
+    }
+    return $html;
 }
 
 
