@@ -74,6 +74,7 @@ define("__BLAST_MODULE__",__BIN_DIR__."/fastacmd");
 
 define("__ENABLE_WEBSITE__",true);              // This can take the site down for maintenance, and
                                                 // display a message [USEFUL FOR ADMINS]
+define("__ENABLE_SUBMIT__",false);              // Disable submission but allow site to function
 define("__ENABLE_ADVANCED_OPTIONS__",true);     // This enables advanced options (for internal use
                                                 // or software development only) 
 define("__ENABLE_FAMILY_RESOURCES__",false);

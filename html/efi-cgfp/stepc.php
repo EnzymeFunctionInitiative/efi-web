@@ -169,7 +169,7 @@ if ($user_token) {
     #if ($is_sb_enabled)
     #    $is_enabled = $IsAdminUser || functions::is_shortbred_authorized($db, $user_token);
 }
-$is_enabled = $is_enabled && !$is_example;
+$is_enabled = $is_enabled && !$is_example && \efi\global_settings::get_submit_enabled();
 
 
 require_once(__DIR__."/inc/header.inc.php");
@@ -276,7 +276,11 @@ HTML;
         </div>
 
 
-    <?php if ($is_enabled) { ?>
+<?php
+    if (!$is_enabled) {
+        echo ("Submission is currently disabled due to site maintenance.");
+    } else {
+?>
         <div id="mg">
             <h4>Select Metagenomes from the Human Microbiome Project</h4>
             
@@ -378,11 +382,17 @@ HTML;
             
             
         </div>
-    <?php } ?>
+<?php
+    }
+?>
 
 
-    <?php if ($is_enabled) { ?>
-    <?php     if ($user_email) { ?>
+<?php
+    if (!$is_enabled) {
+        echo ("Submission is currently disabled due to site maintenance.");
+    } else {
+        if ($user_email) {
+?>
         <div id="filter">
             <p class="p-heading">
             Map previously-computed protein/cluster abundances per metagenome to a different Colored SSN.
@@ -429,8 +439,10 @@ HTML;
             </center>
             </form>
         </div>            
-    <?php     } ?>
-    <?php } ?>
+<?php
+        }
+    }
+?>
     </div>
 </div>
 <?php } ?>

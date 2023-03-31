@@ -206,6 +206,11 @@ A listing of new features and other information pertaining to GNT is available o
 <?php } ?>
 
         <div id="create" class="tab <?php echo ($est_id ? "ui-tabs-active" : ""); ?>">
+<?php
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+    } else {
+?>
             <p>
             In a submitted SSN, each sequence is considered as a query. Information 
             associated with protein encoding genes that are neighbors of input queries 
@@ -239,6 +244,9 @@ A listing of new features and other information pertaining to GNT is available o
                 <?php gnt_ui::add_advanced_options(); ?>
                 <?php add_submit_button("gnn", "ssn_email", "ssn_message", "Generate GNN"); ?>
             </form>
+<?php
+    }
+?>
         </div>
 
         <div id="create-diagrams" class="tab <?php echo ($tax_data !== false ? "ui-tabs-active" : ""); ?>">
@@ -251,6 +259,11 @@ A listing of new features and other information pertaining to GNT is available o
                 </ul>
                 <div class="tab-content">
                 <div id="diagram-blast" class="tab <?php echo ($tax_data === false ? "ui-tabs-active" : ""); ?>">
+<?php
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+    } else {
+?>
                     <p>
                     The provided sequence is used as the query for a BLAST search of the UniProt database.
                     The retrieved sequences are used to generate genomic neighborhood diagrams. 
@@ -302,9 +315,17 @@ A listing of new features and other information pertaining to GNT is available o
 
                         <?php add_submit_button("diagram_blast", "option-a-email", "option-a-message", "Submit"); ?>
                     </form>
+<?php
+    }
+?>
                 </div>
 
                 <div id="diagram-seqid" class="tab <?php echo ($tax_data !== false ? "ui-tabs-active" : ""); ?>">
+<?php
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+    } else {
+?>
                     <p>
                     The genomic neighborhoods are retreived for the UniProt, NCBI, EMBL-EBI ENA, and PDB identifiers
                     that are provided in the input box below.  Not all identifiers may exist in the EFI-GNT database so
@@ -347,9 +368,17 @@ A listing of new features and other information pertaining to GNT is available o
     
                         <?php add_submit_button("diagram_id", "option-d-email", "option-d-message", "Submit"); ?>
                     </form>
+<?php
+    }
+?>
                 </div>
 
                 <div id="diagram-fasta" class="tab">
+<?php
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+    } else {
+?>
                     <p>
                     The genomic neighborhoods are retreived for the UniProt, NCBI, EMBL-EBI ENA, and PDB identifiers
                     that are identified in the FASTA <b>headers</b>.  Not all identifiers may exist in the EFI-GNT database so
@@ -380,9 +409,18 @@ A listing of new features and other information pertaining to GNT is available o
                 </div>
                 </div><!-- class="tab-content" -->
             </div>
+<?php
+    }
+?>
         </div>
 
         <div id="diagrams" class="tab">
+<?php
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+    } else {
+?>
+
             <form name="upload_diagram_form" id="upload_diagram_form" method="post" action="" enctype="multipart/form-data">
                 <p>
                 <b>Upload a saved diagram data file for visualization.</b>
@@ -395,6 +433,9 @@ A listing of new features and other information pertaining to GNT is available o
     
                 <?php add_submit_button("diagram_upload", "diagram_email", "diagram_message", "Upload Diagram Data"); ?>
             </form> 
+<?php
+    }
+?>
         </div>
 
         <div id="tutorial" class="tab <?php if (!$showPreviousJobs) echo "ui-tabs-active"; ?>">
@@ -684,6 +725,11 @@ function add_blast_options() {
 
 
 function add_submit_button($type, $email_id, $message_id, $btn_text) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+        return;
+    }
+
     global $message;
     global $submit_est_args;
     global $est_id;

@@ -24,7 +24,7 @@ $training_jobs = array();
 $IsAdminUser = false;
 $IsExample = true;
 $user_token = "";
-$is_enabled = true;
+$is_enabled = \efi\global_settings::get_submit_enabled();
 $is_sb_enabled = global_settings::get_shortbred_enabled();
 $use_advanced_options = global_settings::advanced_options_enabled();
 
@@ -148,7 +148,11 @@ nares (nasal cavity), tongue dorsum (surface), and posterior fornix (vagina)].
         <?php } ?>
 
         <div id="create" class="tab <?php if ($est_id) echo "ui-tabs-active"; ?>">
-        <?php if ($is_enabled) { ?>
+<?php
+    if (!$is_enabled) {
+        echo "Submission is currently disabled due to site maintenance.";
+    } else {
+?>
             <p>
             Upload the SSN for which you want to run CGFP/ShortBRED.
             The initial identify step will be performed: unique markers in the input SSN will be identified.
@@ -317,57 +321,9 @@ HTML;
                         </button></div>
                 </center>
             </form>
-        <?php } elseif ($IsLoggedIn) { ?>
-            <div style="margin-top: 30px;"></div>
-            <p>
-                Due to the computationally-heavy nature of CGFP, we are granting
-                access to the EFI-CGFP tool on a request basis.
-            </p>
-            <p>
-                Please provide the information that 
-                is requested below.  We will consider your application to become a member of 
-                the EFI-CGFP user group based a description on your intended usage and our 
-                assessment of whether it can be accommodated with the available computational 
-                resources.  After consideration of your request, we will notify you of our 
-                decision.
-            </p>
-            <form name="app_form" id="app_form" method="post" action="cgfp_apply.php" enctype="multipart/form-data">
-                <table border="0" class="app">
-                    <tbody>
-                        <tr>
-                            <td>Your name</td>
-                            <td><input type="text" name="app_name" id="app_name" required /></td>
-                        </tr>
-                        <tr>
-                            <td>Your institution</td>
-                            <td><input type="text" name="app_institution" id="app_institution" required /></td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">
-                                Description of your intended use:<br>
-                                <textarea name="app_desc" id="app_desc" cols="80" rows="20" required></textarea>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button type="submit" class="light">Submit Application</button>
-            </form>
-        <?php } else { ?>
-            <div style="margin-top: 30px;"></div>
-            <p>
-                Due to the computationally-heavy nature of CGFP, we are granting access to the
-                EFI-CGFP tool on a request basis.
-            </p>
-            <p>
-                If you wish to use EFI-CGFP, you will need a user account and also be an
-                approved member of the EFI-CGFP user group.  If you do not have a user
-                account, please
-                <a href="<?php echo $SiteUrlPrefix; ?>/user_account.php?action=create">create a user account</a>,
-                login, and return to this page. If you have an account and are not logged
-                in, please login and return to this page to submit an application to
-                become a member of the EFI-CGFP user group.
-            </p>
-        <?php } ?>
+<?php 
+    }
+?>
         </div>
 
         <div id="tutorial" class="tab <?php if (!$show_previous_jobs) echo "ui-tabs-active"; ?>">

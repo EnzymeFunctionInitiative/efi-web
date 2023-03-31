@@ -480,6 +480,11 @@ histogram).</p>
         <?php if (!$is_example && !$is_taxonomy) { ?>
         <!-- FINALIZATION -->
         <div id="final">
+<?php
+                if (!\efi\global_settings::get_submit_enabled()) {
+                    echo "Submission is currently disabled due to site maintenance.";
+                } else {
+?>
             <form name="define_length" method="post" class="align_left" enctype="multipart/form-data" id="a-form">
             <input type="hidden" name="key" value="<?php echo $key; ?>" />
             <input type="hidden" name="id" value="<?php echo $gen_id; ?>" />
@@ -689,8 +694,13 @@ removed from the clusters if they are fragments.
             </center>
 
             </form>
+<?php
+                }
+?>
         </div>
-        <?php } ?>
+<?php
+            }
+?>
 
 
         <?php if (count($ssn_jobs) > 0) { ?>

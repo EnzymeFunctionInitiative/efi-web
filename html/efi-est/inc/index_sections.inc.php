@@ -12,6 +12,11 @@ use \efi\sanitize;
 
 
 function output_option_a($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo '<div id="optionAtab" class="ui-tabs-panel ui-widget-content">Submission is currently disabled due to site maintenance.</div>';
+        return;
+    }
+
     $default_evalue = get_default_evalue();
     $max_blast_seq = get_max_blast_seq();
     $default_blast_seq = get_default_blast_seq();
@@ -206,6 +211,11 @@ retrieve more similar homologues.
 }
 
 function output_option_b($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo '<div id="optionBtab" class="ui-tabs-panel ui-widget-content">Submission is currently disabled due to site maintenance.</div>';
+        return;
+    }
+
     $show_example = $example_fn !== false;
     $example_fn = $example_fn === false ? function(){} : $example_fn;
     $tax_filter_text = <<<TEXT
@@ -315,6 +325,11 @@ clans are selected from the UniProt, UniRef90, or UniRef50 database.
 }
 
 function output_option_c($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo '<div id="optionCtab" class="ui-tabs-panel ui-widget-content">Submission is currently disabled due to site maintenance.</div>';
+        return;
+    }
+
     $show_example = $example_fn !== false;
     $example_fn = $example_fn === false ? function(){} : $example_fn;
     $tax_filter_text = <<<TEXT
@@ -461,6 +476,11 @@ To use this option, check the "Read FASTA headers" box.
 }
 
 function output_option_d($use_advanced_options, $db_modules, $user_email, $show_example = false, $mode_data = false) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo '<div id="optionDtab" class="ui-tabs-panel ui-widget-content">Submission is currently disabled due to site maintenance.</div>';
+        return;
+    }
+
     $job_name = "";
     $active_class = "ui-tabs-active";
     $uniprot_tab_active = $active_class;
@@ -650,6 +670,11 @@ TEXT;
 }
 
 function output_colorssn($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo '<div id="colorssntab" class="ui-tabs-panel ui-widget-content">Submission is currently disabled due to site maintenance.</div>';
+        return;
+    }
+
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
     $ssn_key = !empty($mode_data) ? $mode_data["ssn_key"] : "";
@@ -735,6 +760,11 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
 }
 
 function output_nc($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo '<div id="nctab" class="ui-tabs-panel ui-widget-content">Submission is currently disabled due to site maintenance.</div>';
+        return;
+    }
+
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
     $ssn_key = !empty($mode_data) ? $mode_data["ssn_key"] : "";
@@ -802,6 +832,11 @@ function output_nc($use_advanced_options, $user_email, $show_example = false, $m
 
 
 function output_cr($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo '<div id="crtab" class="ui-tabs-panel ui-widget-content">Submission is currently disabled due to site maintenance.</div>';
+        return;
+    }
+
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
     $ssn_key = !empty($mode_data) ? $mode_data["ssn_key"] : "";
@@ -886,6 +921,11 @@ alignment scores.
 }
 
 function output_cluster($use_advanced_options, $user_email, $show_example = false, $mode_data = array()) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo '<div id="clustertab" class="ui-tabs-panel ui-widget-content">Submission is currently disabled due to site maintenance.</div>';
+        return;
+    }
+
     $ssn_filename = !empty($mode_data) ? $mode_data["filename"] : "";
     $ssn_id = !empty($mode_data) ? $mode_data["ssn_id"] : "";
     $ssn_key = !empty($mode_data) ? $mode_data["ssn_key"] : "";

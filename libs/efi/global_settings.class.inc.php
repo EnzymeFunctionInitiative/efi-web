@@ -136,6 +136,13 @@ class global_settings {
         }
     }
 
+    public static function get_submit_enabled() {
+        if (!defined("__ENABLE_SUBMIT__") || (defined("__ENABLE_SUBMIT__") && __ENABLE_SUBMIT__))
+            return true;
+        else
+            return false;
+    }
+
     public static function get_release_status() {
         return (defined("__BETA_RELEASE__") && __BETA_RELEASE__) ? __BETA_RELEASE__ . " " : "";
     }
