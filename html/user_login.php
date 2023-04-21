@@ -27,11 +27,15 @@ if (!isset($_POST['action'])) {
 }
 
 
-if ($action == "login") {
+if (isset($_POST['email']))
+    $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+else
     $email = false;
+
+
+if ($action == "login") {
     $password = false;
     if (isset($_POST['email']) && isset($_POST['password'])) {
-        $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
         $password = $_POST['password'];
     }
     if ($email !== false && $password !== false) {
@@ -46,10 +50,8 @@ if ($action == "login") {
         $result['message'] = "Invalid parameters.";
     }
 } elseif ($action == "create") {
-    $email = false;
     $password = false;
     if (isset($_POST['email']) && isset($_POST['password'])) {
-        $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
         $password = $_POST['password'];
     }
     if ($email !== false && $password !== false) {
@@ -57,7 +59,7 @@ if ($action == "login") {
         $createResult = user_auth::create_user($db, $email, $password, $listSignup); // returns false if invalid, otherwise returns the user_id token
         if ($createResult) {
             $result['valid'] = true;
-            sendConfirmationEmail($_POST["email"], $createResult);
+            sendConfirmationEmail($email, $createResult);
         } else {
             $result['message'] = "The email address already exists.";
         }
@@ -82,10 +84,6 @@ if ($action == "login") {
         $result['message'] = "Invalid parameters.";
     }
 } elseif ($action == "send-reset") {
-    $email = false;
-    if (isset($_POST["email"])) {
-        $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
-    }
     if ($email !== false) {
         $userToken = user_auth::check_reset_email($db, $email);
         if ($userToken) {
@@ -96,7 +94,6 @@ if ($action == "login") {
         $result['message'] = "Invalid parameters.";
     }
 } elseif ($action == "change") {
-    $email = false;
     $password = false;
     $ols_password = false;
     if (isset($_POST["email"]) && isset($_POST["old-password"]) && isset($_POST["password"])) {
