@@ -16,7 +16,8 @@ class user_jobs extends user_auth {
     private $user_email = "";
     private $jobs = array();
     private $diagram_jobs = array();
-    private $training_jobs = array();
+    private $gnn_training_jobs = array();
+    private $gnd_training_jobs = array();
     private $is_admin = false;
     private $user_jobs = array();
     private $user_groups = array();
@@ -36,7 +37,7 @@ class user_jobs extends user_auth {
 
         $this->load_gnn_jobs($db);
         $this->load_diagram_jobs($db);
-        $this->load_training_jobs($db);
+        $this->gnn_training_jobs = $this->load_training_jobs($db, "GNT");
     }
 
     private static function get_select_statement() {
@@ -68,21 +69,20 @@ class user_jobs extends user_auth {
         $this->jobs = gnt_ui::process_load_rows($db, $rows, $includeFailedJobs, $email);
     }
 
-    private function load_training_jobs($db) {
+    private function load_training_jobs($db, $type = "GNT") {
         $func = function($val) { return "user_group = '$val'"; };
         $group_clause = implode(" OR ", array_map($func, $this->user_groups));
         if ($group_clause) {
             $group_clause = "($group_clause)";
         } else {
-            $this->training_jobs = array();
-            return;
+            return array();
         }
 
         $sql = self::get_group_select_statement($group_clause);
         $rows = $db->query($sql);
 
         $includeFailedJobs = false;
-        $this->training_jobs = gnt_ui::process_load_rows($db, $rows, $includeFailedJobs, "");
+        return gnt_ui::process_load_rows($db, $rows, $includeFailedJobs, "");
     }
 
     private function load_diagram_jobs($db) {
@@ -163,8 +163,11 @@ class user_jobs extends user_auth {
         return $this->diagram_jobs;
     }
 
-    public function get_training_jobs() {
-        return $this->training_jobs;
+    public function get_training_jobs($type = "GNT") {
+        if ($type == "GNT")
+            return $this->gnn_training_jobs;
+        else
+            return $this->gnd_training_jobs;
     }
 
     public function get_email() {

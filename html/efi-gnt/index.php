@@ -19,7 +19,8 @@ $showPreviousJobs = false;
 $gnnJobs = array();
 $diagramJobs = array();
 $IsAdminUser = false;
-$trainingJobs = array();
+$gnnTrainingJobs = array();
+$gndTrainingJobs = array();
 $max_debug = false;
 
 if (settings::get_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
@@ -31,11 +32,12 @@ if (settings::get_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
     $userJobs->load_jobs($db, $token);
     $gnnJobs = $userJobs->get_jobs();
     $diagramJobs = $userJobs->get_diagram_jobs();
-    $trainingJobs = $userJobs->get_training_jobs();
+    $gnnTrainingJobs = $userJobs->get_training_jobs("GNT");
+    $gndTrainingJobs = $userJobs->get_training_jobs("GND");
     $jobEmail = $userJobs->get_email();
     if ($jobEmail)
         $user_email = $jobEmail;
-    $showPreviousJobs = count($gnnJobs) > 0 || count($diagramJobs) > 0 || count($trainingJobs) > 0;
+    $showPreviousJobs = count($gnnJobs) > 0 || count($diagramJobs) > 0 || count($gnnTrainingJobs) > 0 || count($gndTrainingJobs) > 0;
     if ($user_email)
         $IsLoggedIn = $user_email;
     $IsAdminUser = $userJobs->is_admin();
@@ -155,44 +157,14 @@ A listing of new features and other information pertaining to GNT is available o
                 </thead>
                 <tbody>
 <?php
-$lastBgColor = "#eee";
-for ($i = 0; $i < count($gnnJobs); $i++) {
-    $key = $gnnJobs[$i]["key"];
-    $id = $gnnJobs[$i]["id"];
-    $name = $gnnJobs[$i]["filename"];
-    $dateCompleted = $gnnJobs[$i]["completed"];
-    $isFinished = $gnnJobs[$i]["is_finished"];
-
-    $linkStart = $isFinished ? "<a href=\"stepc.php?id=$id&key=$key\">" : "";
-    $linkEnd = $isFinished ? "</a>" : "";
-    $linkStart .= "<span title='$id'>";
-    $linkEnd = "</span>" . $linkEnd;
-    $idText = "$linkStart${id}$linkEnd";
-
-    $nameStyle = "";
-    if ($gnnJobs[$i]["is_child"]) {
-        $idText = "";
-        $nameStyle = "style=\"padding-left: 50px;\"";
-    } else {
-        if ($lastBgColor == "#eee")
-            $lastBgColor = "#fff";
-        else
-            $lastBgColor = "#eee";
-    }
-
-    echo <<<HTML
-                    <tr style="background-color: $lastBgColor">
-                        <td>$idText</td>
-                        <td $nameStyle>$linkStart${name}$linkEnd</td>
-                        <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="gnn" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
-                    </tr>
-HTML;
-}
+    echo output_gnn_jobs($gnnJobs);
 ?>
                 </tbody>
             </table>
 <?php } ?>
-            
+
+
+
 <?php if (count($diagramJobs) > 0) { ?>
             <a name="gnd"></a>
             <h4>Retrieved Genomic Neighborhood Diagrams</h4>
@@ -204,28 +176,7 @@ HTML;
                 </thead>
                 <tbody>
 <?php
-for ($i = 0; $i < count($diagramJobs); $i++) {
-    $key = $diagramJobs[$i]["key"];
-    $id = $diagramJobs[$i]["id"];
-    $name = $diagramJobs[$i]["filename"];
-    $dateCompleted = $diagramJobs[$i]["completed"];
-    $isFinished = $diagramJobs[$i]["is_finished"];
-
-    $script = "view_diagrams.php";
-
-    $idField = $diagramJobs[$i]["id_field"];
-    $jobType = $diagramJobs[$i]["verbose_type"];
-    $linkStart = $isFinished ? "<a href=\"$script?$idField=$id&key=$key\">" : "";
-    $linkEnd = $isFinished ? "</a>" : "";
-
-    echo <<<HTML
-                    <tr>
-                        <td>$linkStart${id}$linkEnd</td>
-                        <td>$linkStart<span class='job-name'>$name</span><br><span class='job-metadata'>$jobType</span>$linkEnd</td>
-                        <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="diagram" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
-                    </tr>
-HTML;
-}
+    echo output_gnd_jobs($diagramJobs);
 ?>
                 </tbody>
             </table>
@@ -233,10 +184,19 @@ HTML;
 
 
 
+
 <?php
-if (count($trainingJobs) > 0) {
-    gnt_ui::output_job_list($trainingJobs);
-}
+    if (count($gnnTrainingJobs) > 0 || count($gndTrainingJobs) > 0) {
+        echo "<h4>Training Resources</h4>\n<hr>\n";
+    }
+    if (count($gnnTrainingJobs) > 0) {
+        echo "<h4>GNT Jobs</h4>\n";
+        echo gnt_ui::output_job_list($gnnTrainingJobs);
+    }
+    if (count($gndTrainingJobs) > 0) {
+        echo "<h4>GND Jobs</h4>\n";
+        echo gnt_ui::output_job_list($gndTrainingJobs);
+    }
 ?>
 
 
@@ -246,6 +206,11 @@ if (count($trainingJobs) > 0) {
 <?php } ?>
 
         <div id="create" class="tab <?php echo ($est_id ? "ui-tabs-active" : ""); ?>">
+<?php
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+    } else {
+?>
             <p>
             In a submitted SSN, each sequence is considered as a query. Information 
             associated with protein encoding genes that are neighbors of input queries 
@@ -279,6 +244,9 @@ if (count($trainingJobs) > 0) {
                 <?php gnt_ui::add_advanced_options(); ?>
                 <?php add_submit_button("gnn", "ssn_email", "ssn_message", "Generate GNN"); ?>
             </form>
+<?php
+    }
+?>
         </div>
 
         <div id="create-diagrams" class="tab <?php echo ($tax_data !== false ? "ui-tabs-active" : ""); ?>">
@@ -291,6 +259,11 @@ if (count($trainingJobs) > 0) {
                 </ul>
                 <div class="tab-content">
                 <div id="diagram-blast" class="tab <?php echo ($tax_data === false ? "ui-tabs-active" : ""); ?>">
+<?php
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+    } else {
+?>
                     <p>
                     The provided sequence is used as the query for a BLAST search of the UniProt database.
                     The retrieved sequences are used to generate genomic neighborhood diagrams. 
@@ -342,9 +315,17 @@ if (count($trainingJobs) > 0) {
 
                         <?php add_submit_button("diagram_blast", "option-a-email", "option-a-message", "Submit"); ?>
                     </form>
+<?php
+    }
+?>
                 </div>
 
                 <div id="diagram-seqid" class="tab <?php echo ($tax_data !== false ? "ui-tabs-active" : ""); ?>">
+<?php
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+    } else {
+?>
                     <p>
                     The genomic neighborhoods are retreived for the UniProt, NCBI, EMBL-EBI ENA, and PDB identifiers
                     that are provided in the input box below.  Not all identifiers may exist in the EFI-GNT database so
@@ -387,9 +368,17 @@ if (count($trainingJobs) > 0) {
     
                         <?php add_submit_button("diagram_id", "option-d-email", "option-d-message", "Submit"); ?>
                     </form>
+<?php
+    }
+?>
                 </div>
 
                 <div id="diagram-fasta" class="tab">
+<?php
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+    } else {
+?>
                     <p>
                     The genomic neighborhoods are retreived for the UniProt, NCBI, EMBL-EBI ENA, and PDB identifiers
                     that are identified in the FASTA <b>headers</b>.  Not all identifiers may exist in the EFI-GNT database so
@@ -420,9 +409,18 @@ if (count($trainingJobs) > 0) {
                 </div>
                 </div><!-- class="tab-content" -->
             </div>
+<?php
+    }
+?>
         </div>
 
         <div id="diagrams" class="tab">
+<?php
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+    } else {
+?>
+
             <form name="upload_diagram_form" id="upload_diagram_form" method="post" action="" enctype="multipart/form-data">
                 <p>
                 <b>Upload a saved diagram data file for visualization.</b>
@@ -435,6 +433,9 @@ if (count($trainingJobs) > 0) {
     
                 <?php add_submit_button("diagram_upload", "diagram_email", "diagram_message", "Upload Diagram Data"); ?>
             </form> 
+<?php
+    }
+?>
         </div>
 
         <div id="tutorial" class="tab <?php if (!$showPreviousJobs) echo "ui-tabs-active"; ?>">
@@ -724,6 +725,11 @@ function add_blast_options() {
 
 
 function add_submit_button($type, $email_id, $message_id, $btn_text) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo "Submission is currently disabled due to site maintenance.";
+        return;
+    }
+
     global $message;
     global $submit_est_args;
     global $est_id;
@@ -793,6 +799,73 @@ function check_for_taxonomy_input($db) {
     $mode_data = \efi\taxonomy\taxonomy_job::get_job_info($db, $id, $key, $tree_id, $id_type, $tax_name);
 
     return $mode_data;
+}
+
+
+function output_gnn_jobs($gnnJobs) {
+    $lastBgColor = "#eee";
+    $html = "";
+    for ($i = 0; $i < count($gnnJobs); $i++) {
+        $key = $gnnJobs[$i]["key"];
+        $id = $gnnJobs[$i]["id"];
+        $name = $gnnJobs[$i]["filename"];
+        $dateCompleted = $gnnJobs[$i]["completed"];
+        $isFinished = $gnnJobs[$i]["is_finished"];
+    
+        $linkStart = $isFinished ? "<a href=\"stepc.php?id=$id&key=$key\">" : "";
+        $linkEnd = $isFinished ? "</a>" : "";
+        $linkStart .= "<span title='$id'>";
+        $linkEnd = "</span>" . $linkEnd;
+        $idText = "$linkStart${id}$linkEnd";
+    
+        $nameStyle = "";
+        if ($gnnJobs[$i]["is_child"]) {
+            $idText = "";
+            $nameStyle = "style=\"padding-left: 50px;\"";
+        } else {
+            if ($lastBgColor == "#eee")
+                $lastBgColor = "#fff";
+            else
+                $lastBgColor = "#eee";
+        }
+    
+        $html .= <<<HTML
+                    <tr style="background-color: $lastBgColor">
+                        <td>$idText</td>
+                        <td $nameStyle>$linkStart${name}$linkEnd</td>
+                        <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="gnn" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
+                    </tr>
+HTML;
+    }
+    return $html;
+}
+
+
+function output_gnd_jobs($diagramJobs) {
+    $html = "";
+    for ($i = 0; $i < count($diagramJobs); $i++) {
+        $key = $diagramJobs[$i]["key"];
+        $id = $diagramJobs[$i]["id"];
+        $name = $diagramJobs[$i]["filename"];
+        $dateCompleted = $diagramJobs[$i]["completed"];
+        $isFinished = $diagramJobs[$i]["is_finished"];
+    
+        $script = "view_diagrams.php";
+    
+        $idField = $diagramJobs[$i]["id_field"];
+        $jobType = $diagramJobs[$i]["verbose_type"];
+        $linkStart = $isFinished ? "<a href=\"$script?$idField=$id&key=$key\">" : "";
+        $linkEnd = $isFinished ? "</a>" : "";
+    
+        $html .= <<<HTML
+                        <tr>
+                            <td>$linkStart${id}$linkEnd</td>
+                            <td>$linkStart<span class='job-name'>$name</span><br><span class='job-metadata'>$jobType</span>$linkEnd</td>
+                            <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="diagram" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
+                        </tr>
+HTML;
+    }
+    return $html;
 }
 
 

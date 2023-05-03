@@ -8,6 +8,11 @@ use \efi\taxonomy\taxonomy_job_list_ui;
 
 
 function output_option_b($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo '<div id="optionBtab" class="ui-tabs-panel ui-widget-content">Submission is currently disabled due to site maintenance.</div>';
+        return;
+    }
+
     $example_fn = $example_fn === false ? function(){} : $example_fn;
 
     $tax_filt_text = <<<TEXT
@@ -105,6 +110,11 @@ Pfam families, InterPro families, and/or Pfam clans.
 }
 
 function output_option_c($use_advanced_options, $db_modules, $user_email, $example_fn = false) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo '<div id="optionCtab" class="ui-tabs-panel ui-widget-content">Submission is currently disabled due to site maintenance.</div>';
+        return;
+    }
+
     $show_example = $example_fn !== false;
     $example_fn = $example_fn === false ? function(){} : $example_fn;
 
@@ -177,6 +187,10 @@ calculate the sunburst.
 }
 
 function output_option_d($use_advanced_options, $db_modules, $user_email, $show_example = false) {
+    if (!\efi\global_settings::get_submit_enabled()) {
+        echo '<div id="optionDtab" class="ui-tabs-panel ui-widget-content">Submission is currently disabled due to site maintenance.</div>';
+        return;
+    }
 
     $tax_filt_text = <<<TEXT
 <p>

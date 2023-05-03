@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__."/../../init.php");
+require_once(__USERS_CONF_DIR__."/settings.inc.php");
 
 use \efi\user_auth;
 use \efi\users\user_manager;

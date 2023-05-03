@@ -1,8 +1,9 @@
 <?php
 namespace efi\users;
-
 require_once(__DIR__."/../../../init.php");
+require_once(__USERS_CONF_DIR__."/settings.inc.php");
 
+use \efi\group_status;
 use \efi\user_auth;
 
 
