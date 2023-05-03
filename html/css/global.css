@@ -330,8 +330,10 @@ input[type=checkbox].bigger {
 .funding-source {
     font-weight: bold;
     font-size: 1.25em;
-    text-transform: uppercase;
     text-align: center;
+}
+.funding-citation {
+    text-transform: uppercase;
 }
 
 .error-message, .error_message {

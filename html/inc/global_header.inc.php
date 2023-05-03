@@ -56,7 +56,7 @@ $is_dev_site = global_settings::advanced_options_enabled();
 <head>
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/vendor/components/jqueryui/themes/base/jquery-ui.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/buttons.css?v=3">
-    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css?v=14">
+    <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/global.css?v=15">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/table.css?v=5">
     <link rel="stylesheet" type="text/css" href="<?php echo $SiteUrlPrefix; ?>/css/dropdown.css?v=3">
 <?php if (isset($LightweightTabs) && $LightweightTabs === true) { ?>
@@ -114,7 +114,8 @@ if (!$IsDisabled || $IsAdminUser) {
 
         <div class="content-holder">
             <h1 class="ruled"><?php echo $title; ?></h1>
-            <div class="funding-source">This web resource is supported by a Research Resource from the National Institute of General Medical Sciences (R24GM141196-01).</div>
+            <div class="funding-source funding-citation">This web resource is supported by a Research Resource from the National Institute of General Medical Sciences (R24GM141196-01).</div>
+            <div class="funding-source" style="margin-bottom: 25px">The tools are available without charge or license to both academic and commercial users.</div>
 
 <?php
 if (isset($ShowCitation) && !$IsDisabled) {
