@@ -1,0 +1,11 @@
+/var/www/efi-web/efi-est/log/*.log 
+/var/www/efi-web/efi-gnt/log/*.log
+/var/www/efi-web/shortbred/log/*.log
+{
+    weekly
+    rotate 10
+    notifempty
+    missingok
+    create 0660 apache apache
+}
+
