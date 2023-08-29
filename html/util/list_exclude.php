@@ -92,6 +92,4 @@ function clearSelection() {
 
 </html>
 
-<?php
-?>
 

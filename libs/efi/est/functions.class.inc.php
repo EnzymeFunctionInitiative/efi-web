@@ -516,8 +516,8 @@ class functions {
 
     public static function get_update_message() {
         $msg = 
-            "The EST database uses UniProt " . 
-            self::get_uniprot_version() . " and InterPro " . self::get_interpro_version() . ". ";
+            "EFI database version: " . 
+            self::get_uniprot_version() . " / " . self::get_interpro_version() . "";
         return $msg;
     }
 

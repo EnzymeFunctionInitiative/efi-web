@@ -90,7 +90,7 @@ Information on Pfam families and clans and InterPro family sizes is available on
 the <a href="family_list.php">Family Information page</a>.
 </p>
 
-<p><?php echo functions::get_update_message(); ?></p>
+<p style="text-transform: uppercase;text-align: center;font-weight: bold;font-size: 1.1em;"><?php echo functions::get_update_message(); ?></p>
 
 <?php
 include_once("inc/index_helpers.inc.php");
@@ -115,6 +115,7 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
         $("#main-tabs").tabs();
         $("#utility-tabs").tabs();
         $("#optionD-src-tabs").tabs();
+        $("#optionC-src-tabs").tabs();
 
         resetForms();
 
@@ -125,12 +126,16 @@ output_tab_page($db, $show_jobs_tab, $jobs, $tjobs, $use_advanced_options, $db_m
         $option_d_source = $mode_data["id_type"];
 ?>
         $("#optionD-src-tabs").data("source", "<?php echo $option_d_source; ?>");
+        $("#optionC-src-tabs").data("source", "uniprot");
 
         $(".tabs .tab-headers a").on("click", function(e) {
             var curAttrValue = $(this).attr("href");
             if (curAttrValue.substr(0, 15) == "#optionD-source") {
                 var source = curAttrValue.substr(16);
                 $("#optionD-src-tabs").data("source", source);
+            } else if (curAttrValue.substr(0, 15) == "#optionC-source") {
+                var source = curAttrValue.substr(16);
+                $("#optionC-src-tabs").data("source", source);
             }
         });
 

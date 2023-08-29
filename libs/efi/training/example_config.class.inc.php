@@ -169,6 +169,8 @@ class example_config {
         if ($is_example !== false && preg_match("/^[a-z0-9]+$/i", $is_example)) {
             if (!self::get_config_file($is_example))
                 $is_example = false;
+        } else {
+            $is_example = false;
         }
         return $is_example;
     }

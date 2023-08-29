@@ -8,9 +8,9 @@ class direct_gnd_file extends diagram_data_file {
 
     private $gnd_file = "";
 
-    public function __construct($gnd_file = "") {
+    public function __construct($db, $gnd_file = "") {
         $this->gnd_file = $gnd_file;
-        parent::__construct(-1);
+        parent::__construct($db, false, false);
     }
 
     protected function get_diagram_file_path() {

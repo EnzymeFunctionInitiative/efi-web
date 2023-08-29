@@ -18,15 +18,14 @@ class diagram_data_file extends arrow_api {
     private $blast_sequence;
     private $message = "";
 
-    public function __construct($id, $is_example = false) {
-        parent::__construct(NULL, $id, "diagram");
-        if ($id) {
-            $this->loaded = $this->load_data();
-            if ($is_example)
-                ; //TODO
-        } else {
-            $this->loaded = false;
-        }
+    public function __construct($db, $id = false, $is_example = false) {
+        parent::__construct($db, $id, "diagram");
+        $this->db = $db;
+        $this->loaded = $this->load_data();
+        if ($is_example)
+            ; //TODO
+        if ($id !== false && $id !== 0)
+            $this->job_status_obj = new \efi\job_status($this->db, $this);
     }
 
     public static function create($db, $email, $tmp_filename, $filename) {
@@ -49,7 +48,7 @@ class diagram_data_file extends arrow_api {
         );
 
         $result = $db->build_insert('diagram', $insert_array);
-        \efi\job_shared::insert_new($db, "diagram", $result);
+        \efi\job_status::insert_new_manual($db, $result, "diagram");
 
         if ($result) {
             functions::copy_to_uploads_dir($tmp_filename, $filename, $result, $uploadPrefix, $ext);
@@ -60,6 +59,8 @@ class diagram_data_file extends arrow_api {
         $info = array('id' => $result, 'key' => $key);
         return $info;
     }
+
+    protected function get_job_status_obj() { return $this->job_status_obj; }
 
     protected function get_diagram_file_path() {
         $dbFile = functions::get_diagram_file_path($this->id);

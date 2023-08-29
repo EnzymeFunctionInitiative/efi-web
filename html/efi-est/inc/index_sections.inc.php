@@ -369,27 +369,106 @@ sequence file.
 </p>
 
 <p>
-Two options are available for generating the SSN:
+The sequences in the FASTA file are used to calculate edge values.
 </p>
 
 <p>
-1)  The sequences are used "as is", with the node attributes including only the 
-information in the header as the description and the number of residues in the 
-sequence.
-</p>
-
-<p>
-2)  The ID in the header that immediately follows the "&gt;" is used to 
+The ID in the header that immediately follows the "&gt;" is used to 
 retrieve node attribute information.   Acceptable IDs include UniProt IDs, PDB 
 IDs, and NCBI GenBank IDs that have equivalent entries in the UniProt database.
 <span class="question" title="Click for more information on FASTA header formats"><a href="FASTA_Headers.pdf">?</a></span>
-To use this option, check the "Read FASTA headers" box.
+</p>
+
+<p>
+If the header for a sequence does not contain an acceptable ID for retrieving
+node attribute information, the SSN provides node attributes for only the
+sequence, sequence length, and the header as the Description.
+</p>
+
+<p>
+If the user identifies the input sequences as UniRef50 or UniRef90, the node
+attributes will include the UniRef Cluster Size and UniRef Cluster IDs node
+attributes.  The other node attributes will be lists of the values for UniRef
+cluster IDs in the node.
 </p>
 
 <?php $example_fn("DESC_END"); ?>
             
             <form name="optionCform" id="optionCform" method="post" action="">
 <?php $example_fn("WRAP_START"); ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <div class="tabs tabs-efihdr" id="optionC-src-tabs">
+                    <ul class="tab-headers">
+                        <li class="ui-tabs-active"><a href="#optionC-source-uniprot">Use UniProt IDs</a></li>
+                        <li><a href="#optionC-source-uniref">Use UniRef50 or UniRef90 Cluster IDs</a></li>
+                    </ul>
+                    <div class="tab-content" style="min-height: 250px">
+                        <div id="optionC-source-uniprot" class="tab ui-tabs-active">
+                            <p>
+                            Input FASTA-formatted sequences with UniProt accession IDs in the header or upload a file.
+                            </p>
+                            <div class="primary-input">
+                                <div class="secondary-name">
+                                    Sequences:
+                                </div>
+                                <textarea id="fasta-input-uniprot" name="fasta-input-uniprot"></textarea>
+                                <div>
+<?php echo ui::make_upload_box("FASTA File:", "fasta-file-uniprot", "progress-bar-fasta-uniprot", "progress-num-fasta-uniprot"); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="optionC-source-uniref" class="tab ui-tabs-panel ui-widget-content">
+                            <p>
+                            Input FASTA-formatted sequences with UniRef50 or UniRef90 accession IDs in the header or upload a file.
+                            </p>
+                            <div class="primary-input">
+                                <div class="secondary-name">
+                                    Sequences:
+                                </div>
+                                <textarea id="fasta-input-uniref" name="fasta-input-uniref"></textarea>
+                                <div>
+<?php echo ui::make_upload_box("FASTA ID File:", "fasta-file-uniref", "progress-bar-fasta-uniref", "progress-num-fasta-uniref"); ?>
+                                </div>
+                                <div id="fasta-seq-type-container" style="margin-top:15px">
+                                    <span class="input-name">Input accession IDs are:</span>
+                                    <select id="fasta-seq-type">
+                                        <option value="uniref90">UniRef90 cluster IDs</option>
+                                        <option value="uniref50">UniRef50 cluster IDs</option>
+                                    </select>
+                                    <a class="question" title="
+                                        The list of sequences that is put into
+                                        the tool will be end up being the node IDs, and node attributes with the UniRef clusters
+                                        will be included in the output SSN.">?</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+<?php /*
                 <div class="primary-input">
                     <div class="secondary-name">
                         Sequences:
@@ -400,6 +479,25 @@ To use this option, check the "Read FASTA headers" box.
                     </div>
                     <?php echo ui::make_upload_box("FASTA File:", "fasta-file", "progress-bar-fasta", "progress-num-fasta"); ?>
                 </div>
+ */ ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <?php $example_fn("WRAP_END"); ?>
 <?php $example_fn("POST_C_INPUT"); ?>
 

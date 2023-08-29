@@ -67,7 +67,7 @@ function get_upload_params($db, $P, $id, $key) {
     $P->gnn_key = $key;
     $P->gnn_id = $id;
 
-    $arrows = new diagram_data_file($P->gnn_id);
+    $arrows = new diagram_data_file($db, $P->gnn_id);
     $dkey = diagram_jobs::get_key($db, $P->gnn_id);
 
     if ($P->gnn_key != $dkey) {
@@ -106,7 +106,7 @@ function get_direct_params($db, $P, $id, $key) {
     if (!$validated)
         return false;
 
-    $arrows = new diagram_data_file($P->gnn_id);
+    $arrows = new diagram_data_file($db, $P->gnn_id);
     $query_type = "direct-id";
 
     return get_direct_params_shared($db, $P, $arrows, $query_type);
@@ -120,21 +120,23 @@ function get_direct_params_rs($db, $P, $rs_id, $rs_ver, $key) {
     $rs_ver = $_GET["rs-ver"];
     $gnd_file = functions::validate_direct_gnd_file($rs_id, $rs_ver, $P->gnn_key);
     if ($gnd_file !== false) {
-        $arrows = new direct_gnd_file($gnd_file);
+        $arrows = new direct_gnd_file($db, 0, $gnd_file);
         $validated = true;
     }
 
     $query_type = "rs-id";
     $P->is_superfamily_job = true;
 
-    if ($validated)
-        return get_direct_params_shared($db, $P, $arrows, $query_type, $rs_id, $rs_ver);
-    else
+    if ($validated) {
+        get_direct_params_shared($db, $P, $arrows, $query_type, $rs_id, $rs_ver);
+        return true;
+    } else {
         return false;
+    }
 }
 
 function get_direct_params_shared($db, $P, $arrows, $query_type, $rs_id = false, $rs_ver = "") {
-    if (!$arrows->is_loaded()) {
+    if (!$rs_id && !$arrows->is_loaded()) {
         error_log($arrows->get_message());
         return false;
         //error_404("Oops, something went wrong. Please send us an e-mail and mention the following diagnostic code: $P->gnn_id");
