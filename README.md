@@ -1,6 +1,8 @@
 # efi-web
 
-The web interface for the EFI Tools.
+[![Build Status](https://www.travis-ci.com/EnzymeFunctionInitiative/efi-web.svg?branch=master)](https://www.travis-ci.com/EnzymeFunctionInitiative/efi-web)
+
+The web interface for the EFI Tools, [https://github.com/EnzymeFunctionInitiative/EFITools](https://github.com/EnzymeFunctionInitiative/EFITools)
 
 
 # LINUX INSTALLATION

@@ -37,6 +37,7 @@ abstract class gnd {
 
 
     function __construct($db, $params, $factory, $is_example = false) {
+        $this->db = $db;
         $this->factory = $factory;
         $this->is_example = $is_example;
 
@@ -76,7 +77,7 @@ abstract class gnd {
             }
         } else if (isset($params['upload-id']) && functions::is_diagram_upload_id_valid($params['upload-id'])) {
             $gnn_id = $params['upload-id'];
-            $arrows = $this->factory->new_diagram_data_file($gnn_id);
+            $arrows = $this->factory->new_diagram_data_file($this->db, $gnn_id);
             if (settings::get_bigscape_enabled() && isset($params['bigscape']) && $params['bigscape']=="1") {
                 $bss = $this->factory->new_uploaded_bigscape_job($db, $gnn_id);
                 $has_bigscape = $bss->is_finished();
@@ -99,7 +100,7 @@ abstract class gnd {
                     $this->set_uniref_filter(90, $_GET['uniref90-id']);
             } else {
                 $gnn_id = $params['direct-id'];
-                $arrows = $this->factory->new_diagram_data_file($gnn_id);
+                $arrows = $this->factory->new_diagram_data_file($db, $gnn_id);
                 if (settings::get_bigscape_enabled() && isset($params['bigscape']) && $params['bigscape']=="1") {
                     $bss = $this->factory->new_uploaded_bigscape_job($db, $gnn_id);
                     $has_bigscape = $bss->is_finished();

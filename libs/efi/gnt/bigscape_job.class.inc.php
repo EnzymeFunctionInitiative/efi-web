@@ -116,7 +116,7 @@ class bigscape_job {
             "bigscape_job_type" => $job_type
         );
         $result = $db->build_insert("bigscape", $insertArray);
-        \efi\job_shared::insert_new($db, "bigscape", $result);
+        \efi\job_status::insert_new_manual($db, $result, "bigscape");
 
         return $result;
     }

@@ -133,15 +133,20 @@ function submitOptionCForm(famHelper, outputIds) {
     var optionId = "optc";
 
     var submitFn = function() {
+        var source = $("#optionC-src-tabs").data("source");
+
         var fd = new FormData();
         fd.append("option_selected", "C");
         addCommonFormData(optionId, fd);
         addParam(fd, "fasta_input", "fasta-input");
-        addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
+        if (source == "uniprot")
+            addParam(fd, "accession_seq_type", "uniprot");
+        else
+            addParam(fd, "accession_seq_type", "fasta-seq-type");
     
         var completionHandler = getDefaultCompletionHandler();
         var fileHandler = function(xhr) {};
-        var files = document.getElementById("fasta-file").files;
+        var files = document.getElementById("fasta-file-" + source).files;
         if (files.length > 0) {
             fd.append("file", files[0]);
             fileHandler = function(xhr) {
@@ -168,8 +173,6 @@ function submitOptionDForm(famHelper, outputIds) {
         fd.append("option_selected", "D");
         addCommonFormData(optionId, fd);
         addParam(fd, "accession_input", "accession-input-" + source);
-        addCbParam(fd, "accession_use_uniref", "accession-use-uniref");
-        addParam(fd, "accession_uniref_version", "accession-uniref-version");
         if (source == "uniprot")
             addParam(fd, "accession_seq_type", "uniprot");
         else

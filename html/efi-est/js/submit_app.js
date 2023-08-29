@@ -158,11 +158,17 @@ AppEstSubmit.prototype.getOptionCFormFn = function(outputIds) {
     var optionId = "optc";
 
     var submitFn = function() {
+        var source = $("#optionC-src-tabs").data("source");
+
         var fd = new FormData();
         fd.append("option_selected", "C");
         that.addCommonFormData(optionId, fd);
-        addParam(fd, "fasta_input", "fasta-input");
-        addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
+        //addParam(fd, "fasta_input", "fasta-input");
+        //addCbParam(fd, "fasta_use_headers", "fasta-use-headers");
+        if (source == "uniprot")
+            fd.append("accession_seq_type", "uniprot");
+        else
+            addParam(fd, "accession_seq_type", "fasta-seq-type");
     
         if ($("#domain-optc").prop("checked")) {
             fd.append("domain", true);
@@ -176,7 +182,7 @@ AppEstSubmit.prototype.getOptionCFormFn = function(outputIds) {
     
         var completionHandler = getDefaultCompletionHandler();
         var fileHandler = function(xhr) {};
-        var files = document.getElementById("fasta-file").files;
+        var files = document.getElementById("fasta-file-" + source).files;
         if (files.length > 0) {
             fd.append("file", files[0]);
             fileHandler = function(xhr) {
@@ -203,9 +209,8 @@ AppEstSubmit.prototype.getOptionDFormFn = function(outputIds) {
         fd.append("option_selected", "D");
         that.addCommonFormData(optionId, fd);
         addParam(fd, "accession_input", "accession-input-" + source);
-        addParam(fd, "accession_uniref_version", "accession-uniref-version");
         if (source == "uniprot")
-            addParam(fd, "accession_seq_type", "uniprot");
+            fd.append("accession_seq_type", "uniprot");
         else
             addParam(fd, "accession_seq_type", "accession-seq-type");
         addParam(fd, "accession_tax_job_id", "tax-source-job-id");

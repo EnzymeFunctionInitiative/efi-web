@@ -1,7 +1,7 @@
 <?php
 require_once(__DIR__."/../conf/settings_paths.inc.php");
 require_once(__BASE_DIR__."/includes/main.inc.php");
-require_once(__BASE_DIR__."/libs/global_settings.class.inc.php");
+require_once(__BASE_DIR__."/libs/efi/global_settings.class.inc.php");
 
 
 if (global_settings::get_website_enabled()) {

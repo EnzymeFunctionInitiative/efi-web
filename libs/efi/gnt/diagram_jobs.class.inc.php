@@ -7,6 +7,7 @@ use \efi\gnt\settings;
 use \efi\gnt\functions;
 use \efi\gnt\DiagramJob;
 use \efi\global_functions;
+use \efi\job_shared;
 
 
 class diagram_jobs {
@@ -149,7 +150,7 @@ class diagram_jobs {
 
         $result = $db->build_insert('diagram', $insertArray);
         $info = array('id' => $result, 'key' => $key);
-        \efi\job_shared::insert_new($db, "diagram", $result);
+        \efi\job_status::insert_new_manual($db, $result, "diagram");
 
         return $info;
     }

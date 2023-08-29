@@ -124,7 +124,7 @@ if ($is_error) {
 
 function get_arrow_db($db, $id, $key, $is_example) {
     //TODO: handle is_example
-    $arrows = new diagram_data_file($id, $is_example);
+    $arrows = new diagram_data_file($db, $id, $is_example);
     $dkey = diagram_jobs::get_key($db, $id, $is_example);
     $time_comp = diagram_jobs::get_time_completed($db, $id);
 

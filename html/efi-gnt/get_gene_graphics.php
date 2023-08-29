@@ -17,7 +17,7 @@ class gnd_job_factory extends job_factory {
     public function new_gnn($db, $id) { return $this->is_example !== false ? new \efi\gnt\gnn_example($db, $id, $this->is_example) : new gnn($db, $id); }
     public function new_gnn_bigscape_job($db, $id) { return new \efi\gnt\bigscape_job($db, $id, DiagramJob::GNN); }
     public function new_uploaded_bigscape_job($db, $id) { return new \efi\gnt\bigscape_job($db, $id, DiagramJob::Uploaded); }
-    public function new_diagram_data_file($id) { return new \efi\gnt\diagram_data_file($id); }
+    public function new_diagram_data_file($db, $id) { return new \efi\gnt\diagram_data_file($db, $id); }
     public function new_direct_gnd_file($file) { return new \efi\gnt\direct_gnd_file($file); }
 }
 
