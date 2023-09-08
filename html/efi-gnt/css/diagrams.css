@@ -291,6 +291,9 @@ i.active-filter-icon-clear {
 #window-tools select {
     color: #333;
 }
+input {
+    color: #333;
+}
 
 
 /* Arrows */

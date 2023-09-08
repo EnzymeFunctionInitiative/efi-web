@@ -290,7 +290,7 @@ class example_config {
             if (!self::is_est_job($data["job_type"]))
                 continue;
 
-            $sql = "SELECT generate_id, generate_key, generate_time_completed, generate_status, generate_type, generate_params FROM ${est_db}.${generate_table} ";
+            $sql = "SELECT generate_id, generate_key, generate_time_completed, generate_status, generate_type, generate_params FROM {$est_db}.{$generate_table} ";
             $func = function($val) use($generate_table) { return "generate_id = $val"; };
             $where = implode(" OR ", array_map($func, $data["job_ids"]));
     
@@ -322,7 +322,7 @@ class example_config {
             if ($data["job_type"] != "gnt")
                 continue;
 
-            $sql = "SELECT gnn_id, gnn_key, gnn_time_completed, gnn_status, gnn_params, gnn_parent_id, gnn_child_type FROM ${gnt_db}.${gnn_table} ";
+            $sql = "SELECT gnn_id, gnn_key, gnn_time_completed, gnn_status, gnn_params, gnn_parent_id, gnn_child_type FROM {$gnt_db}.{$gnn_table} ";
             $func = function($val) use($gnn_table) { return "gnn_id = $val"; };
             $where = implode(" OR ", array_map($func, $data["job_ids"]));
     
@@ -352,7 +352,7 @@ class example_config {
             if ($data["job_type"] != "cgfp")
                 continue;
 
-            $sql = "SELECT identify_id, identify_key, identify_time_completed, identify_params, identify_status, identify_parent_id FROM ${cgfp_db}.${id_table} ";
+            $sql = "SELECT identify_id, identify_key, identify_time_completed, identify_params, identify_status, identify_parent_id FROM {$cgfp_db}.{$id_table} ";
             $func = function($val) { return "identify_id = $val"; };
             $where = implode(" OR ", array_map($func, $data["job_ids"]));
     

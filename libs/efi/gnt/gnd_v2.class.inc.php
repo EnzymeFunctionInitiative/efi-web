@@ -150,7 +150,7 @@ class gnd_v2 extends gnd {
                 $uniref_table = $this->get_uniref_table_basename();
                 $uniref_table_suffix = "range";
                 $uniref_table_col = "uniref_index";
-                $uniref_table = "${uniref_table}_${uniref_table_suffix}";
+                $uniref_table = "{$uniref_table}_{$uniref_table_suffix}";
                 
                 $cluster_id_table = "cluster_id_uniref".$this->use_uniref."_attr_index";
                 $uniref_ids = $query_fn($ids, $cluster_id_table, $table_col);
@@ -169,7 +169,7 @@ class gnd_v2 extends gnd {
                 $table_suffix = "index";
                 $table_col = "member_index";
             }
-            return $query_fn($ids, "${base}_${table_suffix}", $table_col);
+            return $query_fn($ids, "{$base}_{$table_suffix}", $table_col);
         }
 
         return $ids;
@@ -318,7 +318,7 @@ class gnd_v2 extends gnd {
                 $where .= " AND ascore = '" . $db->escapeString($parts[1]) . "'";
 
             if ($use_uniref)
-                $table = "cluster_id_uniref${use_uniref}_range";
+                $table = "cluster_id_uniref{$use_uniref}_range";
             else
                 $table = "cluster_id_uniprot_range";
             $result = $query_fn($table, "", $cluster_id, $where);

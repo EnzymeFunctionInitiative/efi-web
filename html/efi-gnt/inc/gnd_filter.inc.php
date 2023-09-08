@@ -21,6 +21,7 @@ function render_filter_input($params) {
 <?php create_family_accordion_panel("PFam Families", "pfam"); ?>
 <?php create_family_accordion_panel("InterPro Families", "interpro"); ?>
                             </div>
+                            <div><input type="text" id="filter-search" /></div>
                             <button type="button" id="filter-clear"><i class="fas fa-times" aria-hidden="true"></i> Clear Filter</button>
                             <div class="active-filter-list" id="active-filter-list">
                             </div>

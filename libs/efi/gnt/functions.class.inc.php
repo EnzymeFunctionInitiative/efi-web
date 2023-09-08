@@ -234,9 +234,9 @@ class functions extends global_functions {
     }
 
     public static function update_results_object_tmpl($db, $prefix, $table, $column, $id, $data) {
-        $theCol = "${prefix}_${column}";
+        $theCol = "{$prefix}_{$column}";
 
-        $sql = "SELECT $theCol FROM $table WHERE ${prefix}_id='$id'";
+        $sql = "SELECT $theCol FROM $table WHERE {$prefix}_id='$id'";
         $result = $db->query($sql);
         if (!$result)
             return NULL;
@@ -249,7 +249,7 @@ class functions extends global_functions {
         $json = self::encode_object($results_obj);
         
         $sql = "UPDATE $table SET $theCol = '" . $db->escape_string($json) . "'";
-        $sql .= " WHERE ${prefix}_id='$id' LIMIT 1";
+        $sql .= " WHERE {$prefix}_id='$id' LIMIT 1";
         $result = $db->non_select_query($sql);
 
         return $result;
