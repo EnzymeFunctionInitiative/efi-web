@@ -230,7 +230,7 @@ class job_status {
             return;
         $col = $this->get_col_pfx();
         $table = $this->table;
-        $sql = "SELECT * FROM $table WHERE ${col}id = :id";
+        $sql = "SELECT * FROM $table WHERE {$col}id = :id";
         $db_result = $this->db->query($sql, array(":id" => $this->id));
         if (!$db_result || !isset($db_result[0]))
             throw new \RuntimeException("No ID found $this->id");
@@ -244,7 +244,7 @@ class job_status {
 
     private function set_status($status) {
         $col = $this->get_col_pfx();
-        $sql = "UPDATE " . $this->table . " SET ${col}status = :status WHERE ${col}id = :id";
+        $sql = "UPDATE " . $this->table . " SET {$col}status = :status WHERE {$col}id = :id";
         $params = array(":status" => $status, ":id" => $this->id);
         if (!defined("DEBUG"))
             $this->db->non_select_query($sql, $params);
@@ -280,7 +280,7 @@ class job_status {
             $time = "0000-00-00 00:00:00";
         $table = $this->table;
         $col = $this->get_col_pfx();
-        $sql = "UPDATE $table SET ${col}${time_col} = :the_tm WHERE ${col}id = :id";
+        $sql = "UPDATE $table SET {$col}{$time_col} = :the_tm WHERE {$col}id = :id";
         $params = array(":the_tm" => $time, ":id" => $this->id);
         if (!defined("DEBUG"))
             $this->db->non_select_query($sql, $params);

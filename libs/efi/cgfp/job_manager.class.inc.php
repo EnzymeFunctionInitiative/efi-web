@@ -45,20 +45,20 @@ class job_manager {
         $table = $this->table_name;
         $id_table = job_types::Identify;
         $q_table = job_types::Quantify;
-        $col_email = "${id_table}_email";
-        $col_key = "${id_table}_key";
-        $col_id = "${table}_id";
-        $col_status = "${table}_status";
-        $col_time_created = "${table}_time_created";
-        $col_time_started = "${table}_time_started";
-        $col_time_completed = "${table}_time_completed";
-        $col_filename = "${id_table}_filename";
-        $col_mg = "${q_table}_metagenome_ids";
-        $col_qid = "${q_table}_${id_table}_id";
-        $col_iparams = "${id_table}_params";
-        $col_qparams = "${q_table}_params";
-        $col_parent_id = "${id_table}_parent_id";
-        $col_job_name = "${q_table}_job_name";
+        $col_email = "{$id_table}_email";
+        $col_key = "{$id_table}_key";
+        $col_id = "{$table}_id";
+        $col_status = "{$table}_status";
+        $col_time_created = "{$table}_time_created";
+        $col_time_started = "{$table}_time_started";
+        $col_time_completed = "{$table}_time_completed";
+        $col_filename = "{$id_table}_filename";
+        $col_mg = "{$q_table}_metagenome_ids";
+        $col_qid = "{$q_table}_{$id_table}_id";
+        $col_iparams = "{$id_table}_params";
+        $col_qparams = "{$q_table}_params";
+        $col_parent_id = "{$id_table}_parent_id";
+        $col_job_name = "{$q_table}_job_name";
 
         $cols = implode(",", array($col_id, $col_key, $col_email, $col_status, $col_time_created, $col_time_started,
             $col_time_completed, $col_iparams, $col_parent_id));
@@ -86,7 +86,7 @@ class job_manager {
         $where_sql = "";
         $order_sql = "ORDER BY $col_id";
         if ($table == job_types::Quantify) {
-            $q_sql = "JOIN $id_table ON $table.${table}_identify_id = ${id_table}_id";
+            $q_sql = "JOIN $id_table ON $table.{$table}_identify_id = {$id_table}_id";
             $order_sql = "ORDER BY $table.$col_qid";
         }
         if (count($where_params) > 0) {

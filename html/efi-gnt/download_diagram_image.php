@@ -52,7 +52,7 @@ if ($type == "svg") {
             if (isset($matches[1]))
                 $height = $matches[1];
         }
-        $svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"${new_width}px\" height=\"${height}px\">" . $lsvg . $legend1_svg . $legend2_svg . "</svg>";
+        $svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{$new_width}px\" height=\"{$height}px\">" . $lsvg . $legend1_svg . $legend2_svg . "</svg>";
     }
 //    header('Content-type: text/plain');
     header('Content-type: image/svg+xml');

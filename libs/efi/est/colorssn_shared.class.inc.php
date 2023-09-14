@@ -372,7 +372,7 @@ abstract class colorssn_shared extends option_base {
         // Then try legacy file naming convention if the new convention doesn't exist
         if (!file_exists($file_path)) {
             $file_name = $this->get_file_name($type);
-            $file_path = "$base_dir/${file_name}";
+            $file_path = "$base_dir/{$file_name}";
         }
 
         if (!file_exists($file_path))

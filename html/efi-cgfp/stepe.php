@@ -67,7 +67,7 @@ require_once(__DIR__."/inc/stepe_vars.inc.php");
 //     $filename
 
 if (isset($_GET["as-table"])) {
-    $table_filename = "${identify_id}_q${qid}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_summary.txt";
+    $table_filename = "{$identify_id}_q{$qid}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_summary.txt";
     send_file::send_text($table_string, $table_filename, send_file::SEND_FILE_TABLE);
     exit(0);
 }

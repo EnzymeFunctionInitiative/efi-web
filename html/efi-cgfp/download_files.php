@@ -58,7 +58,7 @@ if ($is_error) {
 }
 
 if ($type !== false) {
-    $prefix = "${the_id}_${q_id}_";
+    $prefix = "{$the_id}_{$q_id}_";
     if ($is_example)
         $prefix = "";
 

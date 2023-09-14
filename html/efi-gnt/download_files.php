@@ -67,14 +67,14 @@ if ($is_error) {
 if (isset($type)) {
     if ($type == "data-file") {
         $gnn_name = $arrows->get_gnn_name();
-        $dl_filename = "${id}_${gnn_name}.sqlite";
+        $dl_filename = "{$id}_{$gnn_name}.sqlite";
         send_file::send($db_file, $dl_filename);
         exit(0);
     } elseif ($arrows === NULL) {
         $is_error = true;
     } elseif ($is_gnn == false && $type == "uniprot") {
         $gnn_name = $arrows->get_gnn_name();
-        $dl_filename = "${id}_${gnn_name}_UniProt_IDs.txt";
+        $dl_filename = "{$id}_{$gnn_name}_UniProt_IDs.txt";
         $ids = $arrows->get_uniprot_ids();
         $content = "UniProt ID\tQuery ID\n";
         foreach ($ids as $upId => $otherId) {
@@ -84,14 +84,14 @@ if (isset($type)) {
         exit(0);
     } elseif ($is_gnn == false && $type == "unmatched") {
         $gnn_name = $arrows->get_gnn_name();
-        $dl_filename = "${id}_${gnn_name}_Unmatched_IDs.txt";
+        $dl_filename = "{$id}_{$gnn_name}_Unmatched_IDs.txt";
         $ids = $arrows->get_unmatched_ids();
         $content = implode("\n", $ids);
         send_file::send_text($content, $dl_filename, send_file::SEND_FILE_BINARY);
         exit(0);
     } elseif ($is_gnn == false && $type == "blast") {
         $gnn_name = $arrows->get_gnn_name();
-        $dl_filename = "${id}_${gnn_name}_BLAST_Sequence.txt";
+        $dl_filename = "{$id}_{$gnn_name}_BLAST_Sequence.txt";
         $content = $arrows->get_blast_sequence();
         send_file::send_text($content, $dl_filename, send_file::SEND_FILE_BINARY);
         exit(0);
@@ -99,7 +99,7 @@ if (isset($type)) {
         $cluster_file = $arrows->get_bigscape_cluster_file();
         if ($cluster_file !== FALSE) {
             $gnn_name = $arrows->get_gnn_name();
-            $dl_filename = "${id}_${gnn_name}_BiG-SCAPE_clusters.txt";
+            $dl_filename = "{$id}_{$gnn_name}_BiG-SCAPE_clusters.txt";
             send_file::send($cluster_file, $dl_filename);
             exit(0);
         }

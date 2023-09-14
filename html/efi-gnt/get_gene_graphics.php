@@ -79,7 +79,7 @@ foreach ($data["data"] as $row) {
 
 $gnn_name = $gnd->get_job_name();
 
-$file_name = "${gnn_name}_gene_graphics.tsv";
+$file_name = "{$gnn_name}_gene_graphics.tsv";
 send_file::send_text($output, $file_name);
 
 

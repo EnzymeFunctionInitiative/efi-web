@@ -428,7 +428,7 @@ class analysis extends est_shared {
         $file_name = false;
         if ($type === file_types::FT_blast_evalue) {
             $id = $this->get_generate_id();
-            $file_name = "${id}_" . $this->get_name() . "_blast.tab";
+            $file_name = "{$id}_" . $this->get_name() . "_blast.tab";
         } else if ($ssn_idx >= 0) {
             $stats = $this->get_network_stats($ssn_idx);
             if ($stats === false) {

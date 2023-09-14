@@ -24,4 +24,5 @@ html/efi-est/stepc_nils.php
 html/efi-est/user_index.php
 html/efi-est/user_index2.php
 *.eni
+settings_paths.inc.php
 

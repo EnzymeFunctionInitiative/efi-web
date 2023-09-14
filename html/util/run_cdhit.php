@@ -29,9 +29,9 @@ if (isset($_FILES["fasta"]["tmp_name"]) && $_FILES["fasta"]["error"] == 0) {
     $pid = floatval($_POST["pid"]) / 100;
     $len = floatval($_POST["len"]) / 100;
 
-    $fasta_out_name = $file_info["filename"] . "_ov${pid}_sid${len}.fasta";
+    $fasta_out_name = $file_info["filename"] . "_ov{$pid}_sid{$len}.fasta";
     $fasta_out_path = "$temp_dir/$fasta_out_name";
-    $info_name = $file_info["filename"] . "_ov${pid}_sid${len}.txt";
+    $info_name = $file_info["filename"] . "_ov{$pid}_sid{$len}.txt";
     $info_path = "$temp_dir/$info_name";
 
     mkdir($temp_dir);

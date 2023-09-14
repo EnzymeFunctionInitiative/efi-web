@@ -44,7 +44,7 @@ HTML;
                 $quantify_id = $jobs[$i]["quantify_id"];
                 $title_str = "title=\"" . $jobs[$i]["full_job_name"] . "\"";
                 if ($is_completed) {
-                    $link_start = "<a class=\"hl-cgfp\" href=\"${script_dir}stepe.php?id=$id&key=$key&quantify-id=$quantify_id$ex_param\" $title_str>";
+                    $link_start = "<a class=\"hl-cgfp\" href=\"{$script_dir}stepe.php?id=$id&key=$key&quantify-id=$quantify_id$ex_param\" $title_str>";
                     $link_end = "</a>";
                 } else {
                     $link_start = "<span $title_str>";
@@ -57,10 +57,10 @@ HTML;
     
                 $name_style = "style=\"padding-left: 50px;\"";
                 $job_name = $name;
-                $job_info = "[${par_text}Quantify $quantify_id]";
+                $job_info = "[{$par_text}Quantify $quantify_id]";
                 $id_field = "";
             } else {
-                $link_start = $is_finished ? "<a class=\"hl-cgfp\" href=\"${script_dir}stepc.php?id=$id&key=$key$ex_param\">" : "";
+                $link_start = $is_finished ? "<a class=\"hl-cgfp\" href=\"{$script_dir}stepc.php?id=$id&key=$key$ex_param\">" : "";
                 $link_end = $is_finished ? "</a>" : "";
                 if ($last_bg_color == "#fff")
                     $last_bg_color = "#eee";
@@ -97,7 +97,7 @@ HTML;
     
             $html .= <<<HTML
                     <tr style="background-color: $last_bg_color">
-                        <td>$link_start${id_field}$link_end</td>
+                        <td>$link_start{$id_field}$link_end</td>
                         <td $name_style>$link_start<span class='job-name'>$job_name</span><br><span class='job-metadata'>$job_info</span>$link_end</td>
                         <td>$date_completed $job_action_code</td>
                     </tr>
@@ -165,7 +165,7 @@ HTML;
 
             if ($is_completed) {
                 $q_sql = "SELECT quantify_id, quantify_identify_id, quantify_time_completed, quantify_status, quantify_params, identify_parent_id, identify_params, identify_key " .
-                    "FROM ${cgfp_db}${quantify_table} JOIN ${cgfp_db}${identify_table} ON quantify_identify_id = identify_id " .
+                    "FROM {$cgfp_db}{$quantify_table} JOIN {$cgfp_db}{$identify_table} ON quantify_identify_id = identify_id " .
                     "WHERE (quantify_identify_id = $id_id OR identify_parent_id = $id_id) AND quantify_status != '" . __ARCHIVED__ . "'";
                 $q_rows = $db->query($q_sql);
 

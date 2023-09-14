@@ -7,12 +7,12 @@ class statistics
 
     public static function num_per_month($db, $table = "gnn", $extra_where = "") {
         $sql = "SELECT count(1) as count, ";
-        $sql .= "MONTHNAME(${table}_time_created) as month, ";
-        $sql .= "YEAR(${table}_time_created) as year ";
+        $sql .= "MONTHNAME({$table}_time_created) as month, ";
+        $sql .= "YEAR({$table}_time_created) as year ";
         $sql .= "FROM $table ";
         if ($extra_where)
             $sql .= " WHERE $extra_where ";
-        $sql .= "GROUP BY MONTH(${table}_time_created),YEAR(${table}_time_created) ORDER BY year,MONTH(${table}_time_created)";
+        $sql .= "GROUP BY MONTH({$table}_time_created),YEAR({$table}_time_created) ORDER BY year,MONTH({$table}_time_created)";
         return $db->query($sql);
     }
 
@@ -121,14 +121,14 @@ class statistics
 
     public static function get_daily_jobs($db, $month, $year, $table = "gnn", $extra_where = "") {
         $sql = "SELECT count(1) as count, ";
-        $sql .= "DATE(${table}_time_created) as day ";
+        $sql .= "DATE({$table}_time_created) as day ";
         $sql .= "FROM $table ";
-        $sql .= "WHERE MONTH(${table}_time_created)='" . $month . "' ";
-        $sql .= "AND YEAR(${table}_time_created)='" . $year . "' ";
+        $sql .= "WHERE MONTH({$table}_time_created)='" . $month . "' ";
+        $sql .= "AND YEAR({$table}_time_created)='" . $year . "' ";
         if ($extra_where)
             $sql .= " AND $extra_where ";
-        $sql .= "GROUP BY DATE(${table}_time_created) ";
-        $sql .= "ORDER BY DATE(${table}_time_created) ASC";
+        $sql .= "GROUP BY DATE({$table}_time_created) ";
+        $sql .= "ORDER BY DATE({$table}_time_created) ASC";
         $result = $db->query($sql);
         return self::get_day_array($result, 'day', 'count', $month, $year);
     }

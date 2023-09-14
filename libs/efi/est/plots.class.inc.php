@@ -26,7 +26,7 @@ abstract class plot {
     abstract function get_trace_var();
     abstract function get_layout_var();
 
-    public static function get_var($id, $var) { return "${id}_$var"; }
+    public static function get_var($id, $var) { return "{$id}_$var"; }
 }
 
 class plot_edge_evalue extends plot {

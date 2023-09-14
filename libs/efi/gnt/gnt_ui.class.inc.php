@@ -102,33 +102,33 @@ HTML;
         $idx = 0;
         foreach ($rows as $row) {
             $is_finished = false;
-            $status = $row["${gnn_table}_status"];
+            $status = $row["{$gnn_table}_status"];
             $comp = $status;
             if ($status == __FINISH__) {
-                $comp = $row["${gnn_table}_time_completed"];
+                $comp = $row["{$gnn_table}_time_completed"];
                 $comp = date_format(date_create($comp), "n/j h:i A");
                 $is_finished = true;
             } else if ($status == __NEW__) {
                 $comp = "PENDING";
             }
-            $params = global_functions::decode_object($row["${gnn_table}_params"]);
+            $params = global_functions::decode_object($row["{$gnn_table}_params"]);
             $filename = pathinfo($params["filename"], PATHINFO_BASENAME);
             $job_name = "<span class='job-name'>$filename</span><br><span class='job-metadata'>Neighborhood Size=" . $params["neighborhood_size"] . " Co-occurrence=" . $params["cooccurrence"] . "</span>";
 
-            $id = $row["${gnn_table}_id"];
-            $job_info = array("id" => $id, "key" => $row["${gnn_table}_key"], "filename" => $job_name, "completed" => $comp, "is_child" => false, "is_finished" => $is_finished);
+            $id = $row["{$gnn_table}_id"];
+            $job_info = array("id" => $id, "key" => $row["{$gnn_table}_key"], "filename" => $job_name, "completed" => $comp, "is_child" => false, "is_finished" => $is_finished);
 
             $is_child = false;
-            if (isset($row["${gnn_table}_parent_id"]) && $row["${gnn_table}_parent_id"]) {
+            if (isset($row["{$gnn_table}_parent_id"]) && $row["{$gnn_table}_parent_id"]) {
                 // Get parent email address and if it's not the same as the current email address then treat this job
                 // as a normal job.
-                $sql = "SELECT gnn_email FROM gnn WHERE gnn_id = " . $row["${gnn_table}_parent_id"];
+                $sql = "SELECT gnn_email FROM gnn WHERE gnn_id = " . $row["{$gnn_table}_parent_id"];
                 $parent_row = $db->query($sql);
                 $is_child = !$parent_row || $parent_row[0]["gnn_email"] == $email || !$email;  // !$email is true for training jobs
             }
 
             if ($is_child) {
-                $parent_id = $row["${gnn_table}_parent_id"];
+                $parent_id = $row["{$gnn_table}_parent_id"];
                 $job_info["is_child"] = true;
                 $job_info["parent_id"] = $parent_id;
                 if (isset($child_jobs[$parent_id]))
@@ -174,11 +174,11 @@ HTML;
             $date_completed = $jobs[$i]["completed"];
             $is_active = $date_completed == "PENDING" || $date_completed == "RUNNING";
         
-            $link_start = $is_active ? "" : "<a class=\"hl-gnt\" href=\"${base_url_dir}stepc.php?id=$id&key=$key$example_arg\">";
+            $link_start = $is_active ? "" : "<a class=\"hl-gnt\" href=\"{$base_url_dir}stepc.php?id=$id&key=$key$example_arg\">";
             $link_end = $is_active ? "" : "</a>";
             $link_start .= "<span title='$id'>";
             $link_end = "</span>" . $link_end;
-            $id_text = "$link_start${id}$link_end";
+            $id_text = "$link_start{$id}$link_end";
         
             $name_style = "";
             if ($jobs[$i]["is_child"]) {
@@ -192,12 +192,12 @@ HTML;
             }
         
             if (array_key_exists("diagram", $jobs[$i]))
-                $link_start = "<a class=\"hl-gnt\" href='${base_url_dir}view_diagrams.php?upload-id=$id&key=$key$example_arg'>";
+                $link_start = "<a class=\"hl-gnt\" href='{$base_url_dir}view_diagrams.php?upload-id=$id&key=$key$example_arg'>";
         
             $html .= <<<HTML
                     <tr style="background-color: $last_bg_color">
                         <td>$id_text</td>
-                        <td $name_style>$link_start${name}$link_end</td>
+                        <td $name_style>$link_start{$name}$link_end</td>
                         <td>$date_completed</td>
                     </tr>
 HTML;

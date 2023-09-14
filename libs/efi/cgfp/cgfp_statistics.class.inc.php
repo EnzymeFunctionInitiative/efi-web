@@ -16,12 +16,12 @@ class cgfp_statistics {
 
     private static function get_table_daily_jobs($db, $table, $month, $year) {
         $sql = "SELECT count(1) as count, ";
-        $sql .= "DATE(${table}.${table}_time_created) as day ";
-        $sql .= "FROM ${table} ";
-        $sql .= "WHERE MONTH(${table}.${table}_time_created)='$month' ";
-        $sql .= "AND YEAR(${table}.${table}_time_created)='$year' ";
-        $sql .= "GROUP BY DATE(${table}.${table}_time_created) ";
-        $sql .= "ORDER BY DATE(${table}.${table}_time_created) ASC";
+        $sql .= "DATE({$table}.{$table}_time_created) as day ";
+        $sql .= "FROM {$table} ";
+        $sql .= "WHERE MONTH({$table}.{$table}_time_created)='$month' ";
+        $sql .= "AND YEAR({$table}.{$table}_time_created)='$year' ";
+        $sql .= "GROUP BY DATE({$table}.{$table}_time_created) ";
+        $sql .= "ORDER BY DATE({$table}.{$table}_time_created) ASC";
         $result = $db->query($sql);
         return self::get_day_array($result, 'day', 'count', $month, $year);
     }

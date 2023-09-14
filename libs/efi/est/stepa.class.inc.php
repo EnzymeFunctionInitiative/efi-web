@@ -310,13 +310,13 @@ class stepa extends est_shared {
         $job_name = $this->get_job_name();
         $id = $this->get_id();
         if ($job_name)
-            $file_name = "${job_name}_$file_name";
-        $file_name = "${id}_$file_name";
+            $file_name = "{$job_name}_$file_name";
+        $file_name = "{$id}_$file_name";
 
         $info["file_path"] = "$file_path.png";
         $info["file_name"] = "$file_name.png";
-        if (file_exists("${file_path}_sm.png"))
-            $info["small_path"] = "${file_path}_sm.png";
+        if (file_exists("{$file_path}_sm.png"))
+            $info["small_path"] = "{$file_path}_sm.png";
 
         return $info;
     }
