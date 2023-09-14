@@ -14,6 +14,7 @@ use \efi\training\example_config;
 // This is necessary so that the gnd class environment doesn't get clusttered
 // with the dependencies that gnn, etc. need.
 class gnd_job_factory extends job_factory {
+    private $is_example;
     function __construct($is_example) { $this->is_example = $is_example; }
     public function new_gnn($db, $id) { return $this->is_example !== false ? new gnn_example($db, $id, $this->is_example) : new gnn($db, $id); }
     public function new_gnn_bigscape_job($db, $id) { return new bigscape_job($db, $id, DiagramJob::GNN); }

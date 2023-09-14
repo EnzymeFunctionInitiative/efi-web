@@ -15,6 +15,9 @@ class gnd_v2 extends gnd {
     private $use_cluster_id_map = false;
     private $query = array(); // list of queried items
     private $range = array(); // range of cluster_index to retrieve
+    protected $uniref50_file;
+    protected $uniref90_file;
+    protected $page_size;
 
 
     function __construct($db, $params, $job_factory, $is_example = false) {

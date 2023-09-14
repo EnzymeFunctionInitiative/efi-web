@@ -18,6 +18,7 @@ class job_status {
     private $time_completed;
     private $pbs_number;
     private $col_pfx;
+    private $info_type;
 
 
     /**
