@@ -36,5 +36,9 @@ class gnd_params {
     public $nb_size;
     public $cooccurrence;
     public $gnn_name;
+
+    public $num_diagrams;
+    public $gnn_name_text;
+    public $window_title;
 }
 
