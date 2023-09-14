@@ -816,7 +816,7 @@ function output_gnn_jobs($gnnJobs) {
         $linkEnd = $isFinished ? "</a>" : "";
         $linkStart .= "<span title='$id'>";
         $linkEnd = "</span>" . $linkEnd;
-        $idText = "$linkStart${id}$linkEnd";
+        $idText = "$linkStart{$id}$linkEnd";
     
         $nameStyle = "";
         if ($gnnJobs[$i]["is_child"]) {
@@ -832,7 +832,7 @@ function output_gnn_jobs($gnnJobs) {
         $html .= <<<HTML
                     <tr style="background-color: $lastBgColor">
                         <td>$idText</td>
-                        <td $nameStyle>$linkStart${name}$linkEnd</td>
+                        <td $nameStyle>$linkStart{$name}$linkEnd</td>
                         <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="gnn" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
                     </tr>
 HTML;
@@ -859,7 +859,7 @@ function output_gnd_jobs($diagramJobs) {
     
         $html .= <<<HTML
                         <tr>
-                            <td>$linkStart${id}$linkEnd</td>
+                            <td>$linkStart{$id}$linkEnd</td>
                             <td>$linkStart<span class='job-name'>$name</span><br><span class='job-metadata'>$jobType</span>$linkEnd</td>
                             <td>$dateCompleted <div style="float:right" class="archive-btn" data-type="diagram" data-id="$id" data-key="$key" title="Archive Job"><i class="fas fa-trash-alt"></i></div></td>
                         </tr>

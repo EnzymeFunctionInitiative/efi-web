@@ -154,7 +154,7 @@ $res_table = new result_table($id_query_string, $size_data);
 $table_string = $table->as_string();
 
 if (isset($_GET["as-table"])) {
-    $table_filename = "${identify_id}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_identify_summary.txt";
+    $table_filename = "{$identify_id}_" . global_functions::safe_filename(pathinfo($filename, PATHINFO_FILENAME)) . "_identify_summary.txt";
     functions::send_table($table_filename, $table_string);
     exit(0);
 }
@@ -453,7 +453,7 @@ $(document).ready(function() {
 <?php
     foreach ($mg_db_list as $mg_db_id) {
         echo <<<HTML
-    $('#mgds-${mg_db_id}_search').multiselect({
+    $('#mgds-{$mg_db_id}_search').multiselect({
         search: {
             left: '<input type="text" name="ql" class="form-control" placeholder="Search..." />',
             right: '<input type="text" name="qr" class="form-control" placeholder="Search..." />',
@@ -495,7 +495,7 @@ function output_mg_sel($prefix, $mg_list) {
 <div class="row">
     <div class="col-xs-5">
         <b>Available metagenomes</b>:
-        <select id="${prefix}_search" name="from[]" multiple="multiple" size="8">
+        <select id="{$prefix}_search" name="from[]" multiple="multiple" size="8">
 HTML;
 
     foreach ($mg_list as $mg_id => $mg_name) {
@@ -507,15 +507,15 @@ HTML;
     </div>
     <div class="col-xs-2" style="text-align:center;">
         <div style="margin-top:45px"></div>
-        <button type="button" id="${prefix}_search_rightAll" class="light btn-select"><i class="fas fa-angle-double-right"></i></button>
-        <button type="button" id="${prefix}_search_rightSelected" class="light btn-select"><i class="fas fa-angle-right"></i></button>
-        <button type="button" id="${prefix}_search_leftSelected" class="light btn-select"><i class="fas fa-angle-left"></i></button>
-        <button type="button" id="${prefix}_search_leftAll" class="light btn-select"><i class="fas fa-angle-double-left"></i></button>
+        <button type="button" id="{$prefix}_search_rightAll" class="light btn-select"><i class="fas fa-angle-double-right"></i></button>
+        <button type="button" id="{$prefix}_search_rightSelected" class="light btn-select"><i class="fas fa-angle-right"></i></button>
+        <button type="button" id="{$prefix}_search_leftSelected" class="light btn-select"><i class="fas fa-angle-left"></i></button>
+        <button type="button" id="{$prefix}_search_leftAll" class="light btn-select"><i class="fas fa-angle-double-left"></i></button>
     </div>
     
     <div class="col-xs-5">
         <b>Metagenomes used for quantification</b>:
-        <select name="to[]" id="${prefix}_search_to" class="form-control" size="8" multiple="multiple"></select>
+        <select name="to[]" id="{$prefix}_search_to" class="form-control" size="8" multiple="multiple"></select>
     </div>
 </div>
 

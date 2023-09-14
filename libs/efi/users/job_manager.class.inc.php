@@ -105,18 +105,18 @@ class job_manager {
         $job_data = array();
 
         foreach ($rows as $result) {
-            $status = $result["${table}_status"];
-            $email = $result["${table}_email"];
-            $key = $result["${table}_key"];
-            $id = $result["${table}_id"];
+            $status = $result["{$table}_status"];
+            $email = $result["{$table}_email"];
+            $key = $result["{$table}_key"];
+            $id = $result["{$table}_id"];
             $info = "";
             //TODO: fix this hard coded schema stuff
             if ($table == "gnn") {
-                $parms = global_functions::decode_object($result["${table}_params"]);
+                $parms = global_functions::decode_object($result["{$table}_params"]);
                 $info = substr($parms["filename"], 0, 40);
             } elseif ($table == "identify") {
-                $parms = global_functions::decode_object($result["${table}_params"]);
-                $info = substr($parms["${table}_filename"], 0, 40);
+                $parms = global_functions::decode_object($result["{$table}_params"]);
+                $info = substr($parms["{$table}_filename"], 0, 40);
             } else {
                 $type = $result["generate_type"];
                 $parms = global_functions::decode_object($result["generate_params"]);
@@ -128,9 +128,9 @@ class job_manager {
             }
 
             $job_data[$id] = array("email" => $email, "key" => $key,
-                                           "time_completed" => $result["${table}_time_completed"],
-                                           "time_started" => $result["${table}_time_started"],
-                                           "time_created" => $result["${table}_time_created"],
+                                           "time_completed" => $result["{$table}_time_completed"],
+                                           "time_started" => $result["{$table}_time_started"],
+                                           "time_created" => $result["{$table}_time_created"],
                                            "status" => $status,
                                            "info" => $info,
                                            "groups" => array(),

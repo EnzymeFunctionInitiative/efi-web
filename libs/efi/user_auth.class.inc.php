@@ -205,7 +205,7 @@ class user_auth {
         $numDays = global_settings::get_retention_days();
         return global_functions::get_prior_date($numDays);
 //        $dt = new DateTime();
-//        $pastDt = $dt->sub(new DateInterval("P${numDays}D"));
+//        $pastDt = $dt->sub(new DateInterval("P{$numDays}D"));
 //        $mysqlDate = $pastDt->format("Y-m-d");
 //        return $mysqlDate;
     }

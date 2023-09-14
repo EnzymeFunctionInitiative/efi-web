@@ -150,9 +150,9 @@ function show_graphs($graph_type) {
 
     $graph_script = "../../shared/est_taxonomy/admin/stats_graph.php";
 
-    $get_array  = array('graph_type' => "${graph_type}_daily_jobs", 'month' => $month, 'year' => $year);
+    $get_array  = array('graph_type' => "{$graph_type}_daily_jobs", 'month' => $month, 'year' => $year);
     $graph_image = "<img src='$graph_script?" . http_build_query($get_array) . "' id='daily-graph'>";
-    $all_get_array  = array('graph_type' => "${graph_type}_monthly");
+    $all_get_array  = array('graph_type' => "{$graph_type}_monthly");
     $all_graph_image = "<img src='$graph_script?" . http_build_query($all_get_array) . "'>";
 
 ?>

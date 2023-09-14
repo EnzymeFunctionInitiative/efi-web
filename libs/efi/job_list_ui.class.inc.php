@@ -28,15 +28,15 @@ abstract class job_list_ui {
 
         $idx = 0;
         foreach ($rows as $row) {
-            $comp_result = self::get_completed_date_label($row["${the_table}_time_completed"], $row["${the_table}_status"]);
-            $params = global_functions::decode_object($row["${the_table}_params"]);
-            $job_name = $this->get_job_name($row["${the_table}_type"], $params);
+            $comp_result = self::get_completed_date_label($row["{$the_table}_time_completed"], $row["{$the_table}_status"]);
+            $params = global_functions::decode_object($row["{$the_table}_params"]);
+            $job_name = $this->get_job_name($row["{$the_table}_type"], $params);
 
             $comp = $comp_result[1];
             $is_completed = $comp_result[0];
 
-            $id = $row["${the_table}_id"];
-            $job_info = array("id" => $id, "key" => $row["${the_table}_key"], "job_name" => $job_name, "date_completed" => $comp, "is_completed" => $is_completed, "is_child" => false);
+            $id = $row["{$the_table}_id"];
+            $job_info = array("id" => $id, "key" => $row["{$the_table}_key"], "job_name" => $job_name, "date_completed" => $comp, "is_completed" => $is_completed, "is_child" => false);
             
             $extra_job_info = $this->get_extra_job_info($row, $params);
             if (is_array($extra_job_info)) {
@@ -102,7 +102,7 @@ HTML;
             $link_end = $is_active ? "" : "</a>";
             $link_start .= "<span title='$id'>";
             $link_end = "</span>" . $link_end;
-            $id_text = "$link_start${id}$link_end";
+            $id_text = "$link_start{$id}$link_end";
         
             $name_style = "";
             if ($this->check_for_indent($job)) {
@@ -122,7 +122,7 @@ HTML;
             $html .= <<<HTML
                     <tr style="background-color: $last_bg_color">
                         <td>$id_text</td>
-                        <td $name_style>$link_start${name}$link_end</td>
+                        <td $name_style>$link_start{$name}$link_end</td>
                         <td>$date_completed $action</td>
                     </tr>
 HTML;

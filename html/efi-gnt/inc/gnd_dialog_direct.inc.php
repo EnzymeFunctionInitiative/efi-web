@@ -28,7 +28,7 @@ function render_direct_job_dialogs($params) {
                             title="Download the list of UniProt IDs that are contained within the diagrams.">
                                 <button type="button" class="btn btn-default" id="save-uniprot-ids-btn">Save to File</button>
                         </a>
-                            <!--                            onclick='saveDataFn("<?php echo "${gnn_id}_${gnn_name}_UniProt_IDs.txt" ?>", "uniprot-ids")'>Save to File</button>-->
+                            <!--                            onclick='saveDataFn("<?php echo "{$gnn_id}_{$gnn_name}_UniProt_IDs.txt" ?>", "uniprot-ids")'>Save to File</button>-->
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div><!-- /.modal-content -->
@@ -50,7 +50,7 @@ function render_direct_job_dialogs($params) {
                             title="Download the list of IDs that were not matched to a UniProt ID.">
                                 <button type="button" class="btn btn-default" id="save-unmatched-ids-btn">Save to File</button>
                         </a>
-                            <!--                            onclick='saveDataFn("<?php echo "${gnn_id}_${gnn_name}_Unmatched.txt" ?>", "unmatched-ids")'>Save to File</button>-->
+                            <!--                            onclick='saveDataFn("<?php echo "{$gnn_id}_{$gnn_name}_Unmatched.txt" ?>", "unmatched-ids")'>Save to File</button>-->
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div><!-- /.modal-content -->

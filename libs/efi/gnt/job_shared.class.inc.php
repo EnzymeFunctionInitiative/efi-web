@@ -27,9 +27,9 @@ abstract class job_shared {
 
     protected function set_status($status) {
         $table = $this->table;
-        $sql = "UPDATE ${table} ";
-        $sql .= "SET ${table}_status='" . $status . "' ";
-        $sql .= "WHERE ${table}_id='" . $this->get_id() . "' LIMIT 1";
+        $sql = "UPDATE {$table} ";
+        $sql .= "SET {$table}_status='" . $status . "' ";
+        $sql .= "WHERE {$table}_id='" . $this->get_id() . "' LIMIT 1";
         $result = $this->db->non_select_query($sql);
         if ($result) {
             $this->status = $status;

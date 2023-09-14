@@ -176,7 +176,7 @@ class gnd_v2 extends gnd {
         }
 
         return $ids;
-        //$sql = "SELECT attributes.cluster_index AS clsuter_index FROM ${table}_
+        //$sql = "SELECT attributes.cluster_index AS clsuter_index FROM {$table}_
     }
 
 

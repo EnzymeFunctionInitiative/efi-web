@@ -314,7 +314,7 @@ class user_manager {
     public function get_user_stats($db_name, $table_name) {
         $stats = array();
 
-        $email_col = "${table_name}_email";
+        $email_col = "{$table_name}_email";
 
         $sql = "SELECT COUNT(*) AS count, $email_col FROM $db_name.$table_name GROUP BY $email_col";
         $results = $this->db->query($sql);

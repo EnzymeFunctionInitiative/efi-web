@@ -175,14 +175,14 @@ abstract class cgfp_shared {
 
     protected function load_job_shared($result, $params) {
         $table = $this->get_table_name();
-        $this->status = $result["${table}_status"];
-        $this->pbs_number = $result["${table}_pbs_number"];
-        $parent_field = "${table}_parent_id";
+        $this->status = $result["{$table}_status"];
+        $this->pbs_number = $result["{$table}_pbs_number"];
+        $parent_field = "{$table}_parent_id";
         if (isset($result[$parent_field]) && $result[$parent_field])
             $this->parent_id = $result[$parent_field];
 
-        if (isset($params["${table}_search_type"]) && settings::get_diamond_enabled())
-            $this->search_type = $params["${table}_search_type"];
+        if (isset($params["{$table}_search_type"]) && settings::get_diamond_enabled())
+            $this->search_type = $params["{$table}_search_type"];
         else
             $this->search_type = "";
 
@@ -391,8 +391,8 @@ abstract class cgfp_shared {
 
     private function update_pbs_number() {
         $table_name = $this->get_table_name();
-        $sql = "UPDATE ${tableName} SET ${tableName}_pbs_number='" . $this->pbs_number . "' ";
-        $sql .= "WHERE ${tableName}_id='" . $this->id . "'";
+        $sql = "UPDATE {$tableName} SET {$tableName}_pbs_number='" . $this->pbs_number . "' ";
+        $sql .= "WHERE {$tableName}_id='" . $this->id . "'";
         $this->db_query($sql);
     }
 
@@ -597,11 +597,11 @@ abstract class cgfp_shared {
         // Then try legacy file naming convention if the new convention doesn't exist
         if (!file_exists($file_path)) {
             $file_name = $this->get_file_name_base($file_type, $result_type);
-            $file_path = "$base_dir/${file_name}";
+            $file_path = "$base_dir/{$file_name}";
             // Legacy
             if (!file_exists($file_path)) {
                 $file_name = $this->get_file_name_base($file_type, $result_type, 1);
-                $file_path = "$base_dir/${file_name}";
+                $file_path = "$base_dir/{$file_name}";
             }
         }
 
@@ -633,7 +633,7 @@ abstract class cgfp_shared {
             $suffix = "_$suffix";
         $name = preg_replace("/.zip$/", ".xgmml", $filename);
         $name = preg_replace("/.xgmml$/", "$suffix.xgmml", $name);
-        $prefix = $this->use_prefix ? "${id}_" : "";
+        $prefix = $this->use_prefix ? "{$id}_" : "";
         return "$prefix$name";
     }
 

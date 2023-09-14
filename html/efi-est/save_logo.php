@@ -84,7 +84,7 @@ if (!isset($graphics[$cluster][$seq_type][$quality])) {
 }
 
 // This adds the SSN name on to the front
-$filename = $obj->get_output_file_name("${file_prefix}_${cluster}_${seq_type}_${quality}.$format");
+$filename = $obj->get_output_file_name("{$file_prefix}_{$cluster}_{$seq_type}_{$quality}.$format");
 $full_path = $obj->get_hmm_file_full_path($graphics[$cluster][$seq_type][$quality]["path"] . $file_ext);
 
 send_file::send($full_path, $filename, $mime_type);

@@ -148,7 +148,7 @@ HTML;
         if ($is_completed) {
             $aid_param = $row_type == RT_ANALYSIS ? "&analysis_id=$aid" : "";
             $ex_param = ($is_example !== false) ? "&x=".$is_example : "";
-            $link_start = "<a href='$script?id=$id&key=${key}${aid_param}${ex_param}' class='$link_class'>";
+            $link_start = "<a href='$script?id=$id&key={$key}{$aid_param}{$ex_param}' class='$link_class'>";
             $link_end = "</a>";
             $archive_icon = "fa-trash-alt";
             $request_type = "archive";
@@ -156,11 +156,11 @@ HTML;
             $archive_icon = "fa-trash-alt";
             $request_type = "archive";
         }
-        $id_text = "$link_start${id}$link_end";
+        $id_text = "$link_start{$id}$link_end";
         
         $indent = $row_type == RT_ANALYSIS ? 35 : ($row_type == RT_NESTED_COLOR ? 70 : ($row_type == RT_NESTED_COLOR_X2 ? 95 : 0));
         if ($indent) {
-            $name_style = "style=\"padding-left: ${indent}px;\"";
+            $name_style = "style=\"padding-left: {$indent}px;\"";
             if (!$show_all_ids)
                 $id_text = "";
             else
@@ -198,7 +198,7 @@ HTML;
         return <<<HTML
                     <tr style="background-color: $bg_color">
                         <td>$id_text</td>
-                        <td $name_style>$link_start${name}$link_end</td>
+                        <td $name_style>$link_start{$name}$link_end</td>
                         <td>$date_completed $status_update_html</td>
                     </tr>
 HTML;
