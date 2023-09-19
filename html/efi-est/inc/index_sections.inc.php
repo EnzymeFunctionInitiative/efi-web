@@ -780,18 +780,9 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
 ?>
         <div id="colorssntab" class="ui-tabs-panel ui-widget-content">
 
-            <p style="color: red">
-            <b>
-            An input SSN from the EFI-EST FASTA option should be generated using "Read
-            FASTA headers" from FASTA files with UniProt IDs in the headers.  Otherwise,
-            the summary tables and sets of IDs and sequences per cluster will not be
-            generated.
-            </b>
-            </p>
-
             <p>
                 <b>Clusters in the submitted SSN are identified, numbered and colored.</b>
-                Summary tables, sets of IDs and sequences per cluster are provided.
+                Summary tables, sets of IDs and sequences per cluster are provided for sequences identified by a UniProt ID.
             </p>
 
             <p>
