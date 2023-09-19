@@ -426,10 +426,20 @@ abstract class colorssn_shared extends option_base {
         if (!file_exists($all_nodes_file))
             return null;
         // Contains a zzz
-        if (strpos(file_get_contents($all_nodes_file), "zzz") !== false)
+        $lines = file($all_nodes_file);
+        $no_id_count = 0;
+        foreach ($lines as $line_num => $line) {
+            if (strpos($line, "zzz") !== false)
+                $no_id_count++;
+        }
+        if ($no_id_count == count($lines))
             return false;
         else
             return true;
+        //if (strpos(file_get_contents($all_nodes_file), "zzz") !== false)
+        //    return false;
+        //else
+        //    return true;
     }
 
 
