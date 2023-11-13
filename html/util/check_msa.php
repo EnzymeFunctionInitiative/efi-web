@@ -4,6 +4,10 @@ require_once(__DIR__."/../../init.php");
 require_once(__DIR__."/../../conf/settings_utils.inc.php");
 require_once(__DIR__."/../../libs/efi/send_file.class.inc.php");
 
+if (!defined("__ENABLE_ADVANCED_OPTIONS__") || !__ENABLE_ADVANCED_OPTIONS__) {
+    exit(1);
+}
+
 use efi\send_file;
 
 $temp_dir = __MSA_TEMP_DIR__;
