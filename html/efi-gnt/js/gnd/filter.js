@@ -178,21 +178,23 @@ class GndFilter {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // FAMILY METHODS
     //
-    getFamilies(sortById = true) { // All families, both types
-        return this.getFamiliesFromMap(this.familyMap, this.familyNames, sortById);
+    getFamilies(sortById = true, searchStr = null) { // All families, both types
+        return this.getFamiliesFromMap(this.familyMap, this.familyNames, sortById, searchStr);
     }
-    getPfamFamilies(sortById = true) {
-        var fams = this.getFamiliesFromMap(this.pfamList, this.familyNames, sortById);
+    getPfamFamilies(sortById = true, searchStr = null) {
+        var fams = this.getFamiliesFromMap(this.pfamList, this.familyNames, sortById, searchStr);
         return fams;
     }
-    getInterProFamilies(sortById = true) {
-        var fams = this.getFamiliesFromMap(this.interproList, this.familyNames, sortById);
+    getInterProFamilies(sortById = true, searchStr = null) {
+        var fams = this.getFamiliesFromMap(this.interproList, this.familyNames, sortById, searchStr);
         return fams;
     }
     //Private
-    getFamiliesFromMap(listMap, nameList, sortById) {
+    getFamiliesFromMap(listMap, nameList, sortById, searchStr = null) {
         var list = Object.keys(listMap);
         var fams = [];
+        if (searchStr == "")
+            searchStr = null;
         for (var i = 0; i < list.length; i++) {
             var famId = list[i];
             var famName = "";
@@ -202,7 +204,9 @@ class GndFilter {
                 famName = nameList[famId];
 
             var isSelected = famId in this.currentFamilies;
-            fams.push({Id: famId, Name: famName, Selected: isSelected});
+            var searchSource = sortById ? famId : famName;
+            if (searchStr == null || searchSource.includes(searchStr))
+                fams.push({Id: famId, Name: famName, Selected: isSelected});
         }
 
         if (sortById)

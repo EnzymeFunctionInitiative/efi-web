@@ -193,7 +193,7 @@ class GndUi {
             that.uiFilter.toggleAnnotationFilter(this.checked);
         });
     }
-    registerFilterFamilyGroup(pfamId, interproId) {
+    registerFilterFamilyGroup(pfamId, interproId, searchId) {
         var that = this;
         var toggleIndicator = function(e) {
             var obj = $(e)
@@ -214,6 +214,11 @@ class GndUi {
         });
         $(interproId).on("hide.bs.collapse", function() {
             toggleIndicator(this);
+        });
+        $(searchId).change(function(e) {
+            var str = $(this).val();
+            that.uiFilter.changeFamilySearch(str);
+            console.log(str);
         });
     }
     registerFilterClear(id) {

@@ -19,10 +19,10 @@ class data_retention {
 
     public function get_expired_jobs($table_name, $job_type) {
         $tname = $table_name;
-        $idfield = "${tname}_id";
-        $timefield = "${tname}_time_completed";
-        $timefield_started = "${tname}_time_started";
-        $statusfield = "${tname}_status";
+        $idfield = "{$tname}_id";
+        $timefield = "{$tname}_time_completed";
+        $timefield_started = "{$tname}_time_started";
+        $statusfield = "{$tname}_status";
         $exp_date = global_functions::get_file_retention_start_date();
         $archived_exp_date = global_functions::get_archived_retention_start_date();
         $failed_exp_date = global_functions::get_failed_retention_start_date();

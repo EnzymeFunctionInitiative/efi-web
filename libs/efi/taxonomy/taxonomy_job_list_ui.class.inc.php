@@ -18,7 +18,7 @@ class taxonomy_job_list_ui extends job_list_ui {
     }
 
     protected function get_job_name($job_type, $params) {
-        //$filename = pathinfo($params["${the_table}_filename"], PATHINFO_BASENAME);
+        //$filename = pathinfo($params["{$the_table}_filename"], PATHINFO_BASENAME);
         //$job_name = "<span class='job-name'>$filename</span><br>" . "</span>";
         $family_lookup_fn = function($family_id) {};
         $job_name = est_user_jobs_shared::build_job_name($params, $job_type, $family_lookup_fn);
@@ -35,7 +35,7 @@ class taxonomy_job_list_ui extends job_list_ui {
 
     protected function get_url($id, $key, $job) {
         $base_url_dir = global_settings::get_web_path("taxonomy");
-        return "${base_url_dir}/stepc.php?id=$id&key=$key";
+        return "{$base_url_dir}/stepc.php?id=$id&key=$key";
     }
     
     protected function check_for_indent($job) {

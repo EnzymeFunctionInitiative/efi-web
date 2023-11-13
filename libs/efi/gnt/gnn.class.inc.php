@@ -263,7 +263,7 @@ class gnn extends gnn_shared {
         $exec .= " --output-dir \"$output_dir\"";
         $exec .= " --queue " . $queue;
         $exec .= " --ssnin \"" . $target_ssnin . "\"";
-        $exec .= " --name \"${id}_" . $output_filename . "\"";
+        $exec .= " --name \"{$id}_" . $output_filename . "\"";
         $exec .= " --nb-size " . $this->get_size();
         $exec .= " --cooc " . $this->get_cooccurrence();
         $exec .= " --gnn " . $this->get_file_name(file_types::FT_ssn_gnn);
@@ -341,41 +341,41 @@ class gnn extends gnn_shared {
 
     public function get_color_ssn() {
         $name = "coloredssn";
-        return $this->shared_get_full_file_path("_${name}", ".xgmml");
+        return $this->shared_get_full_file_path("_{$name}", ".xgmml");
     }
     public function get_relative_color_ssn() {
         $name = "coloredssn";
-        return $this->shared_get_relative_file_path("_${name}", ".xgmml");
+        return $this->shared_get_relative_file_path("_{$name}", ".xgmml");
     }
     public function get_color_ssn_zip() {
         $name = "coloredssn";
-        return $this->shared_get_full_file_path("_${name}", ".zip");
+        return $this->shared_get_full_file_path("_{$name}", ".zip");
     }
 
     public function get_gnn() {
         $name = "ssn_cluster_gnn";
-        return $this->shared_get_full_file_path("_${name}", ".xgmml");
+        return $this->shared_get_full_file_path("_{$name}", ".xgmml");
     }
     public function get_relative_gnn() {
         $name = "ssn_cluster_gnn";
-        return $this->shared_get_relative_file_path("_${name}", ".xgmml");
+        return $this->shared_get_relative_file_path("_{$name}", ".xgmml");
     }
     public function get_gnn_zip() {
         $name = "ssn_cluster_gnn";
-        return $this->shared_get_full_file_path("_${name}", ".zip");
+        return $this->shared_get_full_file_path("_{$name}", ".zip");
     }
 
     public function get_pfam_hub() {
         $name = "pfam_family_gnn";
-        return $this->shared_get_full_file_path("_${name}", ".xgmml");
+        return $this->shared_get_full_file_path("_{$name}", ".xgmml");
     }
     public function get_relative_pfam_hub() {
         $name = "pfam_family_gnn";
-        return $this->shared_get_relative_file_path("_${name}", ".xgmml");
+        return $this->shared_get_relative_file_path("_{$name}", ".xgmml");
     }
     public function get_pfam_hub_zipfile() {
         $name = "pfam_family_gnn";
-        return $this->shared_get_full_file_path("_${name}", ".zip");
+        return $this->shared_get_full_file_path("_{$name}", ".zip");
     }
 
     public function get_warning_file() {
@@ -409,7 +409,7 @@ class gnn extends gnn_shared {
     }
     public function get_cluster_data_zip_file($domain_type, $seq_type) {
         $filename = self::get_data_zip_file_name($domain_type, $seq_type);
-        return $this->shared_get_full_file_path("_${filename}_IDs", ".zip");
+        return $this->shared_get_full_file_path("_{$filename}_IDs", ".zip");
     }
     private static function get_data_zip_file_name($domain_type, $seq_type) {
         $type_suffix = $seq_type == self::SEQ_UNIREF50 ? "UniRef50" : ($seq_type == self::SEQ_UNIREF90 ? "UniRef90" : "UniProt");
@@ -420,7 +420,7 @@ class gnn extends gnn_shared {
         if (!file_exists($this->get_cluster_data_zip_file($domain_type, $seq_type)))
             return "";
         $filename = self::get_data_zip_file_name($domain_type, $seq_type);
-        return $this->shared_get_relative_file_path("_${filename}_IDs", ".zip");
+        return $this->shared_get_relative_file_path("_{$filename}_IDs", ".zip");
     }
 
     public function get_fasta_zip_file($dom_type, $seq_type) {
@@ -735,7 +735,7 @@ class gnn extends gnn_shared {
         // Then try legacy file naming convention if the new convention doesn't exist
         if (!file_exists($file_path)) {
             $file_name = $this->get_file_name($type, $option);
-            $file_path = "$base_dir/${file_name}";
+            $file_path = "$base_dir/{$file_name}";
         }
 
         if (!file_exists($file_path))

@@ -66,9 +66,9 @@ class global_functions {
     }
 
     public static function update_results_object_tmpl($db, $prefix, $table, $column, $id, $data) {
-        $theCol = "${prefix}_${column}";
+        $theCol = "{$prefix}_{$column}";
 
-        $sql = "SELECT $theCol FROM $table WHERE ${prefix}_id='$id'";
+        $sql = "SELECT $theCol FROM $table WHERE {$prefix}_id='$id'";
         $result = $db->query($sql);
         if (!$result)
             return NULL;
@@ -81,7 +81,7 @@ class global_functions {
         $json = self::encode_object($results_obj);
 
         $sql = "UPDATE $table SET $theCol = " . $db->escape_string($json) . "";
-        $sql .= " WHERE ${prefix}_id='$id' LIMIT 1";
+        $sql .= " WHERE {$prefix}_id='$id' LIMIT 1";
         $result = $db->non_select_query($sql);
 
         return $result;
@@ -153,7 +153,7 @@ class global_functions {
 
     public static function get_prior_date($num_days_in_past) {
         $dt = new \DateTime();
-        $past_date = $dt->sub(new \DateInterval("P${num_days_in_past}D"));
+        $past_date = $dt->sub(new \DateInterval("P{$num_days_in_past}D"));
         $mysql_date = $past_date->format("Y-m-d");
         return $mysql_date;
     }
@@ -186,7 +186,7 @@ class global_functions {
         }
         $filename = $parts['filename'];
         $ext = $include_ext ? ".xgmml" : "";
-        return "${id}_$filename$suffix$ext";
+        return "{$id}_$filename$suffix$ext";
     }
 
     public static function verify_est_job($db, $est_id, $est_key, $ssn_idx) {

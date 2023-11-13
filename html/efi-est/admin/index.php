@@ -24,7 +24,7 @@ if ((isset($_POST['job-type']) && $_POST['job-type'] == "analysis") || (isset($_
     $job_type = "analysis";
 }
 
-$graph_type = "${job_type}_daily_jobs";
+$graph_type = "{$job_type}_daily_jobs";
 $get_array  = array('graph_type' => $graph_type, 'month' => $month, 'year' => $year);
 $graph_image = "<img src='stats_graph.php?" . http_build_query($get_array) . "' id='daily-graph'>";
 

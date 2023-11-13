@@ -276,7 +276,7 @@ $js_version = settings::get_js_version();
                     ui.registerFilterControl("#filter-cb-toggle");
                     ui.registerFilterClear("#filter-clear");
                     ui.registerFilterAnnotation("#filter-anno-toggle", "#filter-anno-toggle-text");
-                    ui.registerFilterFamilyGroup("#filter-accordion-panel-pfam", "#filter-accordion-panel-interpro");
+                    ui.registerFilterFamilyGroup("#filter-accordion-panel-pfam", "#filter-accordion-panel-interpro", "#filter-search");
                     ui.registerDiagramCountField("#diagrams-displayed-count", "#diagrams-total-count");
                     ui.registerLoaderMessage("#loader-message");
                     ui.registerProgressBar("#progress-bar");

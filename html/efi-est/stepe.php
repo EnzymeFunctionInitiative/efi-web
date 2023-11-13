@@ -125,7 +125,7 @@ $color_ssn_code_fn = function($ssn_index) use ($analysis_id, $email) {
 
 $num_ssns = $analysis->get_num_networks();
 for ($idx = 0; $idx < $num_ssns; $idx++) {
-    $gnt_args = "est-id=$analysis_id&est-key=$key&est-ssn=${idx}$ex_param";
+    $gnt_args = "est-id=$analysis_id&est-key=$key&est-ssn={$idx}$ex_param";
 
     $stats = $analysis->get_network_stats($idx);
     $fname = $stats["file"];

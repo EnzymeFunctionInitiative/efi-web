@@ -57,7 +57,7 @@ class user_jobs extends \efi\user_auth {
 
         $limit_period = 24; // hours
         $dt = new \DateTime();
-        $past_dt = $dt->sub(new \DateInterval("PT${limit_period}H"));
+        $past_dt = $dt->sub(new \DateInterval("PT{$limit_period}H"));
         $mysql_date = $past_dt->format("Y-m-d H:i:s");
         
         $sql = "SELECT COUNT(*) AS count FROM generate WHERE generate_time_created >= '$mysql_date' AND generate_email = '$email' AND (generate_status = '" . __RUNNING__ . "' OR generate_status = '" . __NEW__ . "')";

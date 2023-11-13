@@ -234,9 +234,9 @@ function get_job_list($results, $table, $job_level = LEVEL1, $get_id_type = GET_
         $jobs[0] = array();
 
     foreach ($results as $row) {
-        $id = $row["${table}_id"];
-        $key = $row["${table}_key"];
-        $date = global_functions::format_short_date($row["${table}_time_completed"], true);
+        $id = $row["{$table}_id"];
+        $key = $row["{$table}_key"];
+        $date = global_functions::format_short_date($row["{$table}_time_completed"], true);
         $info = get_info($row, $table);
         if ($job_level == LEVEL1) {
             $jobs[$id] = array("id" => $id, "key" => $key, "file" => $info["file"], "date" => $date, "info" => $info);
@@ -292,34 +292,34 @@ function get_info($row, $table) {
     $info = array();
 
     $params = array();
-    if (isset($row["${table}_params"]))
-        $params = global_functions::decode_object($row["${table}_params"]);
+    if (isset($row["{$table}_params"]))
+        $params = global_functions::decode_object($row["{$table}_params"]);
 
     $file = "";
-    if (isset($params["${table}_filename"]))
-        $file = $params["${table}_filename"];
+    if (isset($params["{$table}_filename"]))
+        $file = $params["{$table}_filename"];
     if (isset($params["filename"]))
         $file = $params["filename"];
-    elseif (isset($params["${table}_fasta_file"]))
-        $file = $params["${table}_fasta_file"];
-    elseif (isset($row["${table}_filename"]))
-        $file = $row["${table}_filename"];
+    elseif (isset($params["{$table}_fasta_file"]))
+        $file = $params["{$table}_fasta_file"];
+    elseif (isset($row["{$table}_filename"]))
+        $file = $row["{$table}_filename"];
 
     $est_source_id = 0;
-    if (isset($row["${table}_est_source_id"]))
-        $est_source_id = $row["${table}_est_source_id"];
-    elseif (isset($params["${table}_color_ssn_source_id"]))
-        $est_source_id = $params["${table}_color_ssn_source_id"];
+    if (isset($row["{$table}_est_source_id"]))
+        $est_source_id = $row["{$table}_est_source_id"];
+    elseif (isset($params["{$table}_color_ssn_source_id"]))
+        $est_source_id = $params["{$table}_color_ssn_source_id"];
 
     $gnt_source_id = 0;
-    if (isset($row["${table}_gnt_source_id"]))
-        $gnt_source_id = $row["${table}_gnt_source_id"];
+    if (isset($row["{$table}_gnt_source_id"]))
+        $gnt_source_id = $row["{$table}_gnt_source_id"];
 
     $parent_id = 0;
-    if (isset($row["${table}_parent_id"]))
-        $parent_id = $row["${table}_parent_id"];
-    elseif (isset($params["${table}_parent_id"]))
-        $parent_id = $params["${table}_parent_id"];
+    if (isset($row["{$table}_parent_id"]))
+        $parent_id = $row["{$table}_parent_id"];
+    elseif (isset($params["{$table}_parent_id"]))
+        $parent_id = $params["{$table}_parent_id"];
 
     $info["file"] = $file;
     if ($gnt_source_id)
@@ -478,17 +478,17 @@ function make_extra($extra) {
 function get_group_select_statement($db, $table, $user_email, $group_clause, $time_completed, $job_type = "", $addl_or_cond = "", $addl_and_cond = "") {
     $sql = "SELECT $table.* FROM $db.$table ";
     if ($group_clause)
-        $sql .= "LEFT OUTER JOIN $db.job_group ON $table.${table}_id = job_group.job_id WHERE $group_clause";
+        $sql .= "LEFT OUTER JOIN $db.job_group ON $table.{$table}_id = job_group.job_id WHERE $group_clause";
     else
-        $sql .= "WHERE ${table}_email = '$user_email'";
-    $sql .= " AND ${table}_status = 'FINISH'";
+        $sql .= "WHERE {$table}_email = '$user_email'";
+    $sql .= " AND {$table}_status = 'FINISH'";
     if ($time_completed)
-        $sql .= " AND ${table}_time_completed >= '$time_completed'";
+        $sql .= " AND {$table}_time_completed >= '$time_completed'";
     if ($job_type) {
         if (is_array($job_type))
-            $sql .= " AND (${table}_type = '" . implode("' OR ${table}_type = '", $job_type) . "')";
+            $sql .= " AND ({$table}_type = '" . implode("' OR {$table}_type = '", $job_type) . "')";
         else
-            $sql .= " AND ${table}_type = '$job_type'";
+            $sql .= " AND {$table}_type = '$job_type'";
     }
     if ($addl_or_cond)
         $sql .= " OR $addl_or_cond";

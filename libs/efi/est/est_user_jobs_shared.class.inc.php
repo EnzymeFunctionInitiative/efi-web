@@ -322,9 +322,9 @@ class est_user_jobs_shared {
 
         $jobs = array();
 
-        $map_fn = function ($row) use($generate_table) { return $row["${generate_table}_id"]; };
+        $map_fn = function ($row) use($generate_table) { return $row["{$generate_table}_id"]; };
         $id_order = array_map($map_fn, $rows);
-        $map_fn = function ($row) use($generate_table) { return $row["${generate_table}_status"]; };
+        $map_fn = function ($row) use($generate_table) { return $row["{$generate_table}_status"]; };
         $id_status = array_map($map_fn, $rows);
         $date_order = array();
 
@@ -334,20 +334,20 @@ class est_user_jobs_shared {
         $color_generate_id = array();
         $color_jobs = array();
         foreach ($rows as $row) {
-            $type = $row["${generate_table}_type"];
+            $type = $row["{$generate_table}_type"];
             if ($type != "COLORSSN" && $type != "CLUSTER" && $type != "NBCONN" && $type != "CONVRATIO")
                 continue;
 
-            $comp_result = self::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);
-            $job_name = self::build_job_name_json($row["${generate_table}_params"], $row["${generate_table}_type"], $familyLookupFn, $row["${generate_table}_id"]);
+            $comp_result = self::get_completed_date_label($row["{$generate_table}_time_completed"], $row["{$generate_table}_status"]);
+            $job_name = self::build_job_name_json($row["{$generate_table}_params"], $row["{$generate_table}_type"], $familyLookupFn, $row["{$generate_table}_id"]);
             $comp = $comp_result[1];
             $is_completed = $comp_result[0];
-            $id = $row["${generate_table}_id"];
-            $key = $row["${generate_table}_key"];
-            if ($row["${generate_table}_time_completed"])
-                $date_order[$id] = $row["${generate_table}_time_completed"];
+            $id = $row["{$generate_table}_id"];
+            $key = $row["{$generate_table}_key"];
+            if ($row["{$generate_table}_time_completed"])
+                $date_order[$id] = $row["{$generate_table}_time_completed"];
 
-            $params = global_functions::decode_object($row["${generate_table}_params"]);
+            $params = global_functions::decode_object($row["{$generate_table}_params"]);
             if (isset($params["generate_color_ssn_source_id"]) && $params["generate_color_ssn_source_id"]) {
                 $aid = $params["generate_color_ssn_source_id"];
                 $color_job = array("id" => $id, "key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp, "parent_aid" => $aid);
@@ -390,31 +390,31 @@ class est_user_jobs_shared {
 
         // Process all non Color SSN jobs.  Link analysis jobs to generate jobs and color SSN jobs to analysis jobs.
         foreach ($rows as $row) {
-            $type = $row["${generate_table}_type"];
+            $type = $row["{$generate_table}_type"];
             if ($type == "COLORSSN" || $type == "CLUSTER" || $type == "NBCONN" || $type == "CONVRATIO")
                 continue;
 
-            $comp_result = self::get_completed_date_label($row["${generate_table}_time_completed"], $row["${generate_table}_status"]);
+            $comp_result = self::get_completed_date_label($row["{$generate_table}_time_completed"], $row["{$generate_table}_status"]);
             //if ($row["generate_id"] == 22995) {
-            //    print($row["${generate_table}_status"]);
+            //    print($row["{$generate_table}_status"]);
             //    var_dump($comp_result);
             //    var_dump($row);
             //    die();
             //}
-            $job_name = self::build_job_name_json($row["${generate_table}_params"], $row["${generate_table}_type"], $familyLookupFn);
+            $job_name = self::build_job_name_json($row["{$generate_table}_params"], $row["{$generate_table}_type"], $familyLookupFn);
             $comp = $comp_result[1];
             $is_completed = $comp_result[0];
-            $id = $row["${generate_table}_id"];
-            $key = $row["${generate_table}_key"];
+            $id = $row["{$generate_table}_id"];
+            $key = $row["{$generate_table}_key"];
             
             $job_data = array("key" => $key, "job_name" => $job_name, "is_completed" => $is_completed, "date_completed" => $comp);
-            if ($row["${generate_table}_time_completed"])
-                $date_order[$id] = $row["${generate_table}_time_completed"];
+            if ($row["{$generate_table}_time_completed"])
+                $date_order[$id] = $row["{$generate_table}_time_completed"];
 
             $analysis_jobs = array();
             $has_analysis_date_order = false;
             if ($is_completed && $includeAnalysisJobs) {
-                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter, analysis_params FROM ${table_db}${analysis_table}" .
+                $sql = "SELECT analysis_id, analysis_time_completed, analysis_status, analysis_name, analysis_evalue, analysis_min_length, analysis_max_length, analysis_filter, analysis_params FROM {$table_db}{$analysis_table}" .
                     " WHERE analysis_generate_id = $id AND analysis_status != 'ARCHIVED'";
                 if (!$includeFailedAnalysisJobs)
                     $sql .= " AND analysis_status = 'FINISH'";

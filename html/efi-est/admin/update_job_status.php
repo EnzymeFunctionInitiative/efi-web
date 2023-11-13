@@ -14,9 +14,9 @@ $table = $job_type == "generate" ? "generate" : ($job_type == "analysis" ? "anal
 
 if ($table) {
     if ($a == "unarchive") {
-        $db->non_select_query("UPDATE ${table} SET ${table}_status = 'FINISH' WHERE ${table}_id = $job_id");
+        $db->non_select_query("UPDATE {$table} SET {$table}_status = 'FINISH' WHERE {$table}_id = $job_id");
     } else if ($a == "restart") {
-        $db->non_select_query("UPDATE ${table} SET ${table}_status = 'NEW' WHERE ${table}_id = $job_id");
+        $db->non_select_query("UPDATE {$table} SET {$table}_status = 'NEW' WHERE {$table}_id = $job_id");
     }
 }
 

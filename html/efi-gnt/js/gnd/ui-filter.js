@@ -97,6 +97,15 @@ class GndFilterUi {
     }
 
 
+    changeFamilySearch(searchText) {
+        if (searchText.length > 0)
+            this.familySearchFilter = searchText;
+        else
+            this.familySearchFilter = null;
+        this.addAllFamiliesToLegend();
+    }
+
+
     addAllFamiliesToLegend() {
         this.legendList = {};
         this.legendContainer.empty();
@@ -109,9 +118,9 @@ class GndFilterUi {
         var showFamsById = this.displayMode == DISPLAY_ID;
         var families = [];
         if (filterMode == FILTER_PFAM)
-            families = this.filter.getPfamFamilies(showFamsById);
+            families = this.filter.getPfamFamilies(showFamsById, this.familySearchFilter);
         else if (filterMode == FILTER_INTERPRO)
-            families = this.filter.getInterProFamilies(showFamsById);
+            families = this.filter.getInterProFamilies(showFamsById, this.familySearchFilter);
 
         var that = this;
 

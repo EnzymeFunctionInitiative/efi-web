@@ -17,6 +17,7 @@ class diagram_data_file extends arrow_api {
     private $job_type;
     private $blast_sequence;
     private $message = "";
+    private $job_status_obj;
 
     public function __construct($db, $id = false, $is_example = false) {
         parent::__construct($db, $id, "diagram");

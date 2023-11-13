@@ -10,7 +10,8 @@ if (isset($ExtraTitle) && $ExtraTitle)
 if (!isset($StyleAdditional))
     $StyleAdditional = array();
 array_push($StyleAdditional, '<link rel="stylesheet" type="text/css" href="css/training.css?v=1">',
-    '<link rel="stylesheet" type="text/css" href="'.$SiteUrlPrefix.'/css/tabs.css?v=2">');
+    '<link rel="stylesheet" type="text/css" href="'.$SiteUrlPrefix.'/css/tabs.css?v=2">',
+    '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">');
 
 $BannerImagePath = "$SiteUrlPrefix/images/efi_logo.png";
 
