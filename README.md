@@ -27,39 +27,21 @@ Open terminal.
 
 # DATABASE SETUP
 
-Create database efi_web, using SQL in sql/01_COMPLETE_ALL_TOOLS.sql
+Create database `efi_web`, using all of the SQL files in `sql`, applying them in order smallest to largest.
 
-After database is created, apply any other SQL files in sql
-
-Create user efi_web and set a password
+Create user `efi_web` and set a password
 
 This can be done with phpMySqlAdmin control panel, or with the terminal:
 
 For example:
 
     mysqladmin -u root create efi_web
-    mysql -u root efi_web < sql/01_COMPLETE_ALL_TOOLS.sql
+    mysql -u root efi_web < sql/06...
+    mysql -u root efi_web < sql/07...
+    mysql -u root efi_web < sql/08...
     mysql -u root efi_web < sql/create_user.sql.example
 
 MAKE SURE TO UPDATE THE PASSWORD IN sql/create_user.sql.example
-
-
-# CREATE UPLOAD DIRECTORIES
-
-    mkdir efi-est/uploads
-    chown www-data:www-data efi-est/uploads
-    mkdir efi-gnt/uploads
-    chown www-data:www-data efi-gnt/uploads
-    mkdir efi-cgfp/uploads
-    chown www-data:www-data efi-cgfp/uploads
-    mkdir efi-est/log
-    chown www-data:www-data efi-est/log
-    mkdir efi-gnt/log
-    chown www-data:www-data efi-gnt/log
-    mkdir efi-cgfp/log
-    chown www-data:www-data efi-cgfp/log
-
-where www-data is the Apache user/group (set appropriately).
 
 
 # EFI-WEB CONFIGURATION FILES
@@ -126,16 +108,6 @@ Change
     __UPLOAD_DIR__
     __LOG_FILE__
     __METAGENOME_DB_LIST__
-
-
-# LOAD SAMPLE DATA
-
-To use the sample data change __RETENTION_DAYS__ and __FILE_RETENTION_DAYS__ to 1000.  This should be set to the default of 30 on production systems.
-
-Download web_sample_data and family_sizes from https://efi.igb.illinois.edu/databases/sample_data/ and unzip.
-
-    mysql -u root efi_web < web_sample_data/install_examples.sql
-    mysql -u root efi_web < load_family_sizes.sql
 
 
 # MAKE SYMLINKS
