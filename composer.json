@@ -63,9 +63,8 @@
 
             "mkdir -p html/vendor/efiillinois/sunburst/php",
             "mkdir -p html/vendor/efiillinois/sunburst/web",
-            "cp -R vendor/efiillinois/sunburst/bin/* html/vendor/efiillinois/sunburst/php",
-            "cp -R vendor/efiillinois/sunburst/web/* html/vendor/efiillinois/sunburst/web",
-            "cp -R vendor-post/efiillinois/sunburst/bin/* html/vendor/efiillinois/sunburst/php"
+            "cp -R vendor/efiillinois/sunburst/php/* html/vendor/efiillinois/sunburst/php",
+            "cp -R vendor/efiillinois/sunburst/web/* html/vendor/efiillinois/sunburst/web"
         ]
     }
 }
