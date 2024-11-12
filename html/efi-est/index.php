@@ -11,6 +11,8 @@ use \efi\est\functions;
 use \efi\est\user_jobs;
 use \efi\sanitize;
 
+//global_header::check_for_maintenance_mode();
+
 
 $user_email = "Enter your e-mail address";
 
