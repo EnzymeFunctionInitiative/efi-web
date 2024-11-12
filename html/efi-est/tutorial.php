@@ -36,7 +36,7 @@ clusters.
 <h4>Generating a SSN</h4>
 
 <p>
-The generation of a SNN involves two steps. First, a set of sequences to 
+The generation of a SSN involves two steps. First, a set of sequences to 
 analyze is chosen, and an all-by-all 
 <a href="http://www.ncbi.nlm.nih.gov/books/NBK21097/">BLAST</a>
 is performed to determine, for each 
