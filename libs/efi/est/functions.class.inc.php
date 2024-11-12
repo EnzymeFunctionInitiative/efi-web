@@ -431,16 +431,6 @@ class functions {
         return $gen_type;
     }
 
-    public static function add_database($db,$db_date,$interpro,$unipro,$default = 0) {
-        $sql = "INSERT INTO db_version(db_version_date,db_version_interpro,db_version_unipro,db_version_default) ";
-        $sql .= "VALUES($db_date,$interpro,$unipro,$default)";
-        $result = $db->query($sql);
-        if ($result) {
-            return array('RESULT'=>true,'ID'=>$result,'MESSAGE'=>'Successfully added EFI-EST database');
-        }
-        return array('RESULT'=>false,'MESSAGE'=>'Error adding EFI-EST database version');
-
-    }
     public static function get_valid_fasta_filetypes() {
         $filetypes = explode(" ",__FASTA_FILETYPES__);
         return $filetypes;
