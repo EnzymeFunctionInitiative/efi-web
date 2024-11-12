@@ -18,7 +18,7 @@ $show_jobs_tab = false;
 $jobs = array();
 $tjobs = array(); // training jobs
 $IsAdminUser = false;
-if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie()) {
+if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie() && $db !== false) {
     $user_jobs = new taxonomy_jobs($db);
     $user_token = user_auth::get_user_token();
     $user_jobs->load_jobs($user_token);
