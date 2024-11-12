@@ -51,7 +51,7 @@ function prettyErrorExpired($message = "") {
     error_base($message, true, TYPE500, true);
 }
 function error_expired($header_file, $footer_file, $time_completed = "") {
-    require(__DIR__."/../init.php"); // Scope of variables has changed, so we need to re-include it.
+    require_once(__DIR__."/../init.php"); // Scope of variables has changed, so we need to re-include it.
     require_once($header_file);
     echo "<p class='center'><br>Your job results are only retained for a period of " . global_settings::get_retention_days(). " days";
     if ($time_completed)

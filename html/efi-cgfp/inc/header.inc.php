@@ -24,5 +24,5 @@ $BannerExtra = <<<HTML
                 </div>
 HTML;
 
-include_once(__BASE_DIR__ . "/html/inc/global_header.inc.php");
+require_once(__BASE_DIR__ . "/html/inc/global_header.inc.php");
 
