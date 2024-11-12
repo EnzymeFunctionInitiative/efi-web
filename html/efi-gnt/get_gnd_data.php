@@ -20,7 +20,7 @@ class gnd_job_factory extends job_factory {
     public function new_gnn_bigscape_job($db, $id) { return new bigscape_job($db, $id, DiagramJob::GNN); }
     public function new_uploaded_bigscape_job($db, $id) { return new bigscape_job($db, $id, DiagramJob::Uploaded); }
     public function new_diagram_data_file($db, $id) { return new diagram_data_file($db, $id); }
-    public function new_direct_gnd_file($file) { return new direct_gnd_file($db, $file); }
+    public function new_direct_gnd_file($db, $file) { return new direct_gnd_file($db, $file); }
 }
 
 

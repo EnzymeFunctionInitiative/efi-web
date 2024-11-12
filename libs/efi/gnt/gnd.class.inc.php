@@ -92,7 +92,7 @@ abstract class gnd {
                 if ($gnd_file === false)
                     $validated = true;
                 else
-                    $arrows = $this->factory->new_direct_gnd_file($gnd_file);
+                    $arrows = $this->factory->new_direct_gnd_file($db, $gnd_file);
                 //TODO:
                 if (isset($_GET['uniref50-id']))
                     $this->set_uniref_filter(50, $_GET['uniref50-id']);
