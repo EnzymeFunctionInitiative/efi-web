@@ -28,7 +28,7 @@ $is_enabled = \efi\global_settings::get_submit_enabled();
 $is_sb_enabled = global_settings::get_shortbred_enabled();
 $use_advanced_options = global_settings::advanced_options_enabled();
 
-if (user_auth::has_token_cookie()) {
+if (user_auth::has_token_cookie() && $db !== false) {
     $user_token = user_auth::get_user_token();
     $user_email = user_auth::get_email_from_token($db, $user_token);
     $IsAdminUser = user_auth::get_user_admin($db, $user_email);

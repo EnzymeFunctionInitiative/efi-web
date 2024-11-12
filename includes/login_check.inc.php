@@ -5,7 +5,7 @@ use \efi\user_auth;
 
 $IsLoggedIn = false;
 $IsAdminUser = false;
-if (user_auth::has_token_cookie()) {
+if (user_auth::has_token_cookie() && $db !== false) {
     $userEmail = user_auth::get_email_from_token($db, user_auth::get_user_token());
     if ($userEmail)
         $IsLoggedIn = $userEmail;

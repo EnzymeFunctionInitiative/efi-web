@@ -27,6 +27,7 @@ abstract class est_shared {
 
 
     public function get_table_name() { return $this->table; }
+    public function is_example() { return $this->is_example ? true : false; }
     
     public function get_email() { return $this->email; }
     public function set_email($email) { $this->email = $email; }

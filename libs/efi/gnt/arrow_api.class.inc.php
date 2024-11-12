@@ -14,8 +14,8 @@ abstract class arrow_api extends job_shared {
     private $gnn_name = "";
     protected $diagram_version = self::DEFAULT_DIAGRAM_VERSION;
 
-    public function __construct($db, $id, $db_field_prefix) {
-        parent::__construct($db, $id, $db_field_prefix);
+    public function __construct($db, $id, $db_field_prefix, $is_example) {
+        parent::__construct($db, $id, $db_field_prefix, $is_example);
     }
     
     public function get_diagram_version() { return $this->diagram_version; }

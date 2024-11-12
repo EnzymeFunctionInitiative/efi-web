@@ -20,7 +20,7 @@ class diagram_data_file extends arrow_api {
     private $job_status_obj;
 
     public function __construct($db, $id = false, $is_example = false) {
-        parent::__construct($db, $id, "diagram");
+        parent::__construct($db, $id, "diagram", $is_example);
         $this->db = $db;
         $this->loaded = $this->load_data();
         if ($is_example)

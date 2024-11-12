@@ -11,6 +11,8 @@ use \efi\est\functions;
 use \efi\est\user_jobs;
 use \efi\sanitize;
 
+//global_header::check_for_maintenance_mode();
+
 
 $user_email = "Enter your e-mail address";
 
@@ -19,7 +21,7 @@ $jobs = array();
 $tjobs = array(); // training jobs
 $IsAdminUser = false;
 $sort_method = user_jobs::SORT_TIME_COMPLETED;
-if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie()) {
+if (global_settings::get_recent_jobs_enabled() && user_auth::has_token_cookie() && $db !== false) {
     $sb = sanitize::get_sanitize_num("sb");
     if (isset($sb)) {
         if ($sb == user_jobs::SORT_TIME_ACTIVITY) {

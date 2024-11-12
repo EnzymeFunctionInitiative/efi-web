@@ -136,7 +136,7 @@ Proteomics, Volume 1854, Issue 8, 2015, Pages 1019-1037, ISSN 1570-9639,
         <a href="efi-cgfp/">
             <span class="block-hdr">Functional Profiling</span>
             <img src="images/about_heatmap.png" width="450">
-            Computationally-guided functional profiling using ShortBRED and the CGFP tools from
+            Chemically-guided functional profiling using ShortBRED and the CGFP tools from
             the Balskus and Huttenhower Labs at Harvard University.
         </a>
 <?php } ?>

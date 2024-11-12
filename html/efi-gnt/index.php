@@ -23,7 +23,7 @@ $gnnTrainingJobs = array();
 $gndTrainingJobs = array();
 $max_debug = false;
 
-if (settings::get_recent_jobs_enabled() && user_jobs::has_token_cookie()) {
+if (settings::get_recent_jobs_enabled() && user_jobs::has_token_cookie() && $db !== false) {
     $token = user_jobs::get_user_token();
     if (isset($_GET["max_debug"])) {
         $max_debug = true;

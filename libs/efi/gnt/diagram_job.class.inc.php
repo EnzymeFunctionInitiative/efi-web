@@ -29,7 +29,7 @@ class diagram_job extends arrow_api {
     public function get_key() { return $this->key; }
 
     public function __construct($db, $id) {
-        parent::__construct($db, $id, "diagram");
+        parent::__construct($db, $id, "diagram", false);
         $this->db = $db;
         $this->beta = settings::get_release_status();
         $this->load_job();

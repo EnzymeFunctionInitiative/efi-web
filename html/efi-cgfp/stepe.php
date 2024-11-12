@@ -1,6 +1,8 @@
 <?php 
 require_once(__DIR__."/../../init.php");
 
+require_once(__BASE_DIR__."/includes/login_check.inc.php");
+
 // In order to share as much code between the actual results page and the example results page
 // and make the example page as full-featured as possible, most of the contents of this file
 // are located in parts in the inc/ dir.

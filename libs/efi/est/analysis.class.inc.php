@@ -269,11 +269,13 @@ class analysis extends est_shared {
             $insert_array['analysis_params'] = global_functions::encode_object($params);
 
             $new_id = $this->db->build_insert("analysis",$insert_array);
-            $this->get_job_status_obj()->insert_new($new_id);
             if ($new_id) {
+                $this->get_job_status_obj()->insert_new($new_id);
                 return array('RESULT'=>true,'id'=>$new_id);
             } else {
-                $message = "Unknown database error";
+                $params_data = var_export($params, true);
+                $insert_data = var_export($insert_array, true);
+                throw new \RuntimeException("Unable to create new analysis job (params = $params_data) (insert = $insert_data)");
             }
         }
         return array('RESULT'=>!$errors,'MESSAGE'=>$message);

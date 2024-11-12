@@ -3,7 +3,7 @@ require_once(__DIR__."/../../../init.php");
 
 require_once(__CGFP_CONF_DIR__."/settings.inc.php");
 
-$Title = "EFI - Computationally-Guided Functional Profiling";
+$Title = "EFI - Chemically-Guided Functional Profiling";
 if (isset($ExtraTitle) && $ExtraTitle)
     $title = "$Title: $ExtraTitle";
 
@@ -24,5 +24,5 @@ $BannerExtra = <<<HTML
                 </div>
 HTML;
 
-include_once(__BASE_DIR__ . "/html/inc/global_header.inc.php");
+require_once(__BASE_DIR__ . "/html/inc/global_header.inc.php");
 

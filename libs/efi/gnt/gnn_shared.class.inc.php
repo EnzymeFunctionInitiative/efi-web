@@ -10,8 +10,8 @@ use \efi\gnt\arrow_api;
 
 abstract class gnn_shared extends arrow_api {
 
-    public function __construct($db, $id, $db_field_prefix) {
-        parent::__construct($db, $id, $db_field_prefix);
+    public function __construct($db, $id, $db_field_prefix, $is_example) {
+        parent::__construct($db, $id, $db_field_prefix, $is_example);
     }
 
     public static function create($db, $parms) {
