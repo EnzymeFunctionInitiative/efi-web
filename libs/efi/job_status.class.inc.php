@@ -35,6 +35,7 @@ class job_status {
         if (!isset($this->id))
             $this->id = 0; // new job
         $this->table = $job->get_table_name();
+        $this->is_example = $job->is_example();
         $this->info_type = self::find_info_type($this->table);
         $this->col_pfx = $this->table . "_";
         $this->load_status();
@@ -230,6 +231,8 @@ class job_status {
             return;
         $col = $this->get_col_pfx();
         $table = $this->table;
+        if ($this->is_example)
+            $table .= "_example";
         $sql = "SELECT * FROM $table WHERE {$col}id = :id";
         $db_result = $this->db->query($sql, array(":id" => $this->id));
         if (!$db_result || !isset($db_result[0]))

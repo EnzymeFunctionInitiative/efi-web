@@ -88,6 +88,7 @@ abstract class cgfp_shared {
     public function get_table_name() {
         return $this->table_name;
     }
+    public function is_example() { return $this->is_example ? true : false; }
 
     public function get_id() {
         return $this->id;

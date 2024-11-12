@@ -8,6 +8,7 @@ use \efi\global_functions;
 use \efi\gnt\settings;
 use \efi\gnt\functions;
 use \efi\file_types;
+use \efi\training\example_config;
 
 
 class gnn extends gnn_shared {
@@ -45,14 +46,21 @@ class gnn extends gnn_shared {
     protected $extra_ram = false;
 
     private $is_sync = false;
+    private $is_example = false;
 
     ///////////////Public Functions///////////
 
-    public function __construct($db, $id = 0, $is_sync = false, $load_gnn = true) {
-        parent::__construct($db, $id, "gnn");
+    public function __construct($db, $id = 0, $is_sync = false, $load_gnn = true, $is_example = false) {
+        $table = "gnn";
+        parent::__construct($db, $id, $table, $is_example);
+
+        if ($is_example) {
+            $this->is_example = $is_example;
+            $this->init_example($is_example);
+        }
 
         if ($id && $load_gnn) {
-            $this->load_gnn($id);
+            $this->load_gnn($id, $table);
         }
 
         $this->beta = settings::get_release_status();
@@ -61,6 +69,11 @@ class gnn extends gnn_shared {
     }
 
     public function __destruct() {
+    }
+
+    private function init_example($id) {
+        $config = example_config::get_example_data($id);
+        $this->ex_data_dir = example_config::get_gnt_data_dir($config);
     }
 
     protected function get_job_status_obj() { return $this->job_status_obj; }
@@ -1024,11 +1037,13 @@ class gnn extends gnn_shared {
         if (!$id)
             $id = $this->get_id();
         $base_dir = "";
-        if ($this->is_sync)
-            $base_dir = settings::get_sync_output_dir();
-        else
+        if ($this->is_example) {
+            $base_dir = $this->ex_data_dir;
+        } else {
             $base_dir = settings::get_output_dir();
-        return $base_dir . "/" . $id;
+        }
+        $dir = $base_dir . "/" . $id;
+        return $dir;
     }
 
     public function set_pbs_number($pbs_number) {

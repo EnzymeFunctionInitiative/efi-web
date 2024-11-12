@@ -57,7 +57,7 @@ $mime_type = send_file::SEND_FILE_BINARY;
 
 if ($dl_type == "gnn") {
     if (isset($ok_file_types[$sub_type])) {
-        $gnn = new gnn($db, $id, false, true);
+        $gnn = new gnn($db, $id, false, true, $is_example);
         validate_key($gnn, $key);
 
         $file_name = $gnn->get_file_name($sub_type);

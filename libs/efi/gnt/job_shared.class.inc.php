@@ -14,15 +14,18 @@ abstract class job_shared {
     protected $status;
     protected $pbs_number;
     private $table;
+    private $is_example;
 
     public function get_id() { return $this->id; }
     public function get_pbs_number() { return $this->pbs_number; }
     public function get_table_name() { return $this->table; }
+    public function is_example() { return $this->is_example ? true : false; }
 
-    public function __construct($db, $id, $table) {
+    public function __construct($db, $id, $table, $is_example) {
         $this->db = $db;
         $this->table = $table;
         $this->id = $id;
+        $this->is_example = $is_example;
     }
 
     protected function set_status($status) {
