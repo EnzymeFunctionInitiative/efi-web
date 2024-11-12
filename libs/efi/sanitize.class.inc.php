@@ -103,7 +103,7 @@ class sanitize {
         $env = $method === self::POST ? $_POST : $_GET;
         if (isset($env[$var]))
             $val = $env[$var];
-        if (isset($val) && preg_match("/^[A-Za-z0-9]+$/", $val))
+        if (isset($val) && preg_match("/^[A-Za-z0-9\-]+$/", $val))
             return $val;
         else
             return false;
