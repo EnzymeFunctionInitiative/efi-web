@@ -186,6 +186,10 @@ abstract class option_base extends stepa {
             $insert_array['generate_cpu_x2'] = $data->cpu_x2;
         if (isset($data->extra_ram) && is_numeric($data->extra_ram))
             $insert_array["extra_ram"] =  $data->extra_ram;
+        if (isset($data->program_sens) && is_numeric($data->program_sens))
+            $insert_array["program_sens"] = $data->program_sens;
+        if (isset($data->program_hits) && is_numeric($data->program_hits))
+            $insert_array["program_hits"] = $data->program_hits;
         return $insert_array;
     }
 

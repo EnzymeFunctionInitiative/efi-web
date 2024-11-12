@@ -33,6 +33,9 @@ AppEstSubmit.prototype.addCommonFormData = function(opt, fd) {
     var largeMem = $("#large-mem-" + opt).prop("checked");
     var exlFrag = $("#exclude-fragments-" + opt).prop("checked");
     var allSeq = $("#include-all-seq-" + opt).prop("checked");
+    var program = $("#program-" + opt).val();
+    var programSens = $("#program-sens-" + opt).val();
+    var programHits = $("#program-hits-" + opt).val();
 
     fd.append("email", email);
     fd.append("job-name", jobName);
@@ -50,6 +53,13 @@ AppEstSubmit.prototype.addCommonFormData = function(opt, fd) {
         fd.append("exclude-fragments", exlFrag);
     if (allSeq)
         fd.append("include-all-seq", allSeq);
+    if (program) {
+        fd.append("program", program);
+        if (programSens)
+            fd.append("program-sens", programSens);
+        if (programHits)
+            fd.append("program-hits", programHits);
+    }
     
     var extraRamId = opt + "-extra-ram";
     var extraRamChecked = $("#" + extraRamId).prop("checked");

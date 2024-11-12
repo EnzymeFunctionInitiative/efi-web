@@ -74,6 +74,8 @@ if (!$is_error && $option != "colorssn" && $option != "cluster" && $option != "n
 
     $input->evalue = sanitize::post_sanitize_num("evalue");
     $input->program = sanitize::post_sanitize_string("program");
+    $input->program_sens = sanitize::post_sanitize_num("program-sens");
+    $input->program_hits = sanitize::post_sanitize_num("program-hits");
     $input->fraction = sanitize::post_sanitize_num("fraction");
     $input->job_group = sanitize::post_sanitize_string("job-group");
     $input->db_mod = sanitize::post_sanitize_string("db-mod");

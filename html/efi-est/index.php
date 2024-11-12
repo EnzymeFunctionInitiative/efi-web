@@ -387,12 +387,19 @@ HTML;
             Select Program to use:
         </span><span class="input-field">
         <select name="program-$option_id" id="program-$option_id">
-            <option value="BLAST">BLAST</option>
+            <option selected="selected" value="BLAST">BLAST</option>
             <option value="BLAST+">BLAST+</option>
-            <option selected="selected" value="DIAMOND">Diamond</option>
+            <option value="DIAMOND">Diamond</option>
         	<option value="DIAMONDSENSITIVE">Diamond Sensitive</option>
+        	<option value="mmseqs2">MMseqs2</option>
         </select>
         </span>
+    </div>
+    <div>
+        Search sensitivity: <input name="program-sens-$option_id" id="program-sens-$option_id" value="4">
+    </div>
+    <div>
+        Number of hits: <input name="program-hits-$option_id" id="program-hits-$option_id" value="">
     </div>
 HTML;
     }

@@ -38,6 +38,8 @@ class input_data {
     // For option B, and E
     public $domain;
     public $program;
+    public $program_sens;
+    public $program_hits;
     public $length_overlap;
     public $uniref_version;  # If this is set to valid value (50 or 90) UniRef is used to generate the dataset.
     public $no_demux;  # In the case of Option E (Option B+) setting this forces a demux step to be executed.
