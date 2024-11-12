@@ -217,6 +217,9 @@ for ($i = 0; $i < count($histo_info); $i++) {
     sunburstApp.addSunburstFeatureAsync(onComplete);
 </script>
 
+<script src="html/taxonomy/js/export_sunburst.js">
+<script>addDownloadLinks()</script>
+
 <?php
 
 function get_tax_info_text($gen_type) {
