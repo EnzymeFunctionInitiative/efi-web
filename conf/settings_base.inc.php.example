@@ -67,6 +67,7 @@ define("__BLAST_MODULE__",__BIN_DIR__."/fastacmd");
 //define("__EFIDB_MODULES__","efidb/ipXX|IPXX,efidb/ipXX|IPXX");
 //define("__ENA_VERSIONS__","###,###");
 //define("__UNIPROT_VERSIONS__","2022_04,2022_03");
+//define("__INTERPRO_VERSIONS__","92,93");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STUFF FOR SITE MAINTENANCE AND ADMIN
