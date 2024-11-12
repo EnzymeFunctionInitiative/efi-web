@@ -796,7 +796,7 @@ function output_colorssn($use_advanced_options, $user_email, $show_example = fal
                 <div class="primary-input">
 <?php echo ui::make_upload_box("SSN File:", "colorssn-file", "progress-bar-colorssn", "progress-num-colorssn", "", "", $ssn_filename); ?>
                     <div>
-                        A Cytoscape-edited SNN can serve as input.
+                        A Cytoscape-edited SSN can serve as input.
                         The accepted format is XGMML (or compressed XGMML as zip).
                     </div>
                 </div>
@@ -882,7 +882,7 @@ function output_nc($use_advanced_options, $user_email, $show_example = false, $m
                 <div class="primary-input">
 <?php echo ui::make_upload_box("SSN File:", "nc-file", "progress-bar-nc", "progress-num-nc", "", "", $ssn_filename); ?>
                     <div>
-                        A Cytoscape-edited SNN can serve as input.
+                        A Cytoscape-edited SSN can serve as input.
                         The accepted format is XGMML (or compressed XGMML as zip).
                     </div>
                 </div>
@@ -1097,7 +1097,7 @@ function output_cluster($use_advanced_options, $user_email, $show_example = fals
                 <div class="primary-input">
 <?php echo ui::make_upload_box("SSN File:", "cluster-file", "progress-bar-cluster", "progress-num-cluster", "", "", $ssn_filename); ?>
                     <div>
-                        A Cytoscape-edited SNN can serve as input.
+                        A Cytoscape-edited SSN can serve as input.
                         The accepted format is XGMML (or compressed XGMML as zip).
                     </div>
                 </div>
@@ -1314,7 +1314,7 @@ function output_tutorial($show_jobs_tab = false) {
                     <p class="indentall">
                     Independent clusters in the uploaded SSN are identified, numbered and colored. 
                     Summary tables, sets of IDs and sequences per clusters are 
-                    provided. A Cytoscape-edited SNN can serve as input for this utility.
+                    provided. A Cytoscape-edited SSN can serve as input for this utility.
                     </p>
                 </li>
             </ul>
