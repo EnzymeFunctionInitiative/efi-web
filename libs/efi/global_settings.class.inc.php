@@ -37,7 +37,11 @@ class global_settings {
     }
 
     public static function get_base_web_path() {
-	return __BASE_WEB_PATH__;
+        if (defined("__BASE_WEB_PATH__"))
+            $prefix = __BASE_WEB_PATH__;
+        else
+            $prefix = "";
+        return $prefix;
     }
     public static function get_base_web_root() {
         return __BASE_WEB_ROOT__ . "/" . __BASE_WEB_PATH__;

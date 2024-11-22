@@ -3,6 +3,8 @@ require_once(__DIR__ . "/../../init.php");
 use \efi\global_settings;
 use \efi\global_header;
 
+$SiteUrlPrefix = global_settings::get_base_web_path();
+
 if (!isset($TopLevelUrl))
     $TopLevelUrl = __WEB_ROOT__;
 $web_path = __WEB_PATH__;

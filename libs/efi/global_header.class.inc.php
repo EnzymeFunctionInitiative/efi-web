@@ -20,7 +20,7 @@ CITATION;
         if (global_settings::get_website_enabled())
             return "";
 
-        $SiteUrlPrefix = get_site_url_prefix();
+        $SiteUrlPrefix = global_settings::get_base_web_path();
         $web_path = __WEB_PATH__;
         $BannerImagePath = "$SiteUrlPrefix/images/efi_logo.png";
         $title = "EFI Tools are Undergoing Maintenance";
