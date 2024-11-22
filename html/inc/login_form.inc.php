@@ -1,4 +1,5 @@
 <?php
+require_once(__DIR__."/../../init.php");
 if (!isset($IsDisabled))
     $IsDisabled = false;
 if (!isset($IsLoginPage))

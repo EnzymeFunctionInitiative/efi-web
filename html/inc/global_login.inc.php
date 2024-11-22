@@ -1,3 +1,6 @@
+<?php
+require_once(__DIR__."/../../init.php");
+?>
 
 <script>
 $(document).ready(function() {
@@ -17,6 +20,6 @@ $(document).ready(function() {
 </script>
 
 <?php
-include_once(__DIR__ . "/login_form.inc.php");
+require_once(__DIR__ . "/login_form.inc.php");
 ?>
 
