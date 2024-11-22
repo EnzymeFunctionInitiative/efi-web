@@ -18,7 +18,8 @@
         "php-console/php-console": "^3.1",
         "igbillinois/igbillinois-php": "dev-main",
         "efiillinois/taxonomy": "main-dev",
-        "efiillinois/sunburst": "main-dev"
+        "efiillinois/sunburst": "main-dev",
+        "kint-php/kint": ">=5"
     },
     "require-dev": {
         "phpmd/phpmd" : "@stable"
