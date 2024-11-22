@@ -362,7 +362,7 @@ abstract class family_shared extends option_base {
         $file_path = $results_dir . "/" . $this->get_output_dir() . "/tax.json";
         $data = file_get_contents($file_path);
         if ($data !== false) {
-            //$data = json_decode($data);
+            $data = json_decode($data);
             return $data;
         } else {
             return null;
